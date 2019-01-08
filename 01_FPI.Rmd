@@ -1,0 +1,43 @@
+# The Two Fundamental Problems of Inference
+
+When trying to estimate the effect of a program on an outcome, we face two very important and difficult problems: [the Fundamental Problem of Causal Inference (FPCI)](FPCI.html) and [the Fundamental Problem of Statistical Inference (FPSI)](FPSI.html).
+
+In its most basic form, the FPCI states that our causal parameter of interest ($TT$, short for Treatment on the Treated) is fundamentally unobservable, even when the sample size is infinite.
+The main reason for that is that one component of the $TT$, the outcome of the treated had they not received the program, remains unobservable.
+We call this outcome a counterfactual outcome.
+The FPCI is a very dispiriting result that is actually the basis for all of the econometric methods we are going to see in this class.
+All of these methods try to find ways to estimate the counterfactual by using observable quantities that hopefully approximate it as well as possible.
+Most people, including us but also policymakers, generally rely on intuitive quantities in order to generate the counterfactual (individuals without the program or individuals before the program was implemented).
+Unfortunately, these approximations are generally very crude, and the resulting estimators of $TT$ are generally biased, sometimes severely.
+
+The Fundamental Problem of Statistical Inference (FPSI) states that, even if we have an estimator $E$ that identifies $TT$ in the population, we cannot observe $E$ because we only have access to a finite sample of the population.
+The only thing that we can form from the sample is a sample equivalent $\hat{E}$ to the population quantity $E$, and $\hat{E}\neq E$.
+Why is $\hat{E}\neq E$? 
+Because a finite sample is never perfectly representative of the population.
+What can we do to deal with the FPSI?
+I am going to argue that there are mainly two things that we might want to do: estimating the extent of sampling noise and decreasing sampling noise.
+
+In order to state the FPCI, we are going to describe the basic language to encode causality set up by Rubin, and named [Rubin Causal Model (RCM)](RCM.html).
+RCM being about partly observed random variables, it is hard to make these notions concrete with real data.
+That's why we are going to use simulations from a simple model in order to make it clear how these variables are generated.
+The second virtue of this model is that it is going to make it clear the source of selection into the treatment.
+This is going to be useful when understanding biases of intuitive comparisons, but also to discuss the methods of causal inference.
+A third virtue of this approach is that it makes clear the connexion between the treatment effects literature and models.
+Finally, a fourth reason that it is useful is that it is going to give us a source of sampling variation that we are going to use to visualize and explore the properties of our estimators.
+
+I use $X_i$ to denote random variable $X$ all along the notes.
+I assume that we have access to a sample of $N$ observations indexed by $i\in\left\{1,\dots,N\right\}$. 
+''$i$'' will denote the basic sampling units when we are in a sample, and a basic element of the probability space when we are in populations.
+Introducing rigorous measure-theoretic notations for the population is feasible but is not necessary for comprehension.
+
+When the sample size is infinite, we say that we have a population.
+A population is a very useful fiction for two reasons.
+First, in a population, there is no sampling noise: we observe an infinite amount of observations, and our estimators are infinitely precise.
+This is useful to study phenomena independently of sampling noise.
+For example, it is in general easier to prove that an estimator is equal to $TT$ under some conditions in the population. 
+Second, we are most of the time much more interested in estimating the values of parameters in the population rather than in the sample.
+The population parameter, independent of sampling noise, gives a much better idea of the causal parameter for the population of interest than the parameter in the sample. 
+In general, the estimator for both quantities will be the same, but the estimators for the effetc of sampling noise on these estimators will differ.
+Sampling noise for the population parameter will generally be larger, since it is affected by another source of variability (sample choice). 
+
+
