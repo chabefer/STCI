@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Chapter 2 The Two Fundamental Problems of Inference | Statistical Tools for Causal Inference</title>
+  <title>Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook.">
-  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
 
-  <meta property="og:title" content="Chapter 2 The Two Fundamental Problems of Inference | Statistical Tools for Causal Inference" />
+  <meta property="og:title" content="Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   <meta name="github-repo" content="chabefer/STCI" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 2 The Two Fundamental Problems of Inference | Statistical Tools for Causal Inference" />
+  <meta name="twitter:title" content="Statistical Tools for Causal Inference" />
   
   <meta name="twitter:description" content="This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook." />
   
@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-04-05">
+<meta name="date" content="2019-04-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,7 +36,6 @@
 
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
@@ -67,13 +66,13 @@ $$
       <nav role="navigation">
 
 <ul class="summary">
-<li><a href="./">A Minimal Book Example</a></li>
+<li><a href="./">Statistical Tools for Causal Inference</a></li>
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
 <li class="chapter" data-level="2" data-path="the-two-fundamental-problems-of-inference.html"><a href="the-two-fundamental-problems-of-inference.html"><i class="fa fa-check"></i><b>2</b> The Two Fundamental Problems of Inference</a><ul>
-<li class="chapter" data-level="2.1" data-path="the-two-fundamental-problems-of-inference.html"><a href="the-two-fundamental-problems-of-inference.html#rubin-causal-model"><i class="fa fa-check"></i><b>2.1</b> Rubin Causal Model</a><ul>
-<li class="chapter" data-level="2.1.1" data-path="the-two-fundamental-problems-of-inference.html"><a href="the-two-fundamental-problems-of-inference.html#the-treatment-allocation-rule"><i class="fa fa-check"></i><b>2.1.1</b> The treatment allocation rule</a></li>
+<li class="chapter" data-level="2.1" data-path="the-two-fundamental-problems-of-inference.html"><a href="the-two-fundamental-problems-of-inference.html#the-fundamental-problem-of-causal-inference"><i class="fa fa-check"></i><b>2.1</b> The Fundamental Problem of Causal Inference</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="the-two-fundamental-problems-of-inference.html"><a href="the-two-fundamental-problems-of-inference.html#rubin-causal-model"><i class="fa fa-check"></i><b>2.1.1</b> Rubin Causal Model</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -99,29 +98,32 @@ $$
 <div id="the-two-fundamental-problems-of-inference" class="section level1">
 <h1><span class="header-section-number">Chapter 2</span> The Two Fundamental Problems of Inference</h1>
 <p>When trying to estimate the effect of a program on an outcome, we face two very important and difficult problems: <a href="FPCI.html">the Fundamental Problem of Causal Inference (FPCI)</a> and <a href="FPSI.html">the Fundamental Problem of Statistical Inference (FPSI)</a>.</p>
-<p>In its most basic form, the FPCI states that our causal parameter of interest (<span class="math inline">\(TT\)</span>, short for Treatment on the Treated) is fundamentally unobservable, even when the sample size is infinite. The main reason for that is that one component of the <span class="math inline">\(TT\)</span>, the outcome of the treated had they not received the program, remains unobservable. We call this outcome a counterfactual outcome. The FPCI is a very dispiriting result that is actually the basis for all of the econometric methods we are going to see in this class. All of these methods try to find ways to estimate the counterfactual by using observable quantities that hopefully approximate it as well as possible. Most people, including us but also policymakers, generally rely on intuitive quantities in order to generate the counterfactual (individuals without the program or individuals before the program was implemented). Unfortunately, these approximations are generally very crude, and the resulting estimators of <span class="math inline">\(TT\)</span> are generally biased, sometimes severely.</p>
+<p>In its most basic form, the FPCI states that our causal parameter of interest (<span class="math inline">\(TT\)</span>, short for Treatment on the Treated, that we will define shortly) is fundamentally unobservable, even when the sample size is infinite. The main reason for that is that one component of <span class="math inline">\(TT\)</span>, the outcome of the treated had they not received the program, remains unobservable. We call this outcome a counterfactual outcome. The FPCI is a very dispiriting result, and is actually the basis for all of the statistical methods of causal inference. All of these methods try to find ways to estimate the counterfactual by using observable quantities that hopefully approximate it as well as possible. Most people, including us but also policymakers, generally rely on intuitive quantities in order to generate the counterfactual (the individuals without the program or the individuals before the program was implemented). Unfortunately, these approximations are generally very crude, and the resulting estimators of <span class="math inline">\(TT\)</span> are generally biased, sometimes severely.</p>
 <p>The Fundamental Problem of Statistical Inference (FPSI) states that, even if we have an estimator <span class="math inline">\(E\)</span> that identifies <span class="math inline">\(TT\)</span> in the population, we cannot observe <span class="math inline">\(E\)</span> because we only have access to a finite sample of the population. The only thing that we can form from the sample is a sample equivalent <span class="math inline">\(\hat{E}\)</span> to the population quantity <span class="math inline">\(E\)</span>, and <span class="math inline">\(\hat{E}\neq E\)</span>. Why is <span class="math inline">\(\hat{E}\neq E\)</span>? Because a finite sample is never perfectly representative of the population. What can we do to deal with the FPSI? I am going to argue that there are mainly two things that we might want to do: estimating the extent of sampling noise and decreasing sampling noise.</p>
+<div id="the-fundamental-problem-of-causal-inference" class="section level2">
+<h2><span class="header-section-number">2.1</span> The Fundamental Problem of Causal Inference</h2>
 <p>In order to state the FPCI, we are going to describe the basic language to encode causality set up by Rubin, and named <a href="RCM.html">Rubin Causal Model (RCM)</a>. RCM being about partly observed random variables, it is hard to make these notions concrete with real data. That’s why we are going to use simulations from a simple model in order to make it clear how these variables are generated. The second virtue of this model is that it is going to make it clear the source of selection into the treatment. This is going to be useful when understanding biases of intuitive comparisons, but also to discuss the methods of causal inference. A third virtue of this approach is that it makes clear the connexion between the treatment effects literature and models. Finally, a fourth reason that it is useful is that it is going to give us a source of sampling variation that we are going to use to visualize and explore the properties of our estimators.</p>
 <p>I use <span class="math inline">\(X_i\)</span> to denote random variable <span class="math inline">\(X\)</span> all along the notes. I assume that we have access to a sample of <span class="math inline">\(N\)</span> observations indexed by <span class="math inline">\(i\in\left\{1,\dots,N\right\}\)</span>. ‘’<span class="math inline">\(i\)</span>’’ will denote the basic sampling units when we are in a sample, and a basic element of the probability space when we are in populations. Introducing rigorous measure-theoretic notations for the population is feasible but is not necessary for comprehension.</p>
 <p>When the sample size is infinite, we say that we have a population. A population is a very useful fiction for two reasons. First, in a population, there is no sampling noise: we observe an infinite amount of observations, and our estimators are infinitely precise. This is useful to study phenomena independently of sampling noise. For example, it is in general easier to prove that an estimator is equal to <span class="math inline">\(TT\)</span> under some conditions in the population. Second, we are most of the time much more interested in estimating the values of parameters in the population rather than in the sample. The population parameter, independent of sampling noise, gives a much better idea of the causal parameter for the population of interest than the parameter in the sample. In general, the estimator for both quantities will be the same, but the estimators for the effetc of sampling noise on these estimators will differ. Sampling noise for the population parameter will generally be larger, since it is affected by another source of variability (sample choice).</p>
-
-<div id="rubin-causal-model" class="section level2">
-<h2><span class="header-section-number">2.1</span> Rubin Causal Model</h2>
+<div id="rubin-causal-model" class="section level3">
+<h3><span class="header-section-number">2.1.1</span> Rubin Causal Model</h3>
 <p>The RCM is made of three distinct building blocks: a treatment allocation rule, that decides who receives the treatment; potential outcomes, that measure how each individual reacts to the treatment; the switching equation that relates potential outcomes to observed outcomes through the allocation rule.</p>
-<div id="the-treatment-allocation-rule" class="section level3">
-<h3><span class="header-section-number">2.1.1</span> The treatment allocation rule</h3>
+<div id="the-treatment-allocation-rule" class="section level4">
+<h4><span class="header-section-number">2.1.1.1</span> The treatment allocation rule</h4>
 <p>The first building block of the RCM is the treatment allocation rule. Throughout this class, we are going to be interested in inferring the causal effect of only one treatment with respect to a control condition. Extensions to multi-valued treatments are in general self-explanatory.</p>
 <p>In the RCM, treatment allocation is captured by the variable <span class="math inline">\(D_i\)</span>. <span class="math inline">\(D_i=1\)</span> if unit <span class="math inline">\(i\)</span> receives the treatment and <span class="math inline">\(D_i=0\)</span> if unit <span class="math inline">\(i\)</span> does not receive the treatment and thus remains in the control condition.</p>
 <p>The treatment allocation rule is critical for several reasons. First, because it switches the treatment on or off for each unit, it is going to be at the source of the FPCI. Second, the specific properties of the treatment allocatoin rule are going to matter for the feasibility and bias of the various econometric methods that we are going to study.</p>
 <p>Let’s take a few examples of allocation rules. First, let’s imagine a treatment that is given to individuals. Whether each individual receives the treatment partly depends on the level of her outcome before receiving the treatment. Let’s denote this variable <span class="math inline">\(Y^B_i\)</span>, with <span class="math inline">\(B\)</span> standing for “Before”. It can be the health status assessed by a professional before deciding to give a drug to a patient. It can be the poverty level of a household used to assess its eligibilty to a cash transfer program.</p>
-<div id="the-sharp-cutoff-rule" class="section level4">
-<h4><span class="header-section-number">2.1.1.1</span> The sharp cutoff rule</h4>
+<div id="the-sharp-cutoff-rule" class="section level5">
+<h5><span class="header-section-number">2.1.1.1.1</span> The sharp cutoff rule</h5>
 <p>The sharp cutoff rule means that everyone below some threshold <span class="math inline">\(\bar{Y}\)</span> is going to receive the treatment. Everyone whose outcome before the treatment lies above <span class="math inline">\(\bar{Y}\)</span> does not receive the treatment. Such rules can be found in reality in a lot of situations. They might be generated by administrative rules. One very simple way to model this rule is as follows:</p>
 <span class="math display">\[\begin{align}\label{eq:cutoff}
   D_i &amp; = \uns{Y_i^B\leq\bar{Y}},
 \end{align}\]</span>
 <p>where <span class="math inline">\(\uns{A}\)</span> is the indicator function, taking value <span class="math inline">\(1\)</span> when <span class="math inline">\(A\)</span> is true and <span class="math inline">\(0\)</span> otherwise.</p>
 
+
+</div>
 </div>
 </div>
 </div>
@@ -152,7 +154,7 @@ gitbook.start({
 "google": false,
 "linkedin": false,
 "weibo": false,
-"instapaper": false,
+"instapper": false,
 "vk": false,
 "all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
@@ -162,12 +164,8 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/rstudio/bookdown-demo/edit/master/01_FPI.Rmd",
+"link": "https://github.com/chabefer/STCI/01_FPI.Rmd",
 "text": "Edit"
-},
-"history": {
-"link": null,
-"text": null
 },
 "download": ["STCI.pdf", "STCI.epub"],
 "toc": {
@@ -183,7 +181,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:" && /^https?:/.test(src))
       src = src.replace(/^https?:/, '');
     script.src = src;
