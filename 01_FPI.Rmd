@@ -1,3 +1,9 @@
+```{r libraries,echo=FALSE,message=FALSE,error=FALSE}
+library(xtable)
+```
+
+
+
 # The Two Fundamental Problems of Inference
 
 When trying to estimate the effect of a program on an outcome, we face two very important and difficult problems: [the Fundamental Problem of Causal Inference (FPCI)](FPCI.html) and [the Fundamental Problem of Statistical Inference (FPSI)](FPSI.html).
@@ -79,5 +85,58 @@ One very simple way to model this rule is as follows:
 \end{align}
 
 where $\uns{A}$ is the indicator function, taking value $1$ when $A$ is true and $0$ otherwise.
+
+```{example, name="Sharp cutoff rule"}
+Imagine that $Y_i^B=\exp(y_i^B)$, with $y_i^B=\mu_i+U_i^B$, $\mu_i\sim\mathcal{N}(\bar{\mu},\sigma^2_{\mu})$ and $U_i^B\sim\mathcal{N}(0,\sigma^2_{U})$.
+Now, let's choose some values for these parameters so that we can generate a sample of individuals and allocate the treatment among them.
+I'm going to switch to R for that.
+```
+
+```{r param.init,eval=TRUE,echo=TRUE,results='markup'}
+param <- c(8,.5,.28,1500)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY")
+param
+```
+
+Now, I have choosen values for the parameters in my model. 
+For example, $\bar{\mu}=$ `r param["barmu"]` and $\bar{Y}=$ `r param["barY"]`.
+What remains to be done is to generate $Y_i^B$ and then $D_i$.
+For this, I have to choose a sample size ($N=1000$) and then generate the shocks from a normal.
+
+```{r YiBD,eval=TRUE,echo=TRUE,results='hide'}
+# for reproducibility, I choose a seed that will give me the same random sample each time I run the program
+set.seed(1234)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- ifelse(YB<=param["barY"],1,0) 
+```
+
+Let's now build a histogram of the data that we have just generated.
+
+```{r histyb,eval=TRUE,echo=TRUE,results='hide',fig.cap='Histogram of $y_B$',fig.align='center',out.width='.5\\textwidth'}
+# building histogram of yB with cutoff point at ybar
+# Number of steps
+Nsteps.1 <- 15
+#step width
+step.1 <- (log(param["barY"])-min(yB[Ds==1]))/Nsteps.1
+Nsteps.0 <- (-log(param["barY"])+max(yB[Ds==0]))/step.1
+breaks <- cumsum(c(min(yB[Ds==1]),c(rep(step.1,Nsteps.1+Nsteps.0+1))))
+hist(yB,breaks=breaks,main="")
+abline(v=log(param["barY"]),col="red")
+```
+
+You can see on Figure \@ref(fig:histyb) a histogram of $y_i^B$ with the red line indicating the cutoff point: $\bar{y}=\ln(\bar{Y})=$ `r round(log(param["barY"]),2)`.
+All the observations below the red line are treated according to the sharp rule while all the one located above are not.
+In order to see how many observations eventually receive the treatment with this allocation rule, let's build a contingency table.
+```{r table.D.sharp,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE}
+table.D.sharp <- table(Ds)
+xtable(table.D.sharp,caption='Treatment allocation with sharp cutoff rule',label='tab:table.D.sharp')
+```
+
+We can see on Table \@ref(tab:table.D.sharp) that there are `r table.D.sharp[which(names(table.D.sharp)==1)]` treated observations.
+
 
 

@@ -52,6 +52,43 @@ $$
 $$
 
 
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -122,6 +159,46 @@ $$
 \end{align}\]</span>
 <p>where <span class="math inline">\(\uns{A}\)</span> is the indicator function, taking value <span class="math inline">\(1\)</span> when <span class="math inline">\(A\)</span> is true and <span class="math inline">\(0\)</span> otherwise.</p>
 
+<div class="example">
+<span id="exm:unnamed-chunk-1" class="example"><strong>Example 2.1  (Sharp cutoff rule)  </strong></span>Imagine that <span class="math inline">\(Y_i^B=\exp(y_i^B)\)</span>, with <span class="math inline">\(y_i^B=\mu_i+U_i^B\)</span>, <span class="math inline">\(\mu_i\sim\mathcal{N}(\bar{\mu},\sigma^2_{\mu})\)</span> and <span class="math inline">\(U_i^B\sim\mathcal{N}(0,\sigma^2_{U})\)</span>. Now, let’s choose some values for these parameters so that we can generate a sample of individuals and allocate the treatment among them. I’m going to switch to R for that.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>)
+<span class="kw">names</span>(param) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>)
+param</code></pre></div>
+<pre><code>##    barmu sigma2mu  sigma2U     barY 
+##     8.00     0.50     0.28  1500.00</code></pre>
+<p>Now, I have choosen values for the parameters in my model. For example, <span class="math inline">\(\bar{\mu}=\)</span> 8 and <span class="math inline">\(\bar{Y}=\)</span> 1500. What remains to be done is to generate <span class="math inline">\(Y_i^B\)</span> and then <span class="math inline">\(D_i\)</span>. For this, I have to choose a sample size (<span class="math inline">\(N=1000\)</span>) and then generate the shocks from a normal.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># for reproducibility, I choose a seed that will give me the same random sample each time I run the program</span>
+<span class="kw">set.seed</span>(<span class="dv">1234</span>)
+N &lt;-<span class="dv">1000</span>
+mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+Ds &lt;-<span class="st"> </span><span class="kw">ifelse</span>(YB<span class="op">&lt;=</span>param[<span class="st">&quot;barY&quot;</span>],<span class="dv">1</span>,<span class="dv">0</span>) </code></pre></div>
+<p>Let’s now build a histogram of the data that we have just generated.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># building histogram of yB with cutoff point at ybar</span>
+<span class="co"># Number of steps</span>
+Nsteps.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="dv">15</span>
+<span class="co">#step width</span>
+step.<span class="dv">1</span> &lt;-<span class="st"> </span>(<span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="op">-</span><span class="kw">min</span>(yB[Ds<span class="op">==</span><span class="dv">1</span>]))<span class="op">/</span>Nsteps.<span class="dv">1</span>
+Nsteps.<span class="dv">0</span> &lt;-<span class="st"> </span>(<span class="op">-</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="op">+</span><span class="kw">max</span>(yB[Ds<span class="op">==</span><span class="dv">0</span>]))<span class="op">/</span>step.<span class="dv">1</span>
+breaks &lt;-<span class="st"> </span><span class="kw">cumsum</span>(<span class="kw">c</span>(<span class="kw">min</span>(yB[Ds<span class="op">==</span><span class="dv">1</span>]),<span class="kw">c</span>(<span class="kw">rep</span>(step.<span class="dv">1</span>,Nsteps.<span class="dv">1</span><span class="op">+</span>Nsteps.<span class="dv">0</span><span class="op">+</span><span class="dv">1</span>))))
+<span class="kw">hist</span>(yB,<span class="dt">breaks=</span>breaks,<span class="dt">main=</span><span class="st">&quot;&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">v=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:histyb"></span>
+<img src="STCI_files/figure-html/histyb-1.png" alt="Histogram of $y_B$" width=".5\textwidth" />
+<p class="caption">
+Figure 2.1: Histogram of <span class="math inline">\(y_B\)</span>
+</p>
+</div>
+<p>You can see on Figure <a href="the-two-fundamental-problems-of-inference.html#fig:histyb">2.1</a> a histogram of <span class="math inline">\(y_i^B\)</span> with the red line indicating the cutoff point: <span class="math inline">\(\bar{y}=\ln(\bar{Y})=\)</span> 7.31. All the observations below the red line are treated according to the sharp rule while all the one located above are not. In order to see how many observations eventually receive the treatment with this allocation rule, let’s build a contingency table.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">table.D.sharp &lt;-<span class="st"> </span><span class="kw">table</span>(Ds)
+<span class="kw">xtable</span>(table.D.sharp,<span class="dt">caption=</span><span class="st">&#39;Treatment allocation with sharp cutoff rule&#39;</span>,<span class="dt">label=</span><span class="st">&#39;tab:table.D.sharp&#39;</span>)</code></pre></div>
+% latex table generated in R 3.4.3 by xtable 1.8-3 package % Mon Apr 8 23:49:18 2019
+
+<p>We can see on Table @ref(tab:table.D.sharp) that there are 229 treated observations.</p>
 
 </div>
 </div>
