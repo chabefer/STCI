@@ -1,4 +1,4 @@
-```{r libraries,echo=FALSE,message=FALSE,error=FALSE}
+```{r libraries,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
 library(xtable)
 ```
 
@@ -116,7 +116,7 @@ Ds <- ifelse(YB<=param["barY"],1,0)
 
 Let's now build a histogram of the data that we have just generated.
 
-```{r histyb,eval=TRUE,echo=TRUE,results='hide',fig.cap='Histogram of $y_B$',fig.align='center',out.width='.5\\textwidth'}
+```{r histyb,fig.cap='Histogram of $y_B$',fig.align='center'}
 # building histogram of yB with cutoff point at ybar
 # Number of steps
 Nsteps.1 <- 15
@@ -128,15 +128,16 @@ hist(yB,breaks=breaks,main="")
 abline(v=log(param["barY"]),col="red")
 ```
 
-You can see on Figure \@ref(fig:histyb) a histogram of $y_i^B$ with the red line indicating the cutoff point: $\bar{y}=\ln(\bar{Y})=$ `r round(log(param["barY"]),2)`.
+You can see on Figure \@ref(fig:histyb) a histogram of $y_i^B$ with the red line indicating the cutoff point: $\bar{y}=\ln(\bar{Y})=$ `r round(log(param["barY"]),1)`.
 All the observations below the red line are treated according to the sharp rule while all the one located above are not.
 In order to see how many observations eventually receive the treatment with this allocation rule, let's build a contingency table.
-```{r table.D.sharp,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE}
+
+```{r tableDsharp,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE}
 table.D.sharp <- table(Ds)
-xtable(table.D.sharp,caption='Treatment allocation with sharp cutoff rule',label='tab:table.D.sharp')
+xtable(table.D.sharp,caption='Treatment allocation with sharp cutoff rule',label='tab:tableDsharp')
 ```
 
-We can see on Table \@ref(tab:table.D.sharp) that there are `r table.D.sharp[which(names(table.D.sharp)==1)]` treated observations.
+We can see on Table \@ref(tab:tableDsharp) that there are `r table.D.sharp[which(names(table.D.sharp)==1)]` treated observations.
 
 
 
