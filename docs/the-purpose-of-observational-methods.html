@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Chapter 3 The Purpose of Observational Methods | Statistical Tools for Causal Inference</title>
+  <meta name="description" content="This is an open source collaborative book.">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="Chapter 3 The Purpose of Observational Methods | Statistical Tools for Causal Inference" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is an open source collaborative book." />
+  <meta name="github-repo" content="chabefer/STCI" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 3 The Purpose of Observational Methods | Statistical Tools for Causal Inference" />
+  
+  <meta name="twitter:description" content="This is an open source collaborative book." />
+  
+
+<meta name="author" content="The SKY Community">
+
+
+<meta name="date" content="2019-04-13">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="natural-experiments.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+$$
+\newcommand{\uns}[1]{\mathbf{1}[#1]}
+$$
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Statistical Tools for Causal Inference</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Introduction</a></li>
+<li class="part"><span><b>I The Two Fundamental Problems of Inference</b></span></li>
+<li class="chapter" data-level="1" data-path="the-fundamental-problem-of-causal-inference.html"><a href="the-fundamental-problem-of-causal-inference.html"><i class="fa fa-check"></i><b>1</b> The Fundamental Problem of Causal Inference</a><ul>
+<li class="chapter" data-level="1.1" data-path="the-fundamental-problem-of-causal-inference.html"><a href="the-fundamental-problem-of-causal-inference.html#rubin-causal-model"><i class="fa fa-check"></i><b>1.1</b> Rubin Causal Model</a><ul>
+<li class="chapter" data-level="1.1.1" data-path="the-fundamental-problem-of-causal-inference.html"><a href="the-fundamental-problem-of-causal-inference.html#the-treatment-allocation-rule"><i class="fa fa-check"></i><b>1.1.1</b> The treatment allocation rule</a></li>
+<li class="chapter" data-level="1.1.2" data-path="the-fundamental-problem-of-causal-inference.html"><a href="the-fundamental-problem-of-causal-inference.html#the-potential-outcomes"><i class="fa fa-check"></i><b>1.1.2</b> The potential outcomes</a></li>
+<li class="chapter" data-level="1.1.3" data-path="the-fundamental-problem-of-causal-inference.html"><a href="the-fundamental-problem-of-causal-inference.html#the-switching-equation"><i class="fa fa-check"></i><b>1.1.3</b> The switching equation</a></li>
+</ul></li>
+</ul></li>
+<li class="part"><span><b>II Natural Experiments</b></span></li>
+<li class="chapter" data-level="2" data-path="natural-experiments.html"><a href="natural-experiments.html"><i class="fa fa-check"></i><b>2</b> Natural Experiments</a><ul>
+<li class="chapter" data-level="2.1" data-path="natural-experiments.html"><a href="natural-experiments.html#finding-experiments-in-nature"><i class="fa fa-check"></i><b>2.1</b> Finding Experiments in Nature</a></li>
+<li class="chapter" data-level="2.2" data-path="natural-experiments.html"><a href="natural-experiments.html#instrumental-variables"><i class="fa fa-check"></i><b>2.2</b> Instrumental Variables</a></li>
+<li class="chapter" data-level="2.3" data-path="natural-experiments.html"><a href="natural-experiments.html#difference-in-differences"><i class="fa fa-check"></i><b>2.3</b> Difference-in-Differences</a></li>
+<li class="chapter" data-level="2.4" data-path="natural-experiments.html"><a href="natural-experiments.html#regression-discontinuity"><i class="fa fa-check"></i><b>2.4</b> Regression Discontinuity</a></li>
+</ul></li>
+<li class="part"><span><b>III Observational Methods</b></span></li>
+<li class="chapter" data-level="3" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html"><i class="fa fa-check"></i><b>3</b> The Purpose of Observational Methods</a><ul>
+<li class="chapter" data-level="3.1" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#multiple-regression"><i class="fa fa-check"></i><b>3.1</b> Multiple Regression</a></li>
+<li class="chapter" data-level="3.2" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#matching"><i class="fa fa-check"></i><b>3.2</b> Matching</a></li>
+<li class="chapter" data-level="3.3" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#sufficient-adjustment-set"><i class="fa fa-check"></i><b>3.3</b> Sufficient Adjustment Set</a></li>
+<li class="chapter" data-level="3.4" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#fixed-effects"><i class="fa fa-check"></i><b>3.4</b> Fixed Effects</a><ul>
+<li class="chapter" data-level="3.4.1" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#between-and-within-variation"><i class="fa fa-check"></i><b>3.4.1</b> Between and Within Variation</a></li>
+<li class="chapter" data-level="3.4.2" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#demonstration-of-fixed-effects"><i class="fa fa-check"></i><b>3.4.2</b> Demonstration of Fixed Effects</a></li>
+<li class="chapter" data-level="3.4.3" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#fixed-effects-with-regression"><i class="fa fa-check"></i><b>3.4.3</b> Fixed Effects with Regression</a></li>
+<li class="chapter" data-level="3.4.4" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#common-extensions"><i class="fa fa-check"></i><b>3.4.4</b> Common Extensions</a></li>
+<li class="chapter" data-level="3.4.5" data-path="the-purpose-of-observational-methods.html"><a href="the-purpose-of-observational-methods.html#coding-up-fixed-effects"><i class="fa fa-check"></i><b>3.4.5</b> Coding Up Fixed Effects</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Statistical Tools for Causal Inference</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="the-purpose-of-observational-methods" class="section level1">
+<h1><span class="header-section-number">Chapter 3</span> The Purpose of Observational Methods</h1>
+<p>In the previous chapter on <a href="&#39;03_RCT.html&#39;">Randomized Controlled Trials</a>, we showed that, by randomizing treatment, we could identify causal effects because the random variation sidestepped the impact of omitted variables or sample selection that could drive a non-causal correlation between treatement and outcome. In <a href="&#39;04_NE.html&#39;">Natural Experiments</a>, we mimicked that strategy by finding sources of near-random variation in treatment, and isolating the part of treatment that was driven by the near-random variation.</p>
+<p>Using Randomized Controlled Trials or Natural Experiments, if they are properly applied, it is possible to ignore <em>any</em> confounding variables, whether or not we can measure them in our data or even imagine what they are.</p>
+<p>However, it is not always possible to run an experiment or find a natural experiment. In this chapter, we will consider ways of identifying causal effects using <em>Observational</em> methods, relying only on the data we have actually collected and observed. Natural Experiments often make use of additional Observational methods, correcting for confounding variables that the design of the natural experiment cannot account for.</p>
+<p>This chapter contains four sections: the first two cover multiple regression and matching, respectively, which are two common ways of adjusting for observed variables. The third covers the sufficient adjustment set, which allows you to determine which variables should and should not be adjusted for to identify a causal effect. The fourth covers fixed effects, which is a method that allows you to adjust for some unmeasured confounding variables.</p>
+<div id="multiple-regression" class="section level2">
+<h2><span class="header-section-number">3.1</span> Multiple Regression</h2>
+<p><img src="animations/Control.gif" /><!-- --></p>
+</div>
+<div id="matching" class="section level2">
+<h2><span class="header-section-number">3.2</span> Matching</h2>
+<p><img src="animations/Matching.gif" /><!-- --></p>
+</div>
+<div id="sufficient-adjustment-set" class="section level2">
+<h2><span class="header-section-number">3.3</span> Sufficient Adjustment Set</h2>
+</div>
+<div id="fixed-effects" class="section level2">
+<h2><span class="header-section-number">3.4</span> Fixed Effects</h2>
+<div id="between-and-within-variation" class="section level3">
+<h3><span class="header-section-number">3.4.1</span> Between and Within Variation</h3>
+<p>Fixed effects is a method that can be applied when you have <em>panel data</em>: multiple observations of the same individual over time.</p>
+<p>When you have multiple observations per individual, variation in the outcome variable <span class="math inline">\(Y\)</span> comes from two places: <em>between variation</em> and <em>within variation</em>. Between variation is the difference <em>between</em> individuals in their average level of <span class="math inline">\(Y\)</span>. Within variation is the difference <em>within</em> a given individual comparing one time period to another.</p>
+<p>For example, consider the below data.</p>
+<table>
+<caption><span id="tab:unnamed-chunk-11">Table 3.1: </span>Y over Two Time Periods for Two People</caption>
+<thead>
+<tr class="header">
+<th align="left">Person</th>
+<th align="right">Time</th>
+<th align="right">Y</th>
+<th align="right">D</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Anna</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Anna</td>
+<td align="right">2</td>
+<td align="right">8</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Bill</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Bill</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>Anna’s average <span class="math inline">\(Y\)</span> is <code>(4+8)/2 = 6</code>, and Bill’s average is <code>(3+1)/2 = 2</code>. The difference between the <code>6</code> and the <code>2</code> is the difference <em>between</em> Anna and Bill. And Anna’s change from 4 to 8, and Bill’s change from 3 to 1 are the differences <em>within</em> Anna and Bill.</p>
+<p>Fixed effects eliminates <em>all</em> between variation and uses only within variation. In effect, you are <em>controlling for individual identity</em>. For this reason it is also known as the “within estimator”.</p>
+<p>The reason fixed effects does this is that it in effect controls for <em>all</em> differences between people that are constant across time, whether or not we control for them.</p>
+</div>
+<div id="demonstration-of-fixed-effects" class="section level3">
+<h3><span class="header-section-number">3.4.2</span> Demonstration of Fixed Effects</h3>
+<p>Fixed effects works by simply removing all the between variation in each variable before performing an analysis of choice.</p>
+<p>Using the above example with Anna and Bill, we can subtract all between variation in <span class="math inline">\(Y\)</span> and <span class="math inline">\(D\)</span> by calculating the average of <span class="math inline">\(Y\)</span> and <span class="math inline">\(D\)</span> for Anna and Bill, separately, and subtracting it out. Notice that <span class="math inline">\(\bar{Y}_{Anna}=6, \bar{Y}_{Bill}=2, \bar{D}_{Anna}=.5, \bar{D}_{Bill}=.5\)</span>.</p>
+<table>
+<caption><span id="tab:unnamed-chunk-12">Table 3.2: </span>Within Variation in Y and D</caption>
+<thead>
+<tr class="header">
+<th align="left">Person</th>
+<th align="right">Time</th>
+<th align="right">Y</th>
+<th align="right">D</th>
+<th align="right">Within.Y</th>
+<th align="right">Within.D</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Anna</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">-2</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="left">Anna</td>
+<td align="right">2</td>
+<td align="right">8</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Bill</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="even">
+<td align="left">Bill</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">-1</td>
+<td align="right">-0.5</td>
+</tr>
+</tbody>
+</table>
+<p>With this modified data, the relationship between <code>Within.Y</code> and <code>Within.D</code> will tell us about the effect of <code>D</code> on <code>Y</code>, as long as all confounding variables were a part of the between variation.</p>
+<p>This process is demonstrated in animation below.</p>
+<p><img src="animations/FixedEffects.gif" /><!-- --></p>
+</div>
+<div id="fixed-effects-with-regression" class="section level3">
+<h3><span class="header-section-number">3.4.3</span> Fixed Effects with Regression</h3>
+<p>Fixed effects estimation is usually performed using regression. In the below model, each individual <span class="math inline">\(i\)</span> has their own intercept <span class="math inline">\(\alpha_{i}\)</span>.</p>
+<span class="math display" id="eq:fe1">\[\begin{align}
+  Y_{it} = \alpha_i + \beta D_{it} + \varepsilon_{it} \tag{3.1}
+\end{align}\]</span>
+<p>where <span class="math inline">\(\varepsilon_{it}\)</span> is an error term. This can also be seen as a regression of <span class="math inline">\(Y_{it}\)</span> on <span class="math inline">\(D_{it}\)</span> and a series of binary variables, one for each individual.</p>
+<span class="math display" id="eq:fe2">\[\begin{align}
+  Y_{it} = \alpha + \sum_{i=0^N}\alpha_iI(i) + \beta D_{it} + \varepsilon_{it} \tag{3.2}
+\end{align}\]</span>
+<p>where <span class="math inline">\(I(i)\)</span> is a function equal to 1 for individual <span class="math inline">\(i\)</span> and 0 otherwise.</p>
+<p>Either Equation <a href="the-purpose-of-observational-methods.html#eq:fe1">(3.1)</a> or Equation <a href="the-purpose-of-observational-methods.html#eq:fe2">(3.2)</a> will provide identical estimates of <span class="math inline">\(\beta\)</span> as though you had run the regression</p>
+<span class="math display" id="eq:fe3">\[\begin{align}
+  Within.Y_{it} = \alpha + \beta Within.D_{it} + \varepsilon_{it} \tag{3.3}
+\end{align}\]</span>
+<p>Any variable that is <em>constant within individual</em> will be controlled for using fixed effects, whether or not it is measured. For example, imagine that <span class="math inline">\(i\)</span> is an index of people, <span class="math inline">\(D_{it}\)</span> is being exposed to a pollution-reduction policy, and <span class="math inline">\(Y_{it}\)</span> is a measure of health. The variable <span class="math inline">\(G_i\)</span> measures a genetic endowment at birth, which may affect health and also whether you live in the area with the policy. Notice that <span class="math inline">\(G_i\)</span> does not have a <span class="math inline">\(t\)</span> subscript, indicating that it is <em>constant over time</em> for each person. Even without measuring <span class="math inline">\(G_i\)</span>, it will be controlled for, since <span class="math inline">\(G_i\)</span> is just <span class="math inline">\(I(i)\)</span> multiplied by some constant, and we’re already controlling for <span class="math inline">\(I(i)\)</span>.</p>
+<p>Equation <a href="the-purpose-of-observational-methods.html#eq:fe2">(3.2)</a> also makes clear that we are not controlling for anything that varies within person over time. For example, <span class="math inline">\(Inc_{it}\)</span> is income, which may affect health, and also whether you can afford to live in the area with the policy. Fixed effects alone does not control for <span class="math inline">\(Inc_{it}\)</span>, and so we may need to add it as a control.</p>
+<p>Similarly, fixed effects assumes that identity has a linear and constant effect. For example, if genetic endowment <span class="math inline">\(G_i\)</span> has a stronger effect in some years than others, fixed effects will not account for this. Or, if genetic endowment modifies how effective the policy is, fixed effects will not account for this unless <span class="math inline">\(G_i\)</span> can be measured and the nonlinearity can be directly modeled.</p>
+<p>However, if all confounding variables are between-individual, linearity holds, and several other assumptions hold (see Treatment Effect Heterogeneity below), then fixed effects will identify the Average Treatment Effect.</p>
+<p>Notice that the modeling in this section is very similar to <em>Random Effects</em>, not addressed in this chapter, which are similar to fixed effects but combine both between and within variation.</p>
+</div>
+<div id="common-extensions" class="section level3">
+<h3><span class="header-section-number">3.4.4</span> Common Extensions</h3>
+<div id="clustered-standard-errors" class="section level4">
+<h4><span class="header-section-number">3.4.4.1</span> Clustered Standard Errors</h4>
+<p>The standard approach to calculating standard errors for Equations <a href="the-purpose-of-observational-methods.html#eq:fe1">(3.1)</a>, <a href="the-purpose-of-observational-methods.html#eq:fe2">(3.2)</a>, or <a href="the-purpose-of-observational-methods.html#eq:fe3">(3.3)</a> makes the assumption that the error term <span class="math inline">\(\varepsilon_{it}\)</span> is independent and identically distributed. However, it may be reasonable to assume that <span class="math inline">\(\varepsilon_{it}\)</span> is correlated within individual.</p>
+<p>Under this condition, standard errors will be underestimated. For this reason, it is common to estimate fixed effects regressions using clustered standard errors. See <a href="http://cameron.econ.ucdavis.edu/research/Cameron_Miller_Cluster_Robust_October152013.pdf">Cameron &amp; Miller 2013</a> (or the published version <a href="http://jhr.uwpress.org/content/50/2/317.short">Cameron &amp; Mill 2015</a>) for a practitioner’s guide to whether clustering is necessary in a given fixed effects context, and how it can be performed.</p>
+</div>
+<div id="two-way-fixed-effects" class="section level4">
+<h4><span class="header-section-number">3.4.4.2</span> Two-Way Fixed Effects</h4>
+<p>In many fixed effects contexts, some of the within variation in <span class="math inline">\(Y_{it}\)</span> may not just be specific to person <span class="math inline">\(i\)</span>, but may be shared across all individuals. For example, if the sample includes many individuals in the same economy, the overall health of the economy changes over time and would affect everyone. If the treatment variable <span class="math inline">\(D_{it}\)</span> is correlated with time as well, then these shared time effects will bias our estimate of the causal effect.</p>
+<p>In cases like this it is common to include two sets of fixed effects - one for individual, <span class="math inline">\(\alpha_i\)</span>, and one for time, <span class="math inline">\(\alpha_t\)</span>. The regression equation is then</p>
+<span class="math display" id="eq:fe4">\[\begin{align}
+  Y_{it} = \alpha_{i} + \alpha_{t} + \beta D_{it} + \varepsilon_{it} \tag{3.4}
+\end{align}\]</span>
+</div>
+<div id="treatment-effect-heterogeneity" class="section level4">
+<h4><span class="header-section-number">3.4.4.3</span> Treatment Effect Heterogeneity</h4>
+<p>Under the assumptions discussed above, the estimate produced by a fixed effects regression will be a weighted average of the treatment effect for each individual. To see this, consider a data set that has only two time periods in it, and each individual is treated in exactly one of these periods, like our example above:</p>
+<table>
+<caption><span id="tab:unnamed-chunk-14">Table 3.3: </span>Within Variation in Y and D</caption>
+<thead>
+<tr class="header">
+<th align="left">Person</th>
+<th align="right">Time</th>
+<th align="right">Y</th>
+<th align="right">D</th>
+<th align="right">Within.Y</th>
+<th align="right">Within.D</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Anna</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">-2</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="left">Anna</td>
+<td align="right">2</td>
+<td align="right">8</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Bill</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="even">
+<td align="left">Bill</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">-1</td>
+<td align="right">-0.5</td>
+</tr>
+</tbody>
+</table>
+<p>Anna sees an increase of 4 when the treatment is applied, and Bill sees an increase of 2. The fixed effects estimate will be <code>(2+1)/2 - (-2 + -1)/2 = 1.5 - -1.5 = 3</code>, which is also <code>(4+2)/3 = 3</code>, the average treatment effect in the sample.</p>
+<p>In this case, Anna and Bill received equal weight. That is because Anna and Bill had the exact same amount of variation in <span class="math inline">\(D\)</span>. Fixed effects will more heavily weight individuals with more variation in <span class="math inline">\(D\)</span>. For example, imagine that Bill always has <span class="math inline">\(D = 0\)</span> and thus no variation in <span class="math inline">\(D\)</span>:</p>
+<table>
+<caption><span id="tab:unnamed-chunk-15">Table 3.4: </span>Within Variation in Y and D, where Bill Always Has D = 0</caption>
+<thead>
+<tr class="header">
+<th align="left">Person</th>
+<th align="right">Time</th>
+<th align="right">Y</th>
+<th align="right">D</th>
+<th align="right">Within.Y</th>
+<th align="right">Within.D</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Anna</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">-2</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="left">Anna</td>
+<td align="right">2</td>
+<td align="right">8</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Bill</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">Bill</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0</td>
+</tr>
+</tbody>
+</table>
+<p>The fixed effects estimate is now <code>2 - -2 = 4</code>, which is Anna’s treatment effect. Bill has no variation in <span class="math inline">\(D\)</span> and thus receives no weight. We have failed to estimate the Average Treatment Effect.</p>
+<p>One way to adjust for this is to use weighted least squares, where each observation is weighted by the inverse standard deviation of treatment within individual <span class="math inline">\((\sigma^D_i)^{-1}\)</span>, where</p>
+<span class="math display" id="eq:fe5">\[\begin{align}
+  \sigma^D_i = (\sum_t(D_{it} - \bar{D}_i)^2)^{1/2} \tag{3.5}
+\end{align}\]</span>
+<p>While this will not account for observations with no variation in <span class="math inline">\(D_{it}\)</span>, this will otherwise recover the average treatment effect (<a href="https://www.degruyter.com/view/j/jem.2019.8.issue-1/jem-2017-0002/jem-2017-0002.xml">Gibbons, Serrato, &amp; Urbancic, 2018</a>).</p>
+</div>
+</div>
+<div id="coding-up-fixed-effects" class="section level3">
+<h3><span class="header-section-number">3.4.5</span> Coding Up Fixed Effects</h3>
+<p>Each of the following coding examples uses <code>D</code> as a treatment variable of interest, <code>Y</code> as the outcome variable, <code>id</code> as a variable encoding the individual, and <code>t</code> as a variable with the time period. In the R examples, all variables are stored in the data frame <code>df</code>.</p>
+<p>Fixed effects is easy to implement using regression by simply including a set of dummy variables, one for each individual. This method can be implemented as:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#in R:</span>
+fe &lt;-<span class="st"> </span><span class="kw">lm</span>(Y<span class="op">~</span>D<span class="op">+</span><span class="kw">factor</span>(id), <span class="dt">data =</span> df)
+<span class="kw">summary</span>(fe)
+
+<span class="co">#in Stata:</span>
+regress Y D i.id</code></pre></div>
+<p>Many statistics packages also allow you to identify the panel structure of the data, and have a specific command for implementing fixed effects.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#in R:</span>
+<span class="kw">library</span>(plm)
+df.p &lt;-<span class="st"> </span><span class="kw">pdata.frame</span>(df,<span class="dt">index=</span><span class="kw">c</span>(<span class="st">&quot;id&quot;</span>,<span class="st">&quot;t&quot;</span>))
+fe &lt;-<span class="st"> </span><span class="kw">plm</span>(Y<span class="op">~</span>D,<span class="dt">data=</span>df.p,<span class="dt">model=</span><span class="st">&quot;within&quot;</span>)
+<span class="kw">summary</span>(fe)
+<span class="co">#Add clustered standard errors</span>
+<span class="kw">library</span>(lmtest)
+fe.cluster &lt;-<span class="st"> </span><span class="kw">coeftest</span>(fe,<span class="dt">vcov=</span><span class="kw">vcovHC</span>(model,<span class="dt">type =</span> <span class="st">&quot;HC1&quot;</span>, <span class="dt">cluster=</span><span class="st">&quot;group&quot;</span>))
+<span class="kw">summary</span>(fe.cluster)
+
+<span class="co">#in Stata:</span>
+xtset id t
+xtreg Y D, fe
+<span class="co">#Add clustered standard errors</span>
+xtreg Y D, fe <span class="kw">vce</span>(cluster id)</code></pre></div>
+<p>Two-way fixed effects can be handled, as normal, by adding dummy variables for time period. There are also more formal ways of handling two-way fixed effects that work more quickly or handle standard errors in a more accurate way.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#in R:</span>
+<span class="co">#Just using dummies</span>
+fe &lt;-<span class="st"> </span><span class="kw">lm</span>(Y<span class="op">~</span>D<span class="op">+</span><span class="kw">factor</span>(id)<span class="op">+</span><span class="kw">factor</span>(t), <span class="dt">data =</span> df)
+<span class="co">#Using PLM</span>
+<span class="kw">library</span>(plm)
+df.p &lt;-<span class="st"> </span><span class="kw">pdata.frame</span>(df,<span class="dt">index=</span><span class="kw">c</span>(<span class="st">&quot;id&quot;</span>,<span class="st">&quot;t&quot;</span>))
+fe.twoways &lt;-<span class="st"> </span><span class="kw">plm</span>(Y<span class="op">~</span>D,<span class="dt">data=</span>df.p,<span class="dt">model=</span><span class="st">&quot;twoways&quot;</span>)
+<span class="kw">summary</span>(fe.twoways)
+
+<span class="co">#in Stata:</span>
+<span class="co">#Using dummies and xtreg</span>
+xtset id t
+xtreg Y D i.t, fe
+<span class="co">#Using reghdfe</span>
+ssc install reghdfe
+<span class="co">#You may also have to install gtools</span>
+<span class="co">#and in some cases do &quot;reghdfe, compile&quot; before use</span>
+reghdfe Y D, <span class="kw">absorb</span>(id t)</code></pre></div>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="natural-experiments.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/chabefer/STCI/05_OM.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["STCI.pdf", "STCI.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
