@@ -122,11 +122,12 @@
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{2019-04-13}
+  \date{2019-04-17}
 
 \usepackage{dsfont}
 \newcommand{\uns}[1]{\mathds{1}[ #1 ]}
 \usepackage{subfig}
+\newcommand{\esp}[1]{\mathbb{E}[ #1 ]}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -268,8 +269,7 @@ outcomes, that measure how each individual reacts to the treatment; the
 switching equation that relates potential outcomes to observed outcomes
 through the allocation rule.
 
-\subsection{The treatment allocation
-rule}\label{the-treatment-allocation-rule}
+\subsection{Treatment allocation rule}\label{treatment-allocation-rule}
 
 The first building block of the RCM is the treatment allocation rule.
 Throughout this class, we are going to be interested in inferring the
@@ -304,7 +304,7 @@ Let's denote this variable \(Y^B_i\), with \(B\) standing for
 before deciding to give a drug to a patient. It can be the poverty level
 of a household used to assess its eligibilty to a cash transfer program.
 
-\subsubsection{The sharp cutoff rule}\label{the-sharp-cutoff-rule}
+\subsubsection{Sharp cutoff rule}\label{sharp-cutoff-rule}
 
 The sharp cutoff rule means that everyone below some threshold
 \(\bar{Y}\) is going to receive the treatment. Everyone whose outcome
@@ -379,7 +379,7 @@ Let's now build a histogram of the data that we have just generated.
 
 \begin{figure}
 
-{\centering \includegraphics{STCI_files/figure-latex/histyb-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/histyb-1} 
 
 }
 
@@ -415,7 +415,7 @@ let's build a contingency table.
 We can see on Table \ref{tab:tableDsharp} that there are 229 treated
 observations.
 
-\subsubsection{The fuzzy cutoff rule}\label{the-fuzzy-cutoff-rule}
+\subsubsection{Fuzzy cutoff rule}\label{fuzzy-cutoff-rule}
 
 This rule is less sharp than the sharp cutoff rule. Here, other criteria
 than \(Y_i^B\) enter into the decision to allocate the treatment. The
@@ -440,8 +440,8 @@ unspecified cumulative distribution function \(F_V\). When \(V_i\) is
 degenerate (\textit{i.e.} it has only one point of support: it is a
 constant), the fuzzy cutoff rule becomes the sharp cutoff rule.
 
-\subsubsection{\texorpdfstring{The eligibility \(+\) self-selection
-rule}{The eligibility + self-selection rule}}\label{the-eligibility-self-selection-rule}
+\subsubsection{\texorpdfstring{Eligibility \(+\) self-selection
+rule}{Eligibility + self-selection rule}}\label{eligibility-self-selection-rule}
 
 It is also possible that households, once they have been made eligible
 to the treatment, can decide whether they want to receive it or not. A
@@ -464,7 +464,7 @@ explicit about \(D_i^*\) in what follows.
 
 \textbf{SIMULATIONS ARE MISSING FOR THESE LAST TWO RULES}
 
-\subsection{The potential outcomes}\label{the-potential-outcomes}
+\subsection{Potential outcomes}\label{potential-outcomes}
 
 The second main building block of the RCM are potential outcomes. Let's
 say that we are interested in the effect of a treatment on an outcome
@@ -545,7 +545,7 @@ Now, I would like to visualize my potential outcomes:
 
 \begin{figure}
 
-{\centering \includegraphics{STCI_files/figure-latex/histpotout-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/histpotout-1} 
 
 }
 
@@ -559,7 +559,7 @@ treatment) also have a positive health with the treatment. It is also
 true that individuals with bad health in the absence of the treatment
 also have bad health with the treatment.
 
-\subsection{The switching equation}\label{the-switching-equation}
+\subsection{Switching equation}\label{switching-equation}
 
 The last building block of the RCM is the switching equation. It links
 the observed outcome to the potential outcomes through the allocation
@@ -604,19 +604,21 @@ definition, contrary to the observed facts. A counterfactual cannot be
 observed, but it can be conceived by an effort of reason: it is the
 consequence of what would have happened had some action not been taken.
 
-One very nice way of visualising the switching equation has been
-proposed by Jerzy Neyman in a 1923 prescient paper. Neyman proposes to
-imagine two urns, each one filled with \(N\) balls. One urn is the
-treatment urn and contains balls with the id of the unit and the value
-of its potential outcome \(Y_i^1\). The other urn is the control urn,
-and it contains balls with the value of the potential outcome \(Y_i^0\)
-for each unit \(i\). Following the allocation rule \(D_i\), we decide
-whether unit \(i\) is in the treatment or control group. When unit \(i\)
-is in the treatment group, we take the corresponding ball from the first
-urn and observe the potential outcome on it. But, at the same time, the
-urns are connected so that the corresponding ball with the potential
-outcome of unit \(i\) in the control urn disappears as soon as we draw
-ball \(i\) from the treatment urn.
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}One very nice way of visualising the
+switching equation has been proposed by Jerzy Neyman in a 1923 prescient
+paper. Neyman proposes to imagine two urns, each one filled with \(N\)
+balls. One urn is the treatment urn and contains balls with the id of
+the unit and the value of its potential outcome \(Y_i^1\). The other urn
+is the control urn, and it contains balls with the value of the
+potential outcome \(Y_i^0\) for each unit \(i\). Following the
+allocation rule \(D_i\), we decide whether unit \(i\) is in the
+treatment or control group. When unit \(i\) is in the treatment group,
+we take the corresponding ball from the first urn and observe the
+potential outcome on it. But, at the same time, the urns are connected
+so that the corresponding ball with the potential outcome of unit \(i\)
+in the control urn disappears as soon as we draw ball \(i\) from the
+treatment urn.
 
 The switching equation works a lot like Schrodinger's cat paradox.
 Schrodinger's cat is placed in a sealed box and receives a dose of
@@ -626,9 +628,10 @@ open the box, we observe either a dead cat or a living cat, but we
 cannot observe the cat both alice and dead at the same time. The
 switching equation is like opening the box, it collapses the observed
 outcome into one of the two potential ones.
+\EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-5}{}{\label{exm:unnamed-chunk-5} }One
+\protect\hypertarget{exm:unnamed-chunk-6}{}{\label{exm:unnamed-chunk-6} }One
 way to visualize the inner workings of the switching equation is to plot
 the potential outcomes along with the criteria driving the allocation
 rule. In our simple example, it simply amounts to plotting observed
@@ -653,7 +656,7 @@ rule. In our simple example, it simply amounts to plotting observed
 
 \begin{figure}
 
-{\centering \includegraphics{STCI_files/figure-latex/plotyyB-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/plotyyB-1} 
 
 }
 
@@ -671,7 +674,7 @@ rule. In our simple example, it simply amounts to plotting observed
 
 \begin{figure}
 
-{\centering \includegraphics{STCI_files/figure-latex/ploty1y0yB-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/ploty1y0yB-1} 
 
 }
 
@@ -688,6 +691,600 @@ observed (the cross for the treated group and the circle for the
 untreated group) and the other is not. The observed sample in Figure
 \ref{fig:plotyyB} only shows observed outcomes, and is thus silent on
 the values of the missing potential outcomes.
+
+\section{Treatment effects}\label{treatment-effects}
+
+The RCM enables the definition of causal effects at the individual
+level. In practice though, we generally focus on a summary measure: the
+effect of the treatment on the treated.
+
+\subsection{Individual level treatment
+effects}\label{individual-level-treatment-effects}
+
+Potential outcomes enable us to define the central notion of causal
+inference: the causal effect, also labelled the treatment effect, which
+is the difference between the two potential outcomes.
+
+\BeginKnitrBlock{definition}[Individual level treatment effect]
+\protect\hypertarget{def:causaleff}{}{\label{def:causaleff}
+\iffalse (Individual level treatment effect) \fi{} }For each unit \(i\),
+the causal effect of the treatment on outcome \(Y\) is:
+\(\Delta^Y_i=Y_i^1-Y_i^0\).
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-7}{}{\label{exm:unnamed-chunk-7} }The
+individual level causal effect in log terms is:
+\(\Delta^y_i=\alpha_i=\bar{\alpha}+\theta\mu_i+\eta_i\). The effect is
+the sum of a part common to all individuals, a part correlated with
+\(\mu_i\): the treatment might have a larger or a smaller effect
+depending on the unobserved permanent ability or health status of
+individuals, and a random shock. It is possible to make the effect of
+the treatment to depend on \(U_i^B\) also, but it would complicate the
+model.
+\EndKnitrBlock{example}
+
+In Figure \ref{fig:ploty1y0yB}, the individual level treatment effects
+are the differences between each cross and its corresponding circle. For
+example, for observation 264, the two potential outcomes appear in green
+in Figure \ref{fig:ploty1y0yB}. The effect of the treatment on unit 264
+is equal to: \[
+\Delta^y_{264}=y^1_{264}-y^0_{264}=6.98-6.64=0.34.
+\]
+
+Since observation 264 belongs to the treatment group, we can only
+observe the potential outcome in the presence of the treatment,
+\(y^1_{264}\).
+
+The RCM allows for heterogeneity of treatment effects. The treatment has
+a large effect on some units and a much smaller effect on other units.
+We can even have some units that benefit from the treatment and some
+units that are harmed by the treatment. The individual level effect of
+the treatment is itself a random variable (and not a fixed parameter).
+It has a distribution, \(F_{\Delta^Y}\).
+
+Heterogeneity of treatment effects seems very natural: the treatment
+might interact with individuals' different backgrounds. The effect of a
+drug might depend on the genetic background of an individual. An
+education program might only work for children that already have
+sufficient non-cognitive skills, and thus might depend in turn on family
+background. An environmental regulation or a behavioral intervention
+might only trigger reactions by already environmentally aware
+individuals. A CCT might have a larger effect when indiviuals are
+credit-constrained or face shocks.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-8}{}{\label{exm:unnamed-chunk-8} }In
+our numerical example, the distribution of \(\Delta^y_i=\alpha_i\) is a
+normal:
+\(\alpha_i\sim\mathcal{N}(\bar{\alpha}+\theta\bar{\mu},\theta^2\sigma^2_{\mu}+\sigma^2_{\eta})\).
+We would like to visualize treatment effect heterogeneity. For that, we
+can build a histogram of the individual level causal effect.
+\EndKnitrBlock{example} On top of the histogram, we can also draw the
+theoretical distribution of the treatment effect: a normal with mean
+0.18 and variance 0.05.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{hist}\NormalTok{(alpha,}\DataTypeTok{main=}\StringTok{""}\NormalTok{,}\DataTypeTok{prob=}\OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{curve}\NormalTok{(}\KeywordTok{dnorm}\NormalTok{(x, }\DataTypeTok{mean=}\NormalTok{(param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]), }\DataTypeTok{sd=}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2eta"}\NormalTok{])), }\DataTypeTok{add=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/histalpha-1} 
+
+}
+
+\caption{Histogram of $\Delta^y$}\label{fig:histalpha}
+\end{figure}
+
+The first thing that we can see on Figure \ref{fig:histalpha} is that
+the theoretical and the empirical distributions nicely align with each
+other. We also see that the majority of the observations lies to the
+right of zero: most people experience a positive effect of the
+treatment. But there are some individuals that do not benefit from the
+treatment: the effect of the treatment on them is negative.
+
+\subsection{Average treatment effect on the
+treated}\label{average-treatment-effect-on-the-treated}
+
+We do not generally estimate individual-level treatment effects. We
+generally look for summary statistics of the effect of the treatment. By
+far the most widely reported causal parameter is the Treatment on the
+Treated parameter (TT). It can be defined in the sample at hand or in
+the population.
+
+\BeginKnitrBlock{definition}[Average and expected treatment effects on the treated]
+\protect\hypertarget{def:TT}{}{\label{def:TT} \iffalse (Average and expected
+treatment effects on the treated) \fi{} }The Treatment on the Treated
+parameters for outcome \(Y\) are:
+\EndKnitrBlock{definition}
+
+\begin{itemize}
+\tightlist
+\item
+  The average Treatment effect on the Treated in the sample:
+\end{itemize}
+
+\begin{align*}
+  \Delta^Y_{TT_s} & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^N(Y_i^1-Y_i^0)D_i,
+  \end{align*}
+
+\begin{itemize}
+\tightlist
+\item
+  The expected Treatment effect on the Treated in the population:
+\end{itemize}
+
+\begin{align*}
+  \Delta^Y_{TT} & = \esp{Y_i^1-Y_i^0|D_i=1}.
+  \end{align*}
+
+The TT parameters measure the average effect of the treatment on those
+who actually take it, either in the sample at hand or in the popluation.
+It is generally considered to be the most policy-relevant parameter
+since it measures the effect of the treatment as it has actually been
+allocated. For example, the expected causal effect on the overall
+population is only relevant if policymakers are considering implementing
+the treatment even on those who have not been selected to receive it.
+For a drug or an anti-poverty program, it would mean giving the
+treatment to healthy or rich people, which would make little sense.
+
+TT does not say anything about how the effect of the treatment is
+distributed in the population or in the sample. TT does not account for
+the heterogneity of treatment effects. In Lecture 7, we will look at
+other parameters of interest that look more closely into how the effect
+of the treatment is distributed.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-9}{}{\label{exm:unnamed-chunk-9} }The
+value of TT in our sample is:
+\EndKnitrBlock{example} \[
+\Delta^y_{TT_s}=0.168.
+\]
+
+Computing the population value of \(TT\) is slightly more involved: we
+have to use the formula for the conditional expectation of a censored
+bivariate normal random variable:
+
+\begin{align*}
+\Delta^y_{TT} & = \esp{\alpha_i|D_i=1}\\
+              & = \bar{\alpha}+\theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y}}\\
+              & = \bar{\alpha}+\theta\left(\bar{\mu} - \frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right)\\
+              & = \bar{\alpha}+\theta\bar{\mu}-\theta\left(\frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right),
+\end{align*}
+
+where \(\phi\) and \(\Phi\) are respectively the density and the
+cumulative distribution functions of the standard normal. The second
+equality follows from the definition of \(\alpha_i\) and \(D_i\) and
+from the fact that \(\eta_i\) is independent from \(\mu_i\) and
+\(U_i^B\). The third equality comes from the formula for the expectation
+of a censored bivariate normal random variable. In order to compute the
+population value of TT easily for different sets of parameter values,
+let's write a function in R:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.tt <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}\KeywordTok{return}\NormalTok{(param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}
+                                     \OperatorTok{-}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{((param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))}
+                                                      \OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}
+                                                        \OperatorTok{*}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))))\}}
+\end{Highlighting}
+\end{Shaded}
+
+The population value of TT computed using this function is:
+\(\Delta^y_{TT}=\) `r round(delta.y.tt(param),3). We can see that the
+values of TT in the sample and in the population differ slightly. This
+is because of sampling noise: the units in the sample are not perfectly
+representative of the units in the population.
+
+\section{Fundamental problem of causal
+inference}\label{fundamental-problem-of-causal-inference}
+
+At least in this lecture, causal inference is about trying to infer TT,
+either in the sample or in the population. The FPCI states that it is
+impossible to directly observe TT because one part of it remains
+fundamentally unobserved.
+
+\BeginKnitrBlock{theorem}[Fundamental problem of causal inference]
+\protect\hypertarget{thm:FPCI}{}{\label{thm:FPCI} \iffalse (Fundamental
+problem of causal inference) \fi{} }It is impossible to observe TT,
+either in the population or in the sample.
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}The proof of the FPCI is rather
+straightforward. Let me start with the sample TT:
+
+\begin{align*}
+  \Delta^Y_{TT_s} & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^N(Y_i^1-Y_i^0)D_i \\
+                  & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^1D_i- \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i \\
+                  & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_iD_i- \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i.
+\end{align*}
+
+Since \(Y_i^0\) is unobserved whenever \(D_i=1\),
+\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i\) is unobserved, and so
+is \(\Delta^Y_{TT_s}\). The same is true for the population TT:
+
+\begin{align*}
+  \Delta^Y_{TT} & = \esp{Y_i^1-Y_i^0|D_i=1} \\
+                & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
+                & = \esp{Y_i|D_i=1}-\esp{Y_i^0|D_i=1}.
+\end{align*}
+
+\(\esp{Y_i^0|D_i=1}\) is unobserved, and so is \(\Delta^Y_{TT}\).
+\EndKnitrBlock{proof}
+
+The key insight in order to understand the FPCI is to see that the
+outcomes of the treated units had they not been treated are
+unobservable, and so is their average or expectation. We say that they
+are counterfactual, contrary to what has happened.
+
+\BeginKnitrBlock{definition}[Couterfactual]
+\protect\hypertarget{def:counter}{}{\label{def:counter}
+\iffalse (Couterfactual) \fi{} }Both
+\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i\) and
+\(\esp{Y_i^0|D_i=1}\) are counterfactual quantities that we will never
+get to observe.
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-11}{}{\label{exm:unnamed-chunk-11}
+}The average counterfactual outcome of the treated is the mean of the
+red circles in the \(y\) axis on Figure \ref{fig:ploty1y0yB}:
+\EndKnitrBlock{example} \[
+\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^Ny_i^0D_i= 6.91.
+\] Remember that we can estimate this quantity only because we have
+generated the data ourselves. In real life, this quantity is hopelessly
+unobserved.
+
+\(\esp{y_i^0|D_i=1}\) can be computed using the formula for the
+expectation of a censored normal random variable:
+
+\begin{align*}
+\esp{y_i^0|D_i=1} & = \esp{\mu_i+\delta+U_i^0|D_i=1}\\
+                  & = \esp{\mu_i+\delta+\rho U_i^B+\epsilon_i|D_i=1}\\
+                  & = \delta + \esp{\mu_i+\rho U_i^B|y_i^B\leq\bar{y}}\\
+                  & = \delta + \bar{\mu} - \frac{\sigma^2_{\mu}+\rho\sigma^2_U}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}.
+\end{align*}
+
+We can write a function in R to compute this value:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{esp.y0.D1 <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"delta"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}
+         \OperatorTok{-}\NormalTok{((param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}
+           \OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))}
+         \OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}\OperatorTok{*}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}
+                                                          \OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+The population value of TT computed using this function is:
+\(\esp{y_i^0|D_i=1}=\) 6.9.
+
+\section{Intuitive estimators, confounding factors and selection
+bias}\label{intuitive-estimators-confounding-factors-and-selection-bias}
+
+In this section, we are going to examine the properties of two intuitive
+comparisons that laypeople, policymakers but also ourselves make in
+order to estimate causal effects: the with/wihtout comparison (\(WW\))
+and the before/after comparison (\(BA\)). \(WW\) compares the average
+outcomes of the treated individuals with those of the untreated
+individuals. \(BA\) compares the average outcomes of the treated after
+taking the treatment to their average outcomes before they took the
+treatment. These comparisons try to proxy for the expected
+counterfactual outcome in the treated group by using an observed
+quantity. \(WW\) uses the expected outcome of the untreated individuals
+as a proxy. \(BA\) uses the expected outcome of the treated before they
+take the treatment as a proxy.
+
+Unfortunately, both of these proxies are generally poor and provide
+biased estimates of \(TT\). The reason that these proxies are poor is
+that the treatment is not the only factor that differentiates the
+treated group from the groups used to form the proxy. The intuitive
+comparisons are biased because factors, other than the treatment, are
+correlated to its allocation. The factors that bias the intuitive
+comparisons are generally called confouding factors or confounders.
+
+The treatment effect measures the effect of a ceteris paribus change in
+treatment status, while the intuitive comparisons capture both the
+effect of this change and that of other correlated changes that
+spuriously contaminate the comparison. Intuitive comparisons measure
+correlations while treatment effects measure causality. The old motto
+``correlation is not causation'' applies vehemently here.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}A funny anecdote about this expression
+``correlation is not causation''. This expression is due to Karl
+Pearson, the father of modern statistics. He coined the phrase in his
+famous book ``The Grammar of Science.'' Pearson is famous for inventing
+the correlation coefficient. He actually thought that correlation was a
+much superior, much more rigorous term, than causation. In his book, he
+actually used the sentence to argue in favor of abandoning causation
+altogether and focusing on the much better-defined and measurable
+concept of correlation. Interesting turn of events that his sentence is
+now used to mean that correlation is weaker than causation, totally
+reverting the original intended meaning.
+\EndKnitrBlock{remark}
+
+In this section, we are going to define both comparisons, study their
+biases and state the conditions under which they identify \(TT\). This
+will prove to be a very useful introduction to the notion of
+identification. It is also very important to be able to understand the
+sources of bias of comparisons that we use every day and that come very
+naturally to policy makers and lay people.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}In this section, we state the definitions and
+formulae in the population. This is for two reasons. First, it is
+simpler, and lighter in terms of notation. Second, it emphasizes that
+the problems with intuitive comparisons are independent of sampling
+noise. Most of the results stated here for the population extend to the
+sample, replacing the expectation operator by the average operator. I
+will nevertheless give examples in the sample, since it is so much
+simpler to compute. I will denote sample equivalents of population
+estimators with a hat.
+\EndKnitrBlock{remark}
+
+\subsection{The with/without comparison, selection bias and
+cross-sectional
+confounders}\label{the-withwithout-comparison-selection-bias-and-cross-sectional-confounders}
+
+The with/without comparison (\(WW\)) is very intuitive: just compare the
+outcomes of the treated and untreated individuals in order to estimate
+the causal effect. This approach is nevertheless generally biased. We
+call the bias of \(WW\) selection bias (\(SB\)). Selection bias is due
+to unobserved confounders that are distributed differently in the
+treatment and control group and that generate differences in outcomes
+even in the absence of the treatment. In this section, I define the
+\(WW\) estimator, derives its bias, introduces the confounders and
+states conditions under which it is unbiased.
+
+\subsubsection{The with/without
+comparison}\label{the-withwithout-comparison}
+
+The with/without comparison (\(WW\)) is very intuitive: just compare the
+outcomes of the treated and untreated individuals in order to estimate
+the causal effect.
+
+\BeginKnitrBlock{definition}[With/without comparison]
+\protect\hypertarget{def:unnamed-chunk-14}{}{\label{def:unnamed-chunk-14}
+\iffalse (With/without comparison) \fi{} }The with/without comparison is
+the difference between the expected outcomes of the treated and the
+expected outcomes of the untreated:
+
+\begin{align*}
+\Delta^Y_{WW} & =  \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}.
+\end{align*}
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-15}{}{\label{exm:unnamed-chunk-15}
+}In the population, \(WW\) can be computed using the traditional formula
+for the expectation of a truncated normal distribution:
+
+\begin{align*}
+\Delta^y_{WW} & = \esp{y_i|D_i=1}-\esp{y_i|D_i=0} \\
+              & = \esp{y_i^1|D_i=1}-\esp{y^0_i|D_i=0} \\
+              & = \esp{\alpha_i|D_i=1}+\esp{\mu_i+\rho U_i^B|\mu_i+U_i^B\leq\bar{y}}-\esp{\mu_i+\rho U_i^B|\mu_i+U_i^B>\bar{y}} \\
+              & = \bar{\alpha}+\theta\left(\bar{\mu}-\frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right)  
+              -\frac{\sigma^2_{\mu}+\rho\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}+\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+\EndKnitrBlock{example} In order to compute this parameter, we are going
+to set up a R function. For reasons that will become clearer later, we
+will define two separate functions to compute the first and second part
+of the formula. In the first part, you should have recognised \(TT\),
+that we have already computed in Lecture 1. We are going to call the
+second part \(SB\), for reasons that will become explicit in a bit.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.tt <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}
+         \OperatorTok{*}\NormalTok{((param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}
+                                    \OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))}
+           \OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}\OperatorTok{*}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}
+                                                            \OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))))}
+\NormalTok{\}}
+\NormalTok{delta.y.sb <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(}\OperatorTok{-}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}
+         \OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))}
+         \OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))}
+           \OperatorTok{+}\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))))}
+\NormalTok{\}}
+\NormalTok{delta.y.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{delta.y.tt}\NormalTok{(param)}\OperatorTok{+}\KeywordTok{delta.y.sb}\NormalTok{(param))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+As a conclusion of all these derivations, \(WW\) in the population is
+equal to -1.298. Remember that the value of \(TT\) in the population is
+0.172.
+
+In order to compute the \(WW\) estimator in a sample, I'm going to
+generate a brand new sample and I'm going to choose a seed for the
+pseudo-random number generator so that we obtain the same result each
+time we run the code. I use \texttt{set.seed(1234)} in the code chunk
+below.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{)}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB}
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{Ds[YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{]] <-}\StringTok{ }\DecValTok{1}
+\NormalTok{l <-}\StringTok{ }\KeywordTok{length}\NormalTok{(param)}
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(param,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param)[(l}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{:}\KeywordTok{length}\NormalTok{(param)] <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{)}
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
+In this sample, the average outcome of the treated in the presence of
+the treatment is \[
+\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i= 7.074.
+\] It is materialized by a circle on Figure \ref{fig:ploty0y1yBD}. The
+average outcome of the untreated is \[
+\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i= 8.383.
+\] It is materialized by a plus sign on Figure \ref{fig:ploty0y1yBD}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/ploty0y1yBD-1} 
+
+}
+
+\caption{Evolution of average outcomes in the treated and control group before (Time =1) and after (Time=2) the treatment}\label{fig:ploty0y1yBD}
+\end{figure}
+
+The estimate of the \(WW\) comparison in the sample is thus:
+
+\begin{align*}
+\hat{\Delta^Y_{WW}} & = \frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i).
+\end{align*}
+
+We have \(\hat{\Delta^y_{WW}}=\) -1.308. Remember that the value of
+\(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.168.
+
+Overall, \(WW\) severely underestimates the effect of the treatment in
+our example. \(WW\) suggests that the treatment has a negative effect on
+outcomes whereas we know by construction that it has a positive one.
+
+\subsubsection{Selection bias}\label{selection-bias}
+
+When we form the with/without comparison, we do not recover the \(TT\)
+parameter. Instead, we recover \(TT\) plus a bias term, called
+\textbf{selection bias}:
+
+\begin{align*}
+\Delta^Y_{WW} & =\Delta^Y_{TT}+\Delta^Y_{SB}.
+\end{align*}
+
+\BeginKnitrBlock{definition}[Selection bias]
+\protect\hypertarget{def:SB}{}{\label{def:SB} \iffalse (Selection bias)
+\fi{} }Selection bias is the difference between the with/without
+comparison and the treatment on the treated parameter:
+
+\begin{align*}
+\Delta^Y_{SB} & = \Delta^Y_{WW}-\Delta^Y_{TT}.
+\end{align*}
+\EndKnitrBlock{definition}
+
+\(WW\) tries to approximate the counterfactual expected outcome in the
+treated group by using \(\esp{Y_i^0|D_i=0}\), the expected outcome in
+the untreated group . Selection bias appears because this proxy is
+generally poor. It is very easy to see that selection bias is indeed
+directly due to this bad proxy problem:
+
+\BeginKnitrBlock{theorem}
+\protect\hypertarget{thm:unnamed-chunk-16}{}{\label{thm:unnamed-chunk-16}
+}Selection bias is the difference between the counterfactual expected
+potential outcome in the absence of the treatment among the treated and
+the expected potential outcome in the absence of the treatment among the
+untreated.
+
+\begin{align*}
+\Delta^Y_{SB} & = \esp{Y_i^0|D_i=1}-\esp{Y_i^0|D_i=0}.
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+\Delta^Y_{SB} & = \Delta^Y_{WW}-\Delta^Y_{TT} \\
+              & = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}-\esp{Y_i^1-Y_i^0|D_i=1}\\
+              & = \esp{Y_i^0|D_i=1}-\esp{Y_i^0|D_i=0}.
+\end{align*}
+
+The first and second equalities stem only from the definition of both
+parameters. The third equality stems from using the switching equation:
+\(Y_i=Y_i^1D_i+Y_i^0(1-D_i)\), so that
+\(\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}\) and
+\(\esp{Y_i|D_i=0}=\esp{Y_i^0|D_i=0}\).
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-18}{}{\label{exm:unnamed-chunk-18}
+}In the population, \(SB\) is equal to
+\EndKnitrBlock{example} \[
+  \Delta^y_{SB} = \Delta^y_{WW}-\Delta^y_{TT}= -1.298 - 0.172 = `round(delta.y.ww(param)-delta.y.tt(param),3)`
+\]
+
+We could have computed \(SB\) directly using the formula from
+Theorem\textasciitilde{}\ref{th:SB}:
+
+\begin{align*}
+\Delta^y_{SB} & = \esp{y_i^0|D_i=1}-\esp{y_i^0|D_i=0}\\
+              & = -\frac{\sigma^2_{\mu}+\rho\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}+\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+
+When using the R function for \(SB\) that we have defined earlier, we
+indeed find: \(\Delta^y_{SB}=\) -1.471.
+
+In the sample, \(\hat{\Delta^y_{SB}}=\)-1.308-0.168 \$ =\$ -1.476.
+Selection bias emerges because we are using a bad proxy for the
+counterfactual. The average outcome for the untreated is equal to
+\(\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i=\) 8.383 while the
+counterfactual average outcome for the treated is
+\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy^0_i=\) 6.906. Their
+difference is as expected equal to \(SB\): \(\hat{\Delta^y_{SB}}=\)
+6.906 \(-\) 8.383 \(=\) -1.476. The counterfactual average outcome of
+the treated is much smaller than the average outcome of the untreated.
+On Figure \ref{fig:ploty0y1yBD}, this is materialized by the fact that
+the plus sign is located much above the triangle.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The concept of selection bias is related to
+but different from the concept of sample selection bias. With sample
+selection bias, we worry that selection into the sample might bias the
+estimated effect of a treatment on outcomes. With selection bias, we
+worry that selection into the treatment itself might bias the effect of
+the treatment on outcomes. Both biases are due to unbserved covariates,
+but they do not play out in the same way.
+
+For example, estimating the effect of education on women's wages raises
+both selection bias and sample selection bias issues. Selection bias
+stems from the fact that more educated women are more likely to be more
+dynamic and thus to have higher earnings even when less educated.
+Selection bias would be positive in that case, overestimating the effect
+of education on earnings.
+
+Sample selection bias stems from the fact that we can only use a sample
+of working women in order to estimate the effect of education on wages,
+since we do not observe the wages on non working women. But, selection
+into the labor force might generate sample selection bias. More educated
+women participate more in the labor market, while less educated women
+participate less. As a consequence, less educated women that work are
+different from the overall sample of less educated women. They might be
+more dynamic and work-focused. As a consequence, their wages are higher
+than the average wages of the less educated women. Comparing the wages
+of less educated women that work to those of more educated women that
+work might understate the effect of education on earnings. Sample
+selection bias would generate a negative bias on the education
+coefficient.
+\EndKnitrBlock{remark}
 
 
 \end{document}

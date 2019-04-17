@@ -8,6 +8,9 @@ library(cowplot)
 library(sandwich)
 ```
 
+```{r parameters, echo=FALSE}
+cst <- "60%"
+```
 
 
 # (PART) The Two Fundamental Problems of Inference {-}
@@ -58,7 +61,7 @@ Sampling noise for the population parameter will generally be larger, since it i
 
 The RCM is made of three distinct building blocks: a treatment allocation rule, that decides who receives the treatment; potential outcomes, that measure how each individual reacts to the treatment; the switching equation that relates potential outcomes to observed outcomes through the allocation rule.
 
-### The treatment allocation rule
+### Treatment allocation rule
 
 The first building block of the RCM is the treatment allocation rule.
 Throughout this class, we are going to be interested in inferring the causal effect of only one treatment with respect to a control condition.
@@ -85,7 +88,7 @@ Let's denote this variable $Y^B_i$, with $B$ standing for "Before".
 It can be the health status assessed by a professional before deciding to give a drug to a patient.
 It can be the poverty level of a household used to assess its eligibilty to a cash transfer program.
 
-#### The sharp cutoff rule
+#### Sharp cutoff rule
 
 The sharp cutoff rule means that everyone below some threshold $\bar{Y}$ is going to receive the treatment.
 Everyone whose outcome before the treatment lies above $\bar{Y}$ does not receive the treatment.
@@ -129,7 +132,7 @@ Ds <- ifelse(YB<=param["barY"],1,0)
 
 Let's now build a histogram of the data that we have just generated.
 
-```{r histyb,fig.cap='Histogram of $y_B$',fig.align='center'}
+```{r histyb,fig.cap='Histogram of $y_B$',fig.align='center',out.width=cst}
 # building histogram of yB with cutoff point at ybar
 # Number of steps
 Nsteps.1 <- 15
@@ -152,7 +155,7 @@ knitr::kable(table.D.sharp,caption='Treatment allocation with sharp cutoff rule'
 
 We can see on Table \@ref(tab:tableDsharp) that there are `r table.D.sharp[which(rownames(table.D.sharp)==1)]` treated observations.
 
-#### The fuzzy cutoff rule
+#### Fuzzy cutoff rule
 
 This rule is less sharp than the sharp cutoff rule.
 Here, other criteria than $Y_i^B$ enter into the decision to allocate the treatment.
@@ -169,7 +172,7 @@ where $V_i$ is a random variable unobserved to the econometrician and standing f
 $V_i$ is distributed according to a, for the moment, unspecified cumulative distribution function $F_V$.
 When $V_i$ is degenerate (\textit{i.e.} it has only one point of support: it is a constant), the fuzzy cutoff rule becomes the sharp cutoff rule.
 
-#### The eligibility $+$ self-selection rule
+#### Eligibility $+$ self-selection rule
 
 It is also possible that households, once they have been made eligible to the treatment, can decide whether they want to receive it or not.
 A patient might be able to refuse the drug that the doctor suggests she should take.
@@ -187,7 +190,7 @@ We will be more explicit about $D_i^*$ in what follows.
 
 **SIMULATIONS ARE MISSING FOR THESE LAST TWO RULES**
 
-### The potential outcomes
+### Potential outcomes
 
 The second main building block of the RCM are potential outcomes.
 Let's say that we are interested in the effect of a treatment on an outcome $Y$.
@@ -218,6 +221,7 @@ param <- c(param,0.9,0.01,0.05,0.05,0.05,0.1)
 names(param)[(l+1):length(param)] <- c("rho","theta","sigma2epsilon","sigma2eta","delta","baralpha")
 param
 ```
+
 We can finally generate the potential outcomes;
 
 ```{r pot.out,eval=TRUE,echo=TRUE,results='hide'}
@@ -233,7 +237,7 @@ Y1 <- exp(y1)
 
 Now, I would like to visualize my potential outcomes:
 
-```{r histpotout,fig.cap='Potential outcomes',fig.align='center'}
+```{r histpotout,fig.cap='Potential outcomes',fig.align='center',out.width=cst}
 plot(y0,y1)
 ```
 
@@ -241,7 +245,7 @@ You can see on the resulting Figure \@ref(fig:histpotout) that both potential ou
 Those with a large potential outcome when untreated (*e.g.* in good health without the treatment) also have a positive health with the treatment.
 It is also true that individuals with bad health in the absence of the treatment also have bad health with the treatment.
 
-### The switching equation
+### Switching equation
 
 The last building block of the RCM is the switching equation.
 It links the observed outcome to the potential outcomes through the allocation rule:
@@ -274,6 +278,7 @@ We say that it is a **counterfactual**.
 A counterfactual quantity is a quantity that is, according to Hume's definition, contrary to the observed facts.
 A counterfactual cannot be observed, but it can be conceived by an effort of reason: it is the consequence of what would have happened had some action not been taken.
 
+```{remark}
 One very nice way of visualising the switching equation has been proposed by Jerzy Neyman in a 1923 prescient paper.
 Neyman proposes to imagine two urns, each one filled with $N$ balls.
 One urn is the treatment urn and contains balls with the id of the unit and the value of its potential outcome $Y_i^1$.
@@ -287,13 +292,14 @@ Schrodinger's cat is placed in a sealed box and receives a dose of poison when a
 As long as the box is sealed, there is no way we can know whether the cat is dead or alive.
 When we open the box, we observe either a dead cat or a living cat, but we cannot observe the cat both alice and dead at the same time.
 The switching equation is like opening the box, it collapses the observed outcome into one of the two potential ones.
+```
 
 ```{example}
 One way to visualize the inner workings of the switching equation is to plot the potential outcomes along with the criteria driving the allocation rule.
 In our simple example, it simply amounts to plotting observed ($y_i$) and potential outcomes ($y_i^1$ and $y_i^0$) along $y_i^B$.
 ```
 
-```{r plotyyB,eval=TRUE,echo=TRUE,fig.cap='Potential outcomes',fig.align='center'}
+```{r plotyyB,eval=TRUE,echo=TRUE,fig.cap='Potential outcomes',fig.align='center',out.width=cst}
 plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
 points(yB[Ds==1],y1[Ds==1],pch=3)
 points(yB[Ds==0],y1[Ds==0],pch=3,col='red')
@@ -306,7 +312,7 @@ abline(v=log(param["barY"]),col="red")
 legend(5,11,c('y0|D=0','y1|D=1','y0|D=1','y1|D=0',paste('y0',i.test,sep=''),paste('y1',i.test,sep='')),pch=c(1,3,1,3,1,3),col=c('black','black','red','red','green','green'),ncol=3)
 ```
 
-```{r ploty1y0yB,eval=TRUE,echo=TRUE,fig.cap='Observed outcomes',fig.align='center'}
+```{r ploty1y0yB,eval=TRUE,echo=TRUE,fig.cap='Observed outcomes',fig.align='center',out.width=cst}
 plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
 points(yB[Ds==1],y1[Ds==1],pch=3)
 legend(5,11,c('y|D=0','y|D=1'),pch=c(1,3))
@@ -319,3 +325,441 @@ Figure \@ref(fig:plotyyB) plots the observed outcomes $y_i$ along with the unobs
 Only one of the two potential outcomes is observed (the cross for the treated group and the circle for the untreated group) and the other is not.
 The observed sample in Figure \@ref(fig:plotyyB) only shows observed outcomes, and is thus silent on the values of the missing potential outcomes.
 
+## Treatment effects
+
+The RCM enables the definition of causal effects at the individual level.
+In practice though, we generally focus on a summary measure: the effect of the treatment on the treated. 
+
+### Individual level treatment effects
+
+Potential outcomes enable us to define the central notion of causal inference: the causal effect, also labelled the treatment effect, which is the difference between the two potential outcomes.
+
+```{definition,causaleff,name='Individual level treatment effect'}
+For each unit $i$, the causal effect of the treatment on outcome $Y$ is: $\Delta^Y_i=Y_i^1-Y_i^0$.
+```
+
+```{example}
+The individual level causal effect in log terms is: $\Delta^y_i=\alpha_i=\bar{\alpha}+\theta\mu_i+\eta_i$.
+The effect is the sum of a part common to all individuals, a part correlated with $\mu_i$: the treatment might have a larger or a smaller effect depending on the unobserved permanent ability or health status of individuals, and a random shock.
+It is possible to make the effect of the treatment to depend on $U_i^B$ also, but it would complicate the model.
+```
+
+In Figure \@ref(fig:ploty1y0yB), the individual level treatment effects are the differences between each cross and its corresponding circle.
+For example, for observation `r i.test`, the two potential outcomes appear in green in Figure \@ref(fig:ploty1y0yB).
+The effect of the treatment on unit `r i.test` is equal to: 
+$$
+\Delta^y_{`r i.test`}=y^1_{`r i.test`}-y^0_{`r i.test`}=`r round(y1[i.test],2)`-`r round(y0[i.test],2)`=`r round(y1[i.test]-y0[i.test],2)`.
+$$
+
+Since observation `r i.test` belongs to the treatment group, we can only observe the potential outcome in the presence of the treatment, $y^1_{`r i.test`}$.
+
+The RCM allows for heterogeneity of treatment effects.
+The treatment has a large effect on some units and a much smaller effect on other units. 
+We can even have some units that benefit from the treatment and some units that are harmed by the treatment.
+The individual level effect of the treatment is itself a random variable (and not a fixed parameter).
+It has a distribution, $F_{\Delta^Y}$.
+
+Heterogeneity of treatment effects seems very natural: the treatment might interact with individuals' different backgrounds.
+The effect of a drug might depend on the genetic background of an individual.
+An education program might only work for children that already have sufficient non-cognitive skills, and thus might depend in turn on family background.
+An environmental regulation or a behavioral intervention might only trigger reactions by already environmentally aware individuals.
+A CCT might have a larger effect when indiviuals are credit-constrained or face shocks.
+
+```{example}
+In our numerical example, the distribution of $\Delta^y_i=\alpha_i$ is a normal: $\alpha_i\sim\mathcal{N}(\bar{\alpha}+\theta\bar{\mu},\theta^2\sigma^2_{\mu}+\sigma^2_{\eta})$.
+We would like to visualize treatment effect heterogeneity.
+For that, we can build a histogram of the individual level causal effect.
+```
+On top of the histogram, we can also draw the theoretical distribution of the treatment effect: a normal with mean `r param["baralpha"]+param["theta"]*param["barmu"]` and variance `r round(param["theta"]^2*param["sigma2mu"]+param["sigma2eta"],2)`.
+
+```{r histalpha,eval=TRUE,echo=TRUE,fig.cap='Histogram of $\\Delta^y$',fig.align='center',fig.pos='htbp',out.width=cst}
+hist(alpha,main="",prob=TRUE)
+curve(dnorm(x, mean=(param["baralpha"]+param["theta"]*param["barmu"]), sd=sqrt(param["theta"]^2*param["sigma2mu"]+param["sigma2eta"])), add=TRUE,col='red')
+```
+
+The first thing that we can see on Figure \@ref(fig:histalpha) is that the theoretical and the empirical distributions nicely align with each other. 
+We also see that the majority of the observations lies to the right of zero: most people experience a positive effect of the treatment.
+But there are some individuals that do not benefit from the treatment: the effect of the treatment on them is negative.
+
+### Average treatment effect on the treated
+
+We do not generally estimate individual-level treatment effects.
+We generally look for summary statistics of the effect of the treatment.
+By far the most widely reported causal parameter is the Treatment on the Treated parameter (TT).
+It can be defined in the sample at hand or in the population.
+
+```{definition,TT,name='Average and expected treatment effects on the treated'}
+The Treatment on the Treated parameters for outcome $Y$ are:
+```
+
+* The average Treatment effect on the Treated in the sample: 
+
+  \begin{align*}
+  \Delta^Y_{TT_s} & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^N(Y_i^1-Y_i^0)D_i,
+  \end{align*}
+  
+* The expected Treatment effect on the Treated in the population: 
+
+  \begin{align*}
+  \Delta^Y_{TT} & = \esp{Y_i^1-Y_i^0|D_i=1}.
+  \end{align*}
+
+The TT parameters measure the average effect of the treatment on those who actually take it, either in the sample at hand or in the popluation.
+It is generally considered to be the most policy-relevant parameter since it measures the effect of the treatment as it has actually been allocated.
+For example, the expected causal effect on the overall population is only relevant if policymakers are considering implementing the treatment even on those who have not been selected to receive it.
+For a drug or an anti-poverty program, it would mean giving the treatment to healthy or rich people, which would make little sense.
+
+TT does not say anything about how the effect of the treatment is distributed in the population or in the sample.
+TT does not account for the heterogneity of treatment effects.
+In Lecture 7, we will look at other parameters of interest that look more closely into how the effect of the treatment is distributed.
+
+```{example}
+The value of TT in our sample is:
+```  
+$$
+\Delta^y_{TT_s}=`r round(mean(alpha[Ds==1]),3)`.
+$$
+
+Computing the population value of $TT$ is slightly more involved: we have to use the formula for the conditional expectation of a censored bivariate normal random variable:
+
+\begin{align*}
+\Delta^y_{TT} & = \esp{\alpha_i|D_i=1}\\
+              & = \bar{\alpha}+\theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y}}\\
+              & = \bar{\alpha}+\theta\left(\bar{\mu} - \frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right)\\
+              & = \bar{\alpha}+\theta\bar{\mu}-\theta\left(\frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right),
+\end{align*}
+
+where $\phi$ and $\Phi$ are respectively the density and the cumulative distribution functions of the standard normal.
+The second equality follows from the definition of $\alpha_i$ and $D_i$ and from the fact that $\eta_i$ is independent from $\mu_i$ and $U_i^B$.
+The third equality comes from the formula for the expectation of a censored bivariate normal random variable.
+In order to compute the population value of TT easily for different sets of parameter values, let's write a function in R:
+
+```{r delta.y.tt,eval=TRUE,echo=TRUE,tidy=FALSE}
+delta.y.tt <- function(param){return(param["baralpha"]+param["theta"]*param["barmu"]
+                                     -param["theta"]*((param["sigma2mu"]*dnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))
+                                                      /(sqrt(param["sigma2mu"]+param["sigma2U"])
+                                                        *pnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))))}
+```
+
+The population value of TT computed using this function is: $\Delta^y_{TT}=$ `r round(delta.y.tt(param),3).
+We can see that the values of TT in the sample and in the population differ slightly.
+This is because of sampling noise: the units in the sample are not perfectly representative of the units in the population.
+
+## Fundamental problem of causal inference
+
+At least in this lecture, causal inference is about trying to infer TT, either in the sample or in the population.
+The FPCI states that it is impossible to directly observe TT because one part of it remains fundamentally unobserved. 
+
+```{theorem,FPCI,name='Fundamental problem of causal inference'}
+It is impossible to observe TT, either in the population or in the sample.
+```
+
+```{proof}
+The proof of the FPCI is rather straightforward. 
+Let me start with the sample TT:
+
+\begin{align*}
+  \Delta^Y_{TT_s} & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^N(Y_i^1-Y_i^0)D_i \\
+                  & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^1D_i- \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i \\
+                  & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_iD_i- \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i.
+\end{align*}
+
+Since $Y_i^0$ is unobserved whenever $D_i=1$, $\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i$ is unobserved, and so is $\Delta^Y_{TT_s}$.
+The same is true for the population TT:
+
+\begin{align*}
+  \Delta^Y_{TT} & = \esp{Y_i^1-Y_i^0|D_i=1} \\
+                & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
+                & = \esp{Y_i|D_i=1}-\esp{Y_i^0|D_i=1}.
+\end{align*}
+
+$\esp{Y_i^0|D_i=1}$ is unobserved, and so is $\Delta^Y_{TT}$.
+```
+
+The key insight in order to understand the FPCI is to see that the outcomes of the treated units had they not been treated are unobservable, and so is their average or expectation.
+We say that they are counterfactual, contrary to what has happened.
+
+```{definition,counter,name='Couterfactual'}
+Both $\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i$ and $\esp{Y_i^0|D_i=1}$ are counterfactual quantities that we will never get to observe.
+```
+
+```{example}
+The average counterfactual outcome of the treated is the mean of the red circles in the $y$ axis on Figure \@ref(fig:ploty1y0yB):
+```
+$$
+\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^Ny_i^0D_i= `r round(mean(y0[Ds==1]),2)`.
+$$
+Remember that we can estimate this quantity only because we have generated the data ourselves.
+In real life, this quantity is hopelessly unobserved.
+
+$\esp{y_i^0|D_i=1}$ can be computed using the formula for the expectation of a censored normal random variable:
+
+\begin{align*}
+\esp{y_i^0|D_i=1} & = \esp{\mu_i+\delta+U_i^0|D_i=1}\\
+                  & = \esp{\mu_i+\delta+\rho U_i^B+\epsilon_i|D_i=1}\\
+                  & = \delta + \esp{\mu_i+\rho U_i^B|y_i^B\leq\bar{y}}\\
+                  & = \delta + \bar{\mu} - \frac{\sigma^2_{\mu}+\rho\sigma^2_U}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}.
+\end{align*}
+
+We can write a function in R to compute this value:
+
+
+```{r espy0D1,eval=TRUE,echo=TRUE,tidy=FALSE}
+esp.y0.D1 <- function(param){
+  return(param["delta"]+param["barmu"]
+         -((param["sigma2mu"]+param["rho"]*param["sigma2U"])
+           *dnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))
+         /(sqrt(param["sigma2mu"]+param["sigma2U"])*pnorm((log(param["barY"])-param["barmu"])
+                                                          /(sqrt(param["sigma2mu"]+param["sigma2U"])))))
+}
+```
+The population value of TT computed using this function is: $\esp{y_i^0|D_i=1}=$ `r round(esp.y0.D1(param),3)`.
+
+## Intuitive estimators, confounding factors and selection bias
+
+In this section, we are going to examine the properties of two intuitive comparisons that laypeople, policymakers but also ourselves make in order to estimate causal effects: the with/wihtout comparison ($WW$) and the before/after comparison ($BA$).
+$WW$ compares the average outcomes of the treated individuals with those of the untreated individuals.
+$BA$ compares the average outcomes of the treated after taking the treatment to their average outcomes before they took the treatment.
+These comparisons try to proxy for the expected counterfactual outcome in the treated group by using an observed quantity.
+$WW$ uses the expected outcome of the untreated individuals as a proxy.
+$BA$ uses the expected outcome of the treated before they take the treatment as a proxy.
+
+Unfortunately, both of these proxies are generally poor and provide biased estimates of $TT$.
+The reason that these proxies are poor is that the treatment is not the only factor that differentiates the treated group from the groups used to form the proxy.
+The intuitive comparisons are biased because factors, other than the treatment, are correlated to its allocation.
+The factors that bias the intuitive comparisons are generally called confouding factors or confounders.
+
+The treatment effect measures the effect of a ceteris paribus change in treatment status, while the intuitive comparisons capture both the effect of this change and that of other correlated changes that spuriously contaminate the comparison.
+Intuitive comparisons measure correlations while treatment effects measure causality.
+The old motto "correlation is not causation" applies vehemently here.
+
+```{remark}
+A funny anecdote about this expression "correlation is not causation".
+This expression is due to Karl Pearson, the father of modern statistics. 
+He coined the phrase in his famous book "The Grammar of Science."
+Pearson is famous for inventing the correlation coefficient.
+He actually thought that correlation was a much superior, much more rigorous term, than causation.
+In his book, he actually used the sentence to argue in favor of abandoning causation altogether and focusing on the much better-defined and measurable concept of correlation.
+Interesting turn of events that his sentence is now used to mean that correlation is weaker than causation, totally reverting the original intended meaning.
+```
+
+In this section, we are going to define both comparisons, study their biases and state the conditions under which they identify $TT$.
+This will prove to be a very useful introduction to the notion of identification.
+It is also very important to be able to understand the sources of bias of comparisons that we use every day and that come very naturally to policy makers and lay people.
+
+
+```{remark}
+In this section, we state the definitions and formulae in the population.
+This is for two reasons.
+First, it is simpler, and lighter in terms of notation. 
+Second, it emphasizes that the problems with intuitive comparisons are independent of sampling noise.
+Most of the results stated here for the population extend to the sample, replacing the expectation operator by the average operator.
+I will nevertheless give examples in the sample, since it is so much simpler to compute.
+I will denote sample equivalents of population estimators with a hat.
+```
+
+### The with/without comparison, selection bias and cross-sectional confounders
+
+The with/without comparison ($WW$) is very intuitive: just compare the outcomes of the treated and untreated individuals in order to estimate the causal effect.
+This approach is nevertheless generally biased.
+We call the bias of $WW$ selection bias ($SB$).
+Selection bias is due to unobserved confounders that are distributed differently in the treatment and control group and that generate differences in outcomes even in the absence of the treatment.
+In this section, I define the $WW$ estimator, derives its bias, introduces the confounders and states conditions under which it is unbiased.
+
+#### The with/without comparison
+
+The with/without comparison ($WW$) is very intuitive: just compare the outcomes of the treated and untreated individuals in order to estimate the causal effect.
+
+```{definition,name='With/without comparison'}
+The with/without comparison is the difference between the expected outcomes of the treated and the expected outcomes of the untreated:
+
+\begin{align*}
+\Delta^Y_{WW} & =  \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}.
+\end{align*}
+```
+
+```{example}
+In the population, $WW$ can be computed using the traditional formula for the expectation of a truncated normal distribution:
+
+\begin{align*}
+\Delta^y_{WW} & = \esp{y_i|D_i=1}-\esp{y_i|D_i=0} \\
+              & = \esp{y_i^1|D_i=1}-\esp{y^0_i|D_i=0} \\
+              & = \esp{\alpha_i|D_i=1}+\esp{\mu_i+\rho U_i^B|\mu_i+U_i^B\leq\bar{y}}-\esp{\mu_i+\rho U_i^B|\mu_i+U_i^B>\bar{y}} \\
+              & = \bar{\alpha}+\theta\left(\bar{\mu}-\frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right)  
+              -\frac{\sigma^2_{\mu}+\rho\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}+\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+```
+In order to compute this parameter, we are going to set up a R function.
+For reasons that will become clearer later, we will define two separate functions to compute the first and second part of the formula.
+In the first part, you should have recognised $TT$, that we have already computed in Lecture 1.
+We are going to call the second part $SB$, for reasons that will become explicit in a bit.
+
+
+```{r WW.SB,eval=TRUE,echo=TRUE}
+delta.y.tt <- function(param){
+  return(param["baralpha"]+param["theta"]*param["barmu"]-param["theta"]
+         *((param["sigma2mu"]*dnorm((log(param["barY"])-param["barmu"])
+                                    /(sqrt(param["sigma2mu"]+param["sigma2U"]))))
+           /(sqrt(param["sigma2mu"]+param["sigma2U"])*pnorm((log(param["barY"])-param["barmu"])
+                                                            /(sqrt(param["sigma2mu"]+param["sigma2U"]))))))
+}
+delta.y.sb <- function(param){
+  return(-(param["sigma2mu"]+param["rho"]*param["sigma2U"])/sqrt(param["sigma2mu"]+param["sigma2U"])
+         *dnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"])))
+         *(1/pnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"])))
+           +1/(1-pnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))))
+}
+delta.y.ww <- function(param){
+  return(delta.y.tt(param)+delta.y.sb(param))
+}
+```
+
+As a conclusion of all these derivations, $WW$ in the population is equal to `r round(delta.y.ww(param),3)`.
+Remember that the value of $TT$ in the population is `r round(delta.y.tt(param),3)`.
+
+In order to compute the $WW$ estimator in a sample, I'm going to generate a brand new sample and I'm going to choose a seed for the pseudo-random number generator so that we obtain the same result each time we run the code.
+I use ``set.seed(1234)`` in the code chunk below.
+
+```{r simul,eval=TRUE,echo=TRUE}
+param <- c(8,.5,.28,1500)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY")
+set.seed(1234)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB
+YB <- exp(yB)
+Ds <- rep(0,N)
+Ds[YB<=param["barY"]] <- 1
+l <- length(param)
+param <- c(param,0.9,0.01,0.05,0.05,0.05,0.1)
+names(param)[(l+1):length(param)] <- c("rho","theta","sigma2epsilon","sigma2eta","delta","baralpha")
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+In this sample, the average outcome of the treated in the presence of the treatment is 
+$$
+\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i= `r round(mean(y[Ds==1]),3)`.
+$$
+It is materialized by a circle on Figure \@ref(fig:ploty0y1yBD). 
+The average outcome of the untreated is 
+$$
+\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i= `r round(mean(y[Ds==0]),3)`.
+$$
+It is materialized by a plus sign on Figure \@ref(fig:ploty0y1yBD). 
+
+```{r ploty0y1yBD,eval=TRUE,fig.cap='Evolution of average outcomes in the treated and control group before (Time =1) and after (Time=2) the treatment',fig.align='center',echo=FALSE,out.width=cst}
+x <- c(1,2)
+y11 <- c(mean(yB[Ds==1]),mean(y[Ds==1]))
+y10 <- c(mean(yB[Ds==1]),mean(y0[Ds==1]))
+y00 <- c(mean(yB[Ds==0]),mean(y0[Ds==0]))
+plot(x,y11,ylim=c(6.5,8.5),type='o',pch=1,xlab='Time',ylab='Average outcomes')
+points(x,y10,pch=2,type='o',lty=2)
+points(x,y00,pch=3,type='o',lty=6)
+legend(1,8,c('Untreated (observed)','Treated (observed)','Treated (counterfactual)'),pch=c(3,1,2),lty=c(6,1,2),ncol=1)
+```
+
+The estimate of the $WW$ comparison in the sample is thus: 
+
+\begin{align*}
+\hat{\Delta^Y_{WW}} & = \frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i).
+\end{align*}
+
+We have $\hat{\Delta^y_{WW}}=$ `r round(mean(y[Ds==1])-mean(y[Ds==0]),3)`.
+Remember that the value of $TT$ in the sample is $\Delta^y_{TT_s}=$ `r round(mean(alpha[Ds==1]),3)`.
+
+Overall, $WW$ severely underestimates the effect of the treatment in our example.
+$WW$ suggests that the treatment has a negative effect on outcomes whereas we know by construction that it has a positive one. 
+
+#### Selection bias
+
+When we form the with/without comparison, we do not recover the $TT$ parameter.
+Instead, we recover $TT$ plus a bias term, called **selection bias**:
+
+\begin{align*}
+\Delta^Y_{WW} & =\Delta^Y_{TT}+\Delta^Y_{SB}.
+\end{align*}
+
+```{definition,SB,name='Selection bias'}
+Selection bias is the difference between the with/without comparison and the treatment on the treated parameter:
+\begin{align*}
+\Delta^Y_{SB} & = \Delta^Y_{WW}-\Delta^Y_{TT}.
+\end{align*}
+```
+
+$WW$ tries to approximate the counterfactual expected outcome in the treated group by using $\esp{Y_i^0|D_i=0}$, the expected outcome in the untreated group .
+Selection bias appears because this proxy is generally poor.
+It is very easy to see that selection bias is indeed directly due to this bad proxy problem:
+
+```{theorem}
+Selection bias is the difference between the counterfactual expected potential outcome in the absence of the treatment among the treated and the expected potential outcome in the absence of the treatment among the untreated. 
+
+\begin{align*}
+\Delta^Y_{SB} & = \esp{Y_i^0|D_i=1}-\esp{Y_i^0|D_i=0}.
+\end{align*}
+
+```
+
+```{proof}
+\begin{align*}
+\Delta^Y_{SB} & = \Delta^Y_{WW}-\Delta^Y_{TT} \\
+              & = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}-\esp{Y_i^1-Y_i^0|D_i=1}\\
+              & = \esp{Y_i^0|D_i=1}-\esp{Y_i^0|D_i=0}.
+\end{align*}
+
+The first and second equalities stem only from the definition of both parameters.
+The third equality stems from using the switching equation: $Y_i=Y_i^1D_i+Y_i^0(1-D_i)$, so that $\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}$ and $\esp{Y_i|D_i=0}=\esp{Y_i^0|D_i=0}$.
+```
+
+```{example}
+In the population, $SB$ is equal to 
+```
+$$
+  \Delta^y_{SB} = \Delta^y_{WW}-\Delta^y_{TT}= `r round(delta.y.ww(param),3)` - `r round(delta.y.tt(param),3)` = `round(delta.y.ww(param)-delta.y.tt(param),3)`
+$$
+  
+We could have computed $SB$ directly using the formula from Theorem~\ref{th:SB}:
+
+\begin{align*}
+\Delta^y_{SB} & = \esp{y_i^0|D_i=1}-\esp{y_i^0|D_i=0}\\
+              & = -\frac{\sigma^2_{\mu}+\rho\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}+\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+
+When using the R function for $SB$ that we have defined earlier, we indeed find: $\Delta^y_{SB}=$ `r round(delta.y.sb(param),3)`.
+
+In the sample, $\hat{\Delta^y_{SB}}=$`r round(mean(y[Ds==1])-mean(y[Ds==0]),3)`-`r round((mean(y1[Ds==1])-mean(y0[Ds==1])),3)` $ =$ `r round(mean(y[Ds==1])-mean(y[Ds==0])-(mean(y1[Ds==1])-mean(y0[Ds==1])),3)`.
+Selection bias emerges because we are using a bad proxy for the counterfactual.
+The average outcome for the untreated is equal to $\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i=$ `r round(mean(y0[Ds==0]),3)` while the counterfactual average outcome for the treated is $\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy^0_i=$ `r round(mean(y0[Ds==1]),3)`.
+Their difference is as expected equal to $SB$:
+$\hat{\Delta^y_{SB}}=$ `r round(mean(y0[Ds==1]),3)` $-$ `r round(mean(y0[Ds==0]),3)` $=$ `r round(mean(y0[Ds==1])-mean(y0[Ds==0]),3)`.
+The counterfactual average outcome of the treated is much smaller than the average outcome of the untreated.
+On Figure \@ref(fig:ploty0y1yBD), this is materialized by the fact that the plus sign is located much above the triangle.
+
+```{remark}
+The concept of selection bias is related to but different from the concept of sample selection bias.
+With sample selection bias, we worry that selection into the sample might bias the estimated effect of a treatment on outcomes.
+With selection bias, we worry that selection into the treatment itself might bias the effect of the treatment on outcomes.
+Both biases are due to unbserved covariates, but they do not play out in the same way.
+
+For example, estimating the effect of education on women's wages raises both selection bias and sample selection bias issues.
+Selection bias stems from the fact that more educated women are more likely to be more dynamic and thus to have higher earnings even when less educated.
+Selection bias would be positive in that case, overestimating the effect of education on earnings.
+
+Sample selection bias stems from the fact that we can only use a sample of working women in order to estimate the effect of education on wages, since we do not observe the wages on non working women.
+But, selection into the labor force might generate sample selection bias.
+More educated women participate more in the labor market, while less educated women participate less.
+As a consequence, less educated women that work are different from the overall sample of less educated women.
+They might be more dynamic and work-focused.
+As a consequence, their wages are higher than the average wages of the less educated women.
+Comparing the wages of less educated women that work to those of more educated women that work might understate the effect of education on earnings. 
+Sample selection bias would generate a negative bias on the education coefficient.
+```
