@@ -122,12 +122,14 @@
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{2019-04-17}
+  \date{2019-04-18}
 
 \usepackage{dsfont}
 \newcommand{\uns}[1]{\mathds{1}[ #1 ]}
 \usepackage{subfig}
 \newcommand{\esp}[1]{\mathbb{E}[ #1 ]}
+\newcommand\Ind{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\setbox0\hbox{$#1#2$}\copy0\kern-\wd0\mkern4mu\box0}}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -656,11 +658,11 @@ rule. In our simple example, it simply amounts to plotting observed
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/plotyyB-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/ploty1y0yB-1} 
 
 }
 
-\caption{Potential outcomes}\label{fig:plotyyB}
+\caption{Potential outcomes}\label{fig:ploty1y0yB}
 \end{figure}
 
 \begin{Shaded}
@@ -674,23 +676,23 @@ rule. In our simple example, it simply amounts to plotting observed
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/ploty1y0yB-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/plotyyB-1} 
 
 }
 
-\caption{Observed outcomes}\label{fig:ploty1y0yB}
+\caption{Observed outcomes}\label{fig:plotyyB}
 \end{figure}
 
-Figure \ref{fig:ploty1y0yB} plots the observed outcomes \(y_i\) that
-results from applying the switching equation. Figure
-\ref{fig:ploty1y0yB} shows that each individual in the sample is endowed
-with two potential outcomes, represented by a circle and a cross. Figure
-\ref{fig:plotyyB} plots the observed outcomes \(y_i\) along with the
-unobserved potential outcomes. Only one of the two potential outcomes is
-observed (the cross for the treated group and the circle for the
-untreated group) and the other is not. The observed sample in Figure
-\ref{fig:plotyyB} only shows observed outcomes, and is thus silent on
-the values of the missing potential outcomes.
+Figure \ref{fig:ploty1y0yB} plots the observed outcomes \(y_i\) along
+with the unobserved potential outcomes. Figure \ref{fig:ploty1y0yB}
+shows that each individual in the sample is endowed with two potential
+outcomes, represented by a circle and a cross. Figure \ref{fig:plotyyB}
+plots the observed outcomes \(y_i\) that results from applying the
+switching equation. Only one of the two potential outcomes is observed
+(the cross for the treated group and the circle for the untreated group)
+and the other is not. The observed sample in Figure \ref{fig:plotyyB}
+only shows observed outcomes, and is thus silent on the values of the
+missing potential outcomes.
 
 \section{Treatment effects}\label{treatment-effects}
 
@@ -1031,9 +1033,8 @@ simpler to compute. I will denote sample equivalents of population
 estimators with a hat.
 \EndKnitrBlock{remark}
 
-\subsection{The with/without comparison, selection bias and
-cross-sectional
-confounders}\label{the-withwithout-comparison-selection-bias-and-cross-sectional-confounders}
+\subsection{With/Without comparison, selection bias and cross-sectional
+confounders}\label{withwithout-comparison-selection-bias-and-cross-sectional-confounders}
 
 The with/without comparison (\(WW\)) is very intuitive: just compare the
 outcomes of the treated and untreated individuals in order to estimate
@@ -1045,8 +1046,7 @@ even in the absence of the treatment. In this section, I define the
 \(WW\) estimator, derives its bias, introduces the confounders and
 states conditions under which it is unbiased.
 
-\subsubsection{The with/without
-comparison}\label{the-withwithout-comparison}
+\subsubsection{With/Without comparison}\label{withwithout-comparison}
 
 The with/without comparison (\(WW\)) is very intuitive: just compare the
 outcomes of the treated and untreated individuals in order to estimate
@@ -1197,12 +1197,12 @@ the untreated group . Selection bias appears because this proxy is
 generally poor. It is very easy to see that selection bias is indeed
 directly due to this bad proxy problem:
 
-\BeginKnitrBlock{theorem}
-\protect\hypertarget{thm:unnamed-chunk-16}{}{\label{thm:unnamed-chunk-16}
-}Selection bias is the difference between the counterfactual expected
-potential outcome in the absence of the treatment among the treated and
-the expected potential outcome in the absence of the treatment among the
-untreated.
+\BeginKnitrBlock{theorem}[Selection bias and counterfactual]
+\protect\hypertarget{thm:SBth}{}{\label{thm:SBth} \iffalse (Selection bias
+and counterfactual) \fi{} }Selection bias is the difference between the
+counterfactual expected potential outcome in the absence of the
+treatment among the treated and the expected potential outcome in the
+absence of the treatment among the untreated.
 
 \begin{align*}
 \Delta^Y_{SB} & = \esp{Y_i^0|D_i=1}-\esp{Y_i^0|D_i=0}.
@@ -1226,14 +1226,18 @@ parameters. The third equality stems from using the switching equation:
 \EndKnitrBlock{proof}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-18}{}{\label{exm:unnamed-chunk-18}
+\protect\hypertarget{exm:unnamed-chunk-17}{}{\label{exm:unnamed-chunk-17}
 }In the population, \(SB\) is equal to
-\EndKnitrBlock{example} \[
-  \Delta^y_{SB} = \Delta^y_{WW}-\Delta^y_{TT}= -1.298 - 0.172 = `round(delta.y.ww(param)-delta.y.tt(param),3)`
-\]
+\EndKnitrBlock{example}
 
-We could have computed \(SB\) directly using the formula from
-Theorem\textasciitilde{}\ref{th:SB}:
+\begin{align*}
+  \Delta^y_{SB} & = \Delta^y_{WW}-\Delta^y_{TT} \\
+                & = -1.298 - 0.172 \\
+                & = -1.471
+\end{align*}
+
+We could have computed \(SB\) directly using the formula from Theorem
+\ref{thm:SBth}:
 
 \begin{align*}
 \Delta^y_{SB} & = \esp{y_i^0|D_i=1}-\esp{y_i^0|D_i=0}\\
@@ -1243,7 +1247,7 @@ Theorem\textasciitilde{}\ref{th:SB}:
 When using the R function for \(SB\) that we have defined earlier, we
 indeed find: \(\Delta^y_{SB}=\) -1.471.
 
-In the sample, \(\hat{\Delta^y_{SB}}=\)-1.308-0.168 \$ =\$ -1.476.
+In the sample, \(\hat{\Delta^y_{SB}}=\)-1.308-0.168 \(=\) -1.476.
 Selection bias emerges because we are using a bad proxy for the
 counterfactual. The average outcome for the untreated is equal to
 \(\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i=\) 8.383 while the
@@ -1285,6 +1289,356 @@ work might understate the effect of education on earnings. Sample
 selection bias would generate a negative bias on the education
 coefficient.
 \EndKnitrBlock{remark}
+
+\subsubsection{Confounding factors}\label{confounding-factors}
+
+Confounding factors are the factors that generate differences between
+treated and untreated individuals even in the absence of the treatment.
+The confounding factors are thus responsible for selection bias. In
+general, the mere fact of being selected for receiving the treatment
+means that you have a host of characteristics that would differentiate
+you from the unselected individuals, even if you were not to receive the
+treatment eventually.
+
+For example, if a drug is given to initially sicker individuals, then,
+we expect that they will be sicker that the untreated in the absence of
+the treatment. Comparing sick individuals to healthy ones is not a sound
+way to estimate the effect of a treatment. Obviously, even if our
+treatment performs well, healthier individuals will be healthier after
+the treatment has been allocated to the sicker patients. The best we can
+expect is that the treated patients have recovered, and that their
+health after the treatment is comparable to that of the untreated
+patients. In that case, the with/without comparison is going to be null,
+whereas the true effect of the treatment is positive. Selection bias is
+negative in that case: in the absence of the treatment, the average
+health status of the treated individuals wuld have been smaller than
+that of the untreated individuals. The confounding factor is the health
+status of individuals when the decision to allocate the drug has been
+taken. It is correlated to both the allocation of the treatment
+(negatively) and to health in the absence of the treatment (positively).
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-19}{}{\label{exm:unnamed-chunk-19}
+}In our example, \(\mu_i\) and \(U_i^B\) are the confounding factors.
+Because the treatment is only given to individuals with pre-treament
+outcomes smaller than a threshold (\(y_i^B\leq\bar{y}\)), participants
+tend to have smaller \(\mu_i\) and \(U_i^B\) than non participants, as
+we can see on Figure \ref{fig:histmuD}.
+\EndKnitrBlock{example}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/histmuD-1} 
+
+}
+
+\caption{Distribution of confounders in the treated and control group}\label{fig:histmuD}
+\end{figure}
+
+Since confounding factors are persistent, they affect the outcomes of
+participants and non participants after the treatment date. \(\mu_i\)
+persists entirely over time, and \(U_i^B\) persists at a rate \(\rho\).
+As a consequence, even in the absence of the treatment, participants
+have lower outcomes than non participants, as we can see on Figure
+\ref{fig:histmuD}.
+
+We can derive the contributions of both confouding factors to overall
+SB:
+
+\begin{align*}
+\esp{Y_i^0|D_i=1} & = \esp{\mu_i+\delta+U_i^0|\mu_i+U_i^B\leq\bar{y}}\\
+                  & = \delta + \esp{\mu_i|\mu_i+U_i^B\leq\bar{y}} + \rho\esp{U_i^B|\mu_i+U_i^B\leq\bar{y}}\\
+\Delta^y_{SB}     & = \esp{\mu_i|\mu_i+U_i^B\leq\bar{y}}-\esp{\mu_i|\mu_i+U_i^B>\bar{y}} \\
+                  & \phantom{=} + \rho\left(\esp{U_i^B|\mu_i+U_i^B\leq\bar{y}}-\esp{U_i^B|\mu_i+U_i^B>\bar{y}}\right)\\
+                  & = -\frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}+\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right) \\
+                  & \phantom{=} -\frac{\rho\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}+\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right)
+\end{align*}
+
+In order to evaluate these quantities, let's build two R functions:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.sb.mu <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(}\OperatorTok{-}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{])}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}
+         \OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))}
+         \OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))}
+           \OperatorTok{+}\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))))}
+\NormalTok{\}}
+\NormalTok{delta.y.sb.U <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(}\OperatorTok{-}\NormalTok{(param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}
+         \OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))}
+         \OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))}
+           \OperatorTok{+}\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+The contribution of \(\mu_i\) to selection bias is -0.978 while that of
+\(U_i^0\) is of `r round(delta.y.sb.U(param),3).
+
+\subsubsection{\texorpdfstring{When does \(WW\) identify
+\(TT\)?}{When does WW identify TT?}}\label{when-does-ww-identify-tt}
+
+Are there conditions under which \(WW\) identify \(TT\)? The answer is
+yes: when there is no selection bias, the proxy used by \(WW\) for the
+counterfactual quantity is actually valid. Formally, \(WW\) identifies
+\(TT\) when the following assumption holds:
+
+\BeginKnitrBlock{definition}[No selection bias]
+\protect\hypertarget{def:noselb}{}{\label{def:noselb} \iffalse (No selection
+bias) \fi{} }We assume the following:
+
+\begin{align*}
+\esp{Y_i^0|D_i=1} & = \esp{Y_i^0|D_i=0}.
+\end{align*}
+\EndKnitrBlock{definition} Under Assumption \ref{def:noselb}, the
+expected counterfactual outcome of the treated is equal to the expected
+potential outcome of the untreated in the absence of the treatment. This
+yields to the following result:
+
+\BeginKnitrBlock{theorem}
+\protect\hypertarget{thm:wwtt}{}{\label{thm:wwtt} }Under Assumption
+\ref{def:noselb}, \(WW\) identifies the \(TT\) parameter:
+
+\begin{align*}
+\Delta^Y_{WW} & = \Delta^Y_{TT}.
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+\Delta^Y_{WW} & = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}\\
+              & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=0}\\
+              & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1} \\
+              & = \Delta^Y_{TT},
+\end{align*}
+
+where the second equation uses the switching equation and the third uses
+Assumption \ref{def:noselb}.
+\EndKnitrBlock{proof}
+
+So, under Assumption \ref{def:noselb}, the \(WW\) comparison actually
+identifies the \(TT\) parameter. We say that Assumption \ref{def:noselb}
+is an \textbf{identification assumption}: it serves to identify the
+parameter of interest using observed data. The intuition for this result
+is simply that, under Assumption \ref{def:noselb}, there are no
+confounding factors and thus no selection bias. under Assumption
+\ref{def:noselb}, the factors that yield individuals to receive or not
+the treatment are mean-independent of the potential outcomes in the
+absence of the treatment. In this case, the expected outcome in the
+untreated group actually is a perfect proxy for the counterfactual
+expected outcome of the treated group.
+
+Obviously, Assumption \ref{def:noselb} is extremely unlikely to hold in
+real life. For Assumption \ref{def:noselb} to hold, it has to be that
+\textbf{all} the determinants of \(D_i\) are actually unrelated to
+\(Y_i^0\). One way to enforce Assumption \ref{def:noselb} is to
+randomize treatment intake. We will see this in the Lecture on RCTs. It
+might also be possible that Assumption \ref{def:noselb} holds in the
+data in the absence of an RCT. But this is not very likely, and should
+be checked by every mean possible.
+
+One way to test for the validity of Assumption \ref{def:noselb} is to
+compare the values of observed covariates in the treated and untreated
+group. For Assumption \ref{def:noselb} to be credible, observed
+covariates should be distributed in the same way.
+
+Another nice way to test for the validity of Assumption \ref{def:noselb}
+with observed data is to implement a \textbf{placebo test}. A placebo
+test looks for an effect where there should be none, if we believe the
+identification assumptions. For example, under Assumption
+\ref{def:noselb} it should be (even though it is not rigorously implied)
+that outcomes before the treatment are also mean-independent of the
+treatment allocation. And actually, since a future treatment cannot have
+an effect today (unless people anticipate the treatment, which we assume
+away here), the \(WW\) comparison before the treatment should be null,
+therefore giving a zero effect of the placebo treatment ``will receive
+the treatment in the future.''
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-21}{}{\label{exm:unnamed-chunk-21}
+}When the allocation rule defining \(D_i\) is the eligibility rule that
+we have used so far, we have already seen that Assumption
+\ref{def:noselb} does not hold and the placebo test should not pass
+either.
+\EndKnitrBlock{example} One way of generating Assumption
+\ref{def:noselb} from the eligibility rule that we are using is to mute
+the persistence in outcome dynamics. For example, one could set
+\(\rho=0\) and \(\sigma^2_{\mu}=0\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,}\DecValTok{0}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\DecValTok{0}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{)}
+\NormalTok{param}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         barmu      sigma2mu       sigma2U          barY           rho 
+##          8.00          0.00          0.28       1500.00          0.00 
+##         theta sigma2epsilon     sigma2eta         delta      baralpha 
+##          0.01          0.05          0.05          0.05          0.10
+\end{verbatim}
+
+In that case, outcomes are not persistent and Assumption
+\ref{def:noselb} holds:
+
+\begin{align*}
+\esp{y_i^0|D_i=1} & = \esp{\mu_i+\delta+U_i^0|y_i^B\leq\bar{y}}\\
+                  & = \esp{\bar{\mu}+\delta+\epsilon_i|\bar{\mu}+U_i^B\leq\bar{y}}\\
+                  & = \bar{\mu} + \delta + \esp{\epsilon_i|\bar{\mu}+U_i^B\leq\bar{y}}\\
+                  & = \bar{\mu} + \delta + \esp{\epsilon_i|\bar{\mu}+U_i^B>\bar{y}}\\
+                  & = \esp{\mu_i+\delta+U_i^0|y_i^B>\bar{y}}\\
+                  & = \esp{y_i^0|D_i=0},                  
+\end{align*}
+
+where the second equality follows from \(\sigma^2_{\mu}=0\) and
+\(\rho=0\) and the fourth from \(\epsilon_i \Ind U_i^B\). Another direct
+way to see this is to use the formula for selection bias that we have
+derived above. It is easy to see that with \(\rho=0\) and
+\(\sigma^2_{\mu}=0\), \(\Delta^y_{SB}=0\). To be sure, we can compute
+\(\Delta^y_{SB}\) with the new parameter values: \(\Delta^y_{SB}=\) 0.
+As a consequence, \(\Delta^y_{TT}=\) 0.18 \(=\) 0.18 \(=\Delta^y_{WW}\).
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}You might have noticed that the value of
+\(\Delta^y_{TT}\) is different than before. It is normal, since it
+depends on the values of parameters, and especially on
+\(\sigma_{\mu}^2\) and \(\rho\).
+\EndKnitrBlock{remark}
+
+Let's see how these quantities behave in the sample.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{Ds[YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{]] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
+We can see that \(\hat{\esp{Y_i^0|D_i=1}}=\) 8.038 \(\approx\) 8.055
+\(=\hat{\esp{Y_i^0|D_i=0}}\). This means that \(WW\) should be close to
+\(TT\): \(\hat{\Delta^y_{TT}}=\) 0.198 \(\approx\) 0.182
+\(=\hat{\Delta^y_{WW}}\). Note that \(\hat{WW}\) in the sample is not
+exactly, but only approximately, equal to \(TT\) in the population and
+in the sample. This is an instance of the Fundamental Problem of
+Statistical Inference that we will study in the next chapter.
+
+Under these restrictions, the placebo test would unfortunately conclude
+against Assumption \ref{def:noselb} even though it is valid:
+
+\begin{align*}
+\esp{y_i^B|D_i=1} & = \esp{\mu_i+ U_i^B|y_i^B\leq\bar{y}}\\
+                  & = \esp{\bar{\mu}+U_i^B|\bar{\mu}+U_i^B\leq\bar{y}}\\
+                  & = \bar{\mu}  + \esp{U_i^B|\bar{\mu}+U_i^B\leq\bar{y}}\\
+                  & \neq \bar{\mu}  + \esp{U_i^B|\bar{\mu}+U_i^B>\bar{y}}\\
+                  & = \esp{\mu_i+U_i^0|y_i^B>\bar{y}}\\
+                  & = \esp{y_i^B|D_i=0}.                  
+\end{align*}
+
+In the sample, we indeed have that \(\hat{\esp{Y_i^B|D_i=1}}=\) 7.004
+\(\neq\) 8.072 \(=\hat{\esp{Y_i^B|D_i=0}}\). The reason for the failure
+of the placebo test to conclude that \(Ww\) is actually correct is that
+the \(U_i^B\) shock enters both into the selection equation and the
+outcome equation for \(y_i^B\), generating a wage at period \(B\)
+between the outcomes of the treated and of the untreated. Since it is
+not persistent, this wedge does not generate selection bias. This wedge
+would not be detected if we could perform it further back in time,
+before the selection period.
+
+Another way to make Assumption \ref{def:noselb} work is to generate a
+new allocation rule where all the determinants of treatment intake are
+indeed orthogonal to potential outcomes and to outcomes before the
+treatment. Let's assume for example that \(D_i=\uns{V_i\leq\bar{y}}\),
+with \(V_i\sim\mathcal{N}(\bar{\mu},\sigma^2_{\mu}+\sigma^2_{U})\) and
+\(V_i\Ind(Y_i^0,Y_i^1,Y_i^B,\mu_i,\eta_i)\). In that case, Assumption
+\ref{def:noselb} holds and the placebo test does work. Indeed, we have:
+
+\begin{align*}
+\Delta^y_{TT} & = \esp{Y_i^1-Y_i^0|D_i=1} \\
+              & = \esp{\alpha_i|D_i=1} \\
+              & = \esp{\bar{\alpha}+\theta\mu_i+\eta_i|V_i\leq\bar{y}}\\
+              & = \bar{\alpha}+\theta\bar{\mu} \\
+              & = \Delta^y_{ATE} \\
+\Delta^y_{WW} & = \esp{Y_i|D_i=1} - \esp{Y_i|D_i=0} \\
+              & = \esp{Y^1_i|D_i=1} - \esp{Y^0_i|D_i=0} \\
+              & = \esp{Y^1_i|V_i\leq\bar{y}} - \esp{Y^0_i|V_i>\bar{y}} \\
+              & = \esp{Y^1_i} - \esp{Y^0_i} \\
+              & = \Delta^y_{ATE}
+\end{align*}
+
+\(ATE\) is the Average Treatment Effect in the population. It is the
+expected effect of the treatment on all the members of the population,
+not only on the treated. When the treatment is randomly allocated, both
+\(TT\) and \(ATE\) are equal, since the treated are a random subset of
+the overall population. I prefer to use \(ATE\) for my definition of the
+\(R\) function in order not to erase the definition of the \(TT\)
+function:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.ate <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+In the population, \(WW\) identifies \(TT\): \(\Delta^y_{TT}=\) 0.18
+\(=\Delta^y_{WW}\). Let's see how these quantities behave in the sample:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{Ds[V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
+In the sample, the counterfactual is well aproximated by the outcomes of
+the untreated: \(\hat{\esp{Y_i^0|D_i=1}}=\) 8.085 \(\approx\) 8.054
+\(=\hat{\esp{Y_i^0|D_i=0}}\). As a consequence, \(WW\) should be close
+to \(TT\): \(\hat{\Delta^y_{TT}}=\) 0.168 \(\approx\) 0.199
+\(=\hat{\Delta^y_{WW}}\). The placebo test is also valid in that case:
+\(\hat{\esp{Y_i^B|D_i=1}}=\) 7.95 \(\approx\) 7.99
+\(=\hat{\esp{Y_i^B|D_i=0}}\).
+
+\subsection{The before/after comparison, temporal confounders and time
+trend
+bias}\label{the-beforeafter-comparison-temporal-confounders-and-time-trend-bias}
 
 
 \end{document}
