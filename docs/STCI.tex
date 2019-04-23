@@ -1640,5 +1640,342 @@ to \(TT\): \(\hat{\Delta^y_{TT}}=\) 0.168 \(\approx\) 0.199
 trend
 bias}\label{the-beforeafter-comparison-temporal-confounders-and-time-trend-bias}
 
+The before/after comparison (\(BA\)) is also very intuitive: it consists
+in looking at how the outcomes of the treated have changed over time and
+to attribute this change to the effect of the treatment. The problem is
+that other changes might have affected outcomes in the absence of the
+treatment, thereby biasing \(BA\). The bias of \(BA\) is called
+time-trend bias. It is due to confounders that affect the outcomes of
+the treated over time. This section defines the \(BA\) estimator,
+derives its bias, describes the role of the confounders and states
+conditions under which \(BA\) identifies \(TT\).
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-23}{}{\label{exm:unnamed-chunk-23}
+}Before computing any estimates, we need to reset all our parameter
+values and generated sample it their usual values:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{)}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{Ds[YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{]] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{l <-}\StringTok{ }\KeywordTok{length}\NormalTok{(param)}
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(param,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param)[(l}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{:}\KeywordTok{length}\NormalTok{(param)] <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{)}
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{The before/after
+comparison}\label{the-beforeafter-comparison}
+
+The before/after estimator (\(BA\)) compares the outcomes of the treated
+after taking the treatment to the outcomes of the treated before taking
+the treatment. It is also sometimes called a ``pre-post comparison.''
+
+\BeginKnitrBlock{definition}[Before/after comparison]
+\protect\hypertarget{def:unnamed-chunk-24}{}{\label{def:unnamed-chunk-24}
+\iffalse (Before/after comparison) \fi{} }The before/after comparison is
+the difference between the expected outcomes in the treated group after
+the treatment and the expected outcomes in the same group before the
+treatment:
+
+\begin{align*}
+\Delta^Y_{BA} & =  \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}.
+\end{align*}
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-25}{}{\label{exm:unnamed-chunk-25}
+}In the population, the \(BA\) estimator has the following shape:
+
+\begin{align*}
+  \Delta^y_{BA} & = \esp{y_i|D_i=1}-\esp{y^B_i|D_i=1}\\
+                & = \esp{y^1_i-y^B_i|D_i=1}\\
+                & = \esp{\alpha_i|D_i=1} + \delta + (\rho-1)\esp{U_i^B|\mu_i+U_i^B\leq\bar{y}}\\
+                & = \Delta^y_{TT} + \delta + (1-\rho)\left(\frac{\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+\EndKnitrBlock{example}
+
+In order to compute \(BA\) in the population, we can again use a R
+function, combining the value of \(TT\) and that of the second part of
+the formula, that we are going to denote \(TB\) for reasons that are
+going to become clear in a bit.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.tb <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"delta"}\NormalTok{]}
+          \OperatorTok{+}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{param[}\StringTok{"rho"}\NormalTok{])}\OperatorTok{*}\NormalTok{((param[}\StringTok{"sigma2U"}\NormalTok{])}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+         \OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])))}
+         \OperatorTok{/}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))}
+\NormalTok{\}}
+\NormalTok{delta.y.ba <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{delta.y.tt}\NormalTok{(param)}\OperatorTok{+}\StringTok{ }\KeywordTok{delta.y.tb}\NormalTok{(param))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+The value of \(BA\) in the population is thus \(\Delta^y_{BA}=\) 0.265.
+Remember that the true value of \(TT\) in the population is 0.172. In
+the sample, the value of \(BA\) is \(\hat{\Delta^y_{BA}}=\) 0.267.
+Remember that the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\)
+0.168.
+
+\subsubsection{Time trend bias}\label{time-trend-bias}
+
+When we form the before/after comparison, we do not recover the \(TT\)
+parameter. Instead, we recover \(TT\) plus a bias term, called
+\textbf{time trend bias}:
+
+\begin{align*}
+\Delta^Y_{BA} & =\Delta^Y_{TT}+\Delta^Y_{TB}.
+\end{align*}
+
+\BeginKnitrBlock{definition}[Time trend bias]
+\protect\hypertarget{def:unnamed-chunk-26}{}{\label{def:unnamed-chunk-26}
+\iffalse (Time trend bias) \fi{} }Time trend bias is the difference
+between the before/after comparison and the treatment on the treated
+parameter:
+
+\begin{align*}
+\Delta^Y_{TB} & = \Delta^Y_{BA}-\Delta^Y_{TT} .
+\end{align*}
+
+\textbackslash{}end\{definition\}
+\EndKnitrBlock{definition}
+
+\(BA\) uses the expected outcome in the treated group before the
+treatment as a proxy for the expected counterfactual outcome in the
+absence of the treatment in the same group. \(TB\) is due to the fact
+that \(BA\) uses an imperfect proxy for the counterfactual expected
+outcome of the treated:
+
+\BeginKnitrBlock{theorem}
+\protect\hypertarget{thm:TB}{}{\label{thm:TB} }Time trend bias is the
+difference between the counterfactual expected potential outcome in the
+absence of the treatment among the treated and the expected outcome
+before the treatment in the same group.
+
+\begin{align*}
+\Delta^Y_{TB} & = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+\Delta^Y_{TB} & = \Delta^Y_{BA}-\Delta^Y_{TT} \\
+              & = \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}-\esp{Y_i^1-Y_i^0|D_i=1}\\
+              & = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
+\end{align*}
+
+The first and second equalities stem from the definition of both
+parameters. The third equality stems from using the switching equation:
+\(Y_i=Y_i^1D_i+Y_i^0(1-D_i)\), so that
+\(\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}\).
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-28}{}{\label{exm:unnamed-chunk-28}
+}In the population, \(TB\) is equal to
+\EndKnitrBlock{example} \(\Delta^y_{TB}=\Delta^y_{BA}-\Delta^y_{TT}=\)
+0.265 \(-\) 0.172 \(=\) 0.093. We could have computed this result using
+Theorem\ref{thm:TB}:
+
+\begin{align*}
+\Delta^y_{TB} & = \esp{y_i^0|D_i=1}-\esp{y_i^B|D_i=1} \\
+              & = \delta + (1-\rho)\left(\frac{\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+
+Using the R function that we have defined previously, this approach
+gives \(\Delta^y_{TB}=\) 0.093.
+
+In the sample \(\hat{\Delta^y_{BA}}=\) 0.267 while
+\(\hat{\Delta^y_{TT}}=\) 0.168, so that \(\hat{\Delta^y_{TB}}=\) 0.099.
+Time trend bias emerges because we are using a bad proxy for the
+counterfactual average outcomes of the treated. The average outcome of
+the treated before the treatment takes place is
+\(\hat{\esp{y_i^B|D_i=1}}=\) 6.807 while the true counterfactual average
+outcome for the treated after the treatment is
+\(\hat{\esp{y_i^0|D_i=1}}=\) 6.906. Outcomes would have increased in the
+treatment group even in the absence of the treatment. As a consequence,
+the \(BA\) comparison overestimates the true effect of the treatment.
+\(TB\) estimated using Theorem \ref{thm:TB} is equal to:
+\(\hat{\Delta^y_{TB}}=\) 6.906 \(-\) 6.807 \(=\) 0.099. This can be seen
+on Figure \ref{fig:ploty0y1yBD}: the triangle in period 2 is higher than
+in period 1.
+
+\subsubsection{Temporal confounders}\label{temporal-confounders}
+
+Temporal confounders make the outcomes of the treated change at the same
+time as the treatment status changes, thereby confounding the effect of
+the treatment. Temporal confounders are responsible for time trend bias.
+
+Over time, there are other things that change than the treatment status.
+For example, maybe sick individuals naturally recover, and thus their
+counterfactual health status is better than ther health status before
+taking the treatment. As a results, \(BA\) might overstimate the effect
+of the treatment. It might also be that the overall level of health in
+the country has increased, because of increasing GDP, for example.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-29}{}{\label{exm:unnamed-chunk-29}
+}In our example, \(\delta\) and \(U_i^B\) are the confounders.
+\(\delta\) captures the overall changes in outcomes over time (business
+cycle, general improvement of health status). \(U^B_i\) captures the
+fact that transitorily sicker individuals tend at the same time to
+receive the treatment and also to recover naturally. The \(BA\)
+comparison incorrectly attributes both of these changes to the effect of
+the treatment. We can compute the relative contributions of both sources
+to the overall time-trend bias in the population.
+\EndKnitrBlock{example} \(\delta\) contributes for 0.05 while \(U^B_i\)
+contributes for 0.043.
+
+\subsubsection{\texorpdfstring{When does \(BA\) identify
+\(TT\)?}{When does BA identify TT?}}\label{when-does-ba-identify-tt}
+
+Are there conditions under which \(BA\) actually identifies \(TT\)? The
+answer is yes, when there are no temporal confounders. When that is the
+case, the variation of outcomes over time is only due to the treatment
+and it identifies the treatment effect.
+
+More formally, we make the following assumption:
+
+\BeginKnitrBlock{definition}[No time trend bias]
+\protect\hypertarget{def:notb}{}{\label{def:notb} \iffalse (No time trend
+bias) \fi{} }We assume the following:
+
+\begin{align*}
+\esp{Y_i^0|D_i=1} & = \esp{Y_i^B|D_i=1}.
+\end{align*}
+\EndKnitrBlock{definition}
+
+Under Assumption \ref{def:notb}, the expected counterfactual outcome of
+the treated is equal to the expected potential outcome of the untreated
+in the absence of the treatment. This yields to the following result:
+
+\BeginKnitrBlock{theorem}
+\protect\hypertarget{thm:batt}{}{\label{thm:batt} }Under Assumption
+\ref{def:notb}, \(BA\) identifies the \(TT\) parameter:
+
+\begin{align*}
+\Delta^Y_{BA} & = \Delta^Y_{TT}.
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+\Delta^Y_{BA} & = \esp{Y_i|D_i=1}-\esp{Y_i^B|D_i=1}\\
+              & = \esp{Y_i^1|D_i=1}-\esp{Y_i^B|D_i=1}\\
+              & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1} \\
+              & = \Delta^Y_{TT},
+\end{align*}
+
+where the second equation uses the switching equation and the third uses
+Assumption \ref{def:notb}.
+\EndKnitrBlock{proof}
+
+Under Assumption \ref{def:notb} the outcomes of the treated before the
+treatment takes place are a good proxy for the counterfactual. As a
+consequence, \(BA\) identifies \(TT\). Under Assumption \ref{def:notb}is
+very unlikely to hold in real life. Indeed, it requires tha nothing
+happens to the outcomes of the treated in the absence of the treatment.
+Assumption \ref{def:notb} rules out economy-wide shocks but also
+mean-reversion, such as when sick people naturally recover from an
+illness.
+
+A good way to test for the validity of Assumption \ref{def:notb} is to
+perform a placebo test. Two of these tests are possible. One placebo
+test would be to apply the \(BA\) estimator between two pre-treatment
+periods where nothing should happen since the treatment status does not
+vary and, by assumption, nothing else should vary. A second placebo test
+would be to apply the \(BA\) estimator to a group that does not receive
+the treatment. The untreated group is a perfectly suitable candidate for
+that. Assumption \ref{def:notb} does not imply that there should be no
+change in the untreated outcomes, but detecting such a change would cast
+a serious doubt on the validity of Assumption \ref{def:notb}.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-31}{}{\label{exm:unnamed-chunk-31}
+}One way to generate a population in which Assumption \ref{def:notb}
+holds is to shut down the two sources of confounders in our original
+model by setting both \(\delta=0\) and \(\rho=1\).
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,}\FloatTok{0.5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\DecValTok{0}\NormalTok{,}\FloatTok{0.1}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{)}
+\NormalTok{param}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         barmu      sigma2mu       sigma2U          barY           rho 
+##          8.00          0.50          0.28       1500.00          1.00 
+##         theta sigma2epsilon     sigma2eta         delta      baralpha 
+##          0.01          0.05          0.05          0.00          0.10
+\end{verbatim}
+
+In that case, according to the formula we have derived for \(TB\), we
+have: \(\Delta^y_{TB}=\) 0. Let's see how these quantities behave in the
+sample:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{Ds[YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{]] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
+In the sample, the value of \(BA\) is \(\hat{\Delta^y_{BA}}=\) 0.173
+while the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.168.
+We cannot perform a placebo test using two periods of pre-treatment
+outcomes for the treated since we have generated only one period of
+pre-treatment outcome. We will be able to perform this test later in the
+DID lecture. We can perfom the placebo test that applies the \(BA\)
+estimator to the untreated. The value of \(BA\) for the untreated is
+\(\hat{\Delta^y_{BA|D=0}}=\) 0.007, which is reasonably close to zero.
+
+\chapter{The Fundamental Problem of Statistical
+Inference}\label{the-fundamental-problem-of-statistical-inference}
+
 
 \end{document}

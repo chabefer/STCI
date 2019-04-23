@@ -33,7 +33,7 @@
   
   
 <link rel="prev" href="index.html">
-
+<link rel="next" href="the-fundamental-problem-of-statistical-inference.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -126,6 +126,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="1.4.2" data-path="the-fundamental-problem-of-causal-inference.html"><a href="the-fundamental-problem-of-causal-inference.html#the-beforeafter-comparison-temporal-confounders-and-time-trend-bias"><i class="fa fa-check"></i><b>1.4.2</b> The before/after comparison, temporal confounders and time trend bias</a></li>
 </ul></li>
 </ul></li>
+<li class="chapter" data-level="2" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html"><i class="fa fa-check"></i><b>2</b> The Fundamental Problem of Statistical Inference</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -813,7 +814,193 @@ Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+<
 </div>
 <div id="the-beforeafter-comparison-temporal-confounders-and-time-trend-bias" class="section level3">
 <h3><span class="header-section-number">1.4.2</span> The before/after comparison, temporal confounders and time trend bias</h3>
+<p>The before/after comparison (<span class="math inline">\(BA\)</span>) is also very intuitive: it consists in looking at how the outcomes of the treated have changed over time and to attribute this change to the effect of the treatment. The problem is that other changes might have affected outcomes in the absence of the treatment, thereby biasing <span class="math inline">\(BA\)</span>. The bias of <span class="math inline">\(BA\)</span> is called time-trend bias. It is due to confounders that affect the outcomes of the treated over time. This section defines the <span class="math inline">\(BA\)</span> estimator, derives its bias, describes the role of the confounders and states conditions under which <span class="math inline">\(BA\)</span> identifies <span class="math inline">\(TT\)</span>.</p>
 
+<div class="example">
+<span id="exm:unnamed-chunk-23" class="example"><strong>Example 1.13  </strong></span>Before computing any estimates, we need to reset all our parameter values and generated sample it their usual values:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>)
+<span class="kw">names</span>(param) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>)
+<span class="kw">set.seed</span>(<span class="dv">1234</span>)
+N &lt;-<span class="dv">1000</span>
+mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+Ds[YB<span class="op">&lt;=</span>param[<span class="st">&quot;barY&quot;</span>]] &lt;-<span class="st"> </span><span class="dv">1</span> 
+l &lt;-<span class="st"> </span><span class="kw">length</span>(param)
+param &lt;-<span class="st"> </span><span class="kw">c</span>(param,<span class="fl">0.9</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.1</span>)
+<span class="kw">names</span>(param)[(l<span class="op">+</span><span class="dv">1</span>)<span class="op">:</span><span class="kw">length</span>(param)] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>)
+epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</code></pre></div>
+<div id="the-beforeafter-comparison" class="section level4">
+<h4><span class="header-section-number">1.4.2.1</span> The before/after comparison</h4>
+<p>The before/after estimator (<span class="math inline">\(BA\)</span>) compares the outcomes of the treated after taking the treatment to the outcomes of the treated before taking the treatment. It is also sometimes called a “pre-post comparison.”</p>
+
+<div class="definition">
+<span id="def:unnamed-chunk-24" class="definition"><strong>Definition 1.8  (Before/after comparison)  </strong></span>The before/after comparison is the difference between the expected outcomes in the treated group after the treatment and the expected outcomes in the same group before the treatment:
+<span class="math display">\[\begin{align*}
+\Delta^Y_{BA} &amp; =  \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-25" class="example"><strong>Example 1.14  </strong></span>In the population, the <span class="math inline">\(BA\)</span> estimator has the following shape:
+<span class="math display">\[\begin{align*}
+  \Delta^y_{BA} &amp; = \esp{y_i|D_i=1}-\esp{y^B_i|D_i=1}\\
+                &amp; = \esp{y^1_i-y^B_i|D_i=1}\\
+                &amp; = \esp{\alpha_i|D_i=1} + \delta + (\rho-1)\esp{U_i^B|\mu_i+U_i^B\leq\bar{y}}\\
+                &amp; = \Delta^y_{TT} + \delta + (1-\rho)\left(\frac{\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}\]</span>
+</div>
+
+<p>In order to compute <span class="math inline">\(BA\)</span> in the population, we can again use a R function, combining the value of <span class="math inline">\(TT\)</span> and that of the second part of the formula, that we are going to denote <span class="math inline">\(TB\)</span> for reasons that are going to become clear in a bit.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delta.y.tb &lt;-<span class="st"> </span><span class="cf">function</span>(param){
+  <span class="kw">return</span>(param[<span class="st">&quot;delta&quot;</span>]
+          <span class="op">+</span>(<span class="dv">1</span><span class="op">-</span>param[<span class="st">&quot;rho&quot;</span>])<span class="op">*</span>((param[<span class="st">&quot;sigma2U&quot;</span>])<span class="op">/</span><span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))
+         <span class="op">*</span><span class="kw">dnorm</span>((<span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="op">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="op">/</span>(<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>])))
+         <span class="op">/</span><span class="kw">pnorm</span>((<span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="op">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="op">/</span>(<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))))
+}
+delta.y.ba &lt;-<span class="st"> </span><span class="cf">function</span>(param){
+  <span class="kw">return</span>(<span class="kw">delta.y.tt</span>(param)<span class="op">+</span><span class="st"> </span><span class="kw">delta.y.tb</span>(param))
+}</code></pre></div>
+<p>The value of <span class="math inline">\(BA\)</span> in the population is thus <span class="math inline">\(\Delta^y_{BA}=\)</span> 0.265. Remember that the true value of <span class="math inline">\(TT\)</span> in the population is 0.172. In the sample, the value of <span class="math inline">\(BA\)</span> is <span class="math inline">\(\hat{\Delta^y_{BA}}=\)</span> 0.267. Remember that the value of <span class="math inline">\(TT\)</span> in the sample is <span class="math inline">\(\Delta^y_{TT_s}=\)</span> 0.168.</p>
+</div>
+<div id="time-trend-bias" class="section level4">
+<h4><span class="header-section-number">1.4.2.2</span> Time trend bias</h4>
+<p>When we form the before/after comparison, we do not recover the <span class="math inline">\(TT\)</span> parameter. Instead, we recover <span class="math inline">\(TT\)</span> plus a bias term, called <strong>time trend bias</strong>:</p>
+<span class="math display">\[\begin{align*}
+\Delta^Y_{BA} &amp; =\Delta^Y_{TT}+\Delta^Y_{TB}.
+\end{align*}\]</span>
+
+<div class="definition">
+<span id="def:unnamed-chunk-26" class="definition"><strong>Definition 1.9  (Time trend bias)  </strong></span>Time trend bias is the difference between the before/after comparison and the treatment on the treated parameter:
+<span class="math display">\[\begin{align*}
+\Delta^Y_{TB} &amp; = \Delta^Y_{BA}-\Delta^Y_{TT} .
+\end{align*}\]</span>
+\end{definition}
+</div>
+
+<p><span class="math inline">\(BA\)</span> uses the expected outcome in the treated group before the treatment as a proxy for the expected counterfactual outcome in the absence of the treatment in the same group. <span class="math inline">\(TB\)</span> is due to the fact that <span class="math inline">\(BA\)</span> uses an imperfect proxy for the counterfactual expected outcome of the treated:</p>
+
+<div class="theorem">
+<span id="thm:TB" class="theorem"><strong>Theorem 1.4  </strong></span>Time trend bias is the difference between the counterfactual expected potential outcome in the absence of the treatment among the treated and the expected outcome before the treatment in the same group.
+<span class="math display">\[\begin{align*}
+\Delta^Y_{TB} &amp; = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> 
+<span class="math display">\[\begin{align*}
+\Delta^Y_{TB} &amp; = \Delta^Y_{BA}-\Delta^Y_{TT} \\
+              &amp; = \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}-\esp{Y_i^1-Y_i^0|D_i=1}\\
+              &amp; = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
+\end{align*}\]</span>
+The first and second equalities stem from the definition of both parameters. The third equality stems from using the switching equation: <span class="math inline">\(Y_i=Y_i^1D_i+Y_i^0(1-D_i)\)</span>, so that <span class="math inline">\(\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}\)</span>.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-28" class="example"><strong>Example 1.15  </strong></span>In the population, <span class="math inline">\(TB\)</span> is equal to
+</div>
+<p> <span class="math inline">\(\Delta^y_{TB}=\Delta^y_{BA}-\Delta^y_{TT}=\)</span> 0.265 <span class="math inline">\(-\)</span> 0.172 <span class="math inline">\(=\)</span> 0.093. We could have computed this result using Theorem<a href="the-fundamental-problem-of-causal-inference.html#thm:TB">1.4</a>:</p>
+<span class="math display">\[\begin{align*}
+\Delta^y_{TB} &amp; = \esp{y_i^0|D_i=1}-\esp{y_i^B|D_i=1} \\
+              &amp; = \delta + (1-\rho)\left(\frac{\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}\]</span>
+<p>Using the R function that we have defined previously, this approach gives <span class="math inline">\(\Delta^y_{TB}=\)</span> 0.093.</p>
+<p>In the sample <span class="math inline">\(\hat{\Delta^y_{BA}}=\)</span> 0.267 while <span class="math inline">\(\hat{\Delta^y_{TT}}=\)</span> 0.168, so that <span class="math inline">\(\hat{\Delta^y_{TB}}=\)</span> 0.099. Time trend bias emerges because we are using a bad proxy for the counterfactual average outcomes of the treated. The average outcome of the treated before the treatment takes place is <span class="math inline">\(\hat{\esp{y_i^B|D_i=1}}=\)</span> 6.807 while the true counterfactual average outcome for the treated after the treatment is <span class="math inline">\(\hat{\esp{y_i^0|D_i=1}}=\)</span> 6.906. Outcomes would have increased in the treatment group even in the absence of the treatment. As a consequence, the <span class="math inline">\(BA\)</span> comparison overestimates the true effect of the treatment. <span class="math inline">\(TB\)</span> estimated using Theorem <a href="the-fundamental-problem-of-causal-inference.html#thm:TB">1.4</a> is equal to: <span class="math inline">\(\hat{\Delta^y_{TB}}=\)</span> 6.906 <span class="math inline">\(-\)</span> 6.807 <span class="math inline">\(=\)</span> 0.099. This can be seen on Figure <a href="the-fundamental-problem-of-causal-inference.html#fig:ploty0y1yBD">1.6</a>: the triangle in period 2 is higher than in period 1.</p>
+</div>
+<div id="temporal-confounders" class="section level4">
+<h4><span class="header-section-number">1.4.2.3</span> Temporal confounders</h4>
+<p>Temporal confounders make the outcomes of the treated change at the same time as the treatment status changes, thereby confounding the effect of the treatment. Temporal confounders are responsible for time trend bias.</p>
+<p>Over time, there are other things that change than the treatment status. For example, maybe sick individuals naturally recover, and thus their counterfactual health status is better than ther health status before taking the treatment. As a results, <span class="math inline">\(BA\)</span> might overstimate the effect of the treatment. It might also be that the overall level of health in the country has increased, because of increasing GDP, for example.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-29" class="example"><strong>Example 1.16  </strong></span>In our example, <span class="math inline">\(\delta\)</span> and <span class="math inline">\(U_i^B\)</span> are the confounders. <span class="math inline">\(\delta\)</span> captures the overall changes in outcomes over time (business cycle, general improvement of health status). <span class="math inline">\(U^B_i\)</span> captures the fact that transitorily sicker individuals tend at the same time to receive the treatment and also to recover naturally. The <span class="math inline">\(BA\)</span> comparison incorrectly attributes both of these changes to the effect of the treatment. We can compute the relative contributions of both sources to the overall time-trend bias in the population.
+</div>
+<p> <span class="math inline">\(\delta\)</span> contributes for 0.05 while <span class="math inline">\(U^B_i\)</span> contributes for 0.043.</p>
+</div>
+<div id="when-does-ba-identify-tt" class="section level4">
+<h4><span class="header-section-number">1.4.2.4</span> When does <span class="math inline">\(BA\)</span> identify <span class="math inline">\(TT\)</span>?</h4>
+<p>Are there conditions under which <span class="math inline">\(BA\)</span> actually identifies <span class="math inline">\(TT\)</span>? The answer is yes, when there are no temporal confounders. When that is the case, the variation of outcomes over time is only due to the treatment and it identifies the treatment effect.</p>
+<p>More formally, we make the following assumption:</p>
+
+<div class="definition">
+<span id="def:notb" class="definition"><strong>Definition 1.10  (No time trend bias)  </strong></span>We assume the following:
+<span class="math display">\[\begin{align*}
+\esp{Y_i^0|D_i=1} &amp; = \esp{Y_i^B|D_i=1}.
+\end{align*}\]</span>
+</div>
+
+<p>Under Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a>, the expected counterfactual outcome of the treated is equal to the expected potential outcome of the untreated in the absence of the treatment. This yields to the following result:</p>
+
+<div class="theorem">
+<span id="thm:batt" class="theorem"><strong>Theorem 1.5  </strong></span>Under Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a>, <span class="math inline">\(BA\)</span> identifies the <span class="math inline">\(TT\)</span> parameter:
+<span class="math display">\[\begin{align*}
+\Delta^Y_{BA} &amp; = \Delta^Y_{TT}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> 
+<span class="math display">\[\begin{align*}
+\Delta^Y_{BA} &amp; = \esp{Y_i|D_i=1}-\esp{Y_i^B|D_i=1}\\
+              &amp; = \esp{Y_i^1|D_i=1}-\esp{Y_i^B|D_i=1}\\
+              &amp; = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1} \\
+              &amp; = \Delta^Y_{TT},
+\end{align*}\]</span>
+where the second equation uses the switching equation and the third uses Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a>.
+</div>
+
+<p>Under Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a> the outcomes of the treated before the treatment takes place are a good proxy for the counterfactual. As a consequence, <span class="math inline">\(BA\)</span> identifies <span class="math inline">\(TT\)</span>. Under Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a>is very unlikely to hold in real life. Indeed, it requires tha nothing happens to the outcomes of the treated in the absence of the treatment. Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a> rules out economy-wide shocks but also mean-reversion, such as when sick people naturally recover from an illness.</p>
+<p>A good way to test for the validity of Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a> is to perform a placebo test. Two of these tests are possible. One placebo test would be to apply the <span class="math inline">\(BA\)</span> estimator between two pre-treatment periods where nothing should happen since the treatment status does not vary and, by assumption, nothing else should vary. A second placebo test would be to apply the <span class="math inline">\(BA\)</span> estimator to a group that does not receive the treatment. The untreated group is a perfectly suitable candidate for that. Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a> does not imply that there should be no change in the untreated outcomes, but detecting such a change would cast a serious doubt on the validity of Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a>.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-31" class="example"><strong>Example 1.17  </strong></span>One way to generate a population in which Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:notb">1.10</a> holds is to shut down the two sources of confounders in our original model by setting both <span class="math inline">\(\delta=0\)</span> and <span class="math inline">\(\rho=1\)</span>.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8</span>,<span class="fl">0.5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>,<span class="dv">1</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="dv">0</span>,<span class="fl">0.1</span>)
+<span class="kw">names</span>(param) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>)
+param</code></pre></div>
+<pre><code>##         barmu      sigma2mu       sigma2U          barY           rho 
+##          8.00          0.50          0.28       1500.00          1.00 
+##         theta sigma2epsilon     sigma2eta         delta      baralpha 
+##          0.01          0.05          0.05          0.00          0.10</code></pre>
+<p>In that case, according to the formula we have derived for <span class="math inline">\(TB\)</span>, we have: <span class="math inline">\(\Delta^y_{TB}=\)</span> 0. Let’s see how these quantities behave in the sample:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1234</span>)
+mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+Ds[YB<span class="op">&lt;=</span>param[<span class="st">&quot;barY&quot;</span>]] &lt;-<span class="st"> </span><span class="dv">1</span> 
+epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</code></pre></div>
+<p>In the sample, the value of <span class="math inline">\(BA\)</span> is <span class="math inline">\(\hat{\Delta^y_{BA}}=\)</span> 0.173 while the value of <span class="math inline">\(TT\)</span> in the sample is <span class="math inline">\(\Delta^y_{TT_s}=\)</span> 0.168. We cannot perform a placebo test using two periods of pre-treatment outcomes for the treated since we have generated only one period of pre-treatment outcome. We will be able to perform this test later in the DID lecture. We can perfom the placebo test that applies the <span class="math inline">\(BA\)</span> estimator to the untreated. The value of <span class="math inline">\(BA\)</span> for the untreated is <span class="math inline">\(\hat{\Delta^y_{BA|D=0}}=\)</span> 0.007, which is reasonably close to zero.</p>
+</div>
 </div>
 </div>
 </div>
@@ -822,8 +1009,8 @@ Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+<
           </div>
         </div>
       </div>
-<a href="index.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="the-fundamental-problem-of-statistical-inference.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

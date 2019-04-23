@@ -1023,3 +1023,245 @@ As a consequence, $WW$ should be close to $TT$: $\hat{\Delta^y_{TT}}=$ `r round(
 The placebo test is also valid in that case: $\hat{\esp{Y_i^B|D_i=1}}=$ `r round(mean(yB[Ds==1]),3)` $\approx$ `r round(mean(yB[Ds==0]),3)` $=\hat{\esp{Y_i^B|D_i=0}}$.
 
 ### The before/after comparison, temporal confounders and time trend bias
+
+The before/after comparison ($BA$) is also very intuitive: it consists in looking at how the outcomes of the treated have changed over time and to attribute this change to the effect of the treatment.
+The problem is that other changes might have affected outcomes in the absence of the treatment, thereby biasing $BA$.
+The bias of $BA$ is called time-trend bias.
+It is due to confounders that affect the outcomes of the treated over time.
+This section defines the $BA$ estimator, derives its bias, describes the role of the confounders and states conditions under which $BA$ identifies $TT$.
+
+```{example}
+Before computing any estimates, we need to reset all our parameter values and generated sample it their usual values:
+```
+```{r simul.reset,eval=TRUE,echo=TRUE}
+param <- c(8,.5,.28,1500)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY")
+set.seed(1234)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+Ds[YB<=param["barY"]] <- 1 
+l <- length(param)
+param <- c(param,0.9,0.01,0.05,0.05,0.05,0.1)
+names(param)[(l+1):length(param)] <- c("rho","theta","sigma2epsilon","sigma2eta","delta","baralpha")
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+#### The before/after comparison
+
+The before/after estimator ($BA$) compares the outcomes of the treated after taking the treatment to the outcomes of the treated before taking the treatment.
+It is also sometimes called a "pre-post comparison."
+
+```{definition,name='Before/after comparison'}
+The before/after comparison is the difference between the expected outcomes in the treated group after the treatment and the expected outcomes in the same group before the treatment:
+\begin{align*}
+\Delta^Y_{BA} & =  \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}.
+\end{align*}
+```
+
+```{example}
+In the population, the $BA$ estimator has the following shape:
+\begin{align*}
+  \Delta^y_{BA} & = \esp{y_i|D_i=1}-\esp{y^B_i|D_i=1}\\
+                & = \esp{y^1_i-y^B_i|D_i=1}\\
+                & = \esp{\alpha_i|D_i=1} + \delta + (\rho-1)\esp{U_i^B|\mu_i+U_i^B\leq\bar{y}}\\
+                & = \Delta^y_{TT} + \delta + (1-\rho)\left(\frac{\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+```
+
+In order to compute $BA$ in the population, we can again use a R function, combining the value of $TT$ and that of the second part of the formula, that we are going to denote $TB$ for reasons that are going to become clear in a bit.
+```{r BA.TB,eval=TRUE,echo=TRUE}
+delta.y.tb <- function(param){
+  return(param["delta"]
+          +(1-param["rho"])*((param["sigma2U"])/sqrt(param["sigma2mu"]+param["sigma2U"]))
+         *dnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"])))
+         /pnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))
+}
+delta.y.ba <- function(param){
+  return(delta.y.tt(param)+ delta.y.tb(param))
+}
+```
+
+The value of $BA$ in the population is thus $\Delta^y_{BA}=$ `r round(delta.y.ba(param),3)`.
+Remember that the true value of $TT$ in the population is `r round(delta.y.tt(param),3)`.
+In the sample, the value of $BA$ is $\hat{\Delta^y_{BA}}=$ `r round(mean(y[Ds==1])-mean(yB[Ds==1]),3)`.
+Remember that the value of $TT$ in the sample is $\Delta^y_{TT_s}=$ `r round(mean(alpha[Ds==1]),3)`.
+
+#### Time trend bias
+
+When we form the before/after comparison, we do not recover the $TT$ parameter.
+Instead, we recover $TT$ plus a bias term, called **time trend bias**:
+
+\begin{align*}
+\Delta^Y_{BA} & =\Delta^Y_{TT}+\Delta^Y_{TB}.
+\end{align*}
+
+```{definition,name='Time trend bias'}
+Time trend bias is the difference between the before/after comparison and the treatment on the treated parameter:
+\begin{align*}
+\Delta^Y_{TB} & = \Delta^Y_{BA}-\Delta^Y_{TT} .
+\end{align*}
+\end{definition}
+```
+
+$BA$ uses the expected outcome in the treated group before the treatment as a proxy for the expected counterfactual outcome in the absence of the treatment in the same group.
+$TB$ is due to the fact that $BA$ uses an imperfect proxy for the counterfactual expected outcome of the treated:
+
+```{theorem,TB}
+Time trend bias is the difference between the counterfactual expected potential outcome in the absence of the treatment among the treated and the expected outcome before the treatment in the same group. 
+\begin{align*}
+\Delta^Y_{TB} & = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
+\end{align*}
+```
+
+```{proof}
+\begin{align*}
+\Delta^Y_{TB} & = \Delta^Y_{BA}-\Delta^Y_{TT} \\
+              & = \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}-\esp{Y_i^1-Y_i^0|D_i=1}\\
+              & = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
+\end{align*}
+The first and second equalities stem from the definition of both parameters.
+The third equality stems from using the switching equation: $Y_i=Y_i^1D_i+Y_i^0(1-D_i)$, so that $\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}$.
+```
+
+```{example}
+In the population, $TB$ is equal to
+```
+$\Delta^y_{TB}=\Delta^y_{BA}-\Delta^y_{TT}=$ `r round(delta.y.ba(param),3)` $-$ `r round(delta.y.tt(param),3)` $=$ `r round(delta.y.ba(param)-delta.y.tt(param),3)`.
+We could have computed this result using Theorem\@ref(thm:TB):
+
+\begin{align*}
+\Delta^y_{TB} & = \esp{y_i^0|D_i=1}-\esp{y_i^B|D_i=1} \\
+              & = \delta + (1-\rho)\left(\frac{\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
+\end{align*}
+
+Using the R function that we have defined previously, this approach gives $\Delta^y_{TB}=$ `r round(delta.y.tb(param),3)`.
+
+In the sample $\hat{\Delta^y_{BA}}=$ `r round(mean(y[Ds==1])-mean(yB[Ds==1]),3)` while $\hat{\Delta^y_{TT}}=$ `r round(mean(alpha[Ds==1]),3)`, so that $\hat{\Delta^y_{TB}}=$ `r round(mean(y[Ds==1])-mean(yB[Ds==1])-mean(alpha[Ds==1]),3)`.
+Time trend bias emerges because we are using a bad proxy for the counterfactual average outcomes of the treated.
+The average outcome of the treated before the treatment takes place is $\hat{\esp{y_i^B|D_i=1}}=$ `r round(mean(yB[Ds==1]),3)` while the true counterfactual average outcome for the treated after the treatment is $\hat{\esp{y_i^0|D_i=1}}=$ `r round(mean(y0[Ds==1]),3)`.
+Outcomes would have increased in the treatment group even in the absence of the treatment.
+As a consequence, the $BA$ comparison overestimates the true effect of the treatment.
+$TB$ estimated using Theorem \@ref(thm:TB) is equal to: $\hat{\Delta^y_{TB}}=$ `r round(mean(y0[Ds==1]),3)` $-$ `r round(mean(yB[Ds==1]),3)` $=$ `r round(mean(y0[Ds==1])-mean(yB[Ds==1]),3)`.
+This can be seen on Figure \@ref(fig:ploty0y1yBD): the triangle in period 2 is higher than in period 1.
+
+#### Temporal confounders
+
+Temporal confounders make the outcomes of the treated change at the same time as the treatment status changes, thereby confounding the effect of the treatment.
+Temporal confounders are responsible for time trend bias.
+
+Over time, there are other things that change than the treatment status.
+For example, maybe sick individuals naturally recover, and thus their counterfactual health status is better than ther health status before taking the treatment.
+As a results, $BA$ might overstimate the effect of the treatment.
+It might also be that the overall level of health in the country has increased, because of increasing GDP, for example.
+
+```{example}
+In our example, $\delta$ and $U_i^B$ are the confounders.
+$\delta$ captures the overall changes in outcomes over time (business cycle, general improvement of health status).
+$U^B_i$ captures the fact that transitorily sicker individuals tend at the same time to receive the treatment and also to recover naturally.
+The $BA$ comparison incorrectly attributes both of these changes to the effect of the treatment.
+We can compute the relative contributions of both sources to the overall time-trend bias in the population.
+```
+$\delta$ contributes for `r round(param["delta"],3)` while $U^B_i$ contributes for `r round(delta.y.tb(param)-param["delta"],3)`.
+
+#### When does $BA$ identify $TT$?
+
+Are there conditions under which $BA$ actually identifies $TT$?
+The answer is yes, when there are no temporal confounders.
+When that is the case, the variation of outcomes over time is only due to the treatment and it identifies the treatment effect.
+
+More formally, we make the following assumption:
+
+```{definition,notb,name='No time trend bias'}
+We assume the following:
+\begin{align*}
+\esp{Y_i^0|D_i=1} & = \esp{Y_i^B|D_i=1}.
+\end{align*}
+```
+
+Under Assumption \@ref(def:notb), the expected counterfactual outcome of the treated is equal to the expected potential outcome of the untreated in the absence of the treatment.
+This yields to the following result:
+
+```{theorem,batt}
+Under Assumption \@ref(def:notb), $BA$ identifies the $TT$ parameter:
+\begin{align*}
+\Delta^Y_{BA} & = \Delta^Y_{TT}.
+\end{align*}
+```
+
+```{proof}
+\begin{align*}
+\Delta^Y_{BA} & = \esp{Y_i|D_i=1}-\esp{Y_i^B|D_i=1}\\
+              & = \esp{Y_i^1|D_i=1}-\esp{Y_i^B|D_i=1}\\
+              & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1} \\
+              & = \Delta^Y_{TT},
+\end{align*}
+where the second equation uses the switching equation and the third uses Assumption \@ref(def:notb).
+```
+
+Under Assumption \@ref(def:notb) the outcomes of the treated before the treatment takes place are a good proxy for the counterfactual.
+As a consequence, $BA$ identifies $TT$.
+Under Assumption \@ref(def:notb)is very unlikely to hold in real life.
+Indeed, it requires tha nothing happens to the outcomes of the treated in the absence of the treatment.
+Assumption \@ref(def:notb) rules out economy-wide shocks but also mean-reversion, such as when sick people naturally recover from an illness.
+
+A good way to test for the validity of Assumption \@ref(def:notb) is to perform a placebo test.
+Two of these tests are possible.
+One placebo test would be to apply the $BA$ estimator between two pre-treatment periods where nothing should happen since the treatment status does not vary and, by assumption, nothing else should vary.
+A second placebo test would be to apply the $BA$ estimator to a group that does not receive the treatment.
+The untreated group is a perfectly suitable candidate for that.
+Assumption \@ref(def:notb) does not imply that there should be no change in the untreated outcomes, but detecting such a change would cast a serious doubt on the validity of Assumption \@ref(def:notb).
+
+```{example}
+One way to generate a population in which Assumption \@ref(def:notb) holds is to shut down the two sources of confounders in our original model by setting both $\delta=0$ and $\rho=1$.
+```
+```{r param.no.tb,eval=TRUE,echo=TRUE}
+param <- c(8,0.5,.28,1500,1,0.01,0.05,0.05,0,0.1)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha")
+param
+```
+
+In that case, according to the formula we have derived for $TB$, we have: $\Delta^y_{TB}=$ `r round(delta.y.tb(param),3)`.
+Let's see how these quantities behave in the sample:
+```{r simul.no.tb,eval=TRUE,echo=TRUE}
+set.seed(1234)
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+Ds[YB<=param["barY"]] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+In the sample, the value of $BA$ is $\hat{\Delta^y_{BA}}=$ `r round(mean(y[Ds==1])-mean(yB[Ds==1]),3)` while the value of $TT$ in the sample is $\Delta^y_{TT_s}=$ `r round(mean(alpha[Ds==1]),3)`.
+We cannot perform a placebo test using two periods of pre-treatment outcomes for the treated since we have generated only one period of pre-treatment outcome. 
+We will be able to perform this test later in the DID lecture.
+We can perfom the placebo test that applies the $BA$ estimator to the untreated.
+The value of $BA$ for the untreated is $\hat{\Delta^y_{BA|D=0}}=$ `r round(mean(y[Ds==0])-mean(yB[Ds==0]),3)`, which is reasonably close to zero.
+
+# The Fundamental Problem of Statistical Inference
+
+
+
