@@ -122,7 +122,7 @@
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{2019-04-23}
+  \date{2019-04-30}
 
 \usepackage{dsfont}
 \newcommand{\uns}[1]{\mathds{1}[ #1 ]}
@@ -877,10 +877,10 @@ let's write a function in R:
 \end{Shaded}
 
 The population value of TT computed using this function is:
-\(\Delta^y_{TT}=\) 0.172. We can see that the values of TT in the sample
-and in the population differ slightly. This is because of sampling
-noise: the units in the sample are not perfectly representative of the
-units in the population.
+\(\Delta^y_{TT}=\) `r round(delta.y.tt(param),3). We can see that the
+values of TT in the sample and in the population differ slightly. This
+is because of sampling noise: the units in the sample are not perfectly
+representative of the units in the population.
 
 \section{Fundamental problem of causal
 inference}\label{fundamental-problem-of-causal-inference}
@@ -1976,6 +1976,443 @@ estimator to the untreated. The value of \(BA\) for the untreated is
 
 \chapter{The Fundamental Problem of Statistical
 Inference}\label{the-fundamental-problem-of-statistical-inference}
+
+The Fundamental Problem of Statistical Inference (FPSI) states that,
+even if we have an estimator \(E\) that identifies \(TT\) in the
+population, we cannot observe \(E\) because we only have access to a
+finite sample of the population. The only thing that we can form from
+the sample is a sample equivalent \(\hat{E}\) to the population quantity
+\(E\), and \(\hat{E}\neq E\). For example, the sample analog to \(WW\)
+is the difference in means between treated and untreated units
+\(\hat{WW}\). As we saw in the last lecture, \(\hat{WW}\) is never
+exactly equal to \(WW\).
+
+Why is \(\hat{E}\neq E\)? Because a finite sample is never perfectly
+representative of the population. In a sample, even in a random sample,
+the distribution of the observed and unobserved covariates deviates from
+the true population one. As a consequence, the sample value of the
+estimator is never precisely equal to the population value, but
+fluctuates around it with sampling noise. The main problem with the FPSI
+is that if we find an effect of our treatment, be it small or large, we
+cannot know whether we should attribute it to the treatment or to the
+bad or good luck of sampling noise.
+
+What can we do to deal with the FPSI? I am going to argue that there are
+mainly two things that we might want to do: estimating the extent of
+sampling noise and decreasing sampling noise.
+
+Estimating sampling noise means measuring how much variability there is
+in our estimate \(\hat{E}\) due to the sampling procedure. This is very
+useful because it enables us to form a confidence interval that gauges
+how far from \(\hat{E}\) the true value \(E\) might be. It is a measure
+of the precision of our estimation and of the extent to which sampling
+noise might drive our results. Estimating sampling noise is very hard
+because we have only access to one sample and we would like to know the
+behavior of our estimator over repeated samples. We are going to learn
+four ways to estimate the extent of sampling noise using data from one
+sample.
+
+Because sampling noise is such a nuisance and makes our estimates
+imprecise, we would like to be able to make it as small as possible. We
+are going to study three ways of decreasing sampling noise, two that
+take place before collecting the data (increasing sample size,
+stratifying) and one that takes place after (conditioning).
+
+Maybe you are surprised not to find statistical significance tests as an
+important answer to the FPSI. I argue in this lecture that statistical
+tests are misleading tools that make us overestimate the confidence in
+our results and underestimate the scope of sampling noise. Statistical
+tests are not meant to be used for scientific research, but were
+originally designed to make decisions in industrial settings where the
+concept of successive sampling made actual sense. Statistical tests also
+generate collective behaviors such as publication bias and specification
+search that undermine the very foundations of science. A general
+movement in the social sciences, but also in physics, is starting to ban
+the reporting of p-values.
+
+\section{What is sampling noise? Definition and
+illustration}\label{sec:sampnoise}
+
+In this section, I am going to define sampling noise and illustrate it
+with a numerical example. In Section \ref{sec:definitionnoise}, I define
+sampling noise. In section \ref{sec:illusnoisepop}, I illustrate how
+sampling noise varies when one is interested in the population treatment
+effect. In section \ref{sec:illusnoisesamp}, I illustrate how sampling
+noise varies when one is interesetd in the sample treatment effect.
+Finally, in section \ref{sec:confinterv}, I show how confidence
+intervals can be built from an estimate of sampling noise.
+
+\subsection{Sampling noise, a definition}\label{sec:definitionnoise}
+
+Sampling noise measures how much sampling variability moves the sample
+estimator \(\hat{E}\) around. One way to define it more rigorously is to
+make it equal to the width of a confidence interval:
+
+\BeginKnitrBlock{definition}[Sampling noise]
+\protect\hypertarget{def:sampnoise}{}{\label{def:sampnoise}
+\iffalse (Sampling noise) \fi{} }Sampling noise is the width of the
+symmetric interval around TT within which \(\delta*100\)\% of the sample
+estimators fall, where \(\delta\) is the confidence level. As a
+consequence, sampling noise is equal to \(2\epsilon\) where \(\epsilon\)
+is such that:
+
+\begin{align*}
+\Pr(|\hat{E}-TT|\leq\epsilon) &= \delta.
+\end{align*}
+\EndKnitrBlock{definition}
+
+This definition tries to capture the properties of the distribution of
+\(\hat{E}\) using only one number. As every simplification, it leaves
+room for dissatisfaction, exactly as a 2D map is a convenient albeit
+arbitrary betrayal of a 3D phenomenon. For example, there is nothing
+sacred about the symmetry of the interval. It is just extremely
+convenient. One might prefer an interval that is symmetric in tail
+probabilities instead. Feel free to explore with different concepts if
+you like.
+
+A related concept to that of sampling noise is that of precision: the
+smaller the sampling noise, the higher the precision. Precision can be
+defined for example as the inverse of sampling noise
+\(\frac{1}{2\epsilon}\).
+
+Finally, a very useful concept is that of signal to noise ratio. It is
+not used in economics, but physicists use this concept all the time. The
+signal to noise ratio measures the treatment effect in multiple of the
+sampling noise. If they are of the same order of magnitude, we have a
+lot of noise and little confidence in our estimates. If the signal is
+much larger than the noise, we tend to have a lot of confidence in our
+parameter estimates. The signal to noise ratio can be computed as
+follows: \(\frac{E}{2\epsilon}\) or \(\frac{\hat{E}}{2\epsilon}\).
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}A very striking result is that the signal to
+noise ratio of a result that is marginally significant at the 5\% level
+is very small, around one half, meaning that the noise is generally
+double the signal in these results. We will derive this result after
+studying how to estimate sampling noise with real data.
+\EndKnitrBlock{remark}
+
+There are two distinct ways of understanding sampling noise, depending
+on whether we are after the population treatment effect
+(\(\Delta^Y_{TT}\)) or the sample treatment effect
+(\(\Delta^Y_{TT_s}\)). Sampling noise for the population treatment
+effect stems from the fact that the sample is nor perfectly
+representative of the population. The sample differs from the population
+and thus the sample estimates differs from the population estimate.
+Sampling noise for the sample parameter stems from the fact that the
+control group is not a perfect embodiment of the counterfactual.
+Discrepancies between treated and control samples are going to generate
+differences between the \(WW\) estimate and the \(TT\) effect in the
+sample.
+
+\subsection{Sampling noise for the population treatment
+effect}\label{sec:illusnoisepop}
+
+Sampling noise for the population treatment effect stems from the fact
+that the sample is nor perfectly representative of the population.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-33}{}{\label{exm:unnamed-chunk-33}
+}In order to assess the scope of sampling noise for our population
+treatment effect estimate, let's first draw a sample. In order to be
+able to do that, I first have to define the parameter values:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{)}
+\NormalTok{param}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         barmu      sigma2mu       sigma2U          barY           rho 
+##          8.00          0.50          0.28       1500.00          0.90 
+##         theta sigma2epsilon     sigma2eta         delta      baralpha 
+##          0.01          0.05          0.05          0.05          0.10
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{Ds[V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+
+\NormalTok{delta.y.ate <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+In this sample, the \(WW\) estimator yields an estimate of
+\(\hat{\Delta^y_{WW}}=\) 0.133. Despite random assignment, we have
+\(\hat{\Delta^y_{WW}}\neq\Delta^y_{TT}=\) 0.18, an instance of the FPSI.
+
+In order to see how sampling noise varies, let's draw another sample. In
+order to do so, I am going to choose a different seed to initialize the
+pseudo-random number generator in R.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{12345}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{Ds[V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
+In this sample, the \(WW\) estimator yields an estimate of
+\(\hat{\Delta^y_{WW}}=\) 0.179. Again, despite random assignment, we
+have \(\hat{\Delta^y_{WW}}\neq\Delta^y_{TT}=\) 0.18, an instance of the
+FPSI. Furthermore, the estimate of the population treatment effect in
+this sample differs from the previous one, a consequence of sampling
+noise.
+
+Let's now visualize the extent of sampling noise by repeating the
+procedure multiple times with various sample sizes. This is called Monte
+Carlo replications: in each replication, I choose a sample size, draw
+one sample from the population and compute the \(\hat{WW}\) estimator.
+At each replication, the sample I'm using is different, reflecting the
+actual sampling process and enabling me to gauge the extent of sampling
+noise. In order to focus on sampling noise alone, I am running the
+replications in the model in which selection into the treatment is
+independent on potential outcomes, so that \(WW=TT\) in the population.
+In order to speed up the process, I am using parallelized computing: I
+send each sample to a different core in my computer so that several
+samples can be run at the same time. You might want to adapt the program
+below to the number of cores you actually have using the \texttt{ncpus}
+variable in the beginning of the \texttt{.Rmd} file that generates this
+page.. In order to parallelize computations, I use the Snowfall package
+in R, that gives very simple and intuitive parallelization commands. In
+order to save time when generating the graph, I use the wonderful
+``cache'' option of knitr: it stores the estimates from the code chunk
+and will not rerun it as long as the code inside the chunk has not been
+altered nor the code of the chunks that it depends on (parameter values,
+for example).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monte.carlo.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(s,N,param)\{}
+  \KeywordTok{set.seed}\NormalTok{(s)}
+\NormalTok{  mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{  UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{  YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{  Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{  V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  Ds[V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{  epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{  eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{  U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{  y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{  alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{  y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{  Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{  Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{  Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{((}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(Ds))}\OperatorTok{*}\KeywordTok{sum}\NormalTok{(y}\OperatorTok{*}\NormalTok{Ds)}\OperatorTok{-}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds))}\OperatorTok{*}\KeywordTok{sum}\NormalTok{(y}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)),}\KeywordTok{var}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\KeywordTok{var}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{0}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(Ds)))}
+\NormalTok{\}}
+
+\NormalTok{simuls.ww.N <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+\NormalTok{  simuls.ww <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.ww,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{4}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{))}
+  \KeywordTok{colnames}\NormalTok{(simuls.ww) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'V1'}\NormalTok{,}\StringTok{'V0'}\NormalTok{,}\StringTok{'p'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(simuls.ww)}
+\NormalTok{\}}
+
+\NormalTok{sf.simuls.ww.N <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+  \KeywordTok{sfInit}\NormalTok{(}\DataTypeTok{parallel=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{cpus=}\NormalTok{ncpus)}
+\NormalTok{  sim <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{sfLapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.ww,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{4}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{))}
+  \KeywordTok{sfStop}\NormalTok{()}
+  \KeywordTok{colnames}\NormalTok{(sim) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'V1'}\NormalTok{,}\StringTok{'V0'}\NormalTok{,}\StringTok{'p'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(sim)}
+\NormalTok{\}}
+
+\NormalTok{simuls.ww <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(N.sample,sf.simuls.ww.N,}\DataTypeTok{Nsim=}\NormalTok{Nsim,}\DataTypeTok{param=}\NormalTok{param)}
+
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{4}\NormalTok{)\{}
+  \KeywordTok{hist}\NormalTok{(simuls.ww[[i]][,}\StringTok{'WW'}\NormalTok{],}\DataTypeTok{main=}\KeywordTok{paste}\NormalTok{(}\StringTok{'N='}\NormalTok{,}\KeywordTok{as.character}\NormalTok{(N.sample[i])),}\DataTypeTok{xlab=}\KeywordTok{expression}\NormalTok{(}\KeywordTok{hat}\NormalTok{(Delta}\OperatorTok{^}\NormalTok{yWW)),}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.15}\NormalTok{,}\FloatTok{0.55}\NormalTok{))}
+  \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{delta.y.ate}\NormalTok{(param),}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/montecarlo-1} 
+
+}
+
+\caption{Distribution of the $WW$ estimator over replications of samples of different sizes}\label{fig:montecarlo}
+\end{figure}
+
+Figure \ref{fig:montecarlo} is essential to understanding statistical
+inference and the properties of our estimators. We can see on Figure
+\ref{fig:montecarlo} that the estimates indeed move around at each
+sample replication. We can also see that the estimates seem to be
+concentrated around the truth. We also see that the estimates are more
+and more concentrated around the truth as sample size grows larger and
+larger.
+
+How big is sampling noise in all of these examples? We can compute it by
+using the replications as approximations to the true distribution of the
+estimator after an infinite number of samples has been drawn. Let's
+first choose a confidence level and then compute the empirical
+equivalent to the formula in Definition \ref{def:sampnoise}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta<-}\StringTok{ }\FloatTok{0.99}
+\NormalTok{delta.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\FloatTok{0.95}
+\NormalTok{samp.noise <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(estim,delta)\{}
+  \KeywordTok{return}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(}\KeywordTok{delta.y.ate}\NormalTok{(param)}\OperatorTok{-}\NormalTok{estim),}\DataTypeTok{prob=}\NormalTok{delta))}
+\NormalTok{\}}
+\NormalTok{samp.noise.ww <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(simuls.ww,}\StringTok{`}\DataTypeTok{[}\StringTok{`}\NormalTok{,,}\DecValTok{1}\NormalTok{),samp.noise,}\DataTypeTok{delta=}\NormalTok{delta)}
+\KeywordTok{names}\NormalTok{(samp.noise.ww) <-}\StringTok{ }\NormalTok{N.sample}
+\NormalTok{samp.noise.ww}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        100       1000      10000      1e+05 
+## 1.09916429 0.39083801 0.11582492 0.03527744
+\end{verbatim}
+
+Let's also compute precision and the signal to noise ratio and put all
+of these results together in a nice table.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{precision <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(estim,delta)\{}
+  \KeywordTok{return}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{samp.noise}\NormalTok{(estim,delta))}
+\NormalTok{\}}
+\NormalTok{signal.to.noise <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(estim,delta,param)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{delta.y.ate}\NormalTok{(param)}\OperatorTok{/}\KeywordTok{samp.noise}\NormalTok{(estim,delta))}
+\NormalTok{\}}
+\NormalTok{precision.ww <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(simuls.ww,}\StringTok{`}\DataTypeTok{[}\StringTok{`}\NormalTok{,,}\DecValTok{1}\NormalTok{),precision,}\DataTypeTok{delta=}\NormalTok{delta)}
+\KeywordTok{names}\NormalTok{(precision.ww) <-}\StringTok{ }\NormalTok{N.sample}
+\NormalTok{signal.to.noise.ww <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(simuls.ww,}\StringTok{`}\DataTypeTok{[}\StringTok{`}\NormalTok{,,}\DecValTok{1}\NormalTok{),signal.to.noise,}\DataTypeTok{delta=}\NormalTok{delta,}\DataTypeTok{param=}\NormalTok{param)}
+\KeywordTok{names}\NormalTok{(signal.to.noise.ww) <-}\StringTok{ }\NormalTok{N.sample}
+\NormalTok{table.noise <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(samp.noise.ww,precision.ww,signal.to.noise.ww)}
+\KeywordTok{colnames}\NormalTok{(table.noise) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'Sampling noise'}\NormalTok{, }\StringTok{'Precision'}\NormalTok{, }\StringTok{'Signal to noise ratio'}\NormalTok{)}
+\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(table.noise,}\DataTypeTok{caption=}\KeywordTok{paste}\NormalTok{(}\StringTok{'Sampling noise of $}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{hat\{WW\}$ for the population treatment effect with $}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{delta=$'}\NormalTok{,delta,}\StringTok{'for various sample sizes'}\NormalTok{,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{booktabs=}\OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+
+\caption{\label{tab:precisionsignal}Sampling noise of $\hat{WW}$ for the population treatment effect with $\delta=$ 0.99 for various sample sizes}
+\centering
+\begin{tabular}[t]{lrrr}
+\toprule
+  & Sampling noise & Precision & Signal to noise ratio\\
+\midrule
+100 & 1.0991643 & 0.9097821 & 0.1637608\\
+1000 & 0.3908380 & 2.5586048 & 0.4605489\\
+10000 & 0.1158249 & 8.6337209 & 1.5540698\\
+1e+05 & 0.0352774 & 28.3467316 & 5.1024117\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Finally, a nice way to summarize the extent of sampling noise is to
+graph how sampling noise varies around the true treatment effect, as
+shown on Figure \ref{fig:precision}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(table.noise) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'sampling.noise'}\NormalTok{, }\StringTok{'precision'}\NormalTok{, }\StringTok{'signal.to.noise'}\NormalTok{)}
+\NormalTok{table.noise <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(table.noise)}
+\NormalTok{table.noise}\OperatorTok{$}\NormalTok{N <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}\KeywordTok{rownames}\NormalTok{(table.noise))}
+\NormalTok{table.noise}\OperatorTok{$}\NormalTok{TT <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\KeywordTok{delta.y.ate}\NormalTok{(param),}\KeywordTok{nrow}\NormalTok{(table.noise))}
+\KeywordTok{ggplot}\NormalTok{(table.noise, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(N), }\DataTypeTok{y=}\NormalTok{TT)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{TT}\OperatorTok{-}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{TT}\OperatorTok{+}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'red'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Sample Size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/precision-1} 
+
+}
+
+\caption{Sampling noise of $\hat{WW}$ (99\% confidence) around $TT$ for various sample sizes}\label{fig:precision}
+\end{figure}
+
+With \(N=\) 100, we can definitely see on Figure \ref{fig:precision}
+that sampling noise is ridiculously large, especially compared with the
+treatment effect that we are trying to estimate. The signal to noise
+ratio is 0.16, which means that sampling noise is an order of magnitude
+bigger than the signal we are trying to extract. As a consequence, in
+22.2\% of our samples, we are going to estimate a negative effect of the
+treatment. There is also a 20.4\% chance that we end up estimating an
+effect that is double the true effect. So how much can we trust our
+estimate from one sample to be close to the true effect of the treatment
+when \(N=\) 100? Not much.
+
+With \(N=\) 1000, sampling noise is still large: the signal to noise
+ratio is 0.46, which means that sampling noise is double the signal we
+are trying to extract. As a consequence, the chance that we end up with
+a negative treatment effect has decreased to 0.9\% and that we end up
+with an effect double the true one is 1\%. But still, the chances that
+we end up with an effect that is smaller than three quarters of the true
+effect is 25.6\% and the chances that we end up with an estimator that
+is 25\% bigger than the true effect is 26.2\%. These are nontrivial
+differences: compare a program that increases earnings by 13.5\% to one
+that increases them by 18\% and another by 22.5\%. They would have
+completely different cost/benefit ratios. But we at least trust our
+estimator to give us a correct idea of the sign of the treatment effect
+and a vague and imprecise idea of its magnitude.
+
+With \(N=\) 10\^{}\{4\}, sampling noise is smaller than the signal,
+which is encouraging. The signal to noise ratio is 1.55. In only 1\% of
+the samples does the estimated effect of the treatment become smaller
+than 0.125 or bigger than 0.247. We start gaining a lot of confidence in
+the relative magnitude of the effect, even if sampling noise is still
+responsible for economically significant variation.
+
+With \(N=\) 10\^{}\{5\}, sampling noise has become trivial. The signal
+to noise ratio is 5.1, which means that the signal is now 5 times bigger
+than the sampling noise. In only 1\% of the samples does the estimated
+effect of the treatment become smaller than 0.163 or bigger than 0.198.
+Sampling noise is not any more responsible for economically meaningful
+variation.
 
 
 \end{document}
