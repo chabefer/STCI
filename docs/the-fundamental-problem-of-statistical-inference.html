@@ -130,6 +130,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="2.1" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:sampnoise"><i class="fa fa-check"></i><b>2.1</b> What is sampling noise? Definition and illustration</a><ul>
 <li class="chapter" data-level="2.1.1" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:definitionnoise"><i class="fa fa-check"></i><b>2.1.1</b> Sampling noise, a definition</a></li>
 <li class="chapter" data-level="2.1.2" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:illusnoisepop"><i class="fa fa-check"></i><b>2.1.2</b> Sampling noise for the population treatment effect</a></li>
+<li class="chapter" data-level="2.1.3" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:illusnoisesamp"><i class="fa fa-check"></i><b>2.1.3</b> Sampling noise for the sample treatment effect</a></li>
+<li class="chapter" data-level="2.1.4" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:confinterv"><i class="fa fa-check"></i><b>2.1.4</b> Building confidence intervals from estimates of sampling noise</a></li>
+<li class="chapter" data-level="2.1.5" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#reporting-sampling-noise-a-proposal"><i class="fa fa-check"></i><b>2.1.5</b> Reporting sampling noise: a proposal</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -162,7 +165,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>Maybe you are surprised not to find statistical significance tests as an important answer to the FPSI. I argue in this lecture that statistical tests are misleading tools that make us overestimate the confidence in our results and underestimate the scope of sampling noise. Statistical tests are not meant to be used for scientific research, but were originally designed to make decisions in industrial settings where the concept of successive sampling made actual sense. Statistical tests also generate collective behaviors such as publication bias and specification search that undermine the very foundations of science. A general movement in the social sciences, but also in physics, is starting to ban the reporting of p-values.</p>
 <div id="sec:sampnoise" class="section level2">
 <h2><span class="header-section-number">2.1</span> What is sampling noise? Definition and illustration</h2>
-<p>In this section, I am going to define sampling noise and illustrate it with a numerical example. In Section <a href="the-fundamental-problem-of-statistical-inference.html#sec:definitionnoise">2.1.1</a>, I define sampling noise. In section <a href="the-fundamental-problem-of-statistical-inference.html#sec:illusnoisepop">2.1.2</a>, I illustrate how sampling noise varies when one is interested in the population treatment effect. In section <a href="#sec:illusnoisesamp"><strong>??</strong></a>, I illustrate how sampling noise varies when one is interesetd in the sample treatment effect. Finally, in section <a href="#sec:confinterv"><strong>??</strong></a>, I show how confidence intervals can be built from an estimate of sampling noise.</p>
+<p>In this section, I am going to define sampling noise and illustrate it with a numerical example. In Section <a href="the-fundamental-problem-of-statistical-inference.html#sec:definitionnoise">2.1.1</a>, I define sampling noise. In section <a href="the-fundamental-problem-of-statistical-inference.html#sec:illusnoisepop">2.1.2</a>, I illustrate how sampling noise varies when one is interested in the population treatment effect. In section <a href="the-fundamental-problem-of-statistical-inference.html#sec:illusnoisesamp">2.1.3</a>, I illustrate how sampling noise varies when one is interesetd in the sample treatment effect. Finally, in section <a href="the-fundamental-problem-of-statistical-inference.html#sec:confinterv">2.1.4</a>, I show how confidence intervals can be built from an estimate of sampling noise.</p>
 <div id="sec:definitionnoise" class="section level3">
 <h3><span class="header-section-number">2.1.1</span> Sampling noise, a definition</h3>
 <p>Sampling noise measures how much sampling variability moves the sample estimator <span class="math inline">\(\hat{E}\)</span> around. One way to define it more rigorously is to make it equal to the width of a confidence interval:</p>
@@ -377,6 +380,261 @@ Figure 2.2: Sampling noise of <span class="math inline">\(\hat{WW}\)</span> (99%
 <p>With <span class="math inline">\(N=\)</span> 1000, sampling noise is still large: the signal to noise ratio is 0.46, which means that sampling noise is double the signal we are trying to extract. As a consequence, the chance that we end up with a negative treatment effect has decreased to 0.9% and that we end up with an effect double the true one is 1%. But still, the chances that we end up with an effect that is smaller than three quarters of the true effect is 25.6% and the chances that we end up with an estimator that is 25% bigger than the true effect is 26.2%. These are nontrivial differences: compare a program that increases earnings by 13.5% to one that increases them by 18% and another by 22.5%. They would have completely different cost/benefit ratios. But we at least trust our estimator to give us a correct idea of the sign of the treatment effect and a vague and imprecise idea of its magnitude.</p>
 <p>With <span class="math inline">\(N=\)</span> 10^{4}, sampling noise is smaller than the signal, which is encouraging. The signal to noise ratio is 1.55. In only 1% of the samples does the estimated effect of the treatment become smaller than 0.125 or bigger than 0.247. We start gaining a lot of confidence in the relative magnitude of the effect, even if sampling noise is still responsible for economically significant variation.</p>
 <p>With <span class="math inline">\(N=\)</span> 10^{5}, sampling noise has become trivial. The signal to noise ratio is 5.1, which means that the signal is now 5 times bigger than the sampling noise. In only 1% of the samples does the estimated effect of the treatment become smaller than 0.163 or bigger than 0.198. Sampling noise is not any more responsible for economically meaningful variation.</p>
+</div>
+<div id="sec:illusnoisesamp" class="section level3">
+<h3><span class="header-section-number">2.1.3</span> Sampling noise for the sample treatment effect</h3>
+<p>Sampling noise for the sample parameter stems from the fact that the treated and control groups are not perfectly identical. The distribution of observed and unobserved covariates is actually different, because of sampling variation. This makes the actual comparison of means in the sample a noisy estimate of the true comparison that we would obtain by comparing the potential outcomes of the treated directly.</p>
+<p>In order to understand this issue well and to be able to illustrate it correctly, I am going to focus on the average treatment effect in the whole sample, not on the treated: <span class="math inline">\(\Delta^Y_{ATE_s}=\frac{1}{N}\sum_{i=1}^N(Y_i^1-Y_i^0)\)</span>. This enables me to define a sample parameter that is independent of the allocation of <span class="math inline">\(D_i\)</span>. This is without important consequences since these two parameters are equal in the population when there is no selection bias, as we are assuming since the beginning of this lecture. Furthermore, if we view the treatment allocation generating no selection bias as a true random assignment in a Randomized Controlled Trial (RCT), then it is still possible to use this approach to estimate <span class="math inline">\(TT\)</span> if we view the population over which we randomise as the population selected for receiving the treatment, as we will see in the lecture on RCTs.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-34" class="example"><strong>Example 2.2  </strong></span>In order to assess the scope of sampling noise for our sample treatment effect estimate, we first have to draw a sample:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1234</span>)
+N &lt;-<span class="dv">1000</span>
+mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))
+Ds[V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> 
+epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</code></pre></div>
+<p>In this sample, the treatment effect parameter is <span class="math inline">\(\Delta^y_{ATE_s}=\)</span> 0.171. The <span class="math inline">\(WW\)</span> estimator yields an estimate of <span class="math inline">\(\hat{\Delta^y_{WW}}=\)</span> 0.133. Despite random assignment, we have <span class="math inline">\(\Delta^y_{ATE_s}\neq\hat{\Delta^y_{WW}}\)</span>, an instance of the FPSI.</p>
+<p>In order to see how sampling noise varies, let’s draw a new treatment allocation, while retaining the same sample and the same potential outcomes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">12345</span>)
+N &lt;-<span class="dv">1000</span>
+Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))
+Ds[V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> 
+y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</code></pre></div>
+<p>In this sample, the treatment effect parameter is still <span class="math inline">\(\Delta^y_{ATE_s}=\)</span> 0.171. The <span class="math inline">\(WW\)</span> estimator yields now an estimate of <span class="math inline">\(\hat{\Delta^y_{WW}}=\)</span> 0.051. The <span class="math inline">\(WW\)</span> estimate is different from our previous estimate because the treatment was allocated to a different random subset of people.</p>
+<p>Why is this second estimate so imprecise? It might because it estimates one of the two components of the average treatment effect badly, or both. The true average potential outcome with the treatment is, in this sample, <span class="math inline">\(\frac{1}{N}\sum_{i=1}^Ny_i^1=\)</span> 8.207 while the <span class="math inline">\(WW\)</span> estimate of this quantity is <span class="math inline">\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i=\)</span> 8.113. The true average potential outcome without the treatment is, in this sample, <span class="math inline">\(\frac{1}{N}\sum_{i=1}^Ny_i^0=\)</span> 8.036 while the <span class="math inline">\(WW\)</span> estimate of this quantity is <span class="math inline">\(\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i=\)</span> 8.062. It thus seems that most of the bias in the estimated effect stems from the fact that the treatment has been allocated to individuals with lower than expected outcomes with the treatment, be it because they did not react strongly to the treatment, or because they were in worse shape without the treatment. We can check which one of these two explanations is more important. The true average effect of the treatment is, in this sample, <span class="math inline">\(\frac{1}{N}\sum_{i=1}^N(y_i^1-y^0_i)=\)</span> 0.171 while, in the treated group, this quantity is <span class="math inline">\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_i(y_i^1-y_i^0)=\)</span> 0.18. The true average potential outcome without the treatment is, in this sample, <span class="math inline">\(\frac{1}{N}\sum_{i=1}^Ny^0_i=\)</span> 8.036 while, in the treated group, this quantity is <span class="math inline">\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i^0=\)</span> 7.933. The reason for the poor performance of the <span class="math inline">\(WW\)</span> estimator in this sample is that individuals with lower counterfactual outcomes were included in the treated group, not that the treatment had lower effects on them. The bad counterfactual outcomes of the treated generates a bias of -0.103, while the bias due to heterogeneous reactions to the treatment is of 0.009. The last part of the bias is the one due to the fact that the individuals in the control group have slightly better counterfactual outcomes than in the sample: -0.026. The sum of these three terms yields the total bias of our <span class="math inline">\(WW\)</span> estimator in this second sample: -0.12.</p>
+<p>Let’s now assess the overall effect of sampling noise on the estimate of the sample treatment effect for various sample sizes. In order to do this, I am going to use parallelized Monte Carlo simulations again. For the sake of simplicity, I am going to generate the same potential outcomes in each replication, using the same seed, and only choose a different treatment allocation.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">monte.carlo.ww.sample &lt;-<span class="st"> </span><span class="cf">function</span>(s,N,param){
+  <span class="kw">set.seed</span>(<span class="dv">1234</span>)
+  mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+  UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+  yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+  YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+  epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+  eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+  U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+  y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+  alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+  y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+  Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+  Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+  <span class="kw">set.seed</span>(s)
+  Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+  V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))
+  Ds[V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> 
+  y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  <span class="kw">return</span>((<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(Ds))<span class="op">*</span><span class="kw">sum</span>(y<span class="op">*</span>Ds)<span class="op">-</span>(<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(<span class="dv">1</span><span class="op">-</span>Ds))<span class="op">*</span><span class="kw">sum</span>(y<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)))
+}
+
+simuls.ww.N.sample &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,param){
+  <span class="kw">return</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.ww.sample,<span class="dt">N=</span>N,<span class="dt">param=</span>param)))
+}
+
+sf.simuls.ww.N.sample &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,param){
+  <span class="kw">sfInit</span>(<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">cpus=</span>ncpus)
+  sim &lt;-<span class="st"> </span><span class="kw">sfLapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.ww.sample,<span class="dt">N=</span>N,<span class="dt">param=</span>param)
+  <span class="kw">sfStop</span>()
+  <span class="kw">return</span>(<span class="kw">unlist</span>(sim))
+}
+
+simuls.ww.sample &lt;-<span class="st"> </span><span class="kw">lapply</span>(N.sample,sf.simuls.ww.N.sample,<span class="dt">Nsim=</span>Nsim,<span class="dt">param=</span>param)</code></pre></div>
+<pre><code>## R Version:  R version 3.4.3 (2017-11-30)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">monte.carlo.ate.sample &lt;-<span class="st"> </span><span class="cf">function</span>(N,s,param){
+  <span class="kw">set.seed</span>(s)
+  mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+  UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+  yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+  YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+  epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+  eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+  U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+  y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+  alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+  y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+  Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+  Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+  Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+  V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))
+  Ds[V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> 
+  y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  <span class="kw">return</span>(<span class="kw">mean</span>(alpha))
+}
+
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>){
+  <span class="kw">hist</span>(simuls.ww.sample[[i]],<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(Delta<span class="op">^</span>yWW)),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="fl">0.15</span>,<span class="fl">0.55</span>))
+  <span class="kw">abline</span>(<span class="dt">v=</span><span class="kw">monte.carlo.ate.sample</span>(N.sample[[i]],<span class="dv">1234</span>,param),<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)
+}</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:montecarlosample"></span>
+<img src="STCI_files/figure-html/montecarlosample-1.png" alt="Distribution of the $WW$ estimator over replications of treatment allocation for samples of different sizes" width="60%" />
+<p class="caption">
+Figure 2.3: Distribution of the <span class="math inline">\(WW\)</span> estimator over replications of treatment allocation for samples of different sizes
+</p>
+</div>
+<p>Let’s also compute sampling noise, precision and the signal to noise ratio in these examples.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">samp.noise.sample &lt;-<span class="st"> </span><span class="cf">function</span>(i,delta,param){
+  <span class="kw">return</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(<span class="kw">monte.carlo.ate.sample</span>(<span class="dv">1234</span>,N.sample[[i]],param)<span class="op">-</span>simuls.ww.sample[[i]]),<span class="dt">prob=</span>delta))
+}
+samp.noise.ww.sample &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>,samp.noise.sample,<span class="dt">delta=</span>delta,<span class="dt">param=</span>param)
+<span class="kw">names</span>(samp.noise.ww.sample) &lt;-<span class="st"> </span>N.sample
+
+precision.sample &lt;-<span class="st"> </span><span class="cf">function</span>(i,delta,param){
+  <span class="kw">return</span>(<span class="dv">1</span><span class="op">/</span><span class="kw">samp.noise.sample</span>(i,delta,<span class="dt">param=</span>param))
+}
+signal.to.noise.sample &lt;-<span class="st"> </span><span class="cf">function</span>(i,delta,param){
+  <span class="kw">return</span>(<span class="kw">monte.carlo.ate.sample</span>(<span class="dv">1234</span>,N.sample[[i]],param)<span class="op">/</span><span class="kw">samp.noise.sample</span>(i,delta,<span class="dt">param=</span>param))
+}
+precision.ww.sample &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>,precision.sample,<span class="dt">delta=</span>delta,<span class="dt">param=</span>param)
+<span class="kw">names</span>(precision.ww.sample) &lt;-<span class="st"> </span>N.sample
+signal.to.noise.ww.sample &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>,signal.to.noise.sample,<span class="dt">delta=</span>delta,<span class="dt">param=</span>param)
+<span class="kw">names</span>(signal.to.noise.ww.sample) &lt;-<span class="st"> </span>N.sample
+table.noise.sample &lt;-<span class="st"> </span><span class="kw">cbind</span>(samp.noise.ww.sample,precision.ww.sample,signal.to.noise.ww.sample)
+<span class="kw">colnames</span>(table.noise.sample) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;Sampling noise&#39;</span>, <span class="st">&#39;Precision&#39;</span>, <span class="st">&#39;Signal to noise ratio&#39;</span>)
+knitr<span class="op">::</span><span class="kw">kable</span>(table.noise.sample,<span class="dt">caption=</span><span class="kw">paste</span>(<span class="st">&#39;Sampling noise of $</span><span class="ch">\\</span><span class="st">hat{WW}$ for the sample treatment effect with $</span><span class="ch">\\</span><span class="st">delta=$&#39;</span>,delta,<span class="st">&#39;and for various sample sizes&#39;</span>,<span class="dt">sep=</span><span class="st">&#39; &#39;</span>),<span class="dt">booktabs=</span><span class="ot">TRUE</span>,<span class="dt">align=</span><span class="kw">c</span>(<span class="st">&#39;c&#39;</span>,<span class="st">&#39;c&#39;</span>,<span class="st">&#39;c&#39;</span>),<span class="dt">digits=</span><span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">3</span>,<span class="dv">3</span>))</code></pre></div>
+<table>
+<caption><span id="tab:sampnoisesample">Table 2.2: </span>Sampling noise of <span class="math inline">\(\hat{WW}\)</span> for the sample treatment effect with <span class="math inline">\(\delta=\)</span> 0.99 and for various sample sizes</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="center">Sampling noise</th>
+<th align="center">Precision</th>
+<th align="center">Signal to noise ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>100</td>
+<td align="center">1.208</td>
+<td align="center">0.828</td>
+<td align="center">0.149</td>
+</tr>
+<tr class="even">
+<td>1000</td>
+<td align="center">0.366</td>
+<td align="center">2.729</td>
+<td align="center">0.482</td>
+</tr>
+<tr class="odd">
+<td>10000</td>
+<td align="center">0.122</td>
+<td align="center">8.218</td>
+<td align="center">1.585</td>
+</tr>
+<tr class="even">
+<td>1e+05</td>
+<td align="center">0.033</td>
+<td align="center">30.283</td>
+<td align="center">5.453</td>
+</tr>
+</tbody>
+</table>
+<p>Finally, let’s compare the extent of sampling noise for the population and the sample treatment effect parameters.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">colnames</span>(table.noise.sample) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;sampling.noise&#39;</span>, <span class="st">&#39;precision&#39;</span>, <span class="st">&#39;signal.to.noise&#39;</span>)
+table.noise.sample &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(table.noise.sample)
+table.noise.sample<span class="op">$</span>N &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">rownames</span>(table.noise.sample))
+table.noise.sample<span class="op">$</span>TT &lt;-<span class="st"> </span><span class="kw">sapply</span>(N.sample,monte.carlo.ate.sample,<span class="dt">s=</span><span class="dv">1234</span>,<span class="dt">param=</span>param)
+table.noise.sample<span class="op">$</span>Type &lt;-<span class="st"> &#39;TTs&#39;</span>
+table.noise<span class="op">$</span>Type &lt;-<span class="st"> &#39;TT&#39;</span>
+table.noise.tot &lt;-<span class="st"> </span><span class="kw">rbind</span>(table.noise,table.noise.sample)
+table.noise.tot<span class="op">$</span>Type &lt;-<span class="st"> </span><span class="kw">factor</span>(table.noise.tot<span class="op">$</span>Type)
+
+<span class="kw">ggplot</span>(table.noise.tot, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(N), <span class="dt">y=</span>TT,<span class="dt">fill=</span>Type)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sample Size&quot;</span>)<span class="op">+</span>
+<span class="st">  </span><span class="kw">theme_bw</span>()<span class="op">+</span>
+<span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="kw">c</span>(<span class="fl">0.85</span>,<span class="fl">0.88</span>))</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:precisionpopsample"></span>
+<img src="STCI_files/figure-html/precisionpopsample-1.png" alt="Sampling noise of $\hat{WW}$ (99\% confidence) around $TT$ and $TT_s$ for various sample sizes" width="60%" />
+<p class="caption">
+Figure 2.4: Sampling noise of <span class="math inline">\(\hat{WW}\)</span> (99% confidence) around <span class="math inline">\(TT\)</span> and <span class="math inline">\(TT_s\)</span> for various sample sizes
+</p>
+</div>
+<p>Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:montecarlosample">2.3</a> and Table <a href="the-fundamental-problem-of-statistical-inference.html#tab:sampnoisesample">2.2</a> present the results of the simulations of sampling noise for the sample treatment effect parameter. Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:precisionpopsample">2.4</a> compares sampling noise for the population and sample treatment effects.<br />
+For all practical purposes, the estimates of sampling noise for the sample treatment effect are extremely close to the ones we have estimated for the population treatment effect. I am actually surprised by this result, since I expected that keeping the potential outcomes constant over replications would decrease sampling noise. It seems that the variability in potential outcomes over replications of random allocations of the treatment in a given sample mimicks very well the sampling process from a population. I do not know if this result of similarity of sampling noise for the population and sample treatment effect is a general one, but considering them as similar or close seems innocuous in our example.</p>
+</div>
+<div id="sec:confinterv" class="section level3">
+<h3><span class="header-section-number">2.1.4</span> Building confidence intervals from estimates of sampling noise</h3>
+<p>In real life, we do not observe <span class="math inline">\(TT\)</span>. We only have access to <span class="math inline">\(\hat{E}\)</span>. Let’s also assume for now that we have access to an estimate of sampling noise, <span class="math inline">\(2\epsilon\)</span>. How can we use these two quantities to assess the set of values that <span class="math inline">\(TT\)</span> might take? One very useful device that we can use is the confidence interval. Confidence intervals are very useful because they quantify the zone within which we have a chance to find the true effect <span class="math inline">\(TT\)</span>:</p>
+
+<div class="theorem">
+<span id="thm:confinter" class="theorem"><strong>Theorem 2.1  (Confidence interval)  </strong></span>For a given level of confidence <span class="math inline">\(\delta\)</span> and corresponding level of sampling noise <span class="math inline">\(2\epsilon\)</span> of the estimator <span class="math inline">\(\hat{E}\)</span> of <span class="math inline">\(TT\)</span>, the confidence interval <span class="math inline">\(\left\{\hat{E}-\epsilon,\hat{E}+\epsilon\right\}\)</span> is such that the probability that it contains <span class="math inline">\(TT\)</span> is equal to <span class="math inline">\(\delta\)</span> over sample replications:
+<span class="math display">\[\begin{align*}
+  \Pr(\hat{E}-\epsilon\leq TT\leq\hat{E}+\epsilon) &amp; = \delta.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> From the definition of sampling noise, we know that:
+<span class="math display">\[\begin{align*}
+  \Pr(|\hat{E}-TT|\leq\epsilon) &amp; = \delta.
+\end{align*}\]</span>
+Now:
+<span class="math display">\[\begin{align*}
+  \Pr(|\hat{E}-TT|\leq\epsilon) &amp; = \Pr(TT-\epsilon\leq\hat{E}\leq TT+\epsilon)\\
+                                &amp; = \Pr(-\hat{E}-\epsilon\leq-TT\leq -\hat{E}+\epsilon)\\
+                                &amp; = \Pr(\hat{E}-\epsilon\leq TT\leq\hat{E}+\epsilon),
+\end{align*}\]</span>
+which proves the result.
+</div>
+
+<p>It is very important to note that confidence intervals are centered around <span class="math inline">\(\hat{E}\)</span> and not around <span class="math inline">\(TT\)</span>. When estimating sampling noise and building Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:precision">2.2</a>, we have centered our intervals around <span class="math inline">\(TT\)</span>. The interval was fixed and <span class="math inline">\(\hat{E}\)</span> was moving across replications and <span class="math inline">\(2\epsilon\)</span> was defined as the length of the interval around <span class="math inline">\(TT\)</span> containing a proportion <span class="math inline">\(\delta\)</span> of the estimates <span class="math inline">\(\hat{E}\)</span>. A confidence interval cannot be centered around <span class="math inline">\(TT\)</span>, which is unknown, but is centered around <span class="math inline">\(\hat{E}\)</span>, that we can observe. As a consequence, it is the interval that moves around across replications, and <span class="math inline">\(\delta\)</span> is the proportion of samples in which the interval contains <span class="math inline">\(TT\)</span>.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-36" class="example"><strong>Example 2.3  </strong></span>Let’s see how confidence intervals behave in our numerical example.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.plot &lt;-<span class="st"> </span><span class="dv">40</span>
+plot.list &lt;-<span class="st"> </span><span class="kw">list</span>()
+
+<span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample)){
+  <span class="kw">set.seed</span>(<span class="dv">1234</span>)
+  test &lt;-<span class="st"> </span><span class="kw">sample</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],N.plot)
+  test &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(test,<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta)),<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta.<span class="dv">2</span>))))
+  <span class="kw">colnames</span>(test) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;sampling.noise.1&#39;</span>,<span class="st">&#39;sampling.noise.2&#39;</span>)
+  test<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>N.plot
+  plot.test &lt;-<span class="st"> </span><span class="kw">ggplot</span>(test, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>WW)) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise.<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise.<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise.<span class="dv">2</span><span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise.<span class="dv">2</span><span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">delta.y.ate</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Sample id&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">theme_bw</span>()<span class="op">+</span>
+<span class="st">      </span><span class="kw">ggtitle</span>(<span class="kw">paste</span>(<span class="st">&quot;N=&quot;</span>,N.sample[k]))
+  plot.list[[k]] &lt;-<span class="st"> </span>plot.test 
+}
+plot.CI &lt;-<span class="st"> </span><span class="kw">plot_grid</span>(plot.list[[<span class="dv">1</span>]],plot.list[[<span class="dv">2</span>]],plot.list[[<span class="dv">3</span>]],plot.list[[<span class="dv">4</span>]],<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">nrow=</span><span class="kw">length</span>(N.sample))
+<span class="kw">print</span>(plot.CI)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:confinterval"></span>
+<img src="STCI_files/figure-html/confinterval-1.png" alt="Confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 (red) and 0.95 (blue) over sample replications for various sample sizes" width="60%" />
+<p class="caption">
+Figure 2.5: Confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 (red) and 0.95 (blue) over sample replications for various sample sizes
+</p>
+</div>
+<p>Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:confinterval">2.5</a> presents the 99% and 95% confidence intervals for 40 samples selected from our simulations. First, confidence intervals do their job: they contain the true effect most of the time. Second, the 95% confidence interval misses the true effect more often, as expected. For example, with <span class="math inline">\(N=\)</span> 1000, the confidence intervals in samples 13 and 23 do not contain the true effect, but it is not far from their lower bound. Third, confidence intervals faithfully reflect what we can learn from our estimates at each sample size. With <span class="math inline">\(N=\)</span> 100, the confidence intervals make it clear that the effect might be very large or very small, even strongly negative. With <span class="math inline">\(N=\)</span> 1000, the confidence intervals suggest that the effect is either positive or null, but unlikely to be strongly negative. Most of the time, we get the sign right. With <span class="math inline">\(N=\)</span> 10^{4}, we know that the true effect is bigger than 0.1 and smaller than 0.3 and most intervals place the true effect somewhere between 0.11 and 0.25. With <span class="math inline">\(N=\)</span> 10^{5}, we know that the true effect is bigger than 0.15 and smaller than 0.21 and most intervals place the true effect somewhere between 0.16 and 0.20.</p>
+</div>
+<div id="reporting-sampling-noise-a-proposal" class="section level3">
+<h3><span class="header-section-number">2.1.5</span> Reporting sampling noise: a proposal</h3>
 
 </div>
 </div>

@@ -1549,3 +1549,271 @@ The signal to noise ratio is `r round(table.noise[rownames(table.noise)==N.sampl
 In only 1\% of the samples does the estimated effect of the treatment become smaller than `r round(quantile(simuls.ww[[4]][,'WW'],probs=c(0.005)),3)` or bigger than `r round(quantile(simuls.ww[[4]][,'WW'],probs=c(0.995)),3)`.
 Sampling noise is not any more responsible for economically meaningful variation.
 
+### Sampling noise for the sample treatment effect {#sec:illusnoisesamp}
+
+Sampling noise for the sample parameter stems from the fact that the treated and control groups are not perfectly identical.
+The distribution of observed and unobserved covariates is actually different, because of sampling variation.
+This makes the actual comparison of means in the sample a noisy estimate of the true comparison that we would obtain by comparing the potential outcomes of the treated directly.
+
+In order to understand this issue well and to be able to illustrate it correctly, I am going to focus on the average treatment effect in the whole sample, not on the treated: $\Delta^Y_{ATE_s}=\frac{1}{N}\sum_{i=1}^N(Y_i^1-Y_i^0)$.
+This enables me to define a sample parameter that is independent of the allocation of $D_i$.
+This is without important consequences since these two parameters are equal in the population when there is no selection bias, as we are assuming since the beginning of this lecture.
+Furthermore, if we view the treatment allocation generating no selection bias as a true random assignment in a Randomized Controlled Trial (RCT), then it is still possible to use this approach to estimate $TT$ if we view the population over which we randomise as the population selected for receiving the treatment, as we will see in the lecture on RCTs.
+
+```{example}
+In order to assess the scope of sampling noise for our sample treatment effect estimate, we first have to draw a sample:
+```
+
+```{r simulnoselb2,eval=TRUE,echo=TRUE}
+set.seed(1234)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+V <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]+param["sigma2U"]))
+Ds[V<=log(param["barY"])] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+In this sample, the treatment effect parameter is $\Delta^y_{ATE_s}=$ `r round(mean(alpha),3)`.
+The $WW$ estimator yields an estimate of $\hat{\Delta^y_{WW}}=$ `r round(mean(y[Ds==1])-mean(y[Ds==0]),3)`.
+Despite random assignment, we have $\Delta^y_{ATE_s}\neq\hat{\Delta^y_{WW}}$, an instance of the FPSI.
+
+In order to see how sampling noise varies, let's draw a new treatment allocation, while retaining the same sample and the same potential outcomes.
+
+```{r simulsampnoise12345,eval=TRUE,echo=TRUE}
+set.seed(12345)
+N <-1000
+Ds <- rep(0,N)
+V <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]+param["sigma2U"]))
+Ds[V<=log(param["barY"])] <- 1 
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+In this sample, the treatment effect parameter is still $\Delta^y_{ATE_s}=$ `r round(mean(alpha),3)`.
+The $WW$ estimator yields now an estimate of $\hat{\Delta^y_{WW}}=$ `r round(mean(y[Ds==1])-mean(y[Ds==0]),3)`.
+The $WW$ estimate is different from our previous estimate because the treatment was allocated to a different random subset of people.
+
+Why is this second estimate so imprecise?
+It might because it estimates one of the two components of the average treatment effect badly, or both.
+The true average potential outcome with the treatment is, in this sample, $\frac{1}{N}\sum_{i=1}^Ny_i^1=$ `r round(mean(y1),3)` while the $WW$ estimate of this quantity is $\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i=$ `r round(mean(y[Ds==1]),3)`.
+The true average potential outcome without the treatment is, in this sample, $\frac{1}{N}\sum_{i=1}^Ny_i^0=$ `r round(mean(y0),3)` while the $WW$ estimate of this quantity is $\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i=$ `r round(mean(y[Ds==0]),3)`.
+It thus seems that most of the bias in the estimated effect stems from the fact that the treatment has been allocated to individuals with lower than expected outcomes with the treatment, be it because they did not react strongly to the treatment, or because they were in worse shape without the treatment.
+We can check which one of these two explanations is more important.
+The true average effect of the treatment is, in this sample, $\frac{1}{N}\sum_{i=1}^N(y_i^1-y^0_i)=$ `r round(mean(alpha),3)` while, in the treated group, this quantity is $\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_i(y_i^1-y_i^0)=$ `r round(mean(alpha[Ds==1]),3)`.
+The true average potential outcome without the treatment is, in this sample, $\frac{1}{N}\sum_{i=1}^Ny^0_i=$ `r round(mean(y0),3)` while, in the treated group, this quantity is $\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i^0=$ `r round(mean(y0[Ds==1]),3)`.
+The reason for the poor performance of the $WW$ estimator in this sample is that individuals with lower counterfactual outcomes were included in the treated group, not that the treatment had lower effects on them.
+The bad counterfactual outcomes of the treated generates a bias of  `r round(mean(y0[Ds==1])-mean(y0),3)`, while the bias due to heterogeneous reactions to the treatment is of `r round(mean(alpha[Ds==1])-mean(alpha),3)`.
+The last part of the bias is the one due to the fact that the individuals in the control group have slightly better counterfactual outcomes than in the sample: `r round(-mean(y0[Ds==0])+mean(y0),3)`.
+The sum of these three terms yields the total bias of our $WW$ estimator in this second sample: `r round(mean(y[Ds==1])-mean(y[Ds==0])-mean(alpha),3)`.
+
+Let's now assess the overall effect of sampling noise on the estimate of the sample treatment effect for various sample sizes.
+In order to do this, I am going to use parallelized Monte Carlo simulations again.
+For the sake of simplicity, I am going to generate the same potential outcomes in each replication, using the same seed, and only choose a different treatment allocation.
+
+```{r montecarlosample,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Distribution of the $WW$ estimator over replications of treatment allocation for samples of different sizes',fig.align='center',out.width=cst,fig.pos='htbp',cache=TRUE,dependson=c('parameters','param')}
+monte.carlo.ww.sample <- function(s,N,param){
+  set.seed(1234)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  set.seed(s)
+  Ds <- rep(0,N)
+  V <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]+param["sigma2U"]))
+  Ds[V<=log(param["barY"])] <- 1 
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  return((1/sum(Ds))*sum(y*Ds)-(1/sum(1-Ds))*sum(y*(1-Ds)))
+}
+
+simuls.ww.N.sample <- function(N,Nsim,param){
+  return(unlist(lapply(1:Nsim,monte.carlo.ww.sample,N=N,param=param)))
+}
+
+sf.simuls.ww.N.sample <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=ncpus)
+  sim <- sfLapply(1:Nsim,monte.carlo.ww.sample,N=N,param=param)
+  sfStop()
+  return(unlist(sim))
+}
+
+simuls.ww.sample <- lapply(N.sample,sf.simuls.ww.N.sample,Nsim=Nsim,param=param)
+
+monte.carlo.ate.sample <- function(N,s,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  Ds <- rep(0,N)
+  V <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]+param["sigma2U"]))
+  Ds[V<=log(param["barY"])] <- 1 
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  return(mean(alpha))
+}
+
+par(mfrow=c(2,2))
+for (i in 1:4){
+  hist(simuls.ww.sample[[i]],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yWW)),xlim=c(-0.15,0.55))
+  abline(v=monte.carlo.ate.sample(N.sample[[i]],1234,param),col="red")
+}
+```
+
+Let's also compute sampling noise, precision and the signal to noise ratio in these examples.
+
+```{r sampnoisesample,eval=TRUE,echo=TRUE}
+samp.noise.sample <- function(i,delta,param){
+  return(2*quantile(abs(monte.carlo.ate.sample(1234,N.sample[[i]],param)-simuls.ww.sample[[i]]),prob=delta))
+}
+samp.noise.ww.sample <- sapply(1:4,samp.noise.sample,delta=delta,param=param)
+names(samp.noise.ww.sample) <- N.sample
+
+precision.sample <- function(i,delta,param){
+  return(1/samp.noise.sample(i,delta,param=param))
+}
+signal.to.noise.sample <- function(i,delta,param){
+  return(monte.carlo.ate.sample(1234,N.sample[[i]],param)/samp.noise.sample(i,delta,param=param))
+}
+precision.ww.sample <- sapply(1:4,precision.sample,delta=delta,param=param)
+names(precision.ww.sample) <- N.sample
+signal.to.noise.ww.sample <- sapply(1:4,signal.to.noise.sample,delta=delta,param=param)
+names(signal.to.noise.ww.sample) <- N.sample
+table.noise.sample <- cbind(samp.noise.ww.sample,precision.ww.sample,signal.to.noise.ww.sample)
+colnames(table.noise.sample) <- c('Sampling noise', 'Precision', 'Signal to noise ratio')
+knitr::kable(table.noise.sample,caption=paste('Sampling noise of $\\hat{WW}$ for the sample treatment effect with $\\delta=$',delta,'and for various sample sizes',sep=' '),booktabs=TRUE,align=c('c','c','c'),digits=c(3,3,3))
+```
+
+Finally, let's compare the extent of sampling noise for the population and the sample treatment effect parameters.
+
+```{r precisionpopsample,dependson=c('monte.carlo','monte.carlo.sample'),eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Sampling noise of $\\hat{WW}$ (99\\% confidence) around $TT$ and $TT_s$ for various sample sizes',fig.align='center',out.width=cst,fig.pos='htbp'}
+colnames(table.noise.sample) <- c('sampling.noise', 'precision', 'signal.to.noise')
+table.noise.sample <- as.data.frame(table.noise.sample)
+table.noise.sample$N <- as.numeric(rownames(table.noise.sample))
+table.noise.sample$TT <- sapply(N.sample,monte.carlo.ate.sample,s=1234,param=param)
+table.noise.sample$Type <- 'TTs'
+table.noise$Type <- 'TT'
+table.noise.tot <- rbind(table.noise,table.noise.sample)
+table.noise.tot$Type <- factor(table.noise.tot$Type)
+
+ggplot(table.noise.tot, aes(x=as.factor(N), y=TT,fill=Type)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black') +
+  geom_errorbar(aes(ymin=TT-sampling.noise/2, ymax=TT+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+  xlab("Sample Size")+
+  theme_bw()+
+  theme(legend.position=c(0.85,0.88))
+```
+
+Figure \@ref(fig:montecarlosample) and Table \@ref(tab:sampnoisesample) present the results of the simulations of sampling noise for the sample treatment effect parameter.
+Figure \@ref(fig:precisionpopsample) compares sampling noise for the population and sample treatment effects.  
+For all practical purposes, the estimates of sampling noise for the sample treatment effect are extremely close to the ones we have estimated for the population treatment effect.
+I am actually surprised by this result, since I expected that keeping the potential outcomes constant over replications would decrease sampling noise. 
+It seems that the variability in potential outcomes over replications of random allocations of the treatment in a given sample mimicks very well the sampling process from a population.
+I do not know if this result of similarity of sampling noise for the population and sample treatment effect is a general one, but considering them as similar or close seems innocuous in our example.
+
+### Building confidence intervals from estimates of sampling noise {#sec:confinterv}
+
+In real life, we do not observe $TT$.
+We only have access to $\hat{E}$.
+Let's also assume for now that we have access to an estimate of sampling noise, $2\epsilon$.
+How can we use these two quantities to assess the set of values that $TT$ might take? 
+One very useful device that we can use is the confidence interval.
+Confidence intervals are very useful because they quantify the zone within which we have a chance to find the true effect $TT$:
+
+```{theorem,confinter,name='Confidence interval'}
+For a given level of confidence $\delta$ and corresponding level of sampling noise $2\epsilon$ of the estimator $\hat{E}$ of $TT$, the confidence interval $\left\{\hat{E}-\epsilon,\hat{E}+\epsilon\right\}$ is such that the probability that it contains $TT$ is equal to $\delta$ over sample replications:
+\begin{align*}
+  \Pr(\hat{E}-\epsilon\leq TT\leq\hat{E}+\epsilon) & = \delta.
+\end{align*}
+```
+
+```{proof}
+From the definition of sampling noise, we know that:
+\begin{align*}
+  \Pr(|\hat{E}-TT|\leq\epsilon) & = \delta.
+\end{align*}
+Now:
+\begin{align*}
+  \Pr(|\hat{E}-TT|\leq\epsilon) & = \Pr(TT-\epsilon\leq\hat{E}\leq TT+\epsilon)\\
+                                & = \Pr(-\hat{E}-\epsilon\leq-TT\leq -\hat{E}+\epsilon)\\
+                                & = \Pr(\hat{E}-\epsilon\leq TT\leq\hat{E}+\epsilon),
+\end{align*}
+which proves the result.
+```
+
+It is very important to note that confidence intervals are centered around $\hat{E}$ and not around $TT$.
+When estimating sampling noise and building Figure \@ref(fig:precision), we have centered our intervals around $TT$.
+The interval was fixed and $\hat{E}$ was moving across replications and $2\epsilon$ was defined as the length of the interval around $TT$ containing a proportion $\delta$ of the estimates $\hat{E}$.
+A confidence interval cannot be centered around $TT$, which is unknown, but is centered around $\hat{E}$, that we can observe.
+As a consequence, it is the interval that moves around across replications, and $\delta$ is the proportion of samples in which the interval contains $TT$. 
+
+```{example}
+Let's see how confidence intervals behave in our numerical example.
+```
+
+```{r confinterval,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'(red) and',delta.2,'(blue) over sample replications for various sample sizes',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+N.plot <- 40
+plot.list <- list()
+
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test <- sample(simuls.ww[[k]][,'WW'],N.plot)
+  test <- as.data.frame(cbind(test,rep(samp.noise(simuls.ww[[k]][,'WW'],delta=delta)),rep(samp.noise(simuls.ww[[k]][,'WW'],delta=delta.2))))
+  colnames(test) <- c('WW','sampling.noise.1','sampling.noise.2')
+  test$id <- 1:N.plot
+  plot.test <- ggplot(test, aes(x=as.factor(id), y=WW)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=WW-sampling.noise.1/2, ymax=WW+sampling.noise.1/2), width=.2,position=position_dodge(.9),color='red') +
+      geom_errorbar(aes(ymin=WW-sampling.noise.2/2, ymax=WW+sampling.noise.2/2), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+      xlab("Sample id")+
+      theme_bw()+
+      ggtitle(paste("N=",N.sample[k]))
+  plot.list[[k]] <- plot.test 
+}
+plot.CI <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI)
+```
+
+Figure \@ref(fig:confinterval) presents the `r 100*delta`\% and `r 100*delta.2`\% confidence intervals for 40 samples selected from our simulations.
+First, confidence intervals do their job: they contain the true effect most of the time.
+Second, the `r 100*delta.2`\% confidence interval misses the true effect more often, as expected.
+For example, with $N=$ `r N.sample[[2]]`, the confidence intervals in samples 13 and 23 do not contain the true effect, but it is not far from their lower bound.
+Third, confidence intervals faithfully reflect what we can learn from our estimates at each sample size.
+With $N=$ `r N.sample[[1]]`, the confidence intervals make it clear that the effect might be very large or very small, even strongly negative.
+With $N=$ `r N.sample[[2]]`, the confidence intervals suggest that the effect is either positive or null, but unlikely to be strongly negative. 
+Most of the time, we get the sign right.
+With $N=$ `r N.sample[[3]]`, we know that the true effect is bigger than 0.1 and smaller than 0.3 and most intervals place the true effect somewhere between 0.11 and 0.25.
+With $N=$ `r N.sample[[4]]`, we know that the true effect is bigger than 0.15 and smaller than 0.21 and most intervals place the true effect somewhere between 0.16 and 0.20.
+
+### Reporting sampling noise: a proposal
+
