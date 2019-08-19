@@ -7,6 +7,7 @@ library(snowfall)
 library(cowplot)
 library(sandwich)
 library(ggpubr)
+library(dplyr)
 ```
 
 ```{r parameters, echo=FALSE}
@@ -836,7 +837,7 @@ delta.y.sb.U <- function(param){
            +1/(1-pnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))))
 }
 ```
-The contribution of $\mu_i$ to selection bias is `r round(delta.y.sb.mu(param),3)` while that of $U_i^0$ is of `r round(delta.y.sb.U(param),3).
+The contribution of $\mu_i$ to selection bias is `r round(delta.y.sb.mu(param),3)` while that of $U_i^0$ is of `r round(delta.y.sb.U(param),3)`.
 
 #### When does $WW$ identify $TT$?
 
@@ -1795,6 +1796,7 @@ for (k in 1:length(N.sample)){
       geom_errorbar(aes(ymin=WW-sampling.noise.1/2, ymax=WW+sampling.noise.1/2), width=.2,position=position_dodge(.9),color='red') +
       geom_errorbar(aes(ymin=WW-sampling.noise.2/2, ymax=WW+sampling.noise.2/2), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+      #ylim(-0.5,1.2)+
       xlab("Sample id")+
       theme_bw()+
       ggtitle(paste("N=",N.sample[k]))
@@ -1816,4 +1818,71 @@ With $N=$ `r N.sample[[3]]`, we know that the true effect is bigger than 0.1 and
 With $N=$ `r N.sample[[4]]`, we know that the true effect is bigger than 0.15 and smaller than 0.21 and most intervals place the true effect somewhere between 0.16 and 0.20.
 
 ### Reporting sampling noise: a proposal
+
+Once sampling noise is measured (and we'll see how to get an estimate in the next section), one still has to communicate it to others.
+There are many ways to report sampling noise: 
+
+  * Sampling noise as defined in this book ($2*\epsilon$)
+  * The corresponding confidence interval 
+  * The signal to noise ratio
+  * A standard error
+  * A significance level
+  * A p-value
+  * A t-statistic
+
+The main problem with all of these approaches is that they do not express sampling noise in a way that is directly comparable to the magnitude of the $TT$ estimate.
+Other ways of reporting sampling noise such as p-values and t-stats are nonlinear transforms of sampling noise, making it difficult to really gauge the size of sampling noise as it relates to the magnitude of $TT$.
+
+My own preference goes to the following format for reporting results: $TT \pm \epsilon$.
+As such, we can readily compare the size of the noise to the sizee of the $TT$ estimate. 
+We can also form all the other ways of expressing sampling noise directly.
+
+```{example}
+Let's see how this approach behaves in our numerical example.
+```
+
+```{r samp.noise.report,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+test.all <- list()
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test <- sample(simuls.ww[[k]][,'WW'],N.plot)
+  test <- as.data.frame(cbind(test,rep(samp.noise(simuls.ww[[k]][,'WW'],delta=delta)),rep(samp.noise(simuls.ww[[k]][,'WW'],delta=delta.2))))
+  colnames(test) <- c('WW','sampling.noise.1','sampling.noise.2')
+  test$id <- 1:N.plot
+  test.all[[k]] <- test
+}
+```
+
+With $N=$ `r N.sample[[1]]`, the reporting of the results for sample `r test.all[[1]]$id[[1]]` would be something like: "we find an effect of `r round(select(filter(test.all[[1]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[1]],id==1),sampling.noise.1)/2,2)`."
+Note how the choice of $\delta$ does not matter much for the result. 
+The previous result was for $\delta=0.99$ while the result for $\delta=0.95$ would have been: "we find an effect of `r round(select(filter(test.all[[1]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[1]],id==1),sampling.noise.2)/2,2)`."
+The precise result changes with $\delta$, but the qualitative result stays the same: the magnitude of sampling noise is large and it dwarfs the treatment effect estimate.
+
+With $N=$ `r N.sample[[2]]`, the reporting of the results for sample `r test.all[[2]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect of `r round(select(filter(test.all[[2]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[2]],id==1),sampling.noise.1)/2,2)`."
+With $\delta=0.95$: "we find an effect of `r round(select(filter(test.all[[2]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[2]],id==1),sampling.noise.2)/2,2)`."
+Again, although the precise quantitative result is affected by the choice of $\delta$, buthte qualitative message stays the same: sampling noise is of the same order of magnitude as the estimated treatment effect. 
+
+With $N=$ `r N.sample[[3]]`, the reporting of the results for sample `r test.all[[3]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect of `r round(select(filter(test.all[[3]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[3]],id==1),sampling.noise.1)/2,2)`."
+With $\delta=0.95$: "we find an effect of `r round(select(filter(test.all[[3]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[3]],id==1),sampling.noise.2)/2,2)`."
+Again, see how the qualitative result is independent of the precise choice of $\delta$: sampling noise is almost one order of magnitude smaller than the treatment effect estimate.
+
+With $N=$ `r N.sample[[4]]`, the reporting of the results for sample `r test.all[[4]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect of `r round(select(filter(test.all[[4]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[4]],id==1),sampling.noise.1)/2,2)`."
+With $\delta=0.95$: "we find an effect of `r round(select(filter(test.all[[4]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[4]],id==1),sampling.noise.2)/2,2)`."
+Again, see how the qualitative result is independent of the precise choice of $\delta$: sampling noise is one order of magnitude smaller than the treatment effect estimate.
+
+```{remark}
+What I hope the example makes clear is that my proposed way of reporting results gives the same importance to sampling noise as it gives to the treatment effect estimate.
+Also, comparing them is easy, without requiring a huge computational burden on our brain.
+```
+
+```{remark}
+One problem with the approach that I propose is when you have a non-symetric distribution of sampling noise, or when $TT \pm \epsilon$ exceeds natural bounds on $TT$ (such as if the effect cannot be bigger than one, for example).
+I think these issues are minor and rare and can be dealt with on a case by case basis.
+The advantage of having one simple and directly readable number comparable to the magnitude of the treatment effect is overwhelming and makes this approach the most natural and adequate, in my opinion.
+```
+
+### Using effect sizes to normalize the reporting of treatment effects and their precision
+
+remark: maybe normalize standard deviations once and for all, as in the metric system.
+
 

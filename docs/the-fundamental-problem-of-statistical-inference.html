@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Statistical Tools for Causal Inference</title>
+  <title>Chapter 2 The Fundamental Problem of Statistical Inference | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book.">
-  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
 
-  <meta property="og:title" content="Statistical Tools for Causal Inference" />
+  <meta property="og:title" content="Chapter 2 The Fundamental Problem of Statistical Inference | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   <meta name="github-repo" content="chabefer/STCI" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Statistical Tools for Causal Inference" />
+  <meta name="twitter:title" content="Chapter 2 The Fundamental Problem of Statistical Inference | Statistical Tools for Causal Inference" />
   
   <meta name="twitter:description" content="This is an open source collaborative book." />
   
@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-04-30">
+<meta name="date" content="2019-08-19">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,6 +36,7 @@
 
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
@@ -618,6 +619,7 @@ plot.list &lt;-<span class="st"> </span><span class="kw">list</span>()
 <span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise.<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise.<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span>
 <span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise.<span class="dv">2</span><span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise.<span class="dv">2</span><span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
 <span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">delta.y.ate</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="co">#ylim(-0.5,1.2)+</span>
 <span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Sample id&quot;</span>)<span class="op">+</span>
 <span class="st">      </span><span class="kw">theme_bw</span>()<span class="op">+</span>
 <span class="st">      </span><span class="kw">ggtitle</span>(<span class="kw">paste</span>(<span class="st">&quot;N=&quot;</span>,N.sample[k]))
@@ -635,6 +637,46 @@ Figure 2.5: Confidence intervals of <span class="math inline">\(\hat{WW}\)</span
 </div>
 <div id="reporting-sampling-noise-a-proposal" class="section level3">
 <h3><span class="header-section-number">2.1.5</span> Reporting sampling noise: a proposal</h3>
+<p>Once sampling noise is measured (and we’ll see how to get an estimate in the next section), one still has to communicate it to others. There are many ways to report sampling noise:</p>
+<ul>
+<li>Sampling noise as defined in this book (<span class="math inline">\(2*\epsilon\)</span>)</li>
+<li>The corresponding confidence interval</li>
+<li>The signal to noise ratio</li>
+<li>A standard error</li>
+<li>A significance level</li>
+<li>A p-value</li>
+<li>A t-statistic</li>
+</ul>
+<p>The main problem with all of these approaches is that they do not express sampling noise in a way that is directly comparable to the magnitude of the <span class="math inline">\(TT\)</span> estimate. Other ways of reporting sampling noise such as p-values and t-stats are nonlinear transforms of sampling noise, making it difficult to really gauge the size of sampling noise as it relates to the magnitude of <span class="math inline">\(TT\)</span>.</p>
+<p>My own preference goes to the following format for reporting results: <span class="math inline">\(TT \pm \epsilon\)</span>. As such, we can readily compare the size of the noise to the sizee of the <span class="math inline">\(TT\)</span> estimate. We can also form all the other ways of expressing sampling noise directly.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-37" class="example"><strong>Example 2.4  </strong></span>Let’s see how this approach behaves in our numerical example.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test.all &lt;-<span class="st"> </span><span class="kw">list</span>()
+<span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample)){
+  <span class="kw">set.seed</span>(<span class="dv">1234</span>)
+  test &lt;-<span class="st"> </span><span class="kw">sample</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],N.plot)
+  test &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(test,<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta)),<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta.<span class="dv">2</span>))))
+  <span class="kw">colnames</span>(test) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;sampling.noise.1&#39;</span>,<span class="st">&#39;sampling.noise.2&#39;</span>)
+  test<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>N.plot
+  test.all[[k]] &lt;-<span class="st"> </span>test
+}</code></pre></div>
+<p>With <span class="math inline">\(N=\)</span> 100, the reporting of the results for sample 1 would be something like: “we find an effect of 0.07 <span class="math inline">\(\pm\)</span> 0.55.” Note how the choice of <span class="math inline">\(\delta\)</span> does not matter much for the result. The previous result was for <span class="math inline">\(\delta=0.99\)</span> while the result for <span class="math inline">\(\delta=0.95\)</span> would have been: “we find an effect of 0.07 <span class="math inline">\(\pm\)</span> 0.45.” The precise result changes with <span class="math inline">\(\delta\)</span>, but the qualitative result stays the same: the magnitude of sampling noise is large and it dwarfs the treatment effect estimate.</p>
+<p>With <span class="math inline">\(N=\)</span> 1000, the reporting of the results for sample 1 with <span class="math inline">\(\delta=0.99\)</span> would be something like: “we find an effect of 0.19 <span class="math inline">\(\pm\)</span> 0.2.” With <span class="math inline">\(\delta=0.95\)</span>: “we find an effect of 0.19 <span class="math inline">\(\pm\)</span> 0.15.” Again, although the precise quantitative result is affected by the choice of <span class="math inline">\(\delta\)</span>, buthte qualitative message stays the same: sampling noise is of the same order of magnitude as the estimated treatment effect.</p>
+<p>With <span class="math inline">\(N=\)</span> 10^{4}, the reporting of the results for sample 1 with <span class="math inline">\(\delta=0.99\)</span> would be something like: “we find an effect of 0.2 <span class="math inline">\(\pm\)</span> 0.06.” With <span class="math inline">\(\delta=0.95\)</span>: “we find an effect of 0.2 <span class="math inline">\(\pm\)</span> 0.04.” Again, see how the qualitative result is independent of the precise choice of <span class="math inline">\(\delta\)</span>: sampling noise is almost one order of magnitude smaller than the treatment effect estimate.</p>
+<p>With <span class="math inline">\(N=\)</span> 10^{5}, the reporting of the results for sample 1 with <span class="math inline">\(\delta=0.99\)</span> would be something like: “we find an effect of 0.17 <span class="math inline">\(\pm\)</span> 0.02.” With <span class="math inline">\(\delta=0.95\)</span>: “we find an effect of 0.17 <span class="math inline">\(\pm\)</span> 0.01.” Again, see how the qualitative result is independent of the precise choice of <span class="math inline">\(\delta\)</span>: sampling noise is one order of magnitude smaller than the treatment effect estimate.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> What I hope the example makes clear is that my proposed way of reporting results gives the same importance to sampling noise as it gives to the treatment effect estimate. Also, comparing them is easy, without requiring a huge computational burden on our brain.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> One problem with the approach that I propose is when you have a non-symetric distribution of sampling noise, or when <span class="math inline">\(TT \pm \epsilon\)</span> exceeds natural bounds on <span class="math inline">\(TT\)</span> (such as if the effect cannot be bigger than one, for example). I think these issues are minor and rare and can be dealt with on a case by case basis. The advantage of having one simple and directly readable number comparable to the magnitude of the treatment effect is overwhelming and makes this approach the most natural and adequate, in my opinion.
+</div>
+
 
 </div>
 </div>
@@ -665,7 +707,7 @@ gitbook.start({
 "google": false,
 "linkedin": false,
 "weibo": false,
-"instapper": false,
+"instapaper": false,
 "vk": false,
 "all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
@@ -677,6 +719,10 @@ gitbook.start({
 "edit": {
 "link": "https://github.com/chabefer/STCI/01_FPI.Rmd",
 "text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
 },
 "download": ["STCI.pdf", "STCI.epub"],
 "toc": {
@@ -692,7 +738,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "";
-    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:" && /^https?:/.test(src))
       src = src.replace(/^https?:/, '');
     script.src = src;

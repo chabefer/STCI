@@ -114,15 +114,16 @@
 }
 
 \setlength{\droptitle}{-2em}
+
   \title{Statistical Tools for Causal Inference}
-  \pretitle{\vspace{\droptitle}\centering\huge}
+    \pretitle{\vspace{\droptitle}\centering\huge}
   \posttitle{\par}
-  \author{The SKY Community}
-  \preauthor{\centering\large\emph}
+    \author{The SKY Community}
+    \preauthor{\centering\large\emph}
   \postauthor{\par}
-  \predate{\centering\large\emph}
+      \predate{\centering\large\emph}
   \postdate{\par}
-  \date{2019-04-30}
+    \date{2019-08-19}
 
 \usepackage{dsfont}
 \newcommand{\uns}[1]{\mathds{1}[ #1 ]}
@@ -134,10 +135,11 @@
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{lemma}{Lemma}[chapter]
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}[chapter]
 \newtheorem{corollary}{Corollary}[chapter]
 \newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{conjecture}{Conjecture}[chapter]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
 \theoremstyle{definition}
 \newtheorem{example}{Example}[chapter]
 \theoremstyle{definition}
@@ -402,11 +404,11 @@ let's build a contingency table.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}
+\begin{table}[t]
 
 \caption{\label{tab:tableDsharp}Treatment allocation with sharp cutoff rule}
 \centering
-\begin{tabular}[t]{lr}
+\begin{tabular}{lr}
 \toprule
 0 & 771\\
 1 & 229\\
@@ -1374,7 +1376,7 @@ In order to evaluate these quantities, let's build two R functions:
 \end{Shaded}
 
 The contribution of \(\mu_i\) to selection bias is -0.978 while that of
-\(U_i^0\) is of `r round(delta.y.sb.U(param),3).
+\(U_i^0\) is of -0.493.
 
 \subsubsection{\texorpdfstring{When does \(WW\) identify
 \(TT\)?}{When does WW identify TT?}}\label{when-does-ww-identify-tt}
@@ -2332,11 +2334,11 @@ of these results together in a nice table.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}
+\begin{table}[t]
 
 \caption{\label{tab:precisionsignal}Sampling noise of $\hat{WW}$ for the population treatment effect with $\delta=$ 0.99 for various sample sizes}
 \centering
-\begin{tabular}[t]{lccc}
+\begin{tabular}{lccc}
 \toprule
   & Sampling noise & Precision & Signal to noise ratio\\
 \midrule
@@ -2639,11 +2641,11 @@ ratio in these examples.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}
+\begin{table}[t]
 
 \caption{\label{tab:sampnoisesample}Sampling noise of $\hat{WW}$ for the sample treatment effect with $\delta=$ 0.99 and for various sample sizes}
 \centering
-\begin{tabular}[t]{lccc}
+\begin{tabular}{lccc}
 \toprule
   & Sampling noise & Precision & Signal to noise ratio\\
 \midrule
@@ -2780,6 +2782,7 @@ interval contains \(TT\).
 \StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{WW}\OperatorTok{-}\NormalTok{sampling.noise.}\DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{WW}\OperatorTok{+}\NormalTok{sampling.noise.}\DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'red'}\NormalTok{) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{WW}\OperatorTok{-}\NormalTok{sampling.noise.}\DecValTok{2}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{WW}\OperatorTok{+}\NormalTok{sampling.noise.}\DecValTok{2}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{delta.y.ate}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\CommentTok{#ylim(-0.5,1.2)+}
 \StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Sample id"}\NormalTok{)}\OperatorTok{+}
 \StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
 \StringTok{      }\KeywordTok{ggtitle}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"N="}\NormalTok{,N.sample[k]))}
@@ -2819,6 +2822,109 @@ intervals place the true effect somewhere between 0.16 and 0.20.
 
 \subsection{Reporting sampling noise: a
 proposal}\label{reporting-sampling-noise-a-proposal}
+
+Once sampling noise is measured (and we'll see how to get an estimate in
+the next section), one still has to communicate it to others. There are
+many ways to report sampling noise:
+
+\begin{itemize}
+\tightlist
+\item
+  Sampling noise as defined in this book (\(2*\epsilon\))
+\item
+  The corresponding confidence interval
+\item
+  The signal to noise ratio
+\item
+  A standard error
+\item
+  A significance level
+\item
+  A p-value
+\item
+  A t-statistic
+\end{itemize}
+
+The main problem with all of these approaches is that they do not
+express sampling noise in a way that is directly comparable to the
+magnitude of the \(TT\) estimate. Other ways of reporting sampling noise
+such as p-values and t-stats are nonlinear transforms of sampling noise,
+making it difficult to really gauge the size of sampling noise as it
+relates to the magnitude of \(TT\).
+
+My own preference goes to the following format for reporting results:
+\(TT \pm \epsilon\). As such, we can readily compare the size of the
+noise to the sizee of the \(TT\) estimate. We can also form all the
+other ways of expressing sampling noise directly.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-37}{}{\label{exm:unnamed-chunk-37}
+}Let's see how this approach behaves in our numerical example.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test.all <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(N.sample))\{}
+  \KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{  test <-}\StringTok{ }\KeywordTok{sample}\NormalTok{(simuls.ww[[k]][,}\StringTok{'WW'}\NormalTok{],N.plot)}
+\NormalTok{  test <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(test,}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise}\NormalTok{(simuls.ww[[k]][,}\StringTok{'WW'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta)),}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise}\NormalTok{(simuls.ww[[k]][,}\StringTok{'WW'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta.}\DecValTok{2}\NormalTok{))))}
+  \KeywordTok{colnames}\NormalTok{(test) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'sampling.noise.1'}\NormalTok{,}\StringTok{'sampling.noise.2'}\NormalTok{)}
+\NormalTok{  test}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\NormalTok{N.plot}
+\NormalTok{  test.all[[k]] <-}\StringTok{ }\NormalTok{test}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+With \(N=\) 100, the reporting of the results for sample 1 would be
+something like: ``we find an effect of 0.07 \(\pm\) 0.55.'' Note how the
+choice of \(\delta\) does not matter much for the result. The previous
+result was for \(\delta=0.99\) while the result for \(\delta=0.95\)
+would have been: ``we find an effect of 0.07 \(\pm\) 0.45.'' The precise
+result changes with \(\delta\), but the qualitative result stays the
+same: the magnitude of sampling noise is large and it dwarfs the
+treatment effect estimate.
+
+With \(N=\) 1000, the reporting of the results for sample 1 with
+\(\delta=0.99\) would be something like: ``we find an effect of 0.19
+\(\pm\) 0.2.'' With \(\delta=0.95\): ``we find an effect of 0.19 \(\pm\)
+0.15.'' Again, although the precise quantitative result is affected by
+the choice of \(\delta\), buthte qualitative message stays the same:
+sampling noise is of the same order of magnitude as the estimated
+treatment effect.
+
+With \(N=\) 10\^{}\{4\}, the reporting of the results for sample 1 with
+\(\delta=0.99\) would be something like: ``we find an effect of 0.2
+\(\pm\) 0.06.'' With \(\delta=0.95\): ``we find an effect of 0.2 \(\pm\)
+0.04.'' Again, see how the qualitative result is independent of the
+precise choice of \(\delta\): sampling noise is almost one order of
+magnitude smaller than the treatment effect estimate.
+
+With \(N=\) 10\^{}\{5\}, the reporting of the results for sample 1 with
+\(\delta=0.99\) would be something like: ``we find an effect of 0.17
+\(\pm\) 0.02.'' With \(\delta=0.95\): ``we find an effect of 0.17
+\(\pm\) 0.01.'' Again, see how the qualitative result is independent of
+the precise choice of \(\delta\): sampling noise is one order of
+magnitude smaller than the treatment effect estimate.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}What I hope the example makes clear is that
+my proposed way of reporting results gives the same importance to
+sampling noise as it gives to the treatment effect estimate. Also,
+comparing them is easy, without requiring a huge computational burden on
+our brain.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}One problem with the approach that I propose
+is when you have a non-symetric distribution of sampling noise, or when
+\(TT \pm \epsilon\) exceeds natural bounds on \(TT\) (such as if the
+effect cannot be bigger than one, for example). I think these issues are
+minor and rare and can be dealt with on a case by case basis. The
+advantage of having one simple and directly readable number comparable
+to the magnitude of the treatment effect is overwhelming and makes this
+approach the most natural and adequate, in my opinion.
+\EndKnitrBlock{remark}
 
 
 \end{document}
