@@ -20,6 +20,8 @@ ncpus <- 4
 
 # (PART) The Two Fundamental Problems of Inference {-}
 
+# Introduction: the Two Fundamental Problems of Inference {-}
+
 When trying to estimate the effect of a program on an outcome, we face two very important and difficult problems: [the Fundamental Problem of Causal Inference (FPCI)](FPCI.html) and [the Fundamental Problem of Statistical Inference (FPSI)](FPSI.html).
 
 In its most basic form, the FPCI states that our causal parameter of interest ($TT$, short for Treatment on the Treated, that we will define shortly) is fundamentally unobservable, even when the sample size is infinite.
@@ -295,7 +297,7 @@ But, at the same time, the urns are connected so that the corresponding ball wit
 The switching equation works a lot like Schrodinger's cat paradox.
 Schrodinger's cat is placed in a sealed box and receives a dose of poison when an atom emits a radiation.
 As long as the box is sealed, there is no way we can know whether the cat is dead or alive.
-When we open the box, we observe either a dead cat or a living cat, but we cannot observe the cat both alice and dead at the same time.
+When we open the box, we observe either a dead cat or a living cat, but we cannot observe the cat both alive and dead at the same time.
 The switching equation is like opening the box, it collapses the observed outcome into one of the two potential ones.
 ```
 
@@ -446,7 +448,7 @@ delta.y.tt <- function(param){return(param["baralpha"]+param["theta"]*param["bar
                                                         *pnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))))}
 ```
 
-The population value of TT computed using this function is: $\Delta^y_{TT}=$ `r round(delta.y.tt(param),3).
+The population value of TT computed using this function is: $\Delta^y_{TT}=$ `r round(delta.y.tt(param),3)`.
 We can see that the values of TT in the sample and in the population differ slightly.
 This is because of sampling noise: the units in the sample are not perfectly representative of the units in the population.
 
@@ -782,7 +784,7 @@ Comparing sick individuals to healthy ones is not a sound way to estimate the ef
 Obviously, even if our treatment performs well, healthier individuals will be healthier after the treatment has been allocated to the sicker patients.
 The best we can expect is that the treated patients have recovered, and that their health after the treatment is comparable to that of the untreated patients.
 In that case, the with/without comparison is going to be null, whereas the true effect of the treatment is positive.
-Selection bias is negative in that case: in the absence of the treatment, the average health status of the treated individuals wuld have been smaller than that of the untreated individuals.
+Selection bias is negative in that case: in the absence of the treatment, the average health status of the treated individuals would have been smaller than that of the untreated individuals.
 The confounding factor is the health status of individuals when the decision to allocate the drug has been taken.
 It is correlated to both the allocation of the treatment (negatively) and to health in the absence of the treatment (positively).
 
@@ -1341,14 +1343,14 @@ We will derive this result after studying how to estimate sampling noise with re
 
 
 There are two distinct ways of understanding sampling noise, depending on whether we are after the population treatment effect ($\Delta^Y_{TT}$) or the sample treatment effect ($\Delta^Y_{TT_s}$).
-Sampling noise for the population treatment effect stems from the fact that the sample is nor perfectly representative of the population.
+Sampling noise for the population treatment effect stems from the fact that the sample is not perfectly representative of the population.
 The sample differs from the population and thus the sample estimates differs from the population estimate.
 Sampling noise for the sample parameter stems from the fact that the control group is not a perfect embodiment of the counterfactual. 
 Discrepancies between treated and control samples are going to generate differences between the $WW$ estimate and the $TT$ effect in the sample.
 
 ### Sampling noise for the population treatment effect {#sec:illusnoisepop}
 
-Sampling noise for the population treatment effect stems from the fact that the sample is nor perfectly representative of the population.
+Sampling noise for the population treatment effect stems from the fact that the sample is not perfectly representative of the population.
 
 ```{example}
 In order to assess the scope of sampling noise for our population treatment effect estimate, let's first draw a sample.
@@ -1860,7 +1862,7 @@ The precise result changes with $\delta$, but the qualitative result stays the s
 
 With $N=$ `r N.sample[[2]]`, the reporting of the results for sample `r test.all[[2]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect of `r round(select(filter(test.all[[2]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[2]],id==1),sampling.noise.1)/2,2)`."
 With $\delta=0.95$: "we find an effect of `r round(select(filter(test.all[[2]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[2]],id==1),sampling.noise.2)/2,2)`."
-Again, although the precise quantitative result is affected by the choice of $\delta$, buthte qualitative message stays the same: sampling noise is of the same order of magnitude as the estimated treatment effect. 
+Again, although the precise quantitative result is affected by the choice of $\delta$, but hte qualitative message stays the same: sampling noise is of the same order of magnitude as the estimated treatment effect. 
 
 With $N=$ `r N.sample[[3]]`, the reporting of the results for sample `r test.all[[3]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect of `r round(select(filter(test.all[[3]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[3]],id==1),sampling.noise.1)/2,2)`."
 With $\delta=0.95$: "we find an effect of `r round(select(filter(test.all[[3]],id==1),WW),2)` $\pm$ `r round(select(filter(test.all[[3]],id==1),sampling.noise.2)/2,2)`."
