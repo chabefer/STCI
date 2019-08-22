@@ -1885,6 +1885,149 @@ The advantage of having one simple and directly readable number comparable to th
 
 ### Using effect sizes to normalize the reporting of treatment effects and their precision
 
-remark: maybe normalize standard deviations once and for all, as in the metric system.
+When looking at the effect of a program on an outcome, we depend on the scaling on that outcome to appreciate the relative size of the estimated treatment effect.  
+It is often difficult to appreciate the relative importance of the size of an effect, even if we know the scale of the outcome of interest.
+One useful device to normalize the treatment effects is called Cohen's $d$, or effect size.
+The idea is to compare the magnitude of the treatment effect to an estimate of the usual amount of variation that the outcome undergoes in the population.
+The way to build Cohen's $d$ is by dividing the estimated treatment effect by the standard deviation of the outcome.
+I generally prefer to use the standard devaition of the outcome in the control group, so as not to include the additional amoiunt of variation due to the heterogeneity in treatment effects.
 
+```{definition, name="Cohen's $d$"}
+Cohen's $d$, or effect size, is the ratio of the estimated treatment effect to the standard deviation of outcomes in the control group:
+```
+
+$$
+d = \frac{\hat{TT}}{\sqrt{\frac{1}{N^0}\sum_{i=1}^{N^0}(Y_i-\bar{Y^0})^2}}
+$$
+where $\hat{TT}$ is an estimate of the treatment effect, $N^0$ is the number of individuals in the treatment group and $\bar{Y^0}$ is the average outcome in the treatment group.
+
+Cohen's $d$ can be interpreted in terms of magnitude of effect size:
+
+  * It is generally considered that an effect is large when its $d$ is larger than 0.8.
+  * An effect size around 0.5 is considered medium
+  * An effect size around 0.2 is considered to be small
+  * An effect size around 0.02 is considered to be very small.
+  
+There probably could be a rescaling of these terms, but that is the actual state of the art.
+
+What I like about effect sizes is that they encourage an interpretation of the order of magnitude of the treatment effect.
+As such, they enable to include the information on precision by looking at which orders of magnitude are compatible with the estimated effect at the estimated precision level.
+Effect sizes and orders of magnitude help make us aware that our results might be imprecise, and that the precise value that we have estimated is probably not the truth.
+What is important is the range of effect sizes compatible with our results (both point estimate and precision).
+
+```{example}
+Let's see how Cohen's $d$ behaves in our numerical example.
+```
+
+The value of Cohen's $d$ (or effect size) in the population is equal to:
+
+\begin{align*}
+  ES & = \frac{TT}{\sqrt{V^0}} = \frac{\bar{\alpha}+\theta\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\rho^2\sigma^2_{U}+\sigma^2_{\epsilon}}}
+\end{align*}
+
+We can write a function to compute this parameter, as well as functions to implement its estimator in the simulated samples:
+
+```{r ES,echo=TRUE,warning=FALSE,message=FALSE,results=FALSE,error=FALSE}
+V0 <- function(param){
+  return(param["sigma2mu"]+param["rho"]^2*param["sigma2U"]+param["sigma2epsilon"])
+}
+
+ES <- function(param){
+  return(delta.y.ate(param)/sqrt(V0(param)))
+}
+
+samp.noise.ES <- function(estim,delta,param=param){
+  return(2*quantile(abs(delta.y.ate(param)/sqrt(V0(param))-estim),prob=delta))
+}
+
+for (i in 1:4){
+  simuls.ww[[i]][,'ES'] <- simuls.ww[[i]][,'WW']/sqrt(simuls.ww[[i]][,'V0'])
+}
+
+```
+
+The true effect size in the population is thus `r round(ES(param),2)`.
+It is considered to be small according to the current classification, although I'd say that a treatment able to move the outcomes by 20\% of their usual variation is a pretty effective treatment, and this effect should be labelled at least medium.
+Let's stick with the classification though.
+In our example, the effect size does not differ much from the treatment effect since the standard deviation of outcomes in the control group is pretty close to one: it is equal to `r round(sqrt(V0(param)),2)`.
+Let's now build confidence intervals for the effect size and try to comment on the magnitudes of these effects using the normalized classification.
+
+```{r confinterval.ES,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Confidence intervals of $\\hat{ES}$ for $\\delta=$',delta,'(red) and',delta.2,'(blue) over sample replications for various sample sizes',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+N.plot.ES <- 40
+plot.list.ES <- list()
+
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test.ES <- sample(simuls.ww[[k]][,'ES'],N.plot)
+  test.ES <- as.data.frame(cbind(test.ES,rep(samp.noise.ES(simuls.ww[[k]][,'ES'],delta=delta,param=param)),rep(samp.noise.ES(simuls.ww[[k]][,'ES'],delta=delta.2,param=param))))
+  colnames(test.ES) <- c('ES','sampling.noise.ES.1','sampling.noise.ES.2')
+  test.ES$id <- 1:N.plot.ES
+  plot.test.ES <- ggplot(test.ES, aes(x=as.factor(id), y=ES)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=ES-sampling.noise.ES.1/2, ymax=ES+sampling.noise.ES.1/2), width=.2,position=position_dodge(.9),color='red') +
+      geom_errorbar(aes(ymin=ES-sampling.noise.ES.2/2, ymax=ES+sampling.noise.ES.2/2), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=delta.y.ate(param)/sqrt(V0(param))), colour="#990000", linetype="dashed")+
+      #ylim(-0.5,1.2)+
+      xlab("Sample id")+
+      ylab("Effect Size")+
+      theme_bw()+
+      ggtitle(paste("N=",N.sample[k]))
+  plot.list.ES[[k]] <- plot.test.ES 
+}
+plot.CI.ES <- plot_grid(plot.list.ES[[1]],plot.list.ES[[2]],plot.list.ES[[3]],plot.list.ES[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI.ES)
+```
+
+Figure \@ref(fig:confinterval.ES) presents the `r 100*delta`\% and `r 100*delta.2`\% confidence intervals for the effect size estimated in 40 samples selected from our simulations.
+Let's regroup our estimate and see how we could present their results.
+
+```{r samp.noise.report.ES,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+test.all.ES <- list()
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test.ES <- sample(simuls.ww[[k]][,'ES'],N.plot)
+  test.ES <- as.data.frame(cbind(test.ES,rep(samp.noise.ES(simuls.ww[[k]][,'ES'],delta=delta,param=param)),rep(samp.noise.ES(simuls.ww[[k]][,'ES'],delta=delta.2,param=param))))
+  colnames(test.ES) <- c('ES','sampling.noise.ES.1','sampling.noise.ES.2')
+  test.ES$id <- 1:N.plot.ES
+  test.all.ES[[k]] <- test.ES
+}
+```
+
+With $N=$ `r N.sample[[1]]`, the reporting of the results for sample `r test.all[[1]]$id[[1]]` would be something like: "we find an effect size of `r round(select(filter(test.all.ES[[1]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[1]],id==1),sampling.noise.ES.1)/2,2)`" with $\delta=0,99$.
+With $\delta=0.95$ we would say: "we find an effect of `r round(select(filter(test.all.ES[[1]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[1]],id==1),sampling.noise.ES.2)/2,2)`."
+All in all, our estimate is compatible with the treatment having a large positive effect size and a medium negative effect size.
+Low precision prevents us from saying much else.
+
+With $N=$ `r N.sample[[2]]`, the reporting of the results for sample `r test.all.ES[[2]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect size of `r round(select(filter(test.all.ES[[2]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[2]],id==1),sampling.noise.ES.1)/2,2)`."
+With $\delta=0.95$: "we find an effect size of `r round(select(filter(test.all.ES[[2]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[2]],id==1),sampling.noise.ES.2)/2,2)`."
+Our estimate is compatible with a medium positive effect or a very small positive or even negative effect (depending on the choice of $\delta$).
+
+With $N=$ `r N.sample[[3]]`, the reporting of the results for sample `r test.all.ES[[3]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect size of `r round(select(filter(test.all.ES[[3]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[3]],id==1),sampling.noise.ES.1)/2,2)`."
+With $\delta=0.95$: "we find an effect size of `r round(select(filter(test.all.ES[[3]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[3]],id==1),sampling.noise.ES.2)/2,2)`."
+Our estimate is thus compatible with a small effect of the treatment. 
+We can rule out that the effect of the treatment is medium since the upper bound of the 99\% confidence interval is equal to `r round(select(filter(test.all.ES[[3]],id==1),ES)+select(filter(test.all.ES[[3]],id==1),sampling.noise.ES.1)/2,2)`.
+We can also rule out that the effect of the treatment is very small since the lower bound of the 99\% confidence interval is equal to `r round(select(filter(test.all.ES[[3]],id==1),ES)-select(filter(test.all.ES[[3]],id==1),sampling.noise.ES.1)/2,2)`.
+With this sample size, we have been able to reach a precision level sufficient enough to pin down the order of magnitude of the effect size of our treatment.
+There still remains a considerable amount of uncertainty about the true effect size, though: the upper bound of our confidence interval is almost double the lower bound.
+
+With $N=$ `r N.sample[[4]]`, the reporting of the results for sample `r test.all.ES[[4]]$id[[1]]` with $\delta=0.99$ would be something like: "we find an effect size of `r round(select(filter(test.all.ES[[4]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[4]],id==1),sampling.noise.ES.1)/2,2)`."
+With $\delta=0.95$: "we find an effect size of `r round(select(filter(test.all.ES[[4]],id==1),ES),2)` $\pm$ `r round(select(filter(test.all.ES[[4]],id==1),sampling.noise.ES.2)/2,2)`."
+Here, the level of precision of our result is such that, first, it does not depend on the choice of $\delta$ in any meaningful way, and second, we can do more than pinpoint the order of magnitude of the effect size, we can start to zero in on its precise value.
+From our estimate, the true value of the effect size is really close to 0.2.
+It could be equal to 0.18 or 0.22, but not further away from 0.2 than that.
+Remember that is actually equal to `r round(ES(param),2)`.
+
+```{remark}
+One issue with Cohen's $d$ is that its magnitude depends on the dispersion of the outcomes in the control group.
+That means that for the same treatment, and same value of the treatment effect, the effect size is larger in a population where oucomes are more homogeneous.
+This is not an attractive feature of a normalizing scale that its size depends on the particular application.
+One solution would be, for each outcome, to provide a standardized scale, using for example the estmated standard deviation in a reference population.
+This would be similar to the invention of the metric system, where a reference scale was agreed uppon once and for all.
+```
+
+```{remark}
+Cohen's $d$ is well defined for continuous outcomes.
+For discrete outcomes, the use of Cohen's $d$ poses a series of problems, and alternatives such as relative risk ratios and odds ratios have been proposed.
+I'll comment on that in the last chapter.
+```
 

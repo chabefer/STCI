@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-08-20}
+    \date{2019-08-22}
 
 \usepackage{dsfont}
 \newcommand{\uns}[1]{\mathds{1}[ #1 ]}
@@ -2955,8 +2955,221 @@ approach the most natural and adequate, in my opinion.
 effects and their
 precision}\label{using-effect-sizes-to-normalize-the-reporting-of-treatment-effects-and-their-precision}
 
-remark: maybe normalize standard deviations once and for all, as in the
-metric system.
+When looking at the effect of a program on an outcome, we depend on the
+scaling on that outcome to appreciate the relative size of the estimated
+treatment effect.\\
+It is often difficult to appreciate the relative importance of the size
+of an effect, even if we know the scale of the outcome of interest. One
+useful device to normalize the treatment effects is called Cohen's
+\(d\), or effect size. The idea is to compare the magnitude of the
+treatment effect to an estimate of the usual amount of variation that
+the outcome undergoes in the population. The way to build Cohen's \(d\)
+is by dividing the estimated treatment effect by the standard deviation
+of the outcome. I generally prefer to use the standard devaition of the
+outcome in the control group, so as not to include the additional
+amoiunt of variation due to the heterogeneity in treatment effects.
+
+\BeginKnitrBlock{definition}[Cohen's $d$]
+\protect\hypertarget{def:unnamed-chunk-40}{}{\label{def:unnamed-chunk-40}
+\iffalse (Cohen's \(d\)) \fi{} }Cohen's \(d\), or effect size, is the
+ratio of the estimated treatment effect to the standard deviation of
+outcomes in the control group:
+\EndKnitrBlock{definition}
+
+\[
+d = \frac{\hat{TT}}{\sqrt{\frac{1}{N^0}\sum_{i=1}^{N^0}(Y_i-\bar{Y^0})^2}}
+\] where \(\hat{TT}\) is an estimate of the treatment effect, \(N^0\) is
+the number of individuals in the treatment group and \(\bar{Y^0}\) is
+the average outcome in the treatment group.
+
+Cohen's \(d\) can be interpreted in terms of magnitude of effect size:
+
+\begin{itemize}
+\tightlist
+\item
+  It is generally considered that an effect is large when its \(d\) is
+  larger than 0.8.
+\item
+  An effect size around 0.5 is considered medium
+\item
+  An effect size around 0.2 is considered to be small
+\item
+  An effect size around 0.02 is considered to be very small.
+\end{itemize}
+
+There probably could be a rescaling of these terms, but that is the
+actual state of the art.
+
+What I like about effect sizes is that they encourage an interpretation
+of the order of magnitude of the treatment effect. As such, they enable
+to include the information on precision by looking at which orders of
+magnitude are compatible with the estimated effect at the estimated
+precision level. Effect sizes and orders of magnitude help make us aware
+that our results might be imprecise, and that the precise value that we
+have estimated is probably not the truth. What is important is the range
+of effect sizes compatible with our results (both point estimate and
+precision).
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-41}{}{\label{exm:unnamed-chunk-41}
+}Let's see how Cohen's \(d\) behaves in our numerical example.
+\EndKnitrBlock{example}
+
+The value of Cohen's \(d\) (or effect size) in the population is equal
+to:
+
+\begin{align*}
+  ES & = \frac{TT}{\sqrt{V^0}} = \frac{\bar{\alpha}+\theta\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\rho^2\sigma^2_{U}+\sigma^2_{\epsilon}}}
+\end{align*}
+
+We can write a function to compute this parameter, as well as functions
+to implement its estimator in the simulated samples:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{V0 <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2epsilon"}\NormalTok{])}
+\NormalTok{\}}
+
+\NormalTok{ES <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{delta.y.ate}\NormalTok{(param)}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{V0}\NormalTok{(param)))}
+\NormalTok{\}}
+
+\NormalTok{samp.noise.ES <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(estim,delta,}\DataTypeTok{param=}\NormalTok{param)\{}
+  \KeywordTok{return}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(}\KeywordTok{delta.y.ate}\NormalTok{(param)}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{V0}\NormalTok{(param))}\OperatorTok{-}\NormalTok{estim),}\DataTypeTok{prob=}\NormalTok{delta))}
+\NormalTok{\}}
+
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{4}\NormalTok{)\{}
+\NormalTok{  simuls.ww[[i]][,}\StringTok{'ES'}\NormalTok{] <-}\StringTok{ }\NormalTok{simuls.ww[[i]][,}\StringTok{'WW'}\NormalTok{]}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(simuls.ww[[i]][,}\StringTok{'V0'}\NormalTok{])}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+The true effect size in the population is thus 0.2. It is considered to
+be small according to the current classification, although I'd say that
+a treatment able to move the outcomes by 20\% of their usual variation
+is a pretty effective treatment, and this effect should be labelled at
+least medium. Let's stick with the classification though. In our
+example, the effect size does not differ much from the treatment effect
+since the standard deviation of outcomes in the control group is pretty
+close to one: it is equal to 0.88. Let's now build confidence intervals
+for the effect size and try to comment on the magnitudes of these
+effects using the normalized classification.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{N.plot.ES <-}\StringTok{ }\DecValTok{40}
+\NormalTok{plot.list.ES <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(N.sample))\{}
+  \KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{  test.ES <-}\StringTok{ }\KeywordTok{sample}\NormalTok{(simuls.ww[[k]][,}\StringTok{'ES'}\NormalTok{],N.plot)}
+\NormalTok{  test.ES <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(test.ES,}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise.ES}\NormalTok{(simuls.ww[[k]][,}\StringTok{'ES'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta,}\DataTypeTok{param=}\NormalTok{param)),}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise.ES}\NormalTok{(simuls.ww[[k]][,}\StringTok{'ES'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta.}\DecValTok{2}\NormalTok{,}\DataTypeTok{param=}\NormalTok{param))))}
+  \KeywordTok{colnames}\NormalTok{(test.ES) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'ES'}\NormalTok{,}\StringTok{'sampling.noise.ES.1'}\NormalTok{,}\StringTok{'sampling.noise.ES.2'}\NormalTok{)}
+\NormalTok{  test.ES}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\NormalTok{N.plot.ES}
+\NormalTok{  plot.test.ES <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(test.ES, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\NormalTok{sampling.noise.ES.}\DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\NormalTok{sampling.noise.ES.}\DecValTok{1}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'red'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\NormalTok{sampling.noise.ES.}\DecValTok{2}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\NormalTok{sampling.noise.ES.}\DecValTok{2}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{delta.y.ate}\NormalTok{(param)}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{V0}\NormalTok{(param))), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\CommentTok{#ylim(-0.5,1.2)+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Sample id"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect Size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ggtitle}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"N="}\NormalTok{,N.sample[k]))}
+\NormalTok{  plot.list.ES[[k]] <-}\StringTok{ }\NormalTok{plot.test.ES }
+\NormalTok{\}}
+\NormalTok{plot.CI.ES <-}\StringTok{ }\KeywordTok{plot_grid}\NormalTok{(plot.list.ES[[}\DecValTok{1}\NormalTok{]],plot.list.ES[[}\DecValTok{2}\NormalTok{]],plot.list.ES[[}\DecValTok{3}\NormalTok{]],plot.list.ES[[}\DecValTok{4}\NormalTok{]],}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{,}\DataTypeTok{nrow=}\KeywordTok{length}\NormalTok{(N.sample))}
+\KeywordTok{print}\NormalTok{(plot.CI.ES)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/confinterval.ES-1} 
+
+}
+
+\caption{Confidence intervals of $\hat{ES}$ for $\delta=$ 0.99 (red) and 0.95 (blue) over sample replications for various sample sizes}(\#fig:confinterval.ES)
+\end{figure}
+
+Figure @ref(fig:confinterval.ES) presents the 99\% and 95\% confidence
+intervals for the effect size estimated in 40 samples selected from our
+simulations. Let's regroup our estimate and see how we could present
+their results.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test.all.ES <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(N.sample))\{}
+  \KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{  test.ES <-}\StringTok{ }\KeywordTok{sample}\NormalTok{(simuls.ww[[k]][,}\StringTok{'ES'}\NormalTok{],N.plot)}
+\NormalTok{  test.ES <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(test.ES,}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise.ES}\NormalTok{(simuls.ww[[k]][,}\StringTok{'ES'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta,}\DataTypeTok{param=}\NormalTok{param)),}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise.ES}\NormalTok{(simuls.ww[[k]][,}\StringTok{'ES'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta.}\DecValTok{2}\NormalTok{,}\DataTypeTok{param=}\NormalTok{param))))}
+  \KeywordTok{colnames}\NormalTok{(test.ES) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'ES'}\NormalTok{,}\StringTok{'sampling.noise.ES.1'}\NormalTok{,}\StringTok{'sampling.noise.ES.2'}\NormalTok{)}
+\NormalTok{  test.ES}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\NormalTok{N.plot.ES}
+\NormalTok{  test.all.ES[[k]] <-}\StringTok{ }\NormalTok{test.ES}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+With \(N=\) 100, the reporting of the results for sample 1 would be
+something like: ``we find an effect size of 0.09 \(\pm\) 0.66'' with
+\(\delta=0,99\). With \(\delta=0.95\) we would say: ``we find an effect
+of 0.09 \(\pm\) 0.5.'' All in all, our estimate is compatible with the
+treatment having a large positive effect size and a medium negative
+effect size. Low precision prevents us from saying much else.
+
+With \(N=\) 1000, the reporting of the results for sample 1 with
+\(\delta=0.99\) would be something like: ``we find an effect size of
+0.21 \(\pm\) 0.22.'' With \(\delta=0.95\): ``we find an effect size of
+0.21 \(\pm\) 0.17.'' Our estimate is compatible with a medium positive
+effect or a very small positive or even negative effect (depending on
+the choice of \(\delta\)).
+
+With \(N=\) 10\^{}\{4\}, the reporting of the results for sample 1 with
+\(\delta=0.99\) would be something like: ``we find an effect size of
+0.22 \(\pm\) 0.07.'' With \(\delta=0.95\): ``we find an effect size of
+0.22 \(\pm\) 0.05.'' Our estimate is thus compatible with a small effect
+of the treatment. We can rule out that the effect of the treatment is
+medium since the upper bound of the 99\% confidence interval is equal to
+0.29. We can also rule out that the effect of the treatment is very
+small since the lower bound of the 99\% confidence interval is equal to
+0.16. With this sample size, we have been able to reach a precision
+level sufficient enough to pin down the order of magnitude of the effect
+size of our treatment. There still remains a considerable amount of
+uncertainty about the true effect size, though: the upper bound of our
+confidence interval is almost double the lower bound.
+
+With \(N=\) 10\^{}\{5\}, the reporting of the results for sample 1 with
+\(\delta=0.99\) would be something like: ``we find an effect size of 0.2
+\(\pm\) 0.02.'' With \(\delta=0.95\): ``we find an effect size of 0.2
+\(\pm\) 0.02.'' Here, the level of precision of our result is such that,
+first, it does not depend on the choice of \(\delta\) in any meaningful
+way, and second, we can do more than pinpoint the order of magnitude of
+the effect size, we can start to zero in on its precise value. From our
+estimate, the true value of the effect size is really close to 0.2. It
+could be equal to 0.18 or 0.22, but not further away from 0.2 than that.
+Remember that is actually equal to 0.2.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}One issue with Cohen's \(d\) is that its
+magnitude depends on the dispersion of the outcomes in the control
+group. That means that for the same treatment, and same value of the
+treatment effect, the effect size is larger in a population where
+oucomes are more homogeneous. This is not an attractive feature of a
+normalizing scale that its size depends on the particular application.
+One solution would be, for each outcome, to provide a standardized
+scale, using for example the estmated standard deviation in a reference
+population. This would be similar to the invention of the metric system,
+where a reference scale was agreed uppon once and for all.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Cohen's \(d\) is well defined for continuous
+outcomes. For discrete outcomes, the use of Cohen's \(d\) poses a series
+of problems, and alternatives such as relative risk ratios and odds
+ratios have been proposed. I'll comment on that in the last chapter.
+\EndKnitrBlock{remark}
 
 
 \end{document}
