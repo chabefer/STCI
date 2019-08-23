@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-08-22">
+<meta name="date" content="2019-08-23">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -52,6 +52,7 @@ $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
+\newcommand{\var}[1]{\mathbf{V}[ #1 ]}
 $$
 
 
@@ -136,6 +137,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="2.1.4" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:confinterv"><i class="fa fa-check"></i><b>2.1.4</b> Building confidence intervals from estimates of sampling noise</a></li>
 <li class="chapter" data-level="2.1.5" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#reporting-sampling-noise-a-proposal"><i class="fa fa-check"></i><b>2.1.5</b> Reporting sampling noise: a proposal</a></li>
 <li class="chapter" data-level="2.1.6" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#using-effect-sizes-to-normalize-the-reporting-of-treatment-effects-and-their-precision"><i class="fa fa-check"></i><b>2.1.6</b> Using effect sizes to normalize the reporting of treatment effects and their precision</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:estimsampnoise"><i class="fa fa-check"></i><b>2.2</b> Estimating sampling noise</a><ul>
+<li class="chapter" data-level="2.2.1" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:assumptions"><i class="fa fa-check"></i><b>2.2.1</b> Assumptions</a></li>
+<li class="chapter" data-level="2.2.2" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:cheb"><i class="fa fa-check"></i><b>2.2.2</b> Using Chebyshev’s inequality</a></li>
+<li class="chapter" data-level="2.2.3" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:CLT"><i class="fa fa-check"></i><b>2.2.3</b> Using the Central Limit Theorem</a></li>
+<li class="chapter" data-level="2.2.4" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:resamp"><i class="fa fa-check"></i><b>2.2.4</b> Using resampling methods</a></li>
+<li class="chapter" data-level="2.2.5" data-path="the-fundamental-problem-of-statistical-inference.html"><a href="the-fundamental-problem-of-statistical-inference.html#sec:Fisher"><i class="fa fa-check"></i><b>2.2.5</b> Using randomization inference</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -780,6 +788,194 @@ Figure 2.6: Confidence intervals of <span class="math inline">\(\hat{ES}\)</span
  <span class="remark"><em>Remark. </em></span> Cohen’s <span class="math inline">\(d\)</span> is well defined for continuous outcomes. For discrete outcomes, the use of Cohen’s <span class="math inline">\(d\)</span> poses a series of problems, and alternatives such as relative risk ratios and odds ratios have been proposed. I’ll comment on that in the last chapter.
 </div>
 
+</div>
+</div>
+<div id="sec:estimsampnoise" class="section level2">
+<h2><span class="header-section-number">2.2</span> Estimating sampling noise</h2>
+<p>Gauging the extent sampling noise is very useful in order to be able to determine how much we should trust our results. Are they precise, so that the true treatment effect lies very close to our estimate? Or are our results imprecise, the true treatment effect maybe lying very far from our estimate?</p>
+<p>Estimating sampling noise is hard because we want to infer a property of our estimator over repeated samples using only one sample. In this lecture, I am going to introduce four tools that enable you to gauge sampling noise and to choose sample size. The four tools are Chebyshev’s inequality, the Central Limit Theorem, resampling methods and Fisher’s permutation method. The idea of all these methods is to use the properties of the sample to infer the properties of our estimator over replications. Chebyshev’s inequality gives an upper bound on the sampling noise and a lower bound on sample size, but these bounds are generally too wide to be useful. The Central Limit Theorem (CLT) approximates the distribution of <span class="math inline">\(\hat{E}\)</span> by a normal distribution, and quantifies sampling noise as a multiple of the standard deviation. Resampling methods use the sample as a population and draw new samples from it in order to approximate sampling noise. Fisher’s permutation method, also called randomization inference, derives the distribution of <span class="math inline">\(\hat{E}\)</span> under the assumption that all treatment effects are null, by reallocating the treatment indicator among the treatment and control group. Both the CLT and resampling methods are approximation methods, and their approximation of the true extent of sampling noise gets better and better as sample size increases. Fisher’s permutation method is exact-it is not an approximation-but it only works for the special case of the <span class="math inline">\(WW\)</span> estimator in a randomized design.</p>
+<p>The remaining of this section is structured as follows. Section <a href="the-fundamental-problem-of-statistical-inference.html#sec:assumptions">2.2.1</a> introduces the assumptions that we will need in order to implement the methods. Section <a href="the-fundamental-problem-of-statistical-inference.html#sec:cheb">2.2.2</a> presents the Chebyshev approach to gauging sampling noise and choosing sample size. Section <a href="the-fundamental-problem-of-statistical-inference.html#sec:CLT">2.2.3</a> introduces the CLT way of approximating sampling noise and choosing sample size. Section <a href="the-fundamental-problem-of-statistical-inference.html#sec:resamp">2.2.4</a> presents the resampling methods. Section <a href="the-fundamental-problem-of-statistical-inference.html#sec:Fisher">2.2.5</a> introduces the Fisher’s exact permutation approach.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> I am going to derive the estimators for the precision only for the <span class="math inline">\(WW\)</span> estimator. In the following lectures, I will show how these methods adapt to other estimators.
+</div>
+
+<div id="sec:assumptions" class="section level3">
+<h3><span class="header-section-number">2.2.1</span> Assumptions</h3>
+<p>In order to be able to use the theorems that power up the methods that we are going to use to gauge sampling noise, we need to make some assumptions on the properties of the data. The main assumptions that we need are that the estimator identifies the true effect of the treatment in the population, that the estimator is well-defined in the sample, that the observations in the sample are independently and identically distributed (i.i.d.), that there is no interaction between units and that the variances of the outcomes in the treated and untreated group are finite.</p>
+<p>We know from last lecture that for the <span class="math inline">\(WW\)</span> estimator to identify <span class="math inline">\(TT\)</span>, we need to assume that there is no selection bias, as stated in Assumption <a href="the-fundamental-problem-of-causal-inference.html#def:noselb">1.7</a>. One way to ensure that this assumption holds is to use a RCT.</p>
+<p>In order to be able to form the <span class="math inline">\(WW\)</span> estimator in the sample, we also need that there is at least one treated and one untreated in the sample:</p>
+
+<div class="definition">
+<span id="def:fullrank" class="definition"><strong>Definition 2.3  (Full rank)  </strong></span>We assume that there is at least one observation in the sample that receives the treatment and one observation that does not receive it:
+<span class="math display">\[\begin{align*}
+\exists i,j\leq N \text{ such that } &amp; D_i=1 \&amp; D_j=0.
+\end{align*}\]</span>
+</div>
+
+<p>One way to ensure that this assumption holds is to sample treated and untreated units.</p>
+<p>In order to be able to estimate the variance of the estimator easily, we assume that the observations come from random sampling and are i.i.d.:</p>
+
+<div class="definition">
+<span id="def:iid" class="definition"><strong>Definition 2.4  (i.i.d. sampling)  </strong></span>We assume that the observations in the sample are identically and independently distributed:
+<span class="math display">\[\begin{align*}
+\forall i,j\leq N\text{, }i\neq j\text{, } &amp; (Y_i,D_i)\Ind(Y_j,D_j),\\
+                                           &amp; (Y_i,D_i)\&amp;(Y_j,D_j)\sim F_{Y,D}.
+\end{align*}\]</span>
+</div>
+
+<p>We have to assume something on how the observations are related to each other and to the population. Identical sampling is natural in the sense that we are OK to assume that the observations stem from the same population model. Independent sampling is something else altogether. Independence means that the fates of two closely related individuals are assumed to be independent. This rules out two empirically relevant scenarios:</p>
+<ol style="list-style-type: decimal">
+<li>The fates of individuals are related because of common influences, as for example the environment, etc,</li>
+<li>The fates of individuals are related because they directly influence each other, as for example on a market, but also for example because there are diffusion effects, such as contagion of deseases or technological adoption by imitation.</li>
+</ol>
+<p>We will address both sources of failure of the independence assumption in future lectures.</p>
+<p>Finally, in order for all our derivations to make sense, we need to assume that the outcomes in both groups have finite variances, otherwise sampling noise is going to be too extreme to be able to estimate it using the methods developed in this lecture:</p>
+
+<div class="definition">
+<span id="def:finitevar" class="definition"><strong>Definition 2.5  (Finite variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>We assume that <span class="math inline">\(\var{Y^1|D_i=1}\)</span> and <span class="math inline">\(\var{Y^0|D_i=0}\)</span> are finite.
+</div>
+
+</div>
+<div id="sec:cheb" class="section level3">
+<h3><span class="header-section-number">2.2.2</span> Using Chebyshev’s inequality</h3>
+<p>Chebyshev’s inequality is a fundamental building block of statistics. It relates the sampling noise of an estimator to its variance. More precisely, it derives an upper bound on the samplig noise of an unbiased estimator:</p>
+
+<div class="theorem">
+<p><span id="thm:cheb" class="theorem"><strong>Theorem 2.2  (Chebyshev’s inequality)  </strong></span>For any unbiased estimator <span class="math inline">\(\hat{\theta}\)</span>, sampling noise level <span class="math inline">\(2\epsilon\)</span> and confidence level <span class="math inline">\(\delta\)</span>, sampling noise is bounded from above:</p>
+<span class="math display">\[\begin{align*}
+2\epsilon \leq 2\sqrt{\frac{\var{\hat{\theta}}}{1-\delta}}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="remark">
+<p> <span class="remark"><em>Remark. </em></span> The more general version of Chebyshev’s inequality that is generally presented is as follows:</p>
+<span class="math display">\[\begin{align*}
+\Pr(|\hat{\theta}-\esp{\hat{\theta}}|&gt;\epsilon) &amp; \leq \frac{\var{\hat{\theta}}}{\epsilon^2}.
+\end{align*}\]</span>
+<p>The version I present in Theorem <a href="the-fundamental-problem-of-statistical-inference.html#thm:cheb">2.2</a> is adapted to the bouding of sampling noise for a given confidence level, while this version is adapted to bounding the confidence level for a given level of sampling noise. In order to go from this general version to Theorem <a href="the-fundamental-problem-of-statistical-inference.html#thm:cheb">2.2</a>, simply remember that, for an unbiased estimator, <span class="math inline">\(\esp{\hat{\theta}}=\theta\)</span> and that, by definition of sampling noise, <span class="math inline">\(\Pr(|\hat{\theta}-\theta|&gt;\epsilon)=1-\delta\)</span>. As a result, <span class="math inline">\(1-\delta\leq\var{\hat{\theta}}/\epsilon^2\)</span>, hence the result in Theorem <a href="the-fundamental-problem-of-statistical-inference.html#thm:cheb">2.2</a>.</p>
+</div>
+
+<p>Using Chebyshev’s inequality, we can obtain an upper bound on the sampling noise of the <span class="math inline">\(WW\)</span> estimator:</p>
+
+<div class="theorem">
+<p><span id="thm:uppsampnoise" class="theorem"><strong>Theorem 2.3  (Upper bound on the sampling noise of <span class="math inline">\(\hat{WW}\)</span>)  </strong></span>Under Assumptions <a href="the-fundamental-problem-of-causal-inference.html#def:noselb">1.7</a>, <a href="the-fundamental-problem-of-statistical-inference.html#def:fullrank">2.3</a> and <a href="the-fundamental-problem-of-statistical-inference.html#def:iid">2.4</a>, for a given confidence level <span class="math inline">\(\delta\)</span>, the sampling noise of the <span class="math inline">\(\hat{WW}\)</span> estimator is bounded from above:</p>
+<span class="math display">\[\begin{align*}
+2\epsilon \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}\right)}\equiv 2\bar{\epsilon}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See in appendix <a href="#sec:proofcheb"><strong>??</strong></a>
+</div>
+
+<p>Theorem <a href="the-fundamental-problem-of-statistical-inference.html#thm:uppsampnoise">2.3</a> is a useful step forward for estimating sampling noise. Theorem <a href="the-fundamental-problem-of-statistical-inference.html#thm:uppsampnoise">2.3</a> states that the actual level of sampling noise of the <span class="math inline">\(\hat{WW}\)</span> estimator (<span class="math inline">\(2\epsilon\)</span>) is never bigger than a quantity that depends on sample size, confidence level and on the variances of outcomes in the treated and control groups. We either know all the components of the formula for <span class="math inline">\(2\bar{\epsilon}\)</span> or we can estimate them in the sample. For example, <span class="math inline">\(\Pr(D_i=1)\)</span>, <span class="math inline">\(\var{Y_i^1|D_i=1}\)</span> and <span class="math inline">\(\var{Y_i^0|D_i=0}\)</span> by can be approximated by, respectively:</p>
+<span class="math display">\[\begin{align*}
+  \hat{\Pr(D_i=1)} &amp; = \frac{1}{N}\sum_{i=1}^ND_i\\
+  \hat{\var{Y_i^1|D_i=1}} &amp; = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_i(Y_i-\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iY_i)^2\\
+  \hat{\var{Y_i^0|D_i=0}} &amp; = \frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)(Y_i-\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)Y_i)^2.
+\end{align*}\]</span>
+<p>Using these approximations for the quantities in the formula, we can compute an estimate of the upper bound on sampling noise, <span class="math inline">\(\hat{2\bar{\epsilon}}\)</span>.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-47" class="example"><strong>Example 2.6  </strong></span>Let’s write an R function that is going to compute an estimate for the upper bound of sampling noise for any sample:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">samp.noise.ww.cheb &lt;-<span class="st"> </span><span class="cf">function</span>(N,delta,v1,v0,p){
+  <span class="kw">return</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">sqrt</span>((v1<span class="op">/</span>p<span class="op">+</span>v0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>p))<span class="op">/</span>(N<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>delta))))
+}</code></pre></div>
+<p>Let’s estimate this upper bound in our usual sample:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1234</span>)
+N &lt;-<span class="dv">1000</span>
+delta &lt;-<span class="st"> </span><span class="fl">0.99</span>
+mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))
+Ds[V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> 
+epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</code></pre></div>
+<p>In our sample, for <span class="math inline">\(\delta=\)</span> 0.99, <span class="math inline">\(\hat{2\bar{\epsilon}}=\)</span> 1.35. How does this compare with the true extent of sampling noise when <span class="math inline">\(N=\)</span> 1000? Remember that we have computed an estimate of sampling noise out of our Monte Carlo replications. In Table <a href="the-fundamental-problem-of-statistical-inference.html#fig:precision">2.2</a>, we can read that sampling noise is actually equal to 0.39. The Chebyshev upper bound overestimates the extent of sampling noise by 245%.</p>
+<p>How does the Chebyshev upper bound fares overall? In order to know that, let’s compute the Chebyshev upper bound for all the simulated samples. You might have noticed that, when running the Monte Carlo simulations for the population parameter, I have not only recovered <span class="math inline">\(\hat{WW}\)</span> for each sample, but also the estimates of the components of the formula for the upper bound on sampling noise. I can thus easily compute the Chebyshev upper bound on sampling noise for each replication.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">for</span> (k <span class="cf">in</span> (<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample))){
+  simuls.ww[[k]]<span class="op">$</span>cheb.noise &lt;-<span class="st"> </span><span class="kw">samp.noise.ww.cheb</span>(N.sample[[k]],delta,simuls.ww[[k]][,<span class="st">&#39;V1&#39;</span>],simuls.ww[[k]][,<span class="st">&#39;V0&#39;</span>],simuls.ww[[k]][,<span class="st">&#39;p&#39;</span>])
+}
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>){
+  <span class="kw">hist</span>(simuls.ww[[i]][,<span class="st">&#39;cheb.noise&#39;</span>],<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">bar</span>(epsilon))),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="fl">0.25</span><span class="op">*</span><span class="kw">min</span>(simuls.ww[[i]][,<span class="st">&#39;cheb.noise&#39;</span>]),<span class="kw">max</span>(simuls.ww[[i]][,<span class="st">&#39;cheb.noise&#39;</span>])))
+  <span class="kw">abline</span>(<span class="dt">v=</span>table.noise[i,<span class="kw">colnames</span>(table.noise)<span class="op">==</span><span class="st">&#39;sampling.noise&#39;</span>],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)
+}</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwcheball"></span>
+<img src="STCI_files/figure-html/sampnoisewwcheball-1.png" alt="Distribution of the Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+Figure 2.7: Distribution of the Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<p>Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:sampnoisewwcheball">2.7</a> shows that the upper bound works: it is always bigger than the true sampling noise. Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:sampnoisewwcheball">2.7</a> also shows that the upper bound is large: it generally is of an order of magnitude bigger than the true sampling noise, and thus offers a blurry and too pessimistic view of the precision of an estimator. Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:sampnoisewwchebplot">2.8</a> shows that the average Chebyshev bound gives an inflated estimate of sampling noise. Figure <a href="the-fundamental-problem-of-statistical-inference.html#fig:confintervalcheb">2.9</a> shows that the Chebyshev confidence intervals are clearly less precise than the true unknown ones. With <span class="math inline">\(N=\)</span> 1000, the true confidence intervals generally reject large negative effects, whereas the Chebyshev confidence intervals do not rule out this possibility. With <span class="math inline">\(N=\)</span> 10^{4}, the true confidence intervals generally reject effects smaller than 0.1, whereas the Chebyshev confidence intervals cannot rule out small negative effects.</p>
+<p>As a conclusion on Chebyshev estimates of sampling noise, their advantage is that they offer an upper bound on the noise: we can never underestimate noise if we use them. A downside of Chebyshev sampling noise is their lower precision, which makes it harder to pinpoint the true confidence intervals.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">for</span> (k <span class="cf">in</span> (<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample))){
+  table.noise<span class="op">$</span>cheb.noise[k] &lt;-<span class="st"> </span><span class="kw">mean</span>(simuls.ww[[k]]<span class="op">$</span>cheb.noise)
+}
+<span class="kw">ggplot</span>(table.noise, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(N), <span class="dt">y=</span>TT)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>cheb.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>cheb.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sample Size&quot;</span>)<span class="op">+</span>
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwchebplot"></span>
+<img src="STCI_files/figure-html/sampnoisewwchebplot-1.png" alt="Average Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+Figure 2.8: Average Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.plot &lt;-<span class="st"> </span><span class="dv">40</span>
+plot.list &lt;-<span class="st"> </span><span class="kw">list</span>()
+
+<span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample)){
+  <span class="kw">set.seed</span>(<span class="dv">1234</span>)
+  test.cheb &lt;-<span class="st"> </span>simuls.ww[[k]][<span class="kw">sample</span>(N.plot),<span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;cheb.noise&#39;</span>)]
+  test.cheb &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(test.cheb,<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta),N.plot)))
+  <span class="kw">colnames</span>(test.cheb) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;cheb.noise&#39;</span>,<span class="st">&#39;sampling.noise&#39;</span>)
+  test.cheb<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>N.plot
+  plot.test.cheb &lt;-<span class="st"> </span><span class="kw">ggplot</span>(test.cheb, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>WW)) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>cheb.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>cheb.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">delta.y.ate</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Sample id&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">theme_bw</span>()<span class="op">+</span>
+<span class="st">      </span><span class="kw">ggtitle</span>(<span class="kw">paste</span>(<span class="st">&quot;N=&quot;</span>,N.sample[k]))
+  plot.list[[k]] &lt;-<span class="st"> </span>plot.test.cheb 
+}
+plot.CI &lt;-<span class="st"> </span><span class="kw">plot_grid</span>(plot.list[[<span class="dv">1</span>]],plot.list[[<span class="dv">2</span>]],plot.list[[<span class="dv">3</span>]],plot.list[[<span class="dv">4</span>]],<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">nrow=</span><span class="kw">length</span>(N.sample))
+<span class="kw">print</span>(plot.CI)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:confintervalcheb"></span>
+<img src="STCI_files/figure-html/confintervalcheb-1.png" alt="Chebyshev confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)" width="60%" />
+<p class="caption">
+Figure 2.9: Chebyshev confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 over sample replications for various sample sizes (true confidence intervals in red)
+</p>
+</div>
+</div>
+<div id="sec:CLT" class="section level3">
+<h3><span class="header-section-number">2.2.3</span> Using the Central Limit Theorem</h3>
+</div>
+<div id="sec:resamp" class="section level3">
+<h3><span class="header-section-number">2.2.4</span> Using resampling methods</h3>
+</div>
+<div id="sec:Fisher" class="section level3">
+<h3><span class="header-section-number">2.2.5</span> Using randomization inference</h3>
 
 </div>
 </div>

@@ -1119,7 +1119,6 @@ Time trend bias is the difference between the before/after comparison and the tr
 \begin{align*}
 \Delta^Y_{TB} & = \Delta^Y_{BA}-\Delta^Y_{TT} .
 \end{align*}
-\end{definition}
 ```
 
 $BA$ uses the expected outcome in the treated group before the treatment as a proxy for the expected counterfactual outcome in the absence of the treatment in the same group.
@@ -2031,3 +2030,242 @@ For discrete outcomes, the use of Cohen's $d$ poses a series of problems, and al
 I'll comment on that in the last chapter.
 ```
 
+## Estimating sampling noise {#sec:estimsampnoise}
+
+Gauging the extent sampling noise is very useful in order to be able to determine how much we should trust our results.
+Are they precise, so that the true treatment effect lies very close to our estimate?
+Or are our results imprecise, the true treatment effect maybe lying very far from our estimate?
+
+Estimating sampling noise is hard because we want to infer a property of our estimator over repeated samples using only one sample.
+In this lecture, I am going to introduce four tools that enable you to gauge sampling noise and to choose sample size.
+The four tools are Chebyshev's inequality, the Central Limit Theorem, resampling methods and Fisher's permutation method.
+The idea of all these methods is to use the properties of the sample to infer the properties of our estimator over replications.
+Chebyshev's inequality gives an upper bound on the sampling noise and a lower bound on sample size, but these bounds are generally too wide to be useful.
+The Central Limit Theorem (CLT) approximates the distribution of $\hat{E}$ by a normal distribution, and quantifies sampling noise as a multiple of the standard deviation.
+Resampling methods use the sample as a population and draw new samples from it in order to approximate sampling noise.
+Fisher's permutation method, also called randomization inference, derives the distribution of $\hat{E}$ under the assumption that all treatment effects are null, by reallocating the treatment indicator among the treatment and control group.
+Both the CLT and resampling methods are approximation methods, and their approximation of the true extent of sampling noise gets better and better as sample size increases.
+Fisher's permutation method is exact-it is not an approximation-but it only works for the special case of the $WW$ estimator in a randomized design.
+
+The remaining of this section is structured as follows.
+Section \@ref(sec:assumptions) introduces the assumptions that we will need in order to implement the methods.
+Section \@ref(sec:cheb) presents the Chebyshev approach to gauging sampling noise and choosing sample size.
+Section \@ref(sec:CLT) introduces the CLT way of approximating sampling noise and choosing sample size.
+Section \@ref(sec:resamp) presents the resampling methods.
+Section \@ref(sec:Fisher) introduces the Fisher's exact permutation approach.
+
+```{remark}
+I am going to derive the estimators for the precision only for the $WW$ estimator.
+In the following lectures, I will show how these methods adapt to other estimators.
+```
+
+### Assumptions {#sec:assumptions}
+
+In order to be able to use the theorems that power up the methods that we are going to use to gauge sampling noise, we need to make some assumptions on the properties of the data.
+The main assumptions that we need are that the estimator identifies the true effect of the treatment in the population, that the estimator is well-defined in the sample, that the observations in the sample are independently and identically distributed (i.i.d.), that there is no interaction between units and that the variances of the outcomes in the treated and untreated group are finite.
+
+We know from last lecture that for the $WW$ estimator to identify $TT$, we need to assume that there is no selection bias, as stated in Assumption \@ref(def:noselb).
+One way to ensure that this assumption holds is to use a RCT.
+
+In order to be able to form the $WW$ estimator in the sample, we also need that there is at least one treated and one untreated in the sample:
+
+```{definition,fullrank,name='Full rank'}
+We assume that there is at least one observation in the sample that receives the treatment and one observation that does not receive it: 
+\begin{align*}
+\exists i,j\leq N \text{ such that } & D_i=1 \& D_j=0.
+\end{align*}
+```
+
+One way to ensure that this assumption holds is to sample treated and untreated units.
+
+In order to be able to estimate the variance of the estimator easily, we assume that the observations come from random sampling and are i.i.d.:
+ 
+```{definition,iid,name='i.i.d. sampling'}
+We assume that the observations in the sample are identically and independently distributed: 
+\begin{align*}
+\forall i,j\leq N\text{, }i\neq j\text{, } & (Y_i,D_i)\Ind(Y_j,D_j),\\
+                                           & (Y_i,D_i)\&(Y_j,D_j)\sim F_{Y,D}.
+\end{align*}
+```
+
+We have to assume something on how the observations are related to each other and to the population.
+Identical sampling is natural in the sense that we are OK to assume that the observations stem from the same population model.
+Independent sampling is something else altogether.
+Independence means that the fates of two closely related individuals are assumed to be independent.
+This rules out two empirically relevant scenarios:
+
+  1. The fates of individuals are related because of common influences, as for example the environment, etc,
+  2. The fates of individuals are related because they directly influence each other, as for example on a market, but also for example because there are diffusion effects, such as contagion of deseases or technological adoption by imitation.
+
+We will address both sources of failure of the independence assumption in future lectures.
+
+Finally, in order for all our derivations to make sense, we need to assume that the outcomes in both groups have finite variances, otherwise sampling noise is going to be too extreme to be able to estimate it using the methods developed in this lecture:
+
+```{definition,finitevar,name='Finite variance of $\\hat{\\Delta^Y_{WW}}$'}
+We assume that $\var{Y^1|D_i=1}$ and $\var{Y^0|D_i=0}$ are finite.
+```
+
+### Using Chebyshev's inequality {#sec:cheb}
+
+Chebyshev's inequality is a fundamental building block of statistics. 
+It relates the sampling noise of an estimator to its variance.
+More precisely, it derives an upper bound on the samplig noise of an unbiased estimator:
+
+```{theorem,cheb,name="Chebyshev's inequality"}
+For any unbiased estimator $\hat{\theta}$, sampling noise level $2\epsilon$ and confidence level $\delta$, sampling noise is bounded from above:
+  
+\begin{align*}
+2\epsilon \leq 2\sqrt{\frac{\var{\hat{\theta}}}{1-\delta}}.
+\end{align*}
+```
+
+```{remark}
+The more general version of Chebyshev's inequality that is generally presented is as follows:
+
+\begin{align*}
+\Pr(|\hat{\theta}-\esp{\hat{\theta}}|>\epsilon) & \leq \frac{\var{\hat{\theta}}}{\epsilon^2}.
+\end{align*}
+
+The version I present in Theorem \@ref(thm:cheb) is adapted to the bouding of sampling noise for a given confidence level, while this version is adapted to bounding the confidence level for a given level of sampling noise.
+In order to go from this general version to Theorem \@ref(thm:cheb), simply remember that, for an unbiased estimator, $\esp{\hat{\theta}}=\theta$ and that, by definition of sampling noise, $\Pr(|\hat{\theta}-\theta|>\epsilon)=1-\delta$.
+As a result, $1-\delta\leq\var{\hat{\theta}}/\epsilon^2$, hence the result in Theorem \@ref(thm:cheb).
+
+```
+
+Using Chebyshev's inequality, we can obtain an upper bound on the sampling noise of the $WW$ estimator:
+
+```{theorem,uppsampnoise,name='Upper bound on the sampling noise of $\\hat{WW}$'}
+Under Assumptions \@ref(def:noselb), \@ref(def:fullrank) and \@ref(def:iid), for a given confidence level $\delta$, the sampling noise of the $\hat{WW}$ estimator is bounded from above:
+
+\begin{align*}
+2\epsilon \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}\right)}\equiv 2\bar{\epsilon}.
+\end{align*}
+```
+
+```{proof}
+See in appendix \@ref(sec:proofcheb)
+```
+
+Theorem \@ref(thm:uppsampnoise) is a useful step forward for estimating sampling noise. 
+Theorem \@ref(thm:uppsampnoise) states that the actual level of sampling noise of the $\hat{WW}$ estimator ($2\epsilon$) is never bigger than a quantity that depends on sample size, confidence level and on the variances of outcomes in the treated and control groups.
+We either know all the components of the formula for $2\bar{\epsilon}$ or we can estimate them in the sample.
+For example, $\Pr(D_i=1)$, $\var{Y_i^1|D_i=1}$ and $\var{Y_i^0|D_i=0}$ by can be approximated by, respectively:
+
+\begin{align*}
+  \hat{\Pr(D_i=1)} & = \frac{1}{N}\sum_{i=1}^ND_i\\
+  \hat{\var{Y_i^1|D_i=1}} & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_i(Y_i-\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iY_i)^2\\
+  \hat{\var{Y_i^0|D_i=0}} & = \frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)(Y_i-\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)Y_i)^2.
+\end{align*}
+
+Using these approximations for the quantities in the formula, we can compute an estimate of the upper bound on sampling noise, $\hat{2\bar{\epsilon}}$.
+
+```{example}
+Let's write an R function that is going to compute an estimate for the upper bound of sampling noise for any sample:
+```
+
+```{r sampnoisewwcheb,eval=TRUE,echo=TRUE}
+samp.noise.ww.cheb <- function(N,delta,v1,v0,p){
+  return(2*sqrt((v1/p+v0/(1-p))/(N*(1-delta))))
+}
+```
+
+Let's estimate this upper bound in our usual sample:
+
+```{r simulnoselb1234bis,eval=TRUE,echo=TRUE,cache=TRUE,dependson='param'}
+set.seed(1234)
+N <-1000
+delta <- 0.99
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+V <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]+param["sigma2U"]))
+Ds[V<=log(param["barY"])] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+In our sample, for $\delta=$ `r delta`, $\hat{2\bar{\epsilon}}=$ `r round(samp.noise.ww.cheb(N,delta,var(y[Ds==1]),var(y[Ds==0]),mean(Ds)),2)`.
+How does this compare with the true extent of sampling noise when $N=$ `r N`?
+Remember that we have computed an estimate of sampling noise out of our Monte Carlo replications.
+In Table \@ref(fig:precision), we can read that sampling noise is actually equal to `r round(table.noise[rownames(table.noise)==as.character(N),colnames(table.noise)=='sampling.noise'],2)`.
+The Chebyshev upper bound overestimates the extent of sampling noise by `r round((samp.noise.ww.cheb(N,delta,var(y[Ds==1]),var(y[Ds==0]),mean(Ds))/table.noise[rownames(table.noise)==N.sample[[2]],colnames(table.noise)=='sampling.noise']-1)*100,0)`\%.
+
+How does the Chebyshev upper bound fares overall?
+In order to know that, let's compute the Chebyshev upper bound for all the simulated samples.
+You might have noticed that, when running the Monte Carlo simulations for the population parameter, I have not only recovered $\hat{WW}$ for each sample, but also the estimates of the components of the formula for the upper bound on sampling noise.
+I can thus easily compute the Chebyshev upper bound on sampling noise for each replication.
+
+```{r sampnoisewwcheball,eval=TRUE,echo=TRUE,fig.cap='Distribution of the Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+for (k in (1:length(N.sample))){
+  simuls.ww[[k]]$cheb.noise <- samp.noise.ww.cheb(N.sample[[k]],delta,simuls.ww[[k]][,'V1'],simuls.ww[[k]][,'V0'],simuls.ww[[k]][,'p'])
+}
+par(mfrow=c(2,2))
+for (i in 1:4){
+  hist(simuls.ww[[i]][,'cheb.noise'],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(2*bar(epsilon))),xlim=c(0.25*min(simuls.ww[[i]][,'cheb.noise']),max(simuls.ww[[i]][,'cheb.noise'])))
+  abline(v=table.noise[i,colnames(table.noise)=='sampling.noise'],col="red")
+}
+```
+
+Figure \@ref(fig:sampnoisewwcheball) shows that the upper bound works: it is always bigger than the true sampling noise.
+Figure \@ref(fig:sampnoisewwcheball) also shows that the upper bound is large: it generally is of an order of magnitude bigger than the true sampling noise, and thus offers a blurry and too pessimistic view of the precision of an estimator.
+Figure \@ref(fig:sampnoisewwchebplot) shows that the average Chebyshev bound gives an inflated estimate of sampling noise.
+Figure \@ref(fig:confintervalcheb) shows that the Chebyshev confidence intervals are clearly less precise than the true unknown ones.
+With $N=$ `r N.sample[2]`, the true confidence intervals generally reject large negative effects, whereas the Chebyshev confidence intervals do not rule out this possibility.
+With $N=$ `r N.sample[3]`, the true confidence intervals generally reject effects smaller than 0.1, whereas the Chebyshev confidence intervals cannot rule out small negative effects.
+
+As a conclusion on Chebyshev estimates of sampling noise, their advantage is that they offer an upper bound on the noise: we can never underestimate noise if we use them.
+A downside of Chebyshev sampling noise is their lower precision, which makes it harder to pinpoint the true confidence intervals.
+
+```{r sampnoisewwchebplot,eval=TRUE,echo=TRUE,fig.cap='Average Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+for (k in (1:length(N.sample))){
+  table.noise$cheb.noise[k] <- mean(simuls.ww[[k]]$cheb.noise)
+}
+ggplot(table.noise, aes(x=as.factor(N), y=TT)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black') +
+  geom_errorbar(aes(ymin=TT-sampling.noise/2, ymax=TT+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+  geom_errorbar(aes(ymin=TT-cheb.noise/2, ymax=TT+cheb.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+  xlab("Sample Size")+
+  theme_bw()
+```
+
+```{r confintervalcheb,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Chebyshev confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+N.plot <- 40
+plot.list <- list()
+
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test.cheb <- simuls.ww[[k]][sample(N.plot),c('WW','cheb.noise')]
+  test.cheb <- as.data.frame(cbind(test.cheb,rep(samp.noise(simuls.ww[[k]][,'WW'],delta=delta),N.plot)))
+  colnames(test.cheb) <- c('WW','cheb.noise','sampling.noise')
+  test.cheb$id <- 1:N.plot
+  plot.test.cheb <- ggplot(test.cheb, aes(x=as.factor(id), y=WW)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=WW-sampling.noise/2, ymax=WW+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+      geom_errorbar(aes(ymin=WW-cheb.noise/2, ymax=WW+cheb.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+      xlab("Sample id")+
+      theme_bw()+
+      ggtitle(paste("N=",N.sample[k]))
+  plot.list[[k]] <- plot.test.cheb 
+}
+plot.CI <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI)
+```
+
+
+
+### Using the Central Limit Theorem {#sec:CLT}
+
+### Using resampling methods {#sec:resamp}
+
+### Using randomization inference {#sec:Fisher}
