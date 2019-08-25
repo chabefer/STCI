@@ -937,7 +937,7 @@ In order to know that, let's compute the Chebyshev upper bound for all the simul
 You might have noticed that, when running the Monte Carlo simulations for the population parameter, I have not only recovered $\hat{WW}$ for each sample, but also the estimates of the components of the formula for the upper bound on sampling noise.
 I can thus easily compute the Chebyshev upper bound on sampling noise for each replication.
 
-```{r sampnoisewwcheball,eval=TRUE,echo=TRUE,fig.cap='Distribution of the Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+```{r sampnoisewwcheball,eval=TRUE,echo=TRUE,fig.cap='Distribution of the Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
 for (k in (1:length(N.sample))){
   simuls.ww[[k]]$cheb.noise <- samp.noise.ww.cheb(N.sample[[k]],delta,simuls.ww[[k]][,'V1'],simuls.ww[[k]][,'V0'],simuls.ww[[k]][,'p'])
 }
@@ -958,7 +958,7 @@ With $N=$ `r N.sample[3]`, the true confidence intervals generally reject effect
 As a conclusion on Chebyshev estimates of sampling noise, their advantage is that they offer an upper bound on the noise: we can never underestimate noise if we use them.
 A downside of Chebyshev sampling noise estimates is their low precision, which makes it hard to pinpoint the true confidence intervals.
 
-```{r sampnoisewwchebplot,eval=TRUE,echo=TRUE,fig.cap='Average Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+```{r sampnoisewwchebplot,eval=TRUE,echo=TRUE,fig.cap='Average Chebyshev upper bound on sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
 for (k in (1:length(N.sample))){
   table.noise$cheb.noise[k] <- mean(simuls.ww[[k]]$cheb.noise)
 }
@@ -1009,8 +1009,8 @@ Let $X_i$ be i.i.d. random variables with $\esp{X_i}=\mu$ and $\var{X_i}=\sigma^
 \begin{align*}
 \lim_{N\rightarrow\infty}\Pr(Z_N\leq z) & = \Phi(z),
 \end{align*}
-
 where $\Phi$ is the cumulative distribution function of the centered standardized normal.
+
 We say that $Z_N$ converges in distribution to a standard normal random variable, and we denote: $Z_N\stackrel{d}{\rightarrow}\mathcal{N}(0,1)$.
 ```
 
@@ -1038,7 +1038,172 @@ Under Assumptions \@ref(def:noselb), \@ref(def:fullrank), \@ref(def:iid) and \@r
 See in Appendix \@ref(proofCLT).
 ```
 
+Let's write an R function that computes this formula:
+```{r samp.noise.ww.CLT,eval=TRUE,echo=TRUE}
+samp.noise.ww.CLT <- function(N,delta,v1,v0,p){
+  return(2*qnorm((delta+1)/2)*sqrt((v1/p+v0/(1-p))/N))
+}
+```
+
+```{example}
+Let's see how the CLT performs in our example.
+```
+In our sample, for $\delta=$ `r delta`, the CLT estimate of sampling noise is $\hat{2\tilde{\epsilon}}=$ `r round(samp.noise.ww.CLT(N,delta,var(y[Ds==1]),var(y[Ds==0]),mean(Ds)),2)`.
+How does this compare with the true extent of sampling noise when $N=$ `r N`?
+Remember that we have computed an estimate of sampling noise out of our Monte Carlo replications.
+In Table \@ref(tab:precisionsignal), we can read that sampling noise is actually equal to `r round(table.noise[rownames(table.noise)==as.character(N),colnames(table.noise)=='sampling.noise'],2)`.
+The CLT approximation is pretty precise: it only underestimates the true extent of sampling noise by `r round(-(samp.noise.ww.CLT(N,delta,var(y[Ds==1]),var(y[Ds==0]),mean(Ds))/table.noise[rownames(table.noise)==N.sample[[2]],colnames(table.noise)=='sampling.noise']-1)*100,0)`\%.
+
+We can also compute the CLT approximation to sampling noise in all of our samples:
+
+```{r sampnoisewwCLTall,eval=TRUE,echo=TRUE,fig.cap='Distribution of the CLT approximation of sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+for (k in (1:length(N.sample))){
+  simuls.ww[[k]]$CLT.noise <- samp.noise.ww.CLT(N.sample[[k]],delta,simuls.ww[[k]][,'V1'],simuls.ww[[k]][,'V0'],simuls.ww[[k]][,'p'])
+}
+par(mfrow=c(2,2))
+for (i in 1:4){
+  hist(simuls.ww[[i]][,'CLT.noise'],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(2*bar(epsilon))),xlim=c(min(simuls.ww[[i]][,'CLT.noise']),max(simuls.ww[[i]][,'CLT.noise'])))
+  abline(v=table.noise[i,colnames(table.noise)=='sampling.noise'],col="red")
+}
+```
+
+Figure \@ref(fig:sampnoisewwCLTall) shows that the CLT works: CLT-based estimates of sampling noise approximates true sampling noise well.
+CLT-based approximations of sampling noise are even impressively accurate: they always capture the exact order of magnitude of sampling noise, although there is a slight underestimation when $N=$ `r N.sample[2]` and `r N.sample[3]` and a slight overestimation when $N=$ `r N.sample[4]`.
+This success should not come as a surprise as all shocks in our model are normally distributed, meaning that the CLT results are more than an approximation, they are exact.
+Results might be less spectacular when estimating the effect of the treatment on the outcomes in levels rather than in logs.
+
+As a consequence, the average CLT-based estimates of sampling noise and of confidence intervals are pretty precise, as Figures \@ref(fig:sampnoisewwCLTplot) and \@ref(fig:confintervalCLT) show.
+Let's pause for a second at the beauty of what we have achieved using the CLT: by using only information from one sample, we have been able to gauge extremely precisely how the estimator would behave over sampling repetitions. 
+
+```{r sampnoisewwCLTplot,eval=TRUE,echo=TRUE,fig.cap='Average CLT-based approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+for (k in (1:length(N.sample))){
+  table.noise$CLT.noise[k] <- mean(simuls.ww[[k]]$CLT.noise)
+}
+ggplot(table.noise, aes(x=as.factor(N), y=TT)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black') +
+  geom_errorbar(aes(ymin=TT-sampling.noise/2, ymax=TT+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+  geom_errorbar(aes(ymin=TT-CLT.noise/2, ymax=TT+CLT.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+  xlab("Sample Size")+
+  theme_bw()
+```
+
+```{r confintervalCLT,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('CLT-based confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+N.plot <- 40
+plot.list <- list()
+
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test.CLT <- simuls.ww[[k]][sample(N.plot),c('WW','CLT.noise')]
+  test.CLT <- as.data.frame(cbind(test.CLT,rep(samp.noise(simuls.ww[[k]][,'WW'],delta=delta),N.plot)))
+  colnames(test.CLT) <- c('WW','CLT.noise','sampling.noise')
+  test.CLT$id <- 1:N.plot
+  plot.test.CLT <- ggplot(test.CLT, aes(x=as.factor(id), y=WW)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=WW-sampling.noise/2, ymax=WW+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+      geom_errorbar(aes(ymin=WW-CLT.noise/2, ymax=WW+CLT.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+      xlab("Sample id")+
+      theme_bw()+
+      ggtitle(paste("N=",N.sample[k]))
+  plot.list[[k]] <- plot.test.CLT
+}
+plot.CI <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI)
+```
+
+```{remark}
+In proving the main result on the asymptotic distribution of $\hat{WW}$, we have also proved a very useful result: $\hat{WW}$ is the Ordinary Least Squares (OLS) estimator of $\beta$ in the regression $Y_i=\alpha+\beta D_i + U_i$.
+This is pretty cool since we now can use our classical OLS estimator in our statistical package to estimate $\hat{WW}$.
+Let's compute the OLS estimate of $WW$ in our sample:
+```
+
+```{r OLSWW,eval=TRUE,echo=TRUE}
+ols.ww <- lm(y~Ds)
+ww.ols <- ols.ww$coef[[2]]
+```
+
+We have $\hat{WW}_{OLS}=$ `r round(ww.ols,2)` $=$ `r round(mean(y[Ds==1]-mean(y[Ds==0])),2)` $=\hat{WW}$.
+
+```{remark}
+Another pretty cool consequence of Theorem \@ref(thm:asympnoiseWW) and of its proof is that the standard error of the OLS estimator of $\hat{WW}$ ($\sigma_{\beta}$) is related to the sampling noise of $\hat{WW}$ by the following formula:
+$2\tilde{\epsilon}=2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\sigma_{\beta}$.
+```
+This implies that sampling noise is equal to `r round(2*qnorm((delta+1)/2),0)` $\sigma_{\beta}$ when $\delta=$ `r delta` and to `r round(2*qnorm((delta.2+1)/2),0)` $\sigma_{\beta}$ when $\delta=$ `r delta.2`.
+It is thus very easy to move from estimates of the standard error of the $\beta$ coefficient to the extent of sampling noise.
+
+```{remark}
+A last important consequence of Theorem \@ref(thm:asympnoiseWW) and of its proof is that the standard error of the OLS estimator of $\hat{WW}$ ($\sigma_{\beta}$) that we use is the heteroskedasticity-robust one.
+```
+Using the RCM, we can indeed show that: 
+
+\begin{align*}
+    \alpha & = \esp{Y_i^0|D_i=0}  \\
+    \beta  & =  \Delta^Y_{TT} \\
+    U_i    & = Y^0_i-\esp{Y^0_i|D_i=0} + D_i(\Delta^Y_i-\Delta^Y_{TT}),
+	\end{align*}
+
+Under Assumption \@ref(def:noselb), we have:
+ 
+\begin{align*}
+    U_i    & = (1-D_i)(Y^0_i-\esp{Y^0_i|D_i=0}) + D_i(Y_i^1-\esp{Y^1_i|D_i=1})
+  \end{align*}
+
+There is heteroskedasticity because the outcomes of the treated and of the untreated have different variances:
+
+\begin{align*}
+    \var{U_i|D_i=d} & = \esp{U_i^2|D_i=d}  \\
+                    & = \esp{(Y^d_i-\esp{Y^d_i|D_i=d})^2|D_i=d}  \\
+                    & = \var{Y_i^d|D_i=d}
+  \end{align*}
+
+We do not want to assume homoskedasticity, since it would imply a constant treatment effect.
+Indeed, $\var{Y_i^1|D_i=1} = \var{Y_i^0|D_i=1}+\var{\alpha_i|D_i=1}$.
+
+```{remark}
+In order to estimate the heteroskedasticity robust standard error from the OLS regression, we can use the sandwich package in R
+Most available heteroskedasticity robust estimators based on the CLT can be written in the following way:
+```
+
+\begin{align*}
+  \var{\hat{\Theta}_{OLS}} & \approx (X'X)^{-1}X'\hat{\Omega}X(X'X)^{-1},
+\end{align*}
+
+where $X$ is the matrix of regressors and $\hat{\Omega}=\diag(\hat{\sigma}^2_{U_1},\dots,\hat{\sigma}^2_{U_N})$ is an estimate the covariance matrix of the residuals $U_i$.
+Here are various classical estimators for $\hat{\Omega}$:
+
+\begin{align*}
+  \text{HC0:} & & \hat{\sigma_{U_i}}^2 & = \hat{U_i}^2 \\
+  \text{HC1:} & & \hat{\sigma_{U_i}}^2 & = \frac{N}{N-K}\hat{U_i}^2 \\
+  \text{HC2:} & & \hat{\sigma_{U_i}}^2 & = \frac{\hat{U_i}^2}{1-h_i} \\
+  \text{HC3:} & & \hat{\sigma_{U_i}}^2 & = \frac{\hat{U_i}^2}{(1-h_i)^2}, 
+\end{align*}
+
+where $\hat{U}_i$ is the residual from the OLS regression, $K$ is the number of regressors, $h_i$ is the leverage of observation $i$, and is the $i^{\text{th}}$ diagonal element of $H=X(X'X)^{-1}X'$.
+HC1 is the one reported by Stata when using the 'robust' option.
+
+```{example}
+Using the sandwich package, we can estimate the heteroskedasticity-robust variance-covariance matrix and sampling noise as follows:
+```
+
+```{r OLS.WW.se,eval=TRUE,echo=TRUE}
+ols.ww.vcov.HC0 <- vcovHC(ols.ww, type = "HC0")
+samp.noise.ww.CLT.ols <- function(delta,reg,...){
+  return(2*qnorm((delta+1)/2)*sqrt(vcovHC(reg,...)[2,2]))
+}
+```
+
+For $\delta=$ `r delta`, sampling noise estimated using the "HC0" option is equal to `r round(samp.noise.ww.CLT.ols(delta,ols.ww,type='HC0'),2)`.
+This is exactly the value we have estimated using our CLT-based formula ($\hat{2\tilde{\epsilon}}=$ `r round(samp.noise.ww.CLT(N,delta,var(y[Ds==1]),var(y[Ds==0]),mean(Ds)),2)`).
+Remember that sampling noise is actually equal to `r round(table.noise[rownames(table.noise)==as.character(N),colnames(table.noise)=='sampling.noise'],2)`.
+Other "HC" options might be better in small samples.
+For example, with the "HC1" option, we have an estimate for sampling noise of `r round(samp.noise.ww.CLT.ols(delta,ols.ww,type='HC1'),2)`.
+What would have happened to our estimate of sampling noise if we had ignored heteroskedasticity?
+The default OLS standard error estimate yields an estimate for sampling noise of `r round(2*qnorm((delta+1)/2)*sqrt(vcov(ols.ww)[2,2]),2)`.
 
 ### Using resampling methods {#sec:resamp}
 
-### Using randomization inference {#sec:Fisher}
+#### Bootstrap
+
+#### Randomization inference
+
+#### Subsampling

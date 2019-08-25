@@ -187,6 +187,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="10" data-path="Diffusion.html"><a href="Diffusion.html"><i class="fa fa-check"></i><b>10</b> Diffusion effects</a></li>
 <li class="chapter" data-level="11" data-path="Distribution.html"><a href="Distribution.html"><i class="fa fa-check"></i><b>11</b> Distributional effects</a></li>
 <li class="chapter" data-level="12" data-path="meta-analysis-and-publication-bias.html"><a href="meta-analysis-and-publication-bias.html"><i class="fa fa-check"></i><b>12</b> Meta-analysis and Publication Bias</a></li>
+<li class="chapter" data-level="13" data-path="Bounds.html"><a href="Bounds.html"><i class="fa fa-check"></i><b>13</b> Bounds</a></li>
 <li class="appendix"><span><b>Appendix</b></span></li>
 <li class="chapter" data-level="A" data-path="proofs.html"><a href="proofs.html"><i class="fa fa-check"></i><b>A</b> Proofs</a><ul>
 <li class="chapter" data-level="A.1" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-reffpsi"><i class="fa fa-check"></i><b>A.1</b> Proofs of results in Chapter @ref(FPSI)</a><ul>
@@ -1238,8 +1239,8 @@ Because these approximations become more and more precise as sample size increas
 <p><span id="thm:CLT" class="theorem"><strong>Theorem 2.4  (Central Limit Theorem)  </strong></span>Let <span class="math inline">\(X_i\)</span> be i.i.d. random variables with <span class="math inline">\(\esp{X_i}=\mu\)</span> and <span class="math inline">\(\var{X_i}=\sigma^2\)</span>, and define <span class="math inline">\(Z_N=\frac{\frac{1}{N}\sum_{i=1}^NX_i-\mu}{\frac{\sigma}{\sqrt{N}}}\)</span>, then, for all <span class="math inline">\(z\)</span> we have:</p>
 <p><span class="math display">\[\begin{align*}
 \lim_{N\rightarrow\infty}\Pr(Z_N\leq z) &amp; = \Phi(z),
-\end{align*}\]</span></p>
-where <span class="math inline">\(\Phi\)</span> is the cumulative distribution function of the centered standardized normal.
+\end{align*}\]</span>
+where <span class="math inline">\(\Phi\)</span> is the cumulative distribution function of the centered standardized normal.</p>
 We say that <span class="math inline">\(Z_N\)</span> converges in distribution to a standard normal random variable, and we denote: <span class="math inline">\(Z_N\stackrel{d}{\rightarrow}\mathcal{N}(0,1)\)</span>.
 </div>
 
@@ -1265,6 +1266,159 @@ The idea is for you to be aware of how the main approximations that we are going
  <span class="proof"><em>Proof. </em></span> See in Appendix <a href="proofs.html#proofCLT">A.1.2</a>.
 </div>
 
+<p>Let’s write an R function that computes this formula:</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1">samp.noise.ww.CLT &lt;-<span class="st"> </span><span class="cf">function</span>(N,delta,v1,v0,p){</a>
+<a class="sourceLine" id="cb57-2" data-line-number="2">  <span class="kw">return</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((delta<span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>((v1<span class="op">/</span>p<span class="op">+</span>v0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>p))<span class="op">/</span>N))</a>
+<a class="sourceLine" id="cb57-3" data-line-number="3">}</a></code></pre></div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-49" class="example"><strong>Example 2.7  </strong></span>Let’s see how the CLT performs in our example.
+</div>
+
+<p>In our sample, for <span class="math inline">\(\delta=\)</span> 0.99, the CLT estimate of sampling noise is <span class="math inline">\(\hat{2\tilde{\epsilon}}=\)</span> 0.35.
+How does this compare with the true extent of sampling noise when <span class="math inline">\(N=\)</span> 1000?
+Remember that we have computed an estimate of sampling noise out of our Monte Carlo replications.
+In Table <a href="FPSI.html#tab:precisionsignal">2.1</a>, we can read that sampling noise is actually equal to 0.39.
+The CLT approximation is pretty precise: it only underestimates the true extent of sampling noise by 11%.</p>
+<p>We can also compute the CLT approximation to sampling noise in all of our samples:</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="cf">for</span> (k <span class="cf">in</span> (<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample))){</a>
+<a class="sourceLine" id="cb58-2" data-line-number="2">  simuls.ww[[k]]<span class="op">$</span>CLT.noise &lt;-<span class="st"> </span><span class="kw">samp.noise.ww.CLT</span>(N.sample[[k]],delta,simuls.ww[[k]][,<span class="st">&#39;V1&#39;</span>],simuls.ww[[k]][,<span class="st">&#39;V0&#39;</span>],simuls.ww[[k]][,<span class="st">&#39;p&#39;</span>])</a>
+<a class="sourceLine" id="cb58-3" data-line-number="3">}</a>
+<a class="sourceLine" id="cb58-4" data-line-number="4"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb58-5" data-line-number="5"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>){</a>
+<a class="sourceLine" id="cb58-6" data-line-number="6">  <span class="kw">hist</span>(simuls.ww[[i]][,<span class="st">&#39;CLT.noise&#39;</span>],<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">bar</span>(epsilon))),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="kw">min</span>(simuls.ww[[i]][,<span class="st">&#39;CLT.noise&#39;</span>]),<span class="kw">max</span>(simuls.ww[[i]][,<span class="st">&#39;CLT.noise&#39;</span>])))</a>
+<a class="sourceLine" id="cb58-7" data-line-number="7">  <span class="kw">abline</span>(<span class="dt">v=</span>table.noise[i,<span class="kw">colnames</span>(table.noise)<span class="op">==</span><span class="st">&#39;sampling.noise&#39;</span>],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</a>
+<a class="sourceLine" id="cb58-8" data-line-number="8">}</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwCLTall"></span>
+<img src="STCI_files/figure-html/sampnoisewwCLTall-1.png" alt="Distribution of the CLT approximation of sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+Figure 2.10: Distribution of the CLT approximation of sampling noise over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<p>Figure <a href="FPSI.html#fig:sampnoisewwCLTall">2.10</a> shows that the CLT works: CLT-based estimates of sampling noise approximates true sampling noise well.
+CLT-based approximations of sampling noise are even impressively accurate: they always capture the exact order of magnitude of sampling noise, although there is a slight underestimation when <span class="math inline">\(N=\)</span> 1000 and 10^{4} and a slight overestimation when <span class="math inline">\(N=\)</span> 10^{5}.
+This success should not come as a surprise as all shocks in our model are normally distributed, meaning that the CLT results are more than an approximation, they are exact.
+Results might be less spectacular when estimating the effect of the treatment on the outcomes in levels rather than in logs.</p>
+<p>As a consequence, the average CLT-based estimates of sampling noise and of confidence intervals are pretty precise, as Figures <a href="FPSI.html#fig:sampnoisewwCLTplot">2.11</a> and <a href="FPSI.html#fig:confintervalCLT">2.12</a> show.
+Let’s pause for a second at the beauty of what we have achieved using the CLT: by using only information from one sample, we have been able to gauge extremely precisely how the estimator would behave over sampling repetitions.</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="cf">for</span> (k <span class="cf">in</span> (<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample))){</a>
+<a class="sourceLine" id="cb59-2" data-line-number="2">  table.noise<span class="op">$</span>CLT.noise[k] &lt;-<span class="st"> </span><span class="kw">mean</span>(simuls.ww[[k]]<span class="op">$</span>CLT.noise)</a>
+<a class="sourceLine" id="cb59-3" data-line-number="3">}</a>
+<a class="sourceLine" id="cb59-4" data-line-number="4"><span class="kw">ggplot</span>(table.noise, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(N), <span class="dt">y=</span>TT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb59-5" data-line-number="5"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb59-6" data-line-number="6"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb59-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>CLT.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>CLT.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb59-8" data-line-number="8"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sample Size&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb59-9" data-line-number="9"><span class="st">  </span><span class="kw">theme_bw</span>()</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwCLTplot"></span>
+<img src="STCI_files/figure-html/sampnoisewwCLTplot-1.png" alt="Average CLT-based approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+Figure 2.11: Average CLT-based approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb60-1" data-line-number="1">N.plot &lt;-<span class="st"> </span><span class="dv">40</span></a>
+<a class="sourceLine" id="cb60-2" data-line-number="2">plot.list &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb60-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb60-4" data-line-number="4"><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample)){</a>
+<a class="sourceLine" id="cb60-5" data-line-number="5">  <span class="kw">set.seed</span>(<span class="dv">1234</span>)</a>
+<a class="sourceLine" id="cb60-6" data-line-number="6">  test.CLT &lt;-<span class="st"> </span>simuls.ww[[k]][<span class="kw">sample</span>(N.plot),<span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;CLT.noise&#39;</span>)]</a>
+<a class="sourceLine" id="cb60-7" data-line-number="7">  test.CLT &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(test.CLT,<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta),N.plot)))</a>
+<a class="sourceLine" id="cb60-8" data-line-number="8">  <span class="kw">colnames</span>(test.CLT) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;CLT.noise&#39;</span>,<span class="st">&#39;sampling.noise&#39;</span>)</a>
+<a class="sourceLine" id="cb60-9" data-line-number="9">  test.CLT<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>N.plot</a>
+<a class="sourceLine" id="cb60-10" data-line-number="10">  plot.test.CLT &lt;-<span class="st"> </span><span class="kw">ggplot</span>(test.CLT, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>WW)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb60-11" data-line-number="11"><span class="st">      </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb60-12" data-line-number="12"><span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb60-13" data-line-number="13"><span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>CLT.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>CLT.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb60-14" data-line-number="14"><span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">delta.y.ate</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb60-15" data-line-number="15"><span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Sample id&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb60-16" data-line-number="16"><span class="st">      </span><span class="kw">theme_bw</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb60-17" data-line-number="17"><span class="st">      </span><span class="kw">ggtitle</span>(<span class="kw">paste</span>(<span class="st">&quot;N=&quot;</span>,N.sample[k]))</a>
+<a class="sourceLine" id="cb60-18" data-line-number="18">  plot.list[[k]] &lt;-<span class="st"> </span>plot.test.CLT</a>
+<a class="sourceLine" id="cb60-19" data-line-number="19">}</a>
+<a class="sourceLine" id="cb60-20" data-line-number="20">plot.CI &lt;-<span class="st"> </span><span class="kw">plot_grid</span>(plot.list[[<span class="dv">1</span>]],plot.list[[<span class="dv">2</span>]],plot.list[[<span class="dv">3</span>]],plot.list[[<span class="dv">4</span>]],<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">nrow=</span><span class="kw">length</span>(N.sample))</a>
+<a class="sourceLine" id="cb60-21" data-line-number="21"><span class="kw">print</span>(plot.CI)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:confintervalCLT"></span>
+<img src="STCI_files/figure-html/confintervalCLT-1.png" alt="CLT-based confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)" width="60%" />
+<p class="caption">
+Figure 2.12: CLT-based confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 over sample replications for various sample sizes (true confidence intervals in red)
+</p>
+</div>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> In proving the main result on the asymptotic distribution of <span class="math inline">\(\hat{WW}\)</span>, we have also proved a very useful result: <span class="math inline">\(\hat{WW}\)</span> is the Ordinary Least Squares (OLS) estimator of <span class="math inline">\(\beta\)</span> in the regression <span class="math inline">\(Y_i=\alpha+\beta D_i + U_i\)</span>.
+This is pretty cool since we now can use our classical OLS estimator in our statistical package to estimate <span class="math inline">\(\hat{WW}\)</span>.
+Let’s compute the OLS estimate of <span class="math inline">\(WW\)</span> in our sample:
+</div>
+
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" data-line-number="1">ols.ww &lt;-<span class="st"> </span><span class="kw">lm</span>(y<span class="op">~</span>Ds)</a>
+<a class="sourceLine" id="cb61-2" data-line-number="2">ww.ols &lt;-<span class="st"> </span>ols.ww<span class="op">$</span>coef[[<span class="dv">2</span>]]</a></code></pre></div>
+<p>We have <span class="math inline">\(\hat{WW}_{OLS}=\)</span> 0.13 <span class="math inline">\(=\)</span> 0.13 <span class="math inline">\(=\hat{WW}\)</span>.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Another pretty cool consequence of Theorem <a href="FPSI.html#thm:asympnoiseWW">2.5</a> and of its proof is that the standard error of the OLS estimator of <span class="math inline">\(\hat{WW}\)</span> (<span class="math inline">\(\sigma_{\beta}\)</span>) is related to the sampling noise of <span class="math inline">\(\hat{WW}\)</span> by the following formula:
+<span class="math inline">\(2\tilde{\epsilon}=2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\sigma_{\beta}\)</span>.
+</div>
+
+<p>This implies that sampling noise is equal to 5 <span class="math inline">\(\sigma_{\beta}\)</span> when <span class="math inline">\(\delta=\)</span> 0.99 and to 4 <span class="math inline">\(\sigma_{\beta}\)</span> when <span class="math inline">\(\delta=\)</span> 0.95.
+It is thus very easy to move from estimates of the standard error of the <span class="math inline">\(\beta\)</span> coefficient to the extent of sampling noise.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> A last important consequence of Theorem <a href="FPSI.html#thm:asympnoiseWW">2.5</a> and of its proof is that the standard error of the OLS estimator of <span class="math inline">\(\hat{WW}\)</span> (<span class="math inline">\(\sigma_{\beta}\)</span>) that we use is the heteroskedasticity-robust one.
+</div>
+
+<p>Using the RCM, we can indeed show that:</p>
+<p><span class="math display">\[\begin{align*}
+    \alpha &amp; = \esp{Y_i^0|D_i=0}  \\
+    \beta  &amp; =  \Delta^Y_{TT} \\
+    U_i    &amp; = Y^0_i-\esp{Y^0_i|D_i=0} + D_i(\Delta^Y_i-\Delta^Y_{TT}),
+    \end{align*}\]</span></p>
+<p>Under Assumption <a href="FPCI.html#def:noselb">1.7</a>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+    U_i    &amp; = (1-D_i)(Y^0_i-\esp{Y^0_i|D_i=0}) + D_i(Y_i^1-\esp{Y^1_i|D_i=1})
+  \end{align*}\]</span></p>
+<p>There is heteroskedasticity because the outcomes of the treated and of the untreated have different variances:</p>
+<p><span class="math display">\[\begin{align*}
+    \var{U_i|D_i=d} &amp; = \esp{U_i^2|D_i=d}  \\
+                    &amp; = \esp{(Y^d_i-\esp{Y^d_i|D_i=d})^2|D_i=d}  \\
+                    &amp; = \var{Y_i^d|D_i=d}
+  \end{align*}\]</span></p>
+<p>We do not want to assume homoskedasticity, since it would imply a constant treatment effect.
+Indeed, <span class="math inline">\(\var{Y_i^1|D_i=1} = \var{Y_i^0|D_i=1}+\var{\alpha_i|D_i=1}\)</span>.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> In order to estimate the heteroskedasticity robust standard error from the OLS regression, we can use the sandwich package in R
+Most available heteroskedasticity robust estimators based on the CLT can be written in the following way:
+</div>
+
+<p><span class="math display">\[\begin{align*}
+  \var{\hat{\Theta}_{OLS}} &amp; \approx (X&#39;X)^{-1}X&#39;\hat{\Omega}X(X&#39;X)^{-1},
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(X\)</span> is the matrix of regressors and <span class="math inline">\(\hat{\Omega}=\diag(\hat{\sigma}^2_{U_1},\dots,\hat{\sigma}^2_{U_N})\)</span> is an estimate the covariance matrix of the residuals <span class="math inline">\(U_i\)</span>.
+Here are various classical estimators for <span class="math inline">\(\hat{\Omega}\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+  \text{HC0:} &amp; &amp; \hat{\sigma_{U_i}}^2 &amp; = \hat{U_i}^2 \\
+  \text{HC1:} &amp; &amp; \hat{\sigma_{U_i}}^2 &amp; = \frac{N}{N-K}\hat{U_i}^2 \\
+  \text{HC2:} &amp; &amp; \hat{\sigma_{U_i}}^2 &amp; = \frac{\hat{U_i}^2}{1-h_i} \\
+  \text{HC3:} &amp; &amp; \hat{\sigma_{U_i}}^2 &amp; = \frac{\hat{U_i}^2}{(1-h_i)^2}, 
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(\hat{U}_i\)</span> is the residual from the OLS regression, <span class="math inline">\(K\)</span> is the number of regressors, <span class="math inline">\(h_i\)</span> is the leverage of observation <span class="math inline">\(i\)</span>, and is the <span class="math inline">\(i^{\text{th}}\)</span> diagonal element of <span class="math inline">\(H=X(X&#39;X)^{-1}X&#39;\)</span>.
+HC1 is the one reported by Stata when using the ‘robust’ option.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-54" class="example"><strong>Example 2.8  </strong></span>Using the sandwich package, we can estimate the heteroskedasticity-robust variance-covariance matrix and sampling noise as follows:
+</div>
+
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb62-1" data-line-number="1">ols.ww.vcov.HC0 &lt;-<span class="st"> </span><span class="kw">vcovHC</span>(ols.ww, <span class="dt">type =</span> <span class="st">&quot;HC0&quot;</span>)</a>
+<a class="sourceLine" id="cb62-2" data-line-number="2">samp.noise.ww.CLT.ols &lt;-<span class="st"> </span><span class="cf">function</span>(delta,reg,...){</a>
+<a class="sourceLine" id="cb62-3" data-line-number="3">  <span class="kw">return</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((delta<span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg,...)[<span class="dv">2</span>,<span class="dv">2</span>]))</a>
+<a class="sourceLine" id="cb62-4" data-line-number="4">}</a></code></pre></div>
+<p>For <span class="math inline">\(\delta=\)</span> 0.99, sampling noise estimated using the “HC0” option is equal to 0.35.
+This is exactly the value we have estimated using our CLT-based formula (<span class="math inline">\(\hat{2\tilde{\epsilon}}=\)</span> 0.35).
+Remember that sampling noise is actually equal to 0.39.
+Other “HC” options might be better in small samples.
+For example, with the “HC1” option, we have an estimate for sampling noise of 0.35.
+What would have happened to our estimate of sampling noise if we had ignored heteroskedasticity?
+The default OLS standard error estimate yields an estimate for sampling noise of 0.36.</p>
 </div>
 <div id="sec:resamp" class="section level3">
 <h3><span class="header-section-number">2.2.4</span> Using resampling methods</h3>
