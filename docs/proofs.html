@@ -52,6 +52,8 @@ $$
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
 \newcommand{\var}[1]{\mathbf{V}[ #1 ]}
+\newcommand{\cov}[1]{\mathbf{C}[ #1 ]}
+
 $$
 
 
@@ -214,6 +216,82 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">A.1</span> Proofs of results in Chapter <a href="FPSI.html#FPSI">2</a></h2>
 <div id="proofcheb" class="section level3">
 <h3><span class="header-section-number">A.1.1</span> Proof of Theorem <a href="FPSI.html#thm:uppsampnoise">2.3</a></h3>
+<p>In order to use Theorem <a href="FPSI.html#thm:cheb">2.2</a> for studying the behavior of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>, we have to prove that it is unbiased and we have to compute <span class="math inline">\(\var{\hat{\Delta^Y_{WW}}}\)</span>.
+Let’s first prove that the <span class="math inline">\(WW\)</span> estimator is an unbiased estimator of <span class="math inline">\(TT\)</span>:</p>
+
+<div class="lemma">
+<p><span id="lem:unbiasww" class="lemma"><strong>Lemma A.1  (Unbiasedness of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a> and <a href="FPSI.html#def:iid">2.4</a>,</p>
+<p><span class="math display">\[\begin{align*}
+\esp{\hat{\Delta^Y_{WW}}}&amp; = \Delta^Y_{TT}.
+\end{align*}\]</span></p>
+</div>
+
+
+<div class="proof">
+<p> <span class="proof"><em>Proof. </em></span> In order to prove Lemma <a href="proofs.html#lem:unbiasww">A.1</a>, we are going to use a trick.
+We are going to compute the expectation of the <span class="math inline">\(WW\)</span> estimator conditional on a given treatment allocation.
+Because the resulting estimate is independent of treatment allocation, we will have our proof.
+This trick simplifies derivations a lot and is really natural: think first of all the samples with the same treatment allocation, then average your results over all possible treatment allocations.</p>
+<p><span class="math display">\[\begin{align*}
+\esp{\hat{\Delta^Y_{WW}}} &amp; = \esp{\esp{\hat{\Delta^Y_{WW}}|\mathbf{D}}}\\
+                          &amp; = \esp{\esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                          &amp; = \esp{\esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i|\mathbf{D}}-\esp{\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                          &amp; = \esp{\frac{1}{\sum_{i=1}^N D_i}\esp{\sum_{i=1}^N Y_iD_i|\mathbf{D}}-\frac{1}{\sum_{i=1}^N (1-D_i)}\esp{\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                          &amp; = \esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N \esp{Y_iD_i|\mathbf{D}}-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N \esp{Y_i(1-D_i)|\mathbf{D}}}\\
+                          &amp; = \esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N \esp{Y_iD_i|D_i}-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N \esp{Y_i(1-D_i)|D_i}}\\
+                          &amp; = \esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N D_i\esp{Y_i|D_i=1}-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N(1-D_i)\esp{Y_i|D_i=0}}\\
+                          &amp; = \esp{\frac{\sum_{i=1}^N D_i}{\sum_{i=1}^N D_i}\esp{Y_i|D_i=1}-\frac{\sum_{i=1}^N(1-D_i)}{\sum_{i=1}^N (1-D_i)}\esp{Y_i|D_i=0}}\\
+                          &amp; = \esp{\esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}}\\
+                          &amp; = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0} \\
+                          &amp; = \Delta^Y_{TT}.
+\end{align*}\]</span></p>
+The first equality uses the Law of Iterated Expectations (LIE).
+The second and fourth equalities use the linearity of conditional expectations.
+The third equality uses the fact that, conditional on <span class="math inline">\(\mathbf{D}\)</span>, the number of treated and untreated is a constant.
+The fifth equality uses Assumption <a href="FPSI.html#def:iid">2.4</a>.
+The sixth equality uses the fact that <span class="math inline">\(\esp{Y_iD_i|D_i}=D_i\esp{Y_i*1|D_i=1}+(1-D_i)\esp{Y_i*0|D_i=0}\)</span>.
+The seventh and ninth equalities use the fact that <span class="math inline">\(\esp{Y_i|D_i=1}\)</span> is a constant.
+The last equality uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.
+</div>
+
+<p>Let’s now compute the variance of the <span class="math inline">\(WW\)</span> estimator:</p>
+
+<div class="lemma">
+<p><span id="lem:varww" class="lemma"><strong>Lemma A.2  (Variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a> and <a href="FPSI.html#def:iid">2.4</a>,</p>
+<p><span class="math display">\[\begin{align*}
+\var{{\hat{\Delta^Y_{WW}}}} &amp; = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
+\end{align*}\]</span></p>
+</div>
+
+
+<div class="proof">
+<p> <span class="proof"><em>Proof. </em></span> Same trick as before, but now using the Law of Total Variance (LTV):</p>
+<p><span class="math display">\[\begin{align*}
+\var{{\hat{\Delta^Y_{WW}}}} &amp; = \esp{\var{\hat{\Delta^Y_{WW}}|\mathbf{D}}}+\var{\esp{\hat{\Delta^Y_{WW}}|\mathbf{D}}}\\
+                            &amp; = \esp{\var{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
+                            &amp; = \esp{\var{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i|\mathbf{D}}}+\esp{\var{\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                            &amp; \phantom{=}+\esp{\cov{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i,\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
+                            &amp; = \esp{\frac{1}{(\sum_{i=1}^N D_i)^2}\var{\sum_{i=1}^N Y_iD_i|\mathbf{D}}}+\esp{\frac{1}{(\sum_{i=1}^N (1-D_i))^2}\var{\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
+                            &amp; = \esp{\frac{1}{(\sum_{i=1}^N D_i)^2}\var{\sum_{i=1}^N Y_iD_i|D_i}}+\esp{\frac{1}{(\sum_{i=1}^N (1-D_i))^2}\var{\sum_{i=1}^N Y_i(1-D_i)|D_i}} \\
+                            &amp; = \esp{\frac{1}{(\sum_{i=1}^N D_i)^2}\sum_{i=1}^ND_i\var{Y_i|D_i=1}}+\esp{\frac{1}{(\sum_{i=1}^N (1-D_i))^2}\sum_{i=1}^N(1-D_i)\var{Y_i|D_i=0}} \\
+                            &amp; = \var{Y_i|D_i=1}\esp{\frac{1}{\sum_{i=1}^N D_i}}+\var{Y_i|D_i=0}\esp{\frac{1}{\sum_{i=1}^N (1-D_i)}} \\
+                            &amp; = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
+\end{align*}\]</span></p>
+The first equality stems from the LTV.
+The second and third equalities stems from the definition of the <span class="math inline">\(WW\)</span> estimator and of the variance of a sum of random variables.
+The fourth equality stems from Assumption <a href="FPSI.html#def:iid">2.4</a>, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
+The fifth and sixth equalities stems from Assumption <a href="FPSI.html#def:iid">2.4</a> and from <span class="math inline">\(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\)</span>.
+The seventh equality stems from <span class="math inline">\(\var{Y_i|D_i=1}\)</span> and <span class="math inline">\(\var{Y_i|D_i=0}\)</span> being constant.
+The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case unde Assumption <a href="FPSI.html#def:fullrank">2.3</a>.
+</div>
+
+<p>Using Theorem <a href="FPSI.html#thm:cheb">2.2</a>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+2\epsilon &amp; \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{1-(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\right)}\\
+          &amp; \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{(1-\Pr(D_i=1))}\right)},
+\end{align*}\]</span></p>
+<p>where the second equality stems from the fact that <span class="math inline">\(\frac{(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\geq0\)</span>.
+This proves the result.</p>
 
 </div>
 </div>
@@ -254,7 +332,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/chabefer/STCI/20_Appendix.Rmd",
+"link": "https://github.com/chabefer/STCI/blob/master/20_Appendix.Rmd",
 "text": "Edit"
 },
 "history": {

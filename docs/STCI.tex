@@ -133,6 +133,7 @@
 \newcommand\Ind{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\setbox0\hbox{$#1#2$}\copy0\kern-\wd0\mkern4mu\box0}}
 \newcommand{\var}[1]{\mathbb{V}[ #1 ]}
+\newcommand{\cov}[1]{\mathbb{C}[ #1 ]}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -2865,6 +2866,89 @@ A downside of Chebyshev sampling noise estimates is their low precision, which m
 
 \hypertarget{proofcheb}{%
 \subsection{Proof of Theorem \ref{thm:uppsampnoise}}\label{proofcheb}}
+
+In order to use Theorem \ref{thm:cheb} for studying the behavior of \(\hat{\Delta^Y_{WW}}\), we have to prove that it is unbiased and we have to compute \(\var{\hat{\Delta^Y_{WW}}}\).
+Let's first prove that the \(WW\) estimator is an unbiased estimator of \(TT\):
+
+\BeginKnitrBlock{lemma}[Unbiasedness of $\hat{\Delta^Y_{WW}}$]
+\protect\hypertarget{lem:unbiasww}{}{\label{lem:unbiasww} \iffalse (Unbiasedness of \(\hat{\Delta^Y_{WW}}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank} and \ref{def:iid},
+
+\begin{align*}
+\esp{\hat{\Delta^Y_{WW}}}& = \Delta^Y_{TT}.
+\end{align*}
+\EndKnitrBlock{lemma}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}In order to prove Lemma \ref{lem:unbiasww}, we are going to use a trick.
+We are going to compute the expectation of the \(WW\) estimator conditional on a given treatment allocation.
+Because the resulting estimate is independent of treatment allocation, we will have our proof.
+This trick simplifies derivations a lot and is really natural: think first of all the samples with the same treatment allocation, then average your results over all possible treatment allocations.
+
+\begin{align*}
+\esp{\hat{\Delta^Y_{WW}}} & = \esp{\esp{\hat{\Delta^Y_{WW}}|\mathbf{D}}}\\
+                          & = \esp{\esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                          & = \esp{\esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i|\mathbf{D}}-\esp{\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                          & = \esp{\frac{1}{\sum_{i=1}^N D_i}\esp{\sum_{i=1}^N Y_iD_i|\mathbf{D}}-\frac{1}{\sum_{i=1}^N (1-D_i)}\esp{\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                          & = \esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N \esp{Y_iD_i|\mathbf{D}}-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N \esp{Y_i(1-D_i)|\mathbf{D}}}\\
+                          & = \esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N \esp{Y_iD_i|D_i}-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N \esp{Y_i(1-D_i)|D_i}}\\
+                          & = \esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N D_i\esp{Y_i|D_i=1}-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N(1-D_i)\esp{Y_i|D_i=0}}\\
+                          & = \esp{\frac{\sum_{i=1}^N D_i}{\sum_{i=1}^N D_i}\esp{Y_i|D_i=1}-\frac{\sum_{i=1}^N(1-D_i)}{\sum_{i=1}^N (1-D_i)}\esp{Y_i|D_i=0}}\\
+                          & = \esp{\esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}}\\
+                          & = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0} \\
+                          & = \Delta^Y_{TT}.
+\end{align*}
+
+The first equality uses the Law of Iterated Expectations (LIE).
+The second and fourth equalities use the linearity of conditional expectations.
+The third equality uses the fact that, conditional on \(\mathbf{D}\), the number of treated and untreated is a constant.
+The fifth equality uses Assumption \ref{def:iid}.
+The sixth equality uses the fact that \(\esp{Y_iD_i|D_i}=D_i\esp{Y_i*1|D_i=1}+(1-D_i)\esp{Y_i*0|D_i=0}\).
+The seventh and ninth equalities use the fact that \(\esp{Y_i|D_i=1}\) is a constant.
+The last equality uses Assumption \ref{def:noselb}.
+\EndKnitrBlock{proof}
+
+Let's now compute the variance of the \(WW\) estimator:
+
+\BeginKnitrBlock{lemma}[Variance of $\hat{\Delta^Y_{WW}}$]
+\protect\hypertarget{lem:varww}{}{\label{lem:varww} \iffalse (Variance of \(\hat{\Delta^Y_{WW}}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank} and \ref{def:iid},
+
+\begin{align*}
+\var{{\hat{\Delta^Y_{WW}}}} & = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
+\end{align*}
+\EndKnitrBlock{lemma}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}Same trick as before, but now using the Law of Total Variance (LTV):
+
+\begin{align*}
+\var{{\hat{\Delta^Y_{WW}}}} & = \esp{\var{\hat{\Delta^Y_{WW}}|\mathbf{D}}}+\var{\esp{\hat{\Delta^Y_{WW}}|\mathbf{D}}}\\
+                            & = \esp{\var{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
+                            & = \esp{\var{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i|\mathbf{D}}}+\esp{\var{\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
+                            & \phantom{=}+\esp{\cov{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i,\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
+                            & = \esp{\frac{1}{(\sum_{i=1}^N D_i)^2}\var{\sum_{i=1}^N Y_iD_i|\mathbf{D}}}+\esp{\frac{1}{(\sum_{i=1}^N (1-D_i))^2}\var{\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
+                            & = \esp{\frac{1}{(\sum_{i=1}^N D_i)^2}\var{\sum_{i=1}^N Y_iD_i|D_i}}+\esp{\frac{1}{(\sum_{i=1}^N (1-D_i))^2}\var{\sum_{i=1}^N Y_i(1-D_i)|D_i}} \\
+                            & = \esp{\frac{1}{(\sum_{i=1}^N D_i)^2}\sum_{i=1}^ND_i\var{Y_i|D_i=1}}+\esp{\frac{1}{(\sum_{i=1}^N (1-D_i))^2}\sum_{i=1}^N(1-D_i)\var{Y_i|D_i=0}} \\
+                            & = \var{Y_i|D_i=1}\esp{\frac{1}{\sum_{i=1}^N D_i}}+\var{Y_i|D_i=0}\esp{\frac{1}{\sum_{i=1}^N (1-D_i)}} \\
+                            & = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
+\end{align*}
+
+The first equality stems from the LTV.
+The second and third equalities stems from the definition of the \(WW\) estimator and of the variance of a sum of random variables.
+The fourth equality stems from Assumption \ref{def:iid}, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
+The fifth and sixth equalities stems from Assumption \ref{def:iid} and from \(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\).
+The seventh equality stems from \(\var{Y_i|D_i=1}\) and \(\var{Y_i|D_i=0}\) being constant.
+The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case unde Assumption \ref{def:fullrank}.
+\EndKnitrBlock{proof}
+
+Using Theorem \ref{thm:cheb}, we have:
+
+\begin{align*}
+2\epsilon & \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{1-(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\right)}\\
+          & \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{(1-\Pr(D_i=1))}\right)},
+\end{align*}
+
+where the second equality stems from the fact that \(\frac{(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\geq0\).
+This proves the result.
 
 
 \end{document}
