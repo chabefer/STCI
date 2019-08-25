@@ -996,6 +996,47 @@ print(plot.CI)
 
 ### Using the Central Limit Theorem {#sec:CLT}
 
+The main problem with Chebyshev's upper bound on sampling noise is that it is an upper bound, and thus it overestimates sampling noise and underestimates precision.
+One alternative to using Chebyshev's upper bound is to use the Central Limit Theorem (CLT).
+In econometrics and statistics, the CLT is used to derive approximate values for the sampling noise of estimators.
+Because these approximations become more and more precise as sample size increases, we call them asymptotic approximations.
+
+Taken to its bare bones, the CLT states that the sum of i.i.d. random variables behaves approximately like a normal distribution when the sample size is large:
+
+```{theorem,CLT,name="Central Limit Theorem"}
+Let $X_i$ be i.i.d. random variables with $\esp{X_i}=\mu$ and $\var{X_i}=\sigma^2$, and define $Z_N=\frac{\frac{1}{N}\sum_{i=1}^NX_i-\mu}{\frac{\sigma}{\sqrt{N}}}$, then, for all $z$ we have:
+
+\begin{align*}
+\lim_{N\rightarrow\infty}\Pr(Z_N\leq z) & = \Phi(z),
+\end{align*}
+
+where $\Phi$ is the cumulative distribution function of the centered standardized normal.
+We say that $Z_N$ converges in distribution to a standard normal random variable, and we denote: $Z_N\stackrel{d}{\rightarrow}\mathcal{N}(0,1)$.
+```
+
+The CLT is a beautiful result: the distribution of the average of realisations of any random variable that has finite mean and variance can be approximated by a normal when the sample size is large enough.
+The CLT is somehow limited though because not all estimators are sums.
+Estimators are generally more or less complex combinations of sums.
+In order to derive the asymptotic approximation for a lot of estimators that are combinations of sums, econometricians and statisticians complement the CLT with two other extremely powerful tools: Slutsky's theorem and the Delta method.
+Slutsky's theorem states that sums, products and ratios of sums that converge to a normal converge to the sum, product or ratio of these normals.
+The Delta method states that a function of a sum that converges to a normal converges to a normal whose variance is a quadratic form of the variance of the sum and of the first derivative of the function.
+Both of these tools are stated more rigorously in the appendix, but you do not need to know them for this class. 
+The idea is for you to be aware of how the main approximations that we are going to use throughout this class have been derived.
+
+Let me now state the main result of this section:
+
+```{theorem,asympnoiseWW,name="Asymptotic Estimate of Sampling Noise of WW"}
+Under Assumptions \@ref(def:noselb), \@ref(def:fullrank), \@ref(def:iid) and \@ref(def:finitevar), for a given confidence level $\delta$ and sample size $N$, the sampling noise of $\hat{WW}$ can be approximated as follows:
+
+\begin{align*}
+2\epsilon & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}.
+\end{align*}
+
+```
+
+```{proof}
+See in Appendix \@ref(proofCLT).
+```
 
 
 ### Using resampling methods {#sec:resamp}

@@ -78,7 +78,7 @@ The second and third equalities stems from the definition of the $WW$ estimator 
 The fourth equality stems from Assumption \@ref(def:iid), which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
 The fifth and sixth equalities stems from Assumption \@ref(def:iid) and from $\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}$.
 The seventh equality stems from $\var{Y_i|D_i=1}$ and $\var{Y_i|D_i=0}$ being constant.
-The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case unde Assumption \@ref(def:fullrank).
+The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case under Assumption \@ref(def:fullrank).
 ```
 
 Using Theorem \@ref(thm:cheb), we have:
@@ -90,3 +90,306 @@ Using Theorem \@ref(thm:cheb), we have:
 
 where the second equality stems from the fact that $\frac{(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\geq0$.
 This proves the result.
+
+### Proof of Theorem \@ref(thm:asympnoiseWW) {#proofCLT}
+
+Before proving Theorem \@ref(thm:asympnoiseWW), let me state a very useful result: $\hat{WW}$ can be computed using OLS:
+
+```{lemma,WWOLS,name="WW is OLS"}
+Under Assumption \@ref(def:fullrank), the OLS coefficient $\beta$ in the following regression: 
+
+\begin{align*}
+		Y_i &  = \alpha +  \beta D_i + U_i
+	\end{align*}
+
+is the WW estimator:
+
+\begin{align*}
+\hat{\beta}_{OLS} & = \frac{\frac{1}{N}\sum_{i=1}^N\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)^2} \\
+  								& = \hat{\Delta^Y_{WW}}.
+\end{align*}
+
+```
+
+```{proof}
+In matrix notation, we have:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_1 \\	\vdots \\	Y_N \end{array}\right)}_{Y} & = 
+  \underbrace{\left(\begin{array}{cc}	1 & D_1\\	\vdots & \vdots\\	1 & D_N\end{array}\right)}_{X}
+  \underbrace{\left(\begin{array}{c}	\alpha \\	\beta \end{array}\right)}_{\Theta}+
+  \underbrace{\left(\begin{array}{c}	U_1 \\	\vdots \\	U_N \end{array}\right)}_{U}
+\end{align*}
+
+The OLS estimator is:
+
+\begin{align*}
+	\hat{\Theta}_{OLS} &  = (X'X)^{-1}X'Y
+\end{align*}
+
+Under the Full Rank Assumption, $X'X$ is invertible and we have:
+
+\begin{align*}
+(X'X)^{-1} &  = \left(\begin{array}{cc} N & \sum_{i=1}^ND_i \\ \sum_{i=1}^ND_i & \sum_{i=1}^ND_i^2 \end{array}\right)^{-1} \\
+                & = \frac{1}{N\sum_{i=1}^ND_i^2-\left(\sum_{i=1}^ND_i\right)^2}\left(\begin{array}{cc} \sum_{i=1}^ND_i^2 & -\sum_{i=1}^ND_i \\ -\sum_{i=1}^ND_i & N \end{array}\right)
+\end{align*}
+
+For simplicity, I omit the summation index:
+
+\begin{align*}
+  \hat{\Theta}_{OLS} &  = \frac{1}{N\sum D_i^2-\left(\sum D_i\right)^2}
+                          \left(\begin{array}{cc} \sum D_i^2 & -\sum D_i \\ -\sum D_i & N \end{array}\right)
+                          \left(\begin{array}{c} \sum Y_i \\  \sum Y_iD_i \end{array}\right) \\
+                    & = \frac{1}{N\sum D_i^2-\left(\sum D_i\right)^2}
+                        \left(\begin{array}{c} \sum D_i^2\sum Y_i-\sum D_i\sum_{i=1}^NY_iD_i \\
+                                              -\sum D_i\sum Y_i+ N\sum Y_iD_i \end{array}\right) \\
+\end{align*}
+
+Using $D_i^2=D_i$, we have:
+
+\begin{align*}
+  \hat{\Theta}_{OLS} &  =  \left(\begin{array}{c} 
+          \frac{\left(\sum D_i\right)\left(\sum Y_i-\sum Y_iD_i\right)}{\left(\sum D_i\right)\left(N-\sum D_i\right)} \\
+          \frac{N\sum Y_iD_i-\sum D_i\sum Y_i}{N\sum D_i-\left(\sum D_i\right)^2} 
+                            \end{array}\right) 
+                        =     \left(\begin{array}{c} 
+          \frac{\sum (Y_iD_i+Y_i(1-D_i))-\sum Y_iD_i}{\sum(1-D_i)} \\
+          \frac{N^2}{N^2}\frac{\frac{1}{N}\sum Y_iD_i-\frac{1}{N}\sum D_i\frac{1}{N}\sum Y_i+\frac{1}{N}\sum D_i\frac{1}{N}\sum Y_i-\frac{1}{N}\sum D_i\frac{1}{N}\sum Y_i}{\frac{1}{N}\sum D_i-2\left(\frac{1}{N}\sum D_i\right)^2+\left(\frac{1}{N}\sum D_i\right)^2} 
+                            \end{array}\right) \\
+                      &  =     \left(\begin{array}{c} 
+          \frac{\sum Y_i(1-D_i)}{\sum(1-D_i)} \\
+          \frac{\frac{1}{N}\sum \left(Y_iD_i-D_i\frac{1}{N}\sum Y_i-Y_i\frac{1}{N}\sum D_i+\frac{1}{N}\sum D_i\frac{1}{N}\sum Y_i\right)}{\frac{1}{N}\sum\left(D_i-2D_i\frac{1}{N}\sum D_i+\left(\frac{1}{N}\sum D_i\right)^2\right)} 
+                            \end{array}\right) 
+                      =     \left(\begin{array}{c} 
+          \frac{\sum Y_i(1-D_i)}{\sum(1-D_i)} \\
+    \frac{\frac{1}{N}\sum\left(Y_i-\frac{1}{N}\sum Y_i\right)\left(D_i-\frac{1}{N}\sum D_i\right)}{\frac{1}{N}\sum \left(D_i-\frac{1}{N}\sum D_i\right)^2} 
+                            \end{array}\right), 
+\end{align*}
+
+which proves the first part of the lemma.
+Now for the second part of the lemma:
+
+\begin{align*}
+  \hat{\beta}_{OLS} &  = \frac{\sum Y_iD_i-\frac{1}{N}\sum D_i\sum Y_i}{\sum D_i\left(1-\frac{1}{N}\sum D_i\right)}
+                       = \frac{\sum Y_iD_i-\frac{1}{N}\sum D_i\sum\left(Y_iD_i+(1-D_i)Y_i\right)}{\sum D_i\left(1-\frac{1}{N}\sum D_i\right)}\\
+                    &  = \frac{\sum Y_iD_i\left(1-\frac{1}{N}\sum D_i\right)-\frac{1}{N}\sum D_i\sum(1-D_i)Y_i}{\sum D_i\left(1-\frac{1}{N}\sum D_i\right)}\\
+                    &  = \frac{\sum Y_iD_i}{\sum D_i}-\frac{\frac{1}{N}\sum(1-D_i)Y_i}{\left(1-\frac{1}{N}\sum D_i\right)}\\
+                    &  = \frac{\sum Y_iD_i}{\sum D_i}-\frac{\frac{1}{N}\sum(1-D_i)Y_i}{\frac{1}{N}\sum\left(1-D_i\right)}\\
+                     &  = \frac{\sum Y_iD_i}{\sum D_i}-\frac{\sum(1-D_i)Y_i}{\sum\left(1-D_i\right)}\\
+                     & = \hat{\Delta^Y_{WW}},
+\end{align*}
+
+which proves the result.
+```
+
+Now, let me state the most important lemma behind the result in Theorem \@ref(thm:asympnoiseWW):
+
+```{lemma,asympOLS,name="Asymptotic Distribution of the OLS Estimator"}
+Under Assumptions \@ref(def:noselb), \@ref(def:fullrank), \@ref(def:iid) and \@ref(def:finitevar), we have:
+
+\begin{align*}
+  \sqrt{N}(\hat{\Theta}_{OLS}-\Theta) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(\begin{array}{c}	0\\	0\end{array},
+  \sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1}\right), 
+\end{align*}
+
+with 
+\begin{align*}
+\sigma_{XX}^{-1}& = \left(\begin{array}{cc}	\frac{\Pr(D_i=1)}{\Pr(D_i=1)(1-\Pr(D_i=1))} & -\frac{\Pr(D_i=1)}{\Pr(D_i=1)(1-\Pr(D_i=1))}\\
+                                          -\frac{\Pr(D_i=1)}{\Pr(D_i=1)(1-\Pr(D_i=1))} & \frac{1}{\Pr(D_i=1)(1-\Pr(D_i=1))} 
+                          \end{array}\right)\\
+\mathbf{V_{xu}}&= \esp{U_i^2\left(\begin{array}{cc}  1 & D_i\\  D_i & D_i\end{array}\right)}                        
+\end{align*}
+
+```
+
+```{proof}
+
+\begin{align*}
+\sqrt{N}(\hat{\Theta}_{OLS}-\Theta) & = \sqrt{N}((X'X)^{-1}X'Y-\Theta) \\
+                                    & = \sqrt{N}((X'X)^{-1}X'(X\Theta+U)-\Theta) \\
+                                    & = \sqrt{N}((X'X)^{-1}X'X\Theta+(X'X)^{-1}X'U)-\Theta) \\
+                                    & = \sqrt{N}(X'X)^{-1}X'U \\
+                                    & = N(X'X)^{-1}\frac{\sqrt{N}}{N}X'U
+\end{align*}
+
+Using Slutsky's Theorem, we can study both terms separately.
+Slutsky's Theorem states that if $Y_N\stackrel{d}{\rightarrow}y$ and $\text{plim}(X_N)=x$, then:
+
+1. $X_N+Y_N\stackrel{d}{\rightarrow}x+y$
+2. $X_NY_N\stackrel{d}{\rightarrow}xy$
+3. $\frac{Y_N}{X_N}\stackrel{d}{\rightarrow}\frac{x}{y}$ if $x\neq0$
+
+Using this theorem, we have:
+
+\begin{align*}
+\sqrt{N}(\hat{\Theta}_{OLS}-\Theta) & \stackrel{d}{\rightarrow} \sigma_{XX}^{-1}xu,
+\end{align*}
+
+Where $\sigma_{XX}^{-1}$ is a matrix of constants and $xu$ is a random variable.
+
+Let's begin with $\frac{\sqrt{N}}{N}X'U\stackrel{d}{\rightarrow}xu$:
+
+\begin{align*}
+\frac{\sqrt{N}}{N}X'U & = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum^{i=1}_{N}U_i\\  \frac{1}{N}\sum^{i=1}_{N}D_iU_i\end{array}\right)
+\end{align*}
+
+In order to determine the asymptotic distribution of $\frac{\sqrt{N}}{N}X'U$, we are going to use the vector version of the CLT:
+
+If $X_i$ and $Y_i$ are two i.i.d. random variables with finite first and second moments, we have:
+
+\begin{align*}
+	\sqrt{N}
+  \left(
+	  \begin{array}{c}	
+	   \frac{1}{N}\sum_{i=1}^NX_i-\esp{X_i}\\	
+	   \frac{1}{N}\sum_{i=1}^NY_i-\esp{Y_i}
+	   \end{array}
+	 \right) 
+      &
+  \stackrel{d}{\rightarrow}
+  \mathcal{N}
+  \left(
+    \begin{array}{c}	
+    0\\
+    0
+    \end{array},
+  \mathbf{V}
+  \right),
+\end{align*}
+
+where $\mathbf{V}$ is the population covariance matrix of $X_i$ and $Y_i$.
+  
+We know that, under Assumption \@ref(def:noselb), both random variables have mean zero: 
+
+\begin{align*}
+\esp{U_i}& = \esp{U_i|D_i=1}\Pr(D_i=1)+\esp{U_i|D_i=0}\Pr(D_i=0)=0 \\
+\esp{U_iD_i}& = \esp{U_i|D_i=1}\Pr(D_i=1)=0
+\end{align*}
+
+Their covariance matrix $\mathbf{V_{xu}}$ can be computed as follows:
+
+\begin{align*}
+\mathbf{V_{xu}} & = \esp{\left(\begin{array}{c}  U_i\\	UiD_i\end{array}\right)\left(\begin{array}{cc}	U_i&	UiD_i\end{array}\right)}
+                  - \esp{\left(\begin{array}{c}	U_i\\	UiD_i\end{array}\right)}\esp{\left(\begin{array}{cc}	U_i&	UiD_i\end{array}\right)}\\
+                & = \esp{\left(\begin{array}{cc}	U_i^2 & U_i^2D_i\\	Ui^2D_i & U_i^2D_i^2\end{array}\right)} 
+                  = \esp{U_i^2\left(\begin{array}{cc}	1 & D_i\\	D_i & D_i^2\end{array}\right)} 
+                  = \esp{U_i^2\left(\begin{array}{cc}	1 & D_i\\	D_i & D_i\end{array}\right)} 
+\end{align*}
+
+Using the Vector CLT, we have that $\frac{\sqrt{N}}{N}X'U\stackrel{d}{\rightarrow}\mathcal{N}\left(\begin{array}{c}  0\\	0\end{array},\mathbf{V_{xu}}\right)$.
+
+Let's show now that $\plims N(X'X)^{-1}=\sigma_{XX}^{-1}$:
+
+\begin{align*}
+N(X'X)^{-1} & = \frac{N}{N\sum_{i=1}^ND_i-\left(\sum_{i=1}^ND_i\right)^2}
+                \left(\begin{array}{cc} \sum_{i=1}^ND_i & -\sum_{i=1}^ND_i \\ -\sum_{i=1}^ND_i & N \end{array}\right) \\
+            & = \frac{1}{N}\frac{1}{\frac{1}{N}\sum_{i=1}^ND_i-\left(\frac{1}{N}\sum_{i=1}^ND_i\right)^2}
+                \left(\begin{array}{cc} \sum_{i=1}^ND_i & -\sum_{i=1}^ND_i \\ -\sum_{i=1}^ND_i & N \end{array}\right)\\
+            & = \frac{1}{\frac{1}{N}\sum_{i=1}^ND_i-\left(\frac{1}{N}\sum_{i=1}^ND_i\right)^2}
+                \left(\begin{array}{cc} \frac{1}{N}\sum_{i=1}^ND_i & -\frac{1}{N}\sum_{i=1}^ND_i \\ -\frac{1}{N}\sum_{i=1}^ND_i & 1 \end{array}\right)\\
+\plims N(X'X)^{-1} & = \frac{1}{\plims\frac{1}{N}\sum_{i=1}^ND_i-\left(\plims\frac{1}{N}\sum_{i=1}^ND_i\right)^2}
+                \left(\begin{array}{cc} \plims\frac{1}{N}\sum_{i=1}^ND_i & -\plims\frac{1}{N}\sum_{i=1}^ND_i \\ -\plims\frac{1}{N}\sum_{i=1}^ND_i & 1 \end{array}\right)\\
+                  & = \frac{1}{\Pr(D_i=1)-\Pr(D_i=1)^2}
+                \left(\begin{array}{cc} \Pr(D_i=1) & -\Pr(D_i=1) \\ -\Pr(D_i=1) & 1 \end{array}\right)\\
+                 & = \sigma_{XX}^{-1}
+\end{align*}
+
+The fourth equality uses Slutsky's Theorem.
+The fifth equality uses the Law of Large Numbers (LLN): if $Y_i$ are i.i.d. variables with finite first and second moments, $\plim{N}\frac{1}{N}\sum_{i=1}^NY_i = \esp{Y_i}$.
+
+In order to complete the proof, we have to use the Delta Method Theorem.
+This theorem states that: 
+
+\begin{gather*}
+  \sqrt{N}(\begin{array}{c}	\bar{X}_N-\esp{X_i}\\	\bar{Y}_N-\esp{Y_i}\end{array})  \stackrel{d}{\rightarrow}\mathcal{N}(\begin{array}{c}	0\\	0\end{array},\mathbf{V}) \\
+\Rightarrow \sqrt{N}(g(\bar{X}_N,\bar{Y}_N)-g(\esp{X_i},\esp{Y_i})  \stackrel{d}{\rightarrow}\mathcal{N}(0,G'\mathbf{V}G)
+\end{gather*}
+
+where $G(u)=\partder{g(u)}{u}$ and $G=G(\esp{X_i},\esp{Y_i})$.
+
+In our case, $g(xu)=\sigma_{XX}^{-1}xu$, so $G(xu)=\sigma_{XX}^{-1}$.
+The results follows from that and from the symmetry of $\sigma_{XX}^{-1}$.
+```
+
+A last lemma uses the previous result to derive the asymptotic distribution of $\hat{WW}$:
+
+```{lemma,asymWW,name="Asymptotic Distribution of $\\hat{WW}$"}
+Under Assumptions \@ref(def:noselb), \@ref(def:fullrank), \@ref(def:iid) and \@ref(def:finitevar), we have:
+
+\begin{align*}
+  \sqrt{N}(\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}\right).
+\end{align*}
+```
+
+```{proof}
+In order to derive the asymptotic distribution of WW, I use first Lemma \@ref(lem:WWOLS) which implies that the asymptotic distribution of WW is the same as that of $\hat{\beta}_{OLS}$.
+Now, from Lemma \@ref(lem:asympOLS), we know that $\sqrt{N}(\hat{\beta}_{OLS}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})$, where $\sigma^2_{\beta}$ is the lower diagonal term of $\sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1}$.
+Using the convention $p=\Pr(D_i=1)$, we have:
+
+\begin{align*}
+\sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1} 
+                  & = \left(\begin{array}{cc}  
+                                          \frac{p}{p(1-p)} & -\frac{p}{p(1-p)}\\
+                                          -\frac{p}{p(1-p)} & \frac{1}{p(1-p)} 
+                          \end{array}\right)
+                          \esp{U_i^2\left(\begin{array}{cc}  1 & D_i\\  D_i & D_i\end{array}\right)}        
+                          \left(\begin{array}{cc}  
+                                          \frac{p}{p(1-p)} & -\frac{p}{p(1-p)}\\
+                                          -\frac{p}{p(1-p)} & \frac{1}{p(1-p)} 
+                          \end{array}\right)\\
+                  & = \frac{1}{(p(1-p))^2}
+                          \left(\begin{array}{cc}  
+                                          p\esp{U_i^2}-p\esp{U_i^2D_i} & p\esp{U_i^2D_i}-p\esp{U_i^2D_i}\\
+                                          -p\esp{U_i^2}+\esp{U_i^2D_i} &  -p\esp{U_i^2D_i}+\esp{U_i^2D_i}
+                          \end{array}\right)
+                         \left(\begin{array}{cc}  
+                                          p & -p\\
+                                          -p & 1 
+                          \end{array}\right)\\
+                 & = \frac{1}{(p(1-p))^2}
+                          \left(\begin{array}{cc}  
+                                          p^2(\esp{U_i^2}-\esp{U_i^2D_i}) & p^2(\esp{U_i^2D_i}-\esp{U_i^2})\\
+                                          p^2(\esp{U_i^2D_i}-\esp{U_i^2}) &  p^2\esp{U_i^2}+(1-2p)\esp{U_i^2D_i}
+                          \end{array}\right)
+ \end{align*}
+
+The final result comes from the fact that:
+
+\begin{align*}
+\esp{U_i^2} & = \esp{U_i^2|D_i=1}p + (1-p)\esp{U_i^2|D_i=0}\\
+            & = p\var{Y_i^1|D_i=1}+(1-p)\var{Y_i^0|D_i=0} \\
+\esp{U_i^2D_i}  & = \esp{U_i^2|D_i=1}p  \\
+                & = p\var{Y_i^1|D_i=1}.
+ \end{align*}
+
+As a consequence:
+
+\begin{align*}
+\sigma^2_{\beta} &= \frac{1}{(p(1-p))^2}\left(\var{Y_i^1|D_i=1}p(p^2-2p+1) + p^2(1-p)\var{Y_i^0|D_i=0}\right) \\
+                  &= \frac{1}{(p(1-p))^2}\left(\var{Y_i^1|D_i=1}p(1-p)^2 + p^2(1-p)\var{Y_i^0|D_i=0}\right)\\
+                  & = \frac{\var{Y_i^1|D_i=1}}{p}+\frac{\var{Y_i^0|D_i=0}}{1-p}.
+ \end{align*}
+```
+
+
+Using the previous lemma, we can now approximate the confidence level of $\hat{WW}$:
+
+\begin{align*}
+\Pr&(|\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}|\leq\epsilon) = \Pr(-\epsilon\leq\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}\leq\epsilon) \\
+& = \Pr\left(-\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\leq\frac{\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\leq\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)\\
+& \approx \Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)-
+\Phi\left(-\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)\\
+& = \Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)- 1 + \Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)\\
+& = 2\Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)-1.
+\end{align*}
+
+As a consequence, 
+
+\begin{align*}
+\delta & \approx 2\Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)-1.
+\end{align*}
+
+Hence the result.
+

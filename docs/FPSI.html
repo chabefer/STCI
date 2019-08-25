@@ -53,7 +53,10 @@ $$
 \newcommand{\Ind}{\perp\kern-5pt\perp}
 \newcommand{\var}[1]{\mathbf{V}[ #1 ]}
 \newcommand{\cov}[1]{\mathbf{C}[ #1 ]}
-
+\newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
+\newcommand{\plims}{\text{plim}}
+\newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
+\DeclareMathOperator{\diag}{diag}
 $$
 
 
@@ -188,6 +191,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A" data-path="proofs.html"><a href="proofs.html"><i class="fa fa-check"></i><b>A</b> Proofs</a><ul>
 <li class="chapter" data-level="A.1" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-reffpsi"><i class="fa fa-check"></i><b>A.1</b> Proofs of results in Chapter @ref(FPSI)</a><ul>
 <li class="chapter" data-level="A.1.1" data-path="proofs.html"><a href="proofs.html#proofcheb"><i class="fa fa-check"></i><b>A.1.1</b> Proof of Theorem @ref(thm:uppsampnoise)</a></li>
+<li class="chapter" data-level="A.1.2" data-path="proofs.html"><a href="proofs.html#proofCLT"><i class="fa fa-check"></i><b>A.1.2</b> Proof of Theorem @ref(thm:asympnoiseWW)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -1224,6 +1228,43 @@ Figure 2.9: Chebyshev confidence intervals of <span class="math inline">\(\hat{W
 </div>
 <div id="sec:CLT" class="section level3">
 <h3><span class="header-section-number">2.2.3</span> Using the Central Limit Theorem</h3>
+<p>The main problem with Chebyshev’s upper bound on sampling noise is that it is an upper bound, and thus it overestimates sampling noise and underestimates precision.
+One alternative to using Chebyshev’s upper bound is to use the Central Limit Theorem (CLT).
+In econometrics and statistics, the CLT is used to derive approximate values for the sampling noise of estimators.
+Because these approximations become more and more precise as sample size increases, we call them asymptotic approximations.</p>
+<p>Taken to its bare bones, the CLT states that the sum of i.i.d. random variables behaves approximately like a normal distribution when the sample size is large:</p>
+
+<div class="theorem">
+<p><span id="thm:CLT" class="theorem"><strong>Theorem 2.4  (Central Limit Theorem)  </strong></span>Let <span class="math inline">\(X_i\)</span> be i.i.d. random variables with <span class="math inline">\(\esp{X_i}=\mu\)</span> and <span class="math inline">\(\var{X_i}=\sigma^2\)</span>, and define <span class="math inline">\(Z_N=\frac{\frac{1}{N}\sum_{i=1}^NX_i-\mu}{\frac{\sigma}{\sqrt{N}}}\)</span>, then, for all <span class="math inline">\(z\)</span> we have:</p>
+<p><span class="math display">\[\begin{align*}
+\lim_{N\rightarrow\infty}\Pr(Z_N\leq z) &amp; = \Phi(z),
+\end{align*}\]</span></p>
+where <span class="math inline">\(\Phi\)</span> is the cumulative distribution function of the centered standardized normal.
+We say that <span class="math inline">\(Z_N\)</span> converges in distribution to a standard normal random variable, and we denote: <span class="math inline">\(Z_N\stackrel{d}{\rightarrow}\mathcal{N}(0,1)\)</span>.
+</div>
+
+<p>The CLT is a beautiful result: the distribution of the average of realisations of any random variable that has finite mean and variance can be approximated by a normal when the sample size is large enough.
+The CLT is somehow limited though because not all estimators are sums.
+Estimators are generally more or less complex combinations of sums.
+In order to derive the asymptotic approximation for a lot of estimators that are combinations of sums, econometricians and statisticians complement the CLT with two other extremely powerful tools: Slutsky’s theorem and the Delta method.
+Slutsky’s theorem states that sums, products and ratios of sums that converge to a normal converge to the sum, product or ratio of these normals.
+The Delta method states that a function of a sum that converges to a normal converges to a normal whose variance is a quadratic form of the variance of the sum and of the first derivative of the function.
+Both of these tools are stated more rigorously in the appendix, but you do not need to know them for this class.
+The idea is for you to be aware of how the main approximations that we are going to use throughout this class have been derived.</p>
+<p>Let me now state the main result of this section:</p>
+
+<div class="theorem">
+<p><span id="thm:asympnoiseWW" class="theorem"><strong>Theorem 2.5  (Asymptotic Estimate of Sampling Noise of WW)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>, for a given confidence level <span class="math inline">\(\delta\)</span> and sample size <span class="math inline">\(N\)</span>, the sampling noise of <span class="math inline">\(\hat{WW}\)</span> can be approximated as follows:</p>
+<p><span class="math display">\[\begin{align*}
+2\epsilon &amp; \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}.
+\end{align*}\]</span></p>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See in Appendix <a href="proofs.html#proofCLT">A.1.2</a>.
+</div>
+
 </div>
 <div id="sec:resamp" class="section level3">
 <h3><span class="header-section-number">2.2.4</span> Using resampling methods</h3>
