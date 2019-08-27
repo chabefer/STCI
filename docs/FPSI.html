@@ -172,7 +172,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.2.2" data-path="FPSI.html"><a href="FPSI.html#sec:cheb"><i class="fa fa-check"></i><b>2.2.2</b> Using Chebyshev’s inequality</a></li>
 <li class="chapter" data-level="2.2.3" data-path="FPSI.html"><a href="FPSI.html#sec:CLT"><i class="fa fa-check"></i><b>2.2.3</b> Using the Central Limit Theorem</a></li>
 <li class="chapter" data-level="2.2.4" data-path="FPSI.html"><a href="FPSI.html#sec:resamp"><i class="fa fa-check"></i><b>2.2.4</b> Using resampling methods</a></li>
-<li class="chapter" data-level="2.2.5" data-path="FPSI.html"><a href="FPSI.html#sec:Fisher"><i class="fa fa-check"></i><b>2.2.5</b> Using randomization inference</a></li>
 </ul></li>
 </ul></li>
 <li class="part"><span><b>II Methods of Causal Inference</b></span></li>
@@ -1025,8 +1024,7 @@ Fisher’s permutation method is exact-it is not an approximation-but it only wo
 Section <a href="FPSI.html#sec:assumptions">2.2.1</a> introduces the assumptions that we will need in order to implement the methods.
 Section <a href="FPSI.html#sec:cheb">2.2.2</a> presents the Chebyshev approach to gauging sampling noise and choosing sample size.
 Section <a href="FPSI.html#sec:CLT">2.2.3</a> introduces the CLT way of approximating sampling noise and choosing sample size.
-Section <a href="FPSI.html#sec:resamp">2.2.4</a> presents the resampling methods.
-Section <a href="FPSI.html#sec:Fisher">2.2.5</a> introduces the Fisher’s exact permutation approach.</p>
+Section <a href="FPSI.html#sec:resamp">2.2.4</a> presents the resampling methods.</p>
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> I am going to derive the estimators for the precision only for the <span class="math inline">\(WW\)</span> estimator.
@@ -1422,10 +1420,241 @@ The default OLS standard error estimate yields an estimate for sampling noise of
 </div>
 <div id="sec:resamp" class="section level3">
 <h3><span class="header-section-number">2.2.4</span> Using resampling methods</h3>
-</div>
-<div id="sec:Fisher" class="section level3">
-<h3><span class="header-section-number">2.2.5</span> Using randomization inference</h3>
+<p>The main intuition behind resampling methods is to use the sample as a population, to draw samples from it and compute our estimator on each of these samples in order to gauge its variability over sampling repetitions.
+There are three main methods of resampling that work that way: bootstrapping, radomization inference and subsampling.
+Bootstrapping draws samples with replacement, so that each sample has the same size as the original sample.
+Subsampling draws samples without replacement, thereby the samples are of a smaller size than the original one.
+Randomization inference keeps the same sample in all repetitions, but changes the allocation of the treatment.</p>
+<p>Why would we use resampling methods instead of CLT-based standard errors?
+There are several possible reasons:</p>
+<ol style="list-style-type: decimal">
+<li>Asymptotic refinements: sometimes, resampling methods are more precise in small samples than the CLT-based asymptotic approaches.
+In that case, we say that resampling methods offer asymptotic refinements.</li>
+<li>Ease of computation: for some estimators, the CLT-based estimates of sampling noise are complex or cumbersome to compute, whereas resampling methods are only computationally intensive.</li>
+<li>Inexistence of CLT-based estimates of sampling noise: some estimators do not have any CLT-based estimates of sampling noise yet.
+That was the case for the Nearest-Neighbour Matching estimator (NNM) for a long time for example.
+It still is the case for the Synthetic Control Method estimator.
+Beware though that the bootstrap is not valid for all estimators.
+For example, it is possible to show that the bootstrap is invalid for NNM.
+Subsampling is valid for NNM though (see Abadie and Imbens, 2006).</li>
+</ol>
+<div id="bootstrap" class="section level4">
+<h4><span class="header-section-number">2.2.4.1</span> Bootstrap</h4>
+<p>The basic idea of the bootstrap is to use Monte Carlo replications to draw samples from the original sample with replacement.
+Then, at each replication, we compute the value of our estimator <span class="math inline">\(\hat{E}\)</span> on the new sample.
+Let’s call this new value <span class="math inline">\(\hat{E}^*_k\)</span> for bootstrap replication <span class="math inline">\(k\)</span>.
+Under certain conditions, the distribution of <span class="math inline">\(\hat{E}^*_k\)</span> approximates the distribution of <span class="math inline">\(\hat{E}\)</span> over sample repetitions very well, and all the more so as the sample size gets large.</p>
+<p>What are the conditions under which the bootstrap is going to provide an accurate estimation of the distribution of <span class="math inline">\(\hat{E}\)</span>?
+Horowitz (2001) reports on a very nice result by Mammen that makes these conditions clear:</p>
 
+<div class="theorem">
+<span id="thm:mammen92" class="theorem"><strong>Theorem 2.6  (Mammen (1992))  </strong></span>Let <span class="math inline">\(\left\{X_i:i=1,\dots,N\right\}\)</span> be a random sample from a population.
+For a sequence of functions <span class="math inline">\(g_N\)</span> and sequences of numbers <span class="math inline">\(t_N\)</span> and <span class="math inline">\(\sigma_N\)</span>, define <span class="math inline">\(\bar{g}_N=\frac{1}{N}\sum_{i=1}^Ng_N(X_i)\)</span> and <span class="math inline">\(T_N=(\bar{g}_N-t_N)/\sigma_N\)</span>.
+For the bootstrap sample <span class="math inline">\(\left\{X^*_i:i=1,\dots,N\right\}\)</span>, define <span class="math inline">\(\bar{g}^*_N=\frac{1}{N}\sum_{i=1}^Ng_N(X^*_i)\)</span> and <span class="math inline">\(T^*_N=(\bar{g}^*_N-\bar{g}_N)/\sigma_N\)</span>.
+Let <span class="math inline">\(G_N(\tau)=\Pr(T_N\leq\tau)\)</span> and <span class="math inline">\(G^*_N(\tau)=\Pr(T^*_N\leq\tau)\)</span>, where this last probability distribution is taken over bootstrap sampling replications.
+Then <span class="math inline">\(G^*_N\)</span> consistently estimates <span class="math inline">\(G_N\)</span> if and only if <span class="math inline">\(T_N\stackrel{d}{\rightarrow}\mathcal{N}(0,1)\)</span>.
+</div>
+
+<p>Theorem <a href="FPSI.html#thm:mammen92">2.6</a> states that the bootstrap will offer a consistent estimation of the distribution of a given estimator if and only if this estimator is asymptotically normally distributed.
+It means that we could theoretically use the CLT-based asymptotic distribution to compute sampling noise.
+So, and it demands to be stronlgy emphasized, .</p>
+<p>How do we estimate sampling noise with the bootstrap?
+There are several ways to do so, but I am going to emphasize the most widespread here, that is known as the percentile method.
+Let’s define <span class="math inline">\(E^*_{\frac{1-\delta}{2}}\)</span> and <span class="math inline">\(E^*_{\frac{1+\delta}{2}}\)</span> as the corresponding quantiles of the bootstrap distribution of <span class="math inline">\(\hat{E}^*_k\)</span> over a large number <span class="math inline">\(K\)</span> of replications.
+The bootstrapped sampling noise using the percentile method is simply the distance between these two quantities.</p>
+
+<div class="theorem">
+<p><span id="thm:bootnoiseWW" class="theorem"><strong>Theorem 2.7  (Bootstrapped Estimate of Sampling Noise of WW)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>, for a given confidence level <span class="math inline">\(\delta\)</span> and sample size <span class="math inline">\(N\)</span>, the sampling noise of <span class="math inline">\(\hat{WW}\)</span> can be approximated as follows:</p>
+<span class="math display">\[\begin{align*}
+2\epsilon &amp; \approx E^*_{\frac{1+\delta}{2}}-E^*_{\frac{1-\delta}{2}} \equiv 2\tilde{\epsilon}^b.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+<p> <span class="proof"><em>Proof. </em></span> The <span class="math inline">\(WW\)</span> estimator can be written as a sum:</p>
+<p><span class="math display">\[\begin{align*}
+\hat{\Delta^Y_{WW}} &amp; = \frac{1}{N}\sum_{i=1}^N\frac{\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)^2}.
+\end{align*}\]</span></p>
+Using Lemma <a href="proofs.html#lem:asymWW">A.5</a>, we know that the <span class="math inline">\(WW\)</span> estimator is asymptotically normal under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>.
+Using Theorem <a href="FPSI.html#thm:mammen92">2.6</a> proves the result.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> With the bootstrap, we are not going to define the confidence interval using Theorem <a href="FPSI.html#thm:confinter">2.1</a> but directly using <span class="math inline">\(\left\{E^*_{\frac{1-\delta}{2}};E^*_{\frac{1+\delta}{2}}\right\}\)</span>.
+Indeed, we have defined the bootstrapped estimator of sampling noise by using the asymetric confidence interval.
+We could have used the equivalent of Definition <a href="FPSI.html#def:sampnoise">2.1</a> on the bootstrapped samples to compute sampling noise using the symmetric confidence interval.
+Both are feasible and similar in large samples, since the asymptotic distribution is symmetric.
+One advantage of asymetric confidence intervals is that they might capture deviations from the normal distribution in small samples.
+These advantages are part of what we call asymptotic refinements.
+Rigorously, though, asymptotic refinements have not been proved to exist for the percentile method but only for the method bootstrapping asymptotically pivotal quantities.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> We say that a method brings asymptotic refinements if it increases the precision when estimating sampling noise and confidence intervals relative to the asymptotic CLT-based approximation.
+The bootstrap has been shown rigorously to bring asymptotic refinements when used to estimate the distribution of asymptotically pivotal statistic.
+An asymptotically pivotal statistic is a statistic that can be computed from the sample but that, asymptotically, converges to a quantity that does not depend on the sample, like for example a standard normal.
+Using Lemma <a href="proofs.html#lem:asymWW">A.5</a>, we know for example that the following statistic is asymptotically normal:
+</div>
+
+<p><span class="math display">\[\begin{align*}
+  T_N^{WW} &amp; = \frac{\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}}{\sqrt{\frac{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}{N}}} \stackrel{d}{\rightarrow}\mathcal{N}\left(0,1\right).
+\end{align*}\]</span></p>
+<p>To build a confidence interval bootstrapping <span class="math inline">\(T_N^{WW}\)</span>, compute an estimator of <span class="math inline">\(T_N^{WW}\)</span> for each bootstrapped sample, say <span class="math inline">\(\hat{T}_{N,k}^{WW*}\)</span>.
+You can for example use the OLS estimator in the bootstrapped sample, with a heteroskedasticity-robust standard error estimator.
+Or you can compute the <span class="math inline">\(WW\)</span> estimator by hand in the sample along with an estimator of its variance using the variance of the outcomes in the treated and control groups.
+You can then estimate the confidence interval as follows: <span class="math inline">\(\left\{\hat{\Delta^Y_{WW}}-\hat{\sigma_{WW}}\hat{T}^{WW*}_{N,\frac{1-\delta}{2}};\hat{\Delta^Y_{WW}}+\hat{\sigma_{WW}}\hat{T}^{WW*}_{N,\frac{1+\delta}{2}}\right\}\)</span>, where <span class="math inline">\(\hat{T}^{WW*}_{N,q}\)</span> iq the <span class="math inline">\(q^{\text{th}}\)</span> quantile of the distribution of <span class="math inline">\(\hat{T}_{N,k}^{WW*}\)</span> over sampling replications and <span class="math inline">\(\hat{\sigma_{WW}}\)</span> is an estimate of the variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span> (either the CLT-based approximation of the bootstrapped one, see below).</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> One last possibility to develop an estimator for sampling noise and confidence interval is to use the bootstrap in order to estimate the variance of the estimator <span class="math inline">\(\hat{E}\)</span>, <span class="math inline">\(\hat{\sigma^2_{E}}\)</span>, and then use it to compute sampling noise.
+If <span class="math inline">\(\hat{E}\)</span> is asymptotically normally distributed, we have that sampling noise is equal to <span class="math inline">\(2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\hat{\sigma_{E}}\)</span>.
+You can use the usual formula from Theore <a href="FPSI.html#thm:confinter">2.1</a> to compute the confidence interval.
+The bootstrapped variance of <span class="math inline">\(\hat{E}\)</span>, <span class="math inline">\(\hat{\sigma^2_{E}}\)</span>, is simply the variance of <span class="math inline">\(\hat{E}^*_k\)</span> over bootstrap replications.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-59" class="example"><strong>Example 2.9  </strong></span>In the numerical example, I am going to derive the bootstrapped confidence intervals and sampling noise for the percentile method.
+Let’s first put the dataset from our example in a nice data frame format so that resampling is made easier.
+We then define a function taking a number of bootstrapped replications and spitting out sampling noise and confidence intervals.
+</div>
+
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb63-1" data-line-number="1">data &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(y,Ds,yB))</a>
+<a class="sourceLine" id="cb63-2" data-line-number="2">boot.fun.ww<span class="fl">.1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(seed,data){</a>
+<a class="sourceLine" id="cb63-3" data-line-number="3">  <span class="kw">set.seed</span>(seed,<span class="dt">kind=</span><span class="st">&quot;Wichmann-Hill&quot;</span>)</a>
+<a class="sourceLine" id="cb63-4" data-line-number="4">  data &lt;-<span class="st"> </span>data[<span class="kw">sample</span>(<span class="kw">nrow</span>(data),<span class="dt">replace =</span> <span class="ot">TRUE</span>),]</a>
+<a class="sourceLine" id="cb63-5" data-line-number="5">  ols.ww &lt;-<span class="st"> </span><span class="kw">lm</span>(y<span class="op">~</span>Ds,<span class="dt">data=</span>data)</a>
+<a class="sourceLine" id="cb63-6" data-line-number="6">  ww &lt;-<span class="st"> </span>ols.ww<span class="op">$</span>coef[[<span class="dv">2</span>]]</a>
+<a class="sourceLine" id="cb63-7" data-line-number="7">  <span class="kw">return</span>(ww)</a>
+<a class="sourceLine" id="cb63-8" data-line-number="8">}</a>
+<a class="sourceLine" id="cb63-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb63-10" data-line-number="10">boot.fun.ww &lt;-<span class="st"> </span><span class="cf">function</span>(Nboot,data){</a>
+<a class="sourceLine" id="cb63-11" data-line-number="11">  <span class="co">#sfInit(parallel=TRUE,cpus=8)</span></a>
+<a class="sourceLine" id="cb63-12" data-line-number="12">  boot &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span>Nboot,boot.fun.ww<span class="fl">.1</span>,<span class="dt">data=</span>data)</a>
+<a class="sourceLine" id="cb63-13" data-line-number="13">  <span class="co">#sfStop()</span></a>
+<a class="sourceLine" id="cb63-14" data-line-number="14">  <span class="kw">return</span>(<span class="kw">unlist</span>(boot))</a>
+<a class="sourceLine" id="cb63-15" data-line-number="15">}</a>
+<a class="sourceLine" id="cb63-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb63-17" data-line-number="17">boot.CI.ww &lt;-<span class="st"> </span><span class="cf">function</span>(boot,delta){</a>
+<a class="sourceLine" id="cb63-18" data-line-number="18">  <span class="kw">return</span>(<span class="kw">c</span>(<span class="kw">quantile</span>(boot,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">-</span>delta)<span class="op">/</span><span class="dv">2</span>),<span class="kw">quantile</span>(boot,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">+</span>delta)<span class="op">/</span><span class="dv">2</span>)))</a>
+<a class="sourceLine" id="cb63-19" data-line-number="19">}</a>
+<a class="sourceLine" id="cb63-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb63-21" data-line-number="21">boot.samp.noise.ww &lt;-<span class="st"> </span><span class="cf">function</span>(boot,delta){</a>
+<a class="sourceLine" id="cb63-22" data-line-number="22">  <span class="kw">return</span>(<span class="kw">quantile</span>(boot,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">+</span>delta)<span class="op">/</span><span class="dv">2</span>)<span class="op">-</span><span class="kw">quantile</span>(boot,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">-</span>delta)<span class="op">/</span><span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb63-23" data-line-number="23">}</a>
+<a class="sourceLine" id="cb63-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb63-25" data-line-number="25">Nboot &lt;-<span class="st"> </span><span class="dv">500</span></a>
+<a class="sourceLine" id="cb63-26" data-line-number="26">ww.boot &lt;-<span class="st"> </span><span class="kw">boot.fun.ww</span>(Nboot,data)</a>
+<a class="sourceLine" id="cb63-27" data-line-number="27">ww.CI.boot &lt;-<span class="st"> </span><span class="kw">boot.CI.ww</span>(ww.boot,delta)</a>
+<a class="sourceLine" id="cb63-28" data-line-number="28">ww.samp.noise.boot &lt;-<span class="st"> </span><span class="kw">boot.samp.noise.ww</span>(ww.boot,delta)</a></code></pre></div>
+<p>Over 500 replications, the 99% bootstrapped confidence interval using the percentile method is <span class="math inline">\(\left\{-0.023;0.316\right\}\)</span>.
+As a consequence, the bootstrapped estimate of 99% sampling noise is of 0.339.
+Remember that, with <span class="math inline">\(N=\)</span> 1000, sampling noise is actually equal to 0.39.</p>
+<p>In order to assess the global precision of bootstrapping, we are going to resort to Monte Carlo simulations.
+For each Monte Carlo sample, we are going to estimate sampling noise and confidence intervals using the bootstrap.
+As you can imagine, this is going to prove rather computationally intensive.
+I cannot use parallelization twice: I have to choose whether to parallelize the Monte Carlo simulations or the bootstrap simulations.
+I have choosen to parallelize the outer loop, so that a given job takes longer on each cluster.</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb64-1" data-line-number="1">monte.carlo.ww.boot &lt;-<span class="st"> </span><span class="cf">function</span>(s,N,param,Nboot,delta){</a>
+<a class="sourceLine" id="cb64-2" data-line-number="2">  <span class="kw">set.seed</span>(s)</a>
+<a class="sourceLine" id="cb64-3" data-line-number="3">  mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))</a>
+<a class="sourceLine" id="cb64-4" data-line-number="4">  UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))</a>
+<a class="sourceLine" id="cb64-5" data-line-number="5">  yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB </a>
+<a class="sourceLine" id="cb64-6" data-line-number="6">  YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)</a>
+<a class="sourceLine" id="cb64-7" data-line-number="7">  Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)</a>
+<a class="sourceLine" id="cb64-8" data-line-number="8">  V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))</a>
+<a class="sourceLine" id="cb64-9" data-line-number="9">  Ds[V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> </a>
+<a class="sourceLine" id="cb64-10" data-line-number="10">  epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))</a>
+<a class="sourceLine" id="cb64-11" data-line-number="11">  eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))</a>
+<a class="sourceLine" id="cb64-12" data-line-number="12">  U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon</a>
+<a class="sourceLine" id="cb64-13" data-line-number="13">  y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]</a>
+<a class="sourceLine" id="cb64-14" data-line-number="14">  alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta</a>
+<a class="sourceLine" id="cb64-15" data-line-number="15">  y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha</a>
+<a class="sourceLine" id="cb64-16" data-line-number="16">  Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)</a>
+<a class="sourceLine" id="cb64-17" data-line-number="17">  Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)</a>
+<a class="sourceLine" id="cb64-18" data-line-number="18">  y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</a>
+<a class="sourceLine" id="cb64-19" data-line-number="19">  Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</a>
+<a class="sourceLine" id="cb64-20" data-line-number="20">  data &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(y,Ds,yB))</a>
+<a class="sourceLine" id="cb64-21" data-line-number="21">  ww.boot &lt;-<span class="st"> </span><span class="kw">boot.fun.ww</span>(Nboot,data)</a>
+<a class="sourceLine" id="cb64-22" data-line-number="22">  ww.CI.boot &lt;-<span class="st"> </span><span class="kw">boot.CI.ww</span>(ww.boot,delta)</a>
+<a class="sourceLine" id="cb64-23" data-line-number="23">  ww.samp.noise.boot &lt;-<span class="st"> </span><span class="kw">boot.samp.noise.ww</span>(ww.boot,delta)</a>
+<a class="sourceLine" id="cb64-24" data-line-number="24">  <span class="kw">return</span>(<span class="kw">c</span>((<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(Ds))<span class="op">*</span><span class="kw">sum</span>(y<span class="op">*</span>Ds)<span class="op">-</span>(<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(<span class="dv">1</span><span class="op">-</span>Ds))<span class="op">*</span><span class="kw">sum</span>(y<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)),<span class="kw">var</span>(y[Ds<span class="op">==</span><span class="dv">1</span>]),<span class="kw">var</span>(y[Ds<span class="op">==</span><span class="dv">0</span>]),<span class="kw">mean</span>(Ds),ww.CI.boot[[<span class="dv">1</span>]],ww.CI.boot[[<span class="dv">2</span>]],ww.samp.noise.boot))</a>
+<a class="sourceLine" id="cb64-25" data-line-number="25">}</a>
+<a class="sourceLine" id="cb64-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb64-27" data-line-number="27">sf.simuls.ww.N.boot &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,Nboot,delta,param){</a>
+<a class="sourceLine" id="cb64-28" data-line-number="28">  <span class="kw">sfInit</span>(<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">cpus=</span><span class="dv">8</span>)</a>
+<a class="sourceLine" id="cb64-29" data-line-number="29">  <span class="kw">sfExport</span>(<span class="st">&quot;boot.fun.ww&quot;</span>,<span class="st">&quot;boot.CI.ww&quot;</span>,<span class="st">&quot;boot.samp.noise.ww&quot;</span>,<span class="st">&quot;boot.fun.ww.1&quot;</span>)</a>
+<a class="sourceLine" id="cb64-30" data-line-number="30">  sim &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(<span class="kw">sfLapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.ww.boot,<span class="dt">N=</span>N,<span class="dt">Nboot=</span>Nboot,<span class="dt">delta=</span>delta,<span class="dt">param=</span>param)),<span class="dt">nrow=</span>Nsim,<span class="dt">ncol=</span><span class="dv">7</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb64-31" data-line-number="31">  <span class="kw">sfStop</span>()</a>
+<a class="sourceLine" id="cb64-32" data-line-number="32">  <span class="kw">colnames</span>(sim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;V1&#39;</span>,<span class="st">&#39;V0&#39;</span>,<span class="st">&#39;p&#39;</span>,<span class="st">&#39;boot.lCI&#39;</span>,<span class="st">&#39;boot.uCI&#39;</span>,<span class="st">&#39;boot.samp.noise&#39;</span>)</a>
+<a class="sourceLine" id="cb64-33" data-line-number="33">  <span class="kw">return</span>(sim)</a>
+<a class="sourceLine" id="cb64-34" data-line-number="34">}</a>
+<a class="sourceLine" id="cb64-35" data-line-number="35"></a>
+<a class="sourceLine" id="cb64-36" data-line-number="36">simuls.ww.boot &lt;-<span class="st"> </span><span class="kw">lapply</span>(N.sample,sf.simuls.ww.N.boot,<span class="dt">Nsim=</span>Nsim,<span class="dt">param=</span>param,<span class="dt">Nboot=</span>Nboot,<span class="dt">delta=</span>delta)</a></code></pre></div>
+<p>We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures <a href="FPSI.html#fig:sampnoisewwbootall">2.13</a>, <a href="#fig:sampnoisewwbootplot"><strong>??</strong></a> and <a href="#fig:confintervalboot"><strong>??</strong></a> show.</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb65-2" data-line-number="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>){</a>
+<a class="sourceLine" id="cb65-3" data-line-number="3">  <span class="kw">hist</span>(simuls.ww.boot[[i]][,<span class="st">&#39;boot.samp.noise&#39;</span>],<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">bar</span>(epsilon))),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="kw">min</span>(simuls.ww.boot[[i]][,<span class="st">&#39;boot.samp.noise&#39;</span>]),<span class="kw">max</span>(simuls.ww.boot[[i]][,<span class="st">&#39;boot.samp.noise&#39;</span>])))</a>
+<a class="sourceLine" id="cb65-4" data-line-number="4">  <span class="kw">abline</span>(<span class="dt">v=</span>table.noise[i,<span class="kw">colnames</span>(table.noise)<span class="op">==</span><span class="st">&#39;sampling.noise&#39;</span>],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</a>
+<a class="sourceLine" id="cb65-5" data-line-number="5">}</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwbootall"></span>
+<img src="STCI_files/figure-html/sampnoisewwbootall-1.png" alt="Distribution of the bootstrapped approximation of sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+Figure 2.13: Distribution of the bootstrapped approximation of sampling noise over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb66-1" data-line-number="1"><span class="cf">for</span> (k <span class="cf">in</span> (<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample))){</a>
+<a class="sourceLine" id="cb66-2" data-line-number="2">  table.noise<span class="op">$</span>boot.noise[k] &lt;-<span class="st"> </span><span class="kw">mean</span>(simuls.ww.boot[[k]]<span class="op">$</span>boot.samp.noise)</a>
+<a class="sourceLine" id="cb66-3" data-line-number="3">}</a>
+<a class="sourceLine" id="cb66-4" data-line-number="4"><span class="kw">ggplot</span>(table.noise, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(N), <span class="dt">y=</span>TT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb66-5" data-line-number="5"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb66-6" data-line-number="6"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb66-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>boot.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>boot.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb66-8" data-line-number="8"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sample Size&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb66-9" data-line-number="9"><span class="st">  </span><span class="kw">theme_bw</span>()</a></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="STCI_files/figure-html/samp.noise.ww.boot.plot-1.png" alt="Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+(#fig:samp.noise.ww.boot.plot)Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" data-line-number="1">N.plot &lt;-<span class="st"> </span><span class="dv">40</span></a>
+<a class="sourceLine" id="cb67-2" data-line-number="2">plot.list &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb67-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb67-4" data-line-number="4"><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample)){</a>
+<a class="sourceLine" id="cb67-5" data-line-number="5"> <span class="kw">set.seed</span>(<span class="dv">1234</span>)</a>
+<a class="sourceLine" id="cb67-6" data-line-number="6"> test.boot &lt;-<span class="st"> </span>simuls.ww.boot[[k]][<span class="kw">sample</span>(N.plot),<span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;boot.lCI&#39;</span>,<span class="st">&#39;boot.uCI&#39;</span>)]</a>
+<a class="sourceLine" id="cb67-7" data-line-number="7"> test.boot &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(test.boot,<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww.boot[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta),N.plot)))</a>
+<a class="sourceLine" id="cb67-8" data-line-number="8"> <span class="kw">colnames</span>(test.boot) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;boot.lCI&#39;</span>,<span class="st">&#39;boot.uCI&#39;</span>,<span class="st">&#39;sampling.noise&#39;</span>)</a>
+<a class="sourceLine" id="cb67-9" data-line-number="9"> test.boot<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>N.plot</a>
+<a class="sourceLine" id="cb67-10" data-line-number="10"> plot.test.boot &lt;-<span class="st"> </span><span class="kw">ggplot</span>(test.boot, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>WW)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb67-11" data-line-number="11"><span class="st">     </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb67-12" data-line-number="12"><span class="st">     </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb67-13" data-line-number="13"><span class="st">     </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>boot.lCI, <span class="dt">ymax=</span>boot.uCI), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb67-14" data-line-number="14"><span class="st">     </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">delta.y.ate</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb67-15" data-line-number="15"><span class="st">     </span><span class="kw">xlab</span>(<span class="st">&quot;Sample id&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb67-16" data-line-number="16"><span class="st">     </span><span class="kw">theme_bw</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb67-17" data-line-number="17"><span class="st">     </span><span class="kw">ggtitle</span>(<span class="kw">paste</span>(<span class="st">&quot;N=&quot;</span>,N.sample[k]))</a>
+<a class="sourceLine" id="cb67-18" data-line-number="18"> plot.list[[k]] &lt;-<span class="st"> </span>plot.test.boot</a>
+<a class="sourceLine" id="cb67-19" data-line-number="19">}</a>
+<a class="sourceLine" id="cb67-20" data-line-number="20">plot.CI &lt;-<span class="st"> </span><span class="kw">plot_grid</span>(plot.list[[<span class="dv">1</span>]],plot.list[[<span class="dv">2</span>]],plot.list[[<span class="dv">3</span>]],plot.list[[<span class="dv">4</span>]],<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">nrow=</span><span class="kw">length</span>(N.sample))</a>
+<a class="sourceLine" id="cb67-21" data-line-number="21"><span class="kw">print</span>(plot.CI)</a></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="STCI_files/figure-html/conf.interval.boot-1.png" alt="Bootstrapped confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)" width="60%" />
+<p class="caption">
+(#fig:conf.interval.boot)Bootstrapped confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 over sample replications for various sample sizes (true confidence intervals in red)
+</p>
+</div>
+</div>
+<div id="randomization-inference" class="section level4">
+<h4><span class="header-section-number">2.2.4.2</span> Randomization inference</h4>
+</div>
+<div id="subsampling" class="section level4">
+<h4><span class="header-section-number">2.2.4.3</span> Subsampling</h4>
+
+</div>
 </div>
 </div>
 </div>

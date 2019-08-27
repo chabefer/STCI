@@ -784,7 +784,6 @@ Section \@ref(sec:assumptions) introduces the assumptions that we will need in o
 Section \@ref(sec:cheb) presents the Chebyshev approach to gauging sampling noise and choosing sample size.
 Section \@ref(sec:CLT) introduces the CLT way of approximating sampling noise and choosing sample size.
 Section \@ref(sec:resamp) presents the resampling methods.
-Section \@ref(sec:Fisher) introduces the Fisher's exact permutation approach.
 
 ```{remark}
 I am going to derive the estimators for the precision only for the $WW$ estimator.
@@ -1202,7 +1201,235 @@ The default OLS standard error estimate yields an estimate for sampling noise of
 
 ### Using resampling methods {#sec:resamp}
 
+The main intuition behind resampling methods is to use the sample as a population, to draw samples from it and compute our estimator on each of these samples in order to gauge its variability over sampling repetitions.
+There are three main methods of resampling that work that way: bootstrapping, radomization inference and subsampling.
+Bootstrapping draws samples with replacement, so that each sample has the same size as the original sample.
+Subsampling draws samples without replacement, thereby the samples are of a smaller size than the original one.
+Randomization inference keeps the same sample in all repetitions, but changes the allocation of the treatment.
+
+Why would we use resampling methods instead of CLT-based standard errors?
+There are several possible reasons:
+
+  1. Asymptotic refinements: sometimes, resampling methods are more precise in small samples than the CLT-based asymptotic approaches.
+  In that case, we say that resampling methods offer asymptotic refinements.
+  2. Ease of computation: for some estimators, the CLT-based estimates of sampling noise are complex or cumbersome to compute, whereas resampling methods are only computationally intensive.
+  3. Inexistence of CLT-based estimates of sampling noise: some estimators do not have any CLT-based estimates of sampling noise yet.
+  That was the case for the Nearest-Neighbour Matching estimator (NNM) for a long time for example.
+  It still is the case for the Synthetic Control Method estimator.
+  Beware though that the bootstrap is not valid for all estimators.
+  For example, it is possible to show that the bootstrap is invalid for NNM.
+  Subsampling is valid for NNM though (see Abadie and Imbens, 2006).
+
 #### Bootstrap
+
+The basic idea of the bootstrap is to use Monte Carlo replications to draw samples from the original sample with replacement.
+Then, at each replication, we compute the value of our estimator $\hat{E}$ on the new sample.
+Let's call this new value $\hat{E}^*_k$ for bootstrap replication $k$.
+Under certain conditions, the distribution of $\hat{E}^*_k$ approximates the distribution of $\hat{E}$ over sample repetitions very well, and all the more so as the sample size gets large.
+
+What are the conditions under which the bootstrap is going to provide an accurate estimation of the distribution of $\hat{E}$?
+Horowitz (2001) reports on a very nice result by Mammen that makes these conditions clear:
+
+```{theorem,mammen92,name="Mammen (1992)"}
+Let $\left\{X_i:i=1,\dots,N\right\}$ be a random sample from a population.
+For a sequence of functions $g_N$ and sequences of numbers $t_N$ and $\sigma_N$, define $\bar{g}_N=\frac{1}{N}\sum_{i=1}^Ng_N(X_i)$ and $T_N=(\bar{g}_N-t_N)/\sigma_N$. 
+For the bootstrap sample $\left\{X^*_i:i=1,\dots,N\right\}$, define $\bar{g}^*_N=\frac{1}{N}\sum_{i=1}^Ng_N(X^*_i)$ and $T^*_N=(\bar{g}^*_N-\bar{g}_N)/\sigma_N$. 
+Let $G_N(\tau)=\Pr(T_N\leq\tau)$ and $G^*_N(\tau)=\Pr(T^*_N\leq\tau)$, where this last probability distribution is taken over bootstrap sampling replications.
+Then $G^*_N$ consistently estimates $G_N$ if and only if $T_N\stackrel{d}{\rightarrow}\mathcal{N}(0,1)$.
+```
+
+Theorem \@ref(thm:mammen92) states that the bootstrap will offer a consistent estimation of the distribution of a given estimator if and only if this estimator is asymptotically normally distributed. 
+It means that we could theoretically use the CLT-based asymptotic distribution to compute sampling noise.
+So, and it demands to be stronlgy emphasized, \textbf{the bootstrap is not valid when the CLT fails}.
+
+How do we estimate sampling noise with the bootstrap?
+There are several ways to do so, but I am going to emphasize the most widespread here, that is known as the percentile method.
+Let's define $E^*_{\frac{1-\delta}{2}}$ and $E^*_{\frac{1+\delta}{2}}$ as the corresponding quantiles of the bootstrap distribution of $\hat{E}^*_k$ over a large number $K$ of replications.
+The bootstrapped sampling noise using the percentile method is simply the distance between these two quantities.
+
+```{theorem,bootnoiseWW,name="Bootstrapped Estimate of Sampling Noise of WW"}
+Under Assumptions \@ref(def:noselb), \@ref(def:fullrank), \@ref(def:iid) and \@ref(def:finitevar), for a given confidence level $\delta$ and sample size $N$, the sampling noise of $\hat{WW}$ can be approximated as follows:
+
+\begin{align*}
+2\epsilon & \approx E^*_{\frac{1+\delta}{2}}-E^*_{\frac{1-\delta}{2}} \equiv 2\tilde{\epsilon}^b.
+\end{align*}
+```
+
+```{proof}
+The $WW$ estimator can be written as a sum:
+  
+\begin{align*}
+\hat{\Delta^Y_{WW}} & = \frac{1}{N}\sum_{i=1}^N\frac{\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)^2}.
+\end{align*}
+
+Using Lemma \@ref(lem:asymWW), we know that the $WW$ estimator is asymptotically normal under Assumptions \@ref(def:noselb), \@ref(def:fullrank), \@ref(def:iid) and \@ref(def:finitevar).
+Using Theorem \@ref(thm:mammen92) proves the result.
+```
+
+```{remark}
+With the bootstrap, we are not going to define the confidence interval using Theorem \@ref(thm:confinter) but directly using $\left\{E^*_{\frac{1-\delta}{2}};E^*_{\frac{1+\delta}{2}}\right\}$.
+Indeed, we have defined the bootstrapped estimator of sampling noise by using the asymetric confidence interval.
+We could have used the equivalent of Definition \@ref(def:sampnoise) on the bootstrapped samples to compute sampling noise using the symmetric confidence interval.
+Both are feasible and similar in large samples, since the asymptotic distribution is symmetric.
+One advantage of asymetric confidence intervals is that they might capture deviations from the normal distribution in small samples.
+These advantages are part of what we call asymptotic refinements.
+Rigorously, though, asymptotic refinements have not been proved to exist for the percentile method but only for the method bootstrapping asymptotically pivotal quantities.
+```
+
+```{remark}
+We say that a method brings asymptotic refinements if it increases the precision when estimating sampling noise and confidence intervals relative to the asymptotic CLT-based approximation.
+The bootstrap has been shown rigorously to bring asymptotic refinements when used to estimate the distribution of asymptotically pivotal statistic.
+An asymptotically pivotal statistic is a statistic that can be computed from the sample but that, asymptotically, converges to a quantity that does not depend on the sample, like for example a standard normal.
+Using Lemma \@ref(lem:asymWW), we know for example that the following statistic is asymptotically normal:
+```
+\begin{align*}
+  T_N^{WW} & = \frac{\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}}{\sqrt{\frac{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}{N}}} \stackrel{d}{\rightarrow}\mathcal{N}\left(0,1\right).
+\end{align*}
+
+To build a confidence interval bootstrapping $T_N^{WW}$, compute an estimator of $T_N^{WW}$ for each bootstrapped sample, say $\hat{T}_{N,k}^{WW*}$.
+You can for example use the OLS estimator in the bootstrapped sample, with a heteroskedasticity-robust standard error estimator.
+Or you can compute the $WW$ estimator by hand in the sample along with an estimator of its variance using the variance of the outcomes in the treated and control groups.
+You can then estimate the confidence interval as follows: $\left\{\hat{\Delta^Y_{WW}}-\hat{\sigma_{WW}}\hat{T}^{WW*}_{N,\frac{1-\delta}{2}};\hat{\Delta^Y_{WW}}+\hat{\sigma_{WW}}\hat{T}^{WW*}_{N,\frac{1+\delta}{2}}\right\}$, where $\hat{T}^{WW*}_{N,q}$ iq the $q^{\text{th}}$ quantile of the distribution of $\hat{T}_{N,k}^{WW*}$ over sampling replications and $\hat{\sigma_{WW}}$ is an estimate of the variance of $\hat{\Delta^Y_{WW}}$ (either the CLT-based approximation of the bootstrapped one, see below).
+
+```{remark}
+One last possibility to develop an estimator for sampling noise and confidence interval is to use the bootstrap in order to estimate the variance of the estimator $\hat{E}$, $\hat{\sigma^2_{E}}$, and then use it to compute sampling noise.
+If $\hat{E}$ is asymptotically normally distributed, we have that sampling noise is equal to $2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\hat{\sigma_{E}}$.
+You can use the usual formula from Theore \@ref(thm:confinter) to compute the confidence interval.
+The bootstrapped variance of $\hat{E}$, $\hat{\sigma^2_{E}}$, is simply the variance of $\hat{E}^*_k$ over bootstrap replications.
+```
+
+```{example}
+In the numerical example, I am going to derive the bootstrapped confidence intervals and sampling noise for the percentile method.
+Let's first put the dataset from our example in a nice data frame format so that resampling is made easier.
+We then define a function taking a number of bootstrapped replications and spitting out sampling noise and confidence intervals.
+```
+
+```{r bootstrap.ww.test,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE,dependson=c('param','simul.no.selb.1234.bis')}
+data <- as.data.frame(cbind(y,Ds,yB))
+boot.fun.ww.1 <- function(seed,data){
+  set.seed(seed,kind="Wichmann-Hill")
+  data <- data[sample(nrow(data),replace = TRUE),]
+  ols.ww <- lm(y~Ds,data=data)
+  ww <- ols.ww$coef[[2]]
+  return(ww)
+}
+
+boot.fun.ww <- function(Nboot,data){
+  #sfInit(parallel=TRUE,cpus=8)
+  boot <- lapply(1:Nboot,boot.fun.ww.1,data=data)
+  #sfStop()
+  return(unlist(boot))
+}
+
+boot.CI.ww <- function(boot,delta){
+  return(c(quantile(boot,prob=(1-delta)/2),quantile(boot,prob=(1+delta)/2)))
+}
+
+boot.samp.noise.ww <- function(boot,delta){
+  return(quantile(boot,prob=(1+delta)/2)-quantile(boot,prob=(1-delta)/2))
+}
+
+Nboot <- 500
+ww.boot <- boot.fun.ww(Nboot,data)
+ww.CI.boot <- boot.CI.ww(ww.boot,delta)
+ww.samp.noise.boot <- boot.samp.noise.ww(ww.boot,delta)
+```
+
+Over `r Nboot` replications, the `r delta*100`\% bootstrapped confidence interval using the percentile method is $\left\{`r round(ww.CI.boot[[1]],3)`;`r round(ww.CI.boot[[2]],3)`\right\}$.
+As a consequence, the bootstrapped estimate of `r delta*100`\% sampling noise is of `r round(ww.samp.noise.boot,3)`.
+Remember that, with $N=$ `r N`, sampling noise is actually equal to `r round(table.noise[rownames(table.noise)==as.character(N),colnames(table.noise)=='sampling.noise'],2)`.
+
+In order to assess the global precision of bootstrapping, we are going to resort to Monte Carlo simulations.
+For each Monte Carlo sample, we are going to estimate sampling noise and confidence intervals using the bootstrap.
+As you can imagine, this is going to prove rather computationally intensive.
+I cannot use parallelization twice: I have to choose whether to parallelize the Monte Carlo simulations or the bootstrap simulations.
+I have choosen to parallelize the outer loop, so that a given job takes longer on each cluster.
+
+```{r monte.carlo.boot,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE,dependson=c('param','bootstrap.ww.test')}
+monte.carlo.ww.boot <- function(s,N,param,Nboot,delta){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  V <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]+param["sigma2U"]))
+  Ds[V<=log(param["barY"])] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  data <- as.data.frame(cbind(y,Ds,yB))
+  ww.boot <- boot.fun.ww(Nboot,data)
+  ww.CI.boot <- boot.CI.ww(ww.boot,delta)
+  ww.samp.noise.boot <- boot.samp.noise.ww(ww.boot,delta)
+  return(c((1/sum(Ds))*sum(y*Ds)-(1/sum(1-Ds))*sum(y*(1-Ds)),var(y[Ds==1]),var(y[Ds==0]),mean(Ds),ww.CI.boot[[1]],ww.CI.boot[[2]],ww.samp.noise.boot))
+}
+
+sf.simuls.ww.N.boot <- function(N,Nsim,Nboot,delta,param){
+  sfInit(parallel=TRUE,cpus=ncpus)
+  sfExport("boot.fun.ww","boot.CI.ww","boot.samp.noise.ww","boot.fun.ww.1")
+  sim <- as.data.frame(matrix(unlist(sfLapply(1:Nsim,monte.carlo.ww.boot,N=N,Nboot=Nboot,delta=delta,param=param)),nrow=Nsim,ncol=7,byrow=TRUE))
+  sfStop()
+  colnames(sim) <- c('WW','V1','V0','p','boot.lCI','boot.uCI','boot.samp.noise')
+  return(sim)
+}
+
+simuls.ww.boot <- lapply(N.sample,sf.simuls.ww.N.boot,Nsim=Nsim,param=param,Nboot=Nboot,delta=delta)
+```
+
+We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures \@ref(fig:sampnoisewwbootall), \@ref(fig:sampnoisewwbootplot) and \@ref(fig:confintervalboot) show.
+
+```{r sampnoisewwbootall,eval=TRUE,echo=TRUE,fig.cap='Distribution of the bootstrapped approximation of sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:4){
+  hist(simuls.ww.boot[[i]][,'boot.samp.noise'],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(2*bar(epsilon))),xlim=c(min(simuls.ww.boot[[i]][,'boot.samp.noise']),max(simuls.ww.boot[[i]][,'boot.samp.noise'])))
+  abline(v=table.noise[i,colnames(table.noise)=='sampling.noise'],col="red")
+}
+```
+
+```{r samp.noise.ww.boot.plot,eval=TRUE,echo=TRUE,fig.cap='Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+for (k in (1:length(N.sample))){
+  table.noise$boot.noise[k] <- mean(simuls.ww.boot[[k]]$boot.samp.noise)
+}
+ggplot(table.noise, aes(x=as.factor(N), y=TT)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black') +
+  geom_errorbar(aes(ymin=TT-sampling.noise/2, ymax=TT+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+  geom_errorbar(aes(ymin=TT-boot.noise/2, ymax=TT+boot.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+  xlab("Sample Size")+
+  theme_bw()
+```
+
+```{r conf.interval.boot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Bootstrapped confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+N.plot <- 40
+plot.list <- list()
+
+for (k in 1:length(N.sample)){
+ set.seed(1234)
+ test.boot <- simuls.ww.boot[[k]][sample(N.plot),c('WW','boot.lCI','boot.uCI')]
+ test.boot <- as.data.frame(cbind(test.boot,rep(samp.noise(simuls.ww.boot[[k]][,'WW'],delta=delta),N.plot)))
+ colnames(test.boot) <- c('WW','boot.lCI','boot.uCI','sampling.noise')
+ test.boot$id <- 1:N.plot
+ plot.test.boot <- ggplot(test.boot, aes(x=as.factor(id), y=WW)) +
+     geom_bar(position=position_dodge(), stat="identity", colour='black') +
+     geom_errorbar(aes(ymin=WW-sampling.noise/2, ymax=WW+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+     geom_errorbar(aes(ymin=boot.lCI, ymax=boot.uCI), width=.2,position=position_dodge(.9),color='blue') +
+     geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+     xlab("Sample id")+
+     theme_bw()+
+     ggtitle(paste("N=",N.sample[k]))
+ plot.list[[k]] <- plot.test.boot
+}
+plot.CI <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI)
+```
+
 
 #### Randomization inference
 

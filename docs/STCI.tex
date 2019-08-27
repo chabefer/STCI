@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-08-25}
+    \date{2019-08-26}
 
 % shape of the text in the page
 \usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -376,13 +376,13 @@ In order to see how many observations eventually receive the treatment with this
 \centering
 \begin{tabular}{lr}
 \toprule
-0 & 771\\
-1 & 229\\
+0 & 769\\
+1 & 231\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-We can see on Table \ref{tab:tableDsharp} that there are 229 treated observations.
+We can see on Table \ref{tab:tableDsharp} that there are 231 treated observations.
 
 \hypertarget{fuzzy-cutoff-rule}{%
 \subsubsection{Fuzzy cutoff rule}\label{fuzzy-cutoff-rule}}
@@ -632,13 +632,13 @@ It is possible to make the effect of the treatment to depend on \(U_i^B\) also, 
 \EndKnitrBlock{example}
 
 In Figure \ref{fig:ploty1y0yB}, the individual level treatment effects are the differences between each cross and its corresponding circle.
-For example, for observation 264, the two potential outcomes appear in green in Figure \ref{fig:ploty1y0yB}.
-The effect of the treatment on unit 264 is equal to:
+For example, for observation 938, the two potential outcomes appear in green in Figure \ref{fig:ploty1y0yB}.
+The effect of the treatment on unit 938 is equal to:
 \[
-\Delta^y_{264}=y^1_{264}-y^0_{264}=6.98-6.64=0.34.
+\Delta^y_{938}=y^1_{938}-y^0_{938}=6.01-5.95=0.05.
 \]
 
-Since observation 264 belongs to the treatment group, we can only observe the potential outcome in the presence of the treatment, \(y^1_{264}\).
+Since observation 938 belongs to the treatment group, we can only observe the potential outcome in the presence of the treatment, \(y^1_{938}\).
 
 RCM allows for heterogeneity of treatment effects.
 The treatment has a large effect on some units and a much smaller effect on other units.
@@ -721,7 +721,7 @@ In Lecture 7, we will look at other parameters of interest that look more closel
 \EndKnitrBlock{example}
 
 \[
-\Delta^y_{TT_s}=0.168.
+\Delta^y_{TT_s}=0.158.
 \]
 
 Computing the population value of \(TT\) is slightly more involved: we have to use the formula for the conditional expectation of a censored bivariate normal random variable:
@@ -795,7 +795,7 @@ We say that they are counterfactual, contrary to what has happened.
 \EndKnitrBlock{example}
 
 \[
-\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^Ny_i^0D_i= 6.91.
+\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^Ny_i^0D_i= 6.93.
 \]
 Remember that we can estimate this quantity only because we have generated the data ourselves.
 In real life, this quantity is hopelessly unobserved.
@@ -964,12 +964,12 @@ I use \texttt{set.seed(1234)} in the code chunk below.
 
 In this sample, the average outcome of the treated in the presence of the treatment is
 \[
-\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i= 7.074.
+\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy_i= 7.084.
 \]
 It is materialized by a circle on Figure \ref{fig:ploty0y1yBD}.
 The average outcome of the untreated is
 \[
-\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i= 8.383.
+\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i= 8.378.
 \]
 It is materialized by a plus sign on Figure \ref{fig:ploty0y1yBD}.
 
@@ -988,8 +988,8 @@ The estimate of the \(WW\) comparison in the sample is thus:
 \hat{\Delta^Y_{WW}} & = \frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i).
 \end{align*}
 
-We have \(\hat{\Delta^y_{WW}}=\) -1.308.
-Remember that the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.168.
+We have \(\hat{\Delta^y_{WW}}=\) -1.295.
+Remember that the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.158.
 
 Overall, \(WW\) severely underestimates the effect of the treatment in our example.
 \(WW\) suggests that the treatment has a negative effect on outcomes whereas we know by construction that it has a positive one.
@@ -1053,11 +1053,11 @@ We could have computed \(SB\) directly using the formula from Theorem \ref{thm:S
 
 When using the R function for \(SB\) that we have defined earlier, we indeed find: \(\Delta^y_{SB}=\) -1.471.
 
-In the sample, \(\hat{\Delta^y_{SB}}=\)-1.308-0.168 \(=\) -1.476.
+In the sample, \(\hat{\Delta^y_{SB}}=\)-1.295-0.158 \(=\) -1.452.
 Selection bias emerges because we are using a bad proxy for the counterfactual.
-The average outcome for the untreated is equal to \(\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i=\) 8.383 while the counterfactual average outcome for the treated is \(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy^0_i=\) 6.906.
+The average outcome for the untreated is equal to \(\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)y_i=\) 8.378 while the counterfactual average outcome for the treated is \(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iy^0_i=\) 6.926.
 Their difference is as expected equal to \(SB\):
-\(\hat{\Delta^y_{SB}}=\) 6.906 \(-\) 8.383 \(=\) -1.476.
+\(\hat{\Delta^y_{SB}}=\) 6.926 \(-\) 8.378 \(=\) -1.452.
 The counterfactual average outcome of the treated is much smaller than the average outcome of the untreated.
 On Figure \ref{fig:ploty0y1yBD}, this is materialized by the fact that the plus sign is located much above the triangle.
 
@@ -1270,8 +1270,8 @@ Let's see how these quantities behave in the sample.
 \end{Highlighting}
 \end{Shaded}
 
-We can see that \(\hat{\esp{Y_i^0|D_i=1}}=\) 8.038 \(\approx\) 8.055 \(=\hat{\esp{Y_i^0|D_i=0}}\).
-This means that \(WW\) should be close to \(TT\): \(\hat{\Delta^y_{TT}}=\) 0.198 \(\approx\) 0.182 \(=\hat{\Delta^y_{WW}}\).
+We can see that \(\hat{\esp{Y_i^0|D_i=1}}=\) 8.086 \(\approx\) 8.038 \(=\hat{\esp{Y_i^0|D_i=0}}\).
+This means that \(WW\) should be close to \(TT\): \(\hat{\Delta^y_{TT}}=\) 0.16 \(\approx\) 0.208 \(=\hat{\Delta^y_{WW}}\).
 Note that \(\hat{WW}\) in the sample is not exactly, but only approximately, equal to \(TT\) in the population and in the sample.
 This is an instance of the Fundamental Problem of Statistical Inference that we will study in the next chapter.
 
@@ -1286,7 +1286,7 @@ Under these restrictions, the placebo test would unfortunately conclude against 
                   & = \esp{y_i^B|D_i=0}.                  
 \end{align*}
 
-In the sample, we indeed have that \(\hat{\esp{Y_i^B|D_i=1}}=\) 7.004 \(\neq\) 8.072 \(=\hat{\esp{Y_i^B|D_i=0}}\).
+In the sample, we indeed have that \(\hat{\esp{Y_i^B|D_i=1}}=\) 7.05 \(\neq\) 8.091 \(=\hat{\esp{Y_i^B|D_i=0}}\).
 The reason for the failure of the placebo test to conclude that \(Ww\) is actually correct is that the \(U_i^B\) shock enters both into the selection equation and the outcome equation for \(y_i^B\), generating a wage at period \(B\) between the outcomes of the treated and of the untreated.
 Since it is not persistent, this wedge does not generate selection bias.
 This wedge would not be detected if we could perform it further back in time, before the selection period.
@@ -1349,9 +1349,9 @@ Let's see how these quantities behave in the sample:
 \end{Highlighting}
 \end{Shaded}
 
-In the sample, the counterfactual is well approximated by the outcomes of the untreated: \(\hat{\esp{Y_i^0|D_i=1}}=\) 8.085 \(\approx\) 8.054 \(=\hat{\esp{Y_i^0|D_i=0}}\).
-As a consequence, \(WW\) should be close to \(TT\): \(\hat{\Delta^y_{TT}}=\) 0.168 \(\approx\) 0.199 \(=\hat{\Delta^y_{WW}}\).
-The placebo test is also valid in that case: \(\hat{\esp{Y_i^B|D_i=1}}=\) 7.95 \(\approx\) 7.99 \(=\hat{\esp{Y_i^B|D_i=0}}\).
+In the sample, the counterfactual is well approximated by the outcomes of the untreated: \(\hat{\esp{Y_i^0|D_i=1}}=\) 8.038 \(\approx\) 8.055 \(=\hat{\esp{Y_i^0|D_i=0}}\).
+As a consequence, \(WW\) should be close to \(TT\): \(\hat{\Delta^y_{TT}}=\) 0.183 \(\approx\) 0.167 \(=\hat{\Delta^y_{WW}}\).
+The placebo test is also valid in that case: \(\hat{\esp{Y_i^B|D_i=1}}=\) 7.922 \(\approx\) 8.016 \(=\hat{\esp{Y_i^B|D_i=0}}\).
 
 \hypertarget{the-beforeafter-comparison-temporal-confounders-and-time-trend-bias}{%
 \subsection{The before/after comparison, temporal confounders and time trend bias}\label{the-beforeafter-comparison-temporal-confounders-and-time-trend-bias}}
@@ -1435,8 +1435,8 @@ In order to compute \(BA\) in the population, we can again use a R function, com
 
 The value of \(BA\) in the population is thus \(\Delta^y_{BA}=\) 0.265.
 Remember that the true value of \(TT\) in the population is 0.172.
-In the sample, the value of \(BA\) is \(\hat{\Delta^y_{BA}}=\) 0.267.
-Remember that the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.168.
+In the sample, the value of \(BA\) is \(\hat{\Delta^y_{BA}}=\) 0.262.
+Remember that the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.158.
 
 \hypertarget{time-trend-bias}{%
 \subsubsection{Time trend bias}\label{time-trend-bias}}
@@ -1489,12 +1489,12 @@ We could have computed this result using Theorem\ref{thm:TB}:
 
 Using the R function that we have defined previously, this approach gives \(\Delta^y_{TB}=\) 0.093.
 
-In the sample \(\hat{\Delta^y_{BA}}=\) 0.267 while \(\hat{\Delta^y_{TT}}=\) 0.168, so that \(\hat{\Delta^y_{TB}}=\) 0.099.
+In the sample \(\hat{\Delta^y_{BA}}=\) 0.262 while \(\hat{\Delta^y_{TT}}=\) 0.158, so that \(\hat{\Delta^y_{TB}}=\) 0.104.
 Time trend bias emerges because we are using a bad proxy for the counterfactual average outcomes of the treated.
-The average outcome of the treated before the treatment takes place is \(\hat{\esp{y_i^B|D_i=1}}=\) 6.807 while the true counterfactual average outcome for the treated after the treatment is \(\hat{\esp{y_i^0|D_i=1}}=\) 6.906.
+The average outcome of the treated before the treatment takes place is \(\hat{\esp{y_i^B|D_i=1}}=\) 6.822 while the true counterfactual average outcome for the treated after the treatment is \(\hat{\esp{y_i^0|D_i=1}}=\) 6.926.
 Outcomes would have increased in the treatment group even in the absence of the treatment.
 As a consequence, the \(BA\) comparison overestimates the true effect of the treatment.
-\(TB\) estimated using Theorem \ref{thm:TB} is equal to: \(\hat{\Delta^y_{TB}}=\) 6.906 \(-\) 6.807 \(=\) 0.099.
+\(TB\) estimated using Theorem \ref{thm:TB} is equal to: \(\hat{\Delta^y_{TB}}=\) 6.926 \(-\) 6.822 \(=\) 0.104.
 This can be seen on Figure \ref{fig:ploty0y1yBD}: the triangle in period 2 is higher than in period 1.
 
 \hypertarget{temporal-confounders}{%
@@ -1611,11 +1611,11 @@ Let's see how these quantities behave in the sample:
 \end{Highlighting}
 \end{Shaded}
 
-In the sample, the value of \(BA\) is \(\hat{\Delta^y_{BA}}=\) 0.173 while the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.168.
+In the sample, the value of \(BA\) is \(\hat{\Delta^y_{BA}}=\) 0.164 while the value of \(TT\) in the sample is \(\Delta^y_{TT_s}=\) 0.158.
 We cannot perform a placebo test using two periods of pre-treatment outcomes for the treated since we have generated only one period of pre-treatment outcome.
 We will be able to perform this test later in the DID lecture.
 We can perfom the placebo test that applies the \(BA\) estimator to the untreated.
-The value of \(BA\) for the untreated is \(\hat{\Delta^y_{BA|D=0}}=\) 0.007, which is reasonably close to zero.
+The value of \(BA\) for the untreated is \(\hat{\Delta^y_{BA|D=0}}=\) 0.002, which is reasonably close to zero.
 
 \hypertarget{FPSI}{%
 \chapter{Fundamental Problem of Statistical Inference}\label{FPSI}}
@@ -2559,7 +2559,6 @@ Section \ref{sec:assumptions} introduces the assumptions that we will need in or
 Section \ref{sec:cheb} presents the Chebyshev approach to gauging sampling noise and choosing sample size.
 Section \ref{sec:CLT} introduces the CLT way of approximating sampling noise and choosing sample size.
 Section \ref{sec:resamp} presents the resampling methods.
-Section \ref{sec:Fisher} introduces the Fisher's exact permutation approach.
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}I am going to derive the estimators for the precision only for the \(WW\) estimator.
@@ -3065,8 +3064,286 @@ The default OLS standard error estimate yields an estimate for sampling noise of
 \hypertarget{sec:resamp}{%
 \subsection{Using resampling methods}\label{sec:resamp}}
 
-\hypertarget{sec:Fisher}{%
-\subsection{Using randomization inference}\label{sec:Fisher}}
+The main intuition behind resampling methods is to use the sample as a population, to draw samples from it and compute our estimator on each of these samples in order to gauge its variability over sampling repetitions.
+There are three main methods of resampling that work that way: bootstrapping, radomization inference and subsampling.
+Bootstrapping draws samples with replacement, so that each sample has the same size as the original sample.
+Subsampling draws samples without replacement, thereby the samples are of a smaller size than the original one.
+Randomization inference keeps the same sample in all repetitions, but changes the allocation of the treatment.
+
+Why would we use resampling methods instead of CLT-based standard errors?
+There are several possible reasons:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Asymptotic refinements: sometimes, resampling methods are more precise in small samples than the CLT-based asymptotic approaches.
+  In that case, we say that resampling methods offer asymptotic refinements.
+\item
+  Ease of computation: for some estimators, the CLT-based estimates of sampling noise are complex or cumbersome to compute, whereas resampling methods are only computationally intensive.
+\item
+  Inexistence of CLT-based estimates of sampling noise: some estimators do not have any CLT-based estimates of sampling noise yet.
+  That was the case for the Nearest-Neighbour Matching estimator (NNM) for a long time for example.
+  It still is the case for the Synthetic Control Method estimator.
+  Beware though that the bootstrap is not valid for all estimators.
+  For example, it is possible to show that the bootstrap is invalid for NNM.
+  Subsampling is valid for NNM though (see Abadie and Imbens, 2006).
+\end{enumerate}
+
+\hypertarget{bootstrap}{%
+\subsubsection{Bootstrap}\label{bootstrap}}
+
+The basic idea of the bootstrap is to use Monte Carlo replications to draw samples from the original sample with replacement.
+Then, at each replication, we compute the value of our estimator \(\hat{E}\) on the new sample.
+Let's call this new value \(\hat{E}^*_k\) for bootstrap replication \(k\).
+Under certain conditions, the distribution of \(\hat{E}^*_k\) approximates the distribution of \(\hat{E}\) over sample repetitions very well, and all the more so as the sample size gets large.
+
+What are the conditions under which the bootstrap is going to provide an accurate estimation of the distribution of \(\hat{E}\)?
+Horowitz (2001) reports on a very nice result by Mammen that makes these conditions clear:
+
+\BeginKnitrBlock{theorem}[Mammen (1992)]
+\protect\hypertarget{thm:mammen92}{}{\label{thm:mammen92} \iffalse (Mammen (1992)) \fi{} }Let \(\left\{X_i:i=1,\dots,N\right\}\) be a random sample from a population.
+For a sequence of functions \(g_N\) and sequences of numbers \(t_N\) and \(\sigma_N\), define \(\bar{g}_N=\frac{1}{N}\sum_{i=1}^Ng_N(X_i)\) and \(T_N=(\bar{g}_N-t_N)/\sigma_N\).
+For the bootstrap sample \(\left\{X^*_i:i=1,\dots,N\right\}\), define \(\bar{g}^*_N=\frac{1}{N}\sum_{i=1}^Ng_N(X^*_i)\) and \(T^*_N=(\bar{g}^*_N-\bar{g}_N)/\sigma_N\).
+Let \(G_N(\tau)=\Pr(T_N\leq\tau)\) and \(G^*_N(\tau)=\Pr(T^*_N\leq\tau)\), where this last probability distribution is taken over bootstrap sampling replications.
+Then \(G^*_N\) consistently estimates \(G_N\) if and only if \(T_N\stackrel{d}{\rightarrow}\mathcal{N}(0,1)\).
+\EndKnitrBlock{theorem}
+
+Theorem \ref{thm:mammen92} states that the bootstrap will offer a consistent estimation of the distribution of a given estimator if and only if this estimator is asymptotically normally distributed.
+It means that we could theoretically use the CLT-based asymptotic distribution to compute sampling noise.
+So, and it demands to be stronlgy emphasized, \textbf{the bootstrap is not valid when the CLT fails}.
+
+How do we estimate sampling noise with the bootstrap?
+There are several ways to do so, but I am going to emphasize the most widespread here, that is known as the percentile method.
+Let's define \(E^*_{\frac{1-\delta}{2}}\) and \(E^*_{\frac{1+\delta}{2}}\) as the corresponding quantiles of the bootstrap distribution of \(\hat{E}^*_k\) over a large number \(K\) of replications.
+The bootstrapped sampling noise using the percentile method is simply the distance between these two quantities.
+
+\BeginKnitrBlock{theorem}[Bootstrapped Estimate of Sampling Noise of WW]
+\protect\hypertarget{thm:bootnoiseWW}{}{\label{thm:bootnoiseWW} \iffalse (Bootstrapped Estimate of Sampling Noise of WW) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{def:iid} and \ref{def:finitevar}, for a given confidence level \(\delta\) and sample size \(N\), the sampling noise of \(\hat{WW}\) can be approximated as follows:
+
+\begin{align*}
+2\epsilon & \approx E^*_{\frac{1+\delta}{2}}-E^*_{\frac{1-\delta}{2}} \equiv 2\tilde{\epsilon}^b.
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}The \(WW\) estimator can be written as a sum:
+
+\begin{align*}
+\hat{\Delta^Y_{WW}} & = \frac{1}{N}\sum_{i=1}^N\frac{\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)^2}.
+\end{align*}
+
+Using Lemma \ref{lem:asymWW}, we know that the \(WW\) estimator is asymptotically normal under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{def:iid} and \ref{def:finitevar}.
+Using Theorem \ref{thm:mammen92} proves the result.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}With the bootstrap, we are not going to define the confidence interval using Theorem \ref{thm:confinter} but directly using \(\left\{E^*_{\frac{1-\delta}{2}};E^*_{\frac{1+\delta}{2}}\right\}\).
+Indeed, we have defined the bootstrapped estimator of sampling noise by using the asymetric confidence interval.
+We could have used the equivalent of Definition \ref{def:sampnoise} on the bootstrapped samples to compute sampling noise using the symmetric confidence interval.
+Both are feasible and similar in large samples, since the asymptotic distribution is symmetric.
+One advantage of asymetric confidence intervals is that they might capture deviations from the normal distribution in small samples.
+These advantages are part of what we call asymptotic refinements.
+Rigorously, though, asymptotic refinements have not been proved to exist for the percentile method but only for the method bootstrapping asymptotically pivotal quantities.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}We say that a method brings asymptotic refinements if it increases the precision when estimating sampling noise and confidence intervals relative to the asymptotic CLT-based approximation.
+The bootstrap has been shown rigorously to bring asymptotic refinements when used to estimate the distribution of asymptotically pivotal statistic.
+An asymptotically pivotal statistic is a statistic that can be computed from the sample but that, asymptotically, converges to a quantity that does not depend on the sample, like for example a standard normal.
+Using Lemma \ref{lem:asymWW}, we know for example that the following statistic is asymptotically normal:
+\EndKnitrBlock{remark}
+
+\begin{align*}
+  T_N^{WW} & = \frac{\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}}{\sqrt{\frac{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}{N}}} \stackrel{d}{\rightarrow}\mathcal{N}\left(0,1\right).
+\end{align*}
+
+To build a confidence interval bootstrapping \(T_N^{WW}\), compute an estimator of \(T_N^{WW}\) for each bootstrapped sample, say \(\hat{T}_{N,k}^{WW*}\).
+You can for example use the OLS estimator in the bootstrapped sample, with a heteroskedasticity-robust standard error estimator.
+Or you can compute the \(WW\) estimator by hand in the sample along with an estimator of its variance using the variance of the outcomes in the treated and control groups.
+You can then estimate the confidence interval as follows: \(\left\{\hat{\Delta^Y_{WW}}-\hat{\sigma_{WW}}\hat{T}^{WW*}_{N,\frac{1-\delta}{2}};\hat{\Delta^Y_{WW}}+\hat{\sigma_{WW}}\hat{T}^{WW*}_{N,\frac{1+\delta}{2}}\right\}\), where \(\hat{T}^{WW*}_{N,q}\) iq the \(q^{\text{th}}\) quantile of the distribution of \(\hat{T}_{N,k}^{WW*}\) over sampling replications and \(\hat{\sigma_{WW}}\) is an estimate of the variance of \(\hat{\Delta^Y_{WW}}\) (either the CLT-based approximation of the bootstrapped one, see below).
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}One last possibility to develop an estimator for sampling noise and confidence interval is to use the bootstrap in order to estimate the variance of the estimator \(\hat{E}\), \(\hat{\sigma^2_{E}}\), and then use it to compute sampling noise.
+If \(\hat{E}\) is asymptotically normally distributed, we have that sampling noise is equal to \(2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\hat{\sigma_{E}}\).
+You can use the usual formula from Theore \ref{thm:confinter} to compute the confidence interval.
+The bootstrapped variance of \(\hat{E}\), \(\hat{\sigma^2_{E}}\), is simply the variance of \(\hat{E}^*_k\) over bootstrap replications.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-59}{}{\label{exm:unnamed-chunk-59} }In the numerical example, I am going to derive the bootstrapped confidence intervals and sampling noise for the percentile method.
+Let's first put the dataset from our example in a nice data frame format so that resampling is made easier.
+We then define a function taking a number of bootstrapped replications and spitting out sampling noise and confidence intervals.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(y,Ds,yB))}
+\NormalTok{boot.fun.ww}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(seed,data)\{}
+  \KeywordTok{set.seed}\NormalTok{(seed,}\DataTypeTok{kind=}\StringTok{"Wichmann-Hill"}\NormalTok{)}
+\NormalTok{  data <-}\StringTok{ }\NormalTok{data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(data),}\DataTypeTok{replace =} \OtherTok{TRUE}\NormalTok{),]}
+\NormalTok{  ols.ww <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{Ds,}\DataTypeTok{data=}\NormalTok{data)}
+\NormalTok{  ww <-}\StringTok{ }\NormalTok{ols.ww}\OperatorTok{$}\NormalTok{coef[[}\DecValTok{2}\NormalTok{]]}
+  \KeywordTok{return}\NormalTok{(ww)}
+\NormalTok{\}}
+
+\NormalTok{boot.fun.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(Nboot,data)\{}
+  \CommentTok{#sfInit(parallel=TRUE,cpus=8)}
+\NormalTok{  boot <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nboot,boot.fun.ww}\FloatTok{.1}\NormalTok{,}\DataTypeTok{data=}\NormalTok{data)}
+  \CommentTok{#sfStop()}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(boot))}
+\NormalTok{\}}
+
+\NormalTok{boot.CI.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(boot,delta)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\KeywordTok{quantile}\NormalTok{(boot,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{),}\KeywordTok{quantile}\NormalTok{(boot,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{)))}
+\NormalTok{\}}
+
+\NormalTok{boot.samp.noise.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(boot,delta)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{quantile}\NormalTok{(boot,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{-}\KeywordTok{quantile}\NormalTok{(boot,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}
+\NormalTok{\}}
+
+\NormalTok{Nboot <-}\StringTok{ }\DecValTok{500}
+\NormalTok{ww.boot <-}\StringTok{ }\KeywordTok{boot.fun.ww}\NormalTok{(Nboot,data)}
+\NormalTok{ww.CI.boot <-}\StringTok{ }\KeywordTok{boot.CI.ww}\NormalTok{(ww.boot,delta)}
+\NormalTok{ww.samp.noise.boot <-}\StringTok{ }\KeywordTok{boot.samp.noise.ww}\NormalTok{(ww.boot,delta)}
+\end{Highlighting}
+\end{Shaded}
+
+Over 500 replications, the 99\% bootstrapped confidence interval using the percentile method is \(\left\{-0.023;0.316\right\}\).
+As a consequence, the bootstrapped estimate of 99\% sampling noise is of 0.339.
+Remember that, with \(N=\) 1000, sampling noise is actually equal to 0.39.
+
+In order to assess the global precision of bootstrapping, we are going to resort to Monte Carlo simulations.
+For each Monte Carlo sample, we are going to estimate sampling noise and confidence intervals using the bootstrap.
+As you can imagine, this is going to prove rather computationally intensive.
+I cannot use parallelization twice: I have to choose whether to parallelize the Monte Carlo simulations or the bootstrap simulations.
+I have choosen to parallelize the outer loop, so that a given job takes longer on each cluster.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monte.carlo.ww.boot <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(s,N,param,Nboot,delta)\{}
+  \KeywordTok{set.seed}\NormalTok{(s)}
+\NormalTok{  mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{  UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{  YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{  Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{  V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  Ds[V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{  epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{  eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{  U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{  y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{  alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{  y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{  Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{  Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{  Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{  data <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(y,Ds,yB))}
+\NormalTok{  ww.boot <-}\StringTok{ }\KeywordTok{boot.fun.ww}\NormalTok{(Nboot,data)}
+\NormalTok{  ww.CI.boot <-}\StringTok{ }\KeywordTok{boot.CI.ww}\NormalTok{(ww.boot,delta)}
+\NormalTok{  ww.samp.noise.boot <-}\StringTok{ }\KeywordTok{boot.samp.noise.ww}\NormalTok{(ww.boot,delta)}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{((}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(Ds))}\OperatorTok{*}\KeywordTok{sum}\NormalTok{(y}\OperatorTok{*}\NormalTok{Ds)}\OperatorTok{-}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds))}\OperatorTok{*}\KeywordTok{sum}\NormalTok{(y}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)),}\KeywordTok{var}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\KeywordTok{var}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{0}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(Ds),ww.CI.boot[[}\DecValTok{1}\NormalTok{]],ww.CI.boot[[}\DecValTok{2}\NormalTok{]],ww.samp.noise.boot))}
+\NormalTok{\}}
+
+\NormalTok{sf.simuls.ww.N.boot <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,Nboot,delta,param)\{}
+  \KeywordTok{sfInit}\NormalTok{(}\DataTypeTok{parallel=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{cpus=}\NormalTok{ncpus)}
+  \KeywordTok{sfExport}\NormalTok{(}\StringTok{"boot.fun.ww"}\NormalTok{,}\StringTok{"boot.CI.ww"}\NormalTok{,}\StringTok{"boot.samp.noise.ww"}\NormalTok{,}\StringTok{"boot.fun.ww.1"}\NormalTok{)}
+\NormalTok{  sim <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{sfLapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.ww.boot,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{Nboot=}\NormalTok{Nboot,}\DataTypeTok{delta=}\NormalTok{delta,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{7}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{))}
+  \KeywordTok{sfStop}\NormalTok{()}
+  \KeywordTok{colnames}\NormalTok{(sim) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'V1'}\NormalTok{,}\StringTok{'V0'}\NormalTok{,}\StringTok{'p'}\NormalTok{,}\StringTok{'boot.lCI'}\NormalTok{,}\StringTok{'boot.uCI'}\NormalTok{,}\StringTok{'boot.samp.noise'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(sim)}
+\NormalTok{\}}
+
+\NormalTok{simuls.ww.boot <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(N.sample,sf.simuls.ww.N.boot,}\DataTypeTok{Nsim=}\NormalTok{Nsim,}\DataTypeTok{param=}\NormalTok{param,}\DataTypeTok{Nboot=}\NormalTok{Nboot,}\DataTypeTok{delta=}\NormalTok{delta)}
+\end{Highlighting}
+\end{Shaded}
+
+We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures \ref{fig:sampnoisewwbootall}, \ref{fig:sampnoisewwbootplot} and \ref{fig:confintervalboot} show.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{4}\NormalTok{)\{}
+  \KeywordTok{hist}\NormalTok{(simuls.ww.boot[[i]][,}\StringTok{'boot.samp.noise'}\NormalTok{],}\DataTypeTok{main=}\KeywordTok{paste}\NormalTok{(}\StringTok{'N='}\NormalTok{,}\KeywordTok{as.character}\NormalTok{(N.sample[i])),}\DataTypeTok{xlab=}\KeywordTok{expression}\NormalTok{(}\KeywordTok{hat}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\KeywordTok{bar}\NormalTok{(epsilon))),}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\KeywordTok{min}\NormalTok{(simuls.ww.boot[[i]][,}\StringTok{'boot.samp.noise'}\NormalTok{]),}\KeywordTok{max}\NormalTok{(simuls.ww.boot[[i]][,}\StringTok{'boot.samp.noise'}\NormalTok{])))}
+  \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\NormalTok{table.noise[i,}\KeywordTok{colnames}\NormalTok{(table.noise)}\OperatorTok{==}\StringTok{'sampling.noise'}\NormalTok{],}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/sampnoisewwbootall-1} 
+
+}
+
+\caption{Distribution of the bootstrapped approximation of sampling noise over replications of samples of different sizes (true sampling noise in red)}\label{fig:sampnoisewwbootall}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in}\NormalTok{ (}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(N.sample)))\{}
+\NormalTok{  table.noise}\OperatorTok{$}\NormalTok{boot.noise[k] <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(simuls.ww.boot[[k]]}\OperatorTok{$}\NormalTok{boot.samp.noise)}
+\NormalTok{\}}
+\KeywordTok{ggplot}\NormalTok{(table.noise, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(N), }\DataTypeTok{y=}\NormalTok{TT)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{TT}\OperatorTok{-}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{TT}\OperatorTok{+}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'red'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{TT}\OperatorTok{-}\NormalTok{boot.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{TT}\OperatorTok{+}\NormalTok{boot.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Sample Size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/samp.noise.ww.boot.plot-1} 
+
+}
+
+\caption{Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)}(\#fig:samp.noise.ww.boot.plot)
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{N.plot <-}\StringTok{ }\DecValTok{40}
+\NormalTok{plot.list <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(N.sample))\{}
+ \KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{ test.boot <-}\StringTok{ }\NormalTok{simuls.ww.boot[[k]][}\KeywordTok{sample}\NormalTok{(N.plot),}\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'boot.lCI'}\NormalTok{,}\StringTok{'boot.uCI'}\NormalTok{)]}
+\NormalTok{ test.boot <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(test.boot,}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise}\NormalTok{(simuls.ww.boot[[k]][,}\StringTok{'WW'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta),N.plot)))}
+ \KeywordTok{colnames}\NormalTok{(test.boot) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'boot.lCI'}\NormalTok{,}\StringTok{'boot.uCI'}\NormalTok{,}\StringTok{'sampling.noise'}\NormalTok{)}
+\NormalTok{ test.boot}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\NormalTok{N.plot}
+\NormalTok{ plot.test.boot <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(test.boot, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{WW)) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{WW}\OperatorTok{-}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{WW}\OperatorTok{+}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'red'}\NormalTok{) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{boot.lCI, }\DataTypeTok{ymax=}\NormalTok{boot.uCI), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{delta.y.ate}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{     }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Sample id"}\NormalTok{)}\OperatorTok{+}
+\StringTok{     }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{     }\KeywordTok{ggtitle}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"N="}\NormalTok{,N.sample[k]))}
+\NormalTok{ plot.list[[k]] <-}\StringTok{ }\NormalTok{plot.test.boot}
+\NormalTok{\}}
+\NormalTok{plot.CI <-}\StringTok{ }\KeywordTok{plot_grid}\NormalTok{(plot.list[[}\DecValTok{1}\NormalTok{]],plot.list[[}\DecValTok{2}\NormalTok{]],plot.list[[}\DecValTok{3}\NormalTok{]],plot.list[[}\DecValTok{4}\NormalTok{]],}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{,}\DataTypeTok{nrow=}\KeywordTok{length}\NormalTok{(N.sample))}
+\KeywordTok{print}\NormalTok{(plot.CI)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/conf.interval.boot-1} 
+
+}
+
+\caption{Bootstrapped confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)}(\#fig:conf.interval.boot)
+\end{figure}
+
+\hypertarget{randomization-inference}{%
+\subsubsection{Randomization inference}\label{randomization-inference}}
+
+\hypertarget{subsampling}{%
+\subsubsection{Subsampling}\label{subsampling}}
 
 \hypertarget{part-methods-of-causal-inference}{%
 \part{Methods of Causal Inference}\label{part-methods-of-causal-inference}}
