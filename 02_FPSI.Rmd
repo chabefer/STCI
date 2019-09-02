@@ -1373,7 +1373,7 @@ monte.carlo.ww.boot <- function(s,N,param,Nboot,delta){
 }
 
 sf.simuls.ww.N.boot <- function(N,Nsim,Nboot,delta,param){
-  sfInit(parallel=TRUE,cpus=ncpus)
+  sfInit(parallel=TRUE,cpus=2*ncpus)
   sfExport("boot.fun.ww","boot.CI.ww","boot.samp.noise.ww","boot.fun.ww.1")
   sim <- as.data.frame(matrix(unlist(sfLapply(1:Nsim,monte.carlo.ww.boot,N=N,Nboot=Nboot,delta=delta,param=param)),nrow=Nsim,ncol=7,byrow=TRUE))
   sfStop()
@@ -1394,7 +1394,7 @@ for (i in 1:4){
 }
 ```
 
-```{r samp.noise.ww.boot.plot,eval=TRUE,echo=TRUE,fig.cap='Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+```{r sampnoisewwbootplot,eval=TRUE,echo=TRUE,fig.cap='Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
 for (k in (1:length(N.sample))){
   table.noise$boot.noise[k] <- mean(simuls.ww.boot[[k]]$boot.samp.noise)
 }
@@ -1406,7 +1406,7 @@ ggplot(table.noise, aes(x=as.factor(N), y=TT)) +
   theme_bw()
 ```
 
-```{r conf.interval.boot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Bootstrapped confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+```{r confintervalboot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Bootstrapped confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
 N.plot <- 40
 plot.list <- list()
 

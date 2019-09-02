@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2019-08-25" />
+<meta name="date" content="2019-08-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1584,7 +1584,7 @@ I have choosen to parallelize the outer loop, so that a given job takes longer o
 <a class="sourceLine" id="cb64-25" data-line-number="25">}</a>
 <a class="sourceLine" id="cb64-26" data-line-number="26"></a>
 <a class="sourceLine" id="cb64-27" data-line-number="27">sf.simuls.ww.N.boot &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,Nboot,delta,param){</a>
-<a class="sourceLine" id="cb64-28" data-line-number="28">  <span class="kw">sfInit</span>(<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">cpus=</span><span class="dv">8</span>)</a>
+<a class="sourceLine" id="cb64-28" data-line-number="28">  <span class="kw">sfInit</span>(<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">cpus=</span><span class="dv">2</span><span class="op">*</span>ncpus)</a>
 <a class="sourceLine" id="cb64-29" data-line-number="29">  <span class="kw">sfExport</span>(<span class="st">&quot;boot.fun.ww&quot;</span>,<span class="st">&quot;boot.CI.ww&quot;</span>,<span class="st">&quot;boot.samp.noise.ww&quot;</span>,<span class="st">&quot;boot.fun.ww.1&quot;</span>)</a>
 <a class="sourceLine" id="cb64-30" data-line-number="30">  sim &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(<span class="kw">sfLapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.ww.boot,<span class="dt">N=</span>N,<span class="dt">Nboot=</span>Nboot,<span class="dt">delta=</span>delta,<span class="dt">param=</span>param)),<span class="dt">nrow=</span>Nsim,<span class="dt">ncol=</span><span class="dv">7</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>))</a>
 <a class="sourceLine" id="cb64-31" data-line-number="31">  <span class="kw">sfStop</span>()</a>
@@ -1593,7 +1593,7 @@ I have choosen to parallelize the outer loop, so that a given job takes longer o
 <a class="sourceLine" id="cb64-34" data-line-number="34">}</a>
 <a class="sourceLine" id="cb64-35" data-line-number="35"></a>
 <a class="sourceLine" id="cb64-36" data-line-number="36">simuls.ww.boot &lt;-<span class="st"> </span><span class="kw">lapply</span>(N.sample,sf.simuls.ww.N.boot,<span class="dt">Nsim=</span>Nsim,<span class="dt">param=</span>param,<span class="dt">Nboot=</span>Nboot,<span class="dt">delta=</span>delta)</a></code></pre></div>
-<p>We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures <a href="FPSI.html#fig:sampnoisewwbootall">2.13</a>, <a href="#fig:sampnoisewwbootplot"><strong>??</strong></a> and <a href="#fig:confintervalboot"><strong>??</strong></a> show.</p>
+<p>We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures <a href="FPSI.html#fig:sampnoisewwbootall">2.13</a>, <a href="FPSI.html#fig:sampnoisewwbootplot">2.14</a> and <a href="FPSI.html#fig:confintervalboot">2.15</a> show.</p>
 <div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" data-line-number="1"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</a>
 <a class="sourceLine" id="cb65-2" data-line-number="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>){</a>
 <a class="sourceLine" id="cb65-3" data-line-number="3">  <span class="kw">hist</span>(simuls.ww.boot[[i]][,<span class="st">&#39;boot.samp.noise&#39;</span>],<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">bar</span>(epsilon))),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="kw">min</span>(simuls.ww.boot[[i]][,<span class="st">&#39;boot.samp.noise&#39;</span>]),<span class="kw">max</span>(simuls.ww.boot[[i]][,<span class="st">&#39;boot.samp.noise&#39;</span>])))</a>
@@ -1614,10 +1614,10 @@ Figure 2.13: Distribution of the bootstrapped approximation of sampling noise ov
 <a class="sourceLine" id="cb66-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>boot.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>boot.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span></a>
 <a class="sourceLine" id="cb66-8" data-line-number="8"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sample Size&quot;</span>)<span class="op">+</span></a>
 <a class="sourceLine" id="cb66-9" data-line-number="9"><span class="st">  </span><span class="kw">theme_bw</span>()</a></code></pre></div>
-<div class="figure" style="text-align: center">
-<img src="STCI_files/figure-html/samp.noise.ww.boot.plot-1.png" alt="Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwbootplot"></span>
+<img src="STCI_files/figure-html/sampnoisewwbootplot-1.png" alt="Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)" width="60%" />
 <p class="caption">
-(#fig:samp.noise.ww.boot.plot)Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)
+Figure 2.14: Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)
 </p>
 </div>
 <div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb67-1" data-line-number="1">N.plot &lt;-<span class="st"> </span><span class="dv">40</span></a>
@@ -1641,10 +1641,10 @@ Figure 2.13: Distribution of the bootstrapped approximation of sampling noise ov
 <a class="sourceLine" id="cb67-19" data-line-number="19">}</a>
 <a class="sourceLine" id="cb67-20" data-line-number="20">plot.CI &lt;-<span class="st"> </span><span class="kw">plot_grid</span>(plot.list[[<span class="dv">1</span>]],plot.list[[<span class="dv">2</span>]],plot.list[[<span class="dv">3</span>]],plot.list[[<span class="dv">4</span>]],<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">nrow=</span><span class="kw">length</span>(N.sample))</a>
 <a class="sourceLine" id="cb67-21" data-line-number="21"><span class="kw">print</span>(plot.CI)</a></code></pre></div>
-<div class="figure" style="text-align: center">
-<img src="STCI_files/figure-html/conf.interval.boot-1.png" alt="Bootstrapped confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)" width="60%" />
+<div class="figure" style="text-align: center"><span id="fig:confintervalboot"></span>
+<img src="STCI_files/figure-html/confintervalboot-1.png" alt="Bootstrapped confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)" width="60%" />
 <p class="caption">
-(#fig:conf.interval.boot)Bootstrapped confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 over sample replications for various sample sizes (true confidence intervals in red)
+Figure 2.15: Bootstrapped confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 over sample replications for various sample sizes (true confidence intervals in red)
 </p>
 </div>
 </div>

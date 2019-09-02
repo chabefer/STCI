@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-08-26}
+    \date{2019-08-30}
 
 % shape of the text in the page
 \usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -3248,7 +3248,7 @@ I have choosen to parallelize the outer loop, so that a given job takes longer o
 \NormalTok{\}}
 
 \NormalTok{sf.simuls.ww.N.boot <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,Nboot,delta,param)\{}
-  \KeywordTok{sfInit}\NormalTok{(}\DataTypeTok{parallel=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{cpus=}\NormalTok{ncpus)}
+  \KeywordTok{sfInit}\NormalTok{(}\DataTypeTok{parallel=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{cpus=}\DecValTok{2}\OperatorTok{*}\NormalTok{ncpus)}
   \KeywordTok{sfExport}\NormalTok{(}\StringTok{"boot.fun.ww"}\NormalTok{,}\StringTok{"boot.CI.ww"}\NormalTok{,}\StringTok{"boot.samp.noise.ww"}\NormalTok{,}\StringTok{"boot.fun.ww.1"}\NormalTok{)}
 \NormalTok{  sim <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{sfLapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.ww.boot,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{Nboot=}\NormalTok{Nboot,}\DataTypeTok{delta=}\NormalTok{delta,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{7}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{))}
   \KeywordTok{sfStop}\NormalTok{()}
@@ -3297,11 +3297,11 @@ We can now graph our bootstrapped estimate of sampling noise in all of our sampl
 
 \begin{figure}[htbp]
 
-{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/samp.noise.ww.boot.plot-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/sampnoisewwbootplot-1} 
 
 }
 
-\caption{Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)}(\#fig:samp.noise.ww.boot.plot)
+\caption{Average bootstrapped approximations of sampling noise over replications of samples of different sizes (true sampling noise in red)}\label{fig:sampnoisewwbootplot}
 \end{figure}
 
 \begin{Shaded}
@@ -3332,11 +3332,11 @@ We can now graph our bootstrapped estimate of sampling noise in all of our sampl
 
 \begin{figure}[htbp]
 
-{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/conf.interval.boot-1} 
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/confintervalboot-1} 
 
 }
 
-\caption{Bootstrapped confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)}(\#fig:conf.interval.boot)
+\caption{Bootstrapped confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)}\label{fig:confintervalboot}
 \end{figure}
 
 \hypertarget{randomization-inference}{%
