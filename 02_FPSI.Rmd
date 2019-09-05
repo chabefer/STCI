@@ -1430,7 +1430,176 @@ plot.CI <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]]
 print(plot.CI)
 ```
 
+**TO DO: COMMENT AND USE PIVOTAL TEST STATISTIC** 
 
 #### Randomization inference
 
+Randomization inference (a.k.a. Fisher's permutation approach) tries to mimick the sampling noise due to the random allocation of the treatment vector, as we have seen in Section \@ref(sec:illusnoisesamp).
+In practice, the idea is simply to look at how the treatment effect that we estimate varies when we visit all the possible allocations of the treament dummy in the sample.
+For each new allocation, we are going to compute the with/without estimator using the observed outcomes and the newly allocated treatment dummy.
+It means that some actually treated observations are going to enter into the computation of the control group mean, while some actually untreated observations are going to enter into the computation of the treatment group mean.
+As a consequence, the resulting distribution will be centered at zero.
+Under the assumption of a constant treatment effect, the distribution of the parameter obtained using randomization inference will be an exact estimation of sampling noise for the sample treatment effect. 
+
+Notice how beautilful the result is: randomization inference yields an \textbf{exact} measure of sampling noise.
+The resulting estimate of sampling noise is not an approximation that is going to become better as sample size increases.
+No, it is the \textbf{actual} value of sampling noise in the sample.
+
+There are two ways to compute a confidence interval using Fisher's permutation approach.
+One is to form symmetric intervals using our estimate of sampling noise as presented in Section \@ref(sec:confinterv).
+Another approach is to directly use the quantiles of the distribution of the parameter centered around the estimated treatment effect, in the same spirit as bootstrapped confidence intervals using the percentile approach.
+This last approach accomodates possible asymetries in the finite sample distribution of the treatment effect.
+
+Computing the value of the treatment effect for all possible treatment allocations can take a lot of time with large samples.
+That's why we in general compute the test statistic for a reasonably large number of random allocations.
+
+```{remark}
+Fisher's original approach is slightly different from the one I delineate here.
+Fisher wanted to derive a test statistic for whether the treatment effect was zero, not to estimate sampling noise.
+Under the null that the treatment has absolutely no effect whatsoever on any unit, any test statistic whose value should be zero if the two distributions where identical can be computed on the actual sample and its distribution can be derived using Fisher's permutation approach.
+The test statistic can be the difference in means, standard deviations, medians, ranks, the T-stat, the Kolmogorov-Smirnov test statistic or any other test statistic that you might want to compute.
+Comparing the actual value of the test statistic to its distribution under the null gives a p-value for the validity of the null.
+```
+
+```{remark}
+Imbens and Rubin propose a more complex procedure to derive the confidence interval for the treatment effect using randomization inference.
+They propose to compute Fisher's p-value for different values of the treatment effect, and to set the confidence interval as the values of the treatment effect under and above which the p-value is smaller than $\delta$.
+When using the with/without estimator as the test statistic, the two approches should be equivalent.
+Is is possible that the estimates using statistics less influenced by outliers are more precise though.
+```
+
+```{remark}
+Note that we pay two prices for having an exact estimation of sampling noise:
+```
+
+  1. We have to assume that the treatment effect is constant, e.g. we have to assume homoskedasticity.
+  This is in general not the case.
+  Whether this is in general a big issue depends on how large the difference is between homoskedastic and heteroskedastic standard errors.
+  One way around this issue would be to add a small amount of noise to the observations that are in the group with the lowest variance.
+  Whether this would work in practice is still to be demonstrated.
+  2. We have to be interested only in the sampling noise of the sample treatment effect.
+  The sampling noise of the population treatment effect is not estimated using Fisher's permutation approach.
+  As we have seen in Section \@ref(sec:illusnoisesamp), there is no practical difference between these two sampling noises in our example.
+  Whether this is the case in general deserves further investigation.
+
+```{example}
+In practice, randomization inference is very close to a bootstrap procedure, except that instead of resampling with replacement from the original sample, we only change the vector of treatment allocation at each replication.
+```
+
+```{r fisherwwtest,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE,dependson=c('param','simul.no.selb.1234.bis')}
+fisher.fun.ww.1 <- function(seed,data){
+  set.seed(seed,kind="Wichmann-Hill")
+  data$D <- rbinom(nrow(data),1,mean(data$Ds))
+  ols.ww <- lm(y~D,data=data)
+  ww <- ols.ww$coef[[2]]
+  return(ww)
+}
+
+fisher.fun.ww <- function(Nfisher,data,delta){
+  fisher <- unlist(lapply(1:Nfisher,fisher.fun.ww.1,data=data))
+  ols.ww <- lm(y~Ds,data=data)
+  ww <- ols.ww$coef[[2]]
+  fisher <- fisher+ ww
+  fisher.CI.ww <- c(quantile(fisher,prob=(1-delta)/2),quantile(fisher,prob=(1+delta)/2))
+  fisher.samp.noise.ww <- quantile(fisher,prob=(1+delta)/2)-quantile(fisher,prob=(1-delta)/2)
+  return(list(fisher,fisher.CI.ww,fisher.samp.noise.ww))
+}
+
+Nfisher <- 500
+ww.fisher <- fisher.fun.ww(Nfisher,data,delta)
+```
+
+Over `r Nfisher` replications, the `r delta*100`\% confidence interval based on Fisher's permutation approach is $\left\{`r round(ww.fisher[[2]][1],3)`;`r round(ww.fisher[[2]][2],3)`\right\}$.
+As a consequence, the bootstrapped estimate of `r delta*100`\% sampling noise is of `r round(ww.fisher[[3]],3)`.
+Remember that, with $N=$ `r N`, sampling noise is actually equal to `r round(table.noise[rownames(table.noise)==as.character(N),colnames(table.noise)=='sampling.noise'],2)`.
+
+In order to assess the global precision of Fisher's permutation method, we are going to resort to Monte Carlo simulations.
+
+```{r montecarlofisher,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE,dependson=c('param','fisherwwtest')}
+monte.carlo.ww.fisher <- function(s,N,param,Nfisher,delta){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  V <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]+param["sigma2U"]))
+  Ds[V<=log(param["barY"])] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  data <- as.data.frame(cbind(y,Ds,yB))
+  ww.fisher <- fisher.fun.ww(Nfisher,data,delta)
+  return(c((1/sum(Ds))*sum(y*Ds)-(1/sum(1-Ds))*sum(y*(1-Ds)),var(y[Ds==1]),var(y[Ds==0]),mean(Ds),ww.fisher[[2]][1],ww.fisher[[2]][2],ww.fisher[[3]]))
+}
+
+sf.simuls.ww.N.fisher <- function(N,Nsim,Nfisher,delta,param){
+  sfInit(parallel=TRUE,cpus=2*ncpus)
+  sfExport("fisher.fun.ww","fisher.fun.ww.1")
+  sim <- as.data.frame(matrix(unlist(sfLapply(1:Nsim,monte.carlo.ww.fisher,N=N,Nfisher=Nfisher,delta=delta,param=param)),nrow=Nsim,ncol=7,byrow=TRUE))
+  sfStop()
+  colnames(sim) <- c('WW','V1','V0','p','fisher.lCI','fisher.uCI','fisher.samp.noise')
+  return(sim)
+}
+
+simuls.ww.fisher <- lapply(N.sample,sf.simuls.ww.N.fisher,Nsim=Nsim,param=param,Nfisher=Nfisher,delta=delta)
+```
+
+We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures \@ref(fig:sampnoisewwfisherall), \@ref(fig:sampnoisewwfisherplot) and \@ref(fig:confintervalfisher) show.
+
+```{r sampnoisewwfisherall,eval=TRUE,echo=TRUE,fig.cap='Distribution of the estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:4){
+  hist(simuls.ww.fisher[[i]][,'fisher.samp.noise'],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(2*bar(epsilon))),xlim=c(min(simuls.ww.fisher[[i]][,'fisher.samp.noise']),max(simuls.ww.fisher[[i]][,'fisher.samp.noise'])))
+  abline(v=table.noise[i,colnames(table.noise)=='sampling.noise'],col="red")
+}
+```
+
+```{r sampnoisewwfisherplot,eval=TRUE,echo=TRUE,fig.cap='Average estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+for (k in (1:length(N.sample))){
+  table.noise$fisher.noise[k] <- mean(simuls.ww.fisher[[k]]$fisher.samp.noise)
+}
+ggplot(table.noise, aes(x=as.factor(N), y=TT)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black') +
+  geom_errorbar(aes(ymin=TT-sampling.noise/2, ymax=TT+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+  geom_errorbar(aes(ymin=TT-fisher.noise/2, ymax=TT+fisher.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+  xlab("Sample Size")+
+  theme_bw()
+```
+
+```{r confintervalfisher,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'estimated using Fisher permutation approach over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+N.plot <- 40
+plot.list <- list()
+
+for (k in 1:length(N.sample)){
+ set.seed(1234)
+ test.fisher <- simuls.ww.fisher[[k]][sample(N.plot),c('WW','fisher.lCI','fisher.uCI')]
+ test.fisher <- as.data.frame(cbind(test.fisher,rep(samp.noise(simuls.ww.fisher[[k]][,'WW'],delta=delta),N.plot)))
+ colnames(test.fisher) <- c('WW','fisher.lCI','fisher.uCI','sampling.noise')
+ test.fisher$id <- 1:N.plot
+ plot.test.fisher <- ggplot(test.fisher, aes(x=as.factor(id), y=WW)) +
+     geom_bar(position=position_dodge(), stat="identity", colour='black') +
+     geom_errorbar(aes(ymin=WW-sampling.noise/2, ymax=WW+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+     geom_errorbar(aes(ymin=fisher.lCI, ymax=fisher.uCI), width=.2,position=position_dodge(.9),color='blue') +
+     geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+     xlab("Sample id")+
+     theme_bw()+
+     ggtitle(paste("N=",N.sample[k]))
+ plot.list[[k]] <- plot.test.fisher
+}
+plot.CI <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI)
+```
+
+**TO DO: COMMENT AND USE ALTERNATIVE APPROACH USING p-VALUES** 
+
 #### Subsampling
+
+**TO DO: ALL** 

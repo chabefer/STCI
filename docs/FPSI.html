@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2019-08-27" />
+<meta name="date" content="2019-09-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -175,7 +175,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="part"><span><b>II Methods of Causal Inference</b></span></li>
-<li class="chapter" data-level="3" data-path="RCT.html"><a href="RCT.html"><i class="fa fa-check"></i><b>3</b> Randomized Controlled Trials</a></li>
+<li class="chapter" data-level="3" data-path="RCT.html"><a href="RCT.html"><i class="fa fa-check"></i><b>3</b> Randomized Controlled Trials</a><ul>
+<li class="chapter" data-level="3.1" data-path="RCT.html"><a href="RCT.html#sec:design1"><i class="fa fa-check"></i><b>3.1</b> Brute Force Design</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="RCT.html"><a href="RCT.html#identification"><i class="fa fa-check"></i><b>3.1.1</b> Identification</a></li>
+<li class="chapter" data-level="3.1.2" data-path="RCT.html"><a href="RCT.html#estimating-ate"><i class="fa fa-check"></i><b>3.1.2</b> Estimating ATE</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Randomization After Self-Selection</a></li>
+<li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Randomization After Eligibility</a></li>
+<li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a></li>
+<li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
+</ul></li>
 <li class="chapter" data-level="4" data-path="NE.html"><a href="NE.html"><i class="fa fa-check"></i><b>4</b> Natural Experiments</a></li>
 <li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a></li>
 <li class="part"><span><b>III Additional Topics</b></span></li>
@@ -1647,12 +1656,180 @@ Figure 2.14: Average bootstrapped approximations of sampling noise over replicat
 Figure 2.15: Bootstrapped confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 over sample replications for various sample sizes (true confidence intervals in red)
 </p>
 </div>
+<p><strong>TO DO: COMMENT AND USE PIVOTAL TEST STATISTIC</strong></p>
 </div>
 <div id="randomization-inference" class="section level4">
 <h4><span class="header-section-number">2.2.4.2</span> Randomization inference</h4>
+<p>Randomization inference (a.k.a. Fisher’s permutation approach) tries to mimick the sampling noise due to the random allocation of the treatment vector, as we have seen in Section <a href="FPSI.html#sec:illusnoisesamp">2.1.3</a>.
+In practice, the idea is simply to look at how the treatment effect that we estimate varies when we visit all the possible allocations of the treament dummy in the sample.
+For each new allocation, we are going to compute the with/without estimator using the observed outcomes and the newly allocated treatment dummy.
+It means that some actually treated observations are going to enter into the computation of the control group mean, while some actually untreated observations are going to enter into the computation of the treatment group mean.
+As a consequence, the resulting distribution will be centered at zero.
+Under the assumption of a constant treatment effect, the distribution of the parameter obtained using randomization inference will be an exact estimation of sampling noise for the sample treatment effect.</p>
+<p>Notice how beautilful the result is: randomization inference yields an  measure of sampling noise.
+The resulting estimate of sampling noise is not an approximation that is going to become better as sample size increases.
+No, it is the  value of sampling noise in the sample.</p>
+<p>There are two ways to compute a confidence interval using Fisher’s permutation approach.
+One is to form symmetric intervals using our estimate of sampling noise as presented in Section <a href="FPSI.html#sec:confinterv">2.1.4</a>.
+Another approach is to directly use the quantiles of the distribution of the parameter centered around the estimated treatment effect, in the same spirit as bootstrapped confidence intervals using the percentile approach.
+This last approach accomodates possible asymetries in the finite sample distribution of the treatment effect.</p>
+<p>Computing the value of the treatment effect for all possible treatment allocations can take a lot of time with large samples.
+That’s why we in general compute the test statistic for a reasonably large number of random allocations.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Fisher’s original approach is slightly different from the one I delineate here.
+Fisher wanted to derive a test statistic for whether the treatment effect was zero, not to estimate sampling noise.
+Under the null that the treatment has absolutely no effect whatsoever on any unit, any test statistic whose value should be zero if the two distributions where identical can be computed on the actual sample and its distribution can be derived using Fisher’s permutation approach.
+The test statistic can be the difference in means, standard deviations, medians, ranks, the T-stat, the Kolmogorov-Smirnov test statistic or any other test statistic that you might want to compute.
+Comparing the actual value of the test statistic to its distribution under the null gives a p-value for the validity of the null.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Imbens and Rubin propose a more complex procedure to derive the confidence interval for the treatment effect using randomization inference.
+They propose to compute Fisher’s p-value for different values of the treatment effect, and to set the confidence interval as the values of the treatment effect under and above which the p-value is smaller than <span class="math inline">\(\delta\)</span>.
+When using the with/without estimator as the test statistic, the two approches should be equivalent.
+Is is possible that the estimates using statistics less influenced by outliers are more precise though.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Note that we pay two prices for having an exact estimation of sampling noise:
+</div>
+
+<ol style="list-style-type: decimal">
+<li>We have to assume that the treatment effect is constant, e.g. we have to assume homoskedasticity.
+This is in general not the case.
+Whether this is in general a big issue depends on how large the difference is between homoskedastic and heteroskedastic standard errors.
+One way around this issue would be to add a small amount of noise to the observations that are in the group with the lowest variance.
+Whether this would work in practice is still to be demonstrated.</li>
+<li>We have to be interested only in the sampling noise of the sample treatment effect.
+The sampling noise of the population treatment effect is not estimated using Fisher’s permutation approach.
+As we have seen in Section <a href="FPSI.html#sec:illusnoisesamp">2.1.3</a>, there is no practical difference between these two sampling noises in our example.
+Whether this is the case in general deserves further investigation.</li>
+</ol>
+
+<div class="example">
+<span id="exm:unnamed-chunk-63" class="example"><strong>Example 2.10  </strong></span>In practice, randomization inference is very close to a bootstrap procedure, except that instead of resampling with replacement from the original sample, we only change the vector of treatment allocation at each replication.
+</div>
+
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb68-1" data-line-number="1">fisher.fun.ww<span class="fl">.1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(seed,data){</a>
+<a class="sourceLine" id="cb68-2" data-line-number="2">  <span class="kw">set.seed</span>(seed,<span class="dt">kind=</span><span class="st">&quot;Wichmann-Hill&quot;</span>)</a>
+<a class="sourceLine" id="cb68-3" data-line-number="3">  data<span class="op">$</span>D &lt;-<span class="st"> </span><span class="kw">rbinom</span>(<span class="kw">nrow</span>(data),<span class="dv">1</span>,<span class="kw">mean</span>(data<span class="op">$</span>Ds))</a>
+<a class="sourceLine" id="cb68-4" data-line-number="4">  ols.ww &lt;-<span class="st"> </span><span class="kw">lm</span>(y<span class="op">~</span>D,<span class="dt">data=</span>data)</a>
+<a class="sourceLine" id="cb68-5" data-line-number="5">  ww &lt;-<span class="st"> </span>ols.ww<span class="op">$</span>coef[[<span class="dv">2</span>]]</a>
+<a class="sourceLine" id="cb68-6" data-line-number="6">  <span class="kw">return</span>(ww)</a>
+<a class="sourceLine" id="cb68-7" data-line-number="7">}</a>
+<a class="sourceLine" id="cb68-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb68-9" data-line-number="9">fisher.fun.ww &lt;-<span class="st"> </span><span class="cf">function</span>(Nfisher,data,delta){</a>
+<a class="sourceLine" id="cb68-10" data-line-number="10">  fisher &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span>Nfisher,fisher.fun.ww<span class="fl">.1</span>,<span class="dt">data=</span>data))</a>
+<a class="sourceLine" id="cb68-11" data-line-number="11">  ols.ww &lt;-<span class="st"> </span><span class="kw">lm</span>(y<span class="op">~</span>Ds,<span class="dt">data=</span>data)</a>
+<a class="sourceLine" id="cb68-12" data-line-number="12">  ww &lt;-<span class="st"> </span>ols.ww<span class="op">$</span>coef[[<span class="dv">2</span>]]</a>
+<a class="sourceLine" id="cb68-13" data-line-number="13">  fisher &lt;-<span class="st"> </span>fisher<span class="op">+</span><span class="st"> </span>ww</a>
+<a class="sourceLine" id="cb68-14" data-line-number="14">  fisher.CI.ww &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">quantile</span>(fisher,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">-</span>delta)<span class="op">/</span><span class="dv">2</span>),<span class="kw">quantile</span>(fisher,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">+</span>delta)<span class="op">/</span><span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb68-15" data-line-number="15">  fisher.samp.noise.ww &lt;-<span class="st"> </span><span class="kw">quantile</span>(fisher,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">+</span>delta)<span class="op">/</span><span class="dv">2</span>)<span class="op">-</span><span class="kw">quantile</span>(fisher,<span class="dt">prob=</span>(<span class="dv">1</span><span class="op">-</span>delta)<span class="op">/</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb68-16" data-line-number="16">  <span class="kw">return</span>(<span class="kw">list</span>(fisher,fisher.CI.ww,fisher.samp.noise.ww))</a>
+<a class="sourceLine" id="cb68-17" data-line-number="17">}</a>
+<a class="sourceLine" id="cb68-18" data-line-number="18"></a>
+<a class="sourceLine" id="cb68-19" data-line-number="19">Nfisher &lt;-<span class="st"> </span><span class="dv">500</span></a>
+<a class="sourceLine" id="cb68-20" data-line-number="20">ww.fisher &lt;-<span class="st"> </span><span class="kw">fisher.fun.ww</span>(Nfisher,data,delta)</a></code></pre></div>
+<p>Over 500 replications, the 99% confidence interval based on Fisher’s permutation approach is <span class="math inline">\(\left\{-0.052;0.3\right\}\)</span>.
+As a consequence, the bootstrapped estimate of 99% sampling noise is of 0.352.
+Remember that, with <span class="math inline">\(N=\)</span> 1000, sampling noise is actually equal to 0.39.</p>
+<p>In order to assess the global precision of Fisher’s permutation method, we are going to resort to Monte Carlo simulations.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" data-line-number="1">monte.carlo.ww.fisher &lt;-<span class="st"> </span><span class="cf">function</span>(s,N,param,Nfisher,delta){</a>
+<a class="sourceLine" id="cb69-2" data-line-number="2">  <span class="kw">set.seed</span>(s)</a>
+<a class="sourceLine" id="cb69-3" data-line-number="3">  mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))</a>
+<a class="sourceLine" id="cb69-4" data-line-number="4">  UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))</a>
+<a class="sourceLine" id="cb69-5" data-line-number="5">  yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB </a>
+<a class="sourceLine" id="cb69-6" data-line-number="6">  YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)</a>
+<a class="sourceLine" id="cb69-7" data-line-number="7">  Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)</a>
+<a class="sourceLine" id="cb69-8" data-line-number="8">  V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))</a>
+<a class="sourceLine" id="cb69-9" data-line-number="9">  Ds[V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> </a>
+<a class="sourceLine" id="cb69-10" data-line-number="10">  epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))</a>
+<a class="sourceLine" id="cb69-11" data-line-number="11">  eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))</a>
+<a class="sourceLine" id="cb69-12" data-line-number="12">  U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon</a>
+<a class="sourceLine" id="cb69-13" data-line-number="13">  y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]</a>
+<a class="sourceLine" id="cb69-14" data-line-number="14">  alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta</a>
+<a class="sourceLine" id="cb69-15" data-line-number="15">  y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha</a>
+<a class="sourceLine" id="cb69-16" data-line-number="16">  Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)</a>
+<a class="sourceLine" id="cb69-17" data-line-number="17">  Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)</a>
+<a class="sourceLine" id="cb69-18" data-line-number="18">  y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</a>
+<a class="sourceLine" id="cb69-19" data-line-number="19">  Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</a>
+<a class="sourceLine" id="cb69-20" data-line-number="20">  data &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(y,Ds,yB))</a>
+<a class="sourceLine" id="cb69-21" data-line-number="21">  ww.fisher &lt;-<span class="st"> </span><span class="kw">fisher.fun.ww</span>(Nfisher,data,delta)</a>
+<a class="sourceLine" id="cb69-22" data-line-number="22">  <span class="kw">return</span>(<span class="kw">c</span>((<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(Ds))<span class="op">*</span><span class="kw">sum</span>(y<span class="op">*</span>Ds)<span class="op">-</span>(<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(<span class="dv">1</span><span class="op">-</span>Ds))<span class="op">*</span><span class="kw">sum</span>(y<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)),<span class="kw">var</span>(y[Ds<span class="op">==</span><span class="dv">1</span>]),<span class="kw">var</span>(y[Ds<span class="op">==</span><span class="dv">0</span>]),<span class="kw">mean</span>(Ds),ww.fisher[[<span class="dv">2</span>]][<span class="dv">1</span>],ww.fisher[[<span class="dv">2</span>]][<span class="dv">2</span>],ww.fisher[[<span class="dv">3</span>]]))</a>
+<a class="sourceLine" id="cb69-23" data-line-number="23">}</a>
+<a class="sourceLine" id="cb69-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb69-25" data-line-number="25">sf.simuls.ww.N.fisher &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,Nfisher,delta,param){</a>
+<a class="sourceLine" id="cb69-26" data-line-number="26">  <span class="kw">sfInit</span>(<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">cpus=</span><span class="dv">2</span><span class="op">*</span>ncpus)</a>
+<a class="sourceLine" id="cb69-27" data-line-number="27">  <span class="kw">sfExport</span>(<span class="st">&quot;fisher.fun.ww&quot;</span>,<span class="st">&quot;fisher.fun.ww.1&quot;</span>)</a>
+<a class="sourceLine" id="cb69-28" data-line-number="28">  sim &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(<span class="kw">sfLapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.ww.fisher,<span class="dt">N=</span>N,<span class="dt">Nfisher=</span>Nfisher,<span class="dt">delta=</span>delta,<span class="dt">param=</span>param)),<span class="dt">nrow=</span>Nsim,<span class="dt">ncol=</span><span class="dv">7</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb69-29" data-line-number="29">  <span class="kw">sfStop</span>()</a>
+<a class="sourceLine" id="cb69-30" data-line-number="30">  <span class="kw">colnames</span>(sim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;V1&#39;</span>,<span class="st">&#39;V0&#39;</span>,<span class="st">&#39;p&#39;</span>,<span class="st">&#39;fisher.lCI&#39;</span>,<span class="st">&#39;fisher.uCI&#39;</span>,<span class="st">&#39;fisher.samp.noise&#39;</span>)</a>
+<a class="sourceLine" id="cb69-31" data-line-number="31">  <span class="kw">return</span>(sim)</a>
+<a class="sourceLine" id="cb69-32" data-line-number="32">}</a>
+<a class="sourceLine" id="cb69-33" data-line-number="33"></a>
+<a class="sourceLine" id="cb69-34" data-line-number="34">simuls.ww.fisher &lt;-<span class="st"> </span><span class="kw">lapply</span>(N.sample,sf.simuls.ww.N.fisher,<span class="dt">Nsim=</span>Nsim,<span class="dt">param=</span>param,<span class="dt">Nfisher=</span>Nfisher,<span class="dt">delta=</span>delta)</a></code></pre></div>
+<p>We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures <a href="FPSI.html#fig:sampnoisewwfisherall">2.16</a>, <a href="FPSI.html#fig:sampnoisewwfisherplot">2.17</a> and <a href="FPSI.html#fig:confintervalfisher">2.18</a> show.</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb70-1" data-line-number="1"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb70-2" data-line-number="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">4</span>){</a>
+<a class="sourceLine" id="cb70-3" data-line-number="3">  <span class="kw">hist</span>(simuls.ww.fisher[[i]][,<span class="st">&#39;fisher.samp.noise&#39;</span>],<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(<span class="dv">2</span><span class="op">*</span><span class="kw">bar</span>(epsilon))),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="kw">min</span>(simuls.ww.fisher[[i]][,<span class="st">&#39;fisher.samp.noise&#39;</span>]),<span class="kw">max</span>(simuls.ww.fisher[[i]][,<span class="st">&#39;fisher.samp.noise&#39;</span>])))</a>
+<a class="sourceLine" id="cb70-4" data-line-number="4">  <span class="kw">abline</span>(<span class="dt">v=</span>table.noise[i,<span class="kw">colnames</span>(table.noise)<span class="op">==</span><span class="st">&#39;sampling.noise&#39;</span>],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</a>
+<a class="sourceLine" id="cb70-5" data-line-number="5">}</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwfisherall"></span>
+<img src="STCI_files/figure-html/sampnoisewwfisherall-1.png" alt="Distribution of the estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+Figure 2.16: Distribution of the estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb71-1" data-line-number="1"><span class="cf">for</span> (k <span class="cf">in</span> (<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample))){</a>
+<a class="sourceLine" id="cb71-2" data-line-number="2">  table.noise<span class="op">$</span>fisher.noise[k] &lt;-<span class="st"> </span><span class="kw">mean</span>(simuls.ww.fisher[[k]]<span class="op">$</span>fisher.samp.noise)</a>
+<a class="sourceLine" id="cb71-3" data-line-number="3">}</a>
+<a class="sourceLine" id="cb71-4" data-line-number="4"><span class="kw">ggplot</span>(table.noise, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(N), <span class="dt">y=</span>TT)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb71-5" data-line-number="5"><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb71-6" data-line-number="6"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb71-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>TT<span class="op">-</span>fisher.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>TT<span class="op">+</span>fisher.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb71-8" data-line-number="8"><span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Sample Size&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb71-9" data-line-number="9"><span class="st">  </span><span class="kw">theme_bw</span>()</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:sampnoisewwfisherplot"></span>
+<img src="STCI_files/figure-html/sampnoisewwfisherplot-1.png" alt="Average estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)" width="60%" />
+<p class="caption">
+Figure 2.17: Average estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)
+</p>
+</div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb72-1" data-line-number="1">N.plot &lt;-<span class="st"> </span><span class="dv">40</span></a>
+<a class="sourceLine" id="cb72-2" data-line-number="2">plot.list &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb72-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb72-4" data-line-number="4"><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample)){</a>
+<a class="sourceLine" id="cb72-5" data-line-number="5"> <span class="kw">set.seed</span>(<span class="dv">1234</span>)</a>
+<a class="sourceLine" id="cb72-6" data-line-number="6"> test.fisher &lt;-<span class="st"> </span>simuls.ww.fisher[[k]][<span class="kw">sample</span>(N.plot),<span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;fisher.lCI&#39;</span>,<span class="st">&#39;fisher.uCI&#39;</span>)]</a>
+<a class="sourceLine" id="cb72-7" data-line-number="7"> test.fisher &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">cbind</span>(test.fisher,<span class="kw">rep</span>(<span class="kw">samp.noise</span>(simuls.ww.fisher[[k]][,<span class="st">&#39;WW&#39;</span>],<span class="dt">delta=</span>delta),N.plot)))</a>
+<a class="sourceLine" id="cb72-8" data-line-number="8"> <span class="kw">colnames</span>(test.fisher) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;WW&#39;</span>,<span class="st">&#39;fisher.lCI&#39;</span>,<span class="st">&#39;fisher.uCI&#39;</span>,<span class="st">&#39;sampling.noise&#39;</span>)</a>
+<a class="sourceLine" id="cb72-9" data-line-number="9"> test.fisher<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>N.plot</a>
+<a class="sourceLine" id="cb72-10" data-line-number="10"> plot.test.fisher &lt;-<span class="st"> </span><span class="kw">ggplot</span>(test.fisher, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>WW)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb72-11" data-line-number="11"><span class="st">     </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb72-12" data-line-number="12"><span class="st">     </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>WW<span class="op">-</span>sampling.noise<span class="op">/</span><span class="dv">2</span>, <span class="dt">ymax=</span>WW<span class="op">+</span>sampling.noise<span class="op">/</span><span class="dv">2</span>), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;red&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb72-13" data-line-number="13"><span class="st">     </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>fisher.lCI, <span class="dt">ymax=</span>fisher.uCI), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb72-14" data-line-number="14"><span class="st">     </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">delta.y.ate</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb72-15" data-line-number="15"><span class="st">     </span><span class="kw">xlab</span>(<span class="st">&quot;Sample id&quot;</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb72-16" data-line-number="16"><span class="st">     </span><span class="kw">theme_bw</span>()<span class="op">+</span></a>
+<a class="sourceLine" id="cb72-17" data-line-number="17"><span class="st">     </span><span class="kw">ggtitle</span>(<span class="kw">paste</span>(<span class="st">&quot;N=&quot;</span>,N.sample[k]))</a>
+<a class="sourceLine" id="cb72-18" data-line-number="18"> plot.list[[k]] &lt;-<span class="st"> </span>plot.test.fisher</a>
+<a class="sourceLine" id="cb72-19" data-line-number="19">}</a>
+<a class="sourceLine" id="cb72-20" data-line-number="20">plot.CI &lt;-<span class="st"> </span><span class="kw">plot_grid</span>(plot.list[[<span class="dv">1</span>]],plot.list[[<span class="dv">2</span>]],plot.list[[<span class="dv">3</span>]],plot.list[[<span class="dv">4</span>]],<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">nrow=</span><span class="kw">length</span>(N.sample))</a>
+<a class="sourceLine" id="cb72-21" data-line-number="21"><span class="kw">print</span>(plot.CI)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:confintervalfisher"></span>
+<img src="STCI_files/figure-html/confintervalfisher-1.png" alt="Confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 estimated using Fisher permutation approach over sample replications for various sample sizes (true confidence intervals in red)" width="60%" />
+<p class="caption">
+Figure 2.18: Confidence intervals of <span class="math inline">\(\hat{WW}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 estimated using Fisher permutation approach over sample replications for various sample sizes (true confidence intervals in red)
+</p>
+</div>
+<p><strong>TO DO: COMMENT AND USE ALTERNATIVE APPROACH USING p-VALUES</strong></p>
 </div>
 <div id="subsampling" class="section level4">
 <h4><span class="header-section-number">2.2.4.3</span> Subsampling</h4>
+<p><strong>TO DO: ALL</strong></p>
 
 </div>
 </div>

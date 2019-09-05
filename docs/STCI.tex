@@ -122,10 +122,10 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-08-30}
+    \date{2019-09-04}
 
 % shape of the text in the page
-\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
+%\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
 \usepackage{dsfont}
 \newcommand{\uns}[1]{\mathds{1}[ #1 ]}
 \usepackage{subfig}
@@ -3339,17 +3339,535 @@ We can now graph our bootstrapped estimate of sampling noise in all of our sampl
 \caption{Bootstrapped confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)}\label{fig:confintervalboot}
 \end{figure}
 
+\textbf{TO DO: COMMENT AND USE PIVOTAL TEST STATISTIC}
+
 \hypertarget{randomization-inference}{%
 \subsubsection{Randomization inference}\label{randomization-inference}}
 
+Randomization inference (a.k.a. Fisher's permutation approach) tries to mimick the sampling noise due to the random allocation of the treatment vector, as we have seen in Section \ref{sec:illusnoisesamp}.
+In practice, the idea is simply to look at how the treatment effect that we estimate varies when we visit all the possible allocations of the treament dummy in the sample.
+For each new allocation, we are going to compute the with/without estimator using the observed outcomes and the newly allocated treatment dummy.
+It means that some actually treated observations are going to enter into the computation of the control group mean, while some actually untreated observations are going to enter into the computation of the treatment group mean.
+As a consequence, the resulting distribution will be centered at zero.
+Under the assumption of a constant treatment effect, the distribution of the parameter obtained using randomization inference will be an exact estimation of sampling noise for the sample treatment effect.
+
+Notice how beautilful the result is: randomization inference yields an \textbf{exact} measure of sampling noise.
+The resulting estimate of sampling noise is not an approximation that is going to become better as sample size increases.
+No, it is the \textbf{actual} value of sampling noise in the sample.
+
+There are two ways to compute a confidence interval using Fisher's permutation approach.
+One is to form symmetric intervals using our estimate of sampling noise as presented in Section \ref{sec:confinterv}.
+Another approach is to directly use the quantiles of the distribution of the parameter centered around the estimated treatment effect, in the same spirit as bootstrapped confidence intervals using the percentile approach.
+This last approach accomodates possible asymetries in the finite sample distribution of the treatment effect.
+
+Computing the value of the treatment effect for all possible treatment allocations can take a lot of time with large samples.
+That's why we in general compute the test statistic for a reasonably large number of random allocations.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Fisher's original approach is slightly different from the one I delineate here.
+Fisher wanted to derive a test statistic for whether the treatment effect was zero, not to estimate sampling noise.
+Under the null that the treatment has absolutely no effect whatsoever on any unit, any test statistic whose value should be zero if the two distributions where identical can be computed on the actual sample and its distribution can be derived using Fisher's permutation approach.
+The test statistic can be the difference in means, standard deviations, medians, ranks, the T-stat, the Kolmogorov-Smirnov test statistic or any other test statistic that you might want to compute.
+Comparing the actual value of the test statistic to its distribution under the null gives a p-value for the validity of the null.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Imbens and Rubin propose a more complex procedure to derive the confidence interval for the treatment effect using randomization inference.
+They propose to compute Fisher's p-value for different values of the treatment effect, and to set the confidence interval as the values of the treatment effect under and above which the p-value is smaller than \(\delta\).
+When using the with/without estimator as the test statistic, the two approches should be equivalent.
+Is is possible that the estimates using statistics less influenced by outliers are more precise though.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Note that we pay two prices for having an exact estimation of sampling noise:
+\EndKnitrBlock{remark}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  We have to assume that the treatment effect is constant, e.g.~we have to assume homoskedasticity.
+  This is in general not the case.
+  Whether this is in general a big issue depends on how large the difference is between homoskedastic and heteroskedastic standard errors.
+  One way around this issue would be to add a small amount of noise to the observations that are in the group with the lowest variance.
+  Whether this would work in practice is still to be demonstrated.
+\item
+  We have to be interested only in the sampling noise of the sample treatment effect.
+  The sampling noise of the population treatment effect is not estimated using Fisher's permutation approach.
+  As we have seen in Section \ref{sec:illusnoisesamp}, there is no practical difference between these two sampling noises in our example.
+  Whether this is the case in general deserves further investigation.
+\end{enumerate}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-63}{}{\label{exm:unnamed-chunk-63} }In practice, randomization inference is very close to a bootstrap procedure, except that instead of resampling with replacement from the original sample, we only change the vector of treatment allocation at each replication.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fisher.fun.ww}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(seed,data)\{}
+  \KeywordTok{set.seed}\NormalTok{(seed,}\DataTypeTok{kind=}\StringTok{"Wichmann-Hill"}\NormalTok{)}
+\NormalTok{  data}\OperatorTok{$}\NormalTok{D <-}\StringTok{ }\KeywordTok{rbinom}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(data),}\DecValTok{1}\NormalTok{,}\KeywordTok{mean}\NormalTok{(data}\OperatorTok{$}\NormalTok{Ds))}
+\NormalTok{  ols.ww <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{D,}\DataTypeTok{data=}\NormalTok{data)}
+\NormalTok{  ww <-}\StringTok{ }\NormalTok{ols.ww}\OperatorTok{$}\NormalTok{coef[[}\DecValTok{2}\NormalTok{]]}
+  \KeywordTok{return}\NormalTok{(ww)}
+\NormalTok{\}}
+
+\NormalTok{fisher.fun.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(Nfisher,data,delta)\{}
+\NormalTok{  fisher <-}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nfisher,fisher.fun.ww}\FloatTok{.1}\NormalTok{,}\DataTypeTok{data=}\NormalTok{data))}
+\NormalTok{  ols.ww <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{Ds,}\DataTypeTok{data=}\NormalTok{data)}
+\NormalTok{  ww <-}\StringTok{ }\NormalTok{ols.ww}\OperatorTok{$}\NormalTok{coef[[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{  fisher <-}\StringTok{ }\NormalTok{fisher}\OperatorTok{+}\StringTok{ }\NormalTok{ww}
+\NormalTok{  fisher.CI.ww <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\KeywordTok{quantile}\NormalTok{(fisher,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{),}\KeywordTok{quantile}\NormalTok{(fisher,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}
+\NormalTok{  fisher.samp.noise.ww <-}\StringTok{ }\KeywordTok{quantile}\NormalTok{(fisher,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{-}\KeywordTok{quantile}\NormalTok{(fisher,}\DataTypeTok{prob=}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{delta)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(fisher,fisher.CI.ww,fisher.samp.noise.ww))}
+\NormalTok{\}}
+
+\NormalTok{Nfisher <-}\StringTok{ }\DecValTok{500}
+\NormalTok{ww.fisher <-}\StringTok{ }\KeywordTok{fisher.fun.ww}\NormalTok{(Nfisher,data,delta)}
+\end{Highlighting}
+\end{Shaded}
+
+Over 500 replications, the 99\% confidence interval based on Fisher's permutation approach is \(\left\{-0.052;0.3\right\}\).
+As a consequence, the bootstrapped estimate of 99\% sampling noise is of 0.352.
+Remember that, with \(N=\) 1000, sampling noise is actually equal to 0.39.
+
+In order to assess the global precision of Fisher's permutation method, we are going to resort to Monte Carlo simulations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monte.carlo.ww.fisher <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(s,N,param,Nfisher,delta)\{}
+  \KeywordTok{set.seed}\NormalTok{(s)}
+\NormalTok{  mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{  UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{  YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{  Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{  V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  Ds[V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{  epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{  eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{  U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{  y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{  alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{  y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{  Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{  Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{  Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{  data <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(y,Ds,yB))}
+\NormalTok{  ww.fisher <-}\StringTok{ }\KeywordTok{fisher.fun.ww}\NormalTok{(Nfisher,data,delta)}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{((}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(Ds))}\OperatorTok{*}\KeywordTok{sum}\NormalTok{(y}\OperatorTok{*}\NormalTok{Ds)}\OperatorTok{-}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds))}\OperatorTok{*}\KeywordTok{sum}\NormalTok{(y}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)),}\KeywordTok{var}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\KeywordTok{var}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{0}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(Ds),ww.fisher[[}\DecValTok{2}\NormalTok{]][}\DecValTok{1}\NormalTok{],ww.fisher[[}\DecValTok{2}\NormalTok{]][}\DecValTok{2}\NormalTok{],ww.fisher[[}\DecValTok{3}\NormalTok{]]))}
+\NormalTok{\}}
+
+\NormalTok{sf.simuls.ww.N.fisher <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,Nfisher,delta,param)\{}
+  \KeywordTok{sfInit}\NormalTok{(}\DataTypeTok{parallel=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{cpus=}\DecValTok{2}\OperatorTok{*}\NormalTok{ncpus)}
+  \KeywordTok{sfExport}\NormalTok{(}\StringTok{"fisher.fun.ww"}\NormalTok{,}\StringTok{"fisher.fun.ww.1"}\NormalTok{)}
+\NormalTok{  sim <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{sfLapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.ww.fisher,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{Nfisher=}\NormalTok{Nfisher,}\DataTypeTok{delta=}\NormalTok{delta,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{7}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{))}
+  \KeywordTok{sfStop}\NormalTok{()}
+  \KeywordTok{colnames}\NormalTok{(sim) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'V1'}\NormalTok{,}\StringTok{'V0'}\NormalTok{,}\StringTok{'p'}\NormalTok{,}\StringTok{'fisher.lCI'}\NormalTok{,}\StringTok{'fisher.uCI'}\NormalTok{,}\StringTok{'fisher.samp.noise'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(sim)}
+\NormalTok{\}}
+
+\NormalTok{simuls.ww.fisher <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(N.sample,sf.simuls.ww.N.fisher,}\DataTypeTok{Nsim=}\NormalTok{Nsim,}\DataTypeTok{param=}\NormalTok{param,}\DataTypeTok{Nfisher=}\NormalTok{Nfisher,}\DataTypeTok{delta=}\NormalTok{delta)}
+\end{Highlighting}
+\end{Shaded}
+
+We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures \ref{fig:sampnoisewwfisherall}, \ref{fig:sampnoisewwfisherplot} and \ref{fig:confintervalfisher} show.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{4}\NormalTok{)\{}
+  \KeywordTok{hist}\NormalTok{(simuls.ww.fisher[[i]][,}\StringTok{'fisher.samp.noise'}\NormalTok{],}\DataTypeTok{main=}\KeywordTok{paste}\NormalTok{(}\StringTok{'N='}\NormalTok{,}\KeywordTok{as.character}\NormalTok{(N.sample[i])),}\DataTypeTok{xlab=}\KeywordTok{expression}\NormalTok{(}\KeywordTok{hat}\NormalTok{(}\DecValTok{2}\OperatorTok{*}\KeywordTok{bar}\NormalTok{(epsilon))),}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\KeywordTok{min}\NormalTok{(simuls.ww.fisher[[i]][,}\StringTok{'fisher.samp.noise'}\NormalTok{]),}\KeywordTok{max}\NormalTok{(simuls.ww.fisher[[i]][,}\StringTok{'fisher.samp.noise'}\NormalTok{])))}
+  \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\NormalTok{table.noise[i,}\KeywordTok{colnames}\NormalTok{(table.noise)}\OperatorTok{==}\StringTok{'sampling.noise'}\NormalTok{],}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/sampnoisewwfisherall-1} 
+
+}
+
+\caption{Distribution of the estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)}\label{fig:sampnoisewwfisherall}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in}\NormalTok{ (}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(N.sample)))\{}
+\NormalTok{  table.noise}\OperatorTok{$}\NormalTok{fisher.noise[k] <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(simuls.ww.fisher[[k]]}\OperatorTok{$}\NormalTok{fisher.samp.noise)}
+\NormalTok{\}}
+\KeywordTok{ggplot}\NormalTok{(table.noise, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(N), }\DataTypeTok{y=}\NormalTok{TT)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{TT}\OperatorTok{-}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{TT}\OperatorTok{+}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'red'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{TT}\OperatorTok{-}\NormalTok{fisher.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{TT}\OperatorTok{+}\NormalTok{fisher.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Sample Size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/sampnoisewwfisherplot-1} 
+
+}
+
+\caption{Average estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)}\label{fig:sampnoisewwfisherplot}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{N.plot <-}\StringTok{ }\DecValTok{40}
+\NormalTok{plot.list <-}\StringTok{ }\KeywordTok{list}\NormalTok{()}
+
+\ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(N.sample))\{}
+ \KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{ test.fisher <-}\StringTok{ }\NormalTok{simuls.ww.fisher[[k]][}\KeywordTok{sample}\NormalTok{(N.plot),}\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'fisher.lCI'}\NormalTok{,}\StringTok{'fisher.uCI'}\NormalTok{)]}
+\NormalTok{ test.fisher <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(test.fisher,}\KeywordTok{rep}\NormalTok{(}\KeywordTok{samp.noise}\NormalTok{(simuls.ww.fisher[[k]][,}\StringTok{'WW'}\NormalTok{],}\DataTypeTok{delta=}\NormalTok{delta),N.plot)))}
+ \KeywordTok{colnames}\NormalTok{(test.fisher) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{,}\StringTok{'fisher.lCI'}\NormalTok{,}\StringTok{'fisher.uCI'}\NormalTok{,}\StringTok{'sampling.noise'}\NormalTok{)}
+\NormalTok{ test.fisher}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\NormalTok{N.plot}
+\NormalTok{ plot.test.fisher <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(test.fisher, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{WW)) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{WW}\OperatorTok{-}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{, }\DataTypeTok{ymax=}\NormalTok{WW}\OperatorTok{+}\NormalTok{sampling.noise}\OperatorTok{/}\DecValTok{2}\NormalTok{), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'red'}\NormalTok{) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{fisher.lCI, }\DataTypeTok{ymax=}\NormalTok{fisher.uCI), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{delta.y.ate}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{     }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Sample id"}\NormalTok{)}\OperatorTok{+}
+\StringTok{     }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{     }\KeywordTok{ggtitle}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{"N="}\NormalTok{,N.sample[k]))}
+\NormalTok{ plot.list[[k]] <-}\StringTok{ }\NormalTok{plot.test.fisher}
+\NormalTok{\}}
+\NormalTok{plot.CI <-}\StringTok{ }\KeywordTok{plot_grid}\NormalTok{(plot.list[[}\DecValTok{1}\NormalTok{]],plot.list[[}\DecValTok{2}\NormalTok{]],plot.list[[}\DecValTok{3}\NormalTok{]],plot.list[[}\DecValTok{4}\NormalTok{]],}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{,}\DataTypeTok{nrow=}\KeywordTok{length}\NormalTok{(N.sample))}
+\KeywordTok{print}\NormalTok{(plot.CI)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/confintervalfisher-1} 
+
+}
+
+\caption{Confidence intervals of $\hat{WW}$ for $\delta=$ 0.99 estimated using Fisher permutation approach over sample replications for various sample sizes (true confidence intervals in red)}\label{fig:confintervalfisher}
+\end{figure}
+
+\textbf{TO DO: COMMENT AND USE ALTERNATIVE APPROACH USING p-VALUES}
+
 \hypertarget{subsampling}{%
 \subsubsection{Subsampling}\label{subsampling}}
+
+\textbf{TO DO: ALL}
 
 \hypertarget{part-methods-of-causal-inference}{%
 \part{Methods of Causal Inference}\label{part-methods-of-causal-inference}}
 
 \hypertarget{RCT}{%
 \chapter{Randomized Controlled Trials}\label{RCT}}
+
+The most robust and rigorous method that has been devised by social scientists to estimate the effect of an intervention on an outcome is the Randomized Controlled Trial (RCT).
+RCTs are used extensively in the field to evaluate a wide array of programs, from development, labor and education interventions to environmental nudges to website and search engine features.
+
+The key feature of an RCT is the introduction by the researcher of randomness in the allocation of the treatment.
+Individuals with \(R_i=1\), where \(R_i\) denotes the outcome of a random event, such as a coin toss, have a higher probability of receiving the treatment.
+Potential outcomes have the same distribution in both \(R_i=1\) and \(R_i=0\) groups.
+If we observe different outcomes between the treatment and control group, it has to be because of the causal effect of the treatment, since both groups only differ by the proportion of treated and controls.
+
+The most attractive feature of RCTs is that researchers enforce the main identification assumption (we do not have to assume that it holds, we can make sure that it does).
+This property of RCTs distinguishes them from all the other methods that we are going to learn in this class.
+
+In this lecture, we are going to study how to estimate the effect of an intervention on an outcome using RCTs.
+We are especially going to study the various types of designs and what can be recovered from them using which technique.
+For each design, we are going to detail which treatment effect it enables us to identify, how to obtain a sample estimate of this treatment effect and how to estimate the associated sampling noise.
+The main substantial difference between these four designs are the types of treatment effect parameters that they enable us to recover.
+Sections \ref{sec:design1} to \ref{sec:design4} of this lecture introduces the four designs and how to analyze them.
+
+Unfortunately, RCTs are not bullet proof.
+They suffer from problems that might make their estimates of causal effects badly biased.
+Section \ref{sec:threats} surveys the various threats and what we can do to try to minimize them.
+
+\hypertarget{sec:design1}{%
+\section{Brute Force Design}\label{sec:design1}}
+
+In the Brute Force Design, eligible individuals are randomly assigned to the treatment irrespective of their willingness to accept it and have to comply with the assignment.
+This is a rather dumb procedure but it is very easy to analyze and that is why I start with it.
+With the Brute Force Design, you can recover the average effect of the treatment on the whole population.
+This parameter is generally called the Average Treatment Effect (ATE).
+
+In this section, I am going to detail the assumptions required for the Brute Force Design to identify the ATE, how to form an estimator of the ATE and how to estimate its sampling noise.
+
+\hypertarget{identification}{%
+\subsection{Identification}\label{identification}}
+
+In the Brute Force Design, we need two assumptions for the ATE to be identified in the population: Independence and Brute Force Validity.
+
+\BeginKnitrBlock{definition}[Independence]
+\protect\hypertarget{def:independence}{}{\label{def:independence} \iffalse (Independence) \fi{} }We assume that the allocation of the program is independent of potential outcomes:
+\begin{align*}
+  R_i\Ind(Y_i^0,Y_i^1).
+\end{align*}
+\EndKnitrBlock{definition}
+
+Here, \(\Ind\) codes for independence or random variables.
+Independence can be enforced by the randomized allocation.
+
+We need a second assumption for the Brute Force Design to work:
+
+\BeginKnitrBlock{definition}[Brute Force Validity]
+\protect\hypertarget{def:BF}{}{\label{def:BF} \iffalse (Brute Force Validity) \fi{} }We assume that the randomized allocation of the program is mandatory and does not interfere with how potential outcomes are generated:
+\begin{align*}
+Y_i & = 
+  \begin{cases}
+    Y_i^1 & \text{ if } R_i=1  \\
+    Y_i^0 & \text{ if } R_i=0      
+  \end{cases}
+\end{align*}
+with \(Y_i^1\) and \(Y_i^0\) the same potential outcomes as defined in Lecture\textasciitilde{}0 with a routine allocation of the treatment.
+\EndKnitrBlock{definition}
+
+Under both Idependence and Brute Force Validity, we have the follwing result:
+
+\BeginKnitrBlock{theorem}[Identification in the Brute Force Design]
+\protect\hypertarget{thm:BFATE}{}{\label{thm:BFATE} \iffalse (Identification in the Brute Force Design) \fi{} }Under Assumptions \ref{def:independence} and \ref{def:BF}, the WW estimator identifies the Average Effect of the Treatment (ATE):
+\begin{align*}
+  \Delta^Y_{WW} & = \Delta^Y_{ATE},
+\end{align*}
+\EndKnitrBlock{theorem}
+
+with:
+\begin{align*}
+  \Delta^Y_{WW} & = \esp{Y_i|R_i=1} - \esp{Y_i|R_i=0} \\
+  \Delta^Y_{ATE} & = \esp{Y_i^1-Y_i^0}. 
+\end{align*}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}\begin{align*}
+  \Delta^Y_{WW} & = \esp{Y_i|R_i=1} - \esp{Y_i|R_i=0} \\
+                & = \esp{Y^1_i|R_i=1} - \esp{Y^0_i|R_i=0} \\
+                & = \esp{Y_i^1}-\esp{Y_i^0}\\
+                & = \esp{Y_i^1-Y_i^0},
+\end{align*}
+where the first equality uses Assumption \ref{def:BF}, the second equality Assumption \ref{def:independence} and the last equality the linearity of the expectation operator.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}As you can see from Theorem \ref{thm:BFATE}, ATE is the average effect of the treatment on the whole population, those who would be eligible for it and those who would not.
+ATE differs from TT because the effect of the treatment might be correlated with treatment intake.
+It is possible that the treatment has a bigger (resp. smaller) effect on treated individuals.
+In that case, ATE is higher (resp. smaller) than TT.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Another related design is the Brute Force Design among Eligibles.
+In this design, you impose the treatment status only among eligibles, irrespective of whether they want the treatment or not.
+It can be operationalized using the selection rule used in Section \ref{sec:design2}.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-67}{}{\label{exm:unnamed-chunk-67} }Let's use the example to illustrate the concept of ATE.
+Let's generate data with our usual parameter values without allocating the treatment yet:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{Ds[YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{]] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\end{Highlighting}
+\end{Shaded}
+
+In the sample, the ATE is the average difference between \(y_i^1\) and \(y_i^0\), or -- the expectation operator being linear -- the difference between average \(y_i^1\) and average \(y_i^0\).
+In our sample, the former is equal to 0.179 and the latter to 0.179.
+
+In the population, the ATE is equal to:
+
+\begin{align*}
+\Delta^y_{ATE} & = \esp{Y_i^1-Y_i^0} \\
+              & = \esp{\alpha_i} \\
+              & = \bar{\alpha}+\theta\bar{\mu}.
+\end{align*}
+
+Let's write a function to compute the value of the ATE and of TT (we derived the formula for TT in the previous lecture):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.ate <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}
+\NormalTok{\}}
+\NormalTok{delta.y.tt <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param)\{}
+  \KeywordTok{return}\NormalTok{(param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{((param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{])}\OperatorTok{*}\KeywordTok{pnorm}\NormalTok{((}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))))))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+In the population, with our parameter values, \(\Delta^y_{ATE}=\) 0.18 and \(\Delta^y_{TT}=\) 0.172.
+In our case, selection into the treatment is correlated with lower outcomes, so that \(TT\leq ATE\).
+
+In order to implement the Brute Force Design in practice in a sample, we simply either draw a coin repeatedly for each member of the sample, assigning for example, all ``heads'' to the treatment and all ``tails'' to the control.
+Because it can be a little cumbersome, it is possible to replace the coin toss by a pseudo-Random Number Generator (RNG), which is is an algorithm that tries to mimic the properties of random draws.
+When generating the samples in the numerical exmples, I actually use a pseudo-RNG.
+For example, we can draw from a uniform distribution on \([0,1]\) and allocate to the treatment all the individuals whose draw is smaller than 0.5:
+
+\begin{align*}
+  R_i^* & \sim \mathcal{U}[0,1]\\
+  R_i & = 
+  \begin{cases}
+    1 & \text{ if } R_i^*\leq .5 \\
+    0 & \text{ if } R_i^*> .5 
+  \end{cases}
+\end{align*}
+
+The advantage of using a uniform law is that you can set up proportions of treated and controls easily.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-68}{}{\label{exm:unnamed-chunk-68} }In our numerical example, the following R code generates two random groups, one treated and one control, and imposes the Assumption of Brute Force Validity:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# randomized allocation of 50% of individuals}
+\NormalTok{Rs <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(N)}
+\NormalTok{R <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Rs}\OperatorTok{<=}\NormalTok{.}\DecValTok{5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+\end{Highlighting}
+\end{Shaded}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}It is interesting to stop for one minute to think about how the Brute Force Design solves the FPCI.
+First, with the ATE, the counterfactual problem is more severe than in the case of the TT.
+In the routine mode of the program, where only eligible individuals receive the treatment, both parts of the ATE are unobserved:
+\EndKnitrBlock{remark}
+
+\begin{itemize}
+\tightlist
+\item
+  \(\esp{Y_i^1}\) is unobserved since we only observe the expected value of outcomes for the treated \(\esp{Y_i^1|D_i=1}\), and they do not have to be the same.
+\item
+  \(\esp{Y_i^0}\) is unobserved since we only observe the expected value of outcomes for the untreated \(\esp{Y_i^0|D_i=0}\), and they do not have to be the same.
+\end{itemize}
+
+What the Brute Force Design does, is that it allocates randomly one part of the sample to the treatment, so that we see \(\esp{Y_i^1|R_i=1}=\esp{Y_i^1}\) and one part to the control so that we see \(\esp{Y_i^0|R_i=0}=\esp{Y_i^0}\).
+
+\hypertarget{estimating-ate}{%
+\subsection{Estimating ATE}\label{estimating-ate}}
+
+\hypertarget{using-the-ww-estimator}{%
+\subsubsection{Using the WW estimator}\label{using-the-ww-estimator}}
+
+In order to estimate ATE in a sample where the treatment has been randomized using a Brute Force Design, we simply use the sample equivalent of the With/Without estimator:
+\begin{align*}
+  \hat{\Delta}^Y_{WW} & = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i).
+\end{align*}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-70}{}{\label{exm:unnamed-chunk-70} }In our numerical example, the WW estimator can be computed as follows in the sample:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.ww <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1}\NormalTok{])}\OperatorTok{-}\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+The WW estimator of the ATE in the sample is equal to 0.156.
+Let's recall that the true value of ATE is 0.18 in the population and 0.179 in the sample.
+
+We can also see in our example how the Brute Force Design approximates the counterfactual expectation \(\esp{y_i^1}\) and its sample equivalent mean \(\frac{1}{\sum_{i=1}^N}\sum_{i=1}^N y^1_i\) by the observed mean in the treated sample \(\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N y_iR_i\).
+In our example, the sample value of the counterfactual mean potential outcome \(\frac{1}{\sum_{i=1}^N}\sum_{i=1}^N y^1_i\) is equal to 8.222 and the sample value of its observed counterpart is 8.209.
+Similarly, the sample value of the counterfactual mean potential outcome \(\frac{1}{\sum_{i=1}^N}\sum_{i=1}^N y^0_i\) is equal to 8.043 and the sample value of its observed counterpart is 8.054.
+
+\hypertarget{using-ols}{%
+\subsubsection{Using OLS}\label{using-ols}}
+
+As we have seen in Lecture 0, the WW estimator is numerically identical to the OLS estimator of a linear regression of outcomes on treatment:
+The OLS coefficient \(\beta\) in the following regression:
+\begin{align*}
+    Y_i &  = \alpha +  \beta R_i + U_i
+    \end{align*}
+is the WW estimator.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-71}{}{\label{exm:unnamed-chunk-71} }In our numerical example, we can run the OLS regression as follows:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.y.R.ols <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{R)}
+\end{Highlighting}
+\end{Shaded}
+
+\(\hat{\Delta}^y_{OLS}=\) 0.156 which is exactly equal, as expected, to the WW estimator: 0.156.
+
+\hypertarget{using-ols-conditioning-on-covariates}{%
+\subsubsection{Using OLS conditioning on covariates}\label{using-ols-conditioning-on-covariates}}
+
+The advantage of using OLS other the direct WW comparison is that it gives you a direct estimate of sampling noise (see next section) but also that it enables you to condition on additional covariates in the regression:
+The OLS coefficient \(\beta\) in the following regression:
+\begin{align*}
+    Y_i &  = \alpha +  \beta R_i + \gamma' X_i + U_i
+    \end{align*}
+is a consistent (and even unbiased) estimate of the ATE.
+
+\textbf{proof needed, especially assumption of linearity.}
+\textbf{Also, is interaction between \(X_i\) and \(R_i\) needed? See lecture 3.}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-72}{}{\label{exm:unnamed-chunk-72} }In our numerical example, we can run the OLS regression conditioning on \(y_i^B\) as follows:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.y.R.ols.yB <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{R }\OperatorTok{+}\StringTok{ }\NormalTok{yB)}
+\end{Highlighting}
+\end{Shaded}
+
+\(\hat{\Delta}^y_{OLSX}=\) 0.177.
+Note that \(\hat{\Delta}^y_{OLSX}\neq\hat{\Delta}^y_{WW}\).
+There is no numerical equivalence between the two estimators.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Why would you want to condition on covariates in an RCT?
+Indeed, covariates should be balanced by randomization and thus there does not seem to be a rationale for conditioning on potential confounders, since there should be none.
+The main reason why we condition on covariates is to decrease sampling noise.
+Remember that sampling noise is due to imbalances between confounders in the treatment and control group.
+Since these imbalances are not systematic, the WW estimator is unbiased.
+We can also make the bias due to these unbalances as small as we want by choosing an adequate sample size (the WW estimator is consistent).
+But for a given sample size, these imbalances generate sampling noise around the true ATE.
+Conditioning on covariates helps decrease sampling noise by accounting for imbalances due to observed covariates.
+If observed covariates explain a large part of the variation in outcomes, conditioning on them is going to prevent a lot of sampling noise from occuring.
+\EndKnitrBlock{remark}
+
+\hypertarget{sec:design2}{%
+\section{Randomization After Self-Selection}\label{sec:design2}}
+
+\hypertarget{sec:design3}{%
+\section{Randomization After Eligibility}\label{sec:design3}}
+
+\hypertarget{sec:design4}{%
+\section{Encouragement Design}\label{sec:design4}}
+
+\hypertarget{sec:threats}{%
+\section{Threats to the validity of RCTs}\label{sec:threats}}
 
 \hypertarget{NE}{%
 \chapter{Natural Experiments}\label{NE}}

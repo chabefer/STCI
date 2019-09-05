@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2019-08-27" />
+<meta name="date" content="2019-09-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -175,7 +175,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="part"><span><b>II Methods of Causal Inference</b></span></li>
-<li class="chapter" data-level="3" data-path="RCT.html"><a href="RCT.html"><i class="fa fa-check"></i><b>3</b> Randomized Controlled Trials</a></li>
+<li class="chapter" data-level="3" data-path="RCT.html"><a href="RCT.html"><i class="fa fa-check"></i><b>3</b> Randomized Controlled Trials</a><ul>
+<li class="chapter" data-level="3.1" data-path="RCT.html"><a href="RCT.html#sec:design1"><i class="fa fa-check"></i><b>3.1</b> Brute Force Design</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="RCT.html"><a href="RCT.html#identification"><i class="fa fa-check"></i><b>3.1.1</b> Identification</a></li>
+<li class="chapter" data-level="3.1.2" data-path="RCT.html"><a href="RCT.html#estimating-ate"><i class="fa fa-check"></i><b>3.1.2</b> Estimating ATE</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Randomization After Self-Selection</a></li>
+<li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Randomization After Eligibility</a></li>
+<li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a></li>
+<li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
+</ul></li>
 <li class="chapter" data-level="4" data-path="NE.html"><a href="NE.html"><i class="fa fa-check"></i><b>4</b> Natural Experiments</a></li>
 <li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a></li>
 <li class="part"><span><b>III Additional Topics</b></span></li>
@@ -216,7 +225,257 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="RCT" class="section level1">
 <h1><span class="header-section-number">Chapter 3</span> Randomized Controlled Trials</h1>
+<p>The most robust and rigorous method that has been devised by social scientists to estimate the effect of an intervention on an outcome is the Randomized Controlled Trial (RCT).
+RCTs are used extensively in the field to evaluate a wide array of programs, from development, labor and education interventions to environmental nudges to website and search engine features.</p>
+<p>The key feature of an RCT is the introduction by the researcher of randomness in the allocation of the treatment.
+Individuals with <span class="math inline">\(R_i=1\)</span>, where <span class="math inline">\(R_i\)</span> denotes the outcome of a random event, such as a coin toss, have a higher probability of receiving the treatment.
+Potential outcomes have the same distribution in both <span class="math inline">\(R_i=1\)</span> and <span class="math inline">\(R_i=0\)</span> groups.
+If we observe different outcomes between the treatment and control group, it has to be because of the causal effect of the treatment, since both groups only differ by the proportion of treated and controls.</p>
+<p>The most attractive feature of RCTs is that researchers enforce the main identification assumption (we do not have to assume that it holds, we can make sure that it does).
+This property of RCTs distinguishes them from all the other methods that we are going to learn in this class.</p>
+<p>In this lecture, we are going to study how to estimate the effect of an intervention on an outcome using RCTs.
+We are especially going to study the various types of designs and what can be recovered from them using which technique.
+For each design, we are going to detail which treatment effect it enables us to identify, how to obtain a sample estimate of this treatment effect and how to estimate the associated sampling noise.
+The main substantial difference between these four designs are the types of treatment effect parameters that they enable us to recover.
+Sections <a href="RCT.html#sec:design1">3.1</a> to <a href="RCT.html#sec:design4">3.4</a> of this lecture introduces the four designs and how to analyze them.</p>
+<p>Unfortunately, RCTs are not bullet proof.
+They suffer from problems that might make their estimates of causal effects badly biased.
+Section <a href="RCT.html#sec:threats">3.5</a> surveys the various threats and what we can do to try to minimize them.</p>
+<div id="sec:design1" class="section level2">
+<h2><span class="header-section-number">3.1</span> Brute Force Design</h2>
+<p>In the Brute Force Design, eligible individuals are randomly assigned to the treatment irrespective of their willingness to accept it and have to comply with the assignment.
+This is a rather dumb procedure but it is very easy to analyze and that is why I start with it.
+With the Brute Force Design, you can recover the average effect of the treatment on the whole population.
+This parameter is generally called the Average Treatment Effect (ATE).</p>
+<p>In this section, I am going to detail the assumptions required for the Brute Force Design to identify the ATE, how to form an estimator of the ATE and how to estimate its sampling noise.</p>
+<div id="identification" class="section level3">
+<h3><span class="header-section-number">3.1.1</span> Identification</h3>
+<p>In the Brute Force Design, we need two assumptions for the ATE to be identified in the population: Independence and Brute Force Validity.</p>
 
+<div class="definition">
+<span id="def:independence" class="definition"><strong>Definition 3.1  (Independence)  </strong></span>We assume that the allocation of the program is independent of potential outcomes:
+<span class="math display">\[\begin{align*}
+  R_i\Ind(Y_i^0,Y_i^1).
+\end{align*}\]</span>
+</div>
+
+<p>Here, <span class="math inline">\(\Ind\)</span> codes for independence or random variables.
+Independence can be enforced by the randomized allocation.</p>
+<p>We need a second assumption for the Brute Force Design to work:</p>
+
+<div class="definition">
+<span id="def:BF" class="definition"><strong>Definition 3.2  (Brute Force Validity)  </strong></span>We assume that the randomized allocation of the program is mandatory and does not interfere with how potential outcomes are generated:
+<span class="math display">\[\begin{align*}
+Y_i &amp; = 
+  \begin{cases}
+    Y_i^1 &amp; \text{ if } R_i=1  \\
+    Y_i^0 &amp; \text{ if } R_i=0      
+  \end{cases}
+\end{align*}\]</span>
+with <span class="math inline">\(Y_i^1\)</span> and <span class="math inline">\(Y_i^0\)</span> the same potential outcomes as defined in Lecture~0 with a routine allocation of the treatment.
+</div>
+
+<p>Under both Idependence and Brute Force Validity, we have the follwing result:</p>
+
+<div class="theorem">
+<p><span id="thm:BFATE" class="theorem"><strong>Theorem 3.1  (Identification in the Brute Force Design)  </strong></span>Under Assumptions <a href="RCT.html#def:independence">3.1</a> and <a href="RCT.html#def:BF">3.2</a>, the WW estimator identifies the Average Effect of the Treatment (ATE):
+<span class="math display">\[\begin{align*}
+  \Delta^Y_{WW} &amp; = \Delta^Y_{ATE},
+\end{align*}\]</span></p>
+</div>
+
+<p>with:
+<span class="math display">\[\begin{align*}
+  \Delta^Y_{WW} &amp; = \esp{Y_i|R_i=1} - \esp{Y_i|R_i=0} \\
+  \Delta^Y_{ATE} &amp; = \esp{Y_i^1-Y_i^0}. 
+\end{align*}\]</span></p>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
+  \Delta^Y_{WW} &amp; = \esp{Y_i|R_i=1} - \esp{Y_i|R_i=0} \\
+                &amp; = \esp{Y^1_i|R_i=1} - \esp{Y^0_i|R_i=0} \\
+                &amp; = \esp{Y_i^1}-\esp{Y_i^0}\\
+                &amp; = \esp{Y_i^1-Y_i^0},
+\end{align*}\]</span>
+where the first equality uses Assumption <a href="RCT.html#def:BF">3.2</a>, the second equality Assumption <a href="RCT.html#def:independence">3.1</a> and the last equality the linearity of the expectation operator.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> As you can see from Theorem <a href="RCT.html#thm:BFATE">3.1</a>, ATE is the average effect of the treatment on the whole population, those who would be eligible for it and those who would not.
+ATE differs from TT because the effect of the treatment might be correlated with treatment intake.
+It is possible that the treatment has a bigger (resp. smaller) effect on treated individuals.
+In that case, ATE is higher (resp. smaller) than TT.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Another related design is the Brute Force Design among Eligibles.
+In this design, you impose the treatment status only among eligibles, irrespective of whether they want the treatment or not.
+It can be operationalized using the selection rule used in Section <a href="RCT.html#sec:design2">3.2</a>.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-67" class="example"><strong>Example 3.1  </strong></span>Let’s use the example to illustrate the concept of ATE.
+Let’s generate data with our usual parameter values without allocating the treatment yet:
+</div>
+
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" data-line-number="1">param &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>,<span class="fl">0.9</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.1</span>)</a>
+<a class="sourceLine" id="cb73-2" data-line-number="2"><span class="kw">names</span>(param) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">1234</span>)</a>
+<a class="sourceLine" id="cb74-2" data-line-number="2">N &lt;-<span class="dv">1000</span></a>
+<a class="sourceLine" id="cb74-3" data-line-number="3">mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))</a>
+<a class="sourceLine" id="cb74-4" data-line-number="4">UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))</a>
+<a class="sourceLine" id="cb74-5" data-line-number="5">yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB </a>
+<a class="sourceLine" id="cb74-6" data-line-number="6">YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)</a>
+<a class="sourceLine" id="cb74-7" data-line-number="7">Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)</a>
+<a class="sourceLine" id="cb74-8" data-line-number="8">Ds[YB<span class="op">&lt;=</span>param[<span class="st">&quot;barY&quot;</span>]] &lt;-<span class="st"> </span><span class="dv">1</span> </a>
+<a class="sourceLine" id="cb74-9" data-line-number="9">epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))</a>
+<a class="sourceLine" id="cb74-10" data-line-number="10">eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))</a>
+<a class="sourceLine" id="cb74-11" data-line-number="11">U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon</a>
+<a class="sourceLine" id="cb74-12" data-line-number="12">y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]</a>
+<a class="sourceLine" id="cb74-13" data-line-number="13">alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta</a>
+<a class="sourceLine" id="cb74-14" data-line-number="14">y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha</a>
+<a class="sourceLine" id="cb74-15" data-line-number="15">Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)</a>
+<a class="sourceLine" id="cb74-16" data-line-number="16">Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)</a></code></pre></div>
+<p>In the sample, the ATE is the average difference between <span class="math inline">\(y_i^1\)</span> and <span class="math inline">\(y_i^0\)</span>, or – the expectation operator being linear – the difference between average <span class="math inline">\(y_i^1\)</span> and average <span class="math inline">\(y_i^0\)</span>.
+In our sample, the former is equal to 0.179 and the latter to 0.179.</p>
+<p>In the population, the ATE is equal to:</p>
+<p><span class="math display">\[\begin{align*}
+\Delta^y_{ATE} &amp; = \esp{Y_i^1-Y_i^0} \\
+              &amp; = \esp{\alpha_i} \\
+              &amp; = \bar{\alpha}+\theta\bar{\mu}.
+\end{align*}\]</span></p>
+<p>Let’s write a function to compute the value of the ATE and of TT (we derived the formula for TT in the previous lecture):</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" data-line-number="1">delta.y.ate &lt;-<span class="st"> </span><span class="cf">function</span>(param){</a>
+<a class="sourceLine" id="cb75-2" data-line-number="2">  <span class="kw">return</span>(param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>])</a>
+<a class="sourceLine" id="cb75-3" data-line-number="3">}</a>
+<a class="sourceLine" id="cb75-4" data-line-number="4">delta.y.tt &lt;-<span class="st"> </span><span class="cf">function</span>(param){</a>
+<a class="sourceLine" id="cb75-5" data-line-number="5">  <span class="kw">return</span>(param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>((param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">*</span><span class="kw">dnorm</span>((<span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="op">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="op">/</span>(<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))))<span class="op">/</span>(<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>])<span class="op">*</span><span class="kw">pnorm</span>((<span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="op">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="op">/</span>(<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]))))))</a>
+<a class="sourceLine" id="cb75-6" data-line-number="6">}</a></code></pre></div>
+<p>In the population, with our parameter values, <span class="math inline">\(\Delta^y_{ATE}=\)</span> 0.18 and <span class="math inline">\(\Delta^y_{TT}=\)</span> 0.172.
+In our case, selection into the treatment is correlated with lower outcomes, so that <span class="math inline">\(TT\leq ATE\)</span>.</p>
+<p>In order to implement the Brute Force Design in practice in a sample, we simply either draw a coin repeatedly for each member of the sample, assigning for example, all “heads” to the treatment and all “tails” to the control.
+Because it can be a little cumbersome, it is possible to replace the coin toss by a pseudo-Random Number Generator (RNG), which is is an algorithm that tries to mimic the properties of random draws.
+When generating the samples in the numerical exmples, I actually use a pseudo-RNG.
+For example, we can draw from a uniform distribution on <span class="math inline">\([0,1]\)</span> and allocate to the treatment all the individuals whose draw is smaller than 0.5:</p>
+<p><span class="math display">\[\begin{align*}
+  R_i^* &amp; \sim \mathcal{U}[0,1]\\
+  R_i &amp; = 
+  \begin{cases}
+    1 &amp; \text{ if } R_i^*\leq .5 \\
+    0 &amp; \text{ if } R_i^*&gt; .5 
+  \end{cases}
+\end{align*}\]</span></p>
+<p>The advantage of using a uniform law is that you can set up proportions of treated and controls easily.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-68" class="example"><strong>Example 3.2  </strong></span>In our numerical example, the following R code generates two random groups, one treated and one control, and imposes the Assumption of Brute Force Validity:
+</div>
+
+<div class="sourceCode" id="cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" data-line-number="1"><span class="co"># randomized allocation of 50% of individuals</span></a>
+<a class="sourceLine" id="cb76-2" data-line-number="2">Rs &lt;-<span class="st"> </span><span class="kw">runif</span>(N)</a>
+<a class="sourceLine" id="cb76-3" data-line-number="3">R &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Rs<span class="op">&lt;=</span>.<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb76-4" data-line-number="4">y &lt;-<span class="st"> </span>y1<span class="op">*</span>R<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>R)</a>
+<a class="sourceLine" id="cb76-5" data-line-number="5">Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>R<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>R)</a></code></pre></div>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> It is interesting to stop for one minute to think about how the Brute Force Design solves the FPCI.
+First, with the ATE, the counterfactual problem is more severe than in the case of the TT.
+In the routine mode of the program, where only eligible individuals receive the treatment, both parts of the ATE are unobserved:
+</div>
+
+<ul>
+<li><span class="math inline">\(\esp{Y_i^1}\)</span> is unobserved since we only observe the expected value of outcomes for the treated <span class="math inline">\(\esp{Y_i^1|D_i=1}\)</span>, and they do not have to be the same.</li>
+<li><span class="math inline">\(\esp{Y_i^0}\)</span> is unobserved since we only observe the expected value of outcomes for the untreated <span class="math inline">\(\esp{Y_i^0|D_i=0}\)</span>, and they do not have to be the same.</li>
+</ul>
+<p>What the Brute Force Design does, is that it allocates randomly one part of the sample to the treatment, so that we see <span class="math inline">\(\esp{Y_i^1|R_i=1}=\esp{Y_i^1}\)</span> and one part to the control so that we see <span class="math inline">\(\esp{Y_i^0|R_i=0}=\esp{Y_i^0}\)</span>.</p>
+</div>
+<div id="estimating-ate" class="section level3">
+<h3><span class="header-section-number">3.1.2</span> Estimating ATE</h3>
+<div id="using-the-ww-estimator" class="section level4">
+<h4><span class="header-section-number">3.1.2.1</span> Using the WW estimator</h4>
+<p>In order to estimate ATE in a sample where the treatment has been randomized using a Brute Force Design, we simply use the sample equivalent of the With/Without estimator:
+<span class="math display">\[\begin{align*}
+  \hat{\Delta}^Y_{WW} &amp; = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i).
+\end{align*}\]</span></p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-70" class="example"><strong>Example 3.3  </strong></span>In our numerical example, the WW estimator can be computed as follows in the sample:
+</div>
+
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb77-1" data-line-number="1">delta.y.ww &lt;-<span class="st"> </span><span class="kw">mean</span>(y[R<span class="op">==</span><span class="dv">1</span>])<span class="op">-</span><span class="kw">mean</span>(y[R<span class="op">==</span><span class="dv">0</span>])</a></code></pre></div>
+<p>The WW estimator of the ATE in the sample is equal to 0.156.
+Let’s recall that the true value of ATE is 0.18 in the population and 0.179 in the sample.</p>
+<p>We can also see in our example how the Brute Force Design approximates the counterfactual expectation <span class="math inline">\(\esp{y_i^1}\)</span> and its sample equivalent mean <span class="math inline">\(\frac{1}{\sum_{i=1}^N}\sum_{i=1}^N y^1_i\)</span> by the observed mean in the treated sample <span class="math inline">\(\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N y_iR_i\)</span>.
+In our example, the sample value of the counterfactual mean potential outcome <span class="math inline">\(\frac{1}{\sum_{i=1}^N}\sum_{i=1}^N y^1_i\)</span> is equal to 8.222 and the sample value of its observed counterpart is 8.209.
+Similarly, the sample value of the counterfactual mean potential outcome <span class="math inline">\(\frac{1}{\sum_{i=1}^N}\sum_{i=1}^N y^0_i\)</span> is equal to 8.043 and the sample value of its observed counterpart is 8.054.</p>
+</div>
+<div id="using-ols" class="section level4">
+<h4><span class="header-section-number">3.1.2.2</span> Using OLS</h4>
+<p>As we have seen in Lecture 0, the WW estimator is numerically identical to the OLS estimator of a linear regression of outcomes on treatment:
+The OLS coefficient <span class="math inline">\(\beta\)</span> in the following regression:
+<span class="math display">\[\begin{align*}
+    Y_i &amp;  = \alpha +  \beta R_i + U_i
+    \end{align*}\]</span>
+is the WW estimator.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-71" class="example"><strong>Example 3.4  </strong></span>In our numerical example, we can run the OLS regression as follows:
+</div>
+
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" data-line-number="1">reg.y.R.ols &lt;-<span class="st"> </span><span class="kw">lm</span>(y<span class="op">~</span>R)</a></code></pre></div>
+<p><span class="math inline">\(\hat{\Delta}^y_{OLS}=\)</span> 0.156 which is exactly equal, as expected, to the WW estimator: 0.156.</p>
+</div>
+<div id="using-ols-conditioning-on-covariates" class="section level4">
+<h4><span class="header-section-number">3.1.2.3</span> Using OLS conditioning on covariates</h4>
+<p>The advantage of using OLS other the direct WW comparison is that it gives you a direct estimate of sampling noise (see next section) but also that it enables you to condition on additional covariates in the regression:
+The OLS coefficient <span class="math inline">\(\beta\)</span> in the following regression:
+<span class="math display">\[\begin{align*}
+    Y_i &amp;  = \alpha +  \beta R_i + \gamma&#39; X_i + U_i
+    \end{align*}\]</span>
+is a consistent (and even unbiased) estimate of the ATE.</p>
+<p><strong>proof needed, especially assumption of linearity.</strong>
+<strong>Also, is interaction between <span class="math inline">\(X_i\)</span> and <span class="math inline">\(R_i\)</span> needed? See lecture 3.</strong></p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-72" class="example"><strong>Example 3.5  </strong></span>In our numerical example, we can run the OLS regression conditioning on <span class="math inline">\(y_i^B\)</span> as follows:
+</div>
+
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" data-line-number="1">reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y<span class="op">~</span>R <span class="op">+</span><span class="st"> </span>yB)</a></code></pre></div>
+<p><span class="math inline">\(\hat{\Delta}^y_{OLSX}=\)</span> 0.177.
+Note that <span class="math inline">\(\hat{\Delta}^y_{OLSX}\neq\hat{\Delta}^y_{WW}\)</span>.
+There is no numerical equivalence between the two estimators.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Why would you want to condition on covariates in an RCT?
+Indeed, covariates should be balanced by randomization and thus there does not seem to be a rationale for conditioning on potential confounders, since there should be none.
+The main reason why we condition on covariates is to decrease sampling noise.
+Remember that sampling noise is due to imbalances between confounders in the treatment and control group.
+Since these imbalances are not systematic, the WW estimator is unbiased.
+We can also make the bias due to these unbalances as small as we want by choosing an adequate sample size (the WW estimator is consistent).
+But for a given sample size, these imbalances generate sampling noise around the true ATE.
+Conditioning on covariates helps decrease sampling noise by accounting for imbalances due to observed covariates.
+If observed covariates explain a large part of the variation in outcomes, conditioning on them is going to prevent a lot of sampling noise from occuring.
+</div>
+
+</div>
+</div>
+</div>
+<div id="sec:design2" class="section level2">
+<h2><span class="header-section-number">3.2</span> Randomization After Self-Selection</h2>
+</div>
+<div id="sec:design3" class="section level2">
+<h2><span class="header-section-number">3.3</span> Randomization After Eligibility</h2>
+</div>
+<div id="sec:design4" class="section level2">
+<h2><span class="header-section-number">3.4</span> Encouragement Design</h2>
+</div>
+<div id="sec:threats" class="section level2">
+<h2><span class="header-section-number">3.5</span> Threats to the validity of RCTs</h2>
+
+</div>
 </div>
             </section>
 
