@@ -614,7 +614,7 @@ I think these issues are minor and rare and can be dealt with on a case by case 
 The advantage of having one simple and directly readable number comparable to the magnitude of the treatment effect is overwhelming and makes this approach the most natural and adequate, in my opinion.
 ```
 
-### Using effect sizes to normalize the reporting of treatment effects and their precision
+### Using effect sizes to normalize the reporting of treatment effects and their precision {#sec:effectsize}
 
 When looking at the effect of a program on an outcome, we depend on the scaling on that outcome to appreciate the relative size of the estimated treatment effect.  
 It is often difficult to appreciate the relative importance of the size of an effect, even if we know the scale of the outcome of interest.
@@ -697,7 +697,7 @@ for (k in 1:length(N.sample)){
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
       geom_errorbar(aes(ymin=ES-sampling.noise.ES.1/2, ymax=ES+sampling.noise.ES.1/2), width=.2,position=position_dodge(.9),color='red') +
       geom_errorbar(aes(ymin=ES-sampling.noise.ES.2/2, ymax=ES+sampling.noise.ES.2/2), width=.2,position=position_dodge(.9),color='blue') +
-      geom_hline(aes(yintercept=delta.y.ate(param)/sqrt(V0(param))), colour="#990000", linetype="dashed")+
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
       #ylim(-0.5,1.2)+
       xlab("Sample id")+
       ylab("Effect Size")+
@@ -1515,6 +1515,7 @@ Remember that, with $N=$ `r N`, sampling noise is actually equal to `r round(tab
 
 In order to assess the global precision of Fisher's permutation method, we are going to resort to Monte Carlo simulations.
 
+
 ```{r montecarlofisher,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE,dependson=c('param','fisherwwtest')}
 monte.carlo.ww.fisher <- function(s,N,param,Nfisher,delta){
   set.seed(s)
@@ -1552,9 +1553,13 @@ sf.simuls.ww.N.fisher <- function(N,Nsim,Nfisher,delta,param){
 simuls.ww.fisher <- lapply(N.sample,sf.simuls.ww.N.fisher,Nsim=Nsim,param=param,Nfisher=Nfisher,delta=delta)
 ```
 
-We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, in Figures \@ref(fig:sampnoisewwfisherall), \@ref(fig:sampnoisewwfisherplot) and \@ref(fig:confintervalfisher) show.
+We can now graph our bootstrapped estimate of sampling noise in all of our samples, the average bootstrapped estimates of sampling noise and of confidence intervals, as Figures \@ref(fig:sampnoisewwfisherall), \@ref(fig:sampnoisewwfisherplot) and \@ref(fig:confintervalfisher) show.
+The results are pretty good.
+On average, estimates of sampling noise using Randomization Inference are pretty accurate, as Figure \@ref(fig:sampnoisewwfisherplot) shows.
+It seems that sampling noise is underestimated by Randomization Inference when $N=$ `r N.sample[[2]]`, without any clear reason why.
 
-```{r sampnoisewwfisherall,eval=TRUE,echo=TRUE,fig.cap='Distribution of the estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+
+```{r sampnoisewwfisherall,eval=TRUE,echo=TRUE,fig.cap='Distribution of the estimates of sampling noise using Randomization Inference over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
 par(mfrow=c(2,2))
 for (i in 1:4){
   hist(simuls.ww.fisher[[i]][,'fisher.samp.noise'],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(2*bar(epsilon))),xlim=c(min(simuls.ww.fisher[[i]][,'fisher.samp.noise']),max(simuls.ww.fisher[[i]][,'fisher.samp.noise'])))
@@ -1562,7 +1567,7 @@ for (i in 1:4){
 }
 ```
 
-```{r sampnoisewwfisherplot,eval=TRUE,echo=TRUE,fig.cap='Average estimates of sampling noise using Fisher permutation approach over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
+```{r sampnoisewwfisherplot,eval=TRUE,echo=TRUE,fig.cap='Average estimates of sampling noise using Randomization Inference over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width=cst,fig.pos='htbp'}
 for (k in (1:length(N.sample))){
   table.noise$fisher.noise[k] <- mean(simuls.ww.fisher[[k]]$fisher.samp.noise)
 }
@@ -1574,7 +1579,7 @@ ggplot(table.noise, aes(x=as.factor(N), y=TT)) +
   theme_bw()
 ```
 
-```{r confintervalfisher,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'estimated using Fisher permutation approach over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
+```{r confintervalfisher,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Confidence intervals of $\\hat{WW}$ for $\\delta=$',delta,'estimated using Randomization Inference over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.align='center',out.width=cst,fig.pos='htbp',fig.height=12,fig.width=10}
 N.plot <- 40
 plot.list <- list()
 
@@ -1598,7 +1603,7 @@ plot.CI <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]]
 print(plot.CI)
 ```
 
-**TO DO: COMMENT AND USE ALTERNATIVE APPROACH USING p-VALUES** 
+**TO DO: ALTERNATIVE APPROACH USING p-VALUES** 
 
 #### Subsampling
 

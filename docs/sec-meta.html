@@ -5,11 +5,11 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Statistical Tools for Causal Inference</title>
+  <title>Chapter 12 Meta-analysis and Publication Bias | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book.">
   <meta name="generator" content="bookdown  and GitBook 2.6.7">
 
-  <meta property="og:title" content="Statistical Tools for Causal Inference" />
+  <meta property="og:title" content="Chapter 12 Meta-analysis and Publication Bias | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
   
   
@@ -17,7 +17,7 @@
   <meta name="github-repo" content="chabefer/STCI" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Statistical Tools for Causal Inference" />
+  <meta name="twitter:title" content="Chapter 12 Meta-analysis and Publication Bias | Statistical Tools for Causal Inference" />
   
   <meta name="twitter:description" content="This is an open source collaborative book." />
   
@@ -32,8 +32,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-
-<link rel="next" href="introduction-the-two-fundamental-problems-of-inference.html">
+<link rel="prev" href="Distribution.html">
+<link rel="next" href="Bounds.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -214,35 +214,114 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Statistical Tools for Causal Inference</h1>
-<p class="author"><em>The SKY Community</em></p>
-<p class="date"><em>2019-09-12</em></p>
+<div id="sec:meta" class="section level1">
+<h1><span class="header-section-number">Chapter 12</span> Meta-analysis and Publication Bias</h1>
+<p>When several research teams work on a similar topic, they obtain and publish several estimates for the same program of for similar programs. For example, teams of doctors regularly test the same treatment on different samples or populations in order to refine the estimated effect. Similarly, economists report on the effects of similar types of programs (Conditional and Unconditional Cash Transfers, Job Training Programs, microcredit, etc) implemented in different countries.</p>
+<p>Meta-analysis aims at summarizing and synthetizing the available evidence with two main goals in mind:</p>
+<ol style="list-style-type: decimal">
+<li>Increasing precision by providing an average estimated effect combining several estimates</li>
+<li>Explaining variations in treatment effectiveness by relating changes in effect size to changes in sample characteristics.</li>
+</ol>
+<p>One key issue that meta-analysis has to face – actually, we all have to face it, meta-analysis simply makes it more apparent – is that of publication bias. Publication bias is due to the fact that referees and editors have a marked preference for publishing statistically significant results. The problem with this approach is that the distribution of published results is going to be censored on the left: we will have more statistically significant results in the published record, and as a consequence, the average ublished result will be an upward biased estimate of the true treatment effect in the population. This is potentially a very severe problem, if the amount of censoring due to publication bias is large. Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.</p>
+<p>In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.</p>
+<div id="meta-analysis" class="section level2">
+<h2><span class="header-section-number">12.1</span> Meta-analysis</h2>
+<p>There are several approaches and refinements to meta-analysis. In this section, I am going to present only the most important ones. I’ll defer the reader to other more specialized publications if needed.</p>
+<p>I first present the basics of meta-analysis: the constitution and structure of the sample. Second, I present the simplest method to aggregate effects: the weighted average. Third, I present tests for deciding whether the effects are from a homogeneous or a heterogeneous population. Fourth, I explain how to conduct a meta-analysis when effects are heterogeneous. Fifth, I cover the meta-regression that we use to account for heterogeneity in treatment effects. Finally, I explain why usual intuitive methods such as vote-counting are biased.</p>
+<div id="basic-setting-for-meta-analysis-the-data" class="section level3">
+<h3><span class="header-section-number">12.1.1</span> Basic setting for meta-analysis: the data</h3>
+<p>The basic setting for a meta-analysis is that you have access to a list of estimates for the effect of a given program and for their precision. These estimates come from the literature, searching published and unpublished sources alike. This data is usually collected after an extensive search of bibliographic databases. Then, one has to select among all the studies selected by the search the ones that are actualy relevant. This is the most excruciating part of a meta-analysis, since a lot of the studies selected by hte search algorithm are actually irrelevant. Finally, one has to extract from each relevant paper an estimate of the effect of the treatment and of its precision. In general, one tries to choose standardized estimates such as the effect size (see Section <a href="FPSI.html#sec:effectsize">2.1.6</a> for a definition) and its standard error. After all this process, we should end up with a dataset like: <span class="math inline">\(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\)</span>, with <span class="math inline">\(\hat{\theta}_k\)</span> the estimated effect size, <span class="math inline">\(\hat{\sigma}_k\)</span> its estimated standard error, and <span class="math inline">\(N\)</span> the number of included studies.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-78" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
 </div>
-<div id="introduction" class="section level1 unnumbered">
-<h1>Introduction</h1>
-<p>Tools of causal inference are the basic statistical building block behind most scientific results. It is thus extremely useful to have an open source collectively aggreed upon resource presenting and assessing them, as well as listing the current unresolved issues. The content of this book covers the basic theoretical knowledge and technical skills required for implementing staistical methods of causal inference. This means:</p>
-<ul>
-<li>Understanding of the basic language to encode causality,</li>
-<li>Knowledge of the fundamental problems of inference and the biases of intuitive estimators,</li>
-<li>Understanding of how econometric methods recover treatment effects,</li>
-<li>Ability to compute these estimators along with an estimate of their precision using the statistical software R.</li>
-</ul>
-<p>This book is geared for teaching causal inference to graduate students that want to apply statistical tools of causal inference. The demonstration of theoretical results are provided, but the final goal is not to have students reproduce them, but mostly to enable them to grasp a better understanding of the fundations for the tools that they will be using. The focus is on understanding the issues and solutions more than understanding the maths that are behind, even though the maths are there and are used to convey the notions rigorously. All the notions and estimators are introduced using a numerical example and simulations, so that each notion is illustrated and appears more intuitive to the students. The second version of this book will contain examples using real applications. The third version will contain exercises.</p>
-<p>This book is written in Rmarkdown using the bookdown package. It is available both as a <a href="https://chabefer.github.io/STCI/">web-book</a> and as a <a href="https://chabefer.github.io/STCI/STCI.pdf">pdf book</a>.</p>
-<p>This book is a collaborative effort that is part of the <a href="https://chabefer.github.io/SKY/">Social Science Knowledge Accumulation Initiative (SKY)</a>. The code behind this book is publically available on GitHub and you can propose corrections and updates. How to make contributions to this book is explained on the <a href="https://chabefer.github.io/SKY/tutoSTCI.html">SKY website</a>. Do not hesitate to make suggestions, modifications and extensions. This way this book will grow and become the living open source collaborative reference for methodological work that it could be.</p>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.plot.ES.CLT &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">7</span>,<span class="dv">2</span>,<span class="dv">1</span>)
+data.meta &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">ES=</span><span class="kw">numeric</span>(),
+                          <span class="dt">se=</span><span class="kw">numeric</span>())
+
+se.ww.CLT.ES &lt;-<span class="st"> </span><span class="cf">function</span>(N,v1,v0,p){
+  <span class="kw">return</span>(<span class="kw">sqrt</span>((v1<span class="op">/</span>p<span class="op">+</span>v0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>p))<span class="op">/</span>N)<span class="op">/</span>v0)
+}
+
+<span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(N.sample)){
+  <span class="kw">set.seed</span>(<span class="dv">1234</span>)
+  simuls.ww[[k]]<span class="op">$</span>se.ES &lt;-<span class="st"> </span><span class="kw">se.ww.CLT.ES</span>(N.sample[[k]],simuls.ww[[k]][,<span class="st">&#39;V1&#39;</span>],simuls.ww[[k]][,<span class="st">&#39;V0&#39;</span>],simuls.ww[[k]][,<span class="st">&#39;p&#39;</span>])
+  test.ES &lt;-<span class="st"> </span>simuls.ww[[k]][<span class="kw">sample</span>(N.plot.ES.CLT[[k]]),<span class="kw">c</span>(<span class="st">&#39;ES&#39;</span>,<span class="st">&#39;se.ES&#39;</span>)]
+  test.ES<span class="op">$</span>N &lt;-<span class="st"> </span><span class="kw">rep</span>(N.sample[[k]],N.plot.ES.CLT[[k]])
+  data.meta &lt;-<span class="st"> </span><span class="kw">rbind</span>(data.meta,test.ES)
+  }
+
+data.meta<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(data.meta)
+data.meta<span class="op">$</span>N &lt;-<span class="st"> </span><span class="kw">factor</span>(data.meta<span class="op">$</span>N,<span class="kw">levels</span>(N.sample))
+
+  <span class="kw">ggplot</span>(data.meta, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>ES)) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>ES<span class="op">-</span><span class="dv">2</span><span class="op">*</span>se.ES, <span class="dt">ymax=</span>ES<span class="op">+</span><span class="dv">2</span><span class="op">*</span>se.ES), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">ES</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Studies&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">ylab</span>(<span class="st">&quot;Effect size&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">theme_bw</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:confintervalESCLT"></span>
+<img src="STCI_files/figure-html/confintervalESCLT-1.png" alt="Example data set: effect sizes and confidence intervals with $\delta=$ 0.95" width="60%" />
+<p class="caption">
+Figure 12.1: Example data set: effect sizes and confidence intervals with <span class="math inline">\(\delta=\)</span> 0.95
+</p>
+</div>
+<p>Figure <a href="sec-meta.html#fig:confintervalESCLT">12.1</a> shows the resulting sample. I’ve selected 10 studies with <span class="math inline">\(N=\)</span> 100, 7 studies with <span class="math inline">\(N=\)</span> 1000, 2 studies with <span class="math inline">\(N=\)</span> 10^{4}, and 1 study with <span class="math inline">\(N=\)</span> 10^{5}. The studies are represented in that order, mimicking the increasing sample size of studies that accumulate evidence on a treatment, probably with studies with a small sample size at first, and only large studies at the end for the most promising treatments.</p>
+</div>
+<div id="meta-analysis-as-a-weighted-average" class="section level3">
+<h3><span class="header-section-number">12.1.2</span> Meta-analysis as a weighted average</h3>
+</div>
+<div id="constantly-updated-meta-analysis" class="section level3">
+<h3><span class="header-section-number">12.1.3</span> Constantly updated meta-analysis</h3>
+</div>
+<div id="testing-for-the-homogeneity-of-treatment-effects" class="section level3">
+<h3><span class="header-section-number">12.1.4</span> Testing for the homogeneity of treatment effects</h3>
+</div>
+<div id="meta-analysis-when-treatment-effects-are-heterogeneous" class="section level3">
+<h3><span class="header-section-number">12.1.5</span> Meta-analysis when treatment effects are heterogeneous</h3>
+</div>
+<div id="meta-regression" class="section level3">
+<h3><span class="header-section-number">12.1.6</span> Meta-regression</h3>
+</div>
+<div id="why-vote-counting-does-not-work" class="section level3">
+<h3><span class="header-section-number">12.1.7</span> Why vote-counting does not work</h3>
+</div>
+</div>
+<div id="publication-bias" class="section level2">
+<h2><span class="header-section-number">12.2</span> Publication bias</h2>
+<div id="sources-of-publication-bias" class="section level3">
+<h3><span class="header-section-number">12.2.1</span> Sources of publication bias</h3>
+</div>
+<div id="detecting-and-correcting-for-publication-bias" class="section level3">
+<h3><span class="header-section-number">12.2.2</span> Detecting and correcting for publication bias</h3>
+<div id="p-curving" class="section level4">
+<h4><span class="header-section-number">12.2.2.1</span> P-curving</h4>
+</div>
+<div id="pet-peese" class="section level4">
+<h4><span class="header-section-number">12.2.2.2</span> PET-PEESE</h4>
+</div>
+<div id="kasy-and-andrews-approach" class="section level4">
+<h4><span class="header-section-number">12.2.2.3</span> Kasy and Andrews approach</h4>
+</div>
+<div id="last-approach" class="section level4">
+<h4><span class="header-section-number">12.2.2.4</span> Last approach</h4>
+</div>
+</div>
+<div id="vote-counting-and-publication-bias" class="section level3">
+<h3><span class="header-section-number">12.2.3</span> Vote counting and publication bias</h3>
 
 </div>
-
-
-
+</div>
+</div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="introduction-the-two-fundamental-problems-of-inference.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Distribution.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Bounds.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -272,7 +351,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/chabefer/STCI/blob/master/index.Rmd",
+"link": "https://github.com/chabefer/STCI/blob/master/12_Meta.Rmd",
 "text": "Edit"
 },
 "history": {

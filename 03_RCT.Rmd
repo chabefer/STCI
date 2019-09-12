@@ -244,8 +244,7 @@ The OLS coefficient $\beta$ in the following regression:
 	\end{align*}
 is a consistent (and even unbiased) estimate of the ATE.
 
-**proof needed, especially assumption of linearity.**
-**Also, is interaction between $X_i$ and $R_i$ needed? See lecture 3.**
+**<span style="font-variant:small-caps;">proof needed, especially assumption of linearity. Also, is interaction between $X_i$ and $R_i$ needed?</span>**
 
 ```{example}
 In our numerical example, we can run the OLS regression conditioning on $y_i^B$ as follows:
@@ -270,6 +269,309 @@ But for a given sample size, these imbalances generate sampling noise around the
 Conditioning on covariates helps decrease sampling noise by accounting for imbalances due to observed covariates.
 If observed covariates explain a large part of the variation in outcomes, conditioning on them is going to prevent a lot of sampling noise from occuring.
 ```
+
+```{example}
+In order to make the gains in precision from conditioning on covariates apparent, let's use Monte Carlo simulations of our numerical example.
+```
+
+```{r montecarlobruteforceww,dependson='param',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.brute.force.ww <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  Ds[YB<=param["barY"]] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  # randomized allocation of 50% of individuals
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5,1,0)
+  y <- y1*R+y0*(1-R)
+  Y <- Y1*R+Y0*(1-R)
+  reg.y.R.ols <- lm(y~R)
+  return(c(reg.y.R.ols$coef[2],sqrt(vcovHC(reg.y.R.ols,type='HC2')[2,2])))
+}
+
+simuls.brute.force.ww.N <- function(N,Nsim,param){
+  simuls.brute.force.ww <- as.data.frame(matrix(unlist(lapply(1:Nsim,monte.carlo.brute.force.ww,N=N,param=param)),nrow=Nsim,ncol=2,byrow=TRUE))
+  colnames(simuls.brute.force.ww) <- c('WW','se')
+  return(simuls.brute.force.ww)
+}
+
+sf.simuls.brute.force.ww.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=2*ncpus)
+  sfLibrary(sandwich)
+  sim <- as.data.frame(matrix(unlist(sfLapply(1:Nsim,monte.carlo.brute.force.ww,N=N,param=param)),nrow=Nsim,ncol=2,byrow=TRUE))
+  sfStop()
+  colnames(sim) <- c('WW','se')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.brute.force.ww <- lapply(N.sample,sf.simuls.brute.force.ww.N,Nsim=Nsim,param=param)
+names(simuls.brute.force.ww) <- N.sample
+```
+
+```{r montecarlobruteforcewwyB,dependson='param',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.brute.force.ww.yB <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  Ds[YB<=param["barY"]] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  # randomized allocation of 50% of individuals
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5,1,0)
+  y <- y1*R+y0*(1-R)
+  Y <- Y1*R+Y0*(1-R)
+  reg.y.R.yB.ols <- lm(y~R + yB)
+  return(c(reg.y.R.yB.ols$coef[2],sqrt(vcovHC(reg.y.R.yB.ols,type='HC2')[2,2])))
+}
+
+simuls.brute.force.ww.yB.N <- function(N,Nsim,param){
+  simuls.brute.force.ww.yB <- as.data.frame(matrix(unlist(lapply(1:Nsim,monte.carlo.brute.force.ww.yB,N=N,param=param)),nrow=Nsim,ncol=2,byrow=TRUE))
+  colnames(simuls.brute.force.ww.yB) <- c('WW','se')
+  return(simuls.brute.force.ww.yB)
+}
+
+sf.simuls.brute.force.ww.yB.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=2*ncpus)
+  sfLibrary(sandwich)
+  sim <- as.data.frame(matrix(unlist(sfLapply(1:Nsim,monte.carlo.brute.force.ww.yB,N=N,param=param)),nrow=Nsim,ncol=2,byrow=TRUE))
+  sfStop()
+  colnames(sim) <- c('WW','se')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.brute.force.ww.yB <- lapply(N.sample,sf.simuls.brute.force.ww.yB.N,Nsim=Nsim,param=param)
+names(simuls.brute.force.ww.yB) <- N.sample
+```
+
+```{r montecarlohistbruteforcewwyB,dependson='monte.carlo.brute.force.ww.yB',eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the $WW$ and $OLSX$ estimators in a Brute Force design over replications of samples of different sizes',fig.subcap=c('$WW$','OLSX'),fig.align='center',out.width="50%",fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.brute.force.ww)){
+  hist(simuls.brute.force.ww[[i]][,'WW'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^y)[WW]),xlim=c(-0.15,0.55))
+  abline(v=delta.y.ate(param),col="red")
+}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.brute.force.ww.yB)){
+  hist(simuls.brute.force.ww.yB[[i]][,'WW'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^y)[OLSX]),xlim=c(-0.15,0.55))
+  abline(v=delta.y.ate(param),col="red")
+}
+```
+
+Figure \@ref(fig:montecarlohistbruteforcewwyB) shows that the gains in precision from conditioning on $y_i^B$ are spectacular in our numerical example. 
+They basically correspond to a gain in one order of magnitude of sample size: the precision of the $OLSX$ estimator conditioning on $y_i^B$ with a sample size of 100 is similar to the precision of the $OLS$ estimator not conditioning on $y_i^B$ with a sample size of $1000$.
+This large gain in precision is largely due to the fact that $y_i$ and $y_i^B$ are highly correlated.
+Not all covariates perform so well in actual samples in the social sciences.
+
+```{remark}
+The ability to condition on covariates in order to decrease sampling noise is a blessing but can also be a curse when combined with significance testing.
+Indeed, you can now see that you can run a lot of regressions (with and without some covariates, interactions, etc) and maybe report only the statistically significant ones.
+This is a bad practice that will lead to publication bias and inflated treatment effects.
+Several possibilities in order to avoid that:
+```
+
+  1. Pre-register your analysis and explain which covariates you are going to use (with which interactions, etc) so that you cannot cherry pick your favorite results ex-post.
+  2. Use a stratified design for your RCT (more on this in Lecture 6) so that the important covariates are already balanced between treated and controls.
+  3. If unable to do all of the above, report results from regressions without controls and with various sets of controls.
+  We do not expect the various treatment effect estimates to be the same (they cannot be, otherwise, they would have similar sampling noise), but we expect the following pattern: conditioning should systematically decrease sampling noise, not increase the treatment effect estimate.
+  If conditioning on covariates makes a treatment effect significant, pay attention to why: is it because of a decrease in sampling noise (expected and OK) or because of an increase in treatment effect (beware specification search).
+
+**<span style="font-variant:small-caps;">Revise that especially in light of Chapter \@ref(sec:meta)</span>**
+
+```{remark}
+You might not be happy with the assumption of linearity needed to use OLS to control for covariates.
+I have read somewhere (forgot where) that this should not be much of a problem since covariates are well balanced between groups by randomization, and thus a linear first approximation to the function relating $X_i$ to $Y_i$ should be fine.
+I tend not to buy that argument much.
+I have to run simulations with a non linear relation between outcomes and controls and see how linear OLS performs.
+If you do not like the linearity assumption, you can always use any of the nonparametric observational methods presented in Chapter \@ref(sec:OM).
+```
+
+#### Estimating Sampling Noise
+
+In order to estimate sampling noise, you can either use the CLT-based approach or resampling, either using the bootstrap or randomization inference.
+In Section \@ref(sec:estimsampnoise), we have already discussed how to estimate sampling noise when using the WW estimator that we are using here.
+We are going to use the default and heteroskedasticity-robust standard errors from OLS, which are both CLT-based.
+Only the heteroskedasticity-robust standard errors are valid under the assumptions that we have made so far.
+Homoskedasticity would require constant treatment effects.
+Heteroskedasticity being small in our numerical example, that should not matter much, but it could in other applications.
+
+```{example}
+Let us first estimate sampling noise for the simple WW estimator without control variables, using the OLS estimator.
+```
+
+```{r noiseolsBF,eval=TRUE,echo=TRUE,results='hide'}
+sn.BF.simuls <- 2*quantile(abs(simuls.brute.force.ww[['1000']][,'WW']-delta.y.ate(param)),probs=c(0.99))
+sn.BF.OLS.hetero <- 2*qnorm((delta+1)/2)*sqrt(vcovHC(reg.y.R.ols,type='HC2')[2,2])
+sn.BF.OLS.homo <- 2*qnorm((delta+1)/2)*sqrt(vcov(reg.y.R.ols)[2,2])
+```
+
+The true value of the 99\% sampling noise with a sample size of 1000 and no control variables is stemming from the simulations is `r round(sn.BF.simuls,3)`.
+The 99\% sampling noise estimated using heteroskedasticity robust OLS standard errors is `r round(sn.BF.OLS.hetero,3)`.
+The 99\% sampling noise estimated using default OLS standard errors is `r round(sn.BF.OLS.homo,3)`.
+
+Let us now estimate sampling noise for the simple WW estimator conditioning on $y_i^B$, using the OLS estimator.
+
+```{r noiseolsyBBF,eval=TRUE,echo=TRUE,results='hide'}
+sn.BF.simuls.yB <- 2*quantile(abs(simuls.brute.force.ww.yB[['1000']][,'WW']-delta.y.ate(param)),probs=c(0.99))
+sn.BF.OLS.hetero.yB <- 2*qnorm((delta+1)/2)*sqrt(vcovHC(reg.y.R.ols.yB,type='HC2')[2,2])
+sn.BF.OLS.homo.yB <- 2*qnorm((delta+1)/2)*sqrt(vcov(reg.y.R.ols.yB)[2,2])
+```
+
+The true value of the 99\% sampling noise with a sample size of 1000 and no control variables is stemming from the simulations is `r round(sn.BF.simuls.yB,3)`.
+The 99\% sampling noise estimated using heteroskedasticity robust OLS standard errors is `r round(sn.BF.OLS.hetero.yB,3)`.
+The 99\% sampling noise estimated using default OLS standard errors is `r round(sn.BF.OLS.homo.yB,3)`.
+
+Let's see how all of this works on average.
+Figure \@ref(fig:sampnoisewwBFCLTplot) shows that overall the sampling nois eis much lower with $OLSX$ than with $WW$, as expected from Figure \@ref(fig:montecarlohistbruteforcewwyB).
+The CLT-based estimator of sampling noise accounting for heteroskedasticity (in blue) recovers true sampling noise (in red) pretty well.
+Figure \@ref(fig:sampnoisewwBFCLTall) shows that the CLT-based estimates of sampling noise are on point, except for $N=10000$, where the CLT slightly overestimates true sampling noise. 
+Figure \@ref(fig:confintervalCLTBF) shows what happens when conditioning on $Y^B$ in a selection of 40 samples.
+The reduction in samplong noise is pretty drastic here.
+
+```{r sampnoisewwBFCLTplot,eval=TRUE,echo=TRUE,fig.cap='Average CLT-based approximations of sampling noise in the Brute Force design for $WW$ and $OLSX$ over replications of samples of different sizes (true sampling noise in red)',fig.align='center',out.width="50%",fig.pos='htbp'}
+for (k in (1:length(N.sample))){
+  simuls.brute.force.ww[[k]]$CLT.noise <- 2*qnorm((delta+1)/2)*simuls.brute.force.ww[[k]][,'se']
+  simuls.brute.force.ww.yB[[k]]$CLT.noise <- 2*qnorm((delta+1)/2)*simuls.brute.force.ww.yB[[k]][,'se']
+}
+
+samp.noise.ww.BF <- sapply(lapply(simuls.brute.force.ww,`[`,,1),samp.noise,delta=delta)
+precision.ww.BF <- sapply(lapply(simuls.brute.force.ww,`[`,,1),precision,delta=delta)
+names(precision.ww.BF) <- N.sample
+signal.to.noise.ww.BF <- sapply(lapply(simuls.brute.force.ww,`[`,,1),signal.to.noise,delta=delta,param=param)
+names(signal.to.noise.ww.BF) <- N.sample
+table.noise.BF <- cbind(samp.noise.ww.BF,precision.ww.BF,signal.to.noise.ww.BF)
+colnames(table.noise.BF) <- c('sampling.noise', 'precision', 'signal.to.noise')
+table.noise.BF <- as.data.frame(table.noise.BF)
+table.noise.BF$N <- as.numeric(N.sample)
+table.noise.BF$ATE <- rep(delta.y.ate(param),nrow(table.noise.BF))
+for (k in (1:length(N.sample))){
+  table.noise.BF$CLT.noise[k] <- mean(simuls.brute.force.ww[[k]]$CLT.noise)
+}
+table.noise.BF$Method <- rep("WW",nrow(table.noise.BF))
+
+samp.noise.ww.BF.yB <- sapply(lapply(simuls.brute.force.ww.yB,`[`,,1),samp.noise,delta=delta)
+precision.ww.BF.yB <- sapply(lapply(simuls.brute.force.ww.yB,`[`,,1),precision,delta=delta)
+names(precision.ww.BF.yB) <- N.sample
+signal.to.noise.ww.BF.yB <- sapply(lapply(simuls.brute.force.ww.yB,`[`,,1),signal.to.noise,delta=delta,param=param)
+names(signal.to.noise.ww.BF.yB) <- N.sample
+table.noise.BF.yB <- cbind(samp.noise.ww.BF.yB,precision.ww.BF.yB,signal.to.noise.ww.BF.yB)
+colnames(table.noise.BF.yB) <- c('sampling.noise', 'precision', 'signal.to.noise')
+table.noise.BF.yB <- as.data.frame(table.noise.BF.yB)
+table.noise.BF.yB$N <- as.numeric(N.sample)
+table.noise.BF.yB$ATE <- rep(delta.y.ate(param),nrow(table.noise.BF.yB))
+for (k in (1:length(N.sample))){
+  table.noise.BF.yB$CLT.noise[k] <- mean(simuls.brute.force.ww.yB[[k]]$CLT.noise)
+}
+table.noise.BF.yB$Method <- rep("OLSX",nrow(table.noise.BF))
+
+table.noise.BF.tot <- rbind(table.noise.BF,table.noise.BF.yB)
+table.noise.BF.tot$Method <- factor(table.noise.BF.tot$Method,levels=c("WW","OLSX"))
+
+ggplot(table.noise.BF.tot, aes(x=as.factor(N), y=ATE,fill=Method)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black') +
+  geom_errorbar(aes(ymin=ATE-sampling.noise/2, ymax=ATE+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+  geom_errorbar(aes(ymin=ATE-CLT.noise/2, ymax=ATE+CLT.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+  xlab("Sample Size")+
+  theme_bw()+
+  theme(legend.position=c(0.85,0.88))
+```
+
+
+```{r sampnoisewwBFCLTall,eval=TRUE,echo=TRUE,fig.cap='Distribution of the CLT approximation of sampling noise in the Brute Force design for $WW$ and $OLSX$ over replications of samples of different sizes (true sampling noise in red)',fig.subcap=c('$WW$','OLSX'),fig.align='center',out.width="50%",fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.brute.force.ww)){
+  hist(simuls.brute.force.ww[[i]][,'CLT.noise'],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(2*bar(epsilon))[WW]),xlim=c(min(table.noise.BF[i,colnames(table.noise)=='sampling.noise'],min(simuls.brute.force.ww[[i]][,'CLT.noise'])),max(table.noise.BF[i,colnames(table.noise)=='sampling.noise'],max(simuls.brute.force.ww[[i]][,'CLT.noise']))))
+  abline(v=table.noise.BF[i,colnames(table.noise)=='sampling.noise'],col="red")
+}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.brute.force.ww.yB)){
+  hist(simuls.brute.force.ww.yB[[i]][,'CLT.noise'],main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(2*bar(epsilon))[OLSX]),xlim=c(min(table.noise.BF.yB[i,colnames(table.noise)=='sampling.noise'],min(simuls.brute.force.ww.yB[[i]][,'CLT.noise'])),max(table.noise.BF.yB[i,colnames(table.noise)=='sampling.noise'],max(simuls.brute.force.ww.yB[[i]][,'CLT.noise']))))
+  abline(v=table.noise.BF.yB[i,colnames(table.noise)=='sampling.noise'],col="red")
+}
+```
+
+```{r confintervalCLTBF,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('CLT-based confidence intervals of $\\hat{WW}$ and $\\hat{OLSX}$ for $\\delta=$',delta,'over sample replications for various sample sizes (true confidence intervals in red)',sep=' '),fig.subcap=c('$WW$','OLSX'),fig.align='center',out.width="50%",fig.pos='htbp',fig.height=12,fig.width=10}
+N.plot <- 40
+plot.list <- list()
+limx <- list(c(-0.65,1.25),c(-0.1,0.5),c(0,0.30),c(0,0.25))
+
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test.CLT.BF <- simuls.brute.force.ww[[k]][sample(N.plot),c('WW','CLT.noise')]
+  test.CLT.BF <- as.data.frame(cbind(test.CLT.BF,rep(samp.noise(simuls.brute.force.ww[[k]][,'WW'],delta=delta),N.plot)))
+  colnames(test.CLT.BF) <- c('WW','CLT.noise','sampling.noise')
+  test.CLT.BF$id <- 1:N.plot
+  plot.test.CLT.BF <- ggplot(test.CLT.BF, aes(x=as.factor(id), y=WW)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=WW-sampling.noise/2, ymax=WW+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+      geom_errorbar(aes(ymin=WW-CLT.noise/2, ymax=WW+CLT.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+      ylim(limx[[k]][1],limx[[k]][2])+
+      xlab("Sample id")+
+      theme_bw()+
+      ggtitle(paste("N=",N.sample[k]))
+  plot.list[[k]] <- plot.test.CLT.BF
+}
+plot.CI.BF <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI.BF)
+
+plot.list <- list()
+for (k in 1:length(N.sample)){
+  set.seed(1234)
+  test.CLT.BF.yB <- simuls.brute.force.ww.yB[[k]][sample(N.plot),c('WW','CLT.noise')]
+  test.CLT.BF.yB <- as.data.frame(cbind(test.CLT.BF.yB,rep(samp.noise(simuls.brute.force.ww.yB[[k]][,'WW'],delta=delta),N.plot)))
+  colnames(test.CLT.BF.yB) <- c('WW','CLT.noise','sampling.noise')
+  test.CLT.BF.yB$id <- 1:N.plot
+  plot.test.CLT.BF.yB <- ggplot(test.CLT.BF.yB, aes(x=as.factor(id), y=WW)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=WW-sampling.noise/2, ymax=WW+sampling.noise/2), width=.2,position=position_dodge(.9),color='red') +
+      geom_errorbar(aes(ymin=WW-CLT.noise/2, ymax=WW+CLT.noise/2), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=delta.y.ate(param)), colour="#990000", linetype="dashed")+
+      ylim(limx[[k]][1],limx[[k]][2])+
+      xlab("Sample id")+
+      ylab("OLSX")+
+      theme_bw()+
+      ggtitle(paste("N=",N.sample[k]))
+  plot.list[[k]] <- plot.test.CLT.BF.yB
+}
+plot.CI.BF.yB <- plot_grid(plot.list[[1]],plot.list[[2]],plot.list[[3]],plot.list[[4]],ncol=1,nrow=length(N.sample))
+print(plot.CI.BF.yB)
+
+```
+
 
 ## Randomization After Self-Selection {#sec:design2}
 
