@@ -572,8 +572,413 @@ print(plot.CI.BF.yB)
 
 ```
 
-
 ## Randomization After Self-Selection {#sec:design2}
+
+In Randomization After Self-Selection, individuals are randomly assigned to the treatment after having expressed their willingness to receive it.
+This design is able to recover the average effect of the Treatment on the Treated (TT).
+
+In order to explain this design clearly, and especially to make it clear how it differs from the following one (randomization after eligibility), I have to introduce a slightly more complex selection rule that we have seen so far, one that includes self-selection, \textit{i.e.} take-up decisions by agents.
+We are going to assume that there are two steps in agents' participation process:
+
+  * Eligibility: agents' eligibility is assessed first, giving rise to a group of eligible individuals ($E_i=1$) and a group of non eligible individuals ($E_i=0$). 
+  * Self-selection: eligible agents can then decide whether they want to take-up the proposed treatment or not. 
+    $D_i=1$ for those who do.
+    $D_i=0$ for those who do not.
+    By convention, ineligibles have $D_i=0$.
+
+```{example}
+In our numerical example, here are the equations operationalizing these notions:
+```
+\begin{align*}
+E_i & = \uns{y_i^B\leq\bar{y}} \\
+D_i & = \uns{\underbrace{\bar{\alpha}+\theta\bar{\mu}-C_i}_{D_i^*}\geq0 \land E_i=1} \\
+C_i & = \bar{c} + \gamma \mu_i + V_i\\
+V_i & \sim \mathcal{N}(0,\sigma^2_V)
+\end{align*}
+
+Eligibility is still decided based on pre-treatment outcomes being smaller than a threshold level $\bar{y}$.
+Self-selection among eligibles is decided by the net utility of the treatment $D_i^*$ being positive.
+Here, the net utility is composed of the average gain from the treatment (assuming agents cannot foresee their idiosyncratic gain from the treatment apart from the part depending on $\mu_i$) $\bar{\alpha}+\theta\bar{\mu}$ minus the cost of participation $C_i$.
+The cost of participation in turn depends on a constant, on $\mu_i$ and on a random shock orthogonal to everything else $V_i$.
+This cost might represent the administrative cost of applying for the treatment and the opportunity cost of participating into the treatment (foregone earnings and/or cost of time).
+Conditional on eligiblity, self-selection is endogenous in this model since both the gains and the cost of participation depend on $\mu_i$.
+Costs depend on $\mu_i$ since most productive people may face lower administrative costs but a higher opportunity cost of time.
+
+Let's choose some values for the new parameters:
+
+```{r paramselfselect,dependson='param',eval=TRUE,echo=TRUE,results='hide'}
+param <- c(param,-6.25,0.9,0.5)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","barc","gamma","sigma2V")
+```
+
+and let's generate a new dataset:
+
+```{r simulselfselect,dependson='param.self.select',eval=TRUE,echo=TRUE,results='hide'}
+set.seed(1234)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+E <- ifelse(YB<=param["barY"],1,0)
+V <- rnorm(N,0,param["sigma2V"])
+Dstar <- param["baralpha"]+param["theta"]*param["barmu"]-param["barc"]-param["gamma"]*mu-V
+Ds <- ifelse(Dstar>=0 & E==1,1,0)
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+```
+
+Let's compute the value of the TT parameter in this new model:
+
+\begin{align*}
+  \Delta^y_{TT} & = \bar{\alpha}+ \theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y} \land \bar{\alpha}+\theta\bar{\mu}-\bar{c}-\gamma\mu_i-V_i\geq0}
+\end{align*}
+
+To compute the expectation of a doubly censored normal, I use the package `tmvtnorm`.
+
+\begin{align*}
+  (\mu_i,y_i^B,D_i^*) & = \mathcal{N}\left(\bar{\mu},\bar{\mu},\bar{\alpha}+(\theta-\gamma)\bar{\mu}-\bar{c},
+                                        \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} & -\gamma\sigma^2_{\mu} \\
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} + \sigma^2_{U} & -\gamma\sigma^2_{\mu} \\
+                                              -\gamma\sigma^2_{\mu} & -\gamma\sigma^2_{\mu} & \gamma^2\sigma^2_{\mu}+\sigma^2_{V}
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}
+
+```{r ttselfselect,eval=TRUE,echo=TRUE,results='hide'}
+mean.mu.yB.Dstar <- c(param['barmu'],param['barmu'],param['baralpha']- param['barc']+(param['theta']-param['gamma'])*param['barmu'])
+cov.mu.yB.Dstar <- matrix(c(param['sigma2mu'],param["sigma2mu"],-param['gamma']*param["sigma2mu"],
+                            param["sigma2mu"],param['sigma2mu']+param['sigma2U'],-param['gamma']*param["sigma2mu"],
+                            -param['gamma']*param["sigma2mu"],-param['gamma']*param["sigma2mu"],param["sigma2mu"]*(param['gamma'])^2+param['sigma2V']),3,3,byrow=TRUE)
+lower.cut <- c(-Inf,-Inf,0)
+upper.cut <- c(Inf,log(param['barY']),Inf)
+moments.cut <- mtmvnorm(mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)
+delta.y.tt <- param['baralpha']+ param['theta']*moments.cut$tmean[1]
+delta.y.ww.self.select <- mean(y[R==1 & Ds==1])-mean(y[R==0 & Ds==1])
+```
+
+The value of $\Delta^y_{TT}$ in our illustration is now `r round(delta.y.tt,3)`.
+
+### Identification
+
+With Randomization After Self-Selection, identification requires two assumptions:
+
+```{definition,indepss,name='Independence Among Self-Selected'}
+We assume that the randomized allocation of the program among applicants is well done: 
+
+\begin{align*}
+  R_i\Ind(Y_i^0,Y_i^1)|D_i=1.
+\end{align*}
+
+```
+
+Independence can be enforced by the randomized allocation of the treatment among the eligible applicants. 
+
+We need a second assumption:
+
+```{definition,rassval,name='Randomization After Self-Selection Validity'}
+We assume that the randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:
+
+\begin{align*}
+Y_i & = 
+  \begin{cases}
+    Y_i^1 & \text{ if } (R_i=1 \text{ and } D_i=1)   \\
+    Y_i^0 & \text{ if } (R_i=0 \text{ and } D_i=1) \text{ or } D_i=0
+  \end{cases}
+\end{align*}
+```
+
+with $Y_i^1$, $Y_i^0$ and $D_i$ the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.
+
+Under these assumptions, we have the following result:
+
+```{theorem,idrass,name='Identification With Randomization After Self-Selection'}
+Under Assumptions \@ref(def:indepss) and \@ref(def:rassval), the WW estimator among the self-selected identifies TT:
+
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \Delta^Y_{TT},
+\end{align*}
+
+```
+
+with:
+
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1}.
+\end{align*}
+
+```{proof}
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1} \\
+                    & = \esp{Y^1_i|R_i=1,D_i=1} - \esp{Y^0_i|R_i=0,D_i=1} \\
+                    & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
+                    & = \esp{Y_i^1-Y_i^0|D_i=1},
+\end{align*}
+where the second equality uses Randomization After Self-Selection Validity, the third equality Independence Among Self-Selected and the last equality the linearity of the expectation operator.
+```
+
+```{remark}
+The key intuitions for how Randomization After Self-Selection solves the FPCI are:
+```
+
+  * By allowing for eligibilty and self-selection, we identify the agents that would benefit from the treatment in routine mode (the treated).
+  * By randomly denying the treatment to some of the treated, we can estimate the counterfactual outcome of the treated by looking at the counterfactual outcome of the denied applicants: $\esp{Y_i^0|D_i=1}=\esp{Y_i|R_i=0,D_i=1}$.
+
+```{remark}
+In practice, we use a pseudo-RNG to generate a random allocation among applicants:
+```
+\begin{align*}
+  R_i^* & \sim \mathcal{U}[0,1]\\
+  R_i & = 
+  \begin{cases}
+    1 & \text{ if } R_i^*\leq .5 \land D_i=1\\
+    0 & \text{ if } R_i^*> .5 \land D_i=1
+  \end{cases}
+\end{align*}
+
+```{example}
+In our numerical example, the following R code generates two random groups, one treated and one control, and imposes the Assumption of Randomization After Self-Selection Validity:
+```
+
+```{r randomRASS,eval=TRUE,echo=TRUE,results='hide'}
+#random allocation among self-selected
+Rs <- runif(N)
+R <- ifelse(Rs<=.5 & Ds==1,1,0)
+y <- y1*R+y0*(1-R)
+Y <- Y1*R+Y0*(1-R)
+```
+
+### Estimating TT
+
+#### Using the WW Estimator
+
+As in the case of the Brute Force Design, we can use the WW estimator to estimate the effect of the program with Randomization After Self-Selection, except that this time the WW estimator is applied among applicant to the program only:
+
+\begin{align*}
+  \hat{\Delta}^Y_{WW|D=1} & = \frac{1}{\sum_{i=1}^N D_iR_i}\sum_{i=1}^N Y_iD_iR_i-\frac{1}{\sum_{i=1}^N D_i(1-R_i)}\sum_{i=1}^N D_iY_i(1-R_i).
+\end{align*}
+
+```{example}
+In our numerical example, we can form the WW estimator among applicants:
+```
+
+```{r wwselfselect,eval=TRUE,echo=TRUE,results='hide'}
+delta.y.ww.self.select <- mean(y[R==1 & Ds==1])-mean(y[R==0 & Ds==1])
+```
+
+WW among applicants is equal to `r round(delta.y.ww.self.select,3)`.
+It is actually rather far from the true value of `r round(delta.y.tt,3)`, which reminds us that unbiasedness does not mean that a given sample will not suffer from a large bias.
+We just drew a bad sample where confounders are not very well balanced.
+
+#### Using OLS
+
+As in the Brute Force Design with the ATE, we can estimate the TT parameter with Randomization After Self-Selection using the OLS estimator.
+In the following regression run among applicants only (with $D_i=1$), $\beta$ estimates TT:
+
+\begin{align*}
+    Y_i &  = \alpha +  \beta R_i + U_i.
+	\end{align*}
+
+As a matter of fact, the OLS estimator without control variables is numerically equivalent to the WW estimator.
+
+```{example}
+In our numerical example, here is the OLS regression:
+```
+
+```{r deltayolsselfselect,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.ols.self.select <- lm(y[Ds==1]~R[Ds==1])
+```
+
+The value of the OLS estimator is `r round(reg.y.R.ols.self.select$coef[2],3)`, which is identical to the WW estimator among applicants.
+
+#### Using OLS Conditioning on Covariates
+
+We might want to condition on covariates in order to reduce the amount of sampling noise.
+Parametrically, we can run the following OLS regression among applicants (with $D_i=1$):
+
+\begin{align*}
+    Y_i &  = \alpha +  \beta R_i + \gamma' X_i + U_i.
+\end{align*}
+
+$\beta$ estimates the TT.
+
+**<span style="font-variant:small-caps;">Needed: proof. Especially check whether we need to center covariates at the mean of the treatment group. I think so.</span>**
+
+We can also use Matching to obtain a nonparametric estimator.
+
+```{example}
+Let us first compute the OLS estimator conditioning on $y_i^B$:
+```
+
+```{r deltayyBolsselfselect,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.yB.ols.self.select <- lm(y[Ds==1] ~ R[Ds==1] + yB[Ds==1])
+```
+
+Our estimate of TT after conditioning on $y_i^B$ is `r round(reg.y.R.yB.ols.self.select$coef[2],3)`.
+Conditioning on $y_i^B$ has been able to solve part of the bias of the WW problem estimator.
+
+Let's now check whether conditioning on OLS has brought an improvement in terms of decreased sampling noise.
+
+```{r montecarloselfselectww,dependson='param.self.select',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.self.select.ww <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  E <- ifelse(YB<=param["barY"],1,0)
+  V <- rnorm(N,0,param["sigma2V"])
+  Dstar <- param["baralpha"]+param["theta"]*param["barmu"]-param["barc"]-param["gamma"]*mu-V
+  Ds <- ifelse(Dstar>=0 & E==1,1,0)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  
+  #random allocation among self-selected
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5 & Ds==1,1,0)
+  y <- y1*R+y0*(1-R)
+  Y <- Y1*R+Y0*(1-R)
+  return(mean(y[R==1 & Ds==1])-mean(y[R==0 & Ds==1]))
+}
+
+simuls.self.select.ww.N <- function(N,Nsim,param){
+  simuls.self.select.ww <- matrix(unlist(lapply(1:Nsim,monte.carlo.self.select.ww,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.self.select.ww) <- c('WW')
+  return(simuls.self.select.ww)
+}
+
+sf.simuls.self.select.ww.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.self.select.ww,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('WW')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.self.select.ww <- lapply(N.sample,sf.simuls.self.select.ww.N,Nsim=Nsim,param=param)
+names(simuls.self.select.ww) <- N.sample
+```
+
+```{r montecarloselfselectyBww,dependson='param.self.select',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.self.select.yB.ww <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  E <- ifelse(YB<=param["barY"],1,0)
+  V <- rnorm(N,0,param["sigma2V"])
+  Dstar <- param["baralpha"]+param["theta"]*param["barmu"]-param["barc"]-param["gamma"]*mu-V
+  Ds <- ifelse(Dstar>=0 & E==1,1,0)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  
+  #random allocation among self-selected
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5 & Ds==1,1,0)
+  y <- y1*R+y0*(1-R)
+  Y <- Y1*R+Y0*(1-R)
+  reg.y.R.yB.ols.self.select <- lm(y[Ds==1] ~ R[Ds==1] + yB[Ds==1])
+  return(reg.y.R.yB.ols.self.select$coef[2])
+}
+
+simuls.self.select.yB.ww.N <- function(N,Nsim,param){
+  simuls.self.select.yB.ww <- matrix(unlist(lapply(1:Nsim,monte.carlo.self.select.yB.ww,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.self.select.yB.ww) <- c('WW')
+  return(simuls.self.select.yB.ww)
+}
+
+sf.simuls.self.select.yB.ww.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.self.select.yB.ww,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('WW')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.self.select.yB.ww <- lapply(N.sample,sf.simuls.self.select.yB.ww.N,Nsim=Nsim,param=param)
+names(simuls.self.select.yB.ww) <- N.sample
+```
+
+```{r montecarlohistselfselectww,dependson='monte.carlo.self.select.ww',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the $WW$ and $OLSX$ estimator with randomization after self-selection over replications of samples of different sizes',fig.subcap=c('$WW$','$OLSX$'),fig.align='center',out.width="50%",fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.self.select.ww)){
+  hist(simuls.self.select.ww[[i]][,'WW'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yWW)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt,col="red")
+}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.self.select.yB.ww)){
+  hist(simuls.self.select.yB.ww[[i]][,'WW'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yWW)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt,col="red")
+}
+```
+
+Figure \@ref(fig:montecarlohistselfselectww) shows that, in our example, conditioning on covariates improves precision by the same amount as an increase in sample size by almost one order of magnitude. 
+
+#### Estimating Sampling Noise
+
+In order to estimate precision, we can either use the CLT, deriving sampling noise from the heteroskedasticity-robust standard error OLS estimates, or we can use some form of resampling as the bootstrap or randomization inference.
+
+```{example}
+Let us derive the CLT-based estimates of sampling noise using the OLS standard errors without conditioning on covariates first.
+```
+
+```{r noiseolsRASS,eval=TRUE,echo=TRUE,results='hide'}
+sn.RASS.simuls <- 2*quantile(abs(simuls.self.select.ww[['1000']][,'WW']-delta.y.tt),probs=c(0.99))
+sn.RASS.OLS.homo <- 2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.ols.self.select)[2,2])
+sn.RASS.OLS.hetero <- 2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.ols.self.select,type='HC2')[2,2])
+```
+
+True 99\% sampling noise (from the simulations) is `r round(sn.RASS.simuls,3)`.
+99\% sampling noise estimated using default OLS standard errors is `r round(sn.RASS.OLS.homo,3)`.
+99\% sampling noise estimated using heteroskedasticity robust OLS standard errors is `r round(sn.RASS.OLS.hetero,3)`.
+
+Conditioning on covariates:
+
+```{r noiseolsRASSyB,eval=TRUE,echo=TRUE,results='hide'}
+sn.RASS.simuls.yB <- 2*quantile(abs(simuls.self.select.yB.ww[['1000']][,'WW']-delta.y.tt),probs=c(0.99))
+sn.RASS.OLS.homo.yB <- 2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.yB.ols.self.select)[2,2])
+sn.RASS.OLS.hetero.yB <- 2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.yB.ols.self.select,type='HC2')[2,2])
+```
+
+True 99\% sampling noise (from the simulations) is `r round(sn.RASS.simuls.yB,3)`.
+99\% sampling noise estimated using default OLS standard errors is `r round(sn.RASS.OLS.homo.yB,3)`.
+99\% sampling noise estimated using heteroskedasticity robust OLS standard errors is `r round(sn.RASS.OLS.hetero.yB,3)`.
+
 
 ## Randomization After Eligibility {#sec:design3}
 

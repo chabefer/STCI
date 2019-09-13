@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-09-12}
+    \date{2019-09-13}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -5261,6 +5261,526 @@ pretty drastic here.
 
 \section{Randomization After Self-Selection}\label{sec:design2}
 
+In Randomization After Self-Selection, individuals are randomly assigned
+to the treatment after having expressed their willingness to receive it.
+This design is able to recover the average effect of the Treatment on
+the Treated (TT).
+
+In order to explain this design clearly, and especially to make it clear
+how it differs from the following one (randomization after eligibility),
+I have to introduce a slightly more complex selection rule that we have
+seen so far, one that includes self-selection, \textit{i.e.} take-up
+decisions by agents. We are going to assume that there are two steps in
+agents' participation process:
+
+\begin{itemize}
+\tightlist
+\item
+  Eligibility: agents' eligibility is assessed first, giving rise to a
+  group of eligible individuals (\(E_i=1\)) and a group of non eligible
+  individuals (\(E_i=0\)).
+\item
+  Self-selection: eligible agents can then decide whether they want to
+  take-up the proposed treatment or not. \(D_i=1\) for those who do.
+  \(D_i=0\) for those who do not. By convention, ineligibles have
+  \(D_i=0\).
+\end{itemize}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-78}{}{\label{exm:unnamed-chunk-78}
+}In our numerical example, here are the equations operationalizing these
+notions:
+\EndKnitrBlock{example}
+
+\begin{align*}
+E_i & = \uns{y_i^B\leq\bar{y}} \\
+D_i & = \uns{\underbrace{\bar{\alpha}+\theta\bar{\mu}-C_i}_{D_i^*}\geq0 \land E_i=1} \\
+C_i & = \bar{c} + \gamma \mu_i + V_i\\
+V_i & \sim \mathcal{N}(0,\sigma^2_V)
+\end{align*}
+
+Eligibility is still decided based on pre-treatment outcomes being
+smaller than a threshold level \(\bar{y}\). Self-selection among
+eligibles is decided by the net utility of the treatment \(D_i^*\) being
+positive. Here, the net utility is composed of the average gain from the
+treatment (assuming agents cannot foresee their idiosyncratic gain from
+the treatment apart from the part depending on \(\mu_i\))
+\(\bar{\alpha}+\theta\bar{\mu}\) minus the cost of participation
+\(C_i\). The cost of participation in turn depends on a constant, on
+\(\mu_i\) and on a random shock orthogonal to everything else \(V_i\).
+This cost might represent the administrative cost of applying for the
+treatment and the opportunity cost of participating into the treatment
+(foregone earnings and/or cost of time). Conditional on eligiblity,
+self-selection is endogenous in this model since both the gains and the
+cost of participation depend on \(\mu_i\). Costs depend on \(\mu_i\)
+since most productive people may face lower administrative costs but a
+higher opportunity cost of time.
+
+Let's choose some values for the new parameters:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(param,}\OperatorTok{-}\FloatTok{6.25}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.5}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{,}\StringTok{"barc"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"sigma2V"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+and let's generate a new dataset:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{E <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{],}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,param[}\StringTok{"sigma2V"}\NormalTok{])}
+\NormalTok{Dstar <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dstar}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\end{Highlighting}
+\end{Shaded}
+
+Let's compute the value of the TT parameter in this new model:
+
+\begin{align*}
+  \Delta^y_{TT} & = \bar{\alpha}+ \theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y} \land \bar{\alpha}+\theta\bar{\mu}-\bar{c}-\gamma\mu_i-V_i\geq0}
+\end{align*}
+
+To compute the expectation of a doubly censored normal, I use the
+package \texttt{tmvtnorm}.
+
+\begin{align*}
+  (\mu_i,y_i^B,D_i^*) & = \mathcal{N}\left(\bar{\mu},\bar{\mu},\bar{\alpha}+(\theta-\gamma)\bar{\mu}-\bar{c},
+                                        \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} & -\gamma\sigma^2_{\mu} \\
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} + \sigma^2_{U} & -\gamma\sigma^2_{\mu} \\
+                                              -\gamma\sigma^2_{\mu} & -\gamma\sigma^2_{\mu} & \gamma^2\sigma^2_{\mu}+\sigma^2_{V}
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mean.mu.yB.Dstar <-}\StringTok{ }\KeywordTok{c}\NormalTok{(param[}\StringTok{'barmu'}\NormalTok{],param[}\StringTok{'barmu'}\NormalTok{],param[}\StringTok{'baralpha'}\NormalTok{]}\OperatorTok{-}\StringTok{ }\NormalTok{param[}\StringTok{'barc'}\NormalTok{]}\OperatorTok{+}\NormalTok{(param[}\StringTok{'theta'}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{])}\OperatorTok{*}\NormalTok{param[}\StringTok{'barmu'}\NormalTok{])}
+\NormalTok{cov.mu.yB.Dstar <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(param[}\StringTok{'sigma2mu'}\NormalTok{],param[}\StringTok{"sigma2mu"}\NormalTok{],}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],}
+\NormalTok{                            param[}\StringTok{"sigma2mu"}\NormalTok{],param[}\StringTok{'sigma2mu'}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{'sigma2U'}\NormalTok{],}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],}
+                            \OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{*}\NormalTok{(param[}\StringTok{'gamma'}\NormalTok{])}\OperatorTok{^}\DecValTok{2}\OperatorTok{+}\NormalTok{param[}\StringTok{'sigma2V'}\NormalTok{]),}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{lower.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{upper.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OtherTok{Inf}\NormalTok{,}\KeywordTok{log}\NormalTok{(param[}\StringTok{'barY'}\NormalTok{]),}\OtherTok{Inf}\NormalTok{)}
+\NormalTok{moments.cut <-}\StringTok{ }\KeywordTok{mtmvnorm}\NormalTok{(}\DataTypeTok{mean=}\NormalTok{mean.mu.yB.Dstar,}\DataTypeTok{sigma=}\NormalTok{cov.mu.yB.Dstar,}\DataTypeTok{lower=}\NormalTok{lower.cut,}\DataTypeTok{upper=}\NormalTok{upper.cut)}
+\NormalTok{delta.y.tt <-}\StringTok{ }\NormalTok{param[}\StringTok{'baralpha'}\NormalTok{]}\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{'theta'}\NormalTok{]}\OperatorTok{*}\NormalTok{moments.cut}\OperatorTok{$}\NormalTok{tmean[}\DecValTok{1}\NormalTok{]}
+\NormalTok{delta.y.ww.self.select <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}\OperatorTok{-}\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+The value of \(\Delta^y_{TT}\) in our illustration is now 0.17.
+
+\subsection{Identification}\label{identification-1}
+
+With Randomization After Self-Selection, identification requires two
+assumptions:
+
+\BeginKnitrBlock{definition}[Independence Among Self-Selected]
+\protect\hypertarget{def:indepss}{}{\label{def:indepss}
+\iffalse (Independence Among Self-Selected) \fi{} }We assume that the
+randomized allocation of the program among applicants is well done:
+
+\begin{align*}
+  R_i\Ind(Y_i^0,Y_i^1)|D_i=1.
+\end{align*}
+\EndKnitrBlock{definition}
+
+Independence can be enforced by the randomized allocation of the
+treatment among the eligible applicants.
+
+We need a second assumption:
+
+\BeginKnitrBlock{definition}[Randomization After Self-Selection Validity]
+\protect\hypertarget{def:rassval}{}{\label{def:rassval}
+\iffalse (Randomization After Self-Selection Validity) \fi{} }We assume
+that the randomized allocation of the program does not interfere with
+how potential outcomes and self-selection are generated:
+
+\begin{align*}
+Y_i & = 
+  \begin{cases}
+    Y_i^1 & \text{ if } (R_i=1 \text{ and } D_i=1)   \\
+    Y_i^0 & \text{ if } (R_i=0 \text{ and } D_i=1) \text{ or } D_i=0
+  \end{cases}
+\end{align*}
+\EndKnitrBlock{definition}
+
+with \(Y_i^1\), \(Y_i^0\) and \(D_i\) the same potential outcomes and
+self-selection decisions as in a routine allocation of the treatment.
+
+Under these assumptions, we have the following result:
+
+\BeginKnitrBlock{theorem}[Identification With Randomization After Self-Selection]
+\protect\hypertarget{thm:idrass}{}{\label{thm:idrass}
+\iffalse (Identification With Randomization After Self-Selection) \fi{}
+}Under Assumptions \ref{def:indepss} and \ref{def:rassval}, the WW
+estimator among the self-selected identifies TT:
+
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \Delta^Y_{TT},
+\end{align*}
+\EndKnitrBlock{theorem}
+
+with:
+
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1}.
+\end{align*}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1} \\
+                    & = \esp{Y^1_i|R_i=1,D_i=1} - \esp{Y^0_i|R_i=0,D_i=1} \\
+                    & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
+                    & = \esp{Y_i^1-Y_i^0|D_i=1},
+\end{align*}
+
+where the second equality uses Randomization After Self-Selection
+Validity, the third equality Independence Among Self-Selected and the
+last equality the linearity of the expectation operator.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The key intuitions for how Randomization
+After Self-Selection solves the FPCI are:
+\EndKnitrBlock{remark}
+
+\begin{itemize}
+\tightlist
+\item
+  By allowing for eligibilty and self-selection, we identify the agents
+  that would benefit from the treatment in routine mode (the treated).
+\item
+  By randomly denying the treatment to some of the treated, we can
+  estimate the counterfactual outcome of the treated by looking at the
+  counterfactual outcome of the denied applicants:
+  \(\esp{Y_i^0|D_i=1}=\esp{Y_i|R_i=0,D_i=1}\).
+\end{itemize}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}In practice, we use a pseudo-RNG to generate
+a random allocation among applicants:
+\EndKnitrBlock{remark}
+
+\begin{align*}
+  R_i^* & \sim \mathcal{U}[0,1]\\
+  R_i & = 
+  \begin{cases}
+    1 & \text{ if } R_i^*\leq .5 \land D_i=1\\
+    0 & \text{ if } R_i^*> .5 \land D_i=1
+  \end{cases}
+\end{align*}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-82}{}{\label{exm:unnamed-chunk-82}
+}In our numerical example, the following R code generates two random
+groups, one treated and one control, and imposes the Assumption of
+Randomization After Self-Selection Validity:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#random allocation among self-selected}
+\NormalTok{Rs <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(N)}
+\NormalTok{R <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Rs}\OperatorTok{<=}\NormalTok{.}\DecValTok{5} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Estimating TT}\label{estimating-tt}
+
+\subsubsection{Using the WW Estimator}\label{using-the-ww-estimator-1}
+
+As in the case of the Brute Force Design, we can use the WW estimator to
+estimate the effect of the program with Randomization After
+Self-Selection, except that this time the WW estimator is applied among
+applicant to the program only:
+
+\begin{align*}
+  \hat{\Delta}^Y_{WW|D=1} & = \frac{1}{\sum_{i=1}^N D_iR_i}\sum_{i=1}^N Y_iD_iR_i-\frac{1}{\sum_{i=1}^N D_i(1-R_i)}\sum_{i=1}^N D_iY_i(1-R_i).
+\end{align*}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-83}{}{\label{exm:unnamed-chunk-83}
+}In our numerical example, we can form the WW estimator among
+applicants:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.ww.self.select <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}\OperatorTok{-}\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+WW among applicants is equal to 0.085. It is actually rather far from
+the true value of 0.17, which reminds us that unbiasedness does not mean
+that a given sample will not suffer from a large bias. We just drew a
+bad sample where confounders are not very well balanced.
+
+\subsubsection{Using OLS}\label{using-ols-1}
+
+As in the Brute Force Design with the ATE, we can estimate the TT
+parameter with Randomization After Self-Selection using the OLS
+estimator. In the following regression run among applicants only (with
+\(D_i=1\)), \(\beta\) estimates TT:
+
+\begin{align*}
+    Y_i &  = \alpha +  \beta R_i + U_i.
+    \end{align*}
+
+As a matter of fact, the OLS estimator without control variables is
+numerically equivalent to the WW estimator.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-84}{}{\label{exm:unnamed-chunk-84}
+}In our numerical example, here is the OLS regression:
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.y.R.ols.self.select <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{~}\NormalTok{R[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+The value of the OLS estimator is 0.085, which is identical to the WW
+estimator among applicants.
+
+\subsubsection{Using OLS Conditioning on
+Covariates}\label{using-ols-conditioning-on-covariates-1}
+
+We might want to condition on covariates in order to reduce the amount
+of sampling noise. Parametrically, we can run the following OLS
+regression among applicants (with \(D_i=1\)):
+
+\begin{align*}
+    Y_i &  = \alpha +  \beta R_i + \gamma' X_i + U_i.
+\end{align*}
+
+\(\beta\) estimates the TT.
+
+\textbf{\textsc{Needed: proof. Especially check whether we need to
+center covariates at the mean of the treatment group. I think so.}}
+
+We can also use Matching to obtain a nonparametric estimator.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-85}{}{\label{exm:unnamed-chunk-85}
+}Let us first compute the OLS estimator conditioning on \(y_i^B\):
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.y.R.yB.ols.self.select <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{~}\StringTok{ }\NormalTok{R[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{yB[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+Our estimate of TT after conditioning on \(y_i^B\) is 0.145.
+Conditioning on \(y_i^B\) has been able to solve part of the bias of the
+WW problem estimator.
+
+Let's now check whether conditioning on OLS has brought an improvement
+in terms of decreased sampling noise.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monte.carlo.self.select.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(s,N,param)\{}
+  \KeywordTok{set.seed}\NormalTok{(s)}
+\NormalTok{  mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{  UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{  YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{  E <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{],}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,param[}\StringTok{"sigma2V"}\NormalTok{])}
+\NormalTok{  Dstar <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
+\NormalTok{  Ds <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dstar}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{  eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{  U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{  y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{  alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{  y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{  Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{  Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+  
+  \CommentTok{#random allocation among self-selected}
+\NormalTok{  Rs <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(N)}
+\NormalTok{  R <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Rs}\OperatorTok{<=}\NormalTok{.}\DecValTok{5} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+\NormalTok{  Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}\OperatorTok{-}\KeywordTok{mean}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{]))}
+\NormalTok{\}}
+
+\NormalTok{simuls.self.select.ww.N <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+\NormalTok{  simuls.self.select.ww <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.self.select.ww,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{)}
+  \KeywordTok{colnames}\NormalTok{(simuls.self.select.ww) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(simuls.self.select.ww)}
+\NormalTok{\}}
+
+\NormalTok{sf.simuls.self.select.ww.N <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+  \KeywordTok{sfInit}\NormalTok{(}\DataTypeTok{parallel=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{cpus=}\DecValTok{8}\NormalTok{)}
+\NormalTok{  sim <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{sfLapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.self.select.ww,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{)}
+  \KeywordTok{sfStop}\NormalTok{()}
+  \KeywordTok{colnames}\NormalTok{(sim) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(sim)}
+\NormalTok{\}}
+
+\NormalTok{Nsim <-}\StringTok{ }\DecValTok{1000}
+\CommentTok{#Nsim <- 10}
+\NormalTok{N.sample <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{,}\DecValTok{1000}\NormalTok{,}\DecValTok{10000}\NormalTok{,}\DecValTok{100000}\NormalTok{)}
+\CommentTok{#N.sample <- c(100,1000,10000)}
+\CommentTok{#N.sample <- c(100,1000)}
+\CommentTok{#N.sample <- c(100)}
+
+\NormalTok{simuls.self.select.ww <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(N.sample,sf.simuls.self.select.ww.N,}\DataTypeTok{Nsim=}\NormalTok{Nsim,}\DataTypeTok{param=}\NormalTok{param)}
+\KeywordTok{names}\NormalTok{(simuls.self.select.ww) <-}\StringTok{ }\NormalTok{N.sample}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monte.carlo.self.select.yB.ww <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(s,N,param)\{}
+  \KeywordTok{set.seed}\NormalTok{(s)}
+\NormalTok{  mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{  UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{  YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{  E <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{],}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,param[}\StringTok{"sigma2V"}\NormalTok{])}
+\NormalTok{  Dstar <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
+\NormalTok{  Ds <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dstar}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{  eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{  U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{  y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{  alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{  y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{  Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{  Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+  
+  \CommentTok{#random allocation among self-selected}
+\NormalTok{  Rs <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(N)}
+\NormalTok{  R <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Rs}\OperatorTok{<=}\NormalTok{.}\DecValTok{5} \OperatorTok{&}\StringTok{ }\NormalTok{Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+\NormalTok{  Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{R}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{R)}
+\NormalTok{  reg.y.R.yB.ols.self.select <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{~}\StringTok{ }\NormalTok{R[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{yB[Ds}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+  \KeywordTok{return}\NormalTok{(reg.y.R.yB.ols.self.select}\OperatorTok{$}\NormalTok{coef[}\DecValTok{2}\NormalTok{])}
+\NormalTok{\}}
+
+\NormalTok{simuls.self.select.yB.ww.N <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+\NormalTok{  simuls.self.select.yB.ww <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.self.select.yB.ww,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{)}
+  \KeywordTok{colnames}\NormalTok{(simuls.self.select.yB.ww) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(simuls.self.select.yB.ww)}
+\NormalTok{\}}
+
+\NormalTok{sf.simuls.self.select.yB.ww.N <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+  \KeywordTok{sfInit}\NormalTok{(}\DataTypeTok{parallel=}\OtherTok{TRUE}\NormalTok{,}\DataTypeTok{cpus=}\DecValTok{8}\NormalTok{)}
+\NormalTok{  sim <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{unlist}\NormalTok{(}\KeywordTok{sfLapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{Nsim,monte.carlo.self.select.yB.ww,}\DataTypeTok{N=}\NormalTok{N,}\DataTypeTok{param=}\NormalTok{param)),}\DataTypeTok{nrow=}\NormalTok{Nsim,}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{)}
+  \KeywordTok{sfStop}\NormalTok{()}
+  \KeywordTok{colnames}\NormalTok{(sim) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'WW'}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(sim)}
+\NormalTok{\}}
+
+\NormalTok{Nsim <-}\StringTok{ }\DecValTok{1000}
+\CommentTok{#Nsim <- 10}
+\NormalTok{N.sample <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{,}\DecValTok{1000}\NormalTok{,}\DecValTok{10000}\NormalTok{,}\DecValTok{100000}\NormalTok{)}
+\CommentTok{#N.sample <- c(100,1000,10000)}
+\CommentTok{#N.sample <- c(100,1000)}
+\CommentTok{#N.sample <- c(100)}
+
+\NormalTok{simuls.self.select.yB.ww <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(N.sample,sf.simuls.self.select.yB.ww.N,}\DataTypeTok{Nsim=}\NormalTok{Nsim,}\DataTypeTok{param=}\NormalTok{param)}
+\KeywordTok{names}\NormalTok{(simuls.self.select.yB.ww) <-}\StringTok{ }\NormalTok{N.sample}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(simuls.self.select.ww))\{}
+  \KeywordTok{hist}\NormalTok{(simuls.self.select.ww[[i]][,}\StringTok{'WW'}\NormalTok{],}\DataTypeTok{breaks=}\DecValTok{30}\NormalTok{,}\DataTypeTok{main=}\KeywordTok{paste}\NormalTok{(}\StringTok{'N='}\NormalTok{,}\KeywordTok{as.character}\NormalTok{(N.sample[i])),}\DataTypeTok{xlab=}\KeywordTok{expression}\NormalTok{(}\KeywordTok{hat}\NormalTok{(Delta}\OperatorTok{^}\NormalTok{yWW)),}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.15}\NormalTok{,}\FloatTok{0.55}\NormalTok{))}
+  \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\NormalTok{delta.y.tt,}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(simuls.self.select.yB.ww))\{}
+  \KeywordTok{hist}\NormalTok{(simuls.self.select.yB.ww[[i]][,}\StringTok{'WW'}\NormalTok{],}\DataTypeTok{breaks=}\DecValTok{30}\NormalTok{,}\DataTypeTok{main=}\KeywordTok{paste}\NormalTok{(}\StringTok{'N='}\NormalTok{,}\KeywordTok{as.character}\NormalTok{(N.sample[i])),}\DataTypeTok{xlab=}\KeywordTok{expression}\NormalTok{(}\KeywordTok{hat}\NormalTok{(Delta}\OperatorTok{^}\NormalTok{yWW)),}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.15}\NormalTok{,}\FloatTok{0.55}\NormalTok{))}
+  \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\NormalTok{delta.y.tt,}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[$WW$\label{fig:montecarlohistselfselectww1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/montecarlohistselfselectww-1} }\subfloat[$OLSX$\label{fig:montecarlohistselfselectww2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/montecarlohistselfselectww-2} }
+
+}
+
+\caption{Distribution of the $WW$ and $OLSX$ estimator with randomization after self-selection over replications of samples of different sizes}\label{fig:montecarlohistselfselectww}
+\end{figure}
+
+Figure \ref{fig:montecarlohistselfselectww} shows that, in our example,
+conditioning on covariates improves precision by the same amount as an
+increase in sample size by almost one order of magnitude.
+
+\subsubsection{Estimating Sampling
+Noise}\label{estimating-sampling-noise-1}
+
+In order to estimate precision, we can either use the CLT, deriving
+sampling noise from the heteroskedasticity-robust standard error OLS
+estimates, or we can use some form of resampling as the bootstrap or
+randomization inference.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-86}{}{\label{exm:unnamed-chunk-86}
+}Let us derive the CLT-based estimates of sampling noise using the OLS
+standard errors without conditioning on covariates first.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sn.RASS.simuls <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(simuls.self.select.ww[[}\StringTok{'1000'}\NormalTok{]][,}\StringTok{'WW'}\NormalTok{]}\OperatorTok{-}\NormalTok{delta.y.tt),}\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.99}\NormalTok{))}
+\NormalTok{sn.RASS.OLS.homo <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(reg.y.R.ols.self.select)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\NormalTok{sn.RASS.OLS.hetero <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcovHC}\NormalTok{(reg.y.R.ols.self.select,}\DataTypeTok{type=}\StringTok{'HC2'}\NormalTok{)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+True 99\% sampling noise (from the simulations) is 0.548. 99\% sampling
+noise estimated using default OLS standard errors is 0.578. 99\%
+sampling noise estimated using heteroskedasticity robust OLS standard
+errors is 0.58.
+
+Conditioning on covariates:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sn.RASS.simuls.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(simuls.self.select.yB.ww[[}\StringTok{'1000'}\NormalTok{]][,}\StringTok{'WW'}\NormalTok{]}\OperatorTok{-}\NormalTok{delta.y.tt),}\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.99}\NormalTok{))}
+\NormalTok{sn.RASS.OLS.homo.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(reg.y.R.yB.ols.self.select)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\NormalTok{sn.RASS.OLS.hetero.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcovHC}\NormalTok{(reg.y.R.yB.ols.self.select,}\DataTypeTok{type=}\StringTok{'HC2'}\NormalTok{)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+True 99\% sampling noise (from the simulations) is 0.295. 99\% sampling
+noise estimated using default OLS standard errors is 0.294. 99\%
+sampling noise estimated using heteroskedasticity robust OLS standard
+errors is 0.299.
+
 \section{Randomization After Eligibility}\label{sec:design3}
 
 \section{Encouragement Design}\label{sec:design4}
@@ -5341,8 +5861,7 @@ effects are heterogeneous. Fifth, I cover the meta-regression that we
 use to account for heterogeneity in treatment effects. Finally, I
 explain why usual intuitive methods such as vote-counting are biased.
 
-\subsection{Basic setting for meta-analysis: the
-data}\label{basic-setting-for-meta-analysis-the-data}
+\subsection{Basic setting}\label{basic-setting}
 
 The basic setting for a meta-analysis is that you have access to a list
 of estimates for the effect of a given program and for their precision.
@@ -5362,7 +5881,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-78}{}{\label{exm:unnamed-chunk-78}
+\protect\hypertarget{exm:unnamed-chunk-87}{}{\label{exm:unnamed-chunk-87}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -5386,11 +5905,11 @@ simulations.
 \NormalTok{  \}}
 
 \NormalTok{data.meta}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(data.meta)}
-\NormalTok{data.meta}\OperatorTok{$}\NormalTok{N <-}\StringTok{ }\KeywordTok{factor}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{N,}\KeywordTok{levels}\NormalTok{(N.sample))}
+\CommentTok{#data.meta$N <- factor(data.meta$N,levels(N.sample))}
 
   \KeywordTok{ggplot}\NormalTok{(data.meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\DecValTok{2}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\DecValTok{2}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
 \StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
 \StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect size"}\NormalTok{)}\OperatorTok{+}
@@ -5418,8 +5937,161 @@ at the end for the most promising treatments.
 \subsection{Meta-analysis as a weighted
 average}\label{meta-analysis-as-a-weighted-average}
 
+The key idea of meta-analysis is to combine the effect size estimates
+stemming from different studies, weighing them by their relative
+precision.
+
+\BeginKnitrBlock{definition}[Weighted Meta-Analytic Estimator]
+\protect\hypertarget{def:metaweights}{}{\label{def:metaweights}
+\iffalse (Weighted Meta-Analytic Estimator) \fi{} }The weighted
+meta-analytic estimator is \[
+\bar{\theta} = \sum_{k=1}^Nw_k\hat{\theta}_k \text{ with } w_k=\frac{\frac{1}{\hat{\sigma}^2_k}}{\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}}.
+\]
+\EndKnitrBlock{definition}
+
+Under some assumptions, the estimator \(\bar{\theta}\) converges to the
+true effect of the treatment. Let's delineate these assumptions.
+
+\BeginKnitrBlock{definition}[Homogeneous Treatment Effect]
+\protect\hypertarget{def:metahomo}{}{\label{def:metahomo}
+\iffalse (Homogeneous Treatment Effect) \fi{} }Each \(\hat{\theta}_k\)
+converges to the same treatment effect \(\theta\).
+\EndKnitrBlock{definition}
+
+Assumption \ref{def:metahomo} imposes that all the studies have been
+drawn from the same population, where the treatment effect is a
+constant.
+
+\BeginKnitrBlock{definition}[Independence of Estimates]
+\protect\hypertarget{def:metaind}{}{\label{def:metaind}
+\iffalse (Independence of Estimates) \fi{} }The \(\hat{\theta}_k\) are
+independent from each other.
+\EndKnitrBlock{definition}
+
+Assumption \ref{def:metaind} imposes that all the studies estimates are
+independent from each other. That means that they do not share sampling
+units and that they are not affected by common shocks.
+
+Under these assumptions, we can show two important results.
+
+\BeginKnitrBlock{theorem}[Consistency of the Weighted Meta-Analytic Estimator]
+\protect\hypertarget{thm:metafixedcons}{}{\label{thm:metafixedcons}
+\iffalse (Consistency of the Weighted Meta-Analytic Estimator) \fi{}
+}Under Assumptions \ref{def:metahomo} and \ref{def:metaind}, when the
+sample size of each study goes to infinity,
+\(\bar{\theta}\approx\theta\).
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}The Law of Large Number applied to each sample
+gives the fact that the estimator is a weighted sum of \(\theta\) with
+weights summing to one. Hence the result.
+\EndKnitrBlock{proof}
+
+Theorem \ref{thm:metafixedcons} says that the error we are making around
+the true effect of the treatment goes to zero as the sample size in each
+study decrease. This is great: aggregating the studies is thus going to
+get us to the truth.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}One interesting question is whether Theorem
+\ref{thm:metafixedcons} also holds when the size of the individual
+studies remains fixed and the number of studies goes to infinity, which
+seems a more natural way to do asymptotics in a meta-analysis. I'm
+pretty sure that is the case. Indeed, the studies constitute an enormous
+sample in which we take the average outcomes of the treated on the one
+hand and of the untreated on the other. These averages differ from the
+usual ones in the Law of Large Numbers only by the fact that they are
+not equal to one. But they (i) are independent from the outcomes and
+(ii) sum to one. As a consequence, I'm pretty sure the Law of Large
+Numbers also apply in this dimension.
+\EndKnitrBlock{remark}
+
+\textbf{\textsc{Check if this is a consequence of Kolmogorov's Law of
+Large Numbers.}}
+
+\BeginKnitrBlock{theorem}[Asymptotic Distribution of the Weighted Meta-Analytic Estimator]
+\protect\hypertarget{thm:metafixeddis}{}{\label{thm:metafixeddis}
+\iffalse (Asymptotic Distribution of the Weighted Meta-Analytic
+Estimator) \fi{} }Under Assumptions \ref{def:metahomo} and
+\ref{def:metaind}, when the sample size of each study goes to infinity,
+\(\bar{\theta}\stackrel{d}{\rightarrow}\mathcal{N}(\theta,\sigma^2)\),
+with \[
+\sigma^2 = \frac{1}{\sum_{k=1}^N\frac{1}{\sigma^2_k}}.
+\]
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}\textbf{\textsc{To do using the
+Lindenberg-Levy version of the Central Limit Theorem.}}
+\EndKnitrBlock{proof}
+
+Theorem \ref{thm:metafixeddis} shows that the distribution of the
+weighted metanalytic estimator converges to a normal, which is very
+convenient in order to compute sampling noise. In order to obtain an
+estimator \(\hat{\sigma}^2\) of the variance of the meta-analytic
+estimator, we can simply replace the individual variance terms by their
+estimates: \(\hat{\sigma}_k^2\).
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}I've taken Theorem \ref{thm:metafixeddis}
+from Hedges and Olkin, but I think it is much more interesting and
+correct when the asymptotics goes in the number of studies.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}According to Hedges and Olkin, the weighted
+meta-analytic estimator is the most efficient estimator available.
+\EndKnitrBlock{remark}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{wmae <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(theta,sigma2)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\KeywordTok{weighted.mean}\NormalTok{(theta,(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2)}\OperatorTok{/}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2))),}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2)))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-93}{}{\label{exm:unnamed-chunk-93}
+}Let's use our meta-analytic estimator to estimate the effect size of
+our treatment.
+\EndKnitrBlock{example} The estimated treatment effect size with our
+sample is 0.19 \(\pm\) 0.02.
+
+\textbf{\textsc{Add forest plot.}}
+
 \subsection{Constantly updated
 meta-analysis}\label{constantly-updated-meta-analysis}
+
+What would have happened
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cum.wmae.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(k,theta,sigma2)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\KeywordTok{weighted.mean}\NormalTok{(theta[}\DecValTok{1}\OperatorTok{:}\NormalTok{k],(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k]))),}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k])))}
+\NormalTok{\}}
+
+\NormalTok{cum.wmae <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(theta,sigma2)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{sapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(theta),cum.wmae.}\DecValTok{1}\NormalTok{,}\DataTypeTok{theta=}\NormalTok{theta,}\DataTypeTok{sigma2=}\NormalTok{sigma2))}
+\NormalTok{\}}
+
+\NormalTok{cum.test <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{t}\NormalTok{(}\KeywordTok{cum.wmae}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES,data.meta}\OperatorTok{$}\NormalTok{se.ES}\OperatorTok{^}\DecValTok{2}\NormalTok{)))}
+\KeywordTok{colnames}\NormalTok{(cum.test) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'cum.ES'}\NormalTok{,}\StringTok{'cum.var'}\NormalTok{)}
+\NormalTok{cum.test}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(cum.test)}
+\NormalTok{cum.test}\OperatorTok{$}\NormalTok{cum.se.ES <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(cum.test}\OperatorTok{$}\NormalTok{cum.var)}
+
+  \KeywordTok{ggplot}\NormalTok{(cum.test, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{cum.ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{cum.ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES, }\DataTypeTok{ymax=}\NormalTok{cum.ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Cumulated effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STCI_files/figure-latex/cumWMAE-1.pdf}
 
 \subsection{Testing for the homogeneity of treatment
 effects}\label{testing-for-the-homogeneity-of-treatment-effects}

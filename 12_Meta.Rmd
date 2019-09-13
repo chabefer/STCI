@@ -30,7 +30,7 @@ Fourth, I explain how to conduct a meta-analysis when effects are heterogeneous.
 Fifth, I cover the meta-regression that we use to account for heterogeneity in treatment effects.
 Finally, I explain why usual intuitive methods such as vote-counting are biased.
 
-### Basic setting for meta-analysis: the data
+### Basic setting
 
 The basic setting for a meta-analysis is that you have access to a list of estimates for the effect of a given program and for their precision.
 These estimates come from the literature, searching published and unpublished sources alike.
@@ -64,11 +64,11 @@ for (k in 1:length(N.sample)){
   }
 
 data.meta$id <- 1:nrow(data.meta)
-data.meta$N <- factor(data.meta$N,levels(N.sample))
+#data.meta$N <- factor(data.meta$N,levels(N.sample))
 
   ggplot(data.meta, aes(x=as.factor(id), y=ES)) +
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
-      geom_errorbar(aes(ymin=ES-2*se.ES, ymax=ES+2*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
       xlab("Studies")+
       ylab("Effect size")+
@@ -82,7 +82,119 @@ The studies are represented in that order, mimicking the increasing sample size 
 
 ### Meta-analysis as a weighted average
 
+The key idea of meta-analysis is to combine the effect size estimates stemming from different studies, weighing them by their relative precision.
+
+```{definition,metaweights,name='Weighted Meta-Analytic Estimator'}
+The weighted meta-analytic estimator is
+$$
+\bar{\theta} = \sum_{k=1}^Nw_k\hat{\theta}_k \text{ with } w_k=\frac{\frac{1}{\hat{\sigma}^2_k}}{\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}}.
+$$
+```
+
+Under some assumptions, the estimator $\bar{\theta}$ converges to the true effect of the treatment.
+Let's delineate these assumptions.
+
+```{definition,metahomo,name='Homogeneous Treatment Effect'}
+Each $\hat{\theta}_k$ converges to the same treatment effect $\theta$.
+```
+
+Assumption \@ref(def:metahomo) imposes that all the studies have been drawn from the same population, where the treatment effect is a constant.
+
+```{definition,metaind,name='Independence of Estimates'}
+The $\hat{\theta}_k$ are independent from each other.
+```
+
+Assumption \@ref(def:metaind) imposes that all the studies estimates are independent from each other.
+That means that they do not share sampling units and that they are not affected by common shocks.
+
+Under these assumptions, we can show two important results.
+
+```{theorem,metafixedcons,name='Consistency of the Weighted Meta-Analytic Estimator'}
+Under Assumptions \@ref(def:metahomo) and \@ref(def:metaind), when the sample size of each study goes to infinity, $\bar{\theta}\approx\theta$.
+```
+
+```{proof}
+The Law of Large Number applied to each sample gives the fact that the estimator is a weighted sum of $\theta$ with weights summing to one. 
+Hence the result.
+```
+
+Theorem \@ref(thm:metafixedcons) says that the error we are making around the true effect of the treatment goes to zero as the sample size in each study decrease.
+This is great: aggregating the studies is thus going to get us to the truth.
+
+```{remark}
+One interesting question is whether Theorem \@ref(thm:metafixedcons) also holds when the size of the individual studies remains fixed and the number of studies goes to infinity, which seems a more natural way to do asymptotics in a meta-analysis. 
+I'm pretty sure that is the case.
+Indeed, the studies constitute an enormous sample in which we take the average outcomes of the treated on the one hand and of the untreated on the other.
+These averages differ from the usual ones in the Law of Large Numbers only by the fact that they are not equal to one.
+But they (i) are independent from the outcomes and (ii) sum to one.
+As a consequence, I'm pretty sure the Law of Large Numbers also apply in this dimension.
+```
+
+**<span style="font-variant:small-caps;">Check if this is a consequence of Kolmogorov's Law of Large Numbers.</span>**
+
+```{theorem,metafixeddis,name='Asymptotic Distribution of the Weighted Meta-Analytic Estimator'}
+Under Assumptions \@ref(def:metahomo) and \@ref(def:metaind), when the sample size of each study goes to infinity, $\bar{\theta}\stackrel{d}{\rightarrow}\mathcal{N}(\theta,\sigma^2)$, with
+$$
+\sigma^2 = \frac{1}{\sum_{k=1}^N\frac{1}{\sigma^2_k}}.
+$$
+```
+
+```{proof}
+**<span style="font-variant:small-caps;">To do using the Lindenberg-Levy version of the Central Limit Theorem.</span>**
+```
+
+Theorem \@ref(thm:metafixeddis) shows that the distribution of the weighted metanalytic estimator converges to a normal, which is very convenient in order to compute sampling noise.
+In order to obtain an estimator $\hat{\sigma}^2$ of the variance of the meta-analytic estimator, we can simply replace the individual variance terms by their estimates: $\hat{\sigma}_k^2$.
+
+```{remark}
+I've taken Theorem \@ref(thm:metafixeddis) from Hedges and Olkin, but I think it is much more interesting and correct when the asymptotics goes in the number of studies.
+```
+
+```{remark}
+According to Hedges and Olkin, the weighted meta-analytic estimator is the most efficient estimator available.
+```
+
+```{r WMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+wmae <- function(theta,sigma2){
+  return(c(weighted.mean(theta,(1/sigma2)/(sum(1/sigma2))),1/sum(1/sigma2)))
+}
+```
+
+```{example}
+Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+```
+The estimated treatment effect size with our sample is `r round(wmae(data.meta$ES,data.meta$se.ES^2)[[1]],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*sqrt(wmae(data.meta$ES,data.meta$se.ES^2)[[2]]),2)`.
+
+**<span style="font-variant:small-caps;">Add forest plot.</span>**
+
 ### Constantly updated meta-analysis
+
+What would have happened 
+
+```{r cumWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+cum.wmae.1 <- function(k,theta,sigma2){
+  return(c(weighted.mean(theta[1:k],(1/sigma2[1:k])/(sum(1/sigma2[1:k]))),1/sum(1/sigma2[1:k])))
+}
+
+cum.wmae <- function(theta,sigma2){
+  return(sapply(1:length(theta),cum.wmae.1,theta=theta,sigma2=sigma2))
+}
+
+cum.test <- as.data.frame(t(cum.wmae(data.meta$ES,data.meta$se.ES^2)))
+colnames(cum.test) <- c('cum.ES','cum.var')
+cum.test$id <- 1:nrow(cum.test)
+cum.test$cum.se.ES <- sqrt(cum.test$cum.var)
+
+  ggplot(cum.test, aes(x=as.factor(id), y=cum.ES)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=cum.ES-qnorm((delta.2+1)/2)*cum.se.ES, ymax=cum.ES+qnorm((delta.2+1)/2)*cum.se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      xlab("Studies")+
+      ylab("Cumulated effect size")+
+      theme_bw()
+
+```
+
 
 ### Testing for the homogeneity of treatment effects
 

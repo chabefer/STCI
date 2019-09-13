@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-09-12">
+<meta name="date" content="2019-09-13">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -156,7 +156,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="3.1.1" data-path="RCT.html"><a href="RCT.html#identification"><i class="fa fa-check"></i><b>3.1.1</b> Identification</a></li>
 <li class="chapter" data-level="3.1.2" data-path="RCT.html"><a href="RCT.html#estimating-ate"><i class="fa fa-check"></i><b>3.1.2</b> Estimating ATE</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Randomization After Self-Selection</a></li>
+<li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Randomization After Self-Selection</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="RCT.html"><a href="RCT.html#identification-1"><i class="fa fa-check"></i><b>3.2.1</b> Identification</a></li>
+<li class="chapter" data-level="3.2.2" data-path="RCT.html"><a href="RCT.html#estimating-tt"><i class="fa fa-check"></i><b>3.2.2</b> Estimating TT</a></li>
+</ul></li>
 <li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Randomization After Eligibility</a></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
@@ -172,7 +175,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="11" data-path="Distribution.html"><a href="Distribution.html"><i class="fa fa-check"></i><b>11</b> Distributional effects</a></li>
 <li class="chapter" data-level="12" data-path="sec-meta.html"><a href="sec-meta.html"><i class="fa fa-check"></i><b>12</b> Meta-analysis and Publication Bias</a><ul>
 <li class="chapter" data-level="12.1" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis"><i class="fa fa-check"></i><b>12.1</b> Meta-analysis</a><ul>
-<li class="chapter" data-level="12.1.1" data-path="sec-meta.html"><a href="sec-meta.html#basic-setting-for-meta-analysis-the-data"><i class="fa fa-check"></i><b>12.1.1</b> Basic setting for meta-analysis: the data</a></li>
+<li class="chapter" data-level="12.1.1" data-path="sec-meta.html"><a href="sec-meta.html#basic-setting"><i class="fa fa-check"></i><b>12.1.1</b> Basic setting</a></li>
 <li class="chapter" data-level="12.1.2" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis-as-a-weighted-average"><i class="fa fa-check"></i><b>12.1.2</b> Meta-analysis as a weighted average</a></li>
 <li class="chapter" data-level="12.1.3" data-path="sec-meta.html"><a href="sec-meta.html#constantly-updated-meta-analysis"><i class="fa fa-check"></i><b>12.1.3</b> Constantly updated meta-analysis</a></li>
 <li class="chapter" data-level="12.1.4" data-path="sec-meta.html"><a href="sec-meta.html#testing-for-the-homogeneity-of-treatment-effects"><i class="fa fa-check"></i><b>12.1.4</b> Testing for the homogeneity of treatment effects</a></li>
@@ -228,12 +231,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h2><span class="header-section-number">12.1</span> Meta-analysis</h2>
 <p>There are several approaches and refinements to meta-analysis. In this section, I am going to present only the most important ones. I’ll defer the reader to other more specialized publications if needed.</p>
 <p>I first present the basics of meta-analysis: the constitution and structure of the sample. Second, I present the simplest method to aggregate effects: the weighted average. Third, I present tests for deciding whether the effects are from a homogeneous or a heterogeneous population. Fourth, I explain how to conduct a meta-analysis when effects are heterogeneous. Fifth, I cover the meta-regression that we use to account for heterogeneity in treatment effects. Finally, I explain why usual intuitive methods such as vote-counting are biased.</p>
-<div id="basic-setting-for-meta-analysis-the-data" class="section level3">
-<h3><span class="header-section-number">12.1.1</span> Basic setting for meta-analysis: the data</h3>
+<div id="basic-setting" class="section level3">
+<h3><span class="header-section-number">12.1.1</span> Basic setting</h3>
 <p>The basic setting for a meta-analysis is that you have access to a list of estimates for the effect of a given program and for their precision. These estimates come from the literature, searching published and unpublished sources alike. This data is usually collected after an extensive search of bibliographic databases. Then, one has to select among all the studies selected by the search the ones that are actualy relevant. This is the most excruciating part of a meta-analysis, since a lot of the studies selected by hte search algorithm are actually irrelevant. Finally, one has to extract from each relevant paper an estimate of the effect of the treatment and of its precision. In general, one tries to choose standardized estimates such as the effect size (see Section <a href="FPSI.html#sec:effectsize">2.1.6</a> for a definition) and its standard error. After all this process, we should end up with a dataset like: <span class="math inline">\(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\)</span>, with <span class="math inline">\(\hat{\theta}_k\)</span> the estimated effect size, <span class="math inline">\(\hat{\sigma}_k\)</span> its estimated standard error, and <span class="math inline">\(N\)</span> the number of included studies.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-78" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
+<span id="exm:unnamed-chunk-87" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.plot.ES.CLT &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">7</span>,<span class="dv">2</span>,<span class="dv">1</span>)
@@ -253,11 +256,11 @@ se.ww.CLT.ES &lt;-<span class="st"> </span><span class="cf">function</span>(N,v1
   }
 
 data.meta<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(data.meta)
-data.meta<span class="op">$</span>N &lt;-<span class="st"> </span><span class="kw">factor</span>(data.meta<span class="op">$</span>N,<span class="kw">levels</span>(N.sample))
+<span class="co">#data.meta$N &lt;- factor(data.meta$N,levels(N.sample))</span>
 
   <span class="kw">ggplot</span>(data.meta, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>ES)) <span class="op">+</span>
 <span class="st">      </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span>
-<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>ES<span class="op">-</span><span class="dv">2</span><span class="op">*</span>se.ES, <span class="dt">ymax=</span>ES<span class="op">+</span><span class="dv">2</span><span class="op">*</span>se.ES), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>ES<span class="op">-</span><span class="kw">qnorm</span>((delta.<span class="dv">2</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>se.ES, <span class="dt">ymax=</span>ES<span class="op">+</span><span class="kw">qnorm</span>((delta.<span class="dv">2</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>se.ES), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
 <span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">ES</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span>
 <span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Studies&quot;</span>)<span class="op">+</span>
 <span class="st">      </span><span class="kw">ylab</span>(<span class="st">&quot;Effect size&quot;</span>)<span class="op">+</span>
@@ -272,9 +275,102 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
 </div>
 <div id="meta-analysis-as-a-weighted-average" class="section level3">
 <h3><span class="header-section-number">12.1.2</span> Meta-analysis as a weighted average</h3>
+<p>The key idea of meta-analysis is to combine the effect size estimates stemming from different studies, weighing them by their relative precision.</p>
+
+<div class="definition">
+<span id="def:metaweights" class="definition"><strong>Definition 12.1  (Weighted Meta-Analytic Estimator)  </strong></span>The weighted meta-analytic estimator is <span class="math display">\[
+\bar{\theta} = \sum_{k=1}^Nw_k\hat{\theta}_k \text{ with } w_k=\frac{\frac{1}{\hat{\sigma}^2_k}}{\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}}.
+\]</span>
+</div>
+
+<p>Under some assumptions, the estimator <span class="math inline">\(\bar{\theta}\)</span> converges to the true effect of the treatment. Let’s delineate these assumptions.</p>
+
+<div class="definition">
+<span id="def:metahomo" class="definition"><strong>Definition 12.2  (Homogeneous Treatment Effect)  </strong></span>Each <span class="math inline">\(\hat{\theta}_k\)</span> converges to the same treatment effect <span class="math inline">\(\theta\)</span>.
+</div>
+
+<p>Assumption <a href="sec-meta.html#def:metahomo">12.2</a> imposes that all the studies have been drawn from the same population, where the treatment effect is a constant.</p>
+
+<div class="definition">
+<span id="def:metaind" class="definition"><strong>Definition 12.3  (Independence of Estimates)  </strong></span>The <span class="math inline">\(\hat{\theta}_k\)</span> are independent from each other.
+</div>
+
+<p>Assumption <a href="sec-meta.html#def:metaind">12.3</a> imposes that all the studies estimates are independent from each other. That means that they do not share sampling units and that they are not affected by common shocks.</p>
+<p>Under these assumptions, we can show two important results.</p>
+
+<div class="theorem">
+<span id="thm:metafixedcons" class="theorem"><strong>Theorem 12.1  (Consistency of the Weighted Meta-Analytic Estimator)  </strong></span>Under Assumptions <a href="sec-meta.html#def:metahomo">12.2</a> and <a href="sec-meta.html#def:metaind">12.3</a>, when the sample size of each study goes to infinity, <span class="math inline">\(\bar{\theta}\approx\theta\)</span>.
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> The Law of Large Number applied to each sample gives the fact that the estimator is a weighted sum of <span class="math inline">\(\theta\)</span> with weights summing to one. Hence the result.
+</div>
+
+<p>Theorem <a href="sec-meta.html#thm:metafixedcons">12.1</a> says that the error we are making around the true effect of the treatment goes to zero as the sample size in each study decrease. This is great: aggregating the studies is thus going to get us to the truth.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> One interesting question is whether Theorem <a href="sec-meta.html#thm:metafixedcons">12.1</a> also holds when the size of the individual studies remains fixed and the number of studies goes to infinity, which seems a more natural way to do asymptotics in a meta-analysis. I’m pretty sure that is the case. Indeed, the studies constitute an enormous sample in which we take the average outcomes of the treated on the one hand and of the untreated on the other. These averages differ from the usual ones in the Law of Large Numbers only by the fact that they are not equal to one. But they (i) are independent from the outcomes and (ii) sum to one. As a consequence, I’m pretty sure the Law of Large Numbers also apply in this dimension.
+</div>
+
+<p><strong><span style="font-variant: small-caps;">Check if this is a consequence of Kolmogorov’s Law of Large Numbers.</span></strong></p>
+
+<div class="theorem">
+<span id="thm:metafixeddis" class="theorem"><strong>Theorem 12.2  (Asymptotic Distribution of the Weighted Meta-Analytic Estimator)  </strong></span>Under Assumptions <a href="sec-meta.html#def:metahomo">12.2</a> and <a href="sec-meta.html#def:metaind">12.3</a>, when the sample size of each study goes to infinity, <span class="math inline">\(\bar{\theta}\stackrel{d}{\rightarrow}\mathcal{N}(\theta,\sigma^2)\)</span>, with <span class="math display">\[
+\sigma^2 = \frac{1}{\sum_{k=1}^N\frac{1}{\sigma^2_k}}.
+\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> <strong><span style="font-variant: small-caps;">To do using the Lindenberg-Levy version of the Central Limit Theorem.</span></strong>
+</div>
+
+<p>Theorem <a href="sec-meta.html#thm:metafixeddis">12.2</a> shows that the distribution of the weighted metanalytic estimator converges to a normal, which is very convenient in order to compute sampling noise. In order to obtain an estimator <span class="math inline">\(\hat{\sigma}^2\)</span> of the variance of the meta-analytic estimator, we can simply replace the individual variance terms by their estimates: <span class="math inline">\(\hat{\sigma}_k^2\)</span>.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> I’ve taken Theorem <a href="sec-meta.html#thm:metafixeddis">12.2</a> from Hedges and Olkin, but I think it is much more interesting and correct when the asymptotics goes in the number of studies.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> According to Hedges and Olkin, the weighted meta-analytic estimator is the most efficient estimator available.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">wmae &lt;-<span class="st"> </span><span class="cf">function</span>(theta,sigma2){
+  <span class="kw">return</span>(<span class="kw">c</span>(<span class="kw">weighted.mean</span>(theta,(<span class="dv">1</span><span class="op">/</span>sigma2)<span class="op">/</span>(<span class="kw">sum</span>(<span class="dv">1</span><span class="op">/</span>sigma2))),<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(<span class="dv">1</span><span class="op">/</span>sigma2)))
+}</code></pre></div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-93" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
+</div>
+<p> The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02.</p>
+<p><strong><span style="font-variant: small-caps;">Add forest plot.</span></strong></p>
 </div>
 <div id="constantly-updated-meta-analysis" class="section level3">
 <h3><span class="header-section-number">12.1.3</span> Constantly updated meta-analysis</h3>
+<p>What would have happened</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cum.wmae.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(k,theta,sigma2){
+  <span class="kw">return</span>(<span class="kw">c</span>(<span class="kw">weighted.mean</span>(theta[<span class="dv">1</span><span class="op">:</span>k],(<span class="dv">1</span><span class="op">/</span>sigma2[<span class="dv">1</span><span class="op">:</span>k])<span class="op">/</span>(<span class="kw">sum</span>(<span class="dv">1</span><span class="op">/</span>sigma2[<span class="dv">1</span><span class="op">:</span>k]))),<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(<span class="dv">1</span><span class="op">/</span>sigma2[<span class="dv">1</span><span class="op">:</span>k])))
+}
+
+cum.wmae &lt;-<span class="st"> </span><span class="cf">function</span>(theta,sigma2){
+  <span class="kw">return</span>(<span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(theta),cum.wmae.<span class="dv">1</span>,<span class="dt">theta=</span>theta,<span class="dt">sigma2=</span>sigma2))
+}
+
+cum.test &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">t</span>(<span class="kw">cum.wmae</span>(data.meta<span class="op">$</span>ES,data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>)))
+<span class="kw">colnames</span>(cum.test) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;cum.ES&#39;</span>,<span class="st">&#39;cum.var&#39;</span>)
+cum.test<span class="op">$</span>id &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cum.test)
+cum.test<span class="op">$</span>cum.se.ES &lt;-<span class="st"> </span><span class="kw">sqrt</span>(cum.test<span class="op">$</span>cum.var)
+
+  <span class="kw">ggplot</span>(cum.test, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">as.factor</span>(id), <span class="dt">y=</span>cum.ES)) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_bar</span>(<span class="dt">position=</span><span class="kw">position_dodge</span>(), <span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">colour=</span><span class="st">&#39;black&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>cum.ES<span class="op">-</span><span class="kw">qnorm</span>((delta.<span class="dv">2</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>cum.se.ES, <span class="dt">ymax=</span>cum.ES<span class="op">+</span><span class="kw">qnorm</span>((delta.<span class="dv">2</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>cum.se.ES), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
+<span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">ES</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Studies&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">ylab</span>(<span class="st">&quot;Cumulated effect size&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">theme_bw</span>()</code></pre></div>
+<p><img src="STCI_files/figure-html/cumWMAE-1.png" width="672" /></p>
 </div>
 <div id="testing-for-the-homogeneity-of-treatment-effects" class="section level3">
 <h3><span class="header-section-number">12.1.4</span> Testing for the homogeneity of treatment effects</h3>
