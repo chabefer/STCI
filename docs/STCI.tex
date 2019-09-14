@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-09-13}
+    \date{2019-09-14}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -5783,6 +5783,442 @@ errors is 0.299.
 
 \section{Randomization After Eligibility}\label{sec:design3}
 
+In Randomization After Eligiblity, we randomly select two groups among
+the eligibles. Members of the treated group are informed that they are
+eligible to the program and are free to self-select into it. Members of
+the control group are not enformed that they are eligible and cannot
+enroll into the program. With Randomization After Eligiblity, we can
+still recover the TT despite the fact that we have not randomized access
+to the programs among the applicants. This is the magic of instrumental
+variables. Let us detail the mechanics of this beautiful result.
+
+\subsection{Identification}\label{identification-2}
+
+In order to state the identification results in the Randomization After
+Eligibility design rigorously, I need to define new potential outcomes:
+
+\begin{itemize}
+  \item $Y_i^{d,r}$ is the value of the outcome $Y$ when individual $i$ belongs to the program group $d$ ($d\in\left\{0,1\right\}$) and has been randomized in group $r$ ($r\in\left\{0,1\right\}$).
+  \item $D_i^r$ is the value of the program participation decision when individual $i$ has been assigned randomly to group $r$.
+\end{itemize}
+
+\subsubsection{Identification of TT}\label{identification-of-tt}
+
+In a Randomization After Eligiblity, we need three assumptions to ensure
+identification of the TT:
+
+\BeginKnitrBlock{definition}[Independence Among Eligibles]
+\protect\hypertarget{def:indelig}{}{\label{def:indelig}
+\iffalse (Independence Among Eligibles) \fi{} }We assume that the
+randomized allocation of the program among eligibles is well done:
+
+\begin{align*}
+  R_i\Ind(Y_i^{0,0},Y_i^{0,1},Y_i^{1,0},Y_i^{1,1},D_i^1,D_i^0)|E_i=1.
+\end{align*}
+\EndKnitrBlock{definition}
+
+Independence can be enforced by the randomized allocation of information
+about eligibility among the eligibles.
+
+We need a second assumption:
+
+\BeginKnitrBlock{definition}[Randomization After Eligibility Validity]
+\protect\hypertarget{def:randeligvalid}{}{\label{def:randeligvalid}
+\iffalse (Randomization After Eligibility Validity) \fi{} }We assume
+that no eligibles that has been randomized out can take the treatment
+and that the randomized allocation of the program does not interfere
+with how potential outcomes and self-selection are generated:
+
+\begin{align*}
+D_i^0 & = 0\text{, } \forall i, \\
+D_i & = D_i^1R_i+(1-R_i)D_i^0 \\
+Y_i & = 
+  \begin{cases}
+    Y_i^{1,1} & \text{ if } (R_i=1 \text{ and } D_i=1)   \\
+    Y_i^{0,1} & \text{ if } (R_i=1 \text{ and } D_i=0)    \\
+    Y_i^{0,0} & \text{ if } R_i=0
+  \end{cases}
+\end{align*}
+\EndKnitrBlock{definition} with \(Y_i^{1,1}\), \(Y_i^{0,1}\),
+\(Y_i^{0,0}\), \(D_i^1\) and \(D^0_i\) the same potential outcomes and
+self-selection decisions as in a routine allocation of the treatment.
+
+We need a third assumption:
+
+\BeginKnitrBlock{definition}
+\protect\hypertarget{def:exclrestric}{}{\label{def:exclrestric} }We assume
+that there is no direct effect of being informed about eligibliity to
+the program on outcomes:
+
+\begin{align*}
+  Y_i^{1,1} & = Y_i^{1,0}= Y_i^1\\
+  Y_i^{0,1} & = Y_i^{0,0}= Y_i^0.
+\end{align*}
+\EndKnitrBlock{definition}
+
+Under these assumptions, we have the following result:
+
+\BeginKnitrBlock{theorem}[Identification of TT With Randomization After Eligibility]
+\protect\hypertarget{thm:identTTRAE}{}{\label{thm:identTTRAE}
+\iffalse (Identification of TT With Randomization After Eligibility)
+\fi{} }Under Assumptions \ref{def:indelig}, \ref{def:randeligvalid} and
+\ref{def:exclrestric}, the Bloom estimator among eligibles identifies
+TT:
+
+\begin{align*}
+  \Delta^Y_{Bloom|E=1} & = \Delta^Y_{TT},
+\end{align*}
+\EndKnitrBlock{theorem} with:
+
+\begin{align*}
+  \Delta^Y_{Bloom|E=1} & = \frac{\Delta^Y_{WW|E=1}}{\Pr(D_i=1|R_i=1,E_i=1)} \\
+  \Delta^Y_{WW|E=1} & =\esp{Y_i|R_i=1,E_i=1}-\esp{Y_i|R_i=0,E_i=1}.
+\end{align*}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}I keep the conditioning on \(E_i=1\) implicit
+all along to save notation.
+
+\begin{align*}
+  \esp{Y_i|R_i=1} & = \esp{Y_i^{1,1}D_i+Y_i^{0,1}(1-D_i)|R_i=1} \\
+                  & = \esp{Y_i^0+D_i(Y_i^1-Y_i^0)|R_i=1} \\
+                  & = \esp{Y_i^0|R_i=1}+\esp{Y_i^1-Y_i^0|D_i=1,R_i=1}\Pr(D_i=1|R_i=1)\\
+                  & = \esp{Y_i^0}+\esp{Y_i^1-Y_i^0|D_i=1}\Pr(D_i=1|R_i=1),
+\end{align*}
+
+where the first equality uses Assumption \ref{def:randeligvalid}, the
+second equality Assumption \ref{def:exclrestric} and the last equality
+Assumption \ref{def:indelig} and the fact that
+\(D_i=1\Rightarrow R_i=1\). Using the same reasoning, we also have:
+
+\begin{align*}
+  \esp{Y_i|R_i=0} & = \esp{Y_i^{1,0}D_i+Y_i^{0,0}(1-D_i)|R_i=0} \\
+                  & = \esp{Y_i^0|R_i=0} \\
+                  & = \esp{Y_i^0}.
+\end{align*}
+
+A direct application of the formula for the Bloom estimator proves the
+result.
+\EndKnitrBlock{proof}
+
+\subsubsection{Identification of ITE}\label{identification-of-ite}
+
+The previous proof does not give a lot of intuition of how TT is
+identified in the Randomization After Eligibility design. In order to
+gain more insight, we are going to decompose the Bloom estimator, and
+have a look at its numerator. The numerator of the Bloom estimator is a
+With/Without comparison, and it identifies, under fairly light
+conditions, another causal effect, the Intention to Treat Effect (ITE).
+
+Let me first define the ITE:
+
+\BeginKnitrBlock{definition}[Intention to Treat Effect]
+\protect\hypertarget{def:ITE}{}{\label{def:ITE} \iffalse (Intention to Treat
+Effect) \fi{} }In a Randomization After Eligibility design, the
+Intention to Treat Effect (ITE) is the effect of receiving information
+about eligiblity among eligibles:
+
+\begin{align*}
+  \Delta^Y_{ITE} & = \esp{Y_i^{D_i^1,1}-Y_i^{D_i^0,0}|E_i=1}.
+\end{align*}
+\EndKnitrBlock{definition}
+
+Receiving information about eligibility has two impacts, in the general
+framework that we have delineated so far: first, it triggers some
+individuals into the treatment (those for which \(D_i^1\neq0\)); second,
+it might have a direct effect on outcomes (\(Y_i^{d,1}\neq Y_i^{d,0}\)).
+This second effect is the effect of annoucing eligiblity that does not
+goes through participation into the program. For example, it is possible
+that announcing eligibility to a retirement program makes me save more
+for retirement, even if I end up not taking up the proposed program.
+
+The two causal channels that are at work within the ITE can be seen more
+clearly after some manipulations:
+
+\begin{align}
+  \Delta^Y_{ITE} & = \esp{Y_i^{1,1}D^1_i+Y_i^{0,1}(1-D_i^1)-(Y_i^{1,0}D^0_i+Y_i^{0,0}(1-D_i^0))|E_i=1}\nonumber \\
+                & = \esp{Y_i^{1,1}D^1_i+Y_i^{0,1}(1-D_i^1)-(Y_i^{0,0}(D_i^1+1-D_i^1))|E_i=1}\nonumber \\
+                & = \esp{(Y_i^{1,1}-Y_i^{0,0})D^1_i+(Y_i^{0,1}-Y_i^{0,0})(1-D_i^1)|E_i=1}\nonumber \\
+                & = \esp{Y_i^{1,1}-Y_i^{0,0}|D^1_i=1,E_i=1}\Pr(D^1_i=1|E_i=1)\nonumber \\
+                & \phantom{=}+\esp{Y_i^{0,1}-Y_i^{0,0}|D_i^1=0,E_i=1}\Pr(D_i^1=0|E_i=1),\label{eq:ITE2}
+\end{align}
+
+where the first equality follows from Assumption \ref{def:randeligvalid}
+and the second equality uses the fact that \(D_i^0=0\), \(\forall i\).
+
+We can now see that the ITE is composed of two terms: the first term
+captures the effect of annoucing eligibility on those who decide to
+participate into the program; the second term captures the effect of
+announcing eligibility on those who do not participate into the program.
+Both of these effects are weighted by the respective proportions of
+those reacting to the eligibility annoucement by participating and by
+not participating respectively.
+
+Now, in order to see how the ITE ``contains'' the TT, we can use the
+following theorem:
+
+\BeginKnitrBlock{theorem}[From ITE to TT]
+\protect\hypertarget{thm:ITETT}{}{\label{thm:ITETT} \iffalse (From ITE to
+TT) \fi{} }Under Assumptions \ref{def:indelig}, \ref{def:randeligvalid}
+and \ref{def:exclrestric}, ITE is equal to TT multiplied by the
+proportion of individuals taking up the treatment after eligibility has
+been announced:
+
+\begin{align*}
+  \Delta^Y_{ITE} & = \Delta^Y_{TT}\Pr(D^1_i=1|E_i=1).
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}Under Assumption \ref{def:exclrestric},
+Equation \eqref{eq:ITE2} becomes:
+
+\begin{align*}
+  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{0}|D^1_i=1,E_i=1}\Pr(D^1_i=1|E_i=1) \\
+                & \phantom{=}+\esp{Y_i^{0}-Y_i^{0}|D_i^1=0,E_i=1}\Pr(D_i^1=0|E_i=1)\\
+                & = \esp{D_i^1(Y_i^{1}-Y_i^{0})|R_i=1,E_i=1} \\
+                & = \esp{Y_i^{1}-Y_i^{0}|D_i^1=1,R_i=1,E_i=1}\Pr(D^1_i=1|R_i=1,E_i=1) \\
+                & = \esp{Y_i^{1}-Y_i^{0}|D_i=1,E_i=1}\Pr(D^1_i=1|E_i=1),
+\end{align*}
+
+where the first equality follows from Assumption \ref{def:exclrestric},
+the second from Bayes' rule and Assumptions \ref{def:indelig}, the third
+from Bayes' rule and the last from the fact that
+\(D_i^1=1,R_i=1\Leftrightarrow D_i=1\).
+\EndKnitrBlock{proof}
+
+The previous theorem shows that Assumption \ref{def:exclrestric} shuts
+down any direct effect of the announcement of eligibility on outcomes.
+As a consequence of this assumption, the only impact that an eligibility
+annoucement has on outcomes is through participation into the program.
+Hence, the ITE is equal to TT multiplied by the proportion of people
+taking up the treatment when eligibility is announced.
+
+In order to move from the link between TT and ITE to the mechanics of
+the Bloom estimator, we need two additional identification results. The
+first result shows that ITE can be identified under fairly light
+conditions by a WW estimator. The second result shows that the
+proportion of people taking up the treatment when eligiblity is
+announced is also easily estimated from the data.
+
+\BeginKnitrBlock{theorem}[Identification of ITE with Randomization After Eligibility]
+\protect\hypertarget{thm:ITERAE}{}{\label{thm:ITERAE}
+\iffalse (Identification of ITE with Randomization After Eligibility)
+\fi{} }Under Assumptions \ref{def:indelig} and \ref{def:randeligvalid},
+ITE is identified by the With/Without comparison among eligibles:
+
+\begin{align*}
+  \Delta^Y_{ITE} & = \Delta^Y_{WW|E=1}.
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+ \Delta^Y_{WW|E=1} & =\esp{Y_i|R_i=1,E_i=1}-\esp{Y_i|R_i=0,E_i=1} \\
+                   & = \esp{Y_i^{D_i^1,1}|R_i=1,E_i=1}-\esp{Y_i^{D_i^0,0}|R_i=0,E_i=1} \\
+                    & = \esp{Y_i^{D_i^1,1}|E_i=1}-\esp{Y_i^{D_i^0,0}|E_i=1},
+\end{align*}
+
+where the second equality follows from Assumption
+\ref{def:randeligvalid} and the third from Assumption \ref{def:indelig}.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{theorem}[Identification of $\Pr(D^1_i=1|E_i=1)$]
+\protect\hypertarget{thm:prRAE}{}{\label{thm:prRAE} \iffalse (Identification
+of \(\Pr(D^1_i=1|E_i=1)\)) \fi{} }Under Assumptions \ref{def:indelig}
+and \ref{def:randeligvalid}, \(\Pr(D^1_i=1|E_i=1)\) is identified by the
+proportion of people taking up the offered treatment when informed about
+their eligibility status:
+
+\begin{align*}
+  \Pr(D^1_i=1|E_i=1) & = \Pr(D_i=1|R_i=1,E_i=1).
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+ \Pr(D_i=1|R_i=1,E_i=1) & =\Pr(D^1_i=1|R_i=1,E_i=1) \\
+                        & = \Pr(D^1_i=1|E_i=1),
+\end{align*}
+
+where the first equality follows from Assumption \ref{def:randeligvalid}
+and the second from Assumption \ref{def:indelig}.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{corollary}[Bloom estimator and ITE]
+\protect\hypertarget{cor:RAEBloom}{}{\label{cor:RAEBloom} \iffalse (Bloom
+estimator and ITE) \fi{} }It follows from Theorems \ref{thm:ITERAE} and
+\ref{thm:prRAE} that, under Assumptions \ref{def:indelig} and
+\ref{def:randeligvalid}, the Bloom esimator is equal to the ITE divided
+by the propotion of agents taking up the program when eligible:
+
+\begin{align*}
+  \Delta^Y_{Bloom|E=1} & = \frac{\Delta^Y_{ITE}}{\Pr(D^1_i=1|E_i=1)}.
+\end{align*}
+\EndKnitrBlock{corollary}
+
+As a consequence of Corollary \ref{cor:RAEBloom}, we see that the Bloom
+estimator reweights the ITE, the effect of receiving information about
+eligibility, by the proportion of people reacting to the eligibility by
+participating in the program. From Theorem \ref{thm:ITETT}, we know that
+this ratio will be equal to TT if the Assumption \ref{def:exclrestric}
+also holds, so that all the impact of the eligibility annoucement stems
+from entering the program. The eligibility annoucement serves as an
+instrument for program participation.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The design using Randomization After
+Eligibility seems like magic. You do not assign randomly the program,
+but information about the eligiblity status, but you can recover the
+effect of the program anyway. How does this magic work? Randomization
+After Eligibility is also less intrusive than Randomization After
+Self-Selection. With the latter design, you have to actively send away
+individuals that have expressed an interest for entering the program.
+This is harsh. With Randomization After Eligibility, you do not have to
+send away people expressing interest after being informed. And it seems
+that you are not paying a price for that, since you are able to recover
+the same TT parameter. Well, actually, you are going to pay a price in
+terms of larger sampling noise.
+\EndKnitrBlock{remark} The intuition for all that can be delineated
+using the very same apparatus that we have developed so far. So here
+goes. Under the assumptions made so far, it is easy to show that
+(omitting the conditioning on \(E_i=1\) for simplicity):
+
+\begin{align*}
+  \Delta^Y_{WW|E=1} & = \esp{Y_i^{1,1}|D_i^1=1,R_i=1}\Pr(D^1_i=1|R_i=1)\\
+                    & \phantom{=}-\esp{Y_i^{0,0}|D_i^1=1,R_i=0}\Pr(D^1_i=1|R_i=0) \\
+                    & \phantom{=}+ \esp{Y_i^{0,1}|D_i^1=0,R_i=1}\Pr(D^1_i=0|R_i=1)\\
+                    & \phantom{=}-\esp{Y_i^{0,0}|D_i^1=0,R_i=0}\Pr(D^1_i=0|R_i=0).  
+\end{align*}
+
+The first part of the equation is due to the difference in outcomes
+between the two treatment arms for people that take up the program when
+eligibility is announced. The second part is due to the difference in
+outcomes between the two treatment arms for people that do not take up
+the program when eligibility is announced. This second part cancels out
+under Assumption \ref{def:indelig} and \ref{def:exclrestric}.
+
+But this cancelling out only happens in the population. In a given
+sample, the sample equivalents to the two members of the second part of
+the equation do not have to be equal, and thus they do not cancel out,
+generating additional sampling noise compared to the Randomization After
+Self-Selection design. Indeed, in the Randomization After Self-Selection
+design, you observe the population with \(D_i^1=1\) in both the
+treatment and control arms (you actually observe this population before
+randomizing the treatment within it), and you can enforce that the
+effect on \(D_i^1=0\) should be zero, under your assumptions. In the
+Randomization After Eligiblity design, you do not observe the population
+with \(D_i^1=1\) in the control arm, and you cannot enforce the equality
+of the outcomes for those with \(D_i^1=0\) present in both arms. You
+have to rely on the sampling estimates to make this cancellation, and
+that generates sampling noise.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}In practice, we use a pseudo-RNG to allocate
+the randomized annoucement of the eligibility status:
+\EndKnitrBlock{remark}
+
+\begin{align*}
+  R_i^* & \sim \mathcal{U}[0,1]\\
+  R_i & = 
+  \begin{cases}
+    1 & \text{ if } R_i^*\leq .5 \land E_i=1\\
+    0 & \text{ if } R_i^*> .5 \land E_i=1
+  \end{cases} \\
+  D_i & = \uns{\bar{\alpha}+\theta\bar{\mu}-C_i\geq0 \land E_i=1 \land R_i=1}
+\end{align*}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-93}{}{\label{exm:unnamed-chunk-93}
+}In our numerical example, we can actually use the same sample as we did
+for Randomization After Self-Selection. I have to generate it again,
+though, since I am going to allocate \(R_i\) differently.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{E <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{],}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,param[}\StringTok{"sigma2V"}\NormalTok{])}
+\NormalTok{Dindex <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
+\NormalTok{Dstar <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dindex}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\end{Highlighting}
+\end{Shaded}
+
+The value of TT in our example is the same as the one in the
+Randomization After Self-Selection case. TT in the population is equal
+to 0.17.
+
+Let's now compute the value of ITE in the population. In our model,
+exclusion restriction holds, so that we can use the fact that
+\(ITE=TT\Pr(D^1_i=1|E_i=1)\). We thus only need to compute
+\(\Pr(D^1_i=1|E_i=1)\):
+
+\begin{align*}
+  \Pr(D^1_i=1|E_i=1) & = \Pr(D_i^*\geq0|y_i^B\leq\bar{y}).
+\end{align*}
+
+I can again use the package \texttt{tmvtnorm} to compute that
+probability. It is indeed equal to \(1-\Pr(D_i^*<0|y_i^B\leq\bar{y})\),
+where \(\Pr(D_i^*<0|y_i^B\leq\bar{y})\) is the cumulative density of
+\(D_i^*\) conditional on \(y_i^B\leq\bar{y}\), \textit{i.e.} the
+marginal cumulative of the third variable of the truncated trivariate
+normal \((\mu_i,y_i^B,D_i^*)\) where the first variable is not truncated
+and the second one is truncated at \(\bar{y}\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lower.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{)}
+\NormalTok{upper.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OtherTok{Inf}\NormalTok{,}\KeywordTok{log}\NormalTok{(param[}\StringTok{'barY'}\NormalTok{]),}\OtherTok{Inf}\NormalTok{)}
+\NormalTok{prD1.elig <-}\StringTok{ }\DecValTok{1}\OperatorTok{-}\KeywordTok{ptmvnorm.marginal}\NormalTok{(}\DataTypeTok{xn=}\DecValTok{0}\NormalTok{,}\DataTypeTok{n=}\DecValTok{3}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{mean.mu.yB.Dstar,}\DataTypeTok{sigma=}\NormalTok{cov.mu.yB.Dstar,}\DataTypeTok{lower=}\NormalTok{lower.cut,}\DataTypeTok{upper=}\NormalTok{upper.cut)}
+\NormalTok{delta.y.ite <-}\StringTok{ }\NormalTok{delta.y.tt}\OperatorTok{*}\NormalTok{prD1.elig}
+\end{Highlighting}
+\end{Shaded}
+
+\(\Pr(D^1_i=1|E_i=1)=\) 0.459. As a consequence, ITE in the population
+is equal to 0.17 * 0.459 \(\approx\) 0.078. In the sample, the value of
+ITE and TT are equal to:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{delta.y.tt.sample <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(y1[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{Dstar}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{-}\NormalTok{y0[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{Dstar}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{delta.y.ite.sample <-}\StringTok{ }\NormalTok{delta.y.tt.sample}\OperatorTok{*}\KeywordTok{mean}\NormalTok{(Dstar[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\(\Delta^y_{ITE_s}=\) 0.068 and \(\Delta^y_{TT_s}=\) 0.187.
+
+Now, we can allocate the randomized treatment and let potential outcomes
+be realized:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#random allocation among eligibles}
+\NormalTok{Rs <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(N)}
+\NormalTok{R <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Rs}\OperatorTok{<=}\NormalTok{.}\DecValTok{5} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dindex}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
 \section{Encouragement Design}\label{sec:design4}
 
 \section{Threats to the validity of RCTs}\label{sec:threats}
@@ -5881,7 +6317,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-87}{}{\label{exm:unnamed-chunk-87}
+\protect\hypertarget{exm:unnamed-chunk-94}{}{\label{exm:unnamed-chunk-94}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -6053,7 +6489,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-93}{}{\label{exm:unnamed-chunk-93}
+\protect\hypertarget{exm:unnamed-chunk-100}{}{\label{exm:unnamed-chunk-100}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
