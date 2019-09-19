@@ -1032,7 +1032,7 @@ with $Y_i^{1,1}$, $Y_i^{0,1}$, $Y_i^{0,0}$, $D_i^1$ and $D^0_i$ the same potenti
 
 We need a third assumption:
 
-```{definition,exclrestric,Name='Exclusion Restriction of Eligibility'}
+```{definition,exclrestric,name='Exclusion Restriction of Eligibility'}
 We assume that there is no direct effect of being informed about eligibliity to the program on outcomes:
 
 \begin{align*}
@@ -1309,7 +1309,338 @@ y <- y1*Ds+y0*(1-Ds)
 Y <- Y1*Ds+Y0*(1-Ds)
 ```
 
+### Estimating the ITE and the TT
+
+In general, we start the analysis of Randomization After Eligibility by estimating the ITE.
+Then, we provide the TT by dividing the ITE by the proportion of participants among the eligibles.
+
+Actually, this procedure is akin to an instrumental variables estimator and we will see that the Bloom estimator is actually an IV estimator.
+The ITE estimation step corresponds to the reduced form in a classical IV approach.
+Estimation of the proportion of participants is the first stage in a IV approach.
+Estimation of the TT corresponds to the structural equation step of an IV procedure.
+
+#### Estimating the ITE
+
+Estimation of the ITE relies on the WW estimator, in general implemented using OLS.
+It is similar to the estimation of ATE and TT in the Brute Force and Randomization After Self-Selection designs.
+
+##### Using the WW estimator
+
+Estimation of the ITE can be based on the WW estimator among eligibles.
+
+\begin{align*}
+  \hat{\Delta}^Y_{WW|E=1} & = \frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N Y_iE_iR_i-\frac{1}{\sum_{i=1}^N E_i(1-R_i)}\sum_{i=1}^N E_iY_i(1-R_i).
+\end{align*}
+
+```{example}
+In our numerical example, we can form the WW estimator among eligibles:
+```
+
+```{r wwelig,eval=TRUE,echo=TRUE,results='hide'}
+delta.y.ww.elig <- mean(y[R==1 & E==1])-mean(y[R==0 & E==1])
+```
+
+WW among eligibles is equal to `r round(delta.y.ww.elig,3)`.
+
+##### Using OLS
+
+As we have already seen before, the WW estimator is equivalent to OLS with one constant and no control variables.
+As a consequence, we can estimate the ITE using the OLS estimate of $\beta$ in the following regression run on the sample with $E_i=1$:
+
+\begin{align*}
+  Y_i & = \alpha + \beta R_i + U_i.
+\end{align*}
+
+By construction, $\hat{\beta}_{OLSR|E=1}=\hat{\Delta}^Y_{WW|E=1}$.
+
+```{example}
+In our numerical example, we can form the WW estimator among eligibles:
+```
+
+```{r olselig,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.ols.elig <- lm(y[E==1]~R[E==1])
+delta.y.ols.elig <- reg.y.ols.elig$coef[2]
+```
+
+$\hat{\beta}_{OLSR|E=1}$ is equal to `r round(delta.y.ols.elig,3)`.
+Remember that ITE in the population is equal to `r round(delta.y.ite,3)`.
+
+##### Using OLS conditioning on covariates
+
+Again, as in the previous designs, we can compute ITE by using OLS conditional on covariates.
+Parametrically, we can run the following OLS regression among eligibles (with $E_i=1$):
+
+\begin{align*}
+    Y_i &  = \alpha +  \beta R_i + \gamma' X_i + U_i.
+  \end{align*}
+
+The OLS estimate of $\beta$ estimates the ITE.
+
+**<span style="font-variant:small-caps;">Again: Needed: proof. Especially check whether we need to center covariates at the mean of the treatment group. I think so.</span>**
+
+We can also use Matching to obtain a nonparametric estimator.
+
+```{example}
+Let us compute the OLS estimator conditioning on $y_i^B$:
+```
+
+```{r delta.y.yB.ols.elig,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.yB.ols.elig <- lm(y[E==1] ~ R[E==1] + yB[E==1])
+```
+
+Our estimate of ITE after conditioning on $y_i^B$ is `r round(reg.y.R.yB.ols.elig$coef[2],3)`.
+I do not have time to run the simulations, but it is highly likely that the sampling noise is lower after conditioning on $y_i^B$.
+
+**<span style="font-variant:small-caps;">I do not have time to run the simulations, but it is highly likely that the sampling noise is lower after conditioning on $y_i^B$.</span>**
+
+#### Estimating TT
+
+We can estimate TT either using the Bloom estimator, or using the IV estimator, which is equivalent to a Bloom estimator in the Eligibility design.
+
+##### Using the Bloom estimator
+
+Using the Bloom estimator, we simply compute the numerator of the Bloom estimator and divide it by the estimated proportion of eligible individuals with $R_i=1$ that have chosen to take the program. 
+
+\begin{align*}
+  \hat{\Delta}^Y_{WW|D=1} & = \frac{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N Y_iE_iR_i-\frac{1}{\sum_{i=1}^N E_i(1-R_i)}\sum_{i=1}^N E_iY_i(1-R_i)}{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N D_iE_iR_i}.
+\end{align*}
+
+```{example}
+Let's see how the Boom estimator works in our example.
+```
+The numerator of the Bloom estimator is the ITE that we have just computed: `r round(delta.y.ww.elig,3)`.
+The denominator of the Bloom estimator is equal to the proportion of eligible individuals with $R_i=1$ that have chosen to take the program: `r round(mean(Ds[E==1 & R==1]),3)`.
+
+```{r delta.y.bloom.elig,eval=TRUE,echo=TRUE,results='hide'}
+delta.y.R.bloom.elig <- (mean(y[R==1 & E==1])-mean(y[R==0 & E==1]))/mean(Ds[R==1 & E==1])
+```
+
+The resulting estimate of TT is `r round(delta.y.R.bloom.elig,3)`.
+It is rather far from the population or sample estimates: `r round(delta.y.tt,3)` and `r round(delta.y.tt.sample,3)` respectively.
+What happened?
+The error seems to come from noise in the denominator of the Bloom estimator.
+In the ITE estimation, the true ITEs in the population and sample are `r round(delta.y.ite,3)` and `r round(delta.y.ite.sample,3)` respectively and our estimate is equal to `r round(delta.y.ww.elig,3)`, so that's fine.
+In the denominator, the proportion of randomized eligibles that take the program is equal to `r round(mean(Ds[R==1 & E==1]),3)` while the true proportions in the population and in the sample are `r round(prD1.elig,3)` and `r round(mean(Dstar[E==1]),3)` respectively.
+So we do not have enough invited eligibles getting into the program, and the ones who do have unusually large outcomes.
+These two sampling errors combine to blow up the estimate of TT.
+
+##### Using IV
+
+There is a very useful results, similar to the one stating that the WW estimator is equivalent to an OLS estimator: in the Eligiblity design, the Bloom estimator is equivalent to an IV estimator: 
+
+```{theorem,BloomIV,name='Bloom is IV'}
+Under the assumption that there is at least one individual with $R_i=1$ and one individual with $D_i=1$, the coefficient $\beta$ in the following regression estimated among eligibles using $R_i$ as an IV
+
+\begin{align*}
+		Y_i &  = \alpha + \beta D_i + U_i
+	\end{align*}
+
+is the Bloom estimator in the Eligibility Design:
+
+\begin{align*}
+\hat{\beta}_{IV} & = \frac{\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_i\left(Y_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iY_i\right)\left(R_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iR_i\right)}{\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_i\left(D_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iD_i\right)\left(R_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iR_i\right)} \\
+  								& = \frac{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N Y_iR_iE_i-\frac{1}{\sum_{i=1}^N (1-R_i)E_i}\sum_{i=1}^N Y_i(1-R_i)E_i}{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N D_iR_iE_i}.
+\end{align*}
+
+```
+
+```{proof}
+The proof is straightforward using Lemma \@ref(lem:WaldIV) below and setting $D_i=0$ when $R_i=0$.
+```
+
+```{example}
+In our numerical example, we have:
+```  
+
+```{r delta.y.2sls.elig,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.2sls.elig <- ivreg(y[E==1]~Ds[E==1]|R[E==1])
+```
+
+$\hat{\beta}_{IV}=$ `r round(reg.y.R.2sls.elig$coef[2],3)` which is indeed equal to the Bloom estimator ($\hat{\Delta}^y_{Bloom}=$ `r round(delta.y.R.bloom.elig,3)`).
+
+##### Using IV conditional on covariates
+
+We can improve on the precision of our 2SLS estimator by conditioning on observed covariates.
+Parametrically estimating the following equation with $R_i$ and $X_i$ as instruments on the sample with $E_i=1$:
+
+\begin{align*}
+    Y_i &  = \alpha +  \beta D_i + \gamma' X_i + U_i.
+\end{align*}
+
+**<span style="font-variant:small-caps;">Proof? Do we need to center covariates to their mean in the treatment group?</span>**
+
+**<span style="font-variant:small-caps;">Nonparametric estimation using Frolich's Wald matching estimator.</span>**}
+
+```{example}
+In our numerical example, we have:
+```
+
+```{r delta.y.yB.2sls.elig,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.yB.2sls.elig <- ivreg(y[E==1] ~ Ds[E==1] + yB[E==1] | R[E==1] + yB[E==1])
+```
+
+As a consequence, $\hat{\Delta}^y_{Bloom(X)}=$ `r round(reg.y.R.yB.2sls.elig$coef[2],3)`.
+
+Does conditioning on covariates improve precision? 
+Let's run some Monte-Carlo somulations in order to check for that.
+
+```{r monte.carlo.elig,dependson='param.self.select',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.elig <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  E <- ifelse(YB<=param["barY"],1,0)
+  V <- rnorm(N,0,param["sigma2V"])
+  Dindex <- param["baralpha"]+param["theta"]*param["barmu"]-param["barc"]-param["gamma"]*mu-V
+  Dstar <- ifelse(Dindex>=0 & E==1,1,0)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  
+  #random allocation among self-selected
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5 & E==1,1,0)
+  Ds <- ifelse(Dindex>=0 & E==1 & R==1,1,0)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  reg.y.R.2sls.elig <- ivreg(y[E==1]~Ds[E==1]|R[E==1])
+  return(reg.y.R.2sls.elig$coef[2])
+}
+
+simuls.elig.N <- function(N,Nsim,param){
+  simuls.elig <- matrix(unlist(lapply(1:Nsim,monte.carlo.elig,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.elig) <- c('Bloom')
+  return(simuls.elig)
+}
+
+sf.simuls.elig.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sfLibrary(AER)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.elig,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('Bloom')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+#N.sample <- c(100,1000,10000,100000)
+N.sample <- c(1000,10000,100000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.elig <- lapply(N.sample,sf.simuls.elig.N,Nsim=Nsim,param=param)
+names(simuls.elig) <- N.sample
+```
+
+```{r monte.carlo.elig.yB,dependson='param.self.select',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.elig.yB <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  E <- ifelse(YB<=param["barY"],1,0)
+  V <- rnorm(N,0,param["sigma2V"])
+  Dindex <- param["baralpha"]+param["theta"]*param["barmu"]-param["barc"]-param["gamma"]*mu-V
+  Dstar <- ifelse(Dindex>=0 & E==1,1,0)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  
+  #random allocation among self-selected
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5 & E==1,1,0)
+  Ds <- ifelse(Dindex>=0 & E==1 & R==1,1,0)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  reg.y.R.yB.2sls.elig <- ivreg(y[E==1] ~ Ds[E==1] + yB[E==1] | R[E==1] + yB[E==1])
+  return(reg.y.R.yB.2sls.elig$coef[2])
+}
+
+simuls.elig.yB.N <- function(N,Nsim,param){
+  simuls.elig.yB <- matrix(unlist(lapply(1:Nsim,monte.carlo.elig.yB,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.elig.yB) <- c('Bloom')
+  return(simuls.elig.yB)
+}
+
+sf.simuls.elig.yB.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sfLibrary(AER)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.elig.yB,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('Bloom')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+#N.sample <- c(100,1000,10000,100000)
+N.sample <- c(1000,10000,100000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.elig.yB <- lapply(N.sample,sf.simuls.elig.yB.N,Nsim=Nsim,param=param)
+names(simuls.elig.yB) <- N.sample
+```
+
+```{r montecarlohisteligbloom,dependson=c('monte.carlo.elig','monte.carlo.elig.yB'),eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the $Bloom$ and $Bloom(X)$ estimators with randomization after eligibility over replications of samples of different sizes',fig.subcap=c('$Bloom$','$Bloom(X)$'),fig.align='center',out.width="50%",fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.elig)){
+  hist(simuls.elig[[i]][,'Bloom'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yBloom)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt,col="red")
+}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.elig.yB)){
+  hist(simuls.elig.yB[[i]][,'Bloom'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yBloom)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt,col="red")
+}
+```
+
+We can take three things from Figure \@ref(fig:montecarlohisteligbloom):
+
+  1. Problems with the IV estimator appear with $N=100$ (probably because there are some samples where no one is treated).
+  2. Sampling noise from randomization after eligibility is indeed larger than sampling noise from randomization after self-selection.
+  3. Conditioning on covariates helps.
+
+### Estimating sampling noise
+
+Estimating samploing noise in the Randomization After Eligibility design is similar to the estimation of sampling noise in the Encouragement design.
+Since the Randomization After Eligibility design is a special case of the Encouragement design, I detail the estimation of sampling noise in both designs in Section \@ref(sec:design4).
 
 ## Encouragement Design {#sec:design4}
+
+For simplicity, in all that follows, I am setting $E_i=1$ for everyone, so that $N$ is the number of eligible individuals.
+
+```{lemma,WaldIV,name='Wald and Bloom are IV'}
+Under the assumption that there is at least one individual with $R_i=1$ and one individual with $D_i=1$, the coefficient $\beta$ in the following regression estimated using $R_i$ as an IV:
+
+\begin{align*}
+		Y_i &  = \alpha + \beta D_i + U_i
+	\end{align*}
+
+is the Wald estimator in the Encouragement Design and the Bloom estimator in the Eligibility Design:
+
+\begin{align*}
+\hat{\beta}_{IV} & = \frac{\frac{1}{N}\sum_{i=1}^N\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)} \\
+  								& = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}.
+\end{align*}
+```
+
+```{proof}
+See in section \@ref(proofWaldIV) in the appendix.
+```
 
 ## Threats to the validity of RCTs {#sec:threats}

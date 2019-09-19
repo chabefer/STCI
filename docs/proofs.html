@@ -162,6 +162,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Randomization After Eligibility</a><ul>
 <li class="chapter" data-level="3.3.1" data-path="RCT.html"><a href="RCT.html#identification-2"><i class="fa fa-check"></i><b>3.3.1</b> Identification</a></li>
+<li class="chapter" data-level="3.3.2" data-path="RCT.html"><a href="RCT.html#estimating-the-ite-and-the-tt"><i class="fa fa-check"></i><b>3.3.2</b> Estimating the ITE and the TT</a></li>
+<li class="chapter" data-level="3.3.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-2"><i class="fa fa-check"></i><b>3.3.3</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
@@ -197,6 +199,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="A.1" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-reffpsi"><i class="fa fa-check"></i><b>A.1</b> Proofs of results in Chapter @ref(FPSI)</a><ul>
 <li class="chapter" data-level="A.1.1" data-path="proofs.html"><a href="proofs.html#proofcheb"><i class="fa fa-check"></i><b>A.1.1</b> Proof of Theorem @ref(thm:uppsampnoise)</a></li>
 <li class="chapter" data-level="A.1.2" data-path="proofs.html"><a href="proofs.html#proofCLT"><i class="fa fa-check"></i><b>A.1.2</b> Proof of Theorem @ref(thm:asympnoiseWW)</a></li>
+</ul></li>
+<li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a><ul>
+<li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Lemma @ref(lem:WaldIV)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -532,6 +537,45 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
 \delta &amp; \approx 2\Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)-1.
 \end{align*}\]</span>
 <p>Hence the result.</p>
+</div>
+</div>
+<div id="proofs-of-results-in-chapter-refrct" class="section level2">
+<h2><span class="header-section-number">A.2</span> Proofs of results in Chapter <a href="RCT.html#RCT">3</a></h2>
+<div id="proofWaldIV" class="section level3">
+<h3><span class="header-section-number">A.2.1</span> Proof of Lemma <a href="RCT.html#lem:WaldIV">3.1</a></h3>
+<p>In matrix notation, we have:</p>
+<span class="math display">\[\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_1 \\    \vdots \\   Y_N \end{array}\right)}_{Y} &amp; =
+  \underbrace{\left(\begin{array}{cc}   1 &amp; D_1\\   \vdots &amp; \vdots\\   1 &amp; D_N\end{array}\right)}_{X}
+  \underbrace{\left(\begin{array}{c}    \alpha \\   \beta \end{array}\right)}_{\Theta}+
+  \underbrace{\left(\begin{array}{c}    U_1 \\  \vdots \\   U_N \end{array}\right)}_{U}
+\end{align*}\]</span>
+<p>and</p>
+<span class="math display">\[\begin{align*}
+  \left(\begin{array}{c}  D_1 \\    \vdots \\   D_N \end{array}\right) &amp; =
+  \underbrace{\left(\begin{array}{cc}   1 &amp; R_1\\   \vdots &amp; \vdots\\   1 &amp; R_N\end{array}\right)}_{R}
+  \left(\begin{array}{c}    \gamma \\   \tau \end{array}\right)+
+  \left(\begin{array}{c}    V_1 \\  \vdots \\   V_N \end{array}\right)
+\end{align*}\]</span>
+<p>The IV estimator is:</p>
+<span class="math display">\[\begin{align*}
+    \hat{\Theta}_{IV} &amp;  = (R&#39;X)^{-1}R&#39;Y
+\end{align*}\]</span>
+<p>Under Assumption <a href="FPSI.html#def:fullrank">2.3</a>, <span class="math inline">\(R&#39;X\)</span> is invertible and we have (ommitting the summation index for simplicity):</p>
+<span class="math display">\[\begin{align*}
+(R&#39;X)^{-1} &amp;  = \left(\begin{array}{cc} N &amp; \sum D_i \\ \sum R_i &amp; \sum D_iR_i \end{array}\right)^{-1} \\
+                &amp; = \frac{1}{N\sum D_iR_i-\sum D_i\sum R_i}\left(\begin{array}{cc} \sum D_iR_i &amp; -\sum D_i \\ -\sum R_i &amp; N \end{array}\right)
+\end{align*}\]</span>
+<p>We have:</p>
+<span class="math display">\[\begin{align*}
+  \hat{\Theta}_{IV} &amp;  =  \left(
+                              \begin{array}{c}
+                                \frac{\sum Y_i\sum D_iR_i-\sum D_i\sum Y_iR_i}{N\sum D_iR_i -\sum D_iR_i}\\
+                                \frac{N\sum Y_iR_i-\sum R_i\sum Y_i}{N\sum D_iR_i-\sum D_iR_i}
+                              \end{array}
+                          \right)
+\end{align*}\]</span>
+<p>As a consequence, <span class="math inline">\(\hat{\beta}_{IV}\)</span> is equal to the ratio of two OLS estimators (<span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span> and a constant and <span class="math inline">\(D_i\)</span> on the same regressors) (see the proof of Lemma <a href="proofs.html#lem:WWOLS">A.3</a> in section <a href="proofs.html#proofCLT">A.1.2</a>, just after “Using <span class="math inline">\(D_i^2=D_i\)</span>”). We can use Lemma <a href="proofs.html#lem:WWOLS">A.3</a> stating that the OLS estimator is the WW estimator to prove the result.</p>
 
 </div>
 </div>

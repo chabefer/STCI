@@ -162,6 +162,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Randomization After Eligibility</a><ul>
 <li class="chapter" data-level="3.3.1" data-path="RCT.html"><a href="RCT.html#identification-2"><i class="fa fa-check"></i><b>3.3.1</b> Identification</a></li>
+<li class="chapter" data-level="3.3.2" data-path="RCT.html"><a href="RCT.html#estimating-the-ite-and-the-tt"><i class="fa fa-check"></i><b>3.3.2</b> Estimating the ITE and the TT</a></li>
+<li class="chapter" data-level="3.3.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-2"><i class="fa fa-check"></i><b>3.3.3</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
@@ -197,6 +199,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="A.1" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-reffpsi"><i class="fa fa-check"></i><b>A.1</b> Proofs of results in Chapter @ref(FPSI)</a><ul>
 <li class="chapter" data-level="A.1.1" data-path="proofs.html"><a href="proofs.html#proofcheb"><i class="fa fa-check"></i><b>A.1.1</b> Proof of Theorem @ref(thm:uppsampnoise)</a></li>
 <li class="chapter" data-level="A.1.2" data-path="proofs.html"><a href="proofs.html#proofCLT"><i class="fa fa-check"></i><b>A.1.2</b> Proof of Theorem @ref(thm:asympnoiseWW)</a></li>
+</ul></li>
+<li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a><ul>
+<li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Lemma @ref(lem:WaldIV)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -1055,7 +1060,7 @@ Y_i &amp; =
 <p>We need a third assumption:</p>
 
 <div class="definition">
-<p><span id="def:exclrestric" class="definition"><strong>Definition 3.7  </strong></span>We assume that there is no direct effect of being informed about eligibliity to the program on outcomes:</p>
+<p><span id="def:exclrestric" class="definition"><strong>Definition 3.7  (Exclusion Restriction of Eligibility)  </strong></span>We assume that there is no direct effect of being informed about eligibliity to the program on outcomes:</p>
 <span class="math display">\[\begin{align*}
   Y_i^{1,1} &amp; = Y_i^{1,0}= Y_i^1\\
   Y_i^{0,1} &amp; = Y_i^{0,0}= Y_i^0.
@@ -1260,9 +1265,281 @@ y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+<
 Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</code></pre></div>
 </div>
 </div>
+<div id="estimating-the-ite-and-the-tt" class="section level3">
+<h3><span class="header-section-number">3.3.2</span> Estimating the ITE and the TT</h3>
+<p>In general, we start the analysis of Randomization After Eligibility by estimating the ITE. Then, we provide the TT by dividing the ITE by the proportion of participants among the eligibles.</p>
+<p>Actually, this procedure is akin to an instrumental variables estimator and we will see that the Bloom estimator is actually an IV estimator. The ITE estimation step corresponds to the reduced form in a classical IV approach. Estimation of the proportion of participants is the first stage in a IV approach. Estimation of the TT corresponds to the structural equation step of an IV procedure.</p>
+<div id="estimating-the-ite" class="section level4">
+<h4><span class="header-section-number">3.3.2.1</span> Estimating the ITE</h4>
+<p>Estimation of the ITE relies on the WW estimator, in general implemented using OLS. It is similar to the estimation of ATE and TT in the Brute Force and Randomization After Self-Selection designs.</p>
+<div id="using-the-ww-estimator-2" class="section level5">
+<h5><span class="header-section-number">3.3.2.1.1</span> Using the WW estimator</h5>
+<p>Estimation of the ITE can be based on the WW estimator among eligibles.</p>
+<span class="math display">\[\begin{align*}
+  \hat{\Delta}^Y_{WW|E=1} &amp; = \frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N Y_iE_iR_i-\frac{1}{\sum_{i=1}^N E_i(1-R_i)}\sum_{i=1}^N E_iY_i(1-R_i).
+\end{align*}\]</span>
+
+<div class="example">
+<span id="exm:unnamed-chunk-94" class="example"><strong>Example 3.15  </strong></span>In our numerical example, we can form the WW estimator among eligibles:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delta.y.ww.elig &lt;-<span class="st"> </span><span class="kw">mean</span>(y[R<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>])<span class="op">-</span><span class="kw">mean</span>(y[R<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
+<p>WW among eligibles is equal to 0.069.</p>
+</div>
+<div id="using-ols-2" class="section level5">
+<h5><span class="header-section-number">3.3.2.1.2</span> Using OLS</h5>
+<p>As we have already seen before, the WW estimator is equivalent to OLS with one constant and no control variables. As a consequence, we can estimate the ITE using the OLS estimate of <span class="math inline">\(\beta\)</span> in the following regression run on the sample with <span class="math inline">\(E_i=1\)</span>:</p>
+<span class="math display">\[\begin{align*}
+  Y_i &amp; = \alpha + \beta R_i + U_i.
+\end{align*}\]</span>
+<p>By construction, <span class="math inline">\(\hat{\beta}_{OLSR|E=1}=\hat{\Delta}^Y_{WW|E=1}\)</span>.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-95" class="example"><strong>Example 3.16  </strong></span>In our numerical example, we can form the WW estimator among eligibles:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.y.ols.elig &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>])
+delta.y.ols.elig &lt;-<span class="st"> </span>reg.y.ols.elig<span class="op">$</span>coef[<span class="dv">2</span>]</code></pre></div>
+<p><span class="math inline">\(\hat{\beta}_{OLSR|E=1}\)</span> is equal to 0.069. Remember that ITE in the population is equal to 0.078.</p>
+</div>
+<div id="using-ols-conditioning-on-covariates-2" class="section level5">
+<h5><span class="header-section-number">3.3.2.1.3</span> Using OLS conditioning on covariates</h5>
+<p>Again, as in the previous designs, we can compute ITE by using OLS conditional on covariates. Parametrically, we can run the following OLS regression among eligibles (with <span class="math inline">\(E_i=1\)</span>):</p>
+<span class="math display">\[\begin{align*}
+    Y_i &amp;  = \alpha +  \beta R_i + \gamma&#39; X_i + U_i.
+  \end{align*}\]</span>
+<p>The OLS estimate of <span class="math inline">\(\beta\)</span> estimates the ITE.</p>
+<p><strong><span style="font-variant: small-caps;">Again: Needed: proof. Especially check whether we need to center covariates at the mean of the treatment group. I think so.</span></strong></p>
+<p>We can also use Matching to obtain a nonparametric estimator.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-96" class="example"><strong>Example 3.17  </strong></span>Let us compute the OLS estimator conditioning on <span class="math inline">\(y_i^B\)</span>:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.y.R.yB.ols.elig &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>] <span class="op">~</span><span class="st"> </span>R[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
+<p>Our estimate of ITE after conditioning on <span class="math inline">\(y_i^B\)</span> is 0.065. I do not have time to run the simulations, but it is highly likely that the sampling noise is lower after conditioning on <span class="math inline">\(y_i^B\)</span>.</p>
+<p><strong><span style="font-variant: small-caps;">I do not have time to run the simulations, but it is highly likely that the sampling noise is lower after conditioning on <span class="math inline">\(y_i^B\)</span>.</span></strong></p>
+</div>
+</div>
+<div id="estimating-tt-1" class="section level4">
+<h4><span class="header-section-number">3.3.2.2</span> Estimating TT</h4>
+<p>We can estimate TT either using the Bloom estimator, or using the IV estimator, which is equivalent to a Bloom estimator in the Eligibility design.</p>
+<div id="using-the-bloom-estimator" class="section level5">
+<h5><span class="header-section-number">3.3.2.2.1</span> Using the Bloom estimator</h5>
+<p>Using the Bloom estimator, we simply compute the numerator of the Bloom estimator and divide it by the estimated proportion of eligible individuals with <span class="math inline">\(R_i=1\)</span> that have chosen to take the program.</p>
+<span class="math display">\[\begin{align*}
+  \hat{\Delta}^Y_{WW|D=1} &amp; = \frac{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N Y_iE_iR_i-\frac{1}{\sum_{i=1}^N E_i(1-R_i)}\sum_{i=1}^N E_iY_i(1-R_i)}{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N D_iE_iR_i}.
+\end{align*}\]</span>
+
+<div class="example">
+<span id="exm:unnamed-chunk-97" class="example"><strong>Example 3.18  </strong></span>Let’s see how the Boom estimator works in our example.
+</div>
+<p> The numerator of the Bloom estimator is the ITE that we have just computed: 0.069. The denominator of the Bloom estimator is equal to the proportion of eligible individuals with <span class="math inline">\(R_i=1\)</span> that have chosen to take the program: 0.342.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delta.y.R.bloom.elig &lt;-<span class="st"> </span>(<span class="kw">mean</span>(y[R<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>])<span class="op">-</span><span class="kw">mean</span>(y[R<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]))<span class="op">/</span><span class="kw">mean</span>(Ds[R<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
+<p>The resulting estimate of TT is 0.203. It is rather far from the population or sample estimates: 0.17 and 0.187 respectively. What happened? The error seems to come from noise in the denominator of the Bloom estimator. In the ITE estimation, the true ITEs in the population and sample are 0.078 and 0.068 respectively and our estimate is equal to 0.069, so that’s fine. In the denominator, the proportion of randomized eligibles that take the program is equal to 0.342 while the true proportions in the population and in the sample are 0.459 and 0.364 respectively. So we do not have enough invited eligibles getting into the program, and the ones who do have unusually large outcomes. These two sampling errors combine to blow up the estimate of TT.</p>
+</div>
+<div id="using-iv" class="section level5">
+<h5><span class="header-section-number">3.3.2.2.2</span> Using IV</h5>
+<p>There is a very useful results, similar to the one stating that the WW estimator is equivalent to an OLS estimator: in the Eligiblity design, the Bloom estimator is equivalent to an IV estimator:</p>
+
+<div class="theorem">
+<p><span id="thm:BloomIV" class="theorem"><strong>Theorem 3.7  (Bloom is IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated among eligibles using <span class="math inline">\(R_i\)</span> as an IV</p>
+<span class="math display">\[\begin{align*}
+        Y_i &amp;  = \alpha + \beta D_i + U_i
+    \end{align*}\]</span>
+<p>is the Bloom estimator in the Eligibility Design:</p>
+<span class="math display">\[\begin{align*}
+\hat{\beta}_{IV} &amp; = \frac{\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_i\left(Y_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iY_i\right)\left(R_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iR_i\right)}{\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_i\left(D_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iD_i\right)\left(R_i-\frac{1}{\sum_{i=1}^N E_i}\sum_{i=1}^NE_iR_i\right)} \\
+                                &amp; = \frac{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N Y_iR_iE_i-\frac{1}{\sum_{i=1}^N (1-R_i)E_i}\sum_{i=1}^N Y_i(1-R_i)E_i}{\frac{1}{\sum_{i=1}^N E_iR_i}\sum_{i=1}^N D_iR_iE_i}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> The proof is straightforward using Lemma <a href="RCT.html#lem:WaldIV">3.1</a> below and setting <span class="math inline">\(D_i=0\)</span> when <span class="math inline">\(R_i=0\)</span>.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-99" class="example"><strong>Example 3.19  </strong></span>In our numerical example, we have:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.y.R.2sls.elig &lt;-<span class="st"> </span><span class="kw">ivreg</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>Ds[E<span class="op">==</span><span class="dv">1</span>]<span class="op">|</span>R[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
+<p><span class="math inline">\(\hat{\beta}_{IV}=\)</span> 0.203 which is indeed equal to the Bloom estimator (<span class="math inline">\(\hat{\Delta}^y_{Bloom}=\)</span> 0.203).</p>
+</div>
+<div id="using-iv-conditional-on-covariates" class="section level5">
+<h5><span class="header-section-number">3.3.2.2.3</span> Using IV conditional on covariates</h5>
+<p>We can improve on the precision of our 2SLS estimator by conditioning on observed covariates. Parametrically estimating the following equation with <span class="math inline">\(R_i\)</span> and <span class="math inline">\(X_i\)</span> as instruments on the sample with <span class="math inline">\(E_i=1\)</span>:</p>
+<span class="math display">\[\begin{align*}
+    Y_i &amp;  = \alpha +  \beta D_i + \gamma&#39; X_i + U_i.
+\end{align*}\]</span>
+<p><strong><span style="font-variant: small-caps;">Proof? Do we need to center covariates to their mean in the treatment group?</span></strong></p>
+<p><strong><span style="font-variant: small-caps;">Nonparametric estimation using Frolich’s Wald matching estimator.</span></strong>}</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-100" class="example"><strong>Example 3.20  </strong></span>In our numerical example, we have:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.y.R.yB.2sls.elig &lt;-<span class="st"> </span><span class="kw">ivreg</span>(y[E<span class="op">==</span><span class="dv">1</span>] <span class="op">~</span><span class="st"> </span>Ds[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>] <span class="op">|</span><span class="st"> </span>R[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
+<p>As a consequence, <span class="math inline">\(\hat{\Delta}^y_{Bloom(X)}=\)</span> 0.191.</p>
+<p>Does conditioning on covariates improve precision? Let’s run some Monte-Carlo somulations in order to check for that.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">monte.carlo.elig &lt;-<span class="st"> </span><span class="cf">function</span>(s,N,param){
+  <span class="kw">set.seed</span>(s)
+  mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+  UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+  yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+  YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+  E &lt;-<span class="st"> </span><span class="kw">ifelse</span>(YB<span class="op">&lt;=</span>param[<span class="st">&quot;barY&quot;</span>],<span class="dv">1</span>,<span class="dv">0</span>)
+  V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,param[<span class="st">&quot;sigma2V&quot;</span>])
+  Dindex &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;barc&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;gamma&quot;</span>]<span class="op">*</span>mu<span class="op">-</span>V
+  Dstar &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+  epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+  eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+  U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+  y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+  alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+  y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+  Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+  Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+  
+  <span class="co">#random allocation among self-selected</span>
+  Rs &lt;-<span class="st"> </span><span class="kw">runif</span>(N)
+  R &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Rs<span class="op">&lt;=</span>.<span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+  Ds &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+  y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  reg.y.R.2sls.elig &lt;-<span class="st"> </span><span class="kw">ivreg</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>Ds[E<span class="op">==</span><span class="dv">1</span>]<span class="op">|</span>R[E<span class="op">==</span><span class="dv">1</span>])
+  <span class="kw">return</span>(reg.y.R.2sls.elig<span class="op">$</span>coef[<span class="dv">2</span>])
+}
+
+simuls.elig.N &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,param){
+  simuls.elig &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.elig,<span class="dt">N=</span>N,<span class="dt">param=</span>param)),<span class="dt">nrow=</span>Nsim,<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>)
+  <span class="kw">colnames</span>(simuls.elig) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;Bloom&#39;</span>)
+  <span class="kw">return</span>(simuls.elig)
+}
+
+sf.simuls.elig.N &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,param){
+  <span class="kw">sfInit</span>(<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">cpus=</span><span class="dv">8</span>)
+  <span class="kw">sfLibrary</span>(AER)
+  sim &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">unlist</span>(<span class="kw">sfLapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.elig,<span class="dt">N=</span>N,<span class="dt">param=</span>param)),<span class="dt">nrow=</span>Nsim,<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>)
+  <span class="kw">sfStop</span>()
+  <span class="kw">colnames</span>(sim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;Bloom&#39;</span>)
+  <span class="kw">return</span>(sim)
+}
+
+Nsim &lt;-<span class="st"> </span><span class="dv">1000</span>
+<span class="co">#Nsim &lt;- 10</span>
+<span class="co">#N.sample &lt;- c(100,1000,10000,100000)</span>
+N.sample &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1000</span>,<span class="dv">10000</span>,<span class="dv">100000</span>)
+<span class="co">#N.sample &lt;- c(100,1000)</span>
+<span class="co">#N.sample &lt;- c(100)</span>
+
+simuls.elig &lt;-<span class="st"> </span><span class="kw">lapply</span>(N.sample,sf.simuls.elig.N,<span class="dt">Nsim=</span>Nsim,<span class="dt">param=</span>param)
+<span class="kw">names</span>(simuls.elig) &lt;-<span class="st"> </span>N.sample</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">monte.carlo.elig.yB &lt;-<span class="st"> </span><span class="cf">function</span>(s,N,param){
+  <span class="kw">set.seed</span>(s)
+  mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+  UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+  yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+  YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+  E &lt;-<span class="st"> </span><span class="kw">ifelse</span>(YB<span class="op">&lt;=</span>param[<span class="st">&quot;barY&quot;</span>],<span class="dv">1</span>,<span class="dv">0</span>)
+  V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,param[<span class="st">&quot;sigma2V&quot;</span>])
+  Dindex &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;barc&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;gamma&quot;</span>]<span class="op">*</span>mu<span class="op">-</span>V
+  Dstar &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+  epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+  eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+  U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+  y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+  alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+  y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+  Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+  Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+  
+  <span class="co">#random allocation among self-selected</span>
+  Rs &lt;-<span class="st"> </span><span class="kw">runif</span>(N)
+  R &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Rs<span class="op">&lt;=</span>.<span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+  Ds &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+  y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+  reg.y.R.yB.2sls.elig &lt;-<span class="st"> </span><span class="kw">ivreg</span>(y[E<span class="op">==</span><span class="dv">1</span>] <span class="op">~</span><span class="st"> </span>Ds[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>] <span class="op">|</span><span class="st"> </span>R[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>])
+  <span class="kw">return</span>(reg.y.R.yB.2sls.elig<span class="op">$</span>coef[<span class="dv">2</span>])
+}
+
+simuls.elig.yB.N &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,param){
+  simuls.elig.yB &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.elig.yB,<span class="dt">N=</span>N,<span class="dt">param=</span>param)),<span class="dt">nrow=</span>Nsim,<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>)
+  <span class="kw">colnames</span>(simuls.elig.yB) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;Bloom&#39;</span>)
+  <span class="kw">return</span>(simuls.elig.yB)
+}
+
+sf.simuls.elig.yB.N &lt;-<span class="st"> </span><span class="cf">function</span>(N,Nsim,param){
+  <span class="kw">sfInit</span>(<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">cpus=</span><span class="dv">8</span>)
+  <span class="kw">sfLibrary</span>(AER)
+  sim &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">unlist</span>(<span class="kw">sfLapply</span>(<span class="dv">1</span><span class="op">:</span>Nsim,monte.carlo.elig.yB,<span class="dt">N=</span>N,<span class="dt">param=</span>param)),<span class="dt">nrow=</span>Nsim,<span class="dt">ncol=</span><span class="dv">1</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>)
+  <span class="kw">sfStop</span>()
+  <span class="kw">colnames</span>(sim) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;Bloom&#39;</span>)
+  <span class="kw">return</span>(sim)
+}
+
+Nsim &lt;-<span class="st"> </span><span class="dv">1000</span>
+<span class="co">#Nsim &lt;- 10</span>
+<span class="co">#N.sample &lt;- c(100,1000,10000,100000)</span>
+N.sample &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1000</span>,<span class="dv">10000</span>,<span class="dv">100000</span>)
+<span class="co">#N.sample &lt;- c(100,1000)</span>
+<span class="co">#N.sample &lt;- c(100)</span>
+
+simuls.elig.yB &lt;-<span class="st"> </span><span class="kw">lapply</span>(N.sample,sf.simuls.elig.yB.N,<span class="dt">Nsim=</span>Nsim,<span class="dt">param=</span>param)
+<span class="kw">names</span>(simuls.elig.yB) &lt;-<span class="st"> </span>N.sample</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(simuls.elig)){
+  <span class="kw">hist</span>(simuls.elig[[i]][,<span class="st">&#39;Bloom&#39;</span>],<span class="dt">breaks=</span><span class="dv">30</span>,<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(Delta<span class="op">^</span>yBloom)),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="fl">0.15</span>,<span class="fl">0.55</span>))
+  <span class="kw">abline</span>(<span class="dt">v=</span>delta.y.tt,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)
+}
+<span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(simuls.elig.yB)){
+  <span class="kw">hist</span>(simuls.elig.yB[[i]][,<span class="st">&#39;Bloom&#39;</span>],<span class="dt">breaks=</span><span class="dv">30</span>,<span class="dt">main=</span><span class="kw">paste</span>(<span class="st">&#39;N=&#39;</span>,<span class="kw">as.character</span>(N.sample[i])),<span class="dt">xlab=</span><span class="kw">expression</span>(<span class="kw">hat</span>(Delta<span class="op">^</span>yBloom)),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="fl">0.15</span>,<span class="fl">0.55</span>))
+  <span class="kw">abline</span>(<span class="dt">v=</span>delta.y.tt,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)
+}</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:montecarlohisteligbloom"></span>
+<img src="STCI_files/figure-html/montecarlohisteligbloom-1.png" alt="Distribution of the $Bloom$ and $Bloom(X)$ estimators with randomization after eligibility over replications of samples of different sizes" width="50%" /><img src="STCI_files/figure-html/montecarlohisteligbloom-2.png" alt="Distribution of the $Bloom$ and $Bloom(X)$ estimators with randomization after eligibility over replications of samples of different sizes" width="50%" />
+<p class="caption">
+Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <span class="math inline">\(Bloom(X)\)</span> estimators with randomization after eligibility over replications of samples of different sizes
+</p>
+</div>
+<p>We can take three things from Figure <a href="RCT.html#fig:montecarlohisteligbloom">3.6</a>:</p>
+<ol style="list-style-type: decimal">
+<li>Problems with the IV estimator appear with <span class="math inline">\(N=100\)</span> (probably because there are some samples where no one is treated).</li>
+<li>Sampling noise from randomization after eligibility is indeed larger than sampling noise from randomization after self-selection.</li>
+<li>Conditioning on covariates helps.</li>
+</ol>
+</div>
+</div>
+</div>
+<div id="estimating-sampling-noise-2" class="section level3">
+<h3><span class="header-section-number">3.3.3</span> Estimating sampling noise</h3>
+<p>Estimating samploing noise in the Randomization After Eligibility design is similar to the estimation of sampling noise in the Encouragement design. Since the Randomization After Eligibility design is a special case of the Encouragement design, I detail the estimation of sampling noise in both designs in Section <a href="RCT.html#sec:design4">3.4</a>.</p>
+</div>
 </div>
 <div id="sec:design4" class="section level2">
 <h2><span class="header-section-number">3.4</span> Encouragement Design</h2>
+<p>For simplicity, in all that follows, I am setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
+
+<div class="lemma">
+<p><span id="lem:WaldIV" class="lemma"><strong>Lemma 3.1  (Wald and Bloom are IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated using <span class="math inline">\(R_i\)</span> as an IV:</p>
+<span class="math display">\[\begin{align*}
+        Y_i &amp;  = \alpha + \beta D_i + U_i
+    \end{align*}\]</span>
+<p>is the Wald estimator in the Encouragement Design and the Bloom estimator in the Eligibility Design:</p>
+<span class="math display">\[\begin{align*}
+\hat{\beta}_{IV} &amp; = \frac{\frac{1}{N}\sum_{i=1}^N\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)} \\
+                                &amp; = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See in section <a href="proofs.html#proofWaldIV">A.2.1</a> in the appendix.
+</div>
+
 </div>
 <div id="sec:threats" class="section level2">
 <h2><span class="header-section-number">3.5</span> Threats to the validity of RCTs</h2>

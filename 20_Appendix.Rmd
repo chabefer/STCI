@@ -393,3 +393,52 @@ As a consequence,
 
 Hence the result.
 
+## Proofs of results in Chapter \@ref(RCT)
+
+### Proof of Lemma \@ref(lem:WaldIV) {#proofWaldIV}
+
+In matrix notation, we have:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_1 \\	\vdots \\	Y_N \end{array}\right)}_{Y} & =
+  \underbrace{\left(\begin{array}{cc}	1 & D_1\\	\vdots & \vdots\\	1 & D_N\end{array}\right)}_{X}
+  \underbrace{\left(\begin{array}{c}	\alpha \\	\beta \end{array}\right)}_{\Theta}+
+  \underbrace{\left(\begin{array}{c}	U_1 \\	\vdots \\	U_N \end{array}\right)}_{U}
+\end{align*}
+
+and
+
+\begin{align*}
+  \left(\begin{array}{c}  D_1 \\	\vdots \\	D_N \end{array}\right) & =
+  \underbrace{\left(\begin{array}{cc}	1 & R_1\\	\vdots & \vdots\\	1 & R_N\end{array}\right)}_{R}
+  \left(\begin{array}{c}	\gamma \\	\tau \end{array}\right)+
+  \left(\begin{array}{c}	V_1 \\	\vdots \\	V_N \end{array}\right)
+\end{align*}
+
+The IV estimator is:
+
+\begin{align*}
+	\hat{\Theta}_{IV} &  = (R'X)^{-1}R'Y
+\end{align*}
+
+Under Assumption \@ref(def:fullrank), $R'X$ is invertible and we have (ommitting the summation index for simplicity):
+
+\begin{align*}
+(R'X)^{-1} &  = \left(\begin{array}{cc} N & \sum D_i \\ \sum R_i & \sum D_iR_i \end{array}\right)^{-1} \\
+                & = \frac{1}{N\sum D_iR_i-\sum D_i\sum R_i}\left(\begin{array}{cc} \sum D_iR_i & -\sum D_i \\ -\sum R_i & N \end{array}\right)
+\end{align*}
+
+We have:
+
+\begin{align*}
+  \hat{\Theta}_{IV} &  =  \left(
+                              \begin{array}{c}
+                                \frac{\sum Y_i\sum D_iR_i-\sum D_i\sum Y_iR_i}{N\sum D_iR_i -\sum D_iR_i}\\
+                                \frac{N\sum Y_iR_i-\sum R_i\sum Y_i}{N\sum D_iR_i-\sum D_iR_i}
+                              \end{array}
+                          \right)
+\end{align*}
+
+As a consequence, $\hat{\beta}_{IV}$ is equal to the ratio of two OLS estimators ($Y_i$ on $R_i$ and a constant and $D_i$ on the same regressors) (see the proof of Lemma \@ref(lem:WWOLS) in section \@ref(proofCLT), just after "Using $D_i^2=D_i$").
+We can use Lemma \@ref(lem:WWOLS) stating that the OLS estimator is the WW estimator to prove the result.
+
