@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-09-19">
+<meta name="date" content="2019-09-24">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -232,7 +232,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>Increasing precision by providing an average estimated effect combining several estimates</li>
 <li>Explaining variations in treatment effectiveness by relating changes in effect size to changes in sample characteristics.</li>
 </ol>
-<p>One key issue that meta-analysis has to face – actually, we all have to face it, meta-analysis simply makes it more apparent – is that of publication bias. Publication bias is due to the fact that referees and editors have a marked preference for publishing statistically significant results. The problem with this approach is that the distribution of published results is going to be censored on the left: we will have more statistically significant results in the published record, and as a consequence, the average ublished result will be an upward biased estimate of the true treatment effect in the population. This is potentially a very severe problem, if the amount of censoring due to publication bias is large. Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.</p>
+<p>One key issue that meta-analysis has to face – actually, we all have to face it, meta-analysis simply makes it more apparent – is that of publication bias. Publication bias is due to the fact that referees and editors have a marked preference for publishing statistically significant results. The problem with this approach is that the distribution of published results is going to be censored on the left: we will have more statistically significant results in the published record, and as a consequence, the average published result will be an upward biased estimate of the true treatment effect in the population. This is potentially a very severe problem if the amount of censoring due to publication bias is large. Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.</p>
 <p>In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.</p>
 <div id="meta-analysis" class="section level2">
 <h2><span class="header-section-number">12.1</span> Meta-analysis</h2>
@@ -318,7 +318,7 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
 <p>Theorem <a href="sec-meta.html#thm:metafixedcons">12.1</a> says that the error we are making around the true effect of the treatment goes to zero as the sample size in each study decrease. This is great: aggregating the studies is thus going to get us to the truth.</p>
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> One interesting question is whether Theorem <a href="sec-meta.html#thm:metafixedcons">12.1</a> also holds when the size of the individual studies remains fixed and the number of studies goes to infinity, which seems a more natural way to do asymptotics in a meta-analysis. I’m pretty sure that is the case. Indeed, the studies constitute an enormous sample in which we take the average outcomes of the treated on the one hand and of the untreated on the other. These averages differ from the usual ones in the Law of Large Numbers only by the fact that they are not equal to one. But they (i) are independent from the outcomes and (ii) sum to one. As a consequence, I’m pretty sure the Law of Large Numbers also apply in this dimension.
+ <span class="remark"><em>Remark. </em></span> One interesting question is whether Theorem <a href="sec-meta.html#thm:metafixedcons">12.1</a> also holds when the size of the individual studies remains fixed and the number of studies goes to infinity, which seems a more natural way to do asymptotics in a meta-analysis. I’m pretty sure that is the case. Indeed, the studies constitute an enormous sample in which we take the average outcomes of the treated on the one hand and of the untreated on the other. These averages differ from the usual ones in the Law of Large Numbers only by the fact that the weights are not equal to one. But they (i) are independent from the outcomes and (ii) sum to one. As a consequence, I’m pretty sure the Law of Large Numbers also apply in this dimension.
 </div>
 
 <p><strong><span style="font-variant: small-caps;">Check if this is a consequence of Kolmogorov’s Law of Large Numbers.</span></strong></p>
@@ -334,7 +334,7 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
  <span class="proof"><em>Proof. </em></span> <strong><span style="font-variant: small-caps;">To do using the Lindenberg-Levy version of the Central Limit Theorem.</span></strong>
 </div>
 
-<p>Theorem <a href="sec-meta.html#thm:metafixeddis">12.2</a> shows that the distribution of the weighted metanalytic estimator converges to a normal, which is very convenient in order to compute sampling noise. In order to obtain an estimator <span class="math inline">\(\hat{\sigma}^2\)</span> of the variance of the meta-analytic estimator, we can simply replace the individual variance terms by their estimates: <span class="math inline">\(\hat{\sigma}_k^2\)</span>.</p>
+<p>Theorem <a href="sec-meta.html#thm:metafixeddis">12.2</a> shows that the distribution of the weighted meta-analytic estimator converges to a normal, which is very convenient in order to compute sampling noise. In order to obtain an estimator <span class="math inline">\(\hat{\sigma}^2\)</span> of the variance of the meta-analytic estimator, we can simply replace the individual variance terms by their estimates: <span class="math inline">\(\hat{\sigma}_k^2\)</span>.</p>
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> I’ve taken Theorem <a href="sec-meta.html#thm:metafixeddis">12.2</a> from Hedges and Olkin, but I think it is much more interesting and correct when the asymptotics goes in the number of studies.
@@ -352,12 +352,43 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
 <div class="example">
 <span id="exm:unnamed-chunk-108" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
 </div>
-<p> The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02.</p>
-<p><strong><span style="font-variant: small-caps;">Add forest plot.</span></strong></p>
+<p> The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02. A very simple way to implement such an estimator in R is to use the <code>rma</code> command of the <code>metafor</code> package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.meta<span class="op">$</span>var.ES &lt;-<span class="st"> </span>data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>
+meta.example.FE &lt;-<span class="st"> </span><span class="kw">rma</span>(<span class="dt">yi =</span> data.meta<span class="op">$</span>ES,<span class="dt">vi=</span>data.meta<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)
+<span class="kw">summary</span>(meta.example.FE)</code></pre></div>
+<pre><code>## 
+## Fixed-Effects Model (k = 20)
+## 
+##   logLik  deviance       AIC       BIC      AICc  
+##  16.1375   12.7060  -30.2751  -29.2793  -30.0529  
+## 
+## Test for Heterogeneity: 
+## Q(df = 19) = 12.7060, p-val = 0.8533
+## 
+## Model Results:
+## 
+## estimate      se     zval    pval   ci.lb   ci.ub     
+##   0.1950  0.0079  24.6975  &lt;.0001  0.1795  0.2104  ***
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>As seen above, the <code>metafor</code> package yields a meta-analytic estimate of 0.19 <span class="math inline">\(\pm\)</span> 0.02, as we have found using the weighted meta-analytic estimator.</p>
+<p>It is customary to present the results of a meta-analysis using a forest plot. A forest plows all the individual estimates along with the aggregated estimate. Figure <a href="sec-meta.html#fig:FEforestplot">12.2</a> presents the forest plot for our example.</p>
+<div class="figure" style="text-align: center"><span id="fig:FEforestplot"></span>
+<img src="STCI_files/figure-html/FEforestplot-1.png" alt="Example data set: forest plot" width="60%" />
+<p class="caption">
+Figure 12.2: Example data set: forest plot
+</p>
+</div>
 </div>
 <div id="constantly-updated-meta-analysis" class="section level3">
 <h3><span class="header-section-number">12.1.3</span> Constantly updated meta-analysis</h3>
-<p>What would have happened</p>
+<p>Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving. This is a very important tool that enables us to aggregate constantly the information coming from different studies. Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study. The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-109" class="example"><strong>Example 12.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows how constantly updated meta-analysis works in our example.
+</div>
+
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cum.wmae.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(k,theta,sigma2){
   <span class="kw">return</span>(<span class="kw">c</span>(<span class="kw">weighted.mean</span>(theta[<span class="dv">1</span><span class="op">:</span>k],(<span class="dv">1</span><span class="op">/</span>sigma2[<span class="dv">1</span><span class="op">:</span>k])<span class="op">/</span>(<span class="kw">sum</span>(<span class="dv">1</span><span class="op">/</span>sigma2[<span class="dv">1</span><span class="op">:</span>k]))),<span class="dv">1</span><span class="op">/</span><span class="kw">sum</span>(<span class="dv">1</span><span class="op">/</span>sigma2[<span class="dv">1</span><span class="op">:</span>k])))
 }
@@ -376,9 +407,17 @@ cum.test<span class="op">$</span>cum.se.ES &lt;-<span class="st"> </span><span c
 <span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>cum.ES<span class="op">-</span><span class="kw">qnorm</span>((delta.<span class="dv">2</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>cum.se.ES, <span class="dt">ymax=</span>cum.ES<span class="op">+</span><span class="kw">qnorm</span>((delta.<span class="dv">2</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span>cum.se.ES), <span class="dt">width=</span>.<span class="dv">2</span>,<span class="dt">position=</span><span class="kw">position_dodge</span>(.<span class="dv">9</span>),<span class="dt">color=</span><span class="st">&#39;blue&#39;</span>) <span class="op">+</span>
 <span class="st">      </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept=</span><span class="kw">ES</span>(param)), <span class="dt">colour=</span><span class="st">&quot;#990000&quot;</span>, <span class="dt">linetype=</span><span class="st">&quot;dashed&quot;</span>)<span class="op">+</span>
 <span class="st">      </span><span class="kw">xlab</span>(<span class="st">&quot;Studies&quot;</span>)<span class="op">+</span>
-<span class="st">      </span><span class="kw">ylab</span>(<span class="st">&quot;Cumulated effect size&quot;</span>)<span class="op">+</span>
+<span class="st">      </span><span class="kw">ylab</span>(<span class="st">&quot;Cumulative effect size&quot;</span>)<span class="op">+</span>
 <span class="st">      </span><span class="kw">theme_bw</span>()</code></pre></div>
-<p><img src="STCI_files/figure-html/cumWMAE-1.png" width="672" /></p>
+<div class="figure" style="text-align: center"><span id="fig:cumWMAE"></span>
+<img src="STCI_files/figure-html/cumWMAE-1.png" alt="Example data set: constantly updated meta-analysis" width="60%" />
+<p class="caption">
+Figure 12.3: Example data set: constantly updated meta-analysis
+</p>
+</div>
+<p>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows that combining several imprecise estimates might help you reach the same precision as running a larger experiment.<br />
+For instance, cumulating the first 10 studies with a small sample size (<span class="math inline">\(N=\)</span> 100), the meta-analytic effect is estimated at 0.2 <span class="math inline">\(\pm\)</span> 0.18. This is very close to the individual estimate obtained from the first estimate with a larger sample size (<span class="math inline">\(N=\)</span> 1000): 0.17 <span class="math inline">\(\pm\)</span> 0.18. Both estimates actually have the exact same precision (because they actually have the same sample size). The same is true when combining the first 17 studies. The meta-analytic effect is estimated at 0.24 <span class="math inline">\(\pm\)</span> 0.06, while the effect estimated using one unique RCT with a larger sample size is (<span class="math inline">\(N=\)</span> 10^{4}) 0.21 <span class="math inline">\(\pm\)</span> 0.05. Finally, the same result occurs when combining the first 19 studies. The meta-analytic effect is estimated at 0.21 <span class="math inline">\(\pm\)</span> 0.03, while the effect estimated using one unique RCT with a larger sample size is (<span class="math inline">\(N=\)</span> 10^{5}) 0.19 <span class="math inline">\(\pm\)</span> 0.02.</p>
+<p>As a conclusion, constantly updated meta-analysis would have each time delivered the same result than the one found with a much larger study, rendering this additional study almost irrelevant. This is a very important result: beyond the apparent messiness of the first noisy estimates in Figures <a href="sec-meta.html#fig:confintervalESCLT">12.1</a> and <a href="sec-meta.html#fig:FEforestplot">12.2</a> lies an order that can be retrieved and made apparent using constantly updated meta-analysis. Sometimes, the answer is right there in front of our eyes, we just lack the ability to see it. Constantly updated meta-analysis serves as a binocular to magnify what is there. Think about how costly it woud be to run a very large study, just to find out that the we did not really need it because we had known the result all along.</p>
 </div>
 <div id="testing-for-the-homogeneity-of-treatment-effects" class="section level3">
 <h3><span class="header-section-number">12.1.4</span> Testing for the homogeneity of treatment effects</h3>

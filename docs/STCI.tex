@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-09-19}
+    \date{2019-09-24}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -6690,10 +6690,10 @@ editors have a marked preference for publishing statistically
 significant results. The problem with this approach is that the
 distribution of published results is going to be censored on the left:
 we will have more statistically significant results in the published
-record, and as a consequence, the average ublished result will be an
+record, and as a consequence, the average published result will be an
 upward biased estimate of the true treatment effect in the population.
-This is potentially a very severe problem, if the amount of censoring
-due to publication bias is large. Eventually, this hinges on the true
+This is potentially a very severe problem if the amount of censoring due
+to publication bias is large. Eventually, this hinges on the true
 distribution of treatment effects: if it is centered on zero or close to
 zero, we run the risk of having very large publication bias.
 
@@ -6856,8 +6856,8 @@ seems a more natural way to do asymptotics in a meta-analysis. I'm
 pretty sure that is the case. Indeed, the studies constitute an enormous
 sample in which we take the average outcomes of the treated on the one
 hand and of the untreated on the other. These averages differ from the
-usual ones in the Law of Large Numbers only by the fact that they are
-not equal to one. But they (i) are independent from the outcomes and
+usual ones in the Law of Large Numbers only by the fact that the weights
+are not equal to one. But they (i) are independent from the outcomes and
 (ii) sum to one. As a consequence, I'm pretty sure the Law of Large
 Numbers also apply in this dimension.
 \EndKnitrBlock{remark}
@@ -6882,7 +6882,7 @@ Lindenberg-Levy version of the Central Limit Theorem.}}
 \EndKnitrBlock{proof}
 
 Theorem \ref{thm:metafixeddis} shows that the distribution of the
-weighted metanalytic estimator converges to a normal, which is very
+weighted meta-analytic estimator converges to a normal, which is very
 convenient in order to compute sampling noise. In order to obtain an
 estimator \(\hat{\sigma}^2\) of the variance of the meta-analytic
 estimator, we can simply replace the individual variance terms by their
@@ -6912,14 +6912,72 @@ meta-analytic estimator is the most efficient estimator available.
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
-sample is 0.19 \(\pm\) 0.02.
+sample is 0.19 \(\pm\) 0.02. A very simple way to implement such an
+estimator in R is to use the \texttt{rma} command of the
+\texttt{metafor} package.
 
-\textbf{\textsc{Add forest plot.}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES <-}\StringTok{ }\NormalTok{data.meta}\OperatorTok{$}\NormalTok{se.ES}\OperatorTok{^}\DecValTok{2}
+\NormalTok{meta.example.FE <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{ES,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+\KeywordTok{summary}\NormalTok{(meta.example.FE)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Fixed-Effects Model (k = 20)
+## 
+##   logLik  deviance       AIC       BIC      AICc  
+##  16.1375   12.7060  -30.2751  -29.2793  -30.0529  
+## 
+## Test for Heterogeneity: 
+## Q(df = 19) = 12.7060, p-val = 0.8533
+## 
+## Model Results:
+## 
+## estimate      se     zval    pval   ci.lb   ci.ub     
+##   0.1950  0.0079  24.6975  <.0001  0.1795  0.2104  ***
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+As seen above, the \texttt{metafor} package yields a meta-analytic
+estimate of 0.19 \(\pm\) 0.02, as we have found using the weighted
+meta-analytic estimator.
+
+It is customary to present the results of a meta-analysis using a forest
+plot. A forest plows all the individual estimates along with the
+aggregated estimate. Figure \ref{fig:FEforestplot} presents the forest
+plot for our example.
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/FEforestplot-1} 
+
+}
+
+\caption{Example data set: forest plot}\label{fig:FEforestplot}
+\end{figure}
 
 \subsection{Constantly updated
 meta-analysis}\label{constantly-updated-meta-analysis}
 
-What would have happened
+Constantly updated meta-analysis performs the meta-analysis in a
+progressive manner, as the results keep arriving. This is a very
+important tool that enables us to aggregate constantly the information
+coming from different studies. Moreover, restrospectively, it helps us
+to assess when we would have reached enough precision so that we could
+have foregone an additional study. The way constantly updated
+meta-analysis works is simply by performing a new meta-analysis each
+time a new results pops up.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-109}{}{\label{exm:unnamed-chunk-109}
+}Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
+works in our example.
+\EndKnitrBlock{example}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -6941,12 +6999,49 @@ What would have happened
 \StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{cum.ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES, }\DataTypeTok{ymax=}\NormalTok{cum.ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
 \StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Cumulated effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Cumulative effect size"}\NormalTok{)}\OperatorTok{+}
 \StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{STCI_files/figure-latex/cumWMAE-1.pdf}
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/cumWMAE-1} 
+
+}
+
+\caption{Example data set: constantly updated meta-analysis}\label{fig:cumWMAE}
+\end{figure}
+
+Figure \ref{fig:cumWMAE} shows that combining several imprecise
+estimates might help you reach the same precision as running a larger
+experiment.\\
+For instance, cumulating the first 10 studies with a small sample size
+(\(N=\) 100), the meta-analytic effect is estimated at 0.2 \(\pm\) 0.18.
+This is very close to the individual estimate obtained from the first
+estimate with a larger sample size (\(N=\) 1000): 0.17 \(\pm\) 0.18.
+Both estimates actually have the exact same precision (because they
+actually have the same sample size). The same is true when combining the
+first 17 studies. The meta-analytic effect is estimated at 0.24 \(\pm\)
+0.06, while the effect estimated using one unique RCT with a larger
+sample size is (\(N=\) 10\^{}\{4\}) 0.21 \(\pm\) 0.05. Finally, the same
+result occurs when combining the first 19 studies. The meta-analytic
+effect is estimated at 0.21 \(\pm\) 0.03, while the effect estimated
+using one unique RCT with a larger sample size is (\(N=\) 10\^{}\{5\})
+0.19 \(\pm\) 0.02.
+
+As a conclusion, constantly updated meta-analysis would have each time
+delivered the same result than the one found with a much larger study,
+rendering this additional study almost irrelevant. This is a very
+important result: beyond the apparent messiness of the first noisy
+estimates in Figures \ref{fig:confintervalESCLT} and
+\ref{fig:FEforestplot} lies an order that can be retrieved and made
+apparent using constantly updated meta-analysis. Sometimes, the answer
+is right there in front of our eyes, we just lack the ability to see it.
+Constantly updated meta-analysis serves as a binocular to magnify what
+is there. Think about how costly it woud be to run a very large study,
+just to find out that the we did not really need it because we had known
+the result all along.
 
 \subsection{Testing for the homogeneity of treatment
 effects}\label{testing-for-the-homogeneity-of-treatment-effects}

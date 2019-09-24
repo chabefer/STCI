@@ -11,8 +11,8 @@ Meta-analysis aims at summarizing and synthetizing the available evidence with t
   
 One key issue that meta-analysis has to face -- actually, we all have to face it, meta-analysis simply makes it more apparent -- is that of publication bias.
 Publication bias is due to the fact that referees and editors have a marked preference for publishing statistically significant results. 
-The problem with this approach is that the distribution of published results is going to be censored on the left: we will have more statistically significant results in the published record, and as a consequence, the average ublished result will be an upward biased estimate of the true treatment effect in the population.
-This is potentially a very severe problem, if the amount of censoring due to publication bias is large.
+The problem with this approach is that the distribution of published results is going to be censored on the left: we will have more statistically significant results in the published record, and as a consequence, the average published result will be an upward biased estimate of the true treatment effect in the population.
+This is potentially a very severe problem if the amount of censoring due to publication bias is large.
 Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.
 
 In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.
@@ -126,7 +126,7 @@ This is great: aggregating the studies is thus going to get us to the truth.
 One interesting question is whether Theorem \@ref(thm:metafixedcons) also holds when the size of the individual studies remains fixed and the number of studies goes to infinity, which seems a more natural way to do asymptotics in a meta-analysis. 
 I'm pretty sure that is the case.
 Indeed, the studies constitute an enormous sample in which we take the average outcomes of the treated on the one hand and of the untreated on the other.
-These averages differ from the usual ones in the Law of Large Numbers only by the fact that they are not equal to one.
+These averages differ from the usual ones in the Law of Large Numbers only by the fact that the weights are not equal to one.
 But they (i) are independent from the outcomes and (ii) sum to one.
 As a consequence, I'm pretty sure the Law of Large Numbers also apply in this dimension.
 ```
@@ -144,7 +144,7 @@ $$
 **<span style="font-variant:small-caps;">To do using the Lindenberg-Levy version of the Central Limit Theorem.</span>**
 ```
 
-Theorem \@ref(thm:metafixeddis) shows that the distribution of the weighted metanalytic estimator converges to a normal, which is very convenient in order to compute sampling noise.
+Theorem \@ref(thm:metafixeddis) shows that the distribution of the weighted meta-analytic estimator converges to a normal, which is very convenient in order to compute sampling noise.
 In order to obtain an estimator $\hat{\sigma}^2$ of the variance of the meta-analytic estimator, we can simply replace the individual variance terms by their estimates: $\hat{\sigma}_k^2$.
 
 ```{remark}
@@ -165,14 +165,36 @@ wmae <- function(theta,sigma2){
 Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 ```
 The estimated treatment effect size with our sample is `r round(wmae(data.meta$ES,data.meta$se.ES^2)[[1]],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*sqrt(wmae(data.meta$ES,data.meta$se.ES^2)[[2]]),2)`.
+A very simple way to implement such an estimator in R is to use the `rma` command of the `metafor` package.
 
-**<span style="font-variant:small-caps;">Add forest plot.</span>**
+```{r metafor.example,eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
+data.meta$var.ES <- data.meta$se.ES^2
+meta.example.FE <- rma(yi = data.meta$ES,vi=data.meta$var.ES,method="FE")
+summary(meta.example.FE)
+```
+
+As seen above, the `metafor` package yields a meta-analytic estimate of `r round(coef(meta.example.FE),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE)$se,2)`, as we have found using the weighted meta-analytic estimator.
+
+It is customary to present the results of a meta-analysis using a forest plot.
+A forest plows all the individual estimates along with the aggregated estimate.
+Figure \@ref(fig:FEforestplot) presents the forest plot for our example.
+
+```{r FEforestplot,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results=FALSE,fig.cap='Example data set: forest plot', fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
+forest(meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
+```
 
 ### Constantly updated meta-analysis
 
-What would have happened 
+Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving.
+This is a very important tool that enables us to aggregate constantly the information coming from different studies.
+Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study.
+The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
-```{r cumWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+```{example}
+Figure \@ref(fig:cumWMAE) shows how constantly updated meta-analysis works in our example.
+```
+
+```{r cumWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Example data set: constantly updated meta-analysis', fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
 cum.wmae.1 <- function(k,theta,sigma2){
   return(c(weighted.mean(theta[1:k],(1/sigma2[1:k])/(sum(1/sigma2[1:k]))),1/sum(1/sigma2[1:k])))
 }
@@ -191,11 +213,25 @@ cum.test$cum.se.ES <- sqrt(cum.test$cum.var)
       geom_errorbar(aes(ymin=cum.ES-qnorm((delta.2+1)/2)*cum.se.ES, ymax=cum.ES+qnorm((delta.2+1)/2)*cum.se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
       xlab("Studies")+
-      ylab("Cumulated effect size")+
+      ylab("Cumulative effect size")+
       theme_bw()
 
 ```
 
+Figure \@ref(fig:cumWMAE) shows that combining several imprecise estimates might help you reach the same precision as running a larger experiment.  
+For instance, cumulating the first 10 studies with a small sample size ($N=$ `r N.sample[[1]]`), the meta-analytic effect is estimated at `r round(select(filter(cum.test,id==10),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==10),cum.se.ES),2)`. 
+This is very close to the individual estimate obtained from the first estimate with a larger sample size ($N=$ `r N.sample[[2]]`): `r round(select(filter(data.meta,id==11),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==11),se.ES),2)`. 
+Both estimates actually have the exact same precision (because they actually have the same sample size).
+The same is true when combining the first 17 studies.
+The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==17),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==17),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size is  ($N=$ `r N.sample[[3]]`) `r round(select(filter(data.meta,id==18),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==18),se.ES),2)`. 
+Finally, the same result occurs when combining the first 19 studies.
+The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==19),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==19),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size is  ($N=$ `r N.sample[[4]]`) `r round(select(filter(data.meta,id==20),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==20),se.ES),2)`. 
+
+As a conclusion, constantly updated meta-analysis would have each time delivered the same result than the one found with a much larger study, rendering this additional study almost irrelevant.
+This is a very important result: beyond the apparent messiness of the first noisy estimates in Figures \@ref(fig:confintervalESCLT) and \@ref(fig:FEforestplot) lies an order that can be retrieved and made apparent using constantly updated meta-analysis.
+Sometimes, the answer is right there in front of our eyes, we just lack the ability to see it.
+Constantly updated meta-analysis serves as a binocular to magnify what is there.
+Think about how costly it woud be to run a very large study, just to find out that the we did not really need it because we had known the result all along.
 
 ### Testing for the homogeneity of treatment effects
 
