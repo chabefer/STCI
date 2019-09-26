@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-09-24">
+<meta name="date" content="2019-09-26">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1185,7 +1185,7 @@ where the first equality follows from Assumption <a href="RCT.html#def:randeligv
 
 
 <div class="corollary">
-<p><span id="cor:RAEBloom" class="corollary"><strong>Corollary 3.1  (Bloom estimator and ITE)  </strong></span>It follows from Theorems <a href="RCT.html#thm:ITERAE">3.5</a> and <a href="RCT.html#thm:prRAE">3.6</a> that, under Assumptions <a href="RCT.html#def:indelig">3.5</a> and <a href="RCT.html#def:randeligvalid">3.6</a>, the Bloom esimator is equal to the ITE divided by the propotion of agents taking up the program when eligible:</p>
+<p><span id="cor:RAEBloom" class="corollary"><strong>Corollary 3.1  (Bloom estimator and ITE)  </strong></span>It follows from Theorems <a href="RCT.html#thm:ITERAE">3.5</a> and <a href="RCT.html#thm:prRAE">3.6</a> that, under Assumptions <a href="RCT.html#def:indelig">3.5</a> and <a href="RCT.html#def:randeligvalid">3.6</a>, the Bloom estimator is equal to the ITE divided by the propotion of agents taking up the program when eligible:</p>
 <span class="math display">\[\begin{align*}
   \Delta^Y_{Bloom|E=1} &amp; = \frac{\Delta^Y_{ITE}}{\Pr(D^1_i=1|E_i=1)}.
 \end{align*}\]</span>
@@ -1516,7 +1516,50 @@ Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <
 </div>
 <div id="estimating-sampling-noise-2" class="section level3">
 <h3><span class="header-section-number">3.3.3</span> Estimating sampling noise</h3>
-<p>Estimating samploing noise in the Randomization After Eligibility design is similar to the estimation of sampling noise in the Encouragement design. Since the Randomization After Eligibility design is a special case of the Encouragement design, I detail the estimation of sampling noise in both designs in Section <a href="RCT.html#sec:design4">3.4</a>.</p>
+<p>As always, we can estimate samling noise either using the CLT or resampling methods. Using the CLT, we can derive the following formula for the distribution of the Bloom estimator:</p>
+
+<div class="theorem">
+<p><span id="thm:asymBloom" class="theorem"><strong>Theorem 3.8  (Asymptotic Distribution of <span class="math inline">\(\hat{\Delta}^Y_{Bloom}\)</span>)  </strong></span>Under Assumptions <a href="RCT.html#def:indelig">3.5</a>, <a href="RCT.html#def:randeligvalid">3.6</a> and <a href="RCT.html#def:exclrestric">3.7</a> and assuming that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, we have (keeping the conditioning on <span class="math inline">\(E_i=1\)</span> implicit):</p>
+<span class="math display">\[\begin{align*}
+  \sqrt{N}(\hat{\Delta}^Y_{Bloom}-\Delta^Y_{TT}) &amp;  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{1}{(p^{DR})^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
+\end{align*}\]</span>
+</div>
+
+<p>with <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^R=\Pr(R_i=1)\)</span> and <span class="math inline">\((p^{DR}=\Pr(D_i=1|R_i=1)\)</span>.</p>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> The proof is immediate using Lemma <a href="#lem:asymWald"><strong>??</strong></a> in the appendix and setting <span class="math inline">\(p^{AT}=0\)</span>.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Theorem <a href="RCT.html#thm:asymBloom">3.8</a> shows that there is a price to pay for not randomizing after self-selection. This price is a decrease in precision. The variance of the estimator is weighted by <span class="math inline">\(\frac{1}{(\Pr(D_i=1|R_i=1))^2}\)</span>. This means that the effective sample size is equal to the number of individuals that take up the treatment when offered. We generaly call these individuals “compliers,” since they comply with the treatment assignment. Sampling noise is of the same order of magnitude as the number of compliers You might have very low precision despite a very large sample size if you have a very small proportion of compliers.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> In order to compute an estimate of the sampling noise of hte Bloom estimator, we can either use the plug-in formula from Theorem <a href="RCT.html#thm:asymBloom">3.8</a> or use the IV standard errors robust to heteroskedasticity. Here is a simple function in order to compute the plug-in estimator:
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">var.RAE.plugin &lt;-<span class="st"> </span><span class="cf">function</span>(pDR,pD,pR,V0,V1,N){
+  <span class="kw">return</span>(((pD<span class="op">/</span>pR)<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(V0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>pR))<span class="op">+</span>((<span class="dv">1</span><span class="op">-</span>pD)<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>pR))<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(V1<span class="op">/</span>pR))<span class="op">/</span>(N<span class="op">*</span>pDR<span class="op">^</span><span class="dv">2</span>))
+}</code></pre></div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-104" class="example"><strong>Example 3.21  </strong></span>Let us derive the CLT-based estimates of sampling noise using both the plug-in estimator and the IV standard errors without conditioning on covariates first.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sn.RAE.simuls &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(simuls.elig[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;Bloom&#39;</span>]<span class="op">-</span>delta.y.tt),<span class="dt">probs=</span><span class="kw">c</span>(<span class="fl">0.99</span>))
+sn.RAE.IV.plugin &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">var.RAE.plugin</span>(<span class="dt">pDR=</span><span class="kw">mean</span>(Ds[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pD=</span><span class="kw">mean</span>(Ds[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pR=</span><span class="kw">mean</span>(R[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V0=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V1=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">N=</span><span class="kw">length</span>(y[E<span class="op">==</span><span class="dv">1</span>])))
+sn.RAE.IV.homo &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcov</span>(reg.y.R.2sls.elig)[<span class="dv">2</span>,<span class="dv">2</span>])
+sn.RAE.IV.hetero &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg.y.R.2sls.elig,<span class="dt">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</code></pre></div>
+<p>True 99% sampling noise (from the simulations) is 0.757. 99% sampling noise estimated using the plug-in estimator is 0.921. 99% sampling noise estimated using default IV standard errors is 1.069. 99% sampling noise estimated using heteroskedasticity robust IV standard errors is 0.92.</p>
+<p>Conditioning on covariates:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sn.RAE.simuls.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(simuls.elig.yB[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;Bloom&#39;</span>]<span class="op">-</span>delta.y.tt),<span class="dt">probs=</span><span class="kw">c</span>(<span class="fl">0.99</span>))
+sn.RAE.IV.homo.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcov</span>(reg.y.R.yB.2sls.elig)[<span class="dv">2</span>,<span class="dv">2</span>])
+sn.RAE.IV.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg.y.R.yB.2sls.elig,<span class="dt">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</code></pre></div>
+<p>True 99% sampling noise (from the simulations) is 0.393. 99% sampling noise estimated using default IV standard errors is 0.457. 99% sampling noise estimated using heteroskedasticity robust IV standard errors is 0.454.</p>
 </div>
 </div>
 <div id="sec:design4" class="section level2">
@@ -1524,7 +1567,7 @@ Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <
 <p>For simplicity, in all that follows, I am setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
 
 <div class="lemma">
-<p><span id="lem:WaldIV" class="lemma"><strong>Lemma 3.1  (Wald and Bloom are IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated using <span class="math inline">\(R_i\)</span> as an IV:</p>
+<p><span id="lem:WaldIV" class="lemma"><strong>Lemma 3.1  (Wald is IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated using <span class="math inline">\(R_i\)</span> as an IV:</p>
 <span class="math display">\[\begin{align*}
         Y_i &amp;  = \alpha + \beta D_i + U_i
     \end{align*}\]</span>

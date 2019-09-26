@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-09-24}
+    \date{2019-09-26}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -6054,7 +6054,7 @@ and the second from Assumption \ref{def:indelig}.
 \protect\hypertarget{cor:RAEBloom}{}{\label{cor:RAEBloom} \iffalse (Bloom
 estimator and ITE) \fi{} }It follows from Theorems \ref{thm:ITERAE} and
 \ref{thm:prRAE} that, under Assumptions \ref{def:indelig} and
-\ref{def:randeligvalid}, the Bloom esimator is equal to the ITE divided
+\ref{def:randeligvalid}, the Bloom estimator is equal to the ITE divided
 by the propotion of agents taking up the program when eligible:
 
 \begin{align*}
@@ -6603,23 +6603,108 @@ We can take three things from Figure \ref{fig:montecarlohisteligbloom}:
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-2}
 
-Estimating samploing noise in the Randomization After Eligibility design
-is similar to the estimation of sampling noise in the Encouragement
-design. Since the Randomization After Eligibility design is a special
-case of the Encouragement design, I detail the estimation of sampling
-noise in both designs in Section \ref{sec:design4}.
+As always, we can estimate samling noise either using the CLT or
+resampling methods. Using the CLT, we can derive the following formula
+for the distribution of the Bloom estimator:
+
+\BeginKnitrBlock{theorem}[Asymptotic Distribution of $\hat{\Delta}^Y_{Bloom}$]
+\protect\hypertarget{thm:asymBloom}{}{\label{thm:asymBloom}
+\iffalse (Asymptotic Distribution of \(\hat{\Delta}^Y_{Bloom}\)) \fi{}
+}Under Assumptions \ref{def:indelig}, \ref{def:randeligvalid} and
+\ref{def:exclrestric} and assuming that there is at least one individual
+with \(R_i=1\) and one individual with \(D_i=1\), we have (keeping the
+conditioning on \(E_i=1\) implicit):
+
+\begin{align*}
+  \sqrt{N}(\hat{\Delta}^Y_{Bloom}-\Delta^Y_{TT}) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{1}{(p^{DR})^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
+\end{align*}
+\EndKnitrBlock{theorem}
+
+with \(p^D=\Pr(D_i=1)\), \(p^R=\Pr(R_i=1)\) and
+\((p^{DR}=\Pr(D_i=1|R_i=1)\).
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}The proof is immediate using Lemma
+\ref{lem:asymWald} in the appendix and setting \(p^{AT}=0\).
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Theorem \ref{thm:asymBloom} shows that there
+is a price to pay for not randomizing after self-selection. This price
+is a decrease in precision. The variance of the estimator is weighted by
+\(\frac{1}{(\Pr(D_i=1|R_i=1))^2}\). This means that the effective sample
+size is equal to the number of individuals that take up the treatment
+when offered. We generaly call these individuals ``compliers,'' since
+they comply with the treatment assignment. Sampling noise is of the same
+order of magnitude as the number of compliers You might have very low
+precision despite a very large sample size if you have a very small
+proportion of compliers.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}In order to compute an estimate of the
+sampling noise of hte Bloom estimator, we can either use the plug-in
+formula from Theorem \ref{thm:asymBloom} or use the IV standard errors
+robust to heteroskedasticity. Here is a simple function in order to
+compute the plug-in estimator:
+\EndKnitrBlock{remark}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{var.RAE.plugin <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(pDR,pD,pR,V0,V1,N)\{}
+  \KeywordTok{return}\NormalTok{(((pD}\OperatorTok{/}\NormalTok{pR)}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{(V0}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{pR))}\OperatorTok{+}\NormalTok{((}\DecValTok{1}\OperatorTok{-}\NormalTok{pD)}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{pR))}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{(V1}\OperatorTok{/}\NormalTok{pR))}\OperatorTok{/}\NormalTok{(N}\OperatorTok{*}\NormalTok{pDR}\OperatorTok{^}\DecValTok{2}\NormalTok{))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-104}{}{\label{exm:unnamed-chunk-104}
+}Let us derive the CLT-based estimates of sampling noise using both the
+plug-in estimator and the IV standard errors without conditioning on
+covariates first.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sn.RAE.simuls <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(simuls.elig[[}\StringTok{'1000'}\NormalTok{]][,}\StringTok{'Bloom'}\NormalTok{]}\OperatorTok{-}\NormalTok{delta.y.tt),}\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.99}\NormalTok{))}
+\NormalTok{sn.RAE.IV.plugin <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{var.RAE.plugin}\NormalTok{(}\DataTypeTok{pDR=}\KeywordTok{mean}\NormalTok{(Ds[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pD=}\KeywordTok{mean}\NormalTok{(Ds[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pR=}\KeywordTok{mean}\NormalTok{(R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V0=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V1=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{N=}\KeywordTok{length}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])))}
+\NormalTok{sn.RAE.IV.homo <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(reg.y.R.2sls.elig)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\NormalTok{sn.RAE.IV.hetero <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcovHC}\NormalTok{(reg.y.R.2sls.elig,}\DataTypeTok{type=}\StringTok{'HC2'}\NormalTok{)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+True 99\% sampling noise (from the simulations) is 0.757. 99\% sampling
+noise estimated using the plug-in estimator is 0.921. 99\% sampling
+noise estimated using default IV standard errors is 1.069. 99\% sampling
+noise estimated using heteroskedasticity robust IV standard errors is
+0.92.
+
+Conditioning on covariates:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sn.RAE.simuls.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(simuls.elig.yB[[}\StringTok{'1000'}\NormalTok{]][,}\StringTok{'Bloom'}\NormalTok{]}\OperatorTok{-}\NormalTok{delta.y.tt),}\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.99}\NormalTok{))}
+\NormalTok{sn.RAE.IV.homo.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(reg.y.R.yB.2sls.elig)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\NormalTok{sn.RAE.IV.hetero.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcovHC}\NormalTok{(reg.y.R.yB.2sls.elig,}\DataTypeTok{type=}\StringTok{'HC2'}\NormalTok{)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+True 99\% sampling noise (from the simulations) is 0.393. 99\% sampling
+noise estimated using default IV standard errors is 0.457. 99\% sampling
+noise estimated using heteroskedasticity robust IV standard errors is
+0.454.
 
 \section{Encouragement Design}\label{sec:design4}
 
 For simplicity, in all that follows, I am setting \(E_i=1\) for
 everyone, so that \(N\) is the number of eligible individuals.
 
-\BeginKnitrBlock{lemma}[Wald and Bloom are IV]
-\protect\hypertarget{lem:WaldIV}{}{\label{lem:WaldIV} \iffalse (Wald and
-Bloom are IV) \fi{} }Under the assumption that there is at least one
-individual with \(R_i=1\) and one individual with \(D_i=1\), the
-coefficient \(\beta\) in the following regression estimated using
-\(R_i\) as an IV:
+\BeginKnitrBlock{lemma}[Wald is IV]
+\protect\hypertarget{lem:WaldIV}{}{\label{lem:WaldIV} \iffalse (Wald is IV)
+\fi{} }Under the assumption that there is at least one individual with
+\(R_i=1\) and one individual with \(D_i=1\), the coefficient \(\beta\)
+in the following regression estimated using \(R_i\) as an IV:
 
 \begin{align*}
         Y_i &  = \alpha + \beta D_i + U_i
@@ -6735,7 +6820,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-102}{}{\label{exm:unnamed-chunk-102}
+\protect\hypertarget{exm:unnamed-chunk-106}{}{\label{exm:unnamed-chunk-106}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -6908,7 +6993,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-108}{}{\label{exm:unnamed-chunk-108}
+\protect\hypertarget{exm:unnamed-chunk-112}{}{\label{exm:unnamed-chunk-112}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -6974,7 +7059,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-109}{}{\label{exm:unnamed-chunk-109}
+\protect\hypertarget{exm:unnamed-chunk-113}{}{\label{exm:unnamed-chunk-113}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
