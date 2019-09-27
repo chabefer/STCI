@@ -159,13 +159,17 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Randomization After Self-Selection</a><ul>
 <li class="chapter" data-level="3.2.1" data-path="RCT.html"><a href="RCT.html#identification-1"><i class="fa fa-check"></i><b>3.2.1</b> Identification</a></li>
 <li class="chapter" data-level="3.2.2" data-path="RCT.html"><a href="RCT.html#estimating-tt"><i class="fa fa-check"></i><b>3.2.2</b> Estimating TT</a></li>
+<li class="chapter" data-level="3.2.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-1"><i class="fa fa-check"></i><b>3.2.3</b> Estimating Sampling Noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Randomization After Eligibility</a><ul>
 <li class="chapter" data-level="3.3.1" data-path="RCT.html"><a href="RCT.html#identification-2"><i class="fa fa-check"></i><b>3.3.1</b> Identification</a></li>
 <li class="chapter" data-level="3.3.2" data-path="RCT.html"><a href="RCT.html#estimating-the-ite-and-the-tt"><i class="fa fa-check"></i><b>3.3.2</b> Estimating the ITE and the TT</a></li>
 <li class="chapter" data-level="3.3.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-2"><i class="fa fa-check"></i><b>3.3.3</b> Estimating sampling noise</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a></li>
+<li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a><ul>
+<li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-3"><i class="fa fa-check"></i><b>3.4.1</b> Identification</a></li>
+<li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.2</b> Estimating sampling noise</a></li>
+</ul></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="NE.html"><a href="NE.html"><i class="fa fa-check"></i><b>4</b> Natural Experiments</a></li>
@@ -1002,12 +1006,13 @@ Figure 3.5: Distribution of the <span class="math inline">\(WW\)</span> and <spa
 </div>
 <p>Figure <a href="RCT.html#fig:montecarlohistselfselectww">3.5</a> shows that, in our example, conditioning on covariates improves precision by the same amount as an increase in sample size by almost one order of magnitude.</p>
 </div>
-<div id="estimating-sampling-noise-1" class="section level4">
-<h4><span class="header-section-number">3.2.2.4</span> Estimating Sampling Noise</h4>
+</div>
+<div id="estimating-sampling-noise-1" class="section level3">
+<h3><span class="header-section-number">3.2.3</span> Estimating Sampling Noise</h3>
 <p>In order to estimate precision, we can either use the CLT, deriving sampling noise from the heteroskedasticity-robust standard error OLS estimates, or we can use some form of resampling as the bootstrap or randomization inference.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-86" class="example"><strong>Example 3.13  </strong></span>Let us derive the CLT-based estimates of sampling noise using the OLS standard errors without conditioning on covariates first.
+<span id="exm:unnamed-chunk-86" class="example"><strong>Example 3.13  </strong></span>Let us derive the CLT-based estimates of sampling noise using the OLS standard errors without conditioning on covariates first. I’m using the sample size with <span class="math inline">\(N=1000\)</span> as an example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sn.RASS.simuls &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(simuls.self.select.ww[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;WW&#39;</span>]<span class="op">-</span>delta.y.tt),<span class="dt">probs=</span><span class="kw">c</span>(<span class="fl">0.99</span>))
@@ -1019,7 +1024,6 @@ sn.RASS.OLS.hetero &lt;-<span class="st"> </span><span class="dv">2</span><span 
 sn.RASS.OLS.homo.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcov</span>(reg.y.R.yB.ols.self.select)[<span class="dv">2</span>,<span class="dv">2</span>])
 sn.RASS.OLS.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg.y.R.yB.ols.self.select,<span class="dt">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</code></pre></div>
 <p>True 99% sampling noise (from the simulations) is 0.295. 99% sampling noise estimated using default OLS standard errors is 0.294. 99% sampling noise estimated using heteroskedasticity robust OLS standard errors is 0.299.</p>
-</div>
 </div>
 </div>
 <div id="sec:design3" class="section level2">
@@ -1547,7 +1551,7 @@ Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <
 }</code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-104" class="example"><strong>Example 3.21  </strong></span>Let us derive the CLT-based estimates of sampling noise using both the plug-in estimator and the IV standard errors without conditioning on covariates first.
+<span id="exm:unnamed-chunk-104" class="example"><strong>Example 3.21  </strong></span>Let us derive the CLT-based estimates of sampling noise using both the plug-in estimator and the IV standard errors without conditioning on covariates first. For the sake of the example, I’m working with a sample of size <span class="math inline">\(N=1000\)</span>.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sn.RAE.simuls &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(simuls.elig[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;Bloom&#39;</span>]<span class="op">-</span>delta.y.tt),<span class="dt">probs=</span><span class="kw">c</span>(<span class="fl">0.99</span>))
@@ -1560,11 +1564,68 @@ sn.RAE.IV.hetero &lt;-<span class="st"> </span><span class="dv">2</span><span cl
 sn.RAE.IV.homo.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcov</span>(reg.y.R.yB.2sls.elig)[<span class="dv">2</span>,<span class="dv">2</span>])
 sn.RAE.IV.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg.y.R.yB.2sls.elig,<span class="dt">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</code></pre></div>
 <p>True 99% sampling noise (from the simulations) is 0.393. 99% sampling noise estimated using default IV standard errors is 0.457. 99% sampling noise estimated using heteroskedasticity robust IV standard errors is 0.454.</p>
-<p><strong><span style="font-variant: small-caps;">Comment on sampling noise and compare with RASS and effective sample size.</span></strong> <strong><span style="font-variant: small-caps;">Add sample size to the comparisons.</span></strong></p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Sampling noise in the Randomization After Eligibility design seems larger than sampling noise in the Randomization After Self-Selection design.
+</div>
+<p> In the Randomization After Self-Selection design, sampling noise with <span class="math inline">\(N=1000\)</span> is equal to 0.55. In the Randomization After Eligibility design, sampling noise with <span class="math inline">\(N=1000\)</span> is equal to 0.76. Why such a difference? Both designs have the same effective sample size.</p>
+<p>In the Randomization After Self-Selection design, the effective sample size <span class="math inline">\(N^{RASS}_e\)</span> is the number of eligible individuals that apply to take up the program: <span class="math inline">\(N^{RASS}_e=N\Pr(D_i=1|E_i=1)\Pr(E_i=1)\)</span>. In our example, <span class="math inline">\(N^{RASS}_e=1000 *\)</span> 0.459 <span class="math inline">\(*\)</span> 0.218 <span class="math inline">\(=\)</span> 100.</p>
+<p>In the Randomization After Eligibility design, the sample size on which the regressions are performed is <span class="math inline">\(N^{RAE}\)</span>, the number of eligible individuals: <span class="math inline">\(N^{RAE}=N\Pr(E_i=1)\)</span>. In our example, <span class="math inline">\(N^{RAE}=1000 *\)</span> 0.459 <span class="math inline">\(=\)</span> 459. But the effective sample size for the Randomization After Eligibility design is actually equal to the one in the Randomization After Self-Selection design because only compliers matter for the precision of the Bloom estimator, as Theorem <a href="RCT.html#thm:asymBloom">3.8</a> shows. Thus <span class="math inline">\(N^{RASS}_e=N^{RAE}_e\)</span>.</p>
+<p>Why then is sampling noise much larger in the Randomization After Eligibility design? Probably because the Bloom estimator cannot enforce the fact that the impact of the program on non compliers is zero. It has to estimate the average outcome of non compliers in both treatment arms and hope that they cancel. In real samples, they won’t, increasing the size of sampling noise.</p>
 </div>
 </div>
 <div id="sec:design4" class="section level2">
 <h2><span class="header-section-number">3.4</span> Encouragement Design</h2>
+<p>In an Encouragement Design, we randomly select two groups among the eligibles, as in Randomization After Eligibility. Treated individuals randomly receive an encouragement to participate in the program and decide whether they want to comply with the encouragement and join the program. Individuals in the control group do not receive an encouragement, but they can still decide to self-select in the program. An Encouragement Design differs from Randomization After Eligibility mainly by not barring entry into the programs to individuals in the control group. If successful, the encouragement generates a higher level of take up of the program in the treatment group than in the control group.</p>
+<p>In an Encouragement Design, we can recover the causal effect of the treatment not on all the treated but on those treated whose participation into the program has been triggered by the enocuragement. These individuals reacting to the encouragement by participating in the program are usually called compliers. The effect of the treatment on the compliers is called the Local Average Treatment Effect.</p>
+<p>The main identification for Encouragement designs is that a Wald ratio (an IV estimator) recovers the LATE. It is due to Imbens and Angrist (1994). Let’s detail this result.</p>
+<div id="identification-3" class="section level3">
+<h3><span class="header-section-number">3.4.1</span> Identification</h3>
+<p><strong><span style="font-variant: small-caps;">Write the correct assumptions</span></strong></p>
+<p><strong><span style="font-variant: small-caps;">Monotonicity is missing.</span></strong></p>
+<p>Here are the two assumptions that we are going to need in order to identify the LATE on top of Independence Among Eligibles:</p>
+
+<div class="definition">
+<p><span id="def:encouragValid" class="definition"><strong>Definition 3.9  (Encouragement Design Validity)  </strong></span>We assume that no eligibles that has been randomized out can take the treatment and that the randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:</p>
+<span class="math display">\[\begin{align*}
+D_i &amp; = D_i^1R_i+(1-R_i)D_i^0 \\
+Y_i &amp; = 
+  \begin{cases}
+    Y_i^{1,1} &amp; \text{ if } (R_i=1 \text{ and } D_i=1)   \\
+    Y_i^{0,1} &amp; \text{ if } (R_i=1 \text{ and } D_i=0)    \\
+    Y_i^{0,0} &amp; \text{ if } R_i=0
+  \end{cases}
+\end{align*}\]</span>
+</div>
+
+<p>with <span class="math inline">\(Y_i^{1,1}\)</span>, <span class="math inline">\(Y_i^{0,1}\)</span>, <span class="math inline">\(Y_i^{0,0}\)</span>, <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D^0_i\)</span> the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.</p>
+<p>We need another assumption:</p>
+
+<div class="definition">
+<p><span id="def:exclrestencourag" class="definition"><strong>Definition 3.10  (Exclusion Restriction of Encouragement)  </strong></span>We assume that there is no direct effect of being informed about eligibliity to the program on outcomes:</p>
+<span class="math display">\[\begin{align*}
+  Y_i^{1,1} &amp; = Y_i^{1,0}= Y_i^1\\
+  Y_i^{0,1} &amp; = Y_i^{0,0}= Y_i^0.
+\end{align*}\]</span>
+</div>
+
+<p>Under these assumptions, we have the following result:</p>
+
+<div class="theorem">
+<p><span id="thm:IdentWald" class="theorem"><strong>Theorem 3.9  (Identification of TT With Randomization After Eligibility)  </strong></span>Under Independence Among Eligibles, Randomization After Eligibility Validity and Exclusion Restriction of Eligibility, the Wald estimator among eligibles identifies LATE:</p>
+<span class="math display">\[\begin{align*}
+  \Delta^Y_{Wald|E=1} &amp; = \Delta^Y_{LATE}
+\end{align*}\]</span>
+</div>
+
+<p>with:</p>
+<span class="math display">\[\begin{align*}
+  \Delta^Y_{Wald|E=1} &amp; = \frac{\Delta^Y_{WW|E=1}}{\Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1)}
+  \Delta^Y_{LATE} &amp; = \esp{Y_i^1-Y_i^0|D_i^1=1,D_i^0=0}
+\end{align*}\]</span>
+</div>
+<div id="estimating-sampling-noise-3" class="section level3">
+<h3><span class="header-section-number">3.4.2</span> Estimating sampling noise</h3>
 <p>For simplicity, in all that follows, I am setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
 
 <div class="lemma">
@@ -1584,6 +1645,7 @@ sn.RAE.IV.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><span
  <span class="proof"><em>Proof. </em></span> See in section <a href="proofs.html#proofWaldIV">A.2.1</a> in the appendix.
 </div>
 
+</div>
 </div>
 <div id="sec:threats" class="section level2">
 <h2><span class="header-section-number">3.5</span> Threats to the validity of RCTs</h2>

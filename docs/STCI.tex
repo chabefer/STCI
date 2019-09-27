@@ -5739,7 +5739,7 @@ Figure \ref{fig:montecarlohistselfselectww} shows that, in our example,
 conditioning on covariates improves precision by the same amount as an
 increase in sample size by almost one order of magnitude.
 
-\subsubsection{Estimating Sampling
+\subsection{Estimating Sampling
 Noise}\label{estimating-sampling-noise-1}
 
 In order to estimate precision, we can either use the CLT, deriving
@@ -5750,7 +5750,8 @@ randomization inference.
 \BeginKnitrBlock{example}
 \protect\hypertarget{exm:unnamed-chunk-86}{}{\label{exm:unnamed-chunk-86}
 }Let us derive the CLT-based estimates of sampling noise using the OLS
-standard errors without conditioning on covariates first.
+standard errors without conditioning on covariates first. I'm using the
+sample size with \(N=1000\) as an example.
 \EndKnitrBlock{example}
 
 \begin{Shaded}
@@ -6662,7 +6663,8 @@ compute the plug-in estimator:
 \protect\hypertarget{exm:unnamed-chunk-104}{}{\label{exm:unnamed-chunk-104}
 }Let us derive the CLT-based estimates of sampling noise using both the
 plug-in estimator and the IV standard errors without conditioning on
-covariates first.
+covariates first. For the sake of the example, I'm working with a sample
+of size \(N=1000\).
 \EndKnitrBlock{example}
 
 \begin{Shaded}
@@ -6695,11 +6697,130 @@ noise estimated using default IV standard errors is 0.457. 99\% sampling
 noise estimated using heteroskedasticity robust IV standard errors is
 0.454.
 
-\textbf{\textsc{Comment on sampling noise and compare with RASS and
-effective sample size.}} \textbf{\textsc{Add sample size to the
-comparisons.}}
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Sampling noise in the Randomization After
+Eligibility design seems larger than sampling noise in the Randomization
+After Self-Selection design.
+\EndKnitrBlock{remark} In the Randomization After Self-Selection design,
+sampling noise with \(N=1000\) is equal to 0.55. In the Randomization
+After Eligibility design, sampling noise with \(N=1000\) is equal to
+0.76. Why such a difference? Both designs have the same effective sample
+size.
+
+In the Randomization After Self-Selection design, the effective sample
+size \(N^{RASS}_e\) is the number of eligible individuals that apply to
+take up the program: \(N^{RASS}_e=N\Pr(D_i=1|E_i=1)\Pr(E_i=1)\). In our
+example, \(N^{RASS}_e=1000 *\) 0.459 \(*\) 0.218 \(=\) 100.
+
+In the Randomization After Eligibility design, the sample size on which
+the regressions are performed is \(N^{RAE}\), the number of eligible
+individuals: \(N^{RAE}=N\Pr(E_i=1)\). In our example, \(N^{RAE}=1000 *\)
+0.459 \(=\) 459. But the effective sample size for the Randomization
+After Eligibility design is actually equal to the one in the
+Randomization After Self-Selection design because only compliers matter
+for the precision of the Bloom estimator, as Theorem \ref{thm:asymBloom}
+shows. Thus \(N^{RASS}_e=N^{RAE}_e\).
+
+Why then is sampling noise much larger in the Randomization After
+Eligibility design? Probably because the Bloom estimator cannot enforce
+the fact that the impact of the program on non compliers is zero. It has
+to estimate the average outcome of non compliers in both treatment arms
+and hope that they cancel. In real samples, they won't, increasing the
+size of sampling noise.
 
 \section{Encouragement Design}\label{sec:design4}
+
+In an Encouragement Design, we randomly select two groups among the
+eligibles, as in Randomization After Eligibility. Treated individuals
+randomly receive an encouragement to participate in the program and
+decide whether they want to comply with the encouragement and join the
+program. Individuals in the control group do not receive an
+encouragement, but they can still decide to self-select in the program.
+An Encouragement Design differs from Randomization After Eligibility
+mainly by not barring entry into the programs to individuals in the
+control group. If successful, the encouragement generates a higher level
+of take up of the program in the treatment group than in the control
+group.
+
+In an Encouragement Design, we can recover the causal effect of the
+treatment not on all the treated but on those treated whose
+participation into the program has been triggered by the enocuragement.
+These individuals reacting to the encouragement by participating in the
+program are usually called compliers. The effect of the treatment on the
+compliers is called the Local Average Treatment Effect.
+
+The main identification for Encouragement designs is that a Wald ratio
+(an IV estimator) recovers the LATE. It is due to Imbens and Angrist
+(1994). Let's detail this result.
+
+\subsection{Identification}\label{identification-3}
+
+\textbf{\textsc{Write the correct assumptions}}
+
+\textbf{\textsc{Monotonicity is missing.}}
+
+Here are the two assumptions that we are going to need in order to
+identify the LATE on top of Independence Among Eligibles:
+
+\BeginKnitrBlock{definition}[Encouragement Design Validity]
+\protect\hypertarget{def:encouragValid}{}{\label{def:encouragValid}
+\iffalse (Encouragement Design Validity) \fi{} }We assume that no
+eligibles that has been randomized out can take the treatment and that
+the randomized allocation of the program does not interfere with how
+potential outcomes and self-selection are generated:
+
+\begin{align*}
+D_i & = D_i^1R_i+(1-R_i)D_i^0 \\
+Y_i & = 
+  \begin{cases}
+    Y_i^{1,1} & \text{ if } (R_i=1 \text{ and } D_i=1)   \\
+    Y_i^{0,1} & \text{ if } (R_i=1 \text{ and } D_i=0)    \\
+    Y_i^{0,0} & \text{ if } R_i=0
+  \end{cases}
+\end{align*}
+\EndKnitrBlock{definition}
+
+with \(Y_i^{1,1}\), \(Y_i^{0,1}\), \(Y_i^{0,0}\), \(D_i^1\) and
+\(D^0_i\) the same potential outcomes and self-selection decisions as in
+a routine allocation of the treatment.
+
+We need another assumption:
+
+\BeginKnitrBlock{definition}[Exclusion Restriction of Encouragement]
+\protect\hypertarget{def:exclrestencourag}{}{\label{def:exclrestencourag}
+\iffalse (Exclusion Restriction of Encouragement) \fi{} }We assume that
+there is no direct effect of being informed about eligibliity to the
+program on outcomes:
+
+\begin{align*}
+  Y_i^{1,1} & = Y_i^{1,0}= Y_i^1\\
+  Y_i^{0,1} & = Y_i^{0,0}= Y_i^0.
+\end{align*}
+\EndKnitrBlock{definition}
+
+Under these assumptions, we have the following result:
+
+\BeginKnitrBlock{theorem}[Identification of TT With Randomization After Eligibility]
+\protect\hypertarget{thm:IdentWald}{}{\label{thm:IdentWald}
+\iffalse (Identification of TT With Randomization After Eligibility)
+\fi{} }Under Independence Among Eligibles, Randomization After
+Eligibility Validity and Exclusion Restriction of Eligibility, the Wald
+estimator among eligibles identifies LATE:
+
+\begin{align*}
+  \Delta^Y_{Wald|E=1} & = \Delta^Y_{LATE}
+\end{align*}
+\EndKnitrBlock{theorem}
+
+with:
+
+\begin{align*}
+  \Delta^Y_{Wald|E=1} & = \frac{\Delta^Y_{WW|E=1}}{\Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1)}
+  \Delta^Y_{LATE} & = \esp{Y_i^1-Y_i^0|D_i^1=1,D_i^0=0}
+\end{align*}
+
+\subsection{Estimating sampling
+noise}\label{estimating-sampling-noise-3}
 
 For simplicity, in all that follows, I am setting \(E_i=1\) for
 everyone, so that \(N\) is the number of eligible individuals.
@@ -6824,7 +6945,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-106}{}{\label{exm:unnamed-chunk-106}
+\protect\hypertarget{exm:unnamed-chunk-107}{}{\label{exm:unnamed-chunk-107}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -6997,7 +7118,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-112}{}{\label{exm:unnamed-chunk-112}
+\protect\hypertarget{exm:unnamed-chunk-113}{}{\label{exm:unnamed-chunk-113}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -7063,7 +7184,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-113}{}{\label{exm:unnamed-chunk-113}
+\protect\hypertarget{exm:unnamed-chunk-114}{}{\label{exm:unnamed-chunk-114}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
