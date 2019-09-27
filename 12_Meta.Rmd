@@ -194,7 +194,7 @@ The way constantly updated meta-analysis works is simply by performing a new met
 Figure \@ref(fig:cumWMAE) shows how constantly updated meta-analysis works in our example.
 ```
 
-```{r cumWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Example data set: constantly updated meta-analysis', fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
+```{r cumWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Constantly updated meta-analysis',fig.subcap=c('Initial data set','Constantly updated dataset'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
 cum.wmae.1 <- function(k,theta,sigma2){
   return(c(weighted.mean(theta[1:k],(1/sigma2[1:k])/(sum(1/sigma2[1:k]))),1/sum(1/sigma2[1:k])))
 }
@@ -208,24 +208,34 @@ colnames(cum.test) <- c('cum.ES','cum.var')
 cum.test$id <- 1:nrow(cum.test)
 cum.test$cum.se.ES <- sqrt(cum.test$cum.var)
 
-  ggplot(cum.test, aes(x=as.factor(id), y=cum.ES)) +
+  ggplot(data.meta, aes(x=forcats::fct_rev(as.factor(id)), y=ES)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      xlab("Studies")+
+      ylab("Initial effect size")+
+      theme_bw()+
+      coord_flip()
+
+  ggplot(cum.test, aes(x=forcats::fct_rev(as.factor(id)), y=cum.ES)) +
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
       geom_errorbar(aes(ymin=cum.ES-qnorm((delta.2+1)/2)*cum.se.ES, ymax=cum.ES+qnorm((delta.2+1)/2)*cum.se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
       xlab("Studies")+
       ylab("Cumulative effect size")+
-      theme_bw()
+      theme_bw()+
+      coord_flip()
 
 ```
 
 Figure \@ref(fig:cumWMAE) shows that combining several imprecise estimates might help you reach the same precision as running a larger experiment.  
 For instance, cumulating the first 10 studies with a small sample size ($N=$ `r N.sample[[1]]`), the meta-analytic effect is estimated at `r round(select(filter(cum.test,id==10),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==10),cum.se.ES),2)`. 
-This is very close to the individual estimate obtained from the first estimate with a larger sample size ($N=$ `r N.sample[[2]]`): `r round(select(filter(data.meta,id==11),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==11),se.ES),2)`. 
+This is very close to the individual estimate obtained from the first estimate with a larger sample size (sample 11 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[2]]`): `r round(select(filter(data.meta,id==11),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==11),se.ES),2)`. 
 Both estimates actually have the exact same precision (because they actually have the same sample size).
 The same is true when combining the first 17 studies.
-The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==17),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==17),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size is  ($N=$ `r N.sample[[3]]`) `r round(select(filter(data.meta,id==18),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==18),se.ES),2)`. 
+The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==17),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==17),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size (sample 18 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[3]]`) is  `r round(select(filter(data.meta,id==18),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==18),se.ES),2)`. 
 Finally, the same result occurs when combining the first 19 studies.
-The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==19),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==19),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size is  ($N=$ `r N.sample[[4]]`) `r round(select(filter(data.meta,id==20),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==20),se.ES),2)`. 
+The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==19),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==19),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size (sample 20 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[4]]`) is  `r round(select(filter(data.meta,id==20),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==20),se.ES),2)`. 
 
 As a conclusion, constantly updated meta-analysis would have each time delivered the same result than the one found with a much larger study, rendering this additional study almost irrelevant.
 This is a very important result: beyond the apparent messiness of the first noisy estimates in Figures \@ref(fig:confintervalESCLT) and \@ref(fig:FEforestplot) lies an order that can be retrieved and made apparent using constantly updated meta-analysis.
