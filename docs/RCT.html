@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-09-27">
+<meta name="date" content="2019-09-28">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -167,7 +167,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="3.3.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-2"><i class="fa fa-check"></i><b>3.3.3</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a><ul>
-<li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-3"><i class="fa fa-check"></i><b>3.4.1</b> Identification</a></li>
+<li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-of-the-local-average-treatment-effect"><i class="fa fa-check"></i><b>3.4.1</b> Identification of the Local Average Treatment Effect</a></li>
 <li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.2</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
@@ -1032,7 +1032,10 @@ sn.RASS.OLS.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><sp
 <div id="identification-2" class="section level3">
 <h3><span class="header-section-number">3.3.1</span> Identification</h3>
 <p>In order to state the identification results in the Randomization After Eligibility design rigorously, I need to define new potential outcomes:</p>
-
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(Y_i^{d,r}\)</span> is the value of the outcome <span class="math inline">\(Y\)</span> when individual <span class="math inline">\(i\)</span> belongs to the program group <span class="math inline">\(d\)</span> (<span class="math inline">\(d\in\left\{0,1\right\}\)</span>) and has been randomized in group <span class="math inline">\(r\)</span> (<span class="math inline">\(r\in\left\{0,1\right\}\)</span>).</li>
+<li><span class="math inline">\(D_i^r\)</span> is the value of the program participation decision when individual <span class="math inline">\(i\)</span> has been assigned randomly to group <span class="math inline">\(r\)</span>.</li>
+</ol>
 <div id="identification-of-tt" class="section level4">
 <h4><span class="header-section-number">3.3.1.1</span> Identification of TT</h4>
 <p>In a Randomization After Eligiblity, we need three assumptions to ensure identification of the TT:</p>
@@ -1576,53 +1579,86 @@ sn.RAE.IV.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><span
 </div>
 <div id="sec:design4" class="section level2">
 <h2><span class="header-section-number">3.4</span> Encouragement Design</h2>
-<p>In an Encouragement Design, we randomly select two groups among the eligibles, as in Randomization After Eligibility. Treated individuals randomly receive an encouragement to participate in the program and decide whether they want to comply with the encouragement and join the program. Individuals in the control group do not receive an encouragement, but they can still decide to self-select in the program. An Encouragement Design differs from Randomization After Eligibility mainly by not barring entry into the programs to individuals in the control group. If successful, the encouragement generates a higher level of take up of the program in the treatment group than in the control group.</p>
-<p>In an Encouragement Design, we can recover the causal effect of the treatment not on all the treated but on those treated whose participation into the program has been triggered by the enocuragement. These individuals reacting to the encouragement by participating in the program are usually called compliers. The effect of the treatment on the compliers is called the Local Average Treatment Effect.</p>
-<p>The main identification for Encouragement designs is that a Wald ratio (an IV estimator) recovers the LATE. It is due to Imbens and Angrist (1994). Let’s detail this result.</p>
-<div id="identification-3" class="section level3">
-<h3><span class="header-section-number">3.4.1</span> Identification</h3>
-<p><strong><span style="font-variant: small-caps;">Write the correct assumptions</span></strong></p>
-<p><strong><span style="font-variant: small-caps;">Monotonicity is missing.</span></strong></p>
-<p>Here are the two assumptions that we are going to need in order to identify the LATE on top of Independence Among Eligibles:</p>
+<p>In an Encouragement Design, we randomly select two groups among the eligibles, as in Randomization After Eligibility. Treated individuals randomly receive an encouragement to participate in the program and decide whether they want to comply with the encouragement and join the program. Individuals in the control group do not receive an encouragement, but they can still decide to self-select in the program. The Encouragement design differs from the Randomization After Eligibility design mainly by not barring entry into the programs to individuals in the control group. If successful, the encouragement generates a higher level of take up of the program in the treatment group than in the control group. Examples of encouragements are additional reminders that the program exists, help in subscribing the program, financial incentives for subscribing the program, etc.</p>
+<p>In an Encouragement Design, we can recover the causal effect of the treatment not on all the treated but on those treated whose participation into the program has been triggered by the encouragement. These individuals reacting to the encouragement by participating in the program are usually called compliers. The effect of the treatment on the compliers is called the Local Average Treatment Effect. The main identification for Encouragement designs is that a Wald ratio (an IV estimator) recovers the LATE. It is due to Imbens and Angrist (1994). A key assumption for this result is exclusion restriction: there has to be zero impact of the encouragement on the outcome, except through participation in the treatment. A second key assumption is that no one individual is driven away from participating in the treatment because of the encouragement. This assumption is called monotonicity.</p>
+<p>Let’s detail these assumptions, the identification result and the estimation strategy.</p>
+<div id="identification-of-the-local-average-treatment-effect" class="section level3">
+<h3><span class="header-section-number">3.4.1</span> Identification of the Local Average Treatment Effect</h3>
+<p>Before stating the identification results, let’s go through some definitions and assumptions. We are going to denote <span class="math inline">\(R_i=1\)</span> when individual <span class="math inline">\(i\)</span> receives the encouragement and <span class="math inline">\(R_i=0\)</span> when she does not. As in Section <a href="RCT.html#sec:design3">3.3</a>, we have four potential outcomes for <span class="math inline">\(Y_i\)</span>: <span class="math inline">\(Y_i^{d,r}\)</span>, <span class="math inline">\((d,r)\in\left\{0,1\right\}^2\)</span>, where <span class="math inline">\(d\)</span> denotes receiving the treatment and <span class="math inline">\(r\)</span> receiving the encouragement.</p>
+<p>We also have two potential outcomes for <span class="math inline">\(D_i\)</span>: <span class="math inline">\(D_i^{r}\)</span>, <span class="math inline">\(r\in\left\{0,1\right\}\)</span>. <span class="math inline">\(D_i^{1}\)</span> indicates whether individual <span class="math inline">\(i\)</span> takes the treatment when receving the encouragement and <span class="math inline">\(D_i^{0}\)</span> whether he takes the treatment when not receiving the encouragement. These potential outcomes define four possible types of individuals, that I’m going to denote with the random variable <span class="math inline">\(T_i\)</span>:</p>
+<ul>
+<li><strong>Always takers</strong>, that take up the program whether they receive the encouragement or not. They are such that <span class="math inline">\(D_i^{1}=D_i^{0}=1\)</span>. I denote them <span class="math inline">\(T_i=a\)</span>.</li>
+<li><strong>Never takers</strong>, that do not take up the program whether they receive the encouragement or not. They are such that <span class="math inline">\(D_i^{1}=D_i^{0}=0\)</span>. I denote them <span class="math inline">\(T_i=n\)</span>.</li>
+<li><strong>Compliers</strong>, that take up the program when they receive the encouragement and do not when they do not receive the encouragement. They are such that <span class="math inline">\(D_i^{1}-D_i^{0}=1\)</span>. I denote them <span class="math inline">\(T_i=c\)</span>.</li>
+<li><strong>Defiers</strong>, that do not take up the program when they receive the encouragement and take it up when they do not receive the encouragement. They are such that <span class="math inline">\(D_i^{1}-D_i^{0}=-1\)</span>. I denote them <span class="math inline">\(T_i=d\)</span>.</li>
+</ul>
+<p>We are now ready to state the assumptions needed for identification of the LATE.</p>
 
 <div class="definition">
-<p><span id="def:encouragValid" class="definition"><strong>Definition 3.9  (Encouragement Design Validity)  </strong></span>We assume that no eligibles that has been randomized out can take the treatment and that the randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:</p>
+<p><span id="def:RandEncouragValid" class="definition"><strong>Definition 3.9  (Encouragement Validity)  </strong></span>We assume that the randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:</p>
 <span class="math display">\[\begin{align*}
 D_i &amp; = D_i^1R_i+(1-R_i)D_i^0 \\
 Y_i &amp; = 
   \begin{cases}
     Y_i^{1,1} &amp; \text{ if } (R_i=1 \text{ and } D_i=1)   \\
     Y_i^{0,1} &amp; \text{ if } (R_i=1 \text{ and } D_i=0)    \\
-    Y_i^{0,0} &amp; \text{ if } R_i=0
+    Y_i^{1,0} &amp; \text{ if } (R_i=0 \text{ and } D_i=1)    \\
+    Y_i^{0,0} &amp; \text{ if } (R_i=0 \text{ and } D_i=0)    
   \end{cases}
 \end{align*}\]</span>
 </div>
-
-<p>with <span class="math inline">\(Y_i^{1,1}\)</span>, <span class="math inline">\(Y_i^{0,1}\)</span>, <span class="math inline">\(Y_i^{0,0}\)</span>, <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D^0_i\)</span> the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.</p>
-<p>We need another assumption:</p>
+<p> with <span class="math inline">\(Y_i^{1,1}\)</span>, <span class="math inline">\(Y_i^{0,1}\)</span>, <span class="math inline">\(Y_i^{0,0}\)</span>, <span class="math inline">\(Y_i^{1,0}\)</span>, <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D^0_i\)</span> the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.</p>
 
 <div class="definition">
-<p><span id="def:exclrestencourag" class="definition"><strong>Definition 3.10  (Exclusion Restriction of Encouragement)  </strong></span>We assume that there is no direct effect of being informed about eligibliity to the program on outcomes:</p>
+<p><span id="def:IndepEncourag" class="definition"><strong>Definition 3.10  (Independence of Encouragement)  </strong></span>We assume that the randomized allocation of the program is well done:</p>
 <span class="math display">\[\begin{align*}
-  Y_i^{1,1} &amp; = Y_i^{1,0}= Y_i^1\\
-  Y_i^{0,1} &amp; = Y_i^{0,0}= Y_i^0.
+(Y_i^{1,1},Y_i^{0,1},Y_i^{0,0},Y_i^{1,0},D_i^1,D^0_i)\Ind R_i|E_i=1.
 \end{align*}\]</span>
 </div>
 
-<p>Under these assumptions, we have the following result:</p>
+
+<div class="definition">
+<p><span id="def:ExclRestr" class="definition"><strong>Definition 3.11  (Exclusion Restriction)  </strong></span>We assume that the randomized allocation of the program does not alter potential outcomes:</p>
+<span class="math display">\[\begin{align*}
+Y_i^{d,r} &amp; = Y_i^d \text{, }\forall (r,d)\in\left\{0,1\right\}^2.
+\end{align*}\]</span>
+</div>
+
+
+<div class="definition">
+<p><span id="def:Fstage" class="definition"><strong>Definition 3.12  (First Stage)  </strong></span>We assume that the encouragement does manage to increase participation:</p>
+<span class="math display">\[\begin{align*}
+  \Pr(D_i=1|R_i=1,E_i=1) &gt; \Pr(D_i=1|R_i=0,E_i=1).
+\end{align*}\]</span>
+</div>
+
+
+<div class="definition">
+<p><span id="def:Mono" class="definition"><strong>Definition 3.13  (Monotonicity)  </strong></span>We assume that the encouragement increase participation for everyone:</p>
+<span class="math display">\[\begin{align*}
+  \forall i\text{, }D_i^1\geq D_i^0.
+\end{align*}\]</span>
+</div>
+
 
 <div class="theorem">
-<p><span id="thm:IdentWald" class="theorem"><strong>Theorem 3.9  (Identification of TT With Randomization After Eligibility)  </strong></span>Under Independence Among Eligibles, Randomization After Eligibility Validity and Exclusion Restriction of Eligibility, the Wald estimator among eligibles identifies LATE:</p>
+<p><span id="thm:IdentLATE" class="theorem"><strong>Theorem 3.9  (Identification in an Encouragement Design)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:IndepEncourag">3.10</a>, <a href="RCT.html#def:ExclRestr">3.11</a>, <a href="RCT.html#def:Fstage">3.12</a>, <a href="RCT.html#def:Mono">3.13</a>, the Wald estimator identifies the LATE:</p>
 <span class="math display">\[\begin{align*}
-  \Delta^Y_{Wald|E=1} &amp; = \Delta^Y_{LATE}
+  \Delta^Y_{Wald} &amp; = \Delta^Y_{LATE},
 \end{align*}\]</span>
 </div>
 
-<p>with:</p>
+<p>with (keeping the conditioning on $E_i=1 implicit):</p>
 <span class="math display">\[\begin{align*}
-  \Delta^Y_{Wald|E=1} &amp; = \frac{\Delta^Y_{WW|E=1}}{\Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1)}
-  \Delta^Y_{LATE} &amp; = \esp{Y_i^1-Y_i^0|D_i^1=1,D_i^0=0}
+  \Delta^Y_{Wald} &amp; = \frac{\esp{Y_i|R_i=1} - \esp{Y_i|R_i=0}}{\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0)}\\
+  \Delta^Y_{LATE} &amp; = \esp{Y^1_i-Y^0_i|T_i=c}
 \end{align*}\]</span>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> 
+</div>
+
+<p><strong><span style="font-variant: small-caps;">Do proof</span></strong></p>
 </div>
 <div id="estimating-sampling-noise-3" class="section level3">
 <h3><span class="header-section-number">3.4.2</span> Estimating sampling noise</h3>

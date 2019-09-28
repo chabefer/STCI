@@ -177,9 +177,9 @@ As seen above, the `metafor` package yields a meta-analytic estimate of `r round
 
 It is customary to present the results of a meta-analysis using a forest plot.
 A forest plows all the individual estimates along with the aggregated estimate.
-Figure \@ref(fig:FEforestplot) presents the forest plot for our example.
+Figure \@ref(fig:FEforestplot) presents the forest plot for our example using the very convenient `forest` function in the `metafor` package:
 
-```{r FEforestplot,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results=FALSE,fig.cap='Example data set: forest plot', fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
+```{r FEforestplot,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results=FALSE,fig.cap='Example data set: forest plot', fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
 forest(meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
 ```
 
@@ -243,7 +243,72 @@ Sometimes, the answer is right there in front of our eyes, we just lack the abil
 Constantly updated meta-analysis serves as a binocular to magnify what is there.
 Think about how costly it woud be to run a very large study, just to find out that the we did not really need it because we had known the result all along.
 
+```{remark}
+Something pretty cool is that I can reproduce Figure \@ref(fig:cumWMAE) using the `metafor` package with much less lines of code.
+```
+
+```{r cumWMAEmetafor,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Constantly updated meta-analysis with the `metafor` package',fig.subcap=c('Initial data set','Constantly updated dataset'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+forest(meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
+cumul.meta.example.FE <- cumul(meta.example.FE, order=data.meta$id)
+forest(cumul.meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Cumulated Parameter')
+```
+
+You can also call each of the individual results of the cumulative meta-analysis using `cumul.meta.example.FE$estimate`. 
+For example, the cumulated effect size after the 10 first studies is equal to `r round(cumul.meta.example.FE$estimate[[10]],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*cumul.meta.example.FE$se[[10]],2)`.
+
 ### Testing for the homogeneity of treatment effects
+
+One key assumption that we have just made so far is that of homogeneous treatment effect.
+We have worked under the assumption that each study was drawn from the same population, where the treatment effect is a constant.
+Why would the treatment effects differ in each study?
+
+  1. We do not study exactly the same treatment, but a family of similar treatments.
+  Each individual study covers a particular iteration of the treatment, each with its idiosyncratic parameterization.
+  The particular value of the transfer in a Cash Transfer program, or of the conditions to receive it, or the length of payment, whether it is in one time or over some period, might make a difference, for example.
+  The same is true for Job Training Programs, Payments for Environmenetal Services, microcredit, graduation programs, nudges, etc.
+  Actually, most programs that economists study differ from one implementation to the next.
+  In psychology and medecine, most treatments are accompanied by a rigorous protocol that makes them much more homogeneous.
+  2. The population on which the treatment is applied varies.
+  For example, similar Job Training Programs or microcredit initiatives might have very different outcomes depending on the business cycle.
+  Education interventions might have very different effects depending on the background of the students on which they are tested.
+  A drug might interact with patients' phenotype and genotype to generate different effects, and the populations from which the experimental samples are drawn do not have to be similar.
+  As an extreme example, think of a vaccine tested in a population where the prevalence of a disease is null.
+  The treatment effect is zero.
+  Now, test the vaccine in a population where the disease is endemic: the treatment effect might be huge.
+
+We can also think that the treatment effect differs in each sample because the composition of the sample changes.
+But this is normal variation due to sampling noise and is to be expected.
+It is not the same thing as assuming that the population effect differs.
+
+What can we do in order to test whether there is heterogeneity in treatment effects?
+One way is to build an index comparing the usual variation in treatment effects stemming from sampling noise to the one stemming from variation between studies.
+If we find that the variation between studies dwarves the variation due to sampling noise in each study, then there is some heterogeneity for sure.
+One statistics that does that is the $Q$ statistic where the variation in treatment effects between studies is estimated using the difference between the individual effect size and the average one squared:
+
+\begin{align*}
+  Q & = \sum_{k=1}^N\frac{(\hat{\theta}_k-\bar{\theta})^2}{\hat{\sigma}^2_k}.
+\end{align*}
+
+What is great with the $Q$ statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a $\chi^2$ distribution with $N-1$ degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
+
+```{example}
+In our example, we have already computed the $Q$ statistic when we have used the `rma` function in the `metafor` package. 
+In order to access it, we just need to extract it using `meta.example.FE$QE` for the $Q$ statistic and `meta.example.FE$QEp` for its p-value.  
+```
+The $Q$ statistic in our example has value `r round(meta.example.FE$QE,2)`, with associated p-value `r round(meta.example.FE$QEp,2)`.
+We end up not rejecting homogeneity, which is correct.
+
+```{remark}
+The problem with using test statistics for testing for treatment effect homogeneity is that, when precision increases, we might end up rejecting homogeneity despite the fact that it is there.
+```
+
+**<span style="font-variant:small-caps;">Test with $N=10^5$.</span>**
+
+```{remark}
+The $\chi^2$ distribution with $k$ degrees of freedom is asymptotically distributed as a normal with mean $k$ and variance $2k$.
+So, when $k$ is large, a good rule of thumb for assessing the homogeneity of the treatment effect estimates is to compare the $Q$ statistic to the number of studies. 
+If it is much larger, homogeneity is probably not guaranteed.
+```
 
 ### Meta-analysis when treatment effects are heterogeneous
 

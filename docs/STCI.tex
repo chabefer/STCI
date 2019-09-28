@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-09-27}
+    \date{2019-09-28}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -5798,10 +5798,17 @@ variables. Let us detail the mechanics of this beautiful result.
 In order to state the identification results in the Randomization After
 Eligibility design rigorously, I need to define new potential outcomes:
 
-\begin{itemize}
-  \item $Y_i^{d,r}$ is the value of the outcome $Y$ when individual $i$ belongs to the program group $d$ ($d\in\left\{0,1\right\}$) and has been randomized in group $r$ ($r\in\left\{0,1\right\}$).
-  \item $D_i^r$ is the value of the program participation decision when individual $i$ has been assigned randomly to group $r$.
-\end{itemize}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \(Y_i^{d,r}\) is the value of the outcome \(Y\) when individual \(i\)
+  belongs to the program group \(d\) (\(d\in\left\{0,1\right\}\)) and
+  has been randomized in group \(r\) (\(r\in\left\{0,1\right\}\)).
+\item
+  \(D_i^r\) is the value of the program participation decision when
+  individual \(i\) has been assigned randomly to group \(r\).
+\end{enumerate}
 
 \subsubsection{Identification of TT}\label{identification-of-tt}
 
@@ -6736,38 +6743,78 @@ randomly receive an encouragement to participate in the program and
 decide whether they want to comply with the encouragement and join the
 program. Individuals in the control group do not receive an
 encouragement, but they can still decide to self-select in the program.
-An Encouragement Design differs from Randomization After Eligibility
-mainly by not barring entry into the programs to individuals in the
-control group. If successful, the encouragement generates a higher level
-of take up of the program in the treatment group than in the control
-group.
+The Encouragement design differs from the Randomization After
+Eligibility design mainly by not barring entry into the programs to
+individuals in the control group. If successful, the encouragement
+generates a higher level of take up of the program in the treatment
+group than in the control group. Examples of encouragements are
+additional reminders that the program exists, help in subscribing the
+program, financial incentives for subscribing the program, etc.
 
 In an Encouragement Design, we can recover the causal effect of the
 treatment not on all the treated but on those treated whose
-participation into the program has been triggered by the enocuragement.
+participation into the program has been triggered by the encouragement.
 These individuals reacting to the encouragement by participating in the
 program are usually called compliers. The effect of the treatment on the
-compliers is called the Local Average Treatment Effect.
+compliers is called the Local Average Treatment Effect. The main
+identification for Encouragement designs is that a Wald ratio (an IV
+estimator) recovers the LATE. It is due to Imbens and Angrist (1994). A
+key assumption for this result is exclusion restriction: there has to be
+zero impact of the encouragement on the outcome, except through
+participation in the treatment. A second key assumption is that no one
+individual is driven away from participating in the treatment because of
+the encouragement. This assumption is called monotonicity.
 
-The main identification for Encouragement designs is that a Wald ratio
-(an IV estimator) recovers the LATE. It is due to Imbens and Angrist
-(1994). Let's detail this result.
+Let's detail these assumptions, the identification result and the
+estimation strategy.
 
-\subsection{Identification}\label{identification-3}
+\subsection{Identification of the Local Average Treatment
+Effect}\label{identification-of-the-local-average-treatment-effect}
 
-\textbf{\textsc{Write the correct assumptions}}
+Before stating the identification results, let's go through some
+definitions and assumptions. We are going to denote \(R_i=1\) when
+individual \(i\) receives the encouragement and \(R_i=0\) when she does
+not. As in Section \ref{sec:design3}, we have four potential outcomes
+for \(Y_i\): \(Y_i^{d,r}\), \((d,r)\in\left\{0,1\right\}^2\), where
+\(d\) denotes receiving the treatment and \(r\) receiving the
+encouragement.
 
-\textbf{\textsc{Monotonicity is missing.}}
+We also have two potential outcomes for \(D_i\): \(D_i^{r}\),
+\(r\in\left\{0,1\right\}\). \(D_i^{1}\) indicates whether individual
+\(i\) takes the treatment when receving the encouragement and
+\(D_i^{0}\) whether he takes the treatment when not receiving the
+encouragement. These potential outcomes define four possible types of
+individuals, that I'm going to denote with the random variable \(T_i\):
 
-Here are the two assumptions that we are going to need in order to
-identify the LATE on top of Independence Among Eligibles:
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Always takers}, that take up the program whether they receive
+  the encouragement or not. They are such that \(D_i^{1}=D_i^{0}=1\). I
+  denote them \(T_i=a\).
+\item
+  \textbf{Never takers}, that do not take up the program whether they
+  receive the encouragement or not. They are such that
+  \(D_i^{1}=D_i^{0}=0\). I denote them \(T_i=n\).
+\item
+  \textbf{Compliers}, that take up the program when they receive the
+  encouragement and do not when they do not receive the encouragement.
+  They are such that \(D_i^{1}-D_i^{0}=1\). I denote them \(T_i=c\).
+\item
+  \textbf{Defiers}, that do not take up the program when they receive
+  the encouragement and take it up when they do not receive the
+  encouragement. They are such that \(D_i^{1}-D_i^{0}=-1\). I denote
+  them \(T_i=d\).
+\end{itemize}
 
-\BeginKnitrBlock{definition}[Encouragement Design Validity]
-\protect\hypertarget{def:encouragValid}{}{\label{def:encouragValid}
-\iffalse (Encouragement Design Validity) \fi{} }We assume that no
-eligibles that has been randomized out can take the treatment and that
-the randomized allocation of the program does not interfere with how
-potential outcomes and self-selection are generated:
+We are now ready to state the assumptions needed for identification of
+the LATE.
+
+\BeginKnitrBlock{definition}[Encouragement Validity]
+\protect\hypertarget{def:RandEncouragValid}{}{\label{def:RandEncouragValid}
+\iffalse (Encouragement Validity) \fi{} }We assume that the randomized
+allocation of the program does not interfere with how potential outcomes
+and self-selection are generated:
 
 \begin{align*}
 D_i & = D_i^1R_i+(1-R_i)D_i^0 \\
@@ -6775,49 +6822,79 @@ Y_i & =
   \begin{cases}
     Y_i^{1,1} & \text{ if } (R_i=1 \text{ and } D_i=1)   \\
     Y_i^{0,1} & \text{ if } (R_i=1 \text{ and } D_i=0)    \\
-    Y_i^{0,0} & \text{ if } R_i=0
+    Y_i^{1,0} & \text{ if } (R_i=0 \text{ and } D_i=1)    \\
+    Y_i^{0,0} & \text{ if } (R_i=0 \text{ and } D_i=0)    
   \end{cases}
 \end{align*}
-\EndKnitrBlock{definition}
+\EndKnitrBlock{definition} with \(Y_i^{1,1}\), \(Y_i^{0,1}\),
+\(Y_i^{0,0}\), \(Y_i^{1,0}\), \(D_i^1\) and \(D^0_i\) the same potential
+outcomes and self-selection decisions as in a routine allocation of the
+treatment.
 
-with \(Y_i^{1,1}\), \(Y_i^{0,1}\), \(Y_i^{0,0}\), \(D_i^1\) and
-\(D^0_i\) the same potential outcomes and self-selection decisions as in
-a routine allocation of the treatment.
-
-We need another assumption:
-
-\BeginKnitrBlock{definition}[Exclusion Restriction of Encouragement]
-\protect\hypertarget{def:exclrestencourag}{}{\label{def:exclrestencourag}
-\iffalse (Exclusion Restriction of Encouragement) \fi{} }We assume that
-there is no direct effect of being informed about eligibliity to the
-program on outcomes:
+\BeginKnitrBlock{definition}[Independence of Encouragement]
+\protect\hypertarget{def:IndepEncourag}{}{\label{def:IndepEncourag}
+\iffalse (Independence of Encouragement) \fi{} }We assume that the
+randomized allocation of the program is well done:
 
 \begin{align*}
-  Y_i^{1,1} & = Y_i^{1,0}= Y_i^1\\
-  Y_i^{0,1} & = Y_i^{0,0}= Y_i^0.
+(Y_i^{1,1},Y_i^{0,1},Y_i^{0,0},Y_i^{1,0},D_i^1,D^0_i)\Ind R_i|E_i=1.
 \end{align*}
 \EndKnitrBlock{definition}
 
-Under these assumptions, we have the following result:
-
-\BeginKnitrBlock{theorem}[Identification of TT With Randomization After Eligibility]
-\protect\hypertarget{thm:IdentWald}{}{\label{thm:IdentWald}
-\iffalse (Identification of TT With Randomization After Eligibility)
-\fi{} }Under Independence Among Eligibles, Randomization After
-Eligibility Validity and Exclusion Restriction of Eligibility, the Wald
-estimator among eligibles identifies LATE:
+\BeginKnitrBlock{definition}[Exclusion Restriction]
+\protect\hypertarget{def:ExclRestr}{}{\label{def:ExclRestr}
+\iffalse (Exclusion Restriction) \fi{} }We assume that the randomized
+allocation of the program does not alter potential outcomes:
 
 \begin{align*}
-  \Delta^Y_{Wald|E=1} & = \Delta^Y_{LATE}
+Y_i^{d,r} & = Y_i^d \text{, }\forall (r,d)\in\left\{0,1\right\}^2.
+\end{align*}
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{definition}[First Stage]
+\protect\hypertarget{def:Fstage}{}{\label{def:Fstage} \iffalse (First Stage)
+\fi{} }We assume that the encouragement does manage to increase
+participation:
+
+\begin{align*}
+  \Pr(D_i=1|R_i=1,E_i=1) > \Pr(D_i=1|R_i=0,E_i=1).
+\end{align*}
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{definition}[Monotonicity]
+\protect\hypertarget{def:Mono}{}{\label{def:Mono} \iffalse (Monotonicity)
+\fi{} }We assume that the encouragement increase participation for
+everyone:
+
+\begin{align*}
+  \forall i\text{, }D_i^1\geq D_i^0.
+\end{align*}
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{theorem}[Identification in an Encouragement Design]
+\protect\hypertarget{thm:IdentLATE}{}{\label{thm:IdentLATE}
+\iffalse (Identification in an Encouragement Design) \fi{} }Under
+Assumptions \ref{def:RandEncouragValid}, \ref{def:IndepEncourag},
+\ref{def:ExclRestr}, \ref{def:Fstage}, \ref{def:Mono}, the Wald
+estimator identifies the LATE:
+
+\begin{align*}
+  \Delta^Y_{Wald} & = \Delta^Y_{LATE},
 \end{align*}
 \EndKnitrBlock{theorem}
 
-with:
+with (keeping the conditioning on \$E\_i=1 implicit):
 
 \begin{align*}
-  \Delta^Y_{Wald|E=1} & = \frac{\Delta^Y_{WW|E=1}}{\Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1)}
-  \Delta^Y_{LATE} & = \esp{Y_i^1-Y_i^0|D_i^1=1,D_i^0=0}
+  \Delta^Y_{Wald} & = \frac{\esp{Y_i|R_i=1} - \esp{Y_i|R_i=0}}{\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0)}\\
+  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c}
 \end{align*}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+\EndKnitrBlock{proof}
+
+\textbf{\textsc{Do proof}}
 
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-3}
@@ -6945,7 +7022,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-107}{}{\label{exm:unnamed-chunk-107}
+\protect\hypertarget{exm:unnamed-chunk-108}{}{\label{exm:unnamed-chunk-108}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -7118,7 +7195,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-113}{}{\label{exm:unnamed-chunk-113}
+\protect\hypertarget{exm:unnamed-chunk-114}{}{\label{exm:unnamed-chunk-114}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -7160,7 +7237,14 @@ meta-analytic estimator.
 It is customary to present the results of a meta-analysis using a forest
 plot. A forest plows all the individual estimates along with the
 aggregated estimate. Figure \ref{fig:FEforestplot} presents the forest
-plot for our example.
+plot for our example using the very convenient \texttt{forest} function
+in the \texttt{metafor} package:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{forest}\NormalTok{(meta.example.FE,}\DataTypeTok{slab =} \KeywordTok{paste}\NormalTok{(}\StringTok{'Study'}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{id,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Estimated Meta-analytic Parameter'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{figure}[htbp]
 
@@ -7184,7 +7268,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-114}{}{\label{exm:unnamed-chunk-114}
+\protect\hypertarget{exm:unnamed-chunk-115}{}{\label{exm:unnamed-chunk-115}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -7265,8 +7349,126 @@ is there. Think about how costly it woud be to run a very large study,
 just to find out that the we did not really need it because we had known
 the result all along.
 
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Something pretty cool is that I can reproduce
+Figure \ref{fig:cumWMAE} using the \texttt{metafor} package with much
+less lines of code.
+\EndKnitrBlock{remark}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{forest}\NormalTok{(meta.example.FE,}\DataTypeTok{slab =} \KeywordTok{paste}\NormalTok{(}\StringTok{'Study'}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{id,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Estimated Meta-analytic Parameter'}\NormalTok{)}
+\NormalTok{cumul.meta.example.FE <-}\StringTok{ }\KeywordTok{cumul}\NormalTok{(meta.example.FE, }\DataTypeTok{order=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{id)}
+\KeywordTok{forest}\NormalTok{(cumul.meta.example.FE,}\DataTypeTok{slab =} \KeywordTok{paste}\NormalTok{(}\StringTok{'Study'}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{id,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Estimated Meta-analytic Cumulated Parameter'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[Initial data set\label{fig:cumWMAEmetafor1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAEmetafor-1} }\subfloat[Constantly updated dataset\label{fig:cumWMAEmetafor2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAEmetafor-2} }
+
+}
+
+\caption{Constantly updated meta-analysis with the `metafor` package}\label{fig:cumWMAEmetafor}
+\end{figure}
+
+You can also call each of the individual results of the cumulative
+meta-analysis using \texttt{cumul.meta.example.FE\$estimate}. For
+example, the cumulated effect size after the 10 first studies is equal
+to 0.2 \(\pm\) 0.18.
+
 \subsection{Testing for the homogeneity of treatment
 effects}\label{testing-for-the-homogeneity-of-treatment-effects}
+
+One key assumption that we have just made so far is that of homogeneous
+treatment effect. We have worked under the assumption that each study
+was drawn from the same population, where the treatment effect is a
+constant. Why would the treatment effects differ in each study?
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  We do not study exactly the same treatment, but a family of similar
+  treatments. Each individual study covers a particular iteration of the
+  treatment, each with its idiosyncratic parameterization. The
+  particular value of the transfer in a Cash Transfer program, or of the
+  conditions to receive it, or the length of payment, whether it is in
+  one time or over some period, might make a difference, for example.
+  The same is true for Job Training Programs, Payments for
+  Environmenetal Services, microcredit, graduation programs, nudges,
+  etc. Actually, most programs that economists study differ from one
+  implementation to the next. In psychology and medecine, most
+  treatments are accompanied by a rigorous protocol that makes them much
+  more homogeneous.
+\item
+  The population on which the treatment is applied varies. For example,
+  similar Job Training Programs or microcredit initiatives might have
+  very different outcomes depending on the business cycle. Education
+  interventions might have very different effects depending on the
+  background of the students on which they are tested. A drug might
+  interact with patients' phenotype and genotype to generate different
+  effects, and the populations from which the experimental samples are
+  drawn do not have to be similar. As an extreme example, think of a
+  vaccine tested in a population where the prevalence of a disease is
+  null. The treatment effect is zero. Now, test the vaccine in a
+  population where the disease is endemic: the treatment effect might be
+  huge.
+\end{enumerate}
+
+We can also think that the treatment effect differs in each sample
+because the composition of the sample changes. But this is normal
+variation due to sampling noise and is to be expected. It is not the
+same thing as assuming that the population effect differs.
+
+What can we do in order to test whether there is heterogeneity in
+treatment effects? One way is to build an index comparing the usual
+variation in treatment effects stemming from sampling noise to the one
+stemming from variation between studies. If we find that the variation
+between studies dwarves the variation due to sampling noise in each
+study, then there is some heterogeneity for sure. One statistics that
+does that is the \(Q\) statistic where the variation in treatment
+effects between studies is estimated using the difference between the
+individual effect size and the average one squared:
+
+\begin{align*}
+  Q & = \sum_{k=1}^N\frac{(\hat{\theta}_k-\bar{\theta})^2}{\hat{\sigma}^2_k}.
+\end{align*}
+
+What is great with the \(Q\) statistic is that, under the Null
+hypothesis that all the treatment effects are equal to the same
+constant, it is distributed asymptotically as a \(\chi^2\) distribution
+with \(N-1\) degrees of freedom, and thus it can directly be used to
+test for the hypothesis of homogeneous treatment effects.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-117}{}{\label{exm:unnamed-chunk-117}
+}In our example, we have already computed the \(Q\) statistic when we
+have used the \texttt{rma} function in the \texttt{metafor} package. In
+order to access it, we just need to extract it using
+\texttt{meta.example.FE\$QE} for the \(Q\) statistic and
+\texttt{meta.example.FE\$QEp} for its p-value.
+\EndKnitrBlock{example} The \(Q\) statistic in our example has value
+12.71, with associated p-value 0.85. We end up not rejecting
+homogeneity, which is correct.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The problem with using test statistics for
+testing for treatment effect homogeneity is that, when precision
+increases, we might end up rejecting homogeneity despite the fact that
+it is there.
+\EndKnitrBlock{remark}
+
+\textbf{\textsc{Test with \(N=10^5\).}}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The \(\chi^2\) distribution with \(k\)
+degrees of freedom is asymptotically distributed as a normal with mean
+\(k\) and variance \(2k\). So, when \(k\) is large, a good rule of thumb
+for assessing the homogeneity of the treatment effect estimates is to
+compare the \(Q\) statistic to the number of studies. If it is much
+larger, homogeneity is probably not guaranteed.
+\EndKnitrBlock{remark}
 
 \subsection{Meta-analysis when treatment effects are
 heterogeneous}\label{meta-analysis-when-treatment-effects-are-heterogeneous}

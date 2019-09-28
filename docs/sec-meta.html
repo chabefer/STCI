@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-09-27">
+<meta name="date" content="2019-09-28">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -167,7 +167,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="3.3.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-2"><i class="fa fa-check"></i><b>3.3.3</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a><ul>
-<li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-3"><i class="fa fa-check"></i><b>3.4.1</b> Identification</a></li>
+<li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-of-the-local-average-treatment-effect"><i class="fa fa-check"></i><b>3.4.1</b> Identification of the Local Average Treatment Effect</a></li>
 <li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.2</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
@@ -247,7 +247,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The basic setting for a meta-analysis is that you have access to a list of estimates for the effect of a given program and for their precision. These estimates come from the literature, searching published and unpublished sources alike. This data is usually collected after an extensive search of bibliographic databases. Then, one has to select among all the studies selected by the search the ones that are actualy relevant. This is the most excruciating part of a meta-analysis, since a lot of the studies selected by hte search algorithm are actually irrelevant. Finally, one has to extract from each relevant paper an estimate of the effect of the treatment and of its precision. In general, one tries to choose standardized estimates such as the effect size (see Section <a href="FPSI.html#sec:effectsize">2.1.6</a> for a definition) and its standard error. After all this process, we should end up with a dataset like: <span class="math inline">\(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\)</span>, with <span class="math inline">\(\hat{\theta}_k\)</span> the estimated effect size, <span class="math inline">\(\hat{\sigma}_k\)</span> its estimated standard error, and <span class="math inline">\(N\)</span> the number of included studies.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-107" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
+<span id="exm:unnamed-chunk-108" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.sample &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">1000</span>,<span class="dv">10000</span>,<span class="dv">100000</span>)
@@ -354,7 +354,7 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
 }</code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-113" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
+<span id="exm:unnamed-chunk-114" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
 </div>
 <p> The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02. A very simple way to implement such an estimator in R is to use the <code>rma</code> command of the <code>metafor</code> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.meta<span class="op">$</span>var.ES &lt;-<span class="st"> </span>data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>
@@ -377,7 +377,8 @@ meta.example.FE &lt;-<span class="st"> </span><span class="kw">rma</span>(<span 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>As seen above, the <code>metafor</code> package yields a meta-analytic estimate of 0.19 <span class="math inline">\(\pm\)</span> 0.02, as we have found using the weighted meta-analytic estimator.</p>
-<p>It is customary to present the results of a meta-analysis using a forest plot. A forest plows all the individual estimates along with the aggregated estimate. Figure <a href="sec-meta.html#fig:FEforestplot">12.2</a> presents the forest plot for our example.</p>
+<p>It is customary to present the results of a meta-analysis using a forest plot. A forest plows all the individual estimates along with the aggregated estimate. Figure <a href="sec-meta.html#fig:FEforestplot">12.2</a> presents the forest plot for our example using the very convenient <code>forest</code> function in the <code>metafor</code> package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">forest</span>(meta.example.FE,<span class="dt">slab =</span> <span class="kw">paste</span>(<span class="st">&#39;Study&#39;</span>,data.meta<span class="op">$</span>id,<span class="dt">sep=</span><span class="st">&#39; &#39;</span>),<span class="dt">xlab=</span><span class="st">&#39;Estimated Meta-analytic Parameter&#39;</span>)</code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:FEforestplot"></span>
 <img src="STCI_files/figure-html/FEforestplot-1.png" alt="Example data set: forest plot" width="60%" />
 <p class="caption">
@@ -390,7 +391,7 @@ Figure 12.2: Example data set: forest plot
 <p>Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving. This is a very important tool that enables us to aggregate constantly the information coming from different studies. Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study. The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-114" class="example"><strong>Example 12.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows how constantly updated meta-analysis works in our example.
+<span id="exm:unnamed-chunk-115" class="example"><strong>Example 12.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows how constantly updated meta-analysis works in our example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cum.wmae.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(k,theta,sigma2){
@@ -432,9 +433,51 @@ Figure 12.3: Constantly updated meta-analysis
 <p>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows that combining several imprecise estimates might help you reach the same precision as running a larger experiment.<br />
 For instance, cumulating the first 10 studies with a small sample size (<span class="math inline">\(N=\)</span> 100), the meta-analytic effect is estimated at 0.2 <span class="math inline">\(\pm\)</span> 0.18. This is very close to the individual estimate obtained from the first estimate with a larger sample size (sample 11 on Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a>, with <span class="math inline">\(N=\)</span> 1000): 0.17 <span class="math inline">\(\pm\)</span> 0.18. Both estimates actually have the exact same precision (because they actually have the same sample size). The same is true when combining the first 17 studies. The meta-analytic effect is estimated at 0.24 <span class="math inline">\(\pm\)</span> 0.06, while the effect estimated using one unique RCT with a larger sample size (sample 18 on Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a>, with <span class="math inline">\(N=\)</span> 10^{4}) is 0.21 <span class="math inline">\(\pm\)</span> 0.05. Finally, the same result occurs when combining the first 19 studies. The meta-analytic effect is estimated at 0.21 <span class="math inline">\(\pm\)</span> 0.03, while the effect estimated using one unique RCT with a larger sample size (sample 20 on Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a>, with <span class="math inline">\(N=\)</span> 10^{5}) is 0.19 <span class="math inline">\(\pm\)</span> 0.02.</p>
 <p>As a conclusion, constantly updated meta-analysis would have each time delivered the same result than the one found with a much larger study, rendering this additional study almost irrelevant. This is a very important result: beyond the apparent messiness of the first noisy estimates in Figures <a href="sec-meta.html#fig:confintervalESCLT">12.1</a> and <a href="sec-meta.html#fig:FEforestplot">12.2</a> lies an order that can be retrieved and made apparent using constantly updated meta-analysis. Sometimes, the answer is right there in front of our eyes, we just lack the ability to see it. Constantly updated meta-analysis serves as a binocular to magnify what is there. Think about how costly it woud be to run a very large study, just to find out that the we did not really need it because we had known the result all along.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Something pretty cool is that I can reproduce Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> using the <code>metafor</code> package with much less lines of code.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">forest</span>(meta.example.FE,<span class="dt">slab =</span> <span class="kw">paste</span>(<span class="st">&#39;Study&#39;</span>,data.meta<span class="op">$</span>id,<span class="dt">sep=</span><span class="st">&#39; &#39;</span>),<span class="dt">xlab=</span><span class="st">&#39;Estimated Meta-analytic Parameter&#39;</span>)
+cumul.meta.example.FE &lt;-<span class="st"> </span><span class="kw">cumul</span>(meta.example.FE, <span class="dt">order=</span>data.meta<span class="op">$</span>id)
+<span class="kw">forest</span>(cumul.meta.example.FE,<span class="dt">slab =</span> <span class="kw">paste</span>(<span class="st">&#39;Study&#39;</span>,data.meta<span class="op">$</span>id,<span class="dt">sep=</span><span class="st">&#39; &#39;</span>),<span class="dt">xlab=</span><span class="st">&#39;Estimated Meta-analytic Cumulated Parameter&#39;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:cumWMAEmetafor"></span>
+<img src="STCI_files/figure-html/cumWMAEmetafor-1.png" alt="Constantly updated meta-analysis with the `metafor` package" width="50%" /><img src="STCI_files/figure-html/cumWMAEmetafor-2.png" alt="Constantly updated meta-analysis with the `metafor` package" width="50%" />
+<p class="caption">
+Figure 12.4: Constantly updated meta-analysis with the <code>metafor</code> package
+</p>
+</div>
+<p>You can also call each of the individual results of the cumulative meta-analysis using <code>cumul.meta.example.FE$estimate</code>. For example, the cumulated effect size after the 10 first studies is equal to 0.2 <span class="math inline">\(\pm\)</span> 0.18.</p>
 </div>
 <div id="testing-for-the-homogeneity-of-treatment-effects" class="section level3">
 <h3><span class="header-section-number">12.1.4</span> Testing for the homogeneity of treatment effects</h3>
+<p>One key assumption that we have just made so far is that of homogeneous treatment effect. We have worked under the assumption that each study was drawn from the same population, where the treatment effect is a constant. Why would the treatment effects differ in each study?</p>
+<ol style="list-style-type: decimal">
+<li>We do not study exactly the same treatment, but a family of similar treatments. Each individual study covers a particular iteration of the treatment, each with its idiosyncratic parameterization. The particular value of the transfer in a Cash Transfer program, or of the conditions to receive it, or the length of payment, whether it is in one time or over some period, might make a difference, for example. The same is true for Job Training Programs, Payments for Environmenetal Services, microcredit, graduation programs, nudges, etc. Actually, most programs that economists study differ from one implementation to the next. In psychology and medecine, most treatments are accompanied by a rigorous protocol that makes them much more homogeneous.</li>
+<li>The population on which the treatment is applied varies. For example, similar Job Training Programs or microcredit initiatives might have very different outcomes depending on the business cycle. Education interventions might have very different effects depending on the background of the students on which they are tested. A drug might interact with patients’ phenotype and genotype to generate different effects, and the populations from which the experimental samples are drawn do not have to be similar. As an extreme example, think of a vaccine tested in a population where the prevalence of a disease is null. The treatment effect is zero. Now, test the vaccine in a population where the disease is endemic: the treatment effect might be huge.</li>
+</ol>
+<p>We can also think that the treatment effect differs in each sample because the composition of the sample changes. But this is normal variation due to sampling noise and is to be expected. It is not the same thing as assuming that the population effect differs.</p>
+<p>What can we do in order to test whether there is heterogeneity in treatment effects? One way is to build an index comparing the usual variation in treatment effects stemming from sampling noise to the one stemming from variation between studies. If we find that the variation between studies dwarves the variation due to sampling noise in each study, then there is some heterogeneity for sure. One statistics that does that is the <span class="math inline">\(Q\)</span> statistic where the variation in treatment effects between studies is estimated using the difference between the individual effect size and the average one squared:</p>
+<span class="math display">\[\begin{align*}
+  Q &amp; = \sum_{k=1}^N\frac{(\hat{\theta}_k-\bar{\theta})^2}{\hat{\sigma}^2_k}.
+\end{align*}\]</span>
+<p>What is great with the <span class="math inline">\(Q\)</span> statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(N-1\)</span> degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-117" class="example"><strong>Example 12.4  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package. In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
+</div>
+<p> The <span class="math inline">\(Q\)</span> statistic in our example has value 12.71, with associated p-value 0.85. We end up not rejecting homogeneity, which is correct.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The problem with using test statistics for testing for treatment effect homogeneity is that, when precision increases, we might end up rejecting homogeneity despite the fact that it is there.
+</div>
+
+<p><strong><span style="font-variant: small-caps;">Test with <span class="math inline">\(N=10^5\)</span>.</span></strong></p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(k\)</span> degrees of freedom is asymptotically distributed as a normal with mean <span class="math inline">\(k\)</span> and variance <span class="math inline">\(2k\)</span>. So, when <span class="math inline">\(k\)</span> is large, a good rule of thumb for assessing the homogeneity of the treatment effect estimates is to compare the <span class="math inline">\(Q\)</span> statistic to the number of studies. If it is much larger, homogeneity is probably not guaranteed.
+</div>
+
 </div>
 <div id="meta-analysis-when-treatment-effects-are-heterogeneous" class="section level3">
 <h3><span class="header-section-number">12.1.5</span> Meta-analysis when treatment effects are heterogeneous</h3>
