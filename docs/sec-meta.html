@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-09-28">
+<meta name="date" content="2019-10-01">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -168,7 +168,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a><ul>
 <li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-of-the-local-average-treatment-effect"><i class="fa fa-check"></i><b>3.4.1</b> Identification of the Local Average Treatment Effect</a></li>
-<li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.2</b> Estimating sampling noise</a></li>
+<li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect"><i class="fa fa-check"></i><b>3.4.2</b> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</a></li>
+<li class="chapter" data-level="3.4.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.3</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
 </ul></li>
@@ -247,7 +248,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The basic setting for a meta-analysis is that you have access to a list of estimates for the effect of a given program and for their precision. These estimates come from the literature, searching published and unpublished sources alike. This data is usually collected after an extensive search of bibliographic databases. Then, one has to select among all the studies selected by the search the ones that are actualy relevant. This is the most excruciating part of a meta-analysis, since a lot of the studies selected by hte search algorithm are actually irrelevant. Finally, one has to extract from each relevant paper an estimate of the effect of the treatment and of its precision. In general, one tries to choose standardized estimates such as the effect size (see Section <a href="FPSI.html#sec:effectsize">2.1.6</a> for a definition) and its standard error. After all this process, we should end up with a dataset like: <span class="math inline">\(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\)</span>, with <span class="math inline">\(\hat{\theta}_k\)</span> the estimated effect size, <span class="math inline">\(\hat{\sigma}_k\)</span> its estimated standard error, and <span class="math inline">\(N\)</span> the number of included studies.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-108" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
+<span id="exm:unnamed-chunk-114" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.sample &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">1000</span>,<span class="dv">10000</span>,<span class="dv">100000</span>)
@@ -354,7 +355,7 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
 }</code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-114" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
+<span id="exm:unnamed-chunk-120" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
 </div>
 <p> The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02. A very simple way to implement such an estimator in R is to use the <code>rma</code> command of the <code>metafor</code> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.meta<span class="op">$</span>var.ES &lt;-<span class="st"> </span>data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>
@@ -391,7 +392,7 @@ Figure 12.2: Example data set: forest plot
 <p>Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving. This is a very important tool that enables us to aggregate constantly the information coming from different studies. Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study. The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-115" class="example"><strong>Example 12.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows how constantly updated meta-analysis works in our example.
+<span id="exm:unnamed-chunk-121" class="example"><strong>Example 12.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows how constantly updated meta-analysis works in our example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cum.wmae.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(k,theta,sigma2){
@@ -464,7 +465,7 @@ Figure 12.4: Constantly updated meta-analysis with the <code>metafor</code> pack
 <p>What is great with the <span class="math inline">\(Q\)</span> statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(N-1\)</span> degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-117" class="example"><strong>Example 12.4  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package. In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
+<span id="exm:unnamed-chunk-123" class="example"><strong>Example 12.4  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package. In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
 </div>
 <p> The <span class="math inline">\(Q\)</span> statistic in our example has value 12.71, with associated p-value 0.85. We end up not rejecting homogeneity, which is correct.</p>
 

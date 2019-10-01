@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-09-28">
+<meta name="date" content="2019-10-01">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -168,7 +168,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a><ul>
 <li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-of-the-local-average-treatment-effect"><i class="fa fa-check"></i><b>3.4.1</b> Identification of the Local Average Treatment Effect</a></li>
-<li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.2</b> Estimating sampling noise</a></li>
+<li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect"><i class="fa fa-check"></i><b>3.4.2</b> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</a></li>
+<li class="chapter" data-level="3.4.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.3</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.5" data-path="RCT.html"><a href="RCT.html#sec:threats"><i class="fa fa-check"></i><b>3.5</b> Threats to the validity of RCTs</a></li>
 </ul></li>
@@ -1148,7 +1149,7 @@ A direct application of the formula for the Bloom estimator proves the result.
                 &amp; = \esp{Y_i^{1}-Y_i^{0}|D_i^1=1,R_i=1,E_i=1}\Pr(D^1_i=1|R_i=1,E_i=1) \\
                 &amp; = \esp{Y_i^{1}-Y_i^{0}|D_i=1,E_i=1}\Pr(D^1_i=1|E_i=1),
 \end{align*}\]</span>
-<p>where the first equality follows from Assumption <a href="RCT.html#def:exclrestric">3.7</a>, the second from Bayes’ rule and Assumptions <a href="RCT.html#def:indelig">3.5</a>, the third from Bayes’ rule and the last from the fact that <span class="math inline">\(D_i^1=1,R_i=1\Leftrightarrow D_i=1\)</span>.</p>
+where the first equality follows from Assumption <a href="RCT.html#def:exclrestric">3.7</a>, the second from Bayes’ rule and Assumptions <a href="RCT.html#def:indelig">3.5</a>, the third from Bayes’ rule and the last from the fact that <span class="math inline">\(D_i^1=1,R_i=1\Leftrightarrow D_i=1\)</span>.
 </div>
 
 <p>The previous theorem shows that Assumption <a href="RCT.html#def:exclrestric">3.7</a> shuts down any direct effect of the announcement of eligibility on outcomes. As a consequence of this assumption, the only impact that an eligibility annoucement has on outcomes is through participation into the program. Hence, the ITE is equal to TT multiplied by the proportion of people taking up the treatment when eligibility is announced.</p>
@@ -1584,13 +1585,12 @@ sn.RAE.IV.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><span
 <p>Let’s detail these assumptions, the identification result and the estimation strategy.</p>
 <div id="identification-of-the-local-average-treatment-effect" class="section level3">
 <h3><span class="header-section-number">3.4.1</span> Identification of the Local Average Treatment Effect</h3>
-<p>Before stating the identification results, let’s go through some definitions and assumptions. We are going to denote <span class="math inline">\(R_i=1\)</span> when individual <span class="math inline">\(i\)</span> receives the encouragement and <span class="math inline">\(R_i=0\)</span> when she does not. As in Section <a href="RCT.html#sec:design3">3.3</a>, we have four potential outcomes for <span class="math inline">\(Y_i\)</span>: <span class="math inline">\(Y_i^{d,r}\)</span>, <span class="math inline">\((d,r)\in\left\{0,1\right\}^2\)</span>, where <span class="math inline">\(d\)</span> denotes receiving the treatment and <span class="math inline">\(r\)</span> receiving the encouragement.</p>
-<p>We also have two potential outcomes for <span class="math inline">\(D_i\)</span>: <span class="math inline">\(D_i^{r}\)</span>, <span class="math inline">\(r\in\left\{0,1\right\}\)</span>. <span class="math inline">\(D_i^{1}\)</span> indicates whether individual <span class="math inline">\(i\)</span> takes the treatment when receving the encouragement and <span class="math inline">\(D_i^{0}\)</span> whether he takes the treatment when not receiving the encouragement. These potential outcomes define four possible types of individuals, that I’m going to denote with the random variable <span class="math inline">\(T_i\)</span>:</p>
+<p>Before stating the identification results, let’s go through some definitions and assumptions. We are going to denote <span class="math inline">\(R_i=1\)</span> when individual <span class="math inline">\(i\)</span> receives the encouragement and <span class="math inline">\(R_i=0\)</span> when she does not. As in Section <a href="RCT.html#sec:design3">3.3</a>, we have four potential outcomes for <span class="math inline">\(Y_i\)</span>: <span class="math inline">\(Y_i^{d,r}\)</span>, <span class="math inline">\((d,r)\in\left\{0,1\right\}^2\)</span>, where <span class="math inline">\(d\)</span> denotes receiving the treatment and <span class="math inline">\(r\)</span> receiving the encouragement. We also have two potential outcomes for <span class="math inline">\(D_i\)</span>: <span class="math inline">\(D_i^{r}\)</span>, <span class="math inline">\(r\in\left\{0,1\right\}\)</span>. <span class="math inline">\(D_i^{1}\)</span> indicates whether individual <span class="math inline">\(i\)</span> takes the treatment when receving the encouragement and <span class="math inline">\(D_i^{0}\)</span> whether she takes the treatment when not receiving the encouragement. These potential outcomes define four possible types of individuals, that I’m going to denote with the random variable <span class="math inline">\(T_i\)</span>:</p>
 <ul>
-<li><strong>Always takers</strong>, that take up the program whether they receive the encouragement or not. They are such that <span class="math inline">\(D_i^{1}=D_i^{0}=1\)</span>. I denote them <span class="math inline">\(T_i=a\)</span>.</li>
-<li><strong>Never takers</strong>, that do not take up the program whether they receive the encouragement or not. They are such that <span class="math inline">\(D_i^{1}=D_i^{0}=0\)</span>. I denote them <span class="math inline">\(T_i=n\)</span>.</li>
-<li><strong>Compliers</strong>, that take up the program when they receive the encouragement and do not when they do not receive the encouragement. They are such that <span class="math inline">\(D_i^{1}-D_i^{0}=1\)</span>. I denote them <span class="math inline">\(T_i=c\)</span>.</li>
-<li><strong>Defiers</strong>, that do not take up the program when they receive the encouragement and take it up when they do not receive the encouragement. They are such that <span class="math inline">\(D_i^{1}-D_i^{0}=-1\)</span>. I denote them <span class="math inline">\(T_i=d\)</span>.</li>
+<li><strong>Always takers</strong>, who take up the program whether they receive the encouragement or not. They are such that <span class="math inline">\(D_i^{1}=D_i^{0}=1\)</span>. I denote them <span class="math inline">\(T_i=a\)</span>.</li>
+<li><strong>Never takers</strong>, who do not take up the program whether they receive the encouragement or not. They are such that <span class="math inline">\(D_i^{1}=D_i^{0}=0\)</span>. I denote them <span class="math inline">\(T_i=n\)</span>.</li>
+<li><strong>Compliers</strong>, who take up the program when they receive the encouragement and do not when they do not receive the encouragement. They are such that <span class="math inline">\(D_i^{1}-D_i^{0}=1\)</span>. I denote them <span class="math inline">\(T_i=c\)</span>.</li>
+<li><strong>Defiers</strong>, who do not take up the program when they receive the encouragement and take it up when they do not receive the encouragement. They are such that <span class="math inline">\(D_i^{1}-D_i^{0}=-1\)</span>. I denote them <span class="math inline">\(T_i=d\)</span>.</li>
 </ul>
 <p>We are now ready to state the assumptions needed for identification of the LATE.</p>
 
@@ -1607,7 +1607,7 @@ Y_i &amp; =
   \end{cases}
 \end{align*}\]</span>
 </div>
-<p> with <span class="math inline">\(Y_i^{1,1}\)</span>, <span class="math inline">\(Y_i^{0,1}\)</span>, <span class="math inline">\(Y_i^{0,0}\)</span>, <span class="math inline">\(Y_i^{1,0}\)</span>, <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D^0_i\)</span> the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.</p>
+<p> with <span class="math inline">\(Y_i^{1,1}\)</span>, <span class="math inline">\(Y_i^{0,1}\)</span>, <span class="math inline">\(Y_i^{1,0}\)</span>, <span class="math inline">\(Y_i^{0,0}\)</span>, <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D^0_i\)</span> the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.</p>
 
 <div class="definition">
 <p><span id="def:IndepEncourag" class="definition"><strong>Definition 3.10  (Independence of Encouragement)  </strong></span>We assume that the randomized allocation of the program is well done:</p>
@@ -1634,34 +1634,101 @@ Y_i^{d,r} &amp; = Y_i^d \text{, }\forall (r,d)\in\left\{0,1\right\}^2.
 
 
 <div class="definition">
-<p><span id="def:Mono" class="definition"><strong>Definition 3.13  (Monotonicity)  </strong></span>We assume that the encouragement increase participation for everyone:</p>
+<p><span id="def:Mono" class="definition"><strong>Definition 3.13  (Monotonicity)  </strong></span>We assume that the encouragement either increases participation for everyone or decreases participation for everyone:</p>
 <span class="math display">\[\begin{align*}
-  \forall i\text{, }D_i^1\geq D_i^0.
+  \text{ either } \forall i\text{, }D_i^1\geq D_i^0 \text{ or } \forall i\text{, }D_i^1\leq D_i^0 .
 \end{align*}\]</span>
 </div>
 
+<p>Assumption <a href="RCT.html#def:Mono">3.13</a> means that we cannot have simultaneously individuals that are pushed by the encouragement into the treatment and individuals that are pushed out of the treatment. As a consequence, there cannot be compliers and defiers at the same time. There can only be compliers or defiers. For simplicity, in what follows, I assume that there are no defiers. This is without loss of generality, since, under Assumption <a href="RCT.html#def:Mono">3.13</a>, a redefinition of the treatment (<span class="math inline">\(\tilde{D}_i=-D_i\)</span>) moves the model in this section from one with only defiers to one with only compliers.</p>
 
 <div class="theorem">
-<p><span id="thm:IdentLATE" class="theorem"><strong>Theorem 3.9  (Identification in an Encouragement Design)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:IndepEncourag">3.10</a>, <a href="RCT.html#def:ExclRestr">3.11</a>, <a href="RCT.html#def:Fstage">3.12</a>, <a href="RCT.html#def:Mono">3.13</a>, the Wald estimator identifies the LATE:</p>
+<p><span id="thm:IdentLATE" class="theorem"><strong>Theorem 3.9  (Identification in an Encouragement Design)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:IndepEncourag">3.10</a>, <a href="RCT.html#def:ExclRestr">3.11</a>, <a href="RCT.html#def:Fstage">3.12</a> and <a href="RCT.html#def:Mono">3.13</a>, the Wald estimator identifies the LATE:</p>
 <span class="math display">\[\begin{align*}
   \Delta^Y_{Wald} &amp; = \Delta^Y_{LATE},
 \end{align*}\]</span>
 </div>
 
-<p>with (keeping the conditioning on $E_i=1 implicit):</p>
+<p>with (keeping the conditioning on <span class="math inline">\(E_i=1\)</span> implicit):</p>
 <span class="math display">\[\begin{align*}
   \Delta^Y_{Wald} &amp; = \frac{\esp{Y_i|R_i=1} - \esp{Y_i|R_i=0}}{\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0)}\\
-  \Delta^Y_{LATE} &amp; = \esp{Y^1_i-Y^0_i|T_i=c}
+  \Delta^Y_{LATE} &amp; = \esp{Y^1_i-Y^0_i|T_i=c}.
 \end{align*}\]</span>
 
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> 
+<p> <span class="proof"><em>Proof. </em></span> Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:IndepEncourag">3.10</a> and <a href="RCT.html#def:ExclRestr">3.11</a>, we have:</p>
+<span class="math display">\[\begin{align*}
+\esp{Y_i|R_i=1} &amp; = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^1|T_i=c}\Pr(T_i=c) \\
+                            &amp; \phantom{=} + \esp{Y_i^0|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n)\\
+\esp{Y_i|R_i=0} &amp; = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^0|T_i=c}\Pr(T_i=c) \\                     
+                                &amp; \phantom{=} + \esp{Y_i^1|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n),
+\end{align*}\]</span>
+<p>As a consequence:</p>
+<span class="math display">\[\begin{align*}
+\esp{Y_i|R_i=1}- \esp{Y_i|R_i=0} &amp; = \esp{\Delta^Y_i|T_i=c}\Pr(T_i=c)-\esp{\Delta^Y_i|T_i=d}\Pr(T_i=d)\\
+                                 &amp; = \Delta^Y_{LATE}\Pr(T_i=c),
+\end{align*}\]</span>
+<p>where the second equality uses Assumption <a href="RCT.html#def:Mono">3.13</a> and the definition of <span class="math inline">\(LATE\)</span>.</p>
+<p>We also have:</p>
+<span class="math display">\[\begin{align*}
+\Pr(D_i=1|R_i=1) &amp; = \Pr(T_i=a)+ \Pr(T_i=c) \\
+\Pr(D_i=1|R_i=0) &amp; = \Pr(T_i=a)+ \Pr(T_i=d),
+\end{align*}\]</span>
+<p>where we have used Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a> and <a href="RCT.html#def:IndepEncourag">3.10</a>. As a consequence, under Assumption <a href="RCT.html#def:Mono">3.13</a>, we have:</p>
+<span class="math display">\[\begin{align*}
+\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0) &amp; = \Pr(T_i=c).
+\end{align*}\]</span>
+Using Assumption <a href="RCT.html#def:Fstage">3.12</a> proves the result.
 </div>
 
-<p><strong><span style="font-variant: small-caps;">Do proof</span></strong></p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The intuitution for the proof of Theorem <a href="RCT.html#thm:IdentLATE">3.9</a> is as follows:
+</div>
+
+<ul>
+<li>In the treatment arm (with <span class="math inline">\(R_i=1\)</span>), everyone receives the encouragement to enter the program. Only always takers and compliers actually take the program, and we thus see <span class="math inline">\(Y^1_i\)</span> for them. Never takers and defiers do not take the program, and we thus see <span class="math inline">\(Y^0_i\)</span> for them.</li>
+<li>In the control arm (with $R_i=0), no one receives the encouragement. Only always takers and defiers take the program, and we thus see <span class="math inline">\(Y^1_i\)</span> for them. Never takers and compliers do not take the program, and we thus see <span class="math inline">\(Y^0_i\)</span> for them.</li>
+<li>When comparing the average outcomes between the treatment and control arms, we thus have two terms that cancel, since they are the same on both arms: the outcomes of the always treated and the outcomes of the never treated. We are thus left with the impact on the compliers minus the impact on the defiers, both weighted by theirn proportion in the population. If there are no defiers, we see the impact on the compliers multiplied by their proportion.</li>
+<li>The difference between the proportion of participants in the treatment and control arms estimates the proportion of compliers minus the proportion of defiers. Under monotonicity, the proportion of defiers is zero, and thus the difference between the proportion of participants in the treatment and control arms estimates the proportion of compliers.</li>
+</ul>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> In the proof of Theorem <a href="RCT.html#thm:IdentLATE">3.9</a>, I use the types random variable <span class="math inline">\(T_i\)</span> instead of the potential outcomes <span class="math inline">\(D^1_i\)</span> and <span class="math inline">\(D^0_i\)</span>. This is equivalent, since <span class="math inline">\(T_i\)</span> is a function of <span class="math inline">\(D^1_i\)</span> and <span class="math inline">\(D^0_i\)</span>. Assumption <a href="RCT.html#def:IndepEncourag">3.10</a> especially is also true when replacing the potential outcomes <span class="math inline">\(D^1_i\)</span> and <span class="math inline">\(D^0_i\)</span> by <span class="math inline">\(T_i\)</span>. This follows from Lemma 4.2 in Dawid (1979) that shows that if <span class="math inline">\(X\Ind Y|Z\)</span> and <span class="math inline">\(U\)</span> is a function of <span class="math inline">\(X\)</span> then <span class="math inline">\(U\Ind Y|Z\)</span>.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The intuition for Theorem <a href="RCT.html#thm:IdentLATE">3.9</a> is that the encouragement only generates the entry of compliers in the program. We are thus only able to recover the effect of the treatment on the compliers. The experimental variation is not strong enough so as to enable us to estimate the impact on always takers or on never takers.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The problem with LATE is that it is not a very useful parameter for evaluating the treatment. LATE is the impact of the treatment on an unobserved subpopulation of individuals. To generalize from the LATE to the TT, we can make the assumption that the impact on always takers is equal to the impact on compliers, but that seems a little far-fetched. <a href="https://www.nber.org/papers/w16566">Angrist and Fernandez-Val</a> propose to assume that the effect on compliers is equal to the effect on always takers conditional on some observed covariates. When outcomes are bounded (for example because they are between zero and one), we can try to bound the <span class="math inline">\(TT\)</span> using the <span class="math inline">\(LATE\)</span> (see <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.2473">Huber, Laffers and Mellace (2017)</a>).
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Classically, we present the results of an Encouragement design in three stages:
+</div>
+
+<ol style="list-style-type: decimal">
+<li>We show the <strong>first stage</strong> regression of <span class="math inline">\(D_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on participation into the program and estimates the proportion of compliers.</li>
+<li>We show the <strong>reduced form</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on outcomes. It is generally called the Intention to Treat Effect, and is defined similarly as what we defined in the Randomization After Eligibility design.</li>
+<li>We finally show the <strong>structural</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(D_i\)</span> using *R_I$ as an instrument.</li>
+</ol>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> what if we fear there are defiers. de Chaisemartin
+</div>
+
+<p><strong><span style="font-variant: small-caps;">Develop intuition of ITE rigorously as in RAE. </span></strong> <strong><span style="font-variant: small-caps;">Numerical Example in population </span></strong></p>
+</div>
+<div id="estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect" class="section level3">
+<h3><span class="header-section-number">3.4.2</span> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</h3>
 </div>
 <div id="estimating-sampling-noise-3" class="section level3">
-<h3><span class="header-section-number">3.4.2</span> Estimating sampling noise</h3>
+<h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>
 <p>For simplicity, in all that follows, I am setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
 
 <div class="lemma">

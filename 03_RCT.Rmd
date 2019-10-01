@@ -1135,7 +1135,6 @@ Under Assumption \@ref(def:exclrestric), Equation \@ref(eq:ITE2) becomes:
 \end{align*}
 
 where the first equality follows from Assumption \@ref(def:exclrestric), the second from Bayes' rule and Assumptions \@ref(def:indelig), the third from Bayes' rule and the last from the fact that $D_i^1=1,R_i=1\Leftrightarrow D_i=1$.
-
 ```
 
 The previous theorem shows that Assumption \@ref(def:exclrestric) shuts down any direct effect of the announcement of eligibility on outcomes.
@@ -1731,19 +1730,19 @@ Before stating the identification results, let's go through some definitions and
 We are going to denote $R_i=1$ when individual $i$ receives the encouragement and $R_i=0$ when she does not.
 As in Section \@ref(sec:design3), we have four potential outcomes for $Y_i$: $Y_i^{d,r}$, $(d,r)\in\left\{0,1\right\}^2$, where $d$ denotes receiving the treatment and $r$ receiving the encouragement.
 We also have two potential outcomes for $D_i$: $D_i^{r}$, $r\in\left\{0,1\right\}$.
-$D_i^{1}$ indicates whether individual $i$ takes the treatment when receving the encouragement and $D_i^{0}$ whether he takes the treatment when not receiving the encouragement.
+$D_i^{1}$ indicates whether individual $i$ takes the treatment when receving the encouragement and $D_i^{0}$ whether she takes the treatment when not receiving the encouragement.
 These potential outcomes define four possible types of individuals, that I'm going to denote with the random variable $T_i$:
 
-  - **Always takers**, that take up the program whether they receive the encouragement or not.
+  - **Always takers**, who take up the program whether they receive the encouragement or not.
   They are such that $D_i^{1}=D_i^{0}=1$.
   I denote them $T_i=a$.
-  - **Never takers**, that do not take up the program whether they receive the encouragement or not.
+  - **Never takers**, who do not take up the program whether they receive the encouragement or not.
   They are such that $D_i^{1}=D_i^{0}=0$.
   I denote them $T_i=n$.
-  - **Compliers**, that take up the program when they receive the encouragement and do not when they do not receive the encouragement.
+  - **Compliers**, who take up the program when they receive the encouragement and do not when they do not receive the encouragement.
   They are such that $D_i^{1}-D_i^{0}=1$.
   I denote them $T_i=c$.
-  - **Defiers**, that do not take up the program when they receive the encouragement and take it up when they do not receive the encouragement.
+  - **Defiers**, who do not take up the program when they receive the encouragement and take it up when they do not receive the encouragement.
   They are such that $D_i^{1}-D_i^{0}=-1$.
   I denote them $T_i=d$.
 
@@ -1763,7 +1762,7 @@ Y_i & =
   \end{cases}
 \end{align*}
 ```
-with $Y_i^{1,1}$, $Y_i^{0,1}$, $Y_i^{0,0}$, $Y_i^{1,0}$, $D_i^1$ and $D^0_i$ the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.
+with $Y_i^{1,1}$, $Y_i^{0,1}$, $Y_i^{1,0}$, $Y_i^{0,0}$, $D_i^1$ and $D^0_i$ the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.
 
 ```{definition,IndepEncourag,name='Independence of Encouragement'}
 We assume that the randomized allocation of the program is well done:
@@ -1790,12 +1789,18 @@ We assume that the encouragement does manage to increase participation:
 ```
 
 ```{definition,Mono,name='Monotonicity'}
-We assume that the encouragement increases participation for everyone: 
+We assume that the encouragement either increases participation for everyone or decreases participation for everyone: 
 
 \begin{align*}
-  \forall i\text{, }D_i^1\geq D_i^0.
+  \text{ either } \forall i\text{, }D_i^1\geq D_i^0 \text{ or } \forall i\text{, }D_i^1\leq D_i^0 .
 \end{align*}
 ```
+
+Assumption \@ref(def:Mono) means that we cannot have simultaneously individuals that are pushed by the encouragement into the treatment and individuals that are pushed out of the treatment.
+As a consequence, there cannot be compliers and defiers at the same time.
+There can only be compliers or defiers.
+For simplicity, in what follows, I assume that there are no defiers.
+This is without loss of generality, since, under Assumption \@ref(def:Mono), a redefinition of the treatment ($\tilde{D}_i=-D_i$) moves the model in this section from one with only defiers to one with only compliers.
 
 ```{theorem,IdentLATE,name='Identification in an Encouragement Design'}
 Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag), \@ref(def:ExclRestr), \@ref(def:Fstage) and \@ref(def:Mono), the Wald estimator identifies the LATE:
@@ -1805,19 +1810,108 @@ Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag), \@ref(
 \end{align*}
 ```
 
-with (keeping the conditioning on $E_i=1 implicit):
+with (keeping the conditioning on $E_i=1$ implicit):
 
 \begin{align*}
   \Delta^Y_{Wald} & = \frac{\esp{Y_i|R_i=1} - \esp{Y_i|R_i=0}}{\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0)}\\
-  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c}
+  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c}.
 \end{align*}
 
 ```{proof}
+Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag) and \@ref(def:ExclRestr), we have:
+  
+\begin{align*}
+\esp{Y_i|R_i=1} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^1|T_i=c}\Pr(T_i=c) \\
+  							& \phantom{=} + \esp{Y_i^0|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n)\\
+\esp{Y_i|R_i=0} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^0|T_i=c}\Pr(T_i=c) \\						
+								& \phantom{=} + \esp{Y_i^1|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n),
+\end{align*}
 
+As a consequence:
+
+\begin{align*}
+\esp{Y_i|R_i=1}- \esp{Y_i|R_i=0} & = \esp{\Delta^Y_i|T_i=c}\Pr(T_i=c)-\esp{\Delta^Y_i|T_i=d}\Pr(T_i=d)\\
+                                 & = \Delta^Y_{LATE}\Pr(T_i=c),
+\end{align*}
+
+where the second equality uses Assumption \@ref(def:Mono) and the definition of $LATE$.
+
+We also have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=1) & = \Pr(T_i=a)+ \Pr(T_i=c) \\
+\Pr(D_i=1|R_i=0) & = \Pr(T_i=a)+ \Pr(T_i=d),
+\end{align*}
+
+where we have used Assumptions \@ref(def:RandEncouragValid) and \@ref(def:IndepEncourag).
+As a consequence, under Assumption \@ref(def:Mono), we have:
+
+\begin{align*}
+\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0) & = \Pr(T_i=c).
+\end{align*}
+
+Using Assumption \@ref(def:Fstage) proves the result. 
 ```
 
-**<span style="font-variant:small-caps;">Do proof</span>**
-**<span style="font-variant:small-caps;">Exclusion restriction has already been stated in the same form for eligibiity designs?</span>**
+```{remark}
+The intuitution for the proof of Theorem \@ref(thm:IdentLATE) is as follows: 
+```  
+
+  - In the treatment arm (with $R_i=1$), everyone receives the encouragement to enter the program.
+  Only always takers and compliers actually take the program, and we thus see $Y^1_i$ for them.
+  Never takers and defiers do not take the program, and we thus see $Y^0_i$ for them.
+  - In the control arm (with $R_i=0), no one receives the encouragement.
+  Only always takers and defiers take the program, and we thus see $Y^1_i$ for them.
+  Never takers and compliers do not take the program, and we thus see $Y^0_i$ for them.
+  - When comparing the average outcomes between the treatment and control arms, we thus have two terms that cancel, since they are the same on both arms: the outcomes of the always treated and the outcomes of the never treated.
+  We are thus left with the impact on the compliers minus the impact on the defiers, both weighted by theirn proportion in the population.
+  If there are no defiers, we see the impact on the compliers multiplied by their proportion.
+  - The difference between the proportion of participants in the treatment and control arms estimates the proportion of compliers minus the proportion of defiers.
+  Under monotonicity, the proportion of defiers is zero, and thus the difference between the proportion of participants in the treatment and control arms estimates the proportion of compliers.
+  
+```{remark}
+In the proof of Theorem \@ref(thm:IdentLATE), I use the types random variable $T_i$ instead of the potential outcomes $D^1_i$ and $D^0_i$.
+This is equivalent, since $T_i$ is a function of $D^1_i$ and $D^0_i$.
+Assumption \@ref(def:IndepEncourag) especially is also true when replacing the potential outcomes $D^1_i$ and $D^0_i$ by $T_i$.
+This follows from Lemma 4.2 in Dawid (1979) that shows that if $X\Ind Y|Z$ and $U$ is a function of $X$ then $U\Ind Y|Z$.
+```
+
+```{remark}
+The intuition for Theorem \@ref(thm:IdentLATE) is that the encouragement only generates the entry of compliers in the program.
+We are thus only able to recover the effect of the treatment on the compliers.
+The experimental variation is not strong enough so as to enable us to estimate the impact on always takers or on never takers.
+```
+
+```{remark}
+The problem with LATE is that it is not a very useful parameter for evaluating the treatment.
+LATE is the impact of the treatment on an unobserved subpopulation of individuals.
+To generalize from the LATE to the TT, we can make the assumption that the impact on always takers is equal to the impact on compliers, but that seems a little far-fetched.
+[Angrist and Fernandez-Val](https://www.nber.org/papers/w16566) propose to assume that the effect on compliers is equal to the effect on always takers conditional on some observed covariates.
+When outcomes are bounded (for example because they are between zero and one), we can try to bound the $TT$ using the $LATE$ (see [Huber, Laffers and Mellace (2017)](https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.2473)).
+```
+
+```{remark}
+Classically, we present the results of an Encouragement design in three stages:
+```  
+
+  1. We show the **first stage** regression of $D_i$ on $R_i$: this estimates the impact of the encouragement on participation into the program and estimates the proportion of compliers.
+  2. We show the **reduced form** regression of $Y_i$ on $R_i$: this estimates the impact of the encouragement on outcomes.
+  It is generally called the Intention to Treat Effect, and is defined similarly as what we defined in the Randomization After Eligibility design.
+  3. We finally show the **structural** regression of $Y_i$ on $D_i$ using *R_I$ as an instrument.
+  
+```{remark}
+what if we fear there are defiers.
+de Chaisemartin
+```
+
+
+**<span style="font-variant:small-caps;">Develop intuition of ITE rigorously as in RAE. </span>**
+**<span style="font-variant:small-caps;">Numerical Example in population </span>**
+
+### Estimating the Local Average Treatment Effect and the Intention to Treat Effect
+
+
+
 
 ### Estimating sampling noise
 

@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-09-28}
+    \date{2019-10-01}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -6777,32 +6777,30 @@ individual \(i\) receives the encouragement and \(R_i=0\) when she does
 not. As in Section \ref{sec:design3}, we have four potential outcomes
 for \(Y_i\): \(Y_i^{d,r}\), \((d,r)\in\left\{0,1\right\}^2\), where
 \(d\) denotes receiving the treatment and \(r\) receiving the
-encouragement.
-
-We also have two potential outcomes for \(D_i\): \(D_i^{r}\),
-\(r\in\left\{0,1\right\}\). \(D_i^{1}\) indicates whether individual
-\(i\) takes the treatment when receving the encouragement and
-\(D_i^{0}\) whether he takes the treatment when not receiving the
+encouragement. We also have two potential outcomes for \(D_i\):
+\(D_i^{r}\), \(r\in\left\{0,1\right\}\). \(D_i^{1}\) indicates whether
+individual \(i\) takes the treatment when receving the encouragement and
+\(D_i^{0}\) whether she takes the treatment when not receiving the
 encouragement. These potential outcomes define four possible types of
 individuals, that I'm going to denote with the random variable \(T_i\):
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Always takers}, that take up the program whether they receive
+  \textbf{Always takers}, who take up the program whether they receive
   the encouragement or not. They are such that \(D_i^{1}=D_i^{0}=1\). I
   denote them \(T_i=a\).
 \item
-  \textbf{Never takers}, that do not take up the program whether they
+  \textbf{Never takers}, who do not take up the program whether they
   receive the encouragement or not. They are such that
   \(D_i^{1}=D_i^{0}=0\). I denote them \(T_i=n\).
 \item
-  \textbf{Compliers}, that take up the program when they receive the
+  \textbf{Compliers}, who take up the program when they receive the
   encouragement and do not when they do not receive the encouragement.
   They are such that \(D_i^{1}-D_i^{0}=1\). I denote them \(T_i=c\).
 \item
-  \textbf{Defiers}, that do not take up the program when they receive
-  the encouragement and take it up when they do not receive the
+  \textbf{Defiers}, who do not take up the program when they receive the
+  encouragement and take it up when they do not receive the
   encouragement. They are such that \(D_i^{1}-D_i^{0}=-1\). I denote
   them \(T_i=d\).
 \end{itemize}
@@ -6827,7 +6825,7 @@ Y_i & =
   \end{cases}
 \end{align*}
 \EndKnitrBlock{definition} with \(Y_i^{1,1}\), \(Y_i^{0,1}\),
-\(Y_i^{0,0}\), \(Y_i^{1,0}\), \(D_i^1\) and \(D^0_i\) the same potential
+\(Y_i^{1,0}\), \(Y_i^{0,0}\), \(D_i^1\) and \(D^0_i\) the same potential
 outcomes and self-selection decisions as in a routine allocation of the
 treatment.
 
@@ -6863,19 +6861,29 @@ participation:
 
 \BeginKnitrBlock{definition}[Monotonicity]
 \protect\hypertarget{def:Mono}{}{\label{def:Mono} \iffalse (Monotonicity)
-\fi{} }We assume that the encouragement increase participation for
-everyone:
+\fi{} }We assume that the encouragement either increases participation
+for everyone or decreases participation for everyone:
 
 \begin{align*}
-  \forall i\text{, }D_i^1\geq D_i^0.
+  \text{ either } \forall i\text{, }D_i^1\geq D_i^0 \text{ or } \forall i\text{, }D_i^1\leq D_i^0 .
 \end{align*}
 \EndKnitrBlock{definition}
+
+Assumption \ref{def:Mono} means that we cannot have simultaneously
+individuals that are pushed by the encouragement into the treatment and
+individuals that are pushed out of the treatment. As a consequence,
+there cannot be compliers and defiers at the same time. There can only
+be compliers or defiers. For simplicity, in what follows, I assume that
+there are no defiers. This is without loss of generality, since, under
+Assumption \ref{def:Mono}, a redefinition of the treatment
+(\(\tilde{D}_i=-D_i\)) moves the model in this section from one with
+only defiers to one with only compliers.
 
 \BeginKnitrBlock{theorem}[Identification in an Encouragement Design]
 \protect\hypertarget{thm:IdentLATE}{}{\label{thm:IdentLATE}
 \iffalse (Identification in an Encouragement Design) \fi{} }Under
 Assumptions \ref{def:RandEncouragValid}, \ref{def:IndepEncourag},
-\ref{def:ExclRestr}, \ref{def:Fstage}, \ref{def:Mono}, the Wald
+\ref{def:ExclRestr}, \ref{def:Fstage} and \ref{def:Mono}, the Wald
 estimator identifies the LATE:
 
 \begin{align*}
@@ -6883,18 +6891,156 @@ estimator identifies the LATE:
 \end{align*}
 \EndKnitrBlock{theorem}
 
-with (keeping the conditioning on \$E\_i=1 implicit):
+with (keeping the conditioning on \(E_i=1\) implicit):
 
 \begin{align*}
   \Delta^Y_{Wald} & = \frac{\esp{Y_i|R_i=1} - \esp{Y_i|R_i=0}}{\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0)}\\
-  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c}
+  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c}.
 \end{align*}
 
 \BeginKnitrBlock{proof}
-\iffalse{} {Proof. } \fi{}
+\iffalse{} {Proof. } \fi{}Under Assumptions \ref{def:RandEncouragValid},
+\ref{def:IndepEncourag} and \ref{def:ExclRestr}, we have:
+
+\begin{align*}
+\esp{Y_i|R_i=1} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^1|T_i=c}\Pr(T_i=c) \\
+                            & \phantom{=} + \esp{Y_i^0|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n)\\
+\esp{Y_i|R_i=0} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^0|T_i=c}\Pr(T_i=c) \\                     
+                                & \phantom{=} + \esp{Y_i^1|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n),
+\end{align*}
+
+As a consequence:
+
+\begin{align*}
+\esp{Y_i|R_i=1}- \esp{Y_i|R_i=0} & = \esp{\Delta^Y_i|T_i=c}\Pr(T_i=c)-\esp{\Delta^Y_i|T_i=d}\Pr(T_i=d)\\
+                                 & = \Delta^Y_{LATE}\Pr(T_i=c),
+\end{align*}
+
+where the second equality uses Assumption \ref{def:Mono} and the
+definition of \(LATE\).
+
+We also have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=1) & = \Pr(T_i=a)+ \Pr(T_i=c) \\
+\Pr(D_i=1|R_i=0) & = \Pr(T_i=a)+ \Pr(T_i=d),
+\end{align*}
+
+where we have used Assumptions \ref{def:RandEncouragValid} and
+\ref{def:IndepEncourag}. As a consequence, under Assumption
+\ref{def:Mono}, we have:
+
+\begin{align*}
+\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0) & = \Pr(T_i=c).
+\end{align*}
+
+Using Assumption \ref{def:Fstage} proves the result.
 \EndKnitrBlock{proof}
 
-\textbf{\textsc{Do proof}}
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The intuitution for the proof of Theorem
+\ref{thm:IdentLATE} is as follows:
+\EndKnitrBlock{remark}
+
+\begin{itemize}
+\tightlist
+\item
+  In the treatment arm (with \(R_i=1\)), everyone receives the
+  encouragement to enter the program. Only always takers and compliers
+  actually take the program, and we thus see \(Y^1_i\) for them. Never
+  takers and defiers do not take the program, and we thus see \(Y^0_i\)
+  for them.
+\item
+  In the control arm (with \$R\_i=0), no one receives the encouragement.
+  Only always takers and defiers take the program, and we thus see
+  \(Y^1_i\) for them. Never takers and compliers do not take the
+  program, and we thus see \(Y^0_i\) for them.
+\item
+  When comparing the average outcomes between the treatment and control
+  arms, we thus have two terms that cancel, since they are the same on
+  both arms: the outcomes of the always treated and the outcomes of the
+  never treated. We are thus left with the impact on the compliers minus
+  the impact on the defiers, both weighted by theirn proportion in the
+  population. If there are no defiers, we see the impact on the
+  compliers multiplied by their proportion.
+\item
+  The difference between the proportion of participants in the treatment
+  and control arms estimates the proportion of compliers minus the
+  proportion of defiers. Under monotonicity, the proportion of defiers
+  is zero, and thus the difference between the proportion of
+  participants in the treatment and control arms estimates the
+  proportion of compliers.
+\end{itemize}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}In the proof of Theorem \ref{thm:IdentLATE},
+I use the types random variable \(T_i\) instead of the potential
+outcomes \(D^1_i\) and \(D^0_i\). This is equivalent, since \(T_i\) is a
+function of \(D^1_i\) and \(D^0_i\). Assumption \ref{def:IndepEncourag}
+especially is also true when replacing the potential outcomes \(D^1_i\)
+and \(D^0_i\) by \(T_i\). This follows from Lemma 4.2 in Dawid (1979)
+that shows that if \(X\Ind Y|Z\) and \(U\) is a function of \(X\) then
+\(U\Ind Y|Z\).
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The intuition for Theorem \ref{thm:IdentLATE}
+is that the encouragement only generates the entry of compliers in the
+program. We are thus only able to recover the effect of the treatment on
+the compliers. The experimental variation is not strong enough so as to
+enable us to estimate the impact on always takers or on never takers.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The problem with LATE is that it is not a
+very useful parameter for evaluating the treatment. LATE is the impact
+of the treatment on an unobserved subpopulation of individuals. To
+generalize from the LATE to the TT, we can make the assumption that the
+impact on always takers is equal to the impact on compliers, but that
+seems a little far-fetched.
+\href{https://www.nber.org/papers/w16566}{Angrist and Fernandez-Val}
+propose to assume that the effect on compliers is equal to the effect on
+always takers conditional on some observed covariates. When outcomes are
+bounded (for example because they are between zero and one), we can try
+to bound the \(TT\) using the \(LATE\) (see
+\href{https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.2473}{Huber,
+Laffers and Mellace (2017)}).
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Classically, we present the results of an
+Encouragement design in three stages:
+\EndKnitrBlock{remark}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  We show the \textbf{first stage} regression of \(D_i\) on \(R_i\):
+  this estimates the impact of the encouragement on participation into
+  the program and estimates the proportion of compliers.
+\item
+  We show the \textbf{reduced form} regression of \(Y_i\) on \(R_i\):
+  this estimates the impact of the encouragement on outcomes. It is
+  generally called the Intention to Treat Effect, and is defined
+  similarly as what we defined in the Randomization After Eligibility
+  design.
+\item
+  We finally show the \textbf{structural} regression of \(Y_i\) on
+  \(D_i\) using *R\_I\$ as an instrument.
+\end{enumerate}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}what if we fear there are defiers. de
+Chaisemartin
+\EndKnitrBlock{remark}
+
+\textbf{\textsc{Develop intuition of ITE rigorously as in RAE. }}
+\textbf{\textsc{Numerical Example in population }}
+
+\subsection{Estimating the Local Average Treatment Effect and the
+Intention to Treat
+Effect}\label{estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect}
 
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-3}
@@ -7022,7 +7168,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-108}{}{\label{exm:unnamed-chunk-108}
+\protect\hypertarget{exm:unnamed-chunk-114}{}{\label{exm:unnamed-chunk-114}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -7195,7 +7341,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-114}{}{\label{exm:unnamed-chunk-114}
+\protect\hypertarget{exm:unnamed-chunk-120}{}{\label{exm:unnamed-chunk-120}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -7268,7 +7414,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-115}{}{\label{exm:unnamed-chunk-115}
+\protect\hypertarget{exm:unnamed-chunk-121}{}{\label{exm:unnamed-chunk-121}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -7442,7 +7588,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-117}{}{\label{exm:unnamed-chunk-117}
+\protect\hypertarget{exm:unnamed-chunk-123}{}{\label{exm:unnamed-chunk-123}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
