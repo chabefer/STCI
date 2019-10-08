@@ -265,7 +265,7 @@ Why would the treatment effects differ in each study?
   1. We do not study exactly the same treatment, but a family of similar treatments.
   Each individual study covers a particular iteration of the treatment, each with its idiosyncratic parameterization.
   The particular value of the transfer in a Cash Transfer program, or of the conditions to receive it, or the length of payment, whether it is in one time or over some period, might make a difference, for example.
-  The same is true for Job Training Programs, Payments for Environmenetal Services, microcredit, graduation programs, nudges, etc.
+  The same is true for Job Training Programs, Payments for Environmental Services, microcredit, graduation programs, nudges, etc.
   Actually, most programs that economists study differ from one implementation to the next.
   In psychology and medecine, most treatments are accompanied by a rigorous protocol that makes them much more homogeneous.
   2. The population on which the treatment is applied varies.
@@ -312,6 +312,55 @@ If it is much larger, homogeneity is probably not guaranteed.
 
 ### Meta-analysis when treatment effects are heterogeneous
 
+When each study draws a treatment effect from a distinct population, meta-analysis has to take into account that treatment effects are heterogeneous.
+The main consequence of treatment effect heterogeneity is that the weighting approach we have used so far underestimates the uncertainty around the true effect, since it does not acknowledge that there is additional variation within each study.
+
+There are two main wasy to account for heterogeneity in meta-analysis:
+
+  1. **Meta-regression** trying to capture the heterogeneity in treatment effects with observed covariates.
+  2. **Random effects** allowing for additional random noise in each study.
+  
+In this section, we are going to study the random effects approach, and we'll defer the meta-regression for the next section.
+
+The key component of the random effects approach is the estimation of the size of the variance of the treatment effect in the population.
+Indeed, the observed effect size estimate for a given study $k$ is modelled as follows in the random effects approach:
+
+\begin{align*}
+\hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
+\end{align*}
+
+where $\epsilon_k$ is sampling noise, $\nu_k$ is the variation in effect size in the population and $\alpha$ is the average of the effect size accross all populations.
+We denote, as is customary, the variance of $\nu_k$ as $\tau^2$.
+Since Hedges, $\tau^2$ is estimated as the residual variance in effect sizes that is not explained by sampling noise.
+In order to compute this estimator, first estimate the overall variance in $\hat{\theta}_k$, then estimate the component of the variance due to sampling noise and finally take the difference between the two.
+Hedges' estimator of the overall variance in effect sizes is:
+
+\begin{align*}
+\hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
+\end{align*}
+
+with $\nu_k$ the population level noise with variance $\tau^2$.
+Hedges' estimator for $\tau^2$ is:
+
+\begin{align*}
+\hat{\tau}^2 & = \hat{\sigma}^2_{tot}-\hat{\sigma}^2_{\epsilon},
+\end{align*}
+
+with
+
+\begin{align*}
+\hat{\sigma^2_{tot}} & = \frac{1}{N}\sum_{k=1}^N(\hat{\theta}_k-\bar{\theta}_u)^2\\
+\bar{\theta}_u & = \frac{1}{N}\sum_{k=1}^N\hat{\theta}_k \\
+\hat{\sigma^2_{\epsilon}} & = \frac{1}{N}\sum_{k=1}^N\hat{\sigma}_k^2.
+\end{align*}
+
+```{remark}
+Hedges actually  uses the unbiased estimator adapted to small samples and thus replaces $N$ by $N-1$ in the first equation.
+```
+
+**<span style="font-variant:small-caps;">Show Hedges reweighted estimator of average treatment effect.</span>**
+
+**<span style="font-variant:small-caps;">Show Hedges estimator of variance of treatment effect (actually very simple?).</span>**
 
 
 ### Meta-regression
@@ -333,3 +382,5 @@ If it is much larger, homogeneity is probably not guaranteed.
 #### Last approach
 
 ### Vote counting and publication bias
+
+### The value of a statistically significant result

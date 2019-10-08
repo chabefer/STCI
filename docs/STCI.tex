@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-01}
+    \date{2019-10-08}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -5798,8 +5798,7 @@ variables. Let us detail the mechanics of this beautiful result.
 In order to state the identification results in the Randomization After
 Eligibility design rigorously, I need to define new potential outcomes:
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
+\begin{itemize}
 \tightlist
 \item
   \(Y_i^{d,r}\) is the value of the outcome \(Y\) when individual \(i\)
@@ -5808,12 +5807,12 @@ Eligibility design rigorously, I need to define new potential outcomes:
 \item
   \(D_i^r\) is the value of the program participation decision when
   individual \(i\) has been assigned randomly to group \(r\).
-\end{enumerate}
+\end{itemize}
 
 \subsubsection{Identification of TT}\label{identification-of-tt}
 
-In a Randomization After Eligiblity, we need three assumptions to ensure
-identification of the TT:
+In a Randomization After Eligiblity design, we need three assumptions to
+ensure identification of the TT:
 
 \BeginKnitrBlock{definition}[Independence Among Eligibles]
 \protect\hypertarget{def:indelig}{}{\label{def:indelig}
@@ -6752,15 +6751,15 @@ additional reminders that the program exists, help in subscribing the
 program, financial incentives for subscribing the program, etc.
 
 In an Encouragement Design, we can recover the causal effect of the
-treatment not on all the treated but on those treated whose
-participation into the program has been triggered by the encouragement.
-These individuals reacting to the encouragement by participating in the
+treatment not on all the treated but on the treated whose participation
+into the program has been triggered by the encouragement. The
+individuals reacting to the encouragement by participating in the
 program are usually called compliers. The effect of the treatment on the
 compliers is called the Local Average Treatment Effect. The main
-identification for Encouragement designs is that a Wald ratio (an IV
-estimator) recovers the LATE. It is due to Imbens and Angrist (1994). A
-key assumption for this result is exclusion restriction: there has to be
-zero impact of the encouragement on the outcome, except through
+identification result for Encouragement designs is that a Wald ratio (an
+IV estimator) recovers the LATE. It is due to Imbens and Angrist (1994).
+A key assumption for this result is exclusion restriction: there has to
+be zero impact of the encouragement on the outcome, except through
 participation in the treatment. A second key assumption is that no one
 individual is driven away from participating in the treatment because of
 the encouragement. This assumption is called monotonicity.
@@ -6768,7 +6767,9 @@ the encouragement. This assumption is called monotonicity.
 Let's detail these assumptions, the identification result and the
 estimation strategy.
 
-\subsection{Identification of the Local Average Treatment
+\subsection{Identification}\label{identification-3}
+
+\subsubsection{Identification of the Local Average Treatment
 Effect}\label{identification-of-the-local-average-treatment-effect}
 
 Before stating the identification results, let's go through some
@@ -6891,50 +6892,15 @@ estimator identifies the LATE:
 \end{align*}
 \EndKnitrBlock{theorem}
 
-with (keeping the conditioning on \(E_i=1\) implicit):
+with:
 
 \begin{align*}
-  \Delta^Y_{Wald} & = \frac{\esp{Y_i|R_i=1} - \esp{Y_i|R_i=0}}{\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0)}\\
-  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c}.
+  \Delta^Y_{Wald} & = \frac{\esp{Y_i|R_i=1,E_i=1} - \esp{Y_i|R_i=0,E_i=1}}{\Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1)}\\
+  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c,E_i=1}.
 \end{align*}
 
 \BeginKnitrBlock{proof}
-\iffalse{} {Proof. } \fi{}Under Assumptions \ref{def:RandEncouragValid},
-\ref{def:IndepEncourag} and \ref{def:ExclRestr}, we have:
-
-\begin{align*}
-\esp{Y_i|R_i=1} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^1|T_i=c}\Pr(T_i=c) \\
-                            & \phantom{=} + \esp{Y_i^0|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n)\\
-\esp{Y_i|R_i=0} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^0|T_i=c}\Pr(T_i=c) \\                     
-                                & \phantom{=} + \esp{Y_i^1|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n),
-\end{align*}
-
-As a consequence:
-
-\begin{align*}
-\esp{Y_i|R_i=1}- \esp{Y_i|R_i=0} & = \esp{\Delta^Y_i|T_i=c}\Pr(T_i=c)-\esp{\Delta^Y_i|T_i=d}\Pr(T_i=d)\\
-                                 & = \Delta^Y_{LATE}\Pr(T_i=c),
-\end{align*}
-
-where the second equality uses Assumption \ref{def:Mono} and the
-definition of \(LATE\).
-
-We also have:
-
-\begin{align*}
-\Pr(D_i=1|R_i=1) & = \Pr(T_i=a)+ \Pr(T_i=c) \\
-\Pr(D_i=1|R_i=0) & = \Pr(T_i=a)+ \Pr(T_i=d),
-\end{align*}
-
-where we have used Assumptions \ref{def:RandEncouragValid} and
-\ref{def:IndepEncourag}. As a consequence, under Assumption
-\ref{def:Mono}, we have:
-
-\begin{align*}
-\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0) & = \Pr(T_i=c).
-\end{align*}
-
-Using Assumption \ref{def:Fstage} proves the result.
+\iffalse{} {Proof. } \fi{}See Section \ref{proofIdentLATE}.
 \EndKnitrBlock{proof}
 
 \BeginKnitrBlock{remark}
@@ -6951,10 +6917,10 @@ Using Assumption \ref{def:Fstage} proves the result.
   takers and defiers do not take the program, and we thus see \(Y^0_i\)
   for them.
 \item
-  In the control arm (with \$R\_i=0), no one receives the encouragement.
-  Only always takers and defiers take the program, and we thus see
-  \(Y^1_i\) for them. Never takers and compliers do not take the
-  program, and we thus see \(Y^0_i\) for them.
+  In the control arm (with \(R_i=0\)), no one receives the
+  encouragement. Only always takers and defiers take the program, and we
+  thus see \(Y^1_i\) for them. Never takers and compliers do not take
+  the program, and we thus see \(Y^0_i\) for them.
 \item
   When comparing the average outcomes between the treatment and control
   arms, we thus have two terms that cancel, since they are the same on
@@ -6978,8 +6944,9 @@ I use the types random variable \(T_i\) instead of the potential
 outcomes \(D^1_i\) and \(D^0_i\). This is equivalent, since \(T_i\) is a
 function of \(D^1_i\) and \(D^0_i\). Assumption \ref{def:IndepEncourag}
 especially is also true when replacing the potential outcomes \(D^1_i\)
-and \(D^0_i\) by \(T_i\). This follows from Lemma 4.2 in Dawid (1979)
-that shows that if \(X\Ind Y|Z\) and \(U\) is a function of \(X\) then
+and \(D^0_i\) by \(T_i\). This follows from Lemma 4.2 in
+\href{https://www.jstor.org/stable/2984718}{Dawid (1979)} that shows
+that if \(X\Ind Y|Z\) and \(U\) is a function of \(X\) then
 \(U\Ind Y|Z\).
 \EndKnitrBlock{remark}
 
@@ -7034,6 +7001,9 @@ Encouragement design in three stages:
 \iffalse{} {Remark. } \fi{}what if we fear there are defiers. de
 Chaisemartin
 \EndKnitrBlock{remark}
+
+\subsubsection{Identification of the Intention to Treat
+Effect}\label{identification-of-the-intention-to-treat-effect}
 
 \textbf{\textsc{Develop intuition of ITE rigorously as in RAE. }}
 \textbf{\textsc{Numerical Example in population }}
@@ -7541,12 +7511,11 @@ constant. Why would the treatment effects differ in each study?
   particular value of the transfer in a Cash Transfer program, or of the
   conditions to receive it, or the length of payment, whether it is in
   one time or over some period, might make a difference, for example.
-  The same is true for Job Training Programs, Payments for
-  Environmenetal Services, microcredit, graduation programs, nudges,
-  etc. Actually, most programs that economists study differ from one
-  implementation to the next. In psychology and medecine, most
-  treatments are accompanied by a rigorous protocol that makes them much
-  more homogeneous.
+  The same is true for Job Training Programs, Payments for Environmental
+  Services, microcredit, graduation programs, nudges, etc. Actually,
+  most programs that economists study differ from one implementation to
+  the next. In psychology and medecine, most treatments are accompanied
+  by a rigorous protocol that makes them much more homogeneous.
 \item
   The population on which the treatment is applied varies. For example,
   similar Job Training Programs or microcredit initiatives might have
@@ -7619,6 +7588,80 @@ larger, homogeneity is probably not guaranteed.
 \subsection{Meta-analysis when treatment effects are
 heterogeneous}\label{meta-analysis-when-treatment-effects-are-heterogeneous}
 
+When each study draws a treatment effect from a distinct population,
+meta-analysis has to take into account that treatment effects are
+heterogeneous. The main consequence of treatment effect heterogeneity is
+that the weighting approach we have used so far underestimates the
+uncertainty around the true effect, since it does not acknowledge that
+there is additional variation within each study.
+
+There are two main wasy to account for heterogeneity in meta-analysis:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Meta-regression} trying to capture the heterogeneity in
+  treatment effects with observed covariates.
+\item
+  \textbf{Random effects} allowing for additional random noise in each
+  study.
+\end{enumerate}
+
+In this section, we are going to study the random effects approach, and
+we'll defer the meta-regression for the next section.
+
+The key component of the random effects approach is the estimation of
+the size of the variance of the treatment effect in the population.
+Indeed, the observed effect size estimate for a given study \(k\) is
+modelled as follows in the random effects approach:
+
+\begin{align*}
+\hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
+\end{align*}
+
+where \(\epsilon_k\) is sampling noise, \(\nu_k\) is the variation in
+effect size in the population and \(\alpha\) is the average of the
+effect size accross all populations. We denote, as is customary, the
+variance of \(\nu_k\) as \(\tau^2\). Since Hedges, \(\tau^2\) is
+estimated as the residual variance in effect sizes that is not explained
+by sampling noise. In order to compute this estimator, first estimate
+the overall variance in \(\hat{\theta}_k\), then estimate the component
+of the variance due to sampling noise and finally take the difference
+between the two. Hedges' estimator of the overall variance in effect
+sizes is:
+
+\begin{align*}
+\hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
+\end{align*}
+
+with \(\nu_k\) the population level noise with variance \(\tau^2\).
+Hedges' estimator for \(\tau^2\) is:
+
+\begin{align*}
+\hat{\tau}^2 & = \hat{\sigma}^2_{tot}-\hat{\sigma}^2_{\epsilon},
+\end{align*}
+
+with
+
+\begin{align*}
+\hat{\sigma^2_{tot}} & = \frac{1}{N}\sum_{k=1}^N(\hat{\theta}_k-\bar{\theta}_u)^2\\
+\bar{\theta}_u & = \frac{1}{N}\sum_{k=1}^N\hat{\theta}_k \\
+\hat{\sigma^2_{\epsilon}} & = \frac{1}{N}\sum_{k=1}^N\hat{\sigma}_k^2.
+\end{align*}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Hedges actually uses the unbiased estimator
+adapted to small samples and thus replaces \(N\) by \(N-1\) in the first
+equation.
+\EndKnitrBlock{remark}
+
+\textbf{\textsc{Show Hedges reweighted estimator of average treatment
+effect.}}
+
+\textbf{\textsc{Show Hedges estimator of variance of treatment effect
+(actually very simple?).}}
+
 \subsection{Meta-regression}\label{meta-regression}
 
 \subsection{Why vote-counting does not
@@ -7643,6 +7686,9 @@ approach}\label{kasy-and-andrews-approach}
 
 \subsection{Vote counting and publication
 bias}\label{vote-counting-and-publication-bias}
+
+\subsection{The value of a statistically significant
+result}\label{the-value-of-a-statistically-significant-result}
 
 \chapter{Bounds}\label{Bounds}
 
@@ -8097,6 +8143,152 @@ Hence the result.
 
 \section{Proofs of results in Chapter
 \ref{RCT}}\label{proofs-of-results-in-chapter-refrct}
+
+\subsection{Proof of Theorem \ref{thm:IdentLATE}}\label{proofIdentLATE}
+
+In order to prove the theorem, it is going to be very helpful to prove
+the following lemma:
+
+\BeginKnitrBlock{lemma}[Unconfounded Types]
+\protect\hypertarget{lem:UnconfTypes}{}{\label{lem:UnconfTypes}
+\iffalse (Unconfounded Types) \fi{} }Under Assumptions
+\ref{def:RandEncouragValid} and \ref{def:IndepEncourag}, the types
+\(T_i\) are independent of the allocation of the treatment:
+
+\begin{align*}
+(Y_i^{1,1},Y_i^{0,1},Y_i^{0,0},Y_i^{1,0},T_i)\Ind R_i|E_i=1.
+\end{align*}
+\EndKnitrBlock{lemma}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}Lemma 4.2 in
+\href{https://www.jstor.org/stable/2984718}{Dawid (1979)} shows that if
+\(X\Ind Y|Z\) and \(U\) is a function of \(X\) then \(U\Ind Y|Z\). The
+fact that \(T_i\) is a function of \((D_i^1,D^0_i)\) proves the result.
+\EndKnitrBlock{proof}
+
+The four sets defined by \(T_i\) are a partition of the sample space. As
+a consequence, we have (ommitting the conditioning on \(E_i=1\) all
+along for simplicity):
+
+\begin{align*}
+\esp{Y_i|R_i=1} & = \esp{Y_i|T_i=a,R_i=1}\Pr(T_i=a|R_i=1)\\
+                & \phantom{=}+ \esp{Y_i|T_i=c,R_i=1}\Pr(T_i=c|R_i=1) \\
+                            & \phantom{=} + \esp{Y_i|T_i=d,R_i=1}\Pr(T_i=d|R_i=1)\\
+                            & \phantom{=} + \esp{Y_i|T_i=n,R_i=1}\Pr(T_i=n|R_i=1)\\
+\esp{Y_i|R_i=0} & = \esp{Y_i|T_i=a,R_i=0}\Pr(T_i=a|R_i=0)\\
+                & \phantom{=} + \esp{Y_i|T_i=c,R_i=0}\Pr(T_i=c|R_i=0) \\
+                            & \phantom{=} + \esp{Y_i|T_i=d,R_i=0}\Pr(T_i=d|R_i=0)\\
+                            & \phantom{=}+ \esp{Y_i|T_i=n,R_i=0}\Pr(T_i=n|R_i=0).
+\end{align*}
+
+Let's look at all these terms in turn:
+
+\begin{align*}
+  \esp{Y_i|T_i=a,R_i=1} & =   \esp{Y_i^{1,1}D_iR_i+Y_i^{1,0}D_i(1-R_i)+Y_i^{0,1}(1-D_i)R_i+Y_i^{0,0}(1-D_i)(1-R_i)|T_i=a,R_i=1} \\
+   & =   \esp{Y_i^{1,1}(D^1_iR_i+D_i^0(1-R_i))R_i+Y_i^{0,1}(1-(D^1_iR_i+D_i^0(1-R_i)))R_i|T_i=a,R_i=1} \\
+   & =   \esp{Y_i^{1,1}D^1_iR_i^2+Y_i^{0,1}(1-D^1_iR_i)R_i|D_i^1=D_i^0=1,R_i=1} \\
+   & =   \esp{Y_i^{1,1}|T_i=a,R_i=1} \\
+   & =   \esp{Y_i^{1,1}|T_i=a}, \\
+\end{align*}
+
+where the first equality uses Assumption \ref{def:RandEncouragValid},
+the second equality uses the fact that \(R_i=1\) in the conditional
+expectation, and Assumption \ref{def:RandEncouragValid}, the third
+equality uses the fact that \(R_i=1\), the fourth equality uses the fact
+that \(T_i=a \Leftrightarrow D_i^1=D_i^0=1\) and the last equality uses
+Lemma \ref{lem:UnconfTypes}.
+
+Using a similar reasoning, we have:
+
+\begin{align*}
+  \esp{Y_i|T_i=c,R_i=1} & = \esp{Y_i^{1,1}|T_i=c} \\
+  \esp{Y_i|T_i=d,R_i=1} & = \esp{Y_i^{0,1}|T_i=d} \\
+  \esp{Y_i|T_i=n,R_i=1} & = \esp{Y_i^{0,1}|T_i=n} \\
+  \esp{Y_i|T_i=a,R_i=0} & = \esp{Y_i^{1,0}|T_i=c} \\
+  \esp{Y_i|T_i=c,R_i=0} & = \esp{Y_i^{0,0}|T_i=c} \\
+  \esp{Y_i|T_i=d,R_i=0} & = \esp{Y_i^{1,0}|T_i=d} \\
+  \esp{Y_i|T_i=n,R_i=0} & = \esp{Y_i^{0,0}|T_i=n}.
+\end{align*}
+
+Also, Lemma \ref{lem:UnconfTypes} implies that
+\(\Pr(T_i=a|R_i)=\Pr(T_i=a)\), and the same is true for all other types.
+As a consequence, we have:
+
+\begin{align*}
+\esp{Y_i|R_i=1} & = \esp{Y_i^{1,1}|T_i=a}\Pr(T_i=a)\\
+                & \phantom{=} + \esp{Y_i^{1,1}|T_i=c}\Pr(T_i=c) \\
+                            & \phantom{=} + \esp{Y_i^{0,1}|T_i=d}\Pr(T_i=d)\\
+                            & \phantom{=} + \esp{Y_i^{0,1}|T_i=n}\Pr(T_i=n)\\
+\esp{Y_i|R_i=0} & = \esp{Y_i^{1,0}|T_i=a}\Pr(T_i=a)\\
+                & \phantom{=} + \esp{Y_i^{0,0}|T_i=c}\Pr(T_i=c) \\                      
+                                & \phantom{=} + \esp{Y_i^{1,0}|T_i=d}\Pr(T_i=d)\\
+                                & \phantom{=} + \esp{Y_i^{0,0}|T_i=n}\Pr(T_i=n).
+\end{align*}
+
+And thus:
+
+\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} & = (\esp{Y_i^{1,1}|T_i=a}-\esp{Y_i^{1,0}|T_i=a})\Pr(T_i=a)\\
+                                & \phantom{=}+ (\esp{Y_i^{1,1}|T_i=c}-\esp{Y_i^{0,0}|T_i=c})\Pr(T_i=c) \\
+                                            & \phantom{=} - (\esp{Y_i^{1,0}|T_i=d}-\esp{Y_i^{0,1}|T_i=d})\Pr(T_i=d)\\
+                                            & \phantom{=} + (\esp{Y_i^{0,1}|T_i=n}-\esp{Y_i^{0,0}|T_i=n})\Pr(T_i=n).
+\end{align*}
+
+Using Assumption \ref{def:ExclRestr}, we have:
+
+\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} & = (\esp{Y_i^{1}|T_i=a}-\esp{Y_i^{1}|T_i=a})\Pr(T_i=a)\\
+                                & \phantom{=}+ (\esp{Y_i^{1}|T_i=c}-\esp{Y_i^{0}|T_i=c})\Pr(T_i=c) \\
+                                            & \phantom{=} - (\esp{Y_i^{1}|T_i=d}-\esp{Y_i^{0}|T_i=d})\Pr(T_i=d)\\
+                                            & \phantom{=} + (\esp{Y_i^{0}|T_i=n}-\esp{Y_i^{0}|T_i=n})\Pr(T_i=n)\\
+                                            & = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c) \\
+                                            & \phantom{=} - \esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
+\end{align*}
+
+Under Assumption \ref{def:Mono}, we have:
+
+\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &  = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)\\
+                                 & = \Delta^Y_{LATE}\Pr(T_i=c).
+\end{align*}
+
+We also have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=1) & = \Pr(D^1_i=1|R_i=1)\\
+                & =  \Pr(D^1_i=1\cap (D_i^0=1\cup D_i^0=0) |R_i=1)\\
+                & =  \Pr(D^1_i=1\cap D_i^0=1\cup D^1_i=1\cap D_i^0=0 |R_i=1)\\
+                & =  \Pr(D^1_i=D_i^0=1\cup D^1_i-D_i^0=0 |R_i=1)\\
+                & =  \Pr(T_i=a\cup T_i=c |R_i=1)\\
+               & =  \Pr(T_i=a|R_i=1)+\Pr(T_i=c|R_i=1)\\
+               & =  \Pr(T_i=a)+\Pr(T_i=c),
+\end{align*}
+
+where the first equality follows from Assumption
+\ref{def:RandEncouragValid} and the fact that
+\(D_i=R_iD_i^1+(1-R_i)D_i^0\), so that \(D_i|R_i=1=D_i^1\). The second
+equality follows from the fact that \((D_i^0=1\cup D_i^0=0)\) is a
+partition of the sample space. The third equality follows from usual
+rules of logic and the fourth equality from the fact that \(D_i^1\) and
+\(D_i^0\) can only take values zero and one. The fifth equality follows
+from the definitiin of \(T_i\). The sixth equaity follows from the rule
+of addition in probability and the fact that \(T_i=a\) and \(T_i=c\) are
+disjoint. The final equality follows from Lemma \ref{lem:UnconfTypes}.
+
+Using a similar reasoning, we have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=0) & = \Pr(T_i=a)+ \Pr(T_i=d).
+\end{align*}
+
+As a consequence, under Assumption \ref{def:Mono}, we have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0) & = \Pr(T_i=c).
+\end{align*}
+
+Using Assumption \ref{def:Fstage} proves the result.
 
 \subsection{Proof of Lemma \ref{lem:WaldIV}}\label{proofWaldIV}
 

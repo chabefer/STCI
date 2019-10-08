@@ -395,6 +395,135 @@ Hence the result.
 
 ## Proofs of results in Chapter \@ref(RCT)
 
+### Proof of Theorem \@ref(thm:IdentLATE) {#proofIdentLATE}
+
+In order to prove the theorem, it is going to be very helpful to prove the following lemma:
+
+```{lemma,UnconfTypes,name='Unconfounded Types'}
+Under Assumptions \@ref(def:RandEncouragValid) and \@ref(def:IndepEncourag), the types $T_i$ are independent of the allocation of the treatment: 
+  
+\begin{align*}
+(Y_i^{1,1},Y_i^{0,1},Y_i^{0,0},Y_i^{1,0},T_i)\Ind R_i|E_i=1.
+\end{align*}
+```
+
+```{proof}
+Lemma 4.2 in [Dawid (1979)](https://www.jstor.org/stable/2984718) shows that if $X\Ind Y|Z$ and $U$ is a function of $X$ then $U\Ind Y|Z$.
+The fact that $T_i$ is a function of $(D_i^1,D^0_i)$ proves the result.
+```
+
+The four sets defined by $T_i$ are a partition of the sample space.
+As a consequence, we have (ommitting the conditioning on $E_i=1$ all along for simplicity):
+
+\begin{align*}
+\esp{Y_i|R_i=1} & = \esp{Y_i|T_i=a,R_i=1}\Pr(T_i=a|R_i=1)\\
+                & \phantom{=}+ \esp{Y_i|T_i=c,R_i=1}\Pr(T_i=c|R_i=1) \\
+  							& \phantom{=} + \esp{Y_i|T_i=d,R_i=1}\Pr(T_i=d|R_i=1)\\
+  							& \phantom{=} + \esp{Y_i|T_i=n,R_i=1}\Pr(T_i=n|R_i=1)\\
+\esp{Y_i|R_i=0} & = \esp{Y_i|T_i=a,R_i=0}\Pr(T_i=a|R_i=0)\\
+                & \phantom{=} + \esp{Y_i|T_i=c,R_i=0}\Pr(T_i=c|R_i=0) \\
+  							& \phantom{=} + \esp{Y_i|T_i=d,R_i=0}\Pr(T_i=d|R_i=0)\\
+  							& \phantom{=}+ \esp{Y_i|T_i=n,R_i=0}\Pr(T_i=n|R_i=0).
+\end{align*}
+
+Let's look at all these terms in turn:
+
+\begin{align*}
+  \esp{Y_i|T_i=a,R_i=1} & =   \esp{Y_i^{1,1}D_iR_i+Y_i^{1,0}D_i(1-R_i)+Y_i^{0,1}(1-D_i)R_i+Y_i^{0,0}(1-D_i)(1-R_i)|T_i=a,R_i=1} \\
+   & =   \esp{Y_i^{1,1}(D^1_iR_i+D_i^0(1-R_i))R_i+Y_i^{0,1}(1-(D^1_iR_i+D_i^0(1-R_i)))R_i|T_i=a,R_i=1} \\
+   & =   \esp{Y_i^{1,1}D^1_iR_i^2+Y_i^{0,1}(1-D^1_iR_i)R_i|D_i^1=D_i^0=1,R_i=1} \\
+   & =   \esp{Y_i^{1,1}|T_i=a,R_i=1} \\
+   & =   \esp{Y_i^{1,1}|T_i=a}, \\
+\end{align*}
+
+where the first equality uses Assumption \@ref(def:RandEncouragValid), the second equality uses the fact that $R_i=1$ in the conditional expectation, and Assumption \@ref(def:RandEncouragValid), the third equality uses the fact that $R_i=1$, the fourth equality uses the fact that $T_i=a \Leftrightarrow D_i^1=D_i^0=1$ and the last equality uses Lemma \@ref(lem:UnconfTypes).
+
+Using a similar reasoning, we have:
+
+\begin{align*}
+  \esp{Y_i|T_i=c,R_i=1} & = \esp{Y_i^{1,1}|T_i=c} \\
+  \esp{Y_i|T_i=d,R_i=1} & = \esp{Y_i^{0,1}|T_i=d} \\
+  \esp{Y_i|T_i=n,R_i=1} & = \esp{Y_i^{0,1}|T_i=n} \\
+  \esp{Y_i|T_i=a,R_i=0} & = \esp{Y_i^{1,0}|T_i=c} \\
+  \esp{Y_i|T_i=c,R_i=0} & = \esp{Y_i^{0,0}|T_i=c} \\
+  \esp{Y_i|T_i=d,R_i=0} & = \esp{Y_i^{1,0}|T_i=d} \\
+  \esp{Y_i|T_i=n,R_i=0} & = \esp{Y_i^{0,0}|T_i=n}.
+\end{align*}
+
+Also, Lemma \@ref(lem:UnconfTypes) implies that $\Pr(T_i=a|R_i)=\Pr(T_i=a)$, and the same is true for all other types.
+As a consequence, we have:
+
+\begin{align*}
+\esp{Y_i|R_i=1} & = \esp{Y_i^{1,1}|T_i=a}\Pr(T_i=a)\\
+                & \phantom{=} + \esp{Y_i^{1,1}|T_i=c}\Pr(T_i=c) \\
+  							& \phantom{=} + \esp{Y_i^{0,1}|T_i=d}\Pr(T_i=d)\\
+  							& \phantom{=} + \esp{Y_i^{0,1}|T_i=n}\Pr(T_i=n)\\
+\esp{Y_i|R_i=0} & = \esp{Y_i^{1,0}|T_i=a}\Pr(T_i=a)\\
+                & \phantom{=} + \esp{Y_i^{0,0}|T_i=c}\Pr(T_i=c) \\						
+								& \phantom{=} + \esp{Y_i^{1,0}|T_i=d}\Pr(T_i=d)\\
+								& \phantom{=} + \esp{Y_i^{0,0}|T_i=n}\Pr(T_i=n).
+\end{align*}
+
+And thus:
+
+\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} & = (\esp{Y_i^{1,1}|T_i=a}-\esp{Y_i^{1,0}|T_i=a})\Pr(T_i=a)\\
+                                & \phantom{=}+ (\esp{Y_i^{1,1}|T_i=c}-\esp{Y_i^{0,0}|T_i=c})\Pr(T_i=c) \\
+  							                & \phantom{=} - (\esp{Y_i^{1,0}|T_i=d}-\esp{Y_i^{0,1}|T_i=d})\Pr(T_i=d)\\
+  							                & \phantom{=} + (\esp{Y_i^{0,1}|T_i=n}-\esp{Y_i^{0,0}|T_i=n})\Pr(T_i=n).
+\end{align*}
+
+Using Assumption \@ref(def:ExclRestr), we have:
+
+\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} & = (\esp{Y_i^{1}|T_i=a}-\esp{Y_i^{1}|T_i=a})\Pr(T_i=a)\\
+                                & \phantom{=}+ (\esp{Y_i^{1}|T_i=c}-\esp{Y_i^{0}|T_i=c})\Pr(T_i=c) \\
+  							                & \phantom{=} - (\esp{Y_i^{1}|T_i=d}-\esp{Y_i^{0}|T_i=d})\Pr(T_i=d)\\
+  							                & \phantom{=} + (\esp{Y_i^{0}|T_i=n}-\esp{Y_i^{0}|T_i=n})\Pr(T_i=n)\\
+  							                & = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c) \\
+  							                & \phantom{=} - \esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
+\end{align*}
+
+Under Assumption \@ref(def:Mono), we have:
+  
+\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &  = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)\\
+                                 & = \Delta^Y_{LATE}\Pr(T_i=c).
+\end{align*}
+
+We also have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=1) & = \Pr(D^1_i=1|R_i=1)\\
+                & =  \Pr(D^1_i=1\cap (D_i^0=1\cup D_i^0=0) |R_i=1)\\
+                & =  \Pr(D^1_i=1\cap D_i^0=1\cup D^1_i=1\cap D_i^0=0 |R_i=1)\\
+                & =  \Pr(D^1_i=D_i^0=1\cup D^1_i-D_i^0=0 |R_i=1)\\
+                & =  \Pr(T_i=a\cup T_i=c |R_i=1)\\
+               & =  \Pr(T_i=a|R_i=1)+\Pr(T_i=c|R_i=1)\\
+               & =  \Pr(T_i=a)+\Pr(T_i=c),
+\end{align*}
+
+where the first equality follows from Assumption \@ref(def:RandEncouragValid) and the fact that $D_i=R_iD_i^1+(1-R_i)D_i^0$, so that $D_i|R_i=1=D_i^1$.
+The second equality follows from the fact that $(D_i^0=1\cup D_i^0=0)$ is a partition of the sample space.
+The third equality follows from usual rules of logic and the fourth equality from the fact that $D_i^1$ and $D_i^0$ can only take values zero and one.
+The fifth equality follows from the definitiin of $T_i$.
+The sixth equaity follows from the rule of addition in probability and the fact that $T_i=a$ and $T_i=c$ are disjoint.
+The final equality follows from Lemma \@ref(lem:UnconfTypes).
+
+Using a similar reasoning, we have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=0) & = \Pr(T_i=a)+ \Pr(T_i=d).
+\end{align*}
+
+As a consequence, under Assumption \@ref(def:Mono), we have:
+
+\begin{align*}
+\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0) & = \Pr(T_i=c).
+\end{align*}
+
+Using Assumption \@ref(def:Fstage) proves the result. 
+
 ### Proof of Lemma \@ref(lem:WaldIV) {#proofWaldIV}
 
 In matrix notation, we have:

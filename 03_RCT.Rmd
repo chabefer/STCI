@@ -994,12 +994,12 @@ Let us detail the mechanics of this beautiful result.
 
 In order to state the identification results in the Randomization After Eligibility design rigorously, I need to define new potential outcomes:
 
-  1. $Y_i^{d,r}$ is the value of the outcome $Y$ when individual $i$ belongs to the program group $d$ ($d\in\left\{0,1\right\}$) and has been randomized in group $r$ ($r\in\left\{0,1\right\}$).
-  2. $D_i^r$ is the value of the program participation decision when individual $i$ has been assigned randomly to group $r$.
+  - $Y_i^{d,r}$ is the value of the outcome $Y$ when individual $i$ belongs to the program group $d$ ($d\in\left\{0,1\right\}$) and has been randomized in group $r$ ($r\in\left\{0,1\right\}$).
+  - $D_i^r$ is the value of the program participation decision when individual $i$ has been assigned randomly to group $r$.
 
 #### Identification of TT
 
-In a Randomization After Eligiblity, we need three assumptions to ensure identification of the TT:
+In a Randomization After Eligiblity design, we need three assumptions to ensure identification of the TT:
 
 ```{definition,indelig,name='Independence Among Eligibles'}
 We assume that the randomized allocation of the program among eligibles is well done: 
@@ -1713,10 +1713,10 @@ The Encouragement design differs from the Randomization After Eligibility design
 If successful, the encouragement generates a higher level of take up of the program in the treatment group than in the control group.
 Examples of encouragements are additional reminders that the program exists, help in subscribing the program, financial incentives for subscribing the program, etc.
 
-In an Encouragement Design, we can recover the causal effect of the treatment not on all the treated but on those treated whose participation into the program has been triggered by the encouragement.
-These individuals reacting to the encouragement by participating in the program are usually called compliers.
+In an Encouragement Design, we can recover the causal effect of the treatment not on all the treated but on the treated whose participation into the program has been triggered by the encouragement.
+The individuals reacting to the encouragement by participating in the program are usually called compliers.
 The effect of the treatment on the compliers is called the Local Average Treatment Effect.
-The main identification for Encouragement designs is that a Wald ratio (an IV estimator) recovers the LATE.
+The main identification result for Encouragement designs is that a Wald ratio (an IV estimator) recovers the LATE.
 It is due to Imbens and Angrist (1994).
 A key assumption for this result is exclusion restriction: there has to be zero impact of the encouragement on the outcome, except through participation in the treatment.
 A second key assumption is that no one individual is driven away from participating in the treatment because of the encouragement.
@@ -1724,7 +1724,9 @@ This assumption is called monotonicity.
 
 Let's detail these assumptions, the identification result and the estimation strategy.
 
-### Identification of the Local Average Treatment Effect
+### Identification
+
+#### Identification of the Local Average Treatment Effect
 
 Before stating the identification results, let's go through some definitions and assumptions. 
 We are going to denote $R_i=1$ when individual $i$ receives the encouragement and $R_i=0$ when she does not.
@@ -1810,47 +1812,15 @@ Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag), \@ref(
 \end{align*}
 ```
 
-with (keeping the conditioning on $E_i=1$ implicit):
+with:
 
 \begin{align*}
-  \Delta^Y_{Wald} & = \frac{\esp{Y_i|R_i=1} - \esp{Y_i|R_i=0}}{\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0)}\\
-  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c}.
+  \Delta^Y_{Wald} & = \frac{\esp{Y_i|R_i=1,E_i=1} - \esp{Y_i|R_i=0,E_i=1}}{\Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1)}\\
+  \Delta^Y_{LATE} & = \esp{Y^1_i-Y^0_i|T_i=c,E_i=1}.
 \end{align*}
 
 ```{proof}
-Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag) and \@ref(def:ExclRestr), we have:
-  
-\begin{align*}
-\esp{Y_i|R_i=1} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^1|T_i=c}\Pr(T_i=c) \\
-  							& \phantom{=} + \esp{Y_i^0|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n)\\
-\esp{Y_i|R_i=0} & = \esp{Y_i^1|T_i=a}\Pr(T_i=a)+ \esp{Y_i^0|T_i=c}\Pr(T_i=c) \\						
-								& \phantom{=} + \esp{Y_i^1|T_i=d}\Pr(T_i=d)+ \esp{Y_i^0|T_i=n}\Pr(T_i=n),
-\end{align*}
-
-As a consequence:
-
-\begin{align*}
-\esp{Y_i|R_i=1}- \esp{Y_i|R_i=0} & = \esp{\Delta^Y_i|T_i=c}\Pr(T_i=c)-\esp{\Delta^Y_i|T_i=d}\Pr(T_i=d)\\
-                                 & = \Delta^Y_{LATE}\Pr(T_i=c),
-\end{align*}
-
-where the second equality uses Assumption \@ref(def:Mono) and the definition of $LATE$.
-
-We also have:
-
-\begin{align*}
-\Pr(D_i=1|R_i=1) & = \Pr(T_i=a)+ \Pr(T_i=c) \\
-\Pr(D_i=1|R_i=0) & = \Pr(T_i=a)+ \Pr(T_i=d),
-\end{align*}
-
-where we have used Assumptions \@ref(def:RandEncouragValid) and \@ref(def:IndepEncourag).
-As a consequence, under Assumption \@ref(def:Mono), we have:
-
-\begin{align*}
-\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0) & = \Pr(T_i=c).
-\end{align*}
-
-Using Assumption \@ref(def:Fstage) proves the result. 
+See Section \@ref(proofIdentLATE).
 ```
 
 ```{remark}
@@ -1860,7 +1830,7 @@ The intuitution for the proof of Theorem \@ref(thm:IdentLATE) is as follows:
   - In the treatment arm (with $R_i=1$), everyone receives the encouragement to enter the program.
   Only always takers and compliers actually take the program, and we thus see $Y^1_i$ for them.
   Never takers and defiers do not take the program, and we thus see $Y^0_i$ for them.
-  - In the control arm (with $R_i=0), no one receives the encouragement.
+  - In the control arm (with $R_i=0$), no one receives the encouragement.
   Only always takers and defiers take the program, and we thus see $Y^1_i$ for them.
   Never takers and compliers do not take the program, and we thus see $Y^0_i$ for them.
   - When comparing the average outcomes between the treatment and control arms, we thus have two terms that cancel, since they are the same on both arms: the outcomes of the always treated and the outcomes of the never treated.
@@ -1873,7 +1843,7 @@ The intuitution for the proof of Theorem \@ref(thm:IdentLATE) is as follows:
 In the proof of Theorem \@ref(thm:IdentLATE), I use the types random variable $T_i$ instead of the potential outcomes $D^1_i$ and $D^0_i$.
 This is equivalent, since $T_i$ is a function of $D^1_i$ and $D^0_i$.
 Assumption \@ref(def:IndepEncourag) especially is also true when replacing the potential outcomes $D^1_i$ and $D^0_i$ by $T_i$.
-This follows from Lemma 4.2 in Dawid (1979) that shows that if $X\Ind Y|Z$ and $U$ is a function of $X$ then $U\Ind Y|Z$.
+This follows from Lemma 4.2 in [Dawid (1979)](https://www.jstor.org/stable/2984718) that shows that if $X\Ind Y|Z$ and $U$ is a function of $X$ then $U\Ind Y|Z$.
 ```
 
 ```{remark}
@@ -1904,13 +1874,12 @@ what if we fear there are defiers.
 de Chaisemartin
 ```
 
+#### Identification of the Intention to Treat Effect
 
 **<span style="font-variant:small-caps;">Develop intuition of ITE rigorously as in RAE. </span>**
 **<span style="font-variant:small-caps;">Numerical Example in population </span>**
 
 ### Estimating the Local Average Treatment Effect and the Intention to Treat Effect
-
-
 
 
 ### Estimating sampling noise

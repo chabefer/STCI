@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-01">
+<meta name="date" content="2019-10-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -167,7 +167,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="3.3.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-2"><i class="fa fa-check"></i><b>3.3.3</b> Estimating sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a><ul>
-<li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-of-the-local-average-treatment-effect"><i class="fa fa-check"></i><b>3.4.1</b> Identification of the Local Average Treatment Effect</a></li>
+<li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-3"><i class="fa fa-check"></i><b>3.4.1</b> Identification</a></li>
 <li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect"><i class="fa fa-check"></i><b>3.4.2</b> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</a></li>
 <li class="chapter" data-level="3.4.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.3</b> Estimating sampling noise</a></li>
 </ul></li>
@@ -196,6 +196,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="12.2.1" data-path="sec-meta.html"><a href="sec-meta.html#sources-of-publication-bias"><i class="fa fa-check"></i><b>12.2.1</b> Sources of publication bias</a></li>
 <li class="chapter" data-level="12.2.2" data-path="sec-meta.html"><a href="sec-meta.html#detecting-and-correcting-for-publication-bias"><i class="fa fa-check"></i><b>12.2.2</b> Detecting and correcting for publication bias</a></li>
 <li class="chapter" data-level="12.2.3" data-path="sec-meta.html"><a href="sec-meta.html#vote-counting-and-publication-bias"><i class="fa fa-check"></i><b>12.2.3</b> Vote counting and publication bias</a></li>
+<li class="chapter" data-level="12.2.4" data-path="sec-meta.html"><a href="sec-meta.html#the-value-of-a-statistically-significant-result"><i class="fa fa-check"></i><b>12.2.4</b> The value of a statistically significant result</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="13" data-path="Bounds.html"><a href="Bounds.html"><i class="fa fa-check"></i><b>13</b> Bounds</a></li>
@@ -206,7 +207,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="A.1.2" data-path="proofs.html"><a href="proofs.html#proofCLT"><i class="fa fa-check"></i><b>A.1.2</b> Proof of Theorem @ref(thm:asympnoiseWW)</a></li>
 </ul></li>
 <li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a><ul>
-<li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Lemma @ref(lem:WaldIV)</a></li>
+<li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofIdentLATE"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Theorem @ref(thm:IdentLATE)</a></li>
+<li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Lemma @ref(lem:WaldIV)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -546,8 +548,107 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
 </div>
 <div id="proofs-of-results-in-chapter-refrct" class="section level2">
 <h2><span class="header-section-number">A.2</span> Proofs of results in Chapter <a href="RCT.html#RCT">3</a></h2>
+<div id="proofIdentLATE" class="section level3">
+<h3><span class="header-section-number">A.2.1</span> Proof of Theorem <a href="RCT.html#thm:IdentLATE">3.9</a></h3>
+<p>In order to prove the theorem, it is going to be very helpful to prove the following lemma:</p>
+
+<div class="lemma">
+<p><span id="lem:UnconfTypes" class="lemma"><strong>Lemma A.6  (Unconfounded Types)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a> and <a href="RCT.html#def:IndepEncourag">3.10</a>, the types <span class="math inline">\(T_i\)</span> are independent of the allocation of the treatment:</p>
+<span class="math display">\[\begin{align*}
+(Y_i^{1,1},Y_i^{0,1},Y_i^{0,0},Y_i^{1,0},T_i)\Ind R_i|E_i=1.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> Lemma 4.2 in <a href="https://www.jstor.org/stable/2984718">Dawid (1979)</a> shows that if <span class="math inline">\(X\Ind Y|Z\)</span> and <span class="math inline">\(U\)</span> is a function of <span class="math inline">\(X\)</span> then <span class="math inline">\(U\Ind Y|Z\)</span>. The fact that <span class="math inline">\(T_i\)</span> is a function of <span class="math inline">\((D_i^1,D^0_i)\)</span> proves the result.
+</div>
+
+<p>The four sets defined by <span class="math inline">\(T_i\)</span> are a partition of the sample space. As a consequence, we have (ommitting the conditioning on <span class="math inline">\(E_i=1\)</span> all along for simplicity):</p>
+<span class="math display">\[\begin{align*}
+\esp{Y_i|R_i=1} &amp; = \esp{Y_i|T_i=a,R_i=1}\Pr(T_i=a|R_i=1)\\
+                &amp; \phantom{=}+ \esp{Y_i|T_i=c,R_i=1}\Pr(T_i=c|R_i=1) \\
+                            &amp; \phantom{=} + \esp{Y_i|T_i=d,R_i=1}\Pr(T_i=d|R_i=1)\\
+                            &amp; \phantom{=} + \esp{Y_i|T_i=n,R_i=1}\Pr(T_i=n|R_i=1)\\
+\esp{Y_i|R_i=0} &amp; = \esp{Y_i|T_i=a,R_i=0}\Pr(T_i=a|R_i=0)\\
+                &amp; \phantom{=} + \esp{Y_i|T_i=c,R_i=0}\Pr(T_i=c|R_i=0) \\
+                            &amp; \phantom{=} + \esp{Y_i|T_i=d,R_i=0}\Pr(T_i=d|R_i=0)\\
+                            &amp; \phantom{=}+ \esp{Y_i|T_i=n,R_i=0}\Pr(T_i=n|R_i=0).
+\end{align*}\]</span>
+<p>Let’s look at all these terms in turn:</p>
+<span class="math display">\[\begin{align*}
+  \esp{Y_i|T_i=a,R_i=1} &amp; =   \esp{Y_i^{1,1}D_iR_i+Y_i^{1,0}D_i(1-R_i)+Y_i^{0,1}(1-D_i)R_i+Y_i^{0,0}(1-D_i)(1-R_i)|T_i=a,R_i=1} \\
+   &amp; =   \esp{Y_i^{1,1}(D^1_iR_i+D_i^0(1-R_i))R_i+Y_i^{0,1}(1-(D^1_iR_i+D_i^0(1-R_i)))R_i|T_i=a,R_i=1} \\
+   &amp; =   \esp{Y_i^{1,1}D^1_iR_i^2+Y_i^{0,1}(1-D^1_iR_i)R_i|D_i^1=D_i^0=1,R_i=1} \\
+   &amp; =   \esp{Y_i^{1,1}|T_i=a,R_i=1} \\
+   &amp; =   \esp{Y_i^{1,1}|T_i=a}, \\
+\end{align*}\]</span>
+<p>where the first equality uses Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a>, the second equality uses the fact that <span class="math inline">\(R_i=1\)</span> in the conditional expectation, and Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a>, the third equality uses the fact that <span class="math inline">\(R_i=1\)</span>, the fourth equality uses the fact that <span class="math inline">\(T_i=a \Leftrightarrow D_i^1=D_i^0=1\)</span> and the last equality uses Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a>.</p>
+<p>Using a similar reasoning, we have:</p>
+<span class="math display">\[\begin{align*}
+  \esp{Y_i|T_i=c,R_i=1} &amp; = \esp{Y_i^{1,1}|T_i=c} \\
+  \esp{Y_i|T_i=d,R_i=1} &amp; = \esp{Y_i^{0,1}|T_i=d} \\
+  \esp{Y_i|T_i=n,R_i=1} &amp; = \esp{Y_i^{0,1}|T_i=n} \\
+  \esp{Y_i|T_i=a,R_i=0} &amp; = \esp{Y_i^{1,0}|T_i=c} \\
+  \esp{Y_i|T_i=c,R_i=0} &amp; = \esp{Y_i^{0,0}|T_i=c} \\
+  \esp{Y_i|T_i=d,R_i=0} &amp; = \esp{Y_i^{1,0}|T_i=d} \\
+  \esp{Y_i|T_i=n,R_i=0} &amp; = \esp{Y_i^{0,0}|T_i=n}.
+\end{align*}\]</span>
+<p>Also, Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a> implies that <span class="math inline">\(\Pr(T_i=a|R_i)=\Pr(T_i=a)\)</span>, and the same is true for all other types. As a consequence, we have:</p>
+<span class="math display">\[\begin{align*}
+\esp{Y_i|R_i=1} &amp; = \esp{Y_i^{1,1}|T_i=a}\Pr(T_i=a)\\
+                &amp; \phantom{=} + \esp{Y_i^{1,1}|T_i=c}\Pr(T_i=c) \\
+                            &amp; \phantom{=} + \esp{Y_i^{0,1}|T_i=d}\Pr(T_i=d)\\
+                            &amp; \phantom{=} + \esp{Y_i^{0,1}|T_i=n}\Pr(T_i=n)\\
+\esp{Y_i|R_i=0} &amp; = \esp{Y_i^{1,0}|T_i=a}\Pr(T_i=a)\\
+                &amp; \phantom{=} + \esp{Y_i^{0,0}|T_i=c}\Pr(T_i=c) \\                      
+                                &amp; \phantom{=} + \esp{Y_i^{1,0}|T_i=d}\Pr(T_i=d)\\
+                                &amp; \phantom{=} + \esp{Y_i^{0,0}|T_i=n}\Pr(T_i=n).
+\end{align*}\]</span>
+<p>And thus:</p>
+<span class="math display">\[\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &amp; = (\esp{Y_i^{1,1}|T_i=a}-\esp{Y_i^{1,0}|T_i=a})\Pr(T_i=a)\\
+                                &amp; \phantom{=}+ (\esp{Y_i^{1,1}|T_i=c}-\esp{Y_i^{0,0}|T_i=c})\Pr(T_i=c) \\
+                                            &amp; \phantom{=} - (\esp{Y_i^{1,0}|T_i=d}-\esp{Y_i^{0,1}|T_i=d})\Pr(T_i=d)\\
+                                            &amp; \phantom{=} + (\esp{Y_i^{0,1}|T_i=n}-\esp{Y_i^{0,0}|T_i=n})\Pr(T_i=n).
+\end{align*}\]</span>
+<p>Using Assumption <a href="RCT.html#def:ExclRestr">3.11</a>, we have:</p>
+<span class="math display">\[\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &amp; = (\esp{Y_i^{1}|T_i=a}-\esp{Y_i^{1}|T_i=a})\Pr(T_i=a)\\
+                                &amp; \phantom{=}+ (\esp{Y_i^{1}|T_i=c}-\esp{Y_i^{0}|T_i=c})\Pr(T_i=c) \\
+                                            &amp; \phantom{=} - (\esp{Y_i^{1}|T_i=d}-\esp{Y_i^{0}|T_i=d})\Pr(T_i=d)\\
+                                            &amp; \phantom{=} + (\esp{Y_i^{0}|T_i=n}-\esp{Y_i^{0}|T_i=n})\Pr(T_i=n)\\
+                                            &amp; = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c) \\
+                                            &amp; \phantom{=} - \esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
+\end{align*}\]</span>
+<p>Under Assumption <a href="RCT.html#def:Mono">3.13</a>, we have:</p>
+<span class="math display">\[\begin{align*}
+\esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &amp;  = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)\\
+                                 &amp; = \Delta^Y_{LATE}\Pr(T_i=c).
+\end{align*}\]</span>
+<p>We also have:</p>
+<span class="math display">\[\begin{align*}
+\Pr(D_i=1|R_i=1) &amp; = \Pr(D^1_i=1|R_i=1)\\
+                &amp; =  \Pr(D^1_i=1\cap (D_i^0=1\cup D_i^0=0) |R_i=1)\\
+                &amp; =  \Pr(D^1_i=1\cap D_i^0=1\cup D^1_i=1\cap D_i^0=0 |R_i=1)\\
+                &amp; =  \Pr(D^1_i=D_i^0=1\cup D^1_i-D_i^0=0 |R_i=1)\\
+                &amp; =  \Pr(T_i=a\cup T_i=c |R_i=1)\\
+               &amp; =  \Pr(T_i=a|R_i=1)+\Pr(T_i=c|R_i=1)\\
+               &amp; =  \Pr(T_i=a)+\Pr(T_i=c),
+\end{align*}\]</span>
+<p>where the first equality follows from Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a> and the fact that <span class="math inline">\(D_i=R_iD_i^1+(1-R_i)D_i^0\)</span>, so that <span class="math inline">\(D_i|R_i=1=D_i^1\)</span>. The second equality follows from the fact that <span class="math inline">\((D_i^0=1\cup D_i^0=0)\)</span> is a partition of the sample space. The third equality follows from usual rules of logic and the fourth equality from the fact that <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D_i^0\)</span> can only take values zero and one. The fifth equality follows from the definitiin of <span class="math inline">\(T_i\)</span>. The sixth equaity follows from the rule of addition in probability and the fact that <span class="math inline">\(T_i=a\)</span> and <span class="math inline">\(T_i=c\)</span> are disjoint. The final equality follows from Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a>.</p>
+<p>Using a similar reasoning, we have:</p>
+<span class="math display">\[\begin{align*}
+\Pr(D_i=1|R_i=0) &amp; = \Pr(T_i=a)+ \Pr(T_i=d).
+\end{align*}\]</span>
+<p>As a consequence, under Assumption <a href="RCT.html#def:Mono">3.13</a>, we have:</p>
+<span class="math display">\[\begin{align*}
+\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0) &amp; = \Pr(T_i=c).
+\end{align*}\]</span>
+<p>Using Assumption <a href="RCT.html#def:Fstage">3.12</a> proves the result.</p>
+</div>
 <div id="proofWaldIV" class="section level3">
-<h3><span class="header-section-number">A.2.1</span> Proof of Lemma <a href="RCT.html#lem:WaldIV">3.1</a></h3>
+<h3><span class="header-section-number">A.2.2</span> Proof of Lemma <a href="RCT.html#lem:WaldIV">3.1</a></h3>
 <p>In matrix notation, we have:</p>
 <span class="math display">\[\begin{align*}
   \underbrace{\left(\begin{array}{c}  Y_1 \\    \vdots \\   Y_N \end{array}\right)}_{Y} &amp; =
