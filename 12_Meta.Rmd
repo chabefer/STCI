@@ -380,7 +380,8 @@ We will present ehm succinctly since they are part of the `metafor` package.
 Before that, let's create a new sample of effect sizes where we add noise to each estimate stemming not from sampling, but from heterogeneity in treatment effects across sites and studies.
 
 ```{r randomshockmeta,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results=FALSE}
-tau <- c(0.1,0.2)
+tau <- c(0.5,1)
+set.seed(1234)
 data.meta$theta.1 <- data.meta$ES + rnorm(nrow(data.meta),mean=0,sd=tau[[1]])
 data.meta$theta.2 <- data.meta$ES + rnorm(nrow(data.meta),mean=0,sd=tau[[2]])
 ```
@@ -388,25 +389,34 @@ data.meta$theta.2 <- data.meta$ES + rnorm(nrow(data.meta),mean=0,sd=tau[[2]])
 I've simulated two new vectors of estimates for $\theta$, both obtained adding a mean-zero normally distributed noise to the initial estimates of $\theta$, one with a standard deviation of `r tau[[1]]` and the other of `r tau[[2]]`.
 Let's visualize our two new datasets:
 
-```{r metanoiseplot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Datasets with treatment effect heterogeneity',fig.subcap=c(paste('$\\tau^2=$',tau[[1]],sep=' '),paste('$\\tau^2=$',tau[[2]],sep=' ')), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+```{r metanoiseplot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Datasets with treatment effect heterogeneity',fig.subcap=c('initial',paste('$\\tau^2=$',tau[[1]],sep=' '),paste('$\\tau^2=$',tau[[2]],sep=' ')), fig.align='center', out.width="33%", fig.pos='htbp', fig.height=8, fig.width=12}
+  ggplot(data.meta, aes(x=as.factor(id), y=ES)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      xlab("Studies (sd noise=0)")+
+      ylab("Effect size")+
+      theme_bw()+
+      ylim(-2,2)
+
   ggplot(data.meta, aes(x=as.factor(id), y=theta.1)) +
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
       geom_errorbar(aes(ymin=theta.1-qnorm((delta.2+1)/2)*se.ES, ymax=theta.1+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
-      xlab("Studies")+
+      xlab(paste('Studies','$\\tau^2=$',tau[[1]],sep=' '))+
       ylab("Effect size")+
-      theme_bw()
+      theme_bw()+
+      ylim(-2,2)
 
   ggplot(data.meta, aes(x=as.factor(id), y=theta.2)) +
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
-      geom_errorbar(aes(ymin=theta.1-qnorm((delta.2+1)/2)*se.ES, ymax=theta.2+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_errorbar(aes(ymin=theta.2-qnorm((delta.2+1)/2)*se.ES, ymax=theta.2+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
-      xlab("Studies")+
+      xlab(paste('Studies','$\\tau^2=$',tau[[2]],sep=' '))+
       ylab("Effect size")+
-      theme_bw()
+      theme_bw()+
+      ylim(-2,2)
 ```
-
-
 
 Let's see now how Hedge's estimator performs:
 
@@ -415,13 +425,31 @@ tau.2.theta.1 <- tau.2(data.meta$theta.1,data.meta$se.ES^2)
 tau.2.theta.2 <- tau.2(data.meta$theta.2,data.meta$se.ES^2)
 ```
 
-Hedges' estimates of $\tau^2$ in our examples are thus `r round(tau.2.theta.1,2)` and  `r round(tau.2.theta.2,2)` respectively.
-The second one is equal to the truth, which is `r tau[[2]]^2`.
-The first one is still imprecise.
+Hedges' estimates of $\tau^2$ in our examples are thus `r round(tau.2.theta.1,2)` and  `r round(tau.2.theta.2,2)` respectively, while the true values are, respectively `r tau[[1]]^2` and `r tau[[2]]^2`.
 
-**<span style="font-variant:small-caps;">Show Hedges reweighted estimator of average treatment effect.</span>**
+Hedges then proposes a new estimator for the average effect of the treatment, an estimator that accounts for the additional noise due to heterogeneous treatment effects accross sites.
 
-**<span style="font-variant:small-caps;">Show Hedges estimator of variance of treatment effect (actually very simple?).</span>**
+```{definition,Hmetaweights,name='Hedges Weighted Meta-Analytic Estimator'}
+Hedges weighted meta-analytic estimator for in the presence of random effects is
+$$
+\bar{\theta}_H = \sum_{k=1}^Nv_k\hat{\theta}_k \text{ with } v_k=\frac{\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}}{\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}}.
+$$
+```
+
+```{r HWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+Hwmae <- function(theta,sigma2,tau2){
+  return(c(weighted.mean(theta,(1/sigma2)/(sum(1/(sigma2+tau2))),1/sum(1/sigma2+tau2))))
+}
+```
+
+```{example}
+Let's see how Hedges estimator performs in our example.
+```
+Hedges' estimates of the average effect size is equal to `r round(Hwmae(data.meta$theta.1,data.meta$se.ES^2,tau.2.theta.1),2)` and  `r round(Hwmae(data.meta$theta.2,data.meta$se.ES^2,tau.2.theta.2),2)` respectively, while the true value is `r round(ES(param),2)`.
+
+**<span style="font-variant:small-caps;">Show other estimates than $\tau^2$.</span>**
+
+**<span style="font-variant:small-caps;">Show other estimators than Hedges' and how to implement them with `rma`.</span>**
 
 
 ### Meta-regression

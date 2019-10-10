@@ -1667,30 +1667,30 @@ Y_i^{d,r} &amp; = Y_i^d \text{, }\forall (r,d)\in\left\{0,1\right\}^2.
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> Theorem <a href="RCT.html#thm:IdentLATE">3.9</a> is pretty amazing. It shows that there exists a set of assumptions under which we can use an encouragement design to recover the effect of the treatment (<span class="math inline">\(D_i\)</span>) on outcomes, despite the fact that we have NOT randomized <span class="math inline">\(D_i\)</span>. The assumptions needed for that to happen are intuitive:
 </div>
-<p> The assumptions needed for that to happen are intuitive:</p>
+
 <ol style="list-style-type: decimal">
 <li>The encouragement has to have no direct effect on the outcomes (Assumption <a href="RCT.html#def:ExclRestr">3.11</a>)</li>
 <li>The encouragement has to have an effect on treatment uptake (Assumption <a href="RCT.html#def:Fstage">3.12</a>)</li>
-<li>The encouragement does not generate two-way flows in and out of the treatment, but only one flow in (Assumption <a href="RCT.html#def:Mono">3.13</a>)</li>
+<li>The encouragement does not generate two-way flows in and out of the treatment, but only a one-way flow (Assumption <a href="RCT.html#def:Mono">3.13</a>)</li>
 </ol>
-<p>Under these assumptions, the only way that we see a difference in outcomes between those that receive the encouragement and those that do not is that the treatment has had an effect on those that have taken it because of the encouragement. It cannot be because of the encouragement itself, because of Assumption <a href="RCT.html#def:ExclRestr">3.11</a>. It cannot be because some people with particularly low outcomes have exited the program because of the encouragement, Assumption <a href="RCT.html#def:Mono">3.13</a> forbids it. And if we see no effect of the encouragement, it has to be that the treatment has no effect on the compliers as well, because Assumption <a href="RCT.html#def:Fstage">3.12</a> implies that they have received the treatment in the encouragement group and that they have not in the group without encouragement.</p>
+<p>Under these assumptions, the only way that we can see a difference in outcomes between those that receive the encouragement and those that do not is that the treatment has had an effect on those that have taken it because of the encouragement. It cannot be because of the encouragement itself, because of Assumption <a href="RCT.html#def:ExclRestr">3.11</a>. It cannot be because some people with particularly low outcomes have exited the program because of the encouragement, Assumption <a href="RCT.html#def:Mono">3.13</a> forbids it. And if we see no effect of the encouragement, it has to be that the treatment has no effect on the compliers as well, because Assumption <a href="RCT.html#def:Fstage">3.12</a> implies that they have received the treatment in the encouragement group and that they have not in the group without encouragement.</p>
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> Less nice with Theorem <a href="RCT.html#thm:IdentLATE">3.9</a> is that we recover the effect only for a subgroup of individuals, the compliers. This raises two issues:
 </div>
 
 <ol style="list-style-type: decimal">
-<li>The effect on the compliers (or LATE) is not the effect on the treated (TT). When the treatment is given in routine mode, without the encouragement, TT is actually equal to the effect on the always takers. There is nothing that tells us that the always takers react in the same way to the treatment as the compliers. They probably do not, since the expected benefits of the treatment might enter in the decision of taking it up.</li>
+<li>The effect on the compliers (or LATE) is not the effect on the treated (TT). When the treatment is given in routine mode, without the encouragement, TT is actually equal to the effect on the always takers. There is nothing that tells us that the always takers react in the same way to the treatment as the compliers. As soon as the expected benefits of the treatment enter the decision of taking it up, always takers have larger treatment effects than compliers.</li>
 <li>The identity of the compliers is unobserved. We cannot decide to allocate the treatment only to the compliers because they are defined by their counterfactual response to the encouragement. In both treatment arms, we do not know who the compliers are. We know they are among those who take up the program in the group receiving the encouragement. But there are also always takers that take up the program in this group. We know that they are among those that do not take up the program in the group that does not receive the encouragement. But never takers behave in the same way in that group.</li>
 </ol>
 <p>The only way to direct the treatment at the compliers is to use the encouragement. So, we end up evaluating the effect of the encouragement itself and not of the program. In that case, we do not need Assumptions <a href="RCT.html#def:ExclRestr">3.11</a>, <a href="RCT.html#def:Fstage">3.12</a> and <a href="RCT.html#def:Mono">3.13</a>, because they are not needed to identify the effect of the encouragement (see Section <a href="RCT.html#ITEEncourag">3.4.1.2</a> below).</p>
-<p>In general, researchers believe that LATE tells them something about the magnitude of the effect beyond compliers. This is not warranted by the maths, but one can understand how a bayesian decision-maker may use the informatio on some subpopulation to infer what would happen in another. Comparing LATEs and TTs for similar treatments is an active area for reasearch. I know of no paper doing that extensively and nicely.</p>
+<p>In general, researchers believe that LATE tells them something about the magnitude of the effect beyond compliers. This is not warranted by the maths, but one can understand how a bayesian decision-maker may use the information from some subpopulation to infer what would happen to another. Comparing LATEs and TTs for similar treatments is an active area for reasearch. I know of no paper doing that extensively and nicely.</p>
 <p>To generalize from the LATE to the TT, we can make the assumption that the impact on always takers is equal to the impact on compliers, but that seems a little far-fetched. <a href="https://www.nber.org/papers/w16566">Angrist and Fernandez-Val</a> propose to assume that the effect on compliers is equal to the effect on always takers conditional on some observed covariates. When outcomes are bounded (for example because they are between zero and one), we can try to bound the <span class="math inline">\(TT\)</span> using the <span class="math inline">\(LATE\)</span> (see <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.2473">Huber, Laffers and Mellace (2017)</a>).</p>
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> If you see a connexion between the conditions for the Wald estimator to identify LATE and the assumptions behind an IV estimator, you’re correct.
+ <span class="remark"><em>Remark. </em></span> If you see a connexion between the conditions for the Wald estimator to identify LATE and the assumptions behind an IV estimator, you’re correct. The Wald estimator is actually an IV estimator (see Lemma <a href="RCT.html#lem:WaldIV">3.1</a> below).
 </div>
-<p> The Wald estimator is actually an IV estimator (see Lemma <a href="RCT.html#lem:WaldIV">3.1</a> below).</p>
+
 </div>
 <div id="ITEEncourag" class="section level4">
 <h4><span class="header-section-number">3.4.1.2</span> Identification of the Intention to Treat Effect</h4>
@@ -1698,7 +1698,7 @@ Y_i^{d,r} &amp; = Y_i^d \text{, }\forall (r,d)\in\left\{0,1\right\}^2.
 <p>Under Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a>, receiving the encouragement has several impacts:</p>
 <ol style="list-style-type: decimal">
 <li>Some individuals (the compliers) decide to enter the program,</li>
-<li>Some individuals (the defiers) decide to exit the treatment,</li>
+<li>Some individuals (the defiers) decide to exit the program,</li>
 <li>The encouragement might have a direct effect on outcomes (<span class="math inline">\(Y_i^{d,1}\neq Y_i^{d,0}\)</span>).</li>
 </ol>
 <p>This last effect is the effect of receiving the encouragement that does not goes through participation into the program. For example, it is possible that sending an encouragement to take up a retirement program makes me save more for retirement, even if I end up not taking up the proposed program.</p>
@@ -1718,37 +1718,37 @@ Y_i^{d,r} &amp; = Y_i^d \text{, }\forall (r,d)\in\left\{0,1\right\}^2.
 <p>We can now see that ITE is composed of four terms:</p>
 <ol style="list-style-type: decimal">
 <li>The effect of receiving the encouragment on the always takers. This effect is only the direct effect of the encouragement, and not the effect of the program since the always takers always take the program. This term cancels under Assumption <a href="RCT.html#def:ExclRestr">3.11</a>, when there is no direct effect of the encouragement on outcomes.</li>
-<li>The effect of receiving the encouragement on compliers. This is both the effect of the encouragement and of the program. This is equal to the LATE under Assumption <a href="RCT.html#def:ExclRestr">3.11</a>, when there is no direct effect of the encouragement on outcomes.</li>
+<li>The effect of receiving the encouragement on compliers. This is both the effect of the encouragement and of the program. This is equal to the LATE under Assumption <a href="RCT.html#def:ExclRestr">3.11</a>.</li>
 <li>The effect of receiving the encouragement on defiers. This is the difference between the direct effect of the encouragement and the effect of the program. This is equal to the opposite of the effect of the treatment on the defiers under Assumption <a href="RCT.html#def:ExclRestr">3.11</a>.</li>
 <li>The effect of receiving the encouragement on never takers. This effect is only the direct effect of the encouragement, and not the effect of the program since the never takers never take the program. This term cancels under Assumption <a href="RCT.html#def:ExclRestr">3.11</a>.</li>
 </ol>
-<p>All these effects are weighted by the respective proportions of types in the population.</p>
-<p>ITE “contains” LATE, as we have already seen, but that can be made clearer:</p>
+<p>All these effects are weighted by the respective proportions of the types in the population. ITE is linked to LATE. This link can be made clearer:</p>
 
 <div class="theorem">
 <p><span id="thm:ITELATE" class="theorem"><strong>Theorem 3.10  (From ITE to Compliers and Defiers)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a> and <a href="RCT.html#def:ExclRestr">3.11</a>, ITE is equal to the effect on compliers minus the effect on defiers weighted by their respective proportions in the population:</p>
 <span class="math display">\[\begin{align*}
-  \Delta^Y_{ITE} &amp; = \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)-\esp{Y_i^{1}-Y_i^{0}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1).
+  \Delta^Y_{ITE} &amp; = \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\\
+                  &amp; \phantom{=}-\esp{Y_i^{1}-Y_i^{0}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1).
 \end{align*}\]</span>
 </div>
 
 
 <div class="proof">
 <p> <span class="proof"><em>Proof. </em></span> Under Assumption <a href="RCT.html#def:ExclRestr">3.11</a>, Equation <a href="RCT.html#eq:ITE3">(3.2)</a> becomes:</p>
-<span class="math display" id="eq:ITE3">\[\begin{align*}
-  \Delta^Y_{ITE} &amp; = \esp{Y_i^{1}-Y_i^{1}|T_i=a,E_i=1}\Pr(T_i=a|E_i=1)\nonumber\\
-                &amp; \phantom{=}+ \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\nonumber\\
-                &amp; \phantom{=}+ \esp{Y_i^{0}-Y_i^{1}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1)\nonumber\\
-                &amp; \phantom{=}+ \esp{Y_i^{0}-Y_i^{0}|T_i=n,E_i=1}\Pr(T_i=n|E_i=1),\tag{3.2}
+<span class="math display">\[\begin{align*}
+  \Delta^Y_{ITE} &amp; = \esp{Y_i^{1}-Y_i^{1}|T_i=a,E_i=1}\Pr(T_i=a|E_i=1)\\
+                &amp; \phantom{=}+ \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\\
+                &amp; \phantom{=}+ \esp{Y_i^{0}-Y_i^{1}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1)\\
+                &amp; \phantom{=}+ \esp{Y_i^{0}-Y_i^{0}|T_i=n,E_i=1}\Pr(T_i=n|E_i=1)
 \end{align*}\]</span>
 which proves the result.
 </div>
 
-<p>The previous theorem shows that Assumption <a href="RCT.html#def:ExclRestr">3.11</a> shuts down any direct effect of ereceiving the encouragement on outcomes. As a consequence of this assumption, the only impact that receiving the encouragement has on outcomes is through participation into the program. Hence, ITE is equal to the impact of the treatment on those who react to the encouragement: the compliers and the defiers, weighted by their respective proportions.</p>
+<p>The previous theorem shows that Assumption <a href="RCT.html#def:ExclRestr">3.11</a> shuts down any direct effect of receiving the encouragement on outcomes. As a consequence of this assumption, the only impact that receiving the encouragement has on outcomes is through participation into the program. Hence, ITE is equal to the impact of the program on those who react to the encouragement: the compliers and the defiers, weighted by their respective proportions.</p>
 <p>The problem with the result of Theorem <a href="RCT.html#thm:ITELATE">3.10</a> is that ITE contains two-way flows in and out of the program. If we want to know something about the effect of the program, and not only about the effect of the encouragement, we need to assume that defiers do not exist. That’s what Assumption <a href="RCT.html#def:Mono">3.13</a> does, as the following theorem shows:</p>
 
 <div class="theorem">
-<p><span id="thm:ITELATEMono" class="theorem"><strong>Theorem 3.11  (From ITE to LATE)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:ExclRestr">3.11</a> and <a href="RCT.html#def:Mono">3.13</a>, ITE is equal to the LATE multiplied by the proportions of compliers in the population:</p>
+<p><span id="thm:ITELATEMono" class="theorem"><strong>Theorem 3.11  (From ITE to LATE)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:ExclRestr">3.11</a> and <a href="RCT.html#def:Mono">3.13</a>, ITE is equal to the LATE multiplied by the proportion of compliers in the population:</p>
 <span class="math display">\[\begin{align*}
   \Delta^Y_{ITE} &amp; = \Delta^Y_{LATE}\Pr(T_i=c|E_i=1).
 \end{align*}\]</span>
@@ -1783,7 +1783,7 @@ where the second equality follows from Assumption <a href="RCT.html#def:RandEnco
 <div class="theorem">
 <p><span id="thm:prEncourag" class="theorem"><strong>Theorem 3.13  (Identification of the Proportion of Compliers)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:IndepEncourag">3.10</a> and <a href="RCT.html#def:Mono">3.13</a>, the proportion of compliers is identified by the difference between the proportion of people taking up the program among those receiving the encouragement and the proportion of individuals taking up the program among those not receiving the encouragement:</p>
 <span class="math display">\[\begin{align*}
-  \Pr(T_i=1-c|E_i=1) &amp; = \Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1).
+  \Pr(T_i=c|E_i=1) &amp; = \Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1).
 \end{align*}\]</span>
 </div>
 
@@ -1801,7 +1801,7 @@ where the second equality follows from Assumption <a href="RCT.html#def:RandEnco
                         &amp; = \Pr(T_i=a|E_i=1)\\
                         &amp; \phantom{=} +\Pr(T_i=c|E_i=1),
 \end{align*}\]</span>
-where the first equality follows the types being a partition of the sample space; the second equality from the fact that the types are disjoint sets; the third equality from the fact that <span class="math inline">\(T_i=a|R_i=1 \Rightarrow D_i=1\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=a|R_i=1,E_i=1)=\Pr(T_i=a|R_i=1,E_i=1)\)</span>), <span class="math inline">\(T_i=c|R_i=1 \Rightarrow D_i=1\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=c|R_i=1,E_i=1)=\Pr(T_i=c|R_i=1,E_i=1)\)</span>), <span class="math inline">\(T_i=d|R_i=1 \Rightarrow D_i=0\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=d|R_i=1,E_i=1)=0\)</span>) and <span class="math inline">\(T_i=n|R_i=1 \Rightarrow D_i=0\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=n|R_i=1,E_i=1)=0\)</span>); and the fourth equality from Assumption <a href="RCT.html#def:IndepEncourag">3.10</a> and Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a>.
+<p>where the first equality follows the types being a partition of the sample space; the second equality from the fact that the types are disjoint sets; the third equality from the fact that <span class="math inline">\(T_i=a|R_i=1 \Rightarrow D_i=1\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=a|R_i=1,E_i=1)=\Pr(T_i=a|R_i=1,E_i=1)\)</span>), <span class="math inline">\(T_i=c|R_i=1 \Rightarrow D_i=1\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=c|R_i=1,E_i=1)=\Pr(T_i=c|R_i=1,E_i=1)\)</span>), <span class="math inline">\(T_i=d|R_i=1 \Rightarrow D_i=0\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=d|R_i=1,E_i=1)=0\)</span>) and <span class="math inline">\(T_i=n|R_i=1 \Rightarrow D_i=0\)</span> (so that <span class="math inline">\(\Pr(D_i=1\cap T_i=n|R_i=1,E_i=1)=0\)</span>); and the fourth equality from Assumption <a href="RCT.html#def:IndepEncourag">3.10</a> and Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a>.</p>
 </div>
 
 
@@ -1833,7 +1833,7 @@ where the first equality follows the types being a partition of the sample space
                     &amp; \phantom{=}+ \esp{Y_i^{0,1}|T_i=n,R_i=1}\Pr(T_i=n|R_i=1)\\
                     &amp; \phantom{=}-\esp{Y_i^{0,0}|T_i=n,R_i=0}\Pr(T_i=n|R_i=0).
 \end{align*}\]</span>
-<p>The four parts of the equation account for comparisons among each type between the two treatment arms. The parts due to <em>always takers</em> and <em>never takers</em> cancel under Assumptions <a href="RCT.html#def:IndepEncourag">3.10</a> and <a href="RCT.html#def:ExclRestr">3.11</a>. But this cancelling out only happens in the population. In a given sample, the sample equivalents of the two members of each difference do not have to be equal, and thus they do not cancel out, generating sampling noise. Ideally, we would like to enforce that the effect of the encouragement on <em>always takers</em> and <em>never takers</em> is null under assumption <a href="RCT.html#def:ExclRestr">3.11</a>, but that would require observing the type variable <span class="math inline">\(T_i\)</span>. Unfortunately, we cannot now the type of each individual in the sample, since it is defined counterfactually. Maybe someday we’ll be able to use prior responses to the encouragement to identify the type of each individual and thus improve the precision of the Wald estimator.</p>
+<p>The four parts of the equation account for comparisons among each type between the two treatment arms. The parts due to always takers and never takers cancel out under Assumptions <a href="RCT.html#def:IndepEncourag">3.10</a> and <a href="RCT.html#def:ExclRestr">3.11</a>. But this cancelling out only happens in the population. In a given sample, the sample equivalents of the two members of each difference do not have to be equal, and thus they do not cancel out, generating sampling noise. Ideally, we would like to enforce that the effect of the encouragement on always takers and never takers is null under assumption <a href="RCT.html#def:ExclRestr">3.11</a>, but that would require observing the type variable <span class="math inline">\(T_i\)</span>. Unfortunately, we cannot now the type of each individual in the sample, since it is defined counterfactually. Maybe someday we’ll be able to use prior responses to the encouragement to identify the type of each individual and thus improve the precision of the Wald estimator.</p>
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> In practice, we use a pseudo-RNG to allocate the randomized annoucement of the encouragement:

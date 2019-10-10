@@ -6909,8 +6909,7 @@ amazing. It shows that there exists a set of assumptions under which we
 can use an encouragement design to recover the effect of the treatment
 (\(D_i\)) on outcomes, despite the fact that we have NOT randomized
 \(D_i\). The assumptions needed for that to happen are intuitive:
-\EndKnitrBlock{remark} The assumptions needed for that to happen are
-intuitive:
+\EndKnitrBlock{remark}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -6923,10 +6922,10 @@ intuitive:
   (Assumption \ref{def:Fstage})
 \item
   The encouragement does not generate two-way flows in and out of the
-  treatment, but only one flow in (Assumption \ref{def:Mono})
+  treatment, but only a one-way flow (Assumption \ref{def:Mono})
 \end{enumerate}
 
-Under these assumptions, the only way that we see a difference in
+Under these assumptions, the only way that we can see a difference in
 outcomes between those that receive the encouragement and those that do
 not is that the treatment has had an effect on those that have taken it
 because of the encouragement. It cannot be because of the encouragement
@@ -6953,9 +6952,9 @@ compliers. This raises two issues:
   (TT). When the treatment is given in routine mode, without the
   encouragement, TT is actually equal to the effect on the always
   takers. There is nothing that tells us that the always takers react in
-  the same way to the treatment as the compliers. They probably do not,
-  since the expected benefits of the treatment might enter in the
-  decision of taking it up.
+  the same way to the treatment as the compliers. As soon as the
+  expected benefits of the treatment enter the decision of taking it up,
+  always takers have larger treatment effects than compliers.
 \item
   The identity of the compliers is unobserved. We cannot decide to
   allocate the treatment only to the compliers because they are defined
@@ -6978,9 +6977,10 @@ are not needed to identify the effect of the encouragement (see Section
 In general, researchers believe that LATE tells them something about the
 magnitude of the effect beyond compliers. This is not warranted by the
 maths, but one can understand how a bayesian decision-maker may use the
-informatio on some subpopulation to infer what would happen in another.
-Comparing LATEs and TTs for similar treatments is an active area for
-reasearch. I know of no paper doing that extensively and nicely.
+information from some subpopulation to infer what would happen to
+another. Comparing LATEs and TTs for similar treatments is an active
+area for reasearch. I know of no paper doing that extensively and
+nicely.
 
 To generalize from the LATE to the TT, we can make the assumption that
 the impact on always takers is equal to the impact on compliers, but
@@ -6996,9 +6996,9 @@ Laffers and Mellace (2017)}).
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}If you see a connexion between the conditions
 for the Wald estimator to identify LATE and the assumptions behind an IV
-estimator, you're correct.
-\EndKnitrBlock{remark} The Wald estimator is actually an IV estimator
-(see Lemma \ref{lem:WaldIV} below).
+estimator, you're correct. The Wald estimator is actually an IV
+estimator (see Lemma \ref{lem:WaldIV} below).
+\EndKnitrBlock{remark}
 
 \subsubsection{Identification of the Intention to Treat
 Effect}\label{ITEEncourag}
@@ -7019,7 +7019,7 @@ encouragement has several impacts:
 \item
   Some individuals (the compliers) decide to enter the program,
 \item
-  Some individuals (the defiers) decide to exit the treatment,
+  Some individuals (the defiers) decide to exit the program,
 \item
   The encouragement might have a direct effect on outcomes
   (\(Y_i^{d,1}\neq Y_i^{d,0}\)).
@@ -7070,8 +7070,7 @@ We can now see that ITE is composed of four terms:
 \item
   The effect of receiving the encouragement on compliers. This is both
   the effect of the encouragement and of the program. This is equal to
-  the LATE under Assumption \ref{def:ExclRestr}, when there is no direct
-  effect of the encouragement on outcomes.
+  the LATE under Assumption \ref{def:ExclRestr}.
 \item
   The effect of receiving the encouragement on defiers. This is the
   difference between the direct effect of the encouragement and the
@@ -7084,10 +7083,8 @@ We can now see that ITE is composed of four terms:
   cancels under Assumption \ref{def:ExclRestr}.
 \end{enumerate}
 
-All these effects are weighted by the respective proportions of types in
-the population.
-
-ITE ``contains'' LATE, as we have already seen, but that can be made
+All these effects are weighted by the respective proportions of the
+types in the population. ITE is linked to LATE. This link can be made
 clearer:
 
 \BeginKnitrBlock{theorem}[From ITE to Compliers and Defiers]
@@ -7098,7 +7095,8 @@ effect on compliers minus the effect on defiers weighted by their
 respective proportions in the population:
 
 \begin{align*}
-  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)-\esp{Y_i^{1}-Y_i^{0}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1).
+  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\\
+                  & \phantom{=}-\esp{Y_i^{1}-Y_i^{0}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1).
 \end{align*}
 \EndKnitrBlock{theorem}
 
@@ -7107,20 +7105,20 @@ respective proportions in the population:
 \eqref{eq:ITE3} becomes:
 
 \begin{align*}
-  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{1}|T_i=a,E_i=1}\Pr(T_i=a|E_i=1)\nonumber\\
-                & \phantom{=}+ \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\nonumber\\
-                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{1}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1)\nonumber\\
-                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{0}|T_i=n,E_i=1}\Pr(T_i=n|E_i=1),\label{eq:ITE3}
+  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{1}|T_i=a,E_i=1}\Pr(T_i=a|E_i=1)\\
+                & \phantom{=}+ \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\\
+                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{1}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1)\\
+                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{0}|T_i=n,E_i=1}\Pr(T_i=n|E_i=1)
 \end{align*}
 
 which proves the result.
 \EndKnitrBlock{proof}
 
 The previous theorem shows that Assumption \ref{def:ExclRestr} shuts
-down any direct effect of ereceiving the encouragement on outcomes. As a
+down any direct effect of receiving the encouragement on outcomes. As a
 consequence of this assumption, the only impact that receiving the
 encouragement has on outcomes is through participation into the program.
-Hence, ITE is equal to the impact of the treatment on those who react to
+Hence, ITE is equal to the impact of the program on those who react to
 the encouragement: the compliers and the defiers, weighted by their
 respective proportions.
 
@@ -7135,7 +7133,7 @@ shows:
 \protect\hypertarget{thm:ITELATEMono}{}{\label{thm:ITELATEMono}
 \iffalse (From ITE to LATE) \fi{} }Under Assumptions
 \ref{def:RandEncouragValid}, \ref{def:ExclRestr} and \ref{def:Mono}, ITE
-is equal to the LATE multiplied by the proportions of compliers in the
+is equal to the LATE multiplied by the proportion of compliers in the
 population:
 
 \begin{align*}
@@ -7194,7 +7192,7 @@ those receiving the encouragement and the proportion of individuals
 taking up the program among those not receiving the encouragement:
 
 \begin{align*}
-  \Pr(T_i=1-c|E_i=1) & = \Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1).
+  \Pr(T_i=c|E_i=1) & = \Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1).
 \end{align*}
 \EndKnitrBlock{theorem}
 
@@ -7285,16 +7283,16 @@ conditioning on \(E_i=1\) for simplicity):
 \end{align*}
 
 The four parts of the equation account for comparisons among each type
-between the two treatment arms. The parts due to \emph{always takers}
-and \emph{never takers} cancel under Assumptions \ref{def:IndepEncourag}
-and \ref{def:ExclRestr}. But this cancelling out only happens in the
+between the two treatment arms. The parts due to always takers and never
+takers cancel out under Assumptions \ref{def:IndepEncourag} and
+\ref{def:ExclRestr}. But this cancelling out only happens in the
 population. In a given sample, the sample equivalents of the two members
 of each difference do not have to be equal, and thus they do not cancel
 out, generating sampling noise. Ideally, we would like to enforce that
-the effect of the encouragement on \emph{always takers} and \emph{never
-takers} is null under assumption \ref{def:ExclRestr}, but that would
-require observing the type variable \(T_i\). Unfortunately, we cannot
-now the type of each individual in the sample, since it is defined
+the effect of the encouragement on always takers and never takers is
+null under assumption \ref{def:ExclRestr}, but that would require
+observing the type variable \(T_i\). Unfortunately, we cannot now the
+type of each individual in the sample, since it is defined
 counterfactually. Maybe someday we'll be able to use prior responses to
 the encouragement to identify the type of each individual and thus
 improve the precision of the Wald estimator.
@@ -8024,7 +8022,8 @@ heterogeneity in treatment effects across sites and studies.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{tau <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.2}\NormalTok{)}
+\NormalTok{tau <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
 \NormalTok{data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\NormalTok{data.meta}\OperatorTok{$}\NormalTok{ES }\OperatorTok{+}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(data.meta),}\DataTypeTok{mean=}\DecValTok{0}\NormalTok{,}\DataTypeTok{sd=}\NormalTok{tau[[}\DecValTok{1}\NormalTok{]])}
 \NormalTok{data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\NormalTok{data.meta}\OperatorTok{$}\NormalTok{ES }\OperatorTok{+}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(data.meta),}\DataTypeTok{mean=}\DecValTok{0}\NormalTok{,}\DataTypeTok{sd=}\NormalTok{tau[[}\DecValTok{2}\NormalTok{]])}
 \end{Highlighting}
@@ -8032,32 +8031,43 @@ heterogeneity in treatment effects across sites and studies.
 
 I've simulated two new vectors of estimates for \(\theta\), both
 obtained adding a mean-zero normally distributed noise to the initial
-estimates of \(\theta\), one with a standard deviation of 0.1 and the
-other of 0.2. Let's visualize our two new datasets:
+estimates of \(\theta\), one with a standard deviation of 0.5 and the
+other of 1. Let's visualize our two new datasets:
 
 \begin{Shaded}
 \begin{Highlighting}[]
+  \KeywordTok{ggplot}\NormalTok{(data.meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies (sd noise=0)"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylim}\NormalTok{(}\OperatorTok{-}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{)}
+
   \KeywordTok{ggplot}\NormalTok{(data.meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{theta.}\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{theta.}\DecValTok{1}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{theta.}\DecValTok{1}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{'Studies'}\NormalTok{,}\StringTok{'$}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{tau^2=$'}\NormalTok{,tau[[}\DecValTok{1}\NormalTok{]],}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{))}\OperatorTok{+}
 \StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect size"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylim}\NormalTok{(}\OperatorTok{-}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{)}
 
   \KeywordTok{ggplot}\NormalTok{(data.meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{theta.}\DecValTok{2}\NormalTok{)) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{theta.}\DecValTok{1}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{theta.}\DecValTok{2}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{theta.}\DecValTok{2}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{theta.}\DecValTok{2}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\KeywordTok{paste}\NormalTok{(}\StringTok{'Studies'}\NormalTok{,}\StringTok{'$}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{tau^2=$'}\NormalTok{,tau[[}\DecValTok{2}\NormalTok{]],}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{))}\OperatorTok{+}
 \StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect size"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylim}\NormalTok{(}\OperatorTok{-}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{figure}[htbp]
 
-{\centering \subfloat[$\tau^2=$ 0.1\label{fig:metanoiseplot1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/metanoiseplot-1} }\subfloat[$\tau^2=$ 0.2\label{fig:metanoiseplot2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/metanoiseplot-2} }
+{\centering \subfloat[initial\label{fig:metanoiseplot1}]{\includegraphics[width=0.33\linewidth]{STCI_files/figure-latex/metanoiseplot-1} }\subfloat[$\tau^2=$ 0.5\label{fig:metanoiseplot2}]{\includegraphics[width=0.33\linewidth]{STCI_files/figure-latex/metanoiseplot-2} }\subfloat[$\tau^2=$ 1\label{fig:metanoiseplot3}]{\includegraphics[width=0.33\linewidth]{STCI_files/figure-latex/metanoiseplot-3} }
 
 }
 
@@ -8073,15 +8083,40 @@ Let's see now how Hedge's estimator performs:
 \end{Highlighting}
 \end{Shaded}
 
-Hedges' estimates of \(\tau^2\) in our examples are thus -0.03 and 0.04
-respectively. The second one is equal to the truth, which is 0.04. The
-first one is still imprecise.
+Hedges' estimates of \(\tau^2\) in our examples are thus 0.2 and 0.73
+respectively, while the true values are, respectively 0.25 and 1.
 
-\textbf{\textsc{Show Hedges reweighted estimator of average treatment
-effect.}}
+Hedges then proposes a new estimator for the average effect of the
+treatment, an estimator that accounts for the additional noise due to
+heterogeneous treatment effects accross sites.
 
-\textbf{\textsc{Show Hedges estimator of variance of treatment effect
-(actually very simple?).}}
+\BeginKnitrBlock{definition}[Hedges Weighted Meta-Analytic Estimator]
+\protect\hypertarget{def:Hmetaweights}{}{\label{def:Hmetaweights}
+\iffalse (Hedges Weighted Meta-Analytic Estimator) \fi{} }Hedges
+weighted meta-analytic estimator for in the presence of random effects
+is \[
+\bar{\theta}_H = \sum_{k=1}^Nv_k\hat{\theta}_k \text{ with } v_k=\frac{\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}}{\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}}.
+\]
+\EndKnitrBlock{definition}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Hwmae <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(theta,sigma2,tau2)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\KeywordTok{weighted.mean}\NormalTok{(theta,(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2)}\OperatorTok{/}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{(sigma2}\OperatorTok{+}\NormalTok{tau2))),}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2}\OperatorTok{+}\NormalTok{tau2))))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
+}Let's see how Hedges estimator performs in our example.
+\EndKnitrBlock{example} Hedges' estimates of the average effect size is
+equal to 0.3 and 0.65 respectively, while the true value is 0.2.
+
+\textbf{\textsc{Show other estimates than \(\tau^2\).}}
+
+\textbf{\textsc{Show other estimators than Hedges' and how to implement
+them with \texttt{rma}.}}
 
 \subsection{Meta-regression}\label{meta-regression}
 

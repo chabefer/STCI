@@ -1828,13 +1828,12 @@ Theorem \@ref(thm:IdentLATE) is pretty amazing.
 It shows that there exists a set of assumptions under which we can use an encouragement design to recover the effect of the treatment ($D_i$) on outcomes, despite the fact that we have NOT randomized $D_i$. 
 The assumptions needed for that to happen are intuitive: 
 ```  
-The assumptions needed for that to happen are intuitive: 
 
   1. The encouragement has to have no direct effect on the outcomes (Assumption \@ref(def:ExclRestr))
   2. The encouragement has to have an effect on treatment uptake  (Assumption \@ref(def:Fstage))
-  3. The encouragement does not generate two-way flows in and out of the treatment, but only one flow in (Assumption \@ref(def:Mono))
+  3. The encouragement does not generate two-way flows in and out of the treatment, but only a one-way flow (Assumption \@ref(def:Mono))
   
-Under these assumptions, the only way that we see a difference in outcomes between those that receive the encouragement and those that do not is that the treatment has had an effect on those that have taken it because of the encouragement.
+Under these assumptions, the only way that we can see a difference in outcomes between those that receive the encouragement and those that do not is that the treatment has had an effect on those that have taken it because of the encouragement.
 It cannot be because of the encouragement itself, because of Assumption \@ref(def:ExclRestr).
 It cannot be because some people with particularly low outcomes have exited the program because of the encouragement, Assumption \@ref(def:Mono) forbids it.
 And if we see no effect of the encouragement, it has to be that the treatment has no effect on the compliers as well, because Assumption \@ref(def:Fstage) implies that they have received the treatment in the encouragement group and that they have not in the group without encouragement.
@@ -1847,7 +1846,7 @@ This raises two issues:
   1. The effect on the compliers (or LATE) is not the effect on the treated (TT).
   When the treatment is given in routine mode, without the encouragement, TT is actually equal to the effect on the always takers.
   There is nothing that tells us that the always takers react in the same way to the treatment as the compliers. 
-  They probably do not, since the expected benefits of the treatment might enter in the decision of taking it up.
+  As soon as the expected benefits of the treatment enter the decision of taking it up, always takers have larger treatment effects than compliers.
   2. The identity of the compliers is unobserved.
   We cannot decide to allocate the treatment only to the compliers because they are defined by their counterfactual response to the encouragement.
   In both treatment arms, we do not know who the compliers are.
@@ -1861,7 +1860,7 @@ So, we end up evaluating the effect of the encouragement itself and not of the p
 In that case, we do not need Assumptions \@ref(def:ExclRestr), \@ref(def:Fstage) and \@ref(def:Mono), because they are not needed to identify the effect of the encouragement (see Section \@ref(ITEEncourag) below).
 
 In general, researchers believe that LATE tells them something about the magnitude of the effect beyond compliers.
-This is not warranted by the maths, but one can understand how a bayesian decision-maker may use the informatio on some subpopulation to infer what would happen in another.
+This is not warranted by the maths, but one can understand how a bayesian decision-maker may use the information from some subpopulation to infer what would happen to another.
 Comparing LATEs and TTs for similar treatments is an active area for reasearch.
 I know of no paper doing that extensively and nicely.
 
@@ -1871,8 +1870,8 @@ When outcomes are bounded (for example because they are between zero and one), w
 
 ```{remark}
 If you see a connexion between the conditions for the Wald estimator to identify LATE and the assumptions behind an IV estimator, you're correct.
-```
 The Wald estimator is actually an IV estimator (see Lemma \@ref(lem:WaldIV) below).
+```
 
 #### Identification of the Intention to Treat Effect {#ITEEncourag}
 
@@ -1883,7 +1882,7 @@ It is defined in a similar manner as in a Randomization After Eligibility design
 Under Assumption \@ref(def:RandEncouragValid), receiving the encouragement has several impacts: 
 
   1. Some individuals (the compliers) decide to enter the program,
-  2. Some individuals (the defiers) decide to exit the treatment,
+  2. Some individuals (the defiers) decide to exit the program,
   3. The encouragement might have a direct effect on outcomes ($Y_i^{d,1}\neq Y_i^{d,0}$). 
   
 This last effect is the effect of receiving the encouragement that does not goes through participation into the program.
@@ -1915,7 +1914,7 @@ We can now see that ITE is composed of four terms:
   This term cancels under Assumption \@ref(def:ExclRestr), when there is no direct effect of the encouragement on outcomes.
   2. The effect of receiving the encouragement on compliers. 
   This is both the effect of the encouragement and of the program.
-  This is equal to the LATE under Assumption \@ref(def:ExclRestr), when there is no direct effect of the encouragement on outcomes.
+  This is equal to the LATE under Assumption \@ref(def:ExclRestr).
   3. The effect of receiving the encouragement on defiers.
   This is the difference between the direct effect of the encouragement and the effect of the program. 
   This is equal to the opposite of the effect of the treatment on the defiers under Assumption \@ref(def:ExclRestr).
@@ -1923,15 +1922,16 @@ We can now see that ITE is composed of four terms:
   This effect is only the direct effect of the encouragement, and not the effect of the program since the never takers never take the program.
   This term cancels under Assumption \@ref(def:ExclRestr).
  
-All these effects are weighted by the respective proportions of types in the population.
-
-ITE "contains" LATE, as we have already seen, but that can be made clearer:
+All these effects are weighted by the respective proportions of the types in the population.
+ITE is linked to LATE.
+This link can be made clearer:
 
 ```{theorem,ITELATE,name='From ITE to Compliers and Defiers'}
 Under Assumptions \@ref(def:RandEncouragValid) and \@ref(def:ExclRestr), ITE is equal to the effect on compliers minus the effect on defiers weighted by their respective proportions in the population: 
 
 \begin{align*}
-  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)-\esp{Y_i^{1}-Y_i^{0}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1).
+  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\\
+                  & \phantom{=}-\esp{Y_i^{1}-Y_i^{0}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1).
 \end{align*}
 ```
 
@@ -1939,25 +1939,25 @@ Under Assumptions \@ref(def:RandEncouragValid) and \@ref(def:ExclRestr), ITE is 
 Under Assumption \@ref(def:ExclRestr), Equation \@ref(eq:ITE3) becomes:
 
 \begin{align*}
-  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{1}|T_i=a,E_i=1}\Pr(T_i=a|E_i=1)\nonumber\\
-                & \phantom{=}+ \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\nonumber\\
-                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{1}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1)\nonumber\\
-                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{0}|T_i=n,E_i=1}\Pr(T_i=n|E_i=1),(\#eq:ITE3)
+  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{1}|T_i=a,E_i=1}\Pr(T_i=a|E_i=1)\\
+                & \phantom{=}+ \esp{Y_i^{1}-Y_i^{0}|T_i=c,E_i=1}\Pr(T_i=c|E_i=1)\\
+                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{1}|T_i=d,E_i=1}\Pr(T_i=d|E_i=1)\\
+                & \phantom{=}+ \esp{Y_i^{0}-Y_i^{0}|T_i=n,E_i=1}\Pr(T_i=n|E_i=1)
 \end{align*}
 
 which proves the result.
 ```
 
-The previous theorem shows that Assumption \@ref(def:ExclRestr) shuts down any direct effect of ereceiving the encouragement on outcomes.
+The previous theorem shows that Assumption \@ref(def:ExclRestr) shuts down any direct effect of receiving the encouragement on outcomes.
 As a consequence of this assumption, the only impact that receiving the encouragement has on outcomes is through participation into the program.
-Hence, ITE is equal to the impact of the treatment on those who react to the encouragement: the compliers and the defiers, weighted by their respective proportions.
+Hence, ITE is equal to the impact of the program on those who react to the encouragement: the compliers and the defiers, weighted by their respective proportions.
 
 The problem with the result of Theorem \@ref(thm:ITELATE) is that ITE contains two-way flows in and out of the program. 
 If we want to know something about the effect of the program, and not only about the effect of the encouragement, we need to assume that defiers do not exist.
 That's what Assumption \@ref(def:Mono) does, as the following theorem shows:
 
 ```{theorem,ITELATEMono,name='From ITE to LATE'}
-Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:ExclRestr) and \@ref(def:Mono), ITE is equal to the LATE multiplied by the proportions of compliers in the population: 
+Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:ExclRestr) and \@ref(def:Mono), ITE is equal to the LATE multiplied by the proportion of compliers in the population: 
 
 \begin{align*}
   \Delta^Y_{ITE} & = \Delta^Y_{LATE}\Pr(T_i=c|E_i=1).
@@ -1995,7 +1995,7 @@ where the second equality follows from Assumption \@ref(def:RandEncouragValid) a
 Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag) and \@ref(def:Mono), the proportion of compliers is identified by the difference between the proportion of people taking up the program among those receiving the encouragement and the proportion of individuals taking up the program among those not receiving the encouragement: 
 
 \begin{align*}
-  \Pr(T_i=1-c|E_i=1) & = \Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1).
+  \Pr(T_i=c|E_i=1) & = \Pr(D_i=1|R_i=1,E_i=1)-\Pr(D_i=1|R_i=0,E_i=1).
 \end{align*}
 ```
 
@@ -2013,6 +2013,7 @@ Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag) and \@r
 \end{align*}
 
 where the first equality follows the types being a partition of the sample space; the second equality from the fact that the types are disjoint sets; the third equality from the fact that $T_i=a|R_i=1 \Rightarrow D_i=1$ (so that $\Pr(D_i=1\cap T_i=a|R_i=1,E_i=1)=\Pr(T_i=a|R_i=1,E_i=1)$), $T_i=c|R_i=1 \Rightarrow D_i=1$ (so that $\Pr(D_i=1\cap T_i=c|R_i=1,E_i=1)=\Pr(T_i=c|R_i=1,E_i=1)$), $T_i=d|R_i=1 \Rightarrow D_i=0$ (so that $\Pr(D_i=1\cap T_i=d|R_i=1,E_i=1)=0$) and $T_i=n|R_i=1 \Rightarrow D_i=0$ (so that $\Pr(D_i=1\cap T_i=n|R_i=1,E_i=1)=0$); and the fourth equality from Assumption \@ref(def:IndepEncourag) and Lemma \@ref(lem:UnconfTypes).
+
 ```
 
 ```{corollary,EncouragWald,name='Wald estimator and ITE'}
@@ -2054,10 +2055,10 @@ Under the assumptions made so far, it is easy to show that (omitting the conditi
 \end{align*}
 
 The four parts of the equation account for comparisons among each type between the two treatment arms.
-The parts due to *always takers* and *never takers* cancel under Assumptions \@ref(def:IndepEncourag) and \@ref(def:ExclRestr).
+The parts due to always takers and never takers cancel out under Assumptions \@ref(def:IndepEncourag) and \@ref(def:ExclRestr).
 But this cancelling out only happens in the population.
 In a given sample, the sample equivalents of the two members of each difference do not have to be equal, and thus they do not cancel out, generating sampling noise.
-Ideally, we would like to enforce that the effect of the encouragement on *always takers* and *never takers* is null under assumption \@ref(def:ExclRestr), but that would require observing the type variable $T_i$.
+Ideally, we would like to enforce that the effect of the encouragement on always takers and never takers is null under assumption \@ref(def:ExclRestr), but that would require observing the type variable $T_i$.
 Unfortunately, we cannot now the type of each individual in the sample, since it is defined counterfactually.
 Maybe someday we'll be able to use prior responses to the encouragement to identify the type of each individual and thus improve the precision of the Wald estimator.
 
