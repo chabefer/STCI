@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-10">
+<meta name="date" content="2019-10-11">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -710,7 +710,7 @@ D_i &amp; = \uns{\underbrace{\bar{\alpha}+\theta\bar{\mu}-C_i}_{D_i^*}\geq0 \lan
 C_i &amp; = \bar{c} + \gamma \mu_i + V_i\\
 V_i &amp; \sim \mathcal{N}(0,\sigma^2_V)
 \end{align*}\]</span>
-<p>Eligibility is still decided based on pre-treatment outcomes being smaller than a threshold level <span class="math inline">\(\bar{y}\)</span>. Self-selection among eligibles is decided by the net utility of the treatment <span class="math inline">\(D_i^*\)</span> being positive. Here, the net utility is composed of the average gain from the treatment (assuming agents cannot foresee their idiosyncratic gain from the treatment apart from the part depending on <span class="math inline">\(\mu_i\)</span>) <span class="math inline">\(\bar{\alpha}+\theta\bar{\mu}\)</span> minus the cost of participation <span class="math inline">\(C_i\)</span>. The cost of participation in turn depends on a constant, on <span class="math inline">\(\mu_i\)</span> and on a random shock orthogonal to everything else <span class="math inline">\(V_i\)</span>. This cost might represent the administrative cost of applying for the treatment and the opportunity cost of participating into the treatment (foregone earnings and/or cost of time). Conditional on eligiblity, self-selection is endogenous in this model since both the gains and the cost of participation depend on <span class="math inline">\(\mu_i\)</span>. Costs depend on <span class="math inline">\(\mu_i\)</span> since most productive people may face lower administrative costs but a higher opportunity cost of time.</p>
+<p>Eligibility is still decided based on pre-treatment outcomes being smaller than a threshold level <span class="math inline">\(\bar{y}\)</span>. Self-selection among eligibles is decided by the net utility of the treatment <span class="math inline">\(D_i^*\)</span> being positive. Here, the net utility is composed of the average gain from the treatment (assuming agents cannot foresee their idiosyncratic gain from the treatment) <span class="math inline">\(\bar{\alpha}+\theta\bar{\mu}\)</span> minus the cost of participation <span class="math inline">\(C_i\)</span>. The cost of participation in turn depends on a constant, on <span class="math inline">\(\mu_i\)</span> and on a random shock orthogonal to everything else <span class="math inline">\(V_i\)</span>. This cost might represent the administrative cost of applying for the treatment and the opportunity cost of participating into the treatment (foregone earnings and/or cost of time). Conditional on eligiblity, self-selection is endogenous in this model since both the gains and the cost of participation depend on <span class="math inline">\(\mu_i\)</span>. Costs depend on <span class="math inline">\(\mu_i\)</span> since most productive people may face lower administrative costs but a higher opportunity cost of time.</p>
 <p>Let’s choose some values for the new parameters:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw">c</span>(param,<span class="op">-</span><span class="fl">6.25</span>,<span class="fl">0.9</span>,<span class="fl">0.5</span>)
 <span class="kw">names</span>(param) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>,<span class="st">&quot;barc&quot;</span>,<span class="st">&quot;gamma&quot;</span>,<span class="st">&quot;sigma2V&quot;</span>)</code></pre></div>
@@ -1815,7 +1815,7 @@ where the second equality follows from Assumption <a href="RCT.html#def:RandEnco
 <p>As a consequence of Corollary <a href="RCT.html#cor:EncouragWald">3.2</a>, we see that the Wald estimator reweights the ITE, the effect of receiving an encouragement, by the proportion of people reacting to the encouragement by participating in the program, the compliers. From Theorem <a href="RCT.html#thm:ITELATE">3.10</a>, we know that this ratio will be equal to LATE if the Assumption <a href="RCT.html#def:ExclRestr">3.11</a> also holds, so that all the impact of the encouragement stems from entering the program. The encouragement serves as an instrument for program participation.</p>
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> The Encouragement design seems like magic. You do not assign randomly the program, but an encouragement to take it, but you can recover the effect of the program anyway. The Encouragement design is less intrusive than Randomization After Self-Selection and Randomization of Eligibility. In an Encouragement design, you do not have to refuse the program to agents in the control group. You pay two types of prices for that:
+ <span class="remark"><em>Remark. </em></span> The Encouragement design seems like magic. You do not assign randomly the program, but only an encouragement to take it, and you can recover the effect of the program anyway. The Encouragement design is less intrusive than Randomization After Self-Selection and Randomization of Eligibility. In an Encouragement design, you do not have to refuse the program to agents in the control group. You pay two types of prices for that:
 </div>
 
 <ol style="list-style-type: decimal">
@@ -1833,7 +1833,13 @@ where the second equality follows from Assumption <a href="RCT.html#def:RandEnco
                     &amp; \phantom{=}+ \esp{Y_i^{0,1}|T_i=n,R_i=1}\Pr(T_i=n|R_i=1)\\
                     &amp; \phantom{=}-\esp{Y_i^{0,0}|T_i=n,R_i=0}\Pr(T_i=n|R_i=0).
 \end{align*}\]</span>
-<p>The four parts of the equation account for comparisons among each type between the two treatment arms. The parts due to always takers and never takers cancel out under Assumptions <a href="RCT.html#def:IndepEncourag">3.10</a> and <a href="RCT.html#def:ExclRestr">3.11</a>. But this cancelling out only happens in the population. In a given sample, the sample equivalents of the two members of each difference do not have to be equal, and thus they do not cancel out, generating sampling noise. Ideally, we would like to enforce that the effect of the encouragement on always takers and never takers is null under assumption <a href="RCT.html#def:ExclRestr">3.11</a>, but that would require observing the type variable <span class="math inline">\(T_i\)</span>. Unfortunately, we cannot now the type of each individual in the sample, since it is defined counterfactually. Maybe someday we’ll be able to use prior responses to the encouragement to identify the type of each individual and thus improve the precision of the Wald estimator.</p>
+<p>The four parts of the equation account for comparisons among each type between the two treatment arms. The parts due to always takers and never takers cancel out under Assumptions <a href="RCT.html#def:IndepEncourag">3.10</a> and <a href="RCT.html#def:ExclRestr">3.11</a>. But this cancelling out only happens in the population. In a given sample, the sample equivalents of the two members of each difference do not have to be equal, and thus they do not cancel out, generating sampling noise. Ideally, we would like to enforce that the effect of the encouragement on always takers and never takers is null, as Assumption <a href="RCT.html#def:ExclRestr">3.11</a> imposes, but that would require observing the type variable <span class="math inline">\(T_i\)</span>. Unfortunately, we cannot now the type of each individual in the sample, since it is defined counterfactually. Maybe someday we’ll be able to use prior responses to the encouragement to identify the type of each individual and thus improve the precision of the Wald estimator.</p>
+<p><strong><span style="font-variant: small-caps;">Explain de Chaisemartin.</span></strong></p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> what if we fear there are defiers. de Chaisemartin
+</div>
+
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> In practice, we use a pseudo-RNG to allocate the randomized annoucement of the encouragement:
@@ -1848,7 +1854,95 @@ where the second equality follows from Assumption <a href="RCT.html#def:RandEnco
   \end{cases} \\
   D_i &amp; = \uns{\bar{\alpha}+\theta\bar{\mu}+\psi R_i-C_i\geq0 \land E_i=1}
 \end{align*}\]</span>
-<p><strong><span style="font-variant: small-caps;">Numerical Example in population </span></strong></p>
+<p><span class="math inline">\(\psi\)</span> denotes the increase in agents’ valuation of the program after receiving the encouragement.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-117" class="example"><strong>Example 3.22  </strong></span>Let’s see how the encouragement design works in our numerical example. Let’s choose a value for <span class="math inline">\(\psi\)</span> and add it to the vector of parameters.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw">c</span>(param,<span class="fl">0.6</span>)
+<span class="kw">names</span>(param) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>,<span class="st">&quot;barc&quot;</span>,<span class="st">&quot;gamma&quot;</span>,<span class="st">&quot;sigma2V&quot;</span>,<span class="st">&quot;psi&quot;</span>)</code></pre></div>
+<p>Let’s first compute the value of LATE in this new model. Let’s denote <span class="math inline">\(D_i^{*0}=\bar{\alpha}+\theta\bar{\mu}-C_i\)</span> the utility of agent <span class="math inline">\(i\)</span> absent the encouragement, with <span class="math inline">\(C_i=\bar{c} + \gamma \mu_i + V_i\)</span>. In order to be a complier, you have to have a utility of the program that is insufficient to make you apply for the program when you receive no encouragement (<span class="math inline">\(D_i^{*0}&lt;0\)</span>) and a positive utility of applying to the treatment after receiving the encouragement (<span class="math inline">\(D_i^{*0}+\psi\geq 0\)</span>). Compliers are thus such that <span class="math inline">\(-\psi\leq D_i^{*0}&lt;0\)</span>. LATE can thus be written as follows in our model:</p>
+<span class="math display">\[\begin{align*}
+  \Delta^y_{LATE} &amp; = \bar{\alpha}+ \theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y} \land -\psi\leq D_i^{*0}&lt;0},
+\end{align*}\]</span>
+<p>Using the same approach, we can also compute the proportion of compliers among eligibles. In our model, we indeed have:</p>
+<span class="math display">\[\begin{align*}
+  \Pr(T_i=c|E_i=1) &amp; = \Pr(-\psi\leq D_i^{*0}&lt;0|\mu_i+U_i^B\leq\bar{y}).
+\end{align*}\]</span>
+<p>Since all errors terms are normally distributed in our model, we can compute the package <code>tmvtnorm</code> to compute both LATE and the proportion of compliers among eligibles.</p>
+<span class="math display">\[\begin{align*}
+  (\mu_i,y_i^B,D_i^{*0}) &amp; = \mathcal{N}\left(\bar{\mu},\bar{\mu},\bar{\alpha}+(\theta-\gamma)\bar{\mu}-\bar{c},
+                                        \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu} &amp; \sigma^2_{\mu} &amp; -\gamma\sigma^2_{\mu} \\
+                                              \sigma^2_{\mu} &amp; \sigma^2_{\mu} + \sigma^2_{U} &amp; -\gamma\sigma^2_{\mu} \\
+                                              -\gamma\sigma^2_{\mu} &amp; -\gamma\sigma^2_{\mu} &amp; \gamma^2\sigma^2_{\mu}+\sigma^2_{V}
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}\]</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mean.mu.yB.Dstar &lt;-<span class="st"> </span><span class="kw">c</span>(param[<span class="st">&#39;barmu&#39;</span>],param[<span class="st">&#39;barmu&#39;</span>],param[<span class="st">&#39;baralpha&#39;</span>]<span class="op">-</span><span class="st"> </span>param[<span class="st">&#39;barc&#39;</span>]<span class="op">+</span>(param[<span class="st">&#39;theta&#39;</span>]<span class="op">-</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="op">*</span>param[<span class="st">&#39;barmu&#39;</span>])
+cov.mu.yB.Dstar &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(param[<span class="st">&#39;sigma2mu&#39;</span>],param[<span class="st">&quot;sigma2mu&quot;</span>],<span class="op">-</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="op">*</span>param[<span class="st">&quot;sigma2mu&quot;</span>],
+                            param[<span class="st">&quot;sigma2mu&quot;</span>],param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="op">+</span>param[<span class="st">&#39;sigma2U&#39;</span>],<span class="op">-</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="op">*</span>param[<span class="st">&quot;sigma2mu&quot;</span>],
+                            <span class="op">-</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="op">*</span>param[<span class="st">&quot;sigma2mu&quot;</span>],<span class="op">-</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="op">*</span>param[<span class="st">&quot;sigma2mu&quot;</span>],param[<span class="st">&quot;sigma2mu&quot;</span>]<span class="op">*</span>(param[<span class="st">&#39;gamma&#39;</span>])<span class="op">^</span><span class="dv">2</span><span class="op">+</span>param[<span class="st">&#39;sigma2V&#39;</span>]),<span class="dv">3</span>,<span class="dv">3</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>)
+<span class="co"># late</span>
+lower.cut &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>,<span class="op">-</span><span class="ot">Inf</span>,<span class="op">-</span>param[<span class="st">&#39;psi&#39;</span>])
+upper.cut &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="ot">Inf</span>,<span class="kw">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="dv">0</span>)
+moments.cut &lt;-<span class="st"> </span><span class="kw">mtmvnorm</span>(<span class="dt">mean=</span>mean.mu.yB.Dstar,<span class="dt">sigma=</span>cov.mu.yB.Dstar,<span class="dt">lower=</span>lower.cut,<span class="dt">upper=</span>upper.cut)
+delta.y.late &lt;-<span class="st"> </span>param[<span class="st">&#39;baralpha&#39;</span>]<span class="op">+</span><span class="st"> </span>param[<span class="st">&#39;theta&#39;</span>]<span class="op">*</span>moments.cut<span class="op">$</span>tmean[<span class="dv">1</span>]
+<span class="co"># proportion of compliers</span>
+lower.cut &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>,<span class="op">-</span><span class="ot">Inf</span>,<span class="op">-</span><span class="ot">Inf</span>)
+upper.cut &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="ot">Inf</span>,<span class="kw">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="ot">Inf</span>)
+pr.compliers &lt;-<span class="st"> </span><span class="kw">ptmvnorm.marginal</span>(<span class="dt">xn=</span><span class="dv">0</span>,<span class="dt">n=</span><span class="dv">3</span>,<span class="dt">mean=</span>mean.mu.yB.Dstar,<span class="dt">sigma=</span>cov.mu.yB.Dstar,<span class="dt">lower=</span>lower.cut,<span class="dt">upper=</span>upper.cut)<span class="op">-</span><span class="kw">ptmvnorm.marginal</span>(<span class="dt">xn=</span><span class="op">-</span>param[<span class="st">&#39;psi&#39;</span>],<span class="dt">n=</span><span class="dv">3</span>,<span class="dt">mean=</span>mean.mu.yB.Dstar,<span class="dt">sigma=</span>cov.mu.yB.Dstar,<span class="dt">lower=</span>lower.cut,<span class="dt">upper=</span>upper.cut)</code></pre></div>
+<p>The value of <span class="math inline">\(\Delta^y_{LATE}\)</span> in the population is thus 0.173. The proportion of compliers among eligibles in the population is 0.272. As a consequence of Corollary <a href="RCT.html#cor:EncouragWald">3.2</a>, we can compute ITE as the product of LATE and the proportion of compliers. In our example, ITE is thus equal to 0.047 in the population.</p>
+<p>Now let’s simulate a new sample with the encouragement delivered randomly among eligibles. I’m also defining the potential outcomes <span class="math inline">\(D^1_i\)</span> and <span class="math inline">\(D^0_i\)</span> and the types <span class="math inline">\(T_i\)</span> for later use.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># I&#39;m changing the seed because with the usual one, I get a negative estimate of the treatment effect: lots of sampling noise!</span>
+<span class="kw">set.seed</span>(<span class="dv">12345</span>)
+N &lt;-<span class="dv">1000</span>
+mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+
+<span class="co">#random allocation of encouragement among eligibles</span>
+E &lt;-<span class="st"> </span><span class="kw">ifelse</span>(YB<span class="op">&lt;=</span>param[<span class="st">&quot;barY&quot;</span>],<span class="dv">1</span>,<span class="dv">0</span>)
+Rs &lt;-<span class="st"> </span><span class="kw">runif</span>(N)
+R &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Rs<span class="op">&lt;=</span>.<span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+V &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,param[<span class="st">&quot;sigma2V&quot;</span>])
+Dindex &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;psi&quot;</span>]<span class="op">*</span>R<span class="op">-</span>param[<span class="st">&quot;barc&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;gamma&quot;</span>]<span class="op">*</span>mu<span class="op">-</span>V
+Ds &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+
+<span class="co"># types</span>
+Dindex1 &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;psi&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;barc&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;gamma&quot;</span>]<span class="op">*</span>mu<span class="op">-</span>V
+Dindex0 &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;barc&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;gamma&quot;</span>]<span class="op">*</span>mu<span class="op">-</span>V
+D1 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex1<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+D0 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex0<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+AT &lt;-<span class="st"> </span><span class="kw">ifelse</span>(D1<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>D0<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+NT &lt;-<span class="st"> </span><span class="kw">ifelse</span>(D1<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D0<span class="op">==</span><span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+Co &lt;-<span class="st"> </span><span class="kw">ifelse</span>(D1<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>D0<span class="op">==</span><span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)
+
+<span class="co"># figures</span>
+Ncompliers &lt;-<span class="st"> </span><span class="kw">sum</span>(Co)
+NElig &lt;-<span class="st"> </span><span class="kw">sum</span>(E)
+PrCoElig &lt;-<span class="st"> </span>Ncompliers<span class="op">/</span>NElig
+LATEs &lt;-<span class="st"> </span><span class="kw">mean</span>(alpha[Co<span class="op">==</span><span class="dv">1</span>])
+ITEs &lt;-<span class="st"> </span>LATEs<span class="op">*</span>PrCoElig</code></pre></div>
+<p>In our sample of <span class="math inline">\(N=\)</span> 1000 individuals, there are only 216 eligibles, and among them 67 compliers. The proportion of compliers among eligibles is thus 0.31. Sample size decreases fast in an encouragement design. The sample LATE is equal to 0.14. The sample ITE is equal to 0.044.</p>
+</div>
+</div>
+<div id="estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect" class="section level3">
+<h3><span class="header-section-number">3.4.2</span> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</h3>
+<p><strong><span style="font-variant: small-caps;">Move on to estimation</span></strong></p>
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> Classically, we present the results of an Encouragement design in three stages:
@@ -1859,15 +1953,6 @@ where the second equality follows from Assumption <a href="RCT.html#def:RandEnco
 <li>We show the <strong>reduced form</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on outcomes. It is generally called the Intention to Treat Effect, and is defined similarly as what we defined in the Randomization After Eligibility design.</li>
 <li>We finally show the <strong>structural</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(D_i\)</span> using *R_I$ as an instrument.</li>
 </ol>
-
-<div class="remark">
- <span class="remark"><em>Remark. </em></span> what if we fear there are defiers. de Chaisemartin
-</div>
-
-</div>
-</div>
-<div id="estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect" class="section level3">
-<h3><span class="header-section-number">3.4.2</span> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</h3>
 </div>
 <div id="estimating-sampling-noise-3" class="section level3">
 <h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>

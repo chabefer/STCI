@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-10}
+    \date{2019-10-11}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -5304,17 +5304,16 @@ smaller than a threshold level \(\bar{y}\). Self-selection among
 eligibles is decided by the net utility of the treatment \(D_i^*\) being
 positive. Here, the net utility is composed of the average gain from the
 treatment (assuming agents cannot foresee their idiosyncratic gain from
-the treatment apart from the part depending on \(\mu_i\))
-\(\bar{\alpha}+\theta\bar{\mu}\) minus the cost of participation
-\(C_i\). The cost of participation in turn depends on a constant, on
-\(\mu_i\) and on a random shock orthogonal to everything else \(V_i\).
-This cost might represent the administrative cost of applying for the
-treatment and the opportunity cost of participating into the treatment
-(foregone earnings and/or cost of time). Conditional on eligiblity,
-self-selection is endogenous in this model since both the gains and the
-cost of participation depend on \(\mu_i\). Costs depend on \(\mu_i\)
-since most productive people may face lower administrative costs but a
-higher opportunity cost of time.
+the treatment) \(\bar{\alpha}+\theta\bar{\mu}\) minus the cost of
+participation \(C_i\). The cost of participation in turn depends on a
+constant, on \(\mu_i\) and on a random shock orthogonal to everything
+else \(V_i\). This cost might represent the administrative cost of
+applying for the treatment and the opportunity cost of participating
+into the treatment (foregone earnings and/or cost of time). Conditional
+on eligiblity, self-selection is endogenous in this model since both the
+gains and the cost of participation depend on \(\mu_i\). Costs depend on
+\(\mu_i\) since most productive people may face lower administrative
+costs but a higher opportunity cost of time.
 
 Let's choose some values for the new parameters:
 
@@ -7249,12 +7248,12 @@ as an instrument for program participation.
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}The Encouragement design seems like magic.
-You do not assign randomly the program, but an encouragement to take it,
-but you can recover the effect of the program anyway. The Encouragement
-design is less intrusive than Randomization After Self-Selection and
-Randomization of Eligibility. In an Encouragement design, you do not
-have to refuse the program to agents in the control group. You pay two
-types of prices for that:
+You do not assign randomly the program, but only an encouragement to
+take it, and you can recover the effect of the program anyway. The
+Encouragement design is less intrusive than Randomization After
+Self-Selection and Randomization of Eligibility. In an Encouragement
+design, you do not have to refuse the program to agents in the control
+group. You pay two types of prices for that:
 \EndKnitrBlock{remark}
 
 \begin{enumerate}
@@ -7290,12 +7289,19 @@ population. In a given sample, the sample equivalents of the two members
 of each difference do not have to be equal, and thus they do not cancel
 out, generating sampling noise. Ideally, we would like to enforce that
 the effect of the encouragement on always takers and never takers is
-null under assumption \ref{def:ExclRestr}, but that would require
+null, as Assumption \ref{def:ExclRestr} imposes, but that would require
 observing the type variable \(T_i\). Unfortunately, we cannot now the
 type of each individual in the sample, since it is defined
 counterfactually. Maybe someday we'll be able to use prior responses to
 the encouragement to identify the type of each individual and thus
 improve the precision of the Wald estimator.
+
+\textbf{\textsc{Explain de Chaisemartin.}}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}what if we fear there are defiers. de
+Chaisemartin
+\EndKnitrBlock{remark}
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}In practice, we use a pseudo-RNG to allocate
@@ -7312,7 +7318,143 @@ the randomized annoucement of the encouragement:
   D_i & = \uns{\bar{\alpha}+\theta\bar{\mu}+\psi R_i-C_i\geq0 \land E_i=1}
 \end{align*}
 
-\textbf{\textsc{Numerical Example in population }}
+\(\psi\) denotes the increase in agents' valuation of the program after
+receiving the encouragement.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-117}{}{\label{exm:unnamed-chunk-117}
+}Let's see how the encouragement design works in our numerical example.
+Let's choose a value for \(\psi\) and add it to the vector of
+parameters.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(param,}\FloatTok{0.6}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{,}\StringTok{"barc"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"sigma2V"}\NormalTok{,}\StringTok{"psi"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Let's first compute the value of LATE in this new model. Let's denote
+\(D_i^{*0}=\bar{\alpha}+\theta\bar{\mu}-C_i\) the utility of agent \(i\)
+absent the encouragement, with \(C_i=\bar{c} + \gamma \mu_i + V_i\). In
+order to be a complier, you have to have a utility of the program that
+is insufficient to make you apply for the program when you receive no
+encouragement (\(D_i^{*0}<0\)) and a positive utility of applying to the
+treatment after receiving the encouragement (\(D_i^{*0}+\psi\geq 0\)).
+Compliers are thus such that \(-\psi\leq D_i^{*0}<0\). LATE can thus be
+written as follows in our model:
+
+\begin{align*}
+  \Delta^y_{LATE} & = \bar{\alpha}+ \theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y} \land -\psi\leq D_i^{*0}<0},
+\end{align*}
+
+Using the same approach, we can also compute the proportion of compliers
+among eligibles. In our model, we indeed have:
+
+\begin{align*}
+  \Pr(T_i=c|E_i=1) & = \Pr(-\psi\leq D_i^{*0}<0|\mu_i+U_i^B\leq\bar{y}).
+\end{align*}
+
+Since all errors terms are normally distributed in our model, we can
+compute the package \texttt{tmvtnorm} to compute both LATE and the
+proportion of compliers among eligibles.
+
+\begin{align*}
+  (\mu_i,y_i^B,D_i^{*0}) & = \mathcal{N}\left(\bar{\mu},\bar{\mu},\bar{\alpha}+(\theta-\gamma)\bar{\mu}-\bar{c},
+                                        \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} & -\gamma\sigma^2_{\mu} \\
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} + \sigma^2_{U} & -\gamma\sigma^2_{\mu} \\
+                                              -\gamma\sigma^2_{\mu} & -\gamma\sigma^2_{\mu} & \gamma^2\sigma^2_{\mu}+\sigma^2_{V}
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mean.mu.yB.Dstar <-}\StringTok{ }\KeywordTok{c}\NormalTok{(param[}\StringTok{'barmu'}\NormalTok{],param[}\StringTok{'barmu'}\NormalTok{],param[}\StringTok{'baralpha'}\NormalTok{]}\OperatorTok{-}\StringTok{ }\NormalTok{param[}\StringTok{'barc'}\NormalTok{]}\OperatorTok{+}\NormalTok{(param[}\StringTok{'theta'}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{])}\OperatorTok{*}\NormalTok{param[}\StringTok{'barmu'}\NormalTok{])}
+\NormalTok{cov.mu.yB.Dstar <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(param[}\StringTok{'sigma2mu'}\NormalTok{],param[}\StringTok{"sigma2mu"}\NormalTok{],}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],}
+\NormalTok{                            param[}\StringTok{"sigma2mu"}\NormalTok{],param[}\StringTok{'sigma2mu'}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{'sigma2U'}\NormalTok{],}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],}
+                            \OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],}\OperatorTok{-}\NormalTok{param[}\StringTok{'gamma'}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"sigma2mu"}\NormalTok{],param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{*}\NormalTok{(param[}\StringTok{'gamma'}\NormalTok{])}\OperatorTok{^}\DecValTok{2}\OperatorTok{+}\NormalTok{param[}\StringTok{'sigma2V'}\NormalTok{]),}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{TRUE}\NormalTok{)}
+\CommentTok{# late}
+\NormalTok{lower.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\NormalTok{param[}\StringTok{'psi'}\NormalTok{])}
+\NormalTok{upper.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OtherTok{Inf}\NormalTok{,}\KeywordTok{log}\NormalTok{(param[}\StringTok{'barY'}\NormalTok{]),}\DecValTok{0}\NormalTok{)}
+\NormalTok{moments.cut <-}\StringTok{ }\KeywordTok{mtmvnorm}\NormalTok{(}\DataTypeTok{mean=}\NormalTok{mean.mu.yB.Dstar,}\DataTypeTok{sigma=}\NormalTok{cov.mu.yB.Dstar,}\DataTypeTok{lower=}\NormalTok{lower.cut,}\DataTypeTok{upper=}\NormalTok{upper.cut)}
+\NormalTok{delta.y.late <-}\StringTok{ }\NormalTok{param[}\StringTok{'baralpha'}\NormalTok{]}\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{'theta'}\NormalTok{]}\OperatorTok{*}\NormalTok{moments.cut}\OperatorTok{$}\NormalTok{tmean[}\DecValTok{1}\NormalTok{]}
+\CommentTok{# proportion of compliers}
+\NormalTok{lower.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{)}
+\NormalTok{upper.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OtherTok{Inf}\NormalTok{,}\KeywordTok{log}\NormalTok{(param[}\StringTok{'barY'}\NormalTok{]),}\OtherTok{Inf}\NormalTok{)}
+\NormalTok{pr.compliers <-}\StringTok{ }\KeywordTok{ptmvnorm.marginal}\NormalTok{(}\DataTypeTok{xn=}\DecValTok{0}\NormalTok{,}\DataTypeTok{n=}\DecValTok{3}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{mean.mu.yB.Dstar,}\DataTypeTok{sigma=}\NormalTok{cov.mu.yB.Dstar,}\DataTypeTok{lower=}\NormalTok{lower.cut,}\DataTypeTok{upper=}\NormalTok{upper.cut)}\OperatorTok{-}\KeywordTok{ptmvnorm.marginal}\NormalTok{(}\DataTypeTok{xn=}\OperatorTok{-}\NormalTok{param[}\StringTok{'psi'}\NormalTok{],}\DataTypeTok{n=}\DecValTok{3}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{mean.mu.yB.Dstar,}\DataTypeTok{sigma=}\NormalTok{cov.mu.yB.Dstar,}\DataTypeTok{lower=}\NormalTok{lower.cut,}\DataTypeTok{upper=}\NormalTok{upper.cut)}
+\end{Highlighting}
+\end{Shaded}
+
+The value of \(\Delta^y_{LATE}\) in the population is thus 0.173. The
+proportion of compliers among eligibles in the population is 0.272. As a
+consequence of Corollary \ref{cor:EncouragWald}, we can compute ITE as
+the product of LATE and the proportion of compliers. In our example, ITE
+is thus equal to 0.047 in the population.
+
+Now let's simulate a new sample with the encouragement delivered
+randomly among eligibles. I'm also defining the potential outcomes
+\(D^1_i\) and \(D^0_i\) and the types \(T_i\) for later use.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# I'm changing the seed because with the usual one, I get a negative estimate of the treatment effect: lots of sampling noise!}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{12345}\NormalTok{)}
+\NormalTok{N <-}\DecValTok{1000}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+
+\CommentTok{#random allocation of encouragement among eligibles}
+\NormalTok{E <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(YB}\OperatorTok{<=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{],}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{Rs <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(N)}
+\NormalTok{R <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Rs}\OperatorTok{<=}\NormalTok{.}\DecValTok{5} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,param[}\StringTok{"sigma2V"}\NormalTok{])}
+\NormalTok{Dindex <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"psi"}\NormalTok{]}\OperatorTok{*}\NormalTok{R}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dindex}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+
+\CommentTok{# types}
+\NormalTok{Dindex1 <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"psi"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
+\NormalTok{Dindex0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
+\NormalTok{D1 <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dindex1}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{D0 <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dindex0}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{AT <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(D1}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{D0}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{NT <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(D1}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{D0}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{Co <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(D1}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{D0}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+
+\CommentTok{# figures}
+\NormalTok{Ncompliers <-}\StringTok{ }\KeywordTok{sum}\NormalTok{(Co)}
+\NormalTok{NElig <-}\StringTok{ }\KeywordTok{sum}\NormalTok{(E)}
+\NormalTok{PrCoElig <-}\StringTok{ }\NormalTok{Ncompliers}\OperatorTok{/}\NormalTok{NElig}
+\NormalTok{LATEs <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(alpha[Co}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{ITEs <-}\StringTok{ }\NormalTok{LATEs}\OperatorTok{*}\NormalTok{PrCoElig}
+\end{Highlighting}
+\end{Shaded}
+
+In our sample of \(N=\) 1000 individuals, there are only 216 eligibles,
+and among them 67 compliers. The proportion of compliers among eligibles
+is thus 0.31. Sample size decreases fast in an encouragement design. The
+sample LATE is equal to 0.14. The sample ITE is equal to 0.044.
+
+\subsection{Estimating the Local Average Treatment Effect and the
+Intention to Treat
+Effect}\label{estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect}
+
+\textbf{\textsc{Move on to estimation}}
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}Classically, we present the results of an
@@ -7336,15 +7478,6 @@ Encouragement design in three stages:
   We finally show the \textbf{structural} regression of \(Y_i\) on
   \(D_i\) using *R\_I\$ as an instrument.
 \end{enumerate}
-
-\BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}what if we fear there are defiers. de
-Chaisemartin
-\EndKnitrBlock{remark}
-
-\subsection{Estimating the Local Average Treatment Effect and the
-Intention to Treat
-Effect}\label{estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect}
 
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-3}
@@ -7472,7 +7605,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-119}{}{\label{exm:unnamed-chunk-119}
+\protect\hypertarget{exm:unnamed-chunk-120}{}{\label{exm:unnamed-chunk-120}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -7645,7 +7778,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-125}{}{\label{exm:unnamed-chunk-125}
+\protect\hypertarget{exm:unnamed-chunk-126}{}{\label{exm:unnamed-chunk-126}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -7718,7 +7851,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-126}{}{\label{exm:unnamed-chunk-126}
+\protect\hypertarget{exm:unnamed-chunk-127}{}{\label{exm:unnamed-chunk-127}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -7891,7 +8024,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-128}{}{\label{exm:unnamed-chunk-128}
+\protect\hypertarget{exm:unnamed-chunk-129}{}{\label{exm:unnamed-chunk-129}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -7929,7 +8062,7 @@ that the weighting approach we have used so far underestimates the
 uncertainty around the true effect, since it does not acknowledge that
 there is additional variation within each study.
 
-There are two main wasy to account for heterogeneity in meta-analysis:
+There are two main ways to account for heterogeneity in meta-analysis:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -7945,6 +8078,9 @@ There are two main wasy to account for heterogeneity in meta-analysis:
 In this section, we are going to study the random effects approach, and
 we'll defer the meta-regression for the next section.
 
+\subsubsection{Estimating the variance of the treatment effect across
+sites}\label{estimating-the-variance-of-the-treatment-effect-across-sites}
+
 The key component of the random effects approach is the estimation of
 the size of the variance of the treatment effect in the population.
 Indeed, the observed effect size estimate for a given study \(k\) is
@@ -7954,23 +8090,17 @@ modelled as follows in the random effects approach:
 \hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
 \end{align*}
 
-where \(\epsilon_k\) is sampling noise, \(\nu_k\) is the variation in
-effect size in the population and \(\alpha\) is the average of the
-effect size accross all populations. We denote, as is customary, the
-variance of \(\nu_k\) as \(\tau^2\). Since Hedges, \(\tau^2\) is
-estimated as the residual variance in effect sizes that is not explained
-by sampling noise. In order to compute this estimator, first estimate
-the overall variance in \(\hat{\theta}_k\), then estimate the component
-of the variance due to sampling noise and finally take the difference
-between the two. Hedges' estimator of the overall variance in effect
-sizes is:
+where \(\epsilon_k\) is due to sampling noise and \(\nu_k\) is due to
+the heterogeneity in effect sizes across sites, while \(\alpha\) is the
+average of the effect size accross all populations. We denote the
+variance of \(\nu_k\) as \(\tau^2\).
 
-\begin{align*}
-\hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
-\end{align*}
-
-with \(\nu_k\) the population level noise with variance \(\tau^2\).
-Hedges' estimator for \(\tau^2\) is:
+Since Hedges, \(\tau^2\) is estimated as the residual variance in effect
+sizes that is not explained by sampling noise. In order to compute this
+estimator, first estimate the overall variance in \(\hat{\theta}_k\),
+then estimate the component of the variance due to sampling noise and
+finally take the difference between the two. Hedges' estimator of the
+overall variance in effect sizes is:
 
 \begin{align*}
 \hat{\tau}^2 & = \hat{\sigma}^2_{tot}-\hat{\sigma}^2_{\epsilon},
@@ -7991,7 +8121,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-132}{}{\label{exm:unnamed-chunk-132}
+\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8010,15 +8140,9 @@ Our estimate of \(\tau^2\) in our example is thus -0.03. This estimate
 is small, suggesting that there is no additional variance in the
 treatment effects on top of sammling variation, as we know is the case
 and has already been suggested by the results of the \(Q\) statistic.
-Hedges' estimate of \(\tau^2\) slightly negative, which is problem,
-since a variance is always positive. Other estimators of \(\tau^2\) have
-been proposed in the literature to account for this fact and to respond
-to various shortcomings of Hedges' approach. We will present ehm
-succinctly since they are part of the \texttt{metafor} package.
-
-Before that, let's create a new sample of effect sizes where we add
-noise to each estimate stemming not from sampling, but from
-heterogeneity in treatment effects across sites and studies.
+Let's now create a new sample of effect sizes where we add noise to each
+estimate stemming not from sampling, but from heterogeneity in treatment
+effects across sites and studies.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -8086,9 +8210,13 @@ Let's see now how Hedge's estimator performs:
 Hedges' estimates of \(\tau^2\) in our examples are thus 0.2 and 0.73
 respectively, while the true values are, respectively 0.25 and 1.
 
-Hedges then proposes a new estimator for the average effect of the
-treatment, an estimator that accounts for the additional noise due to
-heterogeneous treatment effects accross sites.
+\subsubsection{Estimating the average effect of the treatment taking
+heterogeneity into
+account}\label{estimating-the-average-effect-of-the-treatment-taking-heterogeneity-into-account}
+
+Hedges proposes a new estimator for the average effect of the treatment,
+an estimator that accounts for the additional noise due to heterogeneous
+treatment effects accross sites.
 
 \BeginKnitrBlock{definition}[Hedges Weighted Meta-Analytic Estimator]
 \protect\hypertarget{def:Hmetaweights}{}{\label{def:Hmetaweights}
@@ -8104,16 +8232,108 @@ is \[
 \NormalTok{Hwmae <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(theta,sigma2,tau2)\{}
   \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\KeywordTok{weighted.mean}\NormalTok{(theta,(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2)}\OperatorTok{/}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{(sigma2}\OperatorTok{+}\NormalTok{tau2))),}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2}\OperatorTok{+}\NormalTok{tau2))))}
 \NormalTok{\}}
+\NormalTok{ES.H.theta.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{Hwmae}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{1}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{se.ES}\OperatorTok{^}\DecValTok{2}\NormalTok{,tau.}\FloatTok{2.}\NormalTok{theta.}\DecValTok{1}\NormalTok{)}
+\NormalTok{ES.H.theta.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{Hwmae}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{2}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{se.ES}\OperatorTok{^}\DecValTok{2}\NormalTok{,tau.}\FloatTok{2.}\NormalTok{theta.}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
+\protect\hypertarget{exm:unnamed-chunk-134}{}{\label{exm:unnamed-chunk-134}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
-equal to 0.3 and 0.65 respectively, while the true value is 0.2.
+equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
+main problem with Hedges' estimator when treatment effects are
+heterogeneous is that very large effects for the more precise estimators
+dramatically affect the estimate.
 
-\textbf{\textsc{Show other estimates than \(\tau^2\).}}
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Hedges' estimate of \(\tau^2\) is slightly
+negative, which is problem, since a variance is always positive. Other
+estimators of \(\tau^2\) have been proposed in the literature to account
+for this fact and to respond to various shortcomings of Hedges'
+approach. We will present them succinctly since they are part of the
+\texttt{metafor} package. These other estimators have bames such as .
+They are very well described in this
+\href{http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf}{amazing
+set of slides}. Besides Hedges' (denoted `HE' in R), the other
+estimators are named:
+\EndKnitrBlock{remark}
+
+\begin{itemize}
+\tightlist
+\item
+  DerSimonian-Laird (`DL')
+\item
+  Hunter-Schmidt (`HS')
+\item
+  Sidik-Jonkman (`SJ')
+\item
+  Maximum-likelihood (`ML')
+\item
+  Restricted maximum-likelihood (`REML')
+\item
+  Empirical Bayes (`EB')
+\end{itemize}
+
+I'll detail how they work later.
+
+\textbf{\textsc{Detail other estimators of tau.}}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-136}{}{\label{exm:unnamed-chunk-136}
+}For the moment, let's see how they perform in our numerical example.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{estimators <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"DL"}\NormalTok{, }\StringTok{"REML"}\NormalTok{, }\StringTok{"HE"}\NormalTok{, }\StringTok{"HS"}\NormalTok{, }\StringTok{"SJ"}\NormalTok{, }\StringTok{"ML"}\NormalTok{, }\StringTok{"EB"}\NormalTok{)}
+\NormalTok{meta.example.RE.theta.}\FloatTok{1.}\NormalTok{tau2 <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(estimators,}\ControlFlowTok{function}\NormalTok{(method)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{1}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\NormalTok{method)}\OperatorTok{$}\NormalTok{tau2)\})}
+\NormalTok{meta.example.RE.theta.}\FloatTok{2.}\NormalTok{tau2 <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(estimators,}\ControlFlowTok{function}\NormalTok{(method)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{2}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\NormalTok{method)}\OperatorTok{$}\NormalTok{tau2)\})}
+\CommentTok{#meta.example.RE <- sapply(estimators,function(method)\{return(rma(yi = data.meta$theta.1,vi=data.meta$var.ES,method=method))\})}
+\CommentTok{#meta.example.RE.tau2.test <- unlist(lapply(meta.example.RE,'[[','tau2'))}
+
+\NormalTok{result.RE <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{Method=}\KeywordTok{rep}\NormalTok{(estimators,}\DecValTok{2}\NormalTok{),}\DataTypeTok{tau2hat=}\KeywordTok{c}\NormalTok{(meta.example.RE.theta.}\FloatTok{1.}\NormalTok{tau2,meta.example.RE.theta.}\FloatTok{2.}\NormalTok{tau2),}\DataTypeTok{tau2=}\KeywordTok{c}\NormalTok{(}\KeywordTok{rep}\NormalTok{(tau[[}\DecValTok{1}\NormalTok{]]}\OperatorTok{^}\DecValTok{2}\NormalTok{,}\KeywordTok{length}\NormalTok{(estimators)),}\KeywordTok{rep}\NormalTok{(tau[[}\DecValTok{2}\NormalTok{]]}\OperatorTok{^}\DecValTok{2}\NormalTok{,}\KeywordTok{length}\NormalTok{(estimators))))}
+
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data=}\NormalTok{result.RE, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{Method, }\DataTypeTok{y=}\NormalTok{tau2hat, }\DataTypeTok{fill=}\KeywordTok{as.factor}\NormalTok{(tau2))) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{())}\OperatorTok{+}
+\StringTok{    }\KeywordTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/RandomOthersTau-1} 
+
+}
+
+\caption{Various estimators of $\tau^2$}\label{fig:RandomOthersTau}
+\end{figure}
+
+We are ready to estimate the overall treatment effect using random
+effects.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{estimators <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"DL"}\NormalTok{, }\StringTok{"REML"}\NormalTok{, }\StringTok{"HE"}\NormalTok{, }\StringTok{"HS"}\NormalTok{, }\StringTok{"SJ"}\NormalTok{, }\StringTok{"ML"}\NormalTok{, }\StringTok{"EB"}\NormalTok{)}
+\NormalTok{meta.example.RE.theta.}\FloatTok{1.}\NormalTok{ES <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(estimators,}\ControlFlowTok{function}\NormalTok{(method)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{1}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\NormalTok{method)}\OperatorTok{$}\NormalTok{beta)\})}
+\NormalTok{meta.example.RE.theta.}\FloatTok{2.}\NormalTok{ES <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(estimators,}\ControlFlowTok{function}\NormalTok{(method)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{2}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\NormalTok{method)}\OperatorTok{$}\NormalTok{beta)\})}
+\CommentTok{#meta.example.RE.tau2.test <- unlist(lapply(meta.example.RE,'[[','tau2'))}
+
+\NormalTok{result.RE}\OperatorTok{$}\NormalTok{ES.RE <-}\StringTok{ }\KeywordTok{c}\NormalTok{(meta.example.RE.theta.}\FloatTok{1.}\NormalTok{ES,meta.example.RE.theta.}\FloatTok{2.}\NormalTok{ES)}
+
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data=}\NormalTok{result.RE, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{Method, }\DataTypeTok{y=}\NormalTok{ES.RE, }\DataTypeTok{fill=}\KeywordTok{as.factor}\NormalTok{(tau2))) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/RandomOthersES-1} 
+
+}
+
+\caption{Various estimators of the treatment effect with random effects}\label{fig:RandomOthersES}
+\end{figure}
 
 \textbf{\textsc{Show other estimators than Hedges' and how to implement
 them with \texttt{rma}.}}

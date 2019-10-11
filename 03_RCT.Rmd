@@ -598,7 +598,7 @@ V_i & \sim \mathcal{N}(0,\sigma^2_V)
 
 Eligibility is still decided based on pre-treatment outcomes being smaller than a threshold level $\bar{y}$.
 Self-selection among eligibles is decided by the net utility of the treatment $D_i^*$ being positive.
-Here, the net utility is composed of the average gain from the treatment (assuming agents cannot foresee their idiosyncratic gain from the treatment apart from the part depending on $\mu_i$) $\bar{\alpha}+\theta\bar{\mu}$ minus the cost of participation $C_i$.
+Here, the net utility is composed of the average gain from the treatment (assuming agents cannot foresee their idiosyncratic gain from the treatment) $\bar{\alpha}+\theta\bar{\mu}$ minus the cost of participation $C_i$.
 The cost of participation in turn depends on a constant, on $\mu_i$ and on a random shock orthogonal to everything else $V_i$.
 This cost might represent the administrative cost of applying for the treatment and the opportunity cost of participating into the treatment (foregone earnings and/or cost of time).
 Conditional on eligiblity, self-selection is endogenous in this model since both the gains and the cost of participation depend on $\mu_i$.
@@ -2030,7 +2030,7 @@ The encouragement serves as an instrument for program participation.
 
 ```{remark}
 The Encouragement design seems like magic. 
-You do not assign randomly the program, but an encouragement to take it, but you can recover the effect of the program anyway. 
+You do not assign randomly the program, but only an encouragement to take it, and you can recover the effect of the program anyway. 
 The Encouragement design is less intrusive than Randomization After Self-Selection and Randomization of Eligibility.
 In an Encouragement design, you do not have to refuse the program to agents in the control group. 
 You pay two types of prices for that:
@@ -2058,9 +2058,16 @@ The four parts of the equation account for comparisons among each type between t
 The parts due to always takers and never takers cancel out under Assumptions \@ref(def:IndepEncourag) and \@ref(def:ExclRestr).
 But this cancelling out only happens in the population.
 In a given sample, the sample equivalents of the two members of each difference do not have to be equal, and thus they do not cancel out, generating sampling noise.
-Ideally, we would like to enforce that the effect of the encouragement on always takers and never takers is null under assumption \@ref(def:ExclRestr), but that would require observing the type variable $T_i$.
+Ideally, we would like to enforce that the effect of the encouragement on always takers and never takers is null, as Assumption \@ref(def:ExclRestr) imposes, but that would require observing the type variable $T_i$.
 Unfortunately, we cannot now the type of each individual in the sample, since it is defined counterfactually.
 Maybe someday we'll be able to use prior responses to the encouragement to identify the type of each individual and thus improve the precision of the Wald estimator.
+
+**<span style="font-variant:small-caps;">Explain de Chaisemartin.</span>**
+
+```{remark}
+what if we fear there are defiers.
+de Chaisemartin
+```
 
 ```{remark}
 In practice, we use a pseudo-RNG to allocate the randomized annoucement of the encouragement:
@@ -2076,10 +2083,125 @@ In practice, we use a pseudo-RNG to allocate the randomized annoucement of the e
   D_i & = \uns{\bar{\alpha}+\theta\bar{\mu}+\psi R_i-C_i\geq0 \land E_i=1}
 \end{align*}
 
-**<span style="font-variant:small-caps;">Numerical Example in population </span>**
+$\psi$ denotes the increase in agents' valuation of the program after receiving the encouragement. 
 
+```{example}
+Let's see how the encouragement design works in our numerical example.
+Let's choose a value for $\psi$ and add it to the vector of parameters.
+```
 
+```{r paramencouragement,dependson='paramselfselect',eval=TRUE,echo=TRUE,results='hide'}
+param <- c(param,0.6)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","barc","gamma","sigma2V","psi")
+```
 
+Let's first compute the value of LATE in this new model.
+Let's denote $D_i^{*0}=\bar{\alpha}+\theta\bar{\mu}-C_i$ the utility of agent $i$ absent the encouragement, with $C_i=\bar{c} + \gamma \mu_i + V_i$.
+In order to be a complier, you have to have a utility of the program that is insufficient to make you apply for the program when you receive no encouragement ($D_i^{*0}<0$) and a positive utility of applying to the treatment after receiving the encouragement ($D_i^{*0}+\psi\geq 0$).
+Compliers are thus such that $-\psi\leq D_i^{*0}<0$.
+LATE can thus be written as follows in our model:
+
+\begin{align*}
+  \Delta^y_{LATE} & = \bar{\alpha}+ \theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y} \land -\psi\leq D_i^{*0}<0},
+\end{align*}
+
+Using the same approach, we can also compute the proportion of compliers among eligibles. 
+In our model, we indeed have:
+
+\begin{align*}
+  \Pr(T_i=c|E_i=1) & = \Pr(-\psi\leq D_i^{*0}<0|\mu_i+U_i^B\leq\bar{y}).
+\end{align*}
+
+Since all errors terms are normally distributed in our model, we can compute the package `tmvtnorm` to compute both LATE and the proportion of compliers among eligibles.
+
+\begin{align*}
+  (\mu_i,y_i^B,D_i^{*0}) & = \mathcal{N}\left(\bar{\mu},\bar{\mu},\bar{\alpha}+(\theta-\gamma)\bar{\mu}-\bar{c},
+                                        \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} & -\gamma\sigma^2_{\mu} \\
+                                              \sigma^2_{\mu} & \sigma^2_{\mu} + \sigma^2_{U} & -\gamma\sigma^2_{\mu} \\
+                                              -\gamma\sigma^2_{\mu} & -\gamma\sigma^2_{\mu} & \gamma^2\sigma^2_{\mu}+\sigma^2_{V}
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}
+
+```{r lateEncourage,eval=TRUE,echo=TRUE,results='hide'}
+mean.mu.yB.Dstar <- c(param['barmu'],param['barmu'],param['baralpha']- param['barc']+(param['theta']-param['gamma'])*param['barmu'])
+cov.mu.yB.Dstar <- matrix(c(param['sigma2mu'],param["sigma2mu"],-param['gamma']*param["sigma2mu"],
+                            param["sigma2mu"],param['sigma2mu']+param['sigma2U'],-param['gamma']*param["sigma2mu"],
+                            -param['gamma']*param["sigma2mu"],-param['gamma']*param["sigma2mu"],param["sigma2mu"]*(param['gamma'])^2+param['sigma2V']),3,3,byrow=TRUE)
+# late
+lower.cut <- c(-Inf,-Inf,-param['psi'])
+upper.cut <- c(Inf,log(param['barY']),0)
+moments.cut <- mtmvnorm(mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)
+delta.y.late <- param['baralpha']+ param['theta']*moments.cut$tmean[1]
+# proportion of compliers
+lower.cut <- c(-Inf,-Inf,-Inf)
+upper.cut <- c(Inf,log(param['barY']),Inf)
+pr.compliers <- ptmvnorm.marginal(xn=0,n=3,mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)-ptmvnorm.marginal(xn=-param['psi'],n=3,mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)
+```
+
+The value of $\Delta^y_{LATE}$ in the population is thus `r round(delta.y.late,3)`.
+The proportion of compliers among eligibles in the population is `r round(pr.compliers,3)`.
+As a consequence of Corollary \@ref(cor:EncouragWald), we can compute ITE as the product of LATE and the proportion of compliers.
+In our example, ITE is thus equal to `r round(delta.y.late*pr.compliers,3)` in the population.
+
+Now let's simulate a new sample with the encouragement delivered randomly among eligibles.
+I'm also defining the potential outcomes $D^1_i$ and $D^0_i$ and the types $T_i$ for later use. 
+
+```{r simulencouragement,dependson='paramencouragement',eval=TRUE,echo=TRUE,results='hide'}
+# I'm changing the seed because with the usual one, I get a negative estimate of the treatment effect: lots of sampling noise!
+set.seed(12345)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+
+#random allocation of encouragement among eligibles
+E <- ifelse(YB<=param["barY"],1,0)
+Rs <- runif(N)
+R <- ifelse(Rs<=.5 & E==1,1,0)
+V <- rnorm(N,0,param["sigma2V"])
+Dindex <- param["baralpha"]+param["theta"]*param["barmu"]+param["psi"]*R-param["barc"]-param["gamma"]*mu-V
+Ds <- ifelse(Dindex>=0 & E==1,1,0)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+
+# types
+Dindex1 <- param["baralpha"]+param["theta"]*param["barmu"]+param["psi"]-param["barc"]-param["gamma"]*mu-V
+Dindex0 <- param["baralpha"]+param["theta"]*param["barmu"]-param["barc"]-param["gamma"]*mu-V
+D1 <- ifelse(Dindex1>=0 & E==1,1,0)
+D0 <- ifelse(Dindex0>=0 & E==1,1,0)
+AT <- ifelse(D1==1 & D0==1,1,0)
+NT <- ifelse(D1==0 & D0==0,1,0)
+Co <- ifelse(D1==1 & D0==0,1,0)
+
+# figures
+Ncompliers <- sum(Co)
+NElig <- sum(E)
+PrCoElig <- Ncompliers/NElig
+LATEs <- mean(alpha[Co==1])
+ITEs <- LATEs*PrCoElig
+```
+
+In our sample of $N=$ `r N` individuals, there are only `r NElig` eligibles, and among them `r Ncompliers` compliers.
+The proportion of compliers among eligibles is thus `r round(PrCoElig,3)`.
+Sample size decreases fast in an encouragement design.
+The sample LATE is equal to `r round(LATEs,3)`.
+The sample ITE is equal to `r round(ITEs,3)`.
+
+### Estimating the Local Average Treatment Effect and the Intention to Treat Effect
+
+**<span style="font-variant:small-caps;">Move on to estimation</span>**
 
 ```{remark}
 Classically, we present the results of an Encouragement design in three stages:
@@ -2089,14 +2211,6 @@ Classically, we present the results of an Encouragement design in three stages:
   2. We show the **reduced form** regression of $Y_i$ on $R_i$: this estimates the impact of the encouragement on outcomes.
   It is generally called the Intention to Treat Effect, and is defined similarly as what we defined in the Randomization After Eligibility design.
   3. We finally show the **structural** regression of $Y_i$ on $D_i$ using *R_I$ as an instrument.
-  
-```{remark}
-what if we fear there are defiers.
-de Chaisemartin
-```
-
-
-### Estimating the Local Average Treatment Effect and the Intention to Treat Effect
 
 
 ### Estimating sampling noise

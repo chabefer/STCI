@@ -315,12 +315,14 @@ If it is much larger, homogeneity is probably not guaranteed.
 When each study draws a treatment effect from a distinct population, meta-analysis has to take into account that treatment effects are heterogeneous.
 The main consequence of treatment effect heterogeneity is that the weighting approach we have used so far underestimates the uncertainty around the true effect, since it does not acknowledge that there is additional variation within each study.
 
-There are two main wasy to account for heterogeneity in meta-analysis:
+There are two main ways to account for heterogeneity in meta-analysis:
 
   1. **Meta-regression** trying to capture the heterogeneity in treatment effects with observed covariates.
   2. **Random effects** allowing for additional random noise in each study.
   
 In this section, we are going to study the random effects approach, and we'll defer the meta-regression for the next section.
+
+#### Estimating the variance of the treatment effect across sites
 
 The key component of the random effects approach is the estimation of the size of the variance of the treatment effect in the population.
 Indeed, the observed effect size estimate for a given study $k$ is modelled as follows in the random effects approach:
@@ -329,18 +331,12 @@ Indeed, the observed effect size estimate for a given study $k$ is modelled as f
 \hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
 \end{align*}
 
-where $\epsilon_k$ is sampling noise, $\nu_k$ is the variation in effect size in the population and $\alpha$ is the average of the effect size accross all populations.
-We denote, as is customary, the variance of $\nu_k$ as $\tau^2$.
+where $\epsilon_k$ is due to sampling noise and $\nu_k$ is due to the heterogeneity in effect sizes across sites, while $\alpha$ is the average of the effect size accross all populations.
+We denote the variance of $\nu_k$ as $\tau^2$.
+
 Since Hedges, $\tau^2$ is estimated as the residual variance in effect sizes that is not explained by sampling noise.
 In order to compute this estimator, first estimate the overall variance in $\hat{\theta}_k$, then estimate the component of the variance due to sampling noise and finally take the difference between the two.
 Hedges' estimator of the overall variance in effect sizes is:
-
-\begin{align*}
-\hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
-\end{align*}
-
-with $\nu_k$ the population level noise with variance $\tau^2$.
-Hedges' estimator for $\tau^2$ is:
 
 \begin{align*}
 \hat{\tau}^2 & = \hat{\sigma}^2_{tot}-\hat{\sigma}^2_{\epsilon},
@@ -373,11 +369,7 @@ tau.2.theta <- tau.2(data.meta$ES,data.meta$se.ES^2)
 
 Our estimate of $\tau^2$ in our example is thus `r round(tau.2.theta,2)`.
 This estimate is small, suggesting that there is no additional variance in the treatment effects on top of sammling variation, as we know is the case and has already been suggested by the results of the $Q$ statistic.
-Hedges' estimate of $\tau^2$  slightly negative, which is problem, since a variance is always positive.
-Other estimators of $\tau^2$ have been proposed in the literature to account for this fact and to respond to various shortcomings of Hedges' approach.
-We will present ehm succinctly since they are part of the `metafor` package.
-
-Before that, let's create a new sample of effect sizes where we add noise to each estimate stemming not from sampling, but from heterogeneity in treatment effects across sites and studies.
+Let's now create a new sample of effect sizes where we add noise to each estimate stemming not from sampling, but from heterogeneity in treatment effects across sites and studies.
 
 ```{r randomshockmeta,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results=FALSE}
 tau <- c(0.5,1)
@@ -427,7 +419,9 @@ tau.2.theta.2 <- tau.2(data.meta$theta.2,data.meta$se.ES^2)
 
 Hedges' estimates of $\tau^2$ in our examples are thus `r round(tau.2.theta.1,2)` and  `r round(tau.2.theta.2,2)` respectively, while the true values are, respectively `r tau[[1]]^2` and `r tau[[2]]^2`.
 
-Hedges then proposes a new estimator for the average effect of the treatment, an estimator that accounts for the additional noise due to heterogeneous treatment effects accross sites.
+#### Estimating the average effect of the treatment taking heterogeneity into account 
+
+Hedges proposes a new estimator for the average effect of the treatment, an estimator that accounts for the additional noise due to heterogeneous treatment effects accross sites.
 
 ```{definition,Hmetaweights,name='Hedges Weighted Meta-Analytic Estimator'}
 Hedges weighted meta-analytic estimator for in the presence of random effects is
@@ -440,14 +434,70 @@ $$
 Hwmae <- function(theta,sigma2,tau2){
   return(c(weighted.mean(theta,(1/sigma2)/(sum(1/(sigma2+tau2))),1/sum(1/sigma2+tau2))))
 }
+ES.H.theta.1 <- Hwmae(data.meta$theta.1,data.meta$se.ES^2,tau.2.theta.1)
+ES.H.theta.2 <- Hwmae(data.meta$theta.2,data.meta$se.ES^2,tau.2.theta.2)
 ```
 
 ```{example}
 Let's see how Hedges estimator performs in our example.
 ```
-Hedges' estimates of the average effect size is equal to `r round(Hwmae(data.meta$theta.1,data.meta$se.ES^2,tau.2.theta.1),2)` and  `r round(Hwmae(data.meta$theta.2,data.meta$se.ES^2,tau.2.theta.2),2)` respectively, while the true value is `r round(ES(param),2)`.
+Hedges' estimates of the average effect size is equal to `r round(ES.H.theta.1,2)` and  `r round(ES.H.theta.2,2)` respectively, while the true value is `r round(ES(param),2)`.
+The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
 
-**<span style="font-variant:small-caps;">Show other estimates than $\tau^2$.</span>**
+```{remark}
+Hedges' estimate of $\tau^2$  is slightly negative, which is problem, since a variance is always positive.
+Other estimators of $\tau^2$ have been proposed in the literature to account for this fact and to respond to various shortcomings of Hedges' approach.
+We will present them succinctly since they are part of the `metafor` package.
+These other estimators have bames such as .
+They are very well described in this [amazing set of slides](http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf). 
+Besides Hedges' (denoted 'HE' in R), the other estimators are named:
+```
+  
+  - DerSimonian-Laird ('DL')
+  - Hunter-Schmidt ('HS')
+  - Sidik-Jonkman ('SJ')
+  - Maximum-likelihood ('ML')
+  - Restricted maximum-likelihood ('REML')
+  - Empirical Bayes ('EB')
+  
+I'll detail how they work later. 
+
+**<span style="font-variant:small-caps;">Detail other estimators of tau.</span>**
+
+```{example}
+For the moment, let's see how they perform in our numerical example.
+```
+
+```{r RandomOthersTau,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Various estimators of $\\tau^2$',fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
+estimators <- c("DL", "REML", "HE", "HS", "SJ", "ML", "EB")
+meta.example.RE.theta.1.tau2 <- sapply(estimators,function(method){return(rma(yi = data.meta$theta.1,vi=data.meta$var.ES,method=method)$tau2)})
+meta.example.RE.theta.2.tau2 <- sapply(estimators,function(method){return(rma(yi = data.meta$theta.2,vi=data.meta$var.ES,method=method)$tau2)})
+#meta.example.RE <- sapply(estimators,function(method){return(rma(yi = data.meta$theta.1,vi=data.meta$var.ES,method=method))})
+#meta.example.RE.tau2.test <- unlist(lapply(meta.example.RE,'[[','tau2'))
+
+result.RE <- data.frame(Method=rep(estimators,2),tau2hat=c(meta.example.RE.theta.1.tau2,meta.example.RE.theta.2.tau2),tau2=c(rep(tau[[1]]^2,length(estimators)),rep(tau[[2]]^2,length(estimators))))
+
+ggplot(data=result.RE, aes(x=Method, y=tau2hat, fill=as.factor(tau2))) +
+    geom_bar(stat="identity", position=position_dodge())+
+    ylim(0,1)
+```
+
+We are ready to estimate the overall treatment effect using random effects.
+
+```{r RandomOthersES,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Various estimators of the treatment effect with random effects',fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
+estimators <- c("DL", "REML", "HE", "HS", "SJ", "ML", "EB")
+meta.example.RE.theta.1.ES <- sapply(estimators,function(method){return(rma(yi = data.meta$theta.1,vi=data.meta$var.ES,method=method)$beta)})
+meta.example.RE.theta.2.ES <- sapply(estimators,function(method){return(rma(yi = data.meta$theta.2,vi=data.meta$var.ES,method=method)$beta)})
+#meta.example.RE.tau2.test <- unlist(lapply(meta.example.RE,'[[','tau2'))
+
+result.RE$ES.RE <- c(meta.example.RE.theta.1.ES,meta.example.RE.theta.2.ES)
+
+ggplot(data=result.RE, aes(x=Method, y=ES.RE, fill=as.factor(tau2))) +
+    geom_bar(stat="identity", position=position_dodge())
+```
+
+
+
 
 **<span style="font-variant:small-caps;">Show other estimators than Hedges' and how to implement them with `rma`.</span>**
 
