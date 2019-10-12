@@ -386,7 +386,7 @@ Let's visualize our two new datasets:
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
       geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
-      xlab("Studies (sd noise=0)")+
+      xlab(expression(paste('Studies',tau^2,'=',0,sep=' ')))+
       ylab("Effect size")+
       theme_bw()+
       ylim(-2,2)
@@ -395,7 +395,7 @@ Let's visualize our two new datasets:
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
       geom_errorbar(aes(ymin=theta.1-qnorm((delta.2+1)/2)*se.ES, ymax=theta.1+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
-      xlab(paste('Studies','$\\tau^2=$',tau[[1]],sep=' '))+
+      xlab(expression(paste('Studies',tau^2,'=',tau[[1]],sep=' ')))+
       ylab("Effect size")+
       theme_bw()+
       ylim(-2,2)
@@ -404,7 +404,7 @@ Let's visualize our two new datasets:
       geom_bar(position=position_dodge(), stat="identity", colour='black') +
       geom_errorbar(aes(ymin=theta.2-qnorm((delta.2+1)/2)*se.ES, ymax=theta.2+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
       geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
-      xlab(paste('Studies','$\\tau^2=$',tau[[2]],sep=' '))+
+      xlab(expression(paste('Studies',tau^2,'=',tau[[2]],sep=' ')))+
       ylab("Effect size")+
       theme_bw()+
       ylim(-2,2)
@@ -496,13 +496,118 @@ ggplot(data=result.RE, aes(x=Method, y=ES.RE, fill=as.factor(tau2))) +
     geom_bar(stat="identity", position=position_dodge())
 ```
 
+#### Other estimators of inter-site variability
 
+$\tau^2$ is a pretty difficult measure of treatment effect heterogeneity to interpret. 
+That's why other indicators have been built that are easier to interpret. 
+We are going to review several of them in this section.
 
+The first alternative or complement to $\tau^2$ is Higgin's $I^2$:
 
-**<span style="font-variant:small-caps;">Show other estimators than Hedges' and how to implement them with `rma`.</span>**
+\begin{align*}
+  I^2 & = \frac{Q-(N-1)}{Q}*100
+\end{align*}
 
+The interpretation of $I^2$ is pretty straightforward: it is the distance between the actual value of the $Q$ statistic and its value under the null of treatment effect homogeneity (it is equal to the number of studies $N$, with a correction for degress of freedom).
+It can also be interpreted as the fraction of the overall variance (remember that $Q$ is the sum of variance ratios) that is not explained by within study sampling noise.
+
+Another complement to $\tau^2$ is $H^2$:
+
+\begin{align*}
+  H^2 & = \frac{Q}{N-1}
+\end{align*}
+
+If $H^2$ is above one, then there is unexplained heterogeneity, again by the fact that $Q$ has mean $N-1$ under the null of treatment effect homogeneity.
+
+Finally, we can also define the Intra Class Correlation ($ICC$), which precisely measures the share of total variance attributable to treatment effect heterogeneity:
+
+\begin{align*}
+  ICC & = \frac{\tau^2}{\tau^2+S^2}
+\end{align*}
+
+Where $S^2$ is the amount of variance due to sampling noise. 
+An estimator for $S^2$ is:
+
+\begin{align*}
+  S^2 & = \frac{(N-1)\sum_{k=1}^N\frac{1}{\sigma^2_k}}{(\sum_{k=1}^N\frac{1}{\sigma^2_k})^2-\sum_{k=1}^N(\frac{1}{\sigma^2_k})^2}.
+\end{align*}
+
+**<span style="font-variant:small-caps;">I do not understand the formula for $S^2$. Why does it estimate what we want? I'd take the average variance.</span>**
+
+$ICC$ and $I^2$ are related by the following very simple relation: $I^2=ICC*100$.
+
+```{example}
+Let's see how these three estimators look like in our example. 
+The cool thing is that `rma` computes these estimators by default, so that a simple call to `summary()` is going to show them.
+The default random effects estimator is `REML`, which is deemed to be the best of them all according to simulations [(Viechtbauer, 2002)](https://journals.sagepub.com/doi/abs/10.3102/10769986030003261).
+```
+
+```{r I2H2ICC,eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
+meta.example.RE.ES <- rma(yi = data.meta$ES,vi=data.meta$var.ES)
+meta.example.RE.theta.1 <- rma(yi = data.meta$theta.1,vi=data.meta$var.ES)
+meta.example.RE.theta.2 <- rma(yi = data.meta$theta.2,vi=data.meta$var.ES)
+
+tau2.hat <- c(meta.example.RE.ES$tau2,meta.example.RE.theta.1$tau2,meta.example.RE.theta.2$tau2)
+I2 <-  c(meta.example.RE.theta.1$I2,meta.example.RE.theta.2$I2,meta.example.RE.ES$I2)
+H2 <-  c(meta.example.RE.theta.1$H2,meta.example.RE.theta.2$H2,meta.example.RE.ES$H2)
+
+# illustration of results returned by summary
+summary(meta.example.RE.theta.2)
+```
+
+The estimate of $I^2$ in our example is of `r round(I2[[3]],2)` when $\tau^2$ is equal to 0, of `r round(I2[[1]],2)` when $\tau^2$ is equal to `r tau[[1]]^2` and of `r round(I2[[2]],2)` when $\tau^2$ is equal to `r tau[[2]]^2`.
+The estimate of $H^2$ in our example is of `r round(H2[[3]],2)` when $\tau^2$ is equal to 0, of `r round(H2[[1]],2)` when $\tau^2$ is equal to `r tau[[1]]^2` and of `r round(H2[[2]],2)` when $\tau^2$ is equal to `r tau[[2]]^2`.
+
+#### Presenting the results of a random effects meta-analysis
+
+In order to illustrate the results of a random effects meta-analysis, you can first show the forest plot.
+Let's see how it works in our example:
+
+```{r RERMAmetafor,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Forest plots with random effects',fig.subcap=c(paste('$\\tau^2=$',0,sep=''),paste('$\\tau^2=$',tau[[1]]^2,sep=''),paste('$\\tau^2=$',tau[[2]]^2,sep='')), fig.align='center', out.width="33%", fig.pos='htbp', fig.height=8, fig.width=12}
+forest(meta.example.RE.ES,slab = paste('Study',data.meta$id,sep=' '),xlab=expression(paste('Estimated Meta-analytic Parameter,',tau^2,0,sep=' ')))
+forest(meta.example.RE.theta.1,slab = paste('Study',data.meta$id,sep=' '),xlab=expression(paste('Estimated Meta-analytic Parameter,',tau^2,'=','0.25',sep=' ')))
+forest(meta.example.RE.theta.2,slab = paste('Study',data.meta$id,sep=' '),xlab=expression(paste('Estimated Meta-analytic Parameter,',tau^2,'=','1',sep=' ')))
+```
+
+Another very nice and useful graphical presentation device is a radial (or Galbraith) plot. 
+It relates the invserse of the standard errors to the effect sizes normalized by their standard errors.
+Each data point is also related a radius by the line passing through the origin. 
+The Radial plot enables to visualize the noise in the dataset, and is especially useful when comparing a fixed and a random effects estimator for the same study.
+
+```{r Radial,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Radial plots with fixed and random effects','$\\tau^2=$',tau[[1]]^2,sep=' '),fig.subcap=c('Fixed effects','Random effects'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+meta.example.FE.theta.1 <- rma(yi = data.meta$theta.1,vi=data.meta$var.ES,method="FE")
+radial(meta.example.FE.theta.1)
+radial(meta.example.RE.theta.1)
+```
+
+Figure \@ref(fig:Radial) shows how the mechanics of the fixed effects estimator differs from the mechanics of the random effects one.
+In the presence of treatment effect heterogeneity, the fixed effect estimator faces two issues:
+
+  1. It gives too much weight to very precise estimators.
+  The random effects estimator undoes part of this importance by adding $\tau^2$ to the weights of each observation.
+  2. It overestimates overall precision by ignoring the sampling variance stemming from treatment effect heterogeneity across sites.
+  The random effects estimator corrects for that by estimating $\tau^2$ and adding it to the estimate of the total variance of the treatment effect.
+  
+```{example}
+Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+Let's plot the two forest plots for the example with $\tau=$ `r tau[[1]]^2`.
+```
+
+```{r FEvsRE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Fixed vs random effects with','$\\tau^2=$',tau[[1]]^2,sep=' '),fig.subcap=c('Fixed effects','Random effects'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+forest(meta.example.FE.theta.1,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
+forest(meta.example.RE.theta.1,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
+```
+
+Figure \@ref(fig:FEvsRE) clearly shows that the inclusion of $\tau^2$ in the wheights and precision estimates makes a huge difference to the meta-analytic estimate. 
+The fixed effects estimator yields an estimate of our treatment effect of `r round(coef(meta.example.FE.theta.1),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.theta.1)$se,2)`.
+The random effects estimator yields an estimate of our treatment effect of `r round(coef(meta.example.RE.theta.1),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.RE.theta.1)$se,2)`.
+With $\tau^2=$ `r tau[[2]]^2`, the random effects estimator yields an estimate of our treatment effect of `r round(coef(meta.example.RE.theta.2),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.RE.theta.2)$se,2)`.
+Remember that the true effect size of our treatment is `r round(ES(param),2)`.
+With $\tau^2=$ `r tau[[2]]^2`, the random effects estimator barely contains the truth in its `r delta.2*100` $\%$ confidence interval. 
 
 ### Meta-regression
+
+
 
 ### Why vote-counting does not work
 
