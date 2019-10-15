@@ -2139,6 +2139,7 @@ delta.y.late <- param['baralpha']+ param['theta']*moments.cut$tmean[1]
 lower.cut <- c(-Inf,-Inf,-Inf)
 upper.cut <- c(Inf,log(param['barY']),Inf)
 pr.compliers <- ptmvnorm.marginal(xn=0,n=3,mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)-ptmvnorm.marginal(xn=-param['psi'],n=3,mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)
+delta.y.ite <- delta.y.late*pr.compliers
 ```
 
 The value of $\Delta^y_{LATE}$ in the population is thus `r round(delta.y.late,3)`.
@@ -2175,6 +2176,7 @@ Dindex <- param["baralpha"]+param["theta"]*param["barmu"]+param["psi"]*R-param["
 Ds <- ifelse(Dindex>=0 & E==1,1,0)
 y <- y1*Ds+y0*(1-Ds)
 Y <- Y1*Ds+Y0*(1-Ds)
+D <- Ds
 
 # types
 Dindex1 <- param["baralpha"]+param["theta"]*param["barmu"]+param["psi"]-param["barc"]-param["gamma"]*mu-V
@@ -2201,19 +2203,92 @@ The sample ITE is equal to `r round(ITEs,3)`.
 
 ### Estimating the Local Average Treatment Effect and the Intention to Treat Effect
 
-**<span style="font-variant:small-caps;">Move on to estimation</span>**
-
-```{remark}
 Classically, we present the results of an Encouragement design in three stages:
-```  
 
   1. We show the **first stage** regression of $D_i$ on $R_i$: this estimates the impact of the encouragement on participation into the program and estimates the proportion of compliers.
-  2. We show the **reduced form** regression of $Y_i$ on $R_i$: this estimates the impact of the encouragement on outcomes.
-  It is generally called the Intention to Treat Effect, and is defined similarly as what we defined in the Randomization After Eligibility design.
-  3. We finally show the **structural** regression of $Y_i$ on $D_i$ using *R_I$ as an instrument.
+  2. We show the **reduced form** regression of $Y_i$ on $R_i$: this estimates the impact of the encouragement on outcomes, also called ITE.
+  3. We finally show the **structural** regression of $Y_i$ on $D_i$ using $R_i$ as an instrument, which estimates the LATE.
 
+#### First stage regression {#FStage}
 
-### Estimating sampling noise
+The first stage regression is simply to get an estimate of the effect of the encouragement on participation into the program.
+If there is no effect of the encouragement on participation, we might as well stop there, since there will be no compliers and no effect to estimate.
+Note that if we observe an effect on the encouragement on outcomes without any effect on participation, we have to accept the fact that the encouragement might have had a direct effect on outcomes and thus that the exclusion restriction assumption does not hold.
+
+Let's denote this effect of $R_i$ on $D_i$ $\Delta^{D,R}_{TT}=\esp{D_i^1-D_i^0|R_i=1,E_i=1}$.
+It is a treatment on the treated since we want to estimate the effect of the cnouragement onthose who have received it.
+Actually, $\Delta^{D,R}_{TT}$ is also equal to $\Delta^{D,R}_{ATE}$, since those who have received the encouragement are a random sample of the eligibles.
+
+How to estimate the effect of $R_i$ on $D_i$?
+When estimating the effect of the encouragement, we are in a Brute Force design among eligibles, so that the appropriate estimator is the With/Without estimator among eligibles:
+
+```{theorem,EncouragFStage,name="Identification of the First Stage Effect in an Encouragment Design"}
+Under Assumptions \@ref(def:RandEncouragValid) and \@ref(def:IndepEncourag), the WW estimator identifies the First Stage Effect (the effect of $R_i$ on $D_i$):
+\begin{align*}
+  \Delta^{D,R}_{WW} & = \Delta^{D,R}_{TT}.
+\end{align*}
+```
+
+```{proof}
+This is a direct consequence of Theorem \@ref(thm:BFATE).
+```
+
+As we have seen in Chapter \@ref{FPCI}, the WW estimator is identical to an OLS estimator:
+The OLS coefficient $\beta$ in the following regression: 
+\begin{align*}
+  	D_i &  = \alpha +  \beta R_i + U_i
+	\end{align*}
+is thus the $WW$ estimator.
+
+Finally, the advantage of using OLS other the direct WW comparison is that it gives you a direct estimate of sampling noise (see next section) but also that it enables you to condition on additional covariates in the regression:
+The OLS coefficient $\beta$ in the following regression: 
+\begin{align*}
+  	D_i &  = \alpha +  \beta R_i + \gamma' X_i + U_i
+	\end{align*}
+is a consistent (and even unbiased) estimate of the ATE.
+
+**<span style="font-variant:small-caps;">Center covariates at mean?</span>**
+
+```{example}
+In our numerical example, we can compare all these estimators.
+```
+
+```{r delta.D.ols,eval=TRUE,echo=TRUE,results='hide'}
+WW.D.R <- mean(D[E==1 & R==1])-mean(D[E==1 & R==0])
+reg.D.R.ols <- lm(D[E==1]~R[E==1])
+reg.D.R.ols.yB <- lm(D[E==1]~R[E==1]+yB[E==1])
+```
+
+$\hat{\Delta}^{D,R}_{WW} =$ `r round(WW.D.R,3)`, while $\hat{\Delta}^{D,R}_{OLS}=$ `r round(reg.D.R.ols$coef[2],3)` which is exactly equal, as expected, to the WW estimator.
+When controlling for $y^B_i$, we have: $\hat{\Delta}^{D,R}_{OLS(y^B)}=$ `r round(reg.D.R.ols.yB$coef[2],3)`.
+
+Under monotonicity, $\Delta^{D,R}_{TT}$ is equal to the proportion of compliers among eligibles.
+Indeed, this is the proportion of eligibles that participate when receiving the encouragement and that does not participate when not receiving it.
+In our example, the proportion of compliers among eligibles is `r round(pr.compliers,3)` in the population and `r round(PrCoElig,3)` in the sample.
+
+#### Reduced form regression
+
+The reduced form regression aims at estimating the ITE, that is the impact of receiving the encouragement on outcomes.
+From Theorem \@ref(thm:ITEEncourag), we know that the WW estimator among eligibles identifies the ITE in the population.
+As a consequence of now classical results, the OLS estimator without control variables is equivalent to the WW estimator and the OLS estimator conditioning on covariates might increase precision.
+
+```{example}
+In our numerical example, we can compare all these estimators.
+```
+
+```{r delta.Y.ols,eval=TRUE,echo=TRUE,results='hide'}
+WW.y.R <- mean(y[E==1 & R==1])-mean(y[E==1 & R==0])
+reg.y.R.ols <- lm(y[E==1]~R[E==1])
+reg.y.R.ols.yB <- lm(y[E==1]~R[E==1]+yB[E==1])
+```
+
+$\hat{\Delta}^{y,R}_{WW} =$ `r round(WW.y.R,3)`, while $\hat{\Delta}^{y,R}_{OLS}=$ `r round(reg.y.R.ols$coef[2],3)` which is exactly equal, as expected, to the WW estimator.
+When controlling for $y^B_i$, we have: $\hat{\Delta}^{y,R}_{OLS(y^B)}=$ `r round(reg.y.R.ols.yB$coef[2],3)`.
+In our example, the ITE is `r round(delta.y.ite,3)` in the population and `r round(ITEs,3)` in the sample.
+Without conditioning on $Y_i^B$, we are thus making a very large mistake as to the true ITE.
+This is probably because $y_i^B$ is not identically distributed between treatment and control, generating sampling noise.
+
+#### Structural regression
 
 For simplicity, in all that follows, I am setting $E_i=1$ for everyone, so that $N$ is the number of eligible individuals.
 
@@ -2235,5 +2310,10 @@ is the Wald estimator in the Encouragement Design and the Bloom estimator in the
 ```{proof}
 See in section \@ref(proofWaldIV) in the appendix.
 ```
+
+
+
+### Estimating sampling noise
+
 
 ## Threats to the validity of RCTs {#sec:threats}

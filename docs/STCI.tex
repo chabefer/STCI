@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-12}
+    \date{2019-10-15}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -7386,6 +7386,7 @@ proportion of compliers among eligibles.
 \NormalTok{lower.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{)}
 \NormalTok{upper.cut <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\OtherTok{Inf}\NormalTok{,}\KeywordTok{log}\NormalTok{(param[}\StringTok{'barY'}\NormalTok{]),}\OtherTok{Inf}\NormalTok{)}
 \NormalTok{pr.compliers <-}\StringTok{ }\KeywordTok{ptmvnorm.marginal}\NormalTok{(}\DataTypeTok{xn=}\DecValTok{0}\NormalTok{,}\DataTypeTok{n=}\DecValTok{3}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{mean.mu.yB.Dstar,}\DataTypeTok{sigma=}\NormalTok{cov.mu.yB.Dstar,}\DataTypeTok{lower=}\NormalTok{lower.cut,}\DataTypeTok{upper=}\NormalTok{upper.cut)}\OperatorTok{-}\KeywordTok{ptmvnorm.marginal}\NormalTok{(}\DataTypeTok{xn=}\OperatorTok{-}\NormalTok{param[}\StringTok{'psi'}\NormalTok{],}\DataTypeTok{n=}\DecValTok{3}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{mean.mu.yB.Dstar,}\DataTypeTok{sigma=}\NormalTok{cov.mu.yB.Dstar,}\DataTypeTok{lower=}\NormalTok{lower.cut,}\DataTypeTok{upper=}\NormalTok{upper.cut)}
+\NormalTok{delta.y.ite <-}\StringTok{ }\NormalTok{delta.y.late}\OperatorTok{*}\NormalTok{pr.compliers}
 \end{Highlighting}
 \end{Shaded}
 
@@ -7426,6 +7427,7 @@ randomly among eligibles. I'm also defining the potential outcomes
 \NormalTok{Ds <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Dindex}\OperatorTok{>=}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
 \NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
 \NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{D <-}\StringTok{ }\NormalTok{Ds}
 
 \CommentTok{# types}
 \NormalTok{Dindex1 <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"psi"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"barc"}\NormalTok{]}\OperatorTok{-}\NormalTok{param[}\StringTok{"gamma"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu}\OperatorTok{-}\NormalTok{V}
@@ -7454,12 +7456,8 @@ sample LATE is equal to 0.14. The sample ITE is equal to 0.044.
 Intention to Treat
 Effect}\label{estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect}
 
-\textbf{\textsc{Move on to estimation}}
-
-\BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}Classically, we present the results of an
-Encouragement design in three stages:
-\EndKnitrBlock{remark}
+Classically, we present the results of an Encouragement design in three
+stages:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -7476,8 +7474,126 @@ Encouragement design in three stages:
   design.
 \item
   We finally show the \textbf{structural} regression of \(Y_i\) on
-  \(D_i\) using *R\_I\$ as an instrument.
+  \(D_i\) using \(R_i\) as an instrument.
 \end{enumerate}
+
+\subsubsection{First stage regression}\label{FStage}
+
+The first stage regression is simply to get an estimate of the effect of
+the encouragement on participation into the program. If there is no
+effect of the encouragement on participation, we might as well stop
+there, since there will be no compliers and no effect to estimate. Note
+that if we observe an effect on the encouragement on outcomes without
+any effect on participation, we have to accept the fact that the
+encouragement might have had a direct effect on outcomes and thus that
+the exclusion restriction assumption does not hold.
+
+Let's denote this effect of \(R_i\) on \(D_i\)
+\(\Delta^{D,R}_{TT}=\esp{D_i^1-D_i^0|R_i=1,E_i=1}\). It is a treatment
+on the treated since we want to estimate the effect of the cnouragement
+onthose who have received it. Actually, \(\Delta^{D,R}_{TT}\) is also
+equal to \(\Delta^{D,R}_{ATE}\), since those who have received the
+encouragement are a random sample of the eligibles.
+
+How to estimate the effect of \(R_i\) on \(D_i\)? When estimating the
+effect of the encouragement, we are in a Brute Force design among
+eligibles, so that the appropriate estimator is the With/Without
+estimator among eligibles:
+
+\BeginKnitrBlock{theorem}[Identification of the First Stage Effect in an Encouragment Design]
+\protect\hypertarget{thm:EncouragFStage}{}{\label{thm:EncouragFStage}
+\iffalse (Identification of the First Stage Effect in an Encouragment
+Design) \fi{} }Under Assumptions \ref{def:RandEncouragValid} and
+\ref{def:IndepEncourag}, the WW estimator identifies the First Stage
+Effect (the effect of \(R_i\) on \(D_i\)):
+
+\begin{align*}
+  \Delta^{D,R}_{WW} & = \Delta^{D,R}_{TT}.
+\end{align*}
+\EndKnitrBlock{theorem}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}This is a direct consequence of Theorem
+\ref{thm:BFATE}.
+\EndKnitrBlock{proof}
+
+As we have seen in Chapter @ref\{FPCI\}, the WW estimator is identical
+to an OLS estimator: The OLS coefficient \(\beta\) in the following
+regression:
+
+\begin{align*}
+    D_i &  = \alpha +  \beta R_i + U_i
+    \end{align*}
+
+is thus the \(WW\) estimator.
+
+Finally, the advantage of using OLS other the direct WW comparison is
+that it gives you a direct estimate of sampling noise (see next section)
+but also that it enables you to condition on additional covariates in
+the regression: The OLS coefficient \(\beta\) in the following
+regression:
+
+\begin{align*}
+    D_i &  = \alpha +  \beta R_i + \gamma' X_i + U_i
+    \end{align*}
+
+is a consistent (and even unbiased) estimate of the ATE.
+
+\textbf{\textsc{Center covariates at mean?}}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-119}{}{\label{exm:unnamed-chunk-119}
+}In our numerical example, we can compare all these estimators.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{WW.D.R <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{])}\OperatorTok{-}\KeywordTok{mean}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{reg.D.R.ols <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{~}\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{reg.D.R.ols.yB <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{~}\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\NormalTok{yB[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\(\hat{\Delta}^{D,R}_{WW} =\) 0.213, while \(\hat{\Delta}^{D,R}_{OLS}=\)
+0.213 which is exactly equal, as expected, to the WW estimator. When
+controlling for \(y^B_i\), we have: \(\hat{\Delta}^{D,R}_{OLS(y^B)}=\)
+0.233.
+
+Under monotonicity, \(\Delta^{D,R}_{TT}\) is equal to the proportion of
+compliers among eligibles. Indeed, this is the proportion of eligibles
+that participate when receiving the encouragement and that does not
+participate when not receiving it. In our example, the proportion of
+compliers among eligibles is 0.272 in the population and 0.31 in the
+sample.
+
+\subsubsection{Reduced form regression}\label{reduced-form-regression}
+
+The reduced form regression aims at estimating the ITE, that is the
+impact of receiving the encouragement on outcomes. From Theorem
+\ref{thm:ITEEncourag}, we know that the WW estimator among eligibles
+identifies the ITE in the population. As a consequence of now classical
+results, the OLS estimator without control variables is equivalent to
+the WW estimator and the OLS estimator conditioning on covariates might
+increase precision.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-120}{}{\label{exm:unnamed-chunk-120}
+}In our numerical example, we can compare all these estimators.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{WW.y.R <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{])}\OperatorTok{-}\KeywordTok{mean}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{reg.y.R.ols <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{~}\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{reg.y.R.ols.yB <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{~}\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\NormalTok{yB[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\(\hat{\Delta}^{y,R}_{WW} =\) 0.179, while \(\hat{\Delta}^{y,R}_{OLS}=\)
+0.179 which is exactly equal, as expected, to the WW estimator. When
+controlling for \(y^B_i\), we have: \(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)
+0.108. In our example, the ITE is 0.047 in the population and 0.044 in
+the sample.
 
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-3}
@@ -7605,7 +7721,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-120}{}{\label{exm:unnamed-chunk-120}
+\protect\hypertarget{exm:unnamed-chunk-122}{}{\label{exm:unnamed-chunk-122}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -7778,7 +7894,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-126}{}{\label{exm:unnamed-chunk-126}
+\protect\hypertarget{exm:unnamed-chunk-128}{}{\label{exm:unnamed-chunk-128}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -7851,7 +7967,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-127}{}{\label{exm:unnamed-chunk-127}
+\protect\hypertarget{exm:unnamed-chunk-129}{}{\label{exm:unnamed-chunk-129}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -8024,7 +8140,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-129}{}{\label{exm:unnamed-chunk-129}
+\protect\hypertarget{exm:unnamed-chunk-131}{}{\label{exm:unnamed-chunk-131}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -8121,7 +8237,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
+\protect\hypertarget{exm:unnamed-chunk-135}{}{\label{exm:unnamed-chunk-135}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8238,7 +8354,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-134}{}{\label{exm:unnamed-chunk-134}
+\protect\hypertarget{exm:unnamed-chunk-136}{}{\label{exm:unnamed-chunk-136}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -8280,7 +8396,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-136}{}{\label{exm:unnamed-chunk-136}
+\protect\hypertarget{exm:unnamed-chunk-138}{}{\label{exm:unnamed-chunk-138}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8389,7 +8505,7 @@ estimate what we want? I'd take the average variance.}}
 \(I^2=ICC*100\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-137}{}{\label{exm:unnamed-chunk-137}
+\protect\hypertarget{exm:unnamed-chunk-139}{}{\label{exm:unnamed-chunk-139}
 }Let's see how these three estimators look like in our example. The cool
 thing is that \texttt{rma} computes these estimators by default, so that
 a simple call to \texttt{summary()} is going to show them. The default
@@ -8514,7 +8630,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-138}{}{\label{exm:unnamed-chunk-138}
+\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -8537,7 +8653,7 @@ for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
 \end{figure}
 
 Figure \ref{fig:FEvsRE} clearly shows that the inclusion of \(\tau^2\)
-in the wheights and precision estimates makes a huge difference to the
+in the weights and precision estimates makes a huge difference to the
 meta-analytic estimate. The fixed effects estimator yields an estimate
 of our treatment effect of 0.3 \(\pm\) 0.02. The random effects
 estimator yields an estimate of our treatment effect of 0.13 \(\pm\)

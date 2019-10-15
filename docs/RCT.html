@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-12">
+<meta name="date" content="2019-10-15">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1893,7 +1893,8 @@ delta.y.late &lt;-<span class="st"> </span>param[<span class="st">&#39;baralpha&
 <span class="co"># proportion of compliers</span>
 lower.cut &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="ot">Inf</span>,<span class="op">-</span><span class="ot">Inf</span>,<span class="op">-</span><span class="ot">Inf</span>)
 upper.cut &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="ot">Inf</span>,<span class="kw">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="ot">Inf</span>)
-pr.compliers &lt;-<span class="st"> </span><span class="kw">ptmvnorm.marginal</span>(<span class="dt">xn=</span><span class="dv">0</span>,<span class="dt">n=</span><span class="dv">3</span>,<span class="dt">mean=</span>mean.mu.yB.Dstar,<span class="dt">sigma=</span>cov.mu.yB.Dstar,<span class="dt">lower=</span>lower.cut,<span class="dt">upper=</span>upper.cut)<span class="op">-</span><span class="kw">ptmvnorm.marginal</span>(<span class="dt">xn=</span><span class="op">-</span>param[<span class="st">&#39;psi&#39;</span>],<span class="dt">n=</span><span class="dv">3</span>,<span class="dt">mean=</span>mean.mu.yB.Dstar,<span class="dt">sigma=</span>cov.mu.yB.Dstar,<span class="dt">lower=</span>lower.cut,<span class="dt">upper=</span>upper.cut)</code></pre></div>
+pr.compliers &lt;-<span class="st"> </span><span class="kw">ptmvnorm.marginal</span>(<span class="dt">xn=</span><span class="dv">0</span>,<span class="dt">n=</span><span class="dv">3</span>,<span class="dt">mean=</span>mean.mu.yB.Dstar,<span class="dt">sigma=</span>cov.mu.yB.Dstar,<span class="dt">lower=</span>lower.cut,<span class="dt">upper=</span>upper.cut)<span class="op">-</span><span class="kw">ptmvnorm.marginal</span>(<span class="dt">xn=</span><span class="op">-</span>param[<span class="st">&#39;psi&#39;</span>],<span class="dt">n=</span><span class="dv">3</span>,<span class="dt">mean=</span>mean.mu.yB.Dstar,<span class="dt">sigma=</span>cov.mu.yB.Dstar,<span class="dt">lower=</span>lower.cut,<span class="dt">upper=</span>upper.cut)
+delta.y.ite &lt;-<span class="st"> </span>delta.y.late<span class="op">*</span>pr.compliers</code></pre></div>
 <p>The value of <span class="math inline">\(\Delta^y_{LATE}\)</span> in the population is thus 0.173. The proportion of compliers among eligibles in the population is 0.272. As a consequence of Corollary <a href="RCT.html#cor:EncouragWald">3.2</a>, we can compute ITE as the product of LATE and the proportion of compliers. In our example, ITE is thus equal to 0.047 in the population.</p>
 <p>Now let’s simulate a new sample with the encouragement delivered randomly among eligibles. I’m also defining the potential outcomes <span class="math inline">\(D^1_i\)</span> and <span class="math inline">\(D^0_i\)</span> and the types <span class="math inline">\(T_i\)</span> for later use.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># I&#39;m changing the seed because with the usual one, I get a negative estimate of the treatment effect: lots of sampling noise!</span>
@@ -1921,6 +1922,7 @@ Dindex &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;
 Ds &lt;-<span class="st"> </span><span class="kw">ifelse</span>(Dindex<span class="op">&gt;=</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)
 y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
 Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+D &lt;-<span class="st"> </span>Ds
 
 <span class="co"># types</span>
 Dindex1 &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>param[<span class="st">&quot;barmu&quot;</span>]<span class="op">+</span>param[<span class="st">&quot;psi&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;barc&quot;</span>]<span class="op">-</span>param[<span class="st">&quot;gamma&quot;</span>]<span class="op">*</span>mu<span class="op">-</span>V
@@ -1942,17 +1944,65 @@ ITEs &lt;-<span class="st"> </span>LATEs<span class="op">*</span>PrCoElig</code>
 </div>
 <div id="estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect" class="section level3">
 <h3><span class="header-section-number">3.4.2</span> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</h3>
-<p><strong><span style="font-variant: small-caps;">Move on to estimation</span></strong></p>
-
-<div class="remark">
- <span class="remark"><em>Remark. </em></span> Classically, we present the results of an Encouragement design in three stages:
-</div>
-
+<p>Classically, we present the results of an Encouragement design in three stages:</p>
 <ol style="list-style-type: decimal">
 <li>We show the <strong>first stage</strong> regression of <span class="math inline">\(D_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on participation into the program and estimates the proportion of compliers.</li>
 <li>We show the <strong>reduced form</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on outcomes. It is generally called the Intention to Treat Effect, and is defined similarly as what we defined in the Randomization After Eligibility design.</li>
-<li>We finally show the <strong>structural</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(D_i\)</span> using *R_I$ as an instrument.</li>
+<li>We finally show the <strong>structural</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(D_i\)</span> using <span class="math inline">\(R_i\)</span> as an instrument.</li>
 </ol>
+<div id="FStage" class="section level4">
+<h4><span class="header-section-number">3.4.2.1</span> First stage regression</h4>
+<p>The first stage regression is simply to get an estimate of the effect of the encouragement on participation into the program. If there is no effect of the encouragement on participation, we might as well stop there, since there will be no compliers and no effect to estimate. Note that if we observe an effect on the encouragement on outcomes without any effect on participation, we have to accept the fact that the encouragement might have had a direct effect on outcomes and thus that the exclusion restriction assumption does not hold.</p>
+<p>Let’s denote this effect of <span class="math inline">\(R_i\)</span> on <span class="math inline">\(D_i\)</span> <span class="math inline">\(\Delta^{D,R}_{TT}=\esp{D_i^1-D_i^0|R_i=1,E_i=1}\)</span>. It is a treatment on the treated since we want to estimate the effect of the cnouragement onthose who have received it. Actually, <span class="math inline">\(\Delta^{D,R}_{TT}\)</span> is also equal to <span class="math inline">\(\Delta^{D,R}_{ATE}\)</span>, since those who have received the encouragement are a random sample of the eligibles.</p>
+<p>How to estimate the effect of <span class="math inline">\(R_i\)</span> on <span class="math inline">\(D_i\)</span>? When estimating the effect of the encouragement, we are in a Brute Force design among eligibles, so that the appropriate estimator is the With/Without estimator among eligibles:</p>
+
+<div class="theorem">
+<span id="thm:EncouragFStage" class="theorem"><strong>Theorem 3.14  (Identification of the First Stage Effect in an Encouragment Design)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a> and <a href="RCT.html#def:IndepEncourag">3.10</a>, the WW estimator identifies the First Stage Effect (the effect of <span class="math inline">\(R_i\)</span> on <span class="math inline">\(D_i\)</span>):
+<span class="math display">\[\begin{align*}
+  \Delta^{D,R}_{WW} &amp; = \Delta^{D,R}_{TT}.
+\end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> This is a direct consequence of Theorem <a href="RCT.html#thm:BFATE">3.1</a>.
+</div>
+
+As we have seen in Chapter @ref{FPCI}, the WW estimator is identical to an OLS estimator: The OLS coefficient <span class="math inline">\(\beta\)</span> in the following regression:
+<span class="math display">\[\begin{align*}
+    D_i &amp;  = \alpha +  \beta R_i + U_i
+    \end{align*}\]</span>
+<p>is thus the <span class="math inline">\(WW\)</span> estimator.</p>
+Finally, the advantage of using OLS other the direct WW comparison is that it gives you a direct estimate of sampling noise (see next section) but also that it enables you to condition on additional covariates in the regression: The OLS coefficient <span class="math inline">\(\beta\)</span> in the following regression:
+<span class="math display">\[\begin{align*}
+    D_i &amp;  = \alpha +  \beta R_i + \gamma&#39; X_i + U_i
+    \end{align*}\]</span>
+<p>is a consistent (and even unbiased) estimate of the ATE.</p>
+<p><strong><span style="font-variant: small-caps;">Center covariates at mean?</span></strong></p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-119" class="example"><strong>Example 3.23  </strong></span>In our numerical example, we can compare all these estimators.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">WW.D.R &lt;-<span class="st"> </span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>])<span class="op">-</span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>])
+reg.D.R.ols &lt;-<span class="st"> </span><span class="kw">lm</span>(D[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>])
+reg.D.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(D[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>]<span class="op">+</span>yB[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
+<p><span class="math inline">\(\hat{\Delta}^{D,R}_{WW} =\)</span> 0.213, while <span class="math inline">\(\hat{\Delta}^{D,R}_{OLS}=\)</span> 0.213 which is exactly equal, as expected, to the WW estimator. When controlling for <span class="math inline">\(y^B_i\)</span>, we have: <span class="math inline">\(\hat{\Delta}^{D,R}_{OLS(y^B)}=\)</span> 0.233.</p>
+<p>Under monotonicity, <span class="math inline">\(\Delta^{D,R}_{TT}\)</span> is equal to the proportion of compliers among eligibles. Indeed, this is the proportion of eligibles that participate when receiving the encouragement and that does not participate when not receiving it. In our example, the proportion of compliers among eligibles is 0.272 in the population and 0.31 in the sample.</p>
+</div>
+<div id="reduced-form-regression" class="section level4">
+<h4><span class="header-section-number">3.4.2.2</span> Reduced form regression</h4>
+<p>The reduced form regression aims at estimating the ITE, that is the impact of receiving the encouragement on outcomes. From Theorem <a href="RCT.html#thm:ITEEncourag">3.12</a>, we know that the WW estimator among eligibles identifies the ITE in the population. As a consequence of now classical results, the OLS estimator without control variables is equivalent to the WW estimator and the OLS estimator conditioning on covariates might increase precision.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-120" class="example"><strong>Example 3.24  </strong></span>In our numerical example, we can compare all these estimators.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">WW.y.R &lt;-<span class="st"> </span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>])<span class="op">-</span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>])
+reg.y.R.ols &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>])
+reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>]<span class="op">+</span>yB[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
+<p><span class="math inline">\(\hat{\Delta}^{y,R}_{WW} =\)</span> 0.179, while <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS}=\)</span> 0.179 which is exactly equal, as expected, to the WW estimator. When controlling for <span class="math inline">\(y^B_i\)</span>, we have: <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)</span> 0.108. In our example, the ITE is 0.047 in the population and 0.044 in the sample.</p>
+</div>
 </div>
 <div id="estimating-sampling-noise-3" class="section level3">
 <h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>
