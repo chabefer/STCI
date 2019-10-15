@@ -15,7 +15,9 @@ The problem with this approach is that the distribution of published results is 
 This is potentially a very severe problem if the amount of censoring due to publication bias is large.
 Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.
 
-In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.
+In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.Most of the material presented here stems from the reference book by [Hedges and Olkin](https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis).
+When needed, I update this book with new references that I then cite.
+the R code comes mainly from a [wonderful set of slides](http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf) explaining of the `metafor` package works. 
 
 ## Meta-analysis
 
@@ -607,6 +609,40 @@ With $\tau^2=$ `r tau[[2]]^2`, the random effects estimator barely contains the 
 
 ### Meta-regression
 
+A Meta-regression tries to explain the heterogeneity in treatment effects across studies using observed covariates.
+The idea is to identify characteristics of the studies or of the sites that are correlated with how treatment effects vary. 
+
+#### The Meta-regression model
+
+The main equation that we want to estimate is as follows [(Raudenbusch, 2009)](https://www.jstor.org/stable/10.7758/9781610441384):
+
+\begin{align}
+  \theta_k & = \beta'X_i + u_i + e_i,
+\end{align}
+
+where $X_i$ is a vector of variables suspected to be correlated with treatment effect heterogeneity and $\beta$ is a vector of coefficients, of the same dimension as $X_i$.
+$X_i$ contains a $1$ as its first term, so that $\beta_0$, the first component of the vector $\beta$ measures the effect of the treatment when all other regressors are set to zero.
+It might thus be a good idea to set the regressors as deviations around their means if we want $\beta_0$ to capture the average effect of the treatment. 
+The error terms $u_i$ and $e_i$ capture the remaining heterogeneity in effect sizes due to remaining unobserved covariates ($u_i$) and estimation error due to sampling noise ($e_i$).
+It is in addition generally assumed that $e_i\sim\mathbf{N}(0,\sigma^2_i)$ and  $u_i\sim\mathbf{N}(0,\tau^2)$.
+
+This model is in general called the **mixed effects linear model**.
+It contains at the same time fixed effects captured by $\beta'X_i$ and random effects captured by $u_i$.
+Setting $\tau^2$ to zero generates a **fixed effects linear model**.
+It is possible, as usual, to test for whether $\tau^2$ is null or not, which is a test of whether the added covariates fully capture the heterogeneity in treatment effects across studies.
+
+#### Estimating the meta-regression model
+
+There are basically four ways to estimate the meta-regression model:
+
+  1. Weighted Least squares (WLS): mostly used for fixed effects models, where $\tau^2$ is assumed to be zero.
+  2. Full Maximum Likelihood Estimator (FMLE)
+  3. Restricted Maximum Likelihood Estimator (RMLE)
+  4. Method Of Moments (MOM)
+  
+**<span style="font-variant:small-caps;">Detail estimators.</span>**
+
+#### Estimating sampling noise in the meta-regression model
 
 
 ### Why vote-counting does not work

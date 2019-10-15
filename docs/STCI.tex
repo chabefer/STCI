@@ -7468,13 +7468,11 @@ stages:
   the program and estimates the proportion of compliers.
 \item
   We show the \textbf{reduced form} regression of \(Y_i\) on \(R_i\):
-  this estimates the impact of the encouragement on outcomes. It is
-  generally called the Intention to Treat Effect, and is defined
-  similarly as what we defined in the Randomization After Eligibility
-  design.
+  this estimates the impact of the encouragement on outcomes, also
+  called ITE.
 \item
   We finally show the \textbf{structural} regression of \(Y_i\) on
-  \(D_i\) using \(R_i\) as an instrument.
+  \(D_i\) using \(R_i\) as an instrument, which estimates the LATE.
 \end{enumerate}
 
 \subsubsection{First stage regression}\label{FStage}
@@ -7593,10 +7591,12 @@ increase precision.
 0.179 which is exactly equal, as expected, to the WW estimator. When
 controlling for \(y^B_i\), we have: \(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)
 0.108. In our example, the ITE is 0.047 in the population and 0.044 in
-the sample.
+the sample. Without conditioning on \(Y_i^B\), we are thus making a very
+large mistake as to the true ITE. This is probably because \(y_i^B\) is
+not identically distributed between treatment and control, generating
+sampling noise.
 
-\subsection{Estimating sampling
-noise}\label{estimating-sampling-noise-3}
+\subsubsection{Structural regression}\label{structural-regression}
 
 For simplicity, in all that follows, I am setting \(E_i=1\) for
 everyone, so that \(N\) is the number of eligible individuals.
@@ -7624,6 +7624,9 @@ estimator in the Eligibility Design:
 \iffalse{} {Proof. } \fi{}See in section \ref{proofWaldIV} in the
 appendix.
 \EndKnitrBlock{proof}
+
+\subsection{Estimating sampling
+noise}\label{estimating-sampling-noise-3}
 
 \section{Threats to the validity of RCTs}\label{sec:threats}
 
@@ -7684,7 +7687,13 @@ distribution of treatment effects: if it is centered on zero or close to
 zero, we run the risk of having very large publication bias.
 
 In this chapter, I present first the tools for meta-analysis, and I then
-move on to testing and correcting for publication bias.
+move on to testing and correcting for publication bias.Most of the
+material presented here stems from the reference book by
+\href{https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis}{Hedges
+and Olkin}. When needed, I update this book with new references that I
+then cite. the R code comes mainly from a
+\href{http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf}{wonderful
+set of slides} explaining of the \texttt{metafor} package works.
 
 \section{Meta-analysis}\label{meta-analysis}
 
@@ -8664,6 +8673,67 @@ effects estimator barely contains the truth in its 95 \(\%\) confidence
 interval.
 
 \subsection{Meta-regression}\label{meta-regression}
+
+A Meta-regression tries to explain the heterogeneity in treatment
+effects across studies using observed covariates. The idea is to
+identify characteristics of the studies or of the sites that are
+correlated with how treatment effects vary.
+
+\subsubsection{The Meta-regression
+model}\label{the-meta-regression-model}
+
+The main equation that we want to estimate is as follows
+\href{https://www.jstor.org/stable/10.7758/9781610441384}{(Raudenbusch,
+2009)}:
+
+\begin{align}
+  \theta_k & = \beta'X_i + u_i + e_i,
+\end{align}
+
+where \(X_i\) is a vector of variables suspected to be correlated with
+treatment effect heterogeneity and \(\beta\) is a vector of
+coefficients, of the same dimension as \(X_i\). \(X_i\) contains a \(1\)
+as its first term, so that \(\beta_0\), the first component of the
+vector \(\beta\) measures the effect of the treatment when all other
+regressors are set to zero. It might thus be a good idea to set the
+regressors as deviations around their means if we want \(\beta_0\) to
+capture the average effect of the treatment. The error terms \(u_i\) and
+\(e_i\) capture the remaining heterogeneity in effect sizes due to
+remaining unobserved covariates (\(u_i\)) and estimation error due to
+sampling noise (\(e_i\)). It is in addition generally assumed that
+\(e_i\sim\mathbf{N}(0,\sigma^2_i)\) and \(u_i\sim\mathbf{N}(0,\tau^2)\).
+
+This model is in general called the \textbf{mixed effects linear model}.
+It contains at the same time fixed effects captured by \(\beta'X_i\) and
+random effects captured by \(u_i\). Setting \(\tau^2\) to zero generates
+a \textbf{fixed effects linear model}. It is possible, as usual, to test
+for whether \(\tau^2\) is null or not, which is a test of whether the
+added covariates fully capture the heterogeneity in treatment effects
+across studies.
+
+\subsubsection{Estimating the meta-regression
+model}\label{estimating-the-meta-regression-model}
+
+There are basically four ways to estimate the meta-regression model:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Weighted Least squares (WLS): mostly used for fixed effects models,
+  where \(\tau^2\) is assumed to be zero.
+\item
+  Full Maximum Likelihood Estimator (FMLE)
+\item
+  Restricted Maximum Likelihood Estimator (RMLE)
+\item
+  Method Of Moments (MOM)
+\end{enumerate}
+
+\textbf{\textsc{Detail estimators.}}
+
+\subsubsection{Estimating sampling noise in the meta-regression
+model}\label{estimating-sampling-noise-in-the-meta-regression-model}
 
 \subsection{Why vote-counting does not
 work}\label{why-vote-counting-does-not-work}

@@ -240,7 +240,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>Explaining variations in treatment effectiveness by relating changes in effect size to changes in sample characteristics.</li>
 </ol>
 <p>One key issue that meta-analysis has to face – actually, we all have to face it, meta-analysis simply makes it more apparent – is that of publication bias. Publication bias is due to the fact that referees and editors have a marked preference for publishing statistically significant results. The problem with this approach is that the distribution of published results is going to be censored on the left: we will have more statistically significant results in the published record, and as a consequence, the average published result will be an upward biased estimate of the true treatment effect in the population. This is potentially a very severe problem if the amount of censoring due to publication bias is large. Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.</p>
-<p>In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.</p>
+<p>In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.Most of the material presented here stems from the reference book by <a href="https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis">Hedges and Olkin</a>. When needed, I update this book with new references that I then cite. the R code comes mainly from a <a href="http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf">wonderful set of slides</a> explaining of the <code>metafor</code> package works.</p>
 <div id="meta-analysis" class="section level2">
 <h2><span class="header-section-number">12.1</span> Meta-analysis</h2>
 <p>There are several approaches and refinements to meta-analysis. In this section, I am going to present only the most important ones. I’ll defer the reader to other more specialized publications if needed.</p>
@@ -746,6 +746,30 @@ Figure 12.10: Fixed vs random effects with <span class="math inline">\(\tau^2=\)
 </div>
 <div id="meta-regression" class="section level3">
 <h3><span class="header-section-number">12.1.6</span> Meta-regression</h3>
+<p>A Meta-regression tries to explain the heterogeneity in treatment effects across studies using observed covariates. The idea is to identify characteristics of the studies or of the sites that are correlated with how treatment effects vary.</p>
+<div id="the-meta-regression-model" class="section level4">
+<h4><span class="header-section-number">12.1.6.1</span> The Meta-regression model</h4>
+<p>The main equation that we want to estimate is as follows <a href="https://www.jstor.org/stable/10.7758/9781610441384">(Raudenbusch, 2009)</a>:</p>
+<span class="math display">\[\begin{align}
+  \theta_k &amp; = \beta&#39;X_i + u_i + e_i,
+\end{align}\]</span>
+<p>where <span class="math inline">\(X_i\)</span> is a vector of variables suspected to be correlated with treatment effect heterogeneity and <span class="math inline">\(\beta\)</span> is a vector of coefficients, of the same dimension as <span class="math inline">\(X_i\)</span>. <span class="math inline">\(X_i\)</span> contains a <span class="math inline">\(1\)</span> as its first term, so that <span class="math inline">\(\beta_0\)</span>, the first component of the vector <span class="math inline">\(\beta\)</span> measures the effect of the treatment when all other regressors are set to zero. It might thus be a good idea to set the regressors as deviations around their means if we want <span class="math inline">\(\beta_0\)</span> to capture the average effect of the treatment. The error terms <span class="math inline">\(u_i\)</span> and <span class="math inline">\(e_i\)</span> capture the remaining heterogeneity in effect sizes due to remaining unobserved covariates (<span class="math inline">\(u_i\)</span>) and estimation error due to sampling noise (<span class="math inline">\(e_i\)</span>). It is in addition generally assumed that <span class="math inline">\(e_i\sim\mathbf{N}(0,\sigma^2_i)\)</span> and <span class="math inline">\(u_i\sim\mathbf{N}(0,\tau^2)\)</span>.</p>
+<p>This model is in general called the <strong>mixed effects linear model</strong>. It contains at the same time fixed effects captured by <span class="math inline">\(\beta&#39;X_i\)</span> and random effects captured by <span class="math inline">\(u_i\)</span>. Setting <span class="math inline">\(\tau^2\)</span> to zero generates a <strong>fixed effects linear model</strong>. It is possible, as usual, to test for whether <span class="math inline">\(\tau^2\)</span> is null or not, which is a test of whether the added covariates fully capture the heterogeneity in treatment effects across studies.</p>
+</div>
+<div id="estimating-the-meta-regression-model" class="section level4">
+<h4><span class="header-section-number">12.1.6.2</span> Estimating the meta-regression model</h4>
+<p>There are basically four ways to estimate the meta-regression model:</p>
+<ol style="list-style-type: decimal">
+<li>Weighted Least squares (WLS): mostly used for fixed effects models, where <span class="math inline">\(\tau^2\)</span> is assumed to be zero.</li>
+<li>Full Maximum Likelihood Estimator (FMLE)</li>
+<li>Restricted Maximum Likelihood Estimator (RMLE)</li>
+<li>Method Of Moments (MOM)</li>
+</ol>
+<p><strong><span style="font-variant: small-caps;">Detail estimators.</span></strong></p>
+</div>
+<div id="estimating-sampling-noise-in-the-meta-regression-model" class="section level4">
+<h4><span class="header-section-number">12.1.6.3</span> Estimating sampling noise in the meta-regression model</h4>
+</div>
 </div>
 <div id="why-vote-counting-does-not-work" class="section level3">
 <h3><span class="header-section-number">12.1.7</span> Why vote-counting does not work</h3>

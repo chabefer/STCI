@@ -1947,8 +1947,8 @@ ITEs &lt;-<span class="st"> </span>LATEs<span class="op">*</span>PrCoElig</code>
 <p>Classically, we present the results of an Encouragement design in three stages:</p>
 <ol style="list-style-type: decimal">
 <li>We show the <strong>first stage</strong> regression of <span class="math inline">\(D_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on participation into the program and estimates the proportion of compliers.</li>
-<li>We show the <strong>reduced form</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on outcomes. It is generally called the Intention to Treat Effect, and is defined similarly as what we defined in the Randomization After Eligibility design.</li>
-<li>We finally show the <strong>structural</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(D_i\)</span> using <span class="math inline">\(R_i\)</span> as an instrument.</li>
+<li>We show the <strong>reduced form</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span>: this estimates the impact of the encouragement on outcomes, also called ITE.</li>
+<li>We finally show the <strong>structural</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(D_i\)</span> using <span class="math inline">\(R_i\)</span> as an instrument, which estimates the LATE.</li>
 </ol>
 <div id="FStage" class="section level4">
 <h4><span class="header-section-number">3.4.2.1</span> First stage regression</h4>
@@ -2001,11 +2001,10 @@ reg.D.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(D[E<span
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">WW.y.R &lt;-<span class="st"> </span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>])<span class="op">-</span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>])
 reg.y.R.ols &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>])
 reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>]<span class="op">+</span>yB[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
-<p><span class="math inline">\(\hat{\Delta}^{y,R}_{WW} =\)</span> 0.179, while <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS}=\)</span> 0.179 which is exactly equal, as expected, to the WW estimator. When controlling for <span class="math inline">\(y^B_i\)</span>, we have: <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)</span> 0.108. In our example, the ITE is 0.047 in the population and 0.044 in the sample.</p>
+<p><span class="math inline">\(\hat{\Delta}^{y,R}_{WW} =\)</span> 0.179, while <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS}=\)</span> 0.179 which is exactly equal, as expected, to the WW estimator. When controlling for <span class="math inline">\(y^B_i\)</span>, we have: <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)</span> 0.108. In our example, the ITE is 0.047 in the population and 0.044 in the sample. Without conditioning on <span class="math inline">\(Y_i^B\)</span>, we are thus making a very large mistake as to the true ITE. This is probably because <span class="math inline">\(y_i^B\)</span> is not identically distributed between treatment and control, generating sampling noise.</p>
 </div>
-</div>
-<div id="estimating-sampling-noise-3" class="section level3">
-<h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>
+<div id="structural-regression" class="section level4">
+<h4><span class="header-section-number">3.4.2.3</span> Structural regression</h4>
 <p>For simplicity, in all that follows, I am setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
 
 <div class="lemma">
@@ -2025,6 +2024,10 @@ reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span
  <span class="proof"><em>Proof. </em></span> See in section <a href="proofs.html#proofWaldIV">A.2.2</a> in the appendix.
 </div>
 
+</div>
+</div>
+<div id="estimating-sampling-noise-3" class="section level3">
+<h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>
 </div>
 </div>
 <div id="sec:threats" class="section level2">
