@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-15}
+    \date{2019-10-16}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -6383,9 +6383,8 @@ the Bloom estimator is equivalent to an IV estimator:
 \BeginKnitrBlock{theorem}[Bloom is IV]
 \protect\hypertarget{thm:BloomIV}{}{\label{thm:BloomIV} \iffalse (Bloom is
 IV) \fi{} }Under the assumption that there is at least one individual
-with \(R_i=1\) and one individual with \(D_i=1\), the coefficient
-\(\beta\) in the following regression estimated among eligibles using
-\(R_i\) as an IV
+with \(R_i=1\) and with \(D_i=1\), the coefficient \(\beta\) in the
+following regression estimated among eligibles using \(R_i\) as an IV
 
 \begin{align*}
         Y_i &  = \alpha + \beta D_i + U_i
@@ -6400,8 +6399,8 @@ is the Bloom estimator in the Eligibility Design:
 \EndKnitrBlock{theorem}
 
 \BeginKnitrBlock{proof}
-\iffalse{} {Proof. } \fi{}The proof is straightforward using Lemma
-\ref{lem:WaldIV} below and setting \(D_i=0\) when \(R_i=0\).
+\iffalse{} {Proof. } \fi{}The proof is straightforward using Theorem
+\ref{thm:WaldIV} below and setting \(D_i=0\) when \(R_i=0\).
 \EndKnitrBlock{proof}
 
 \BeginKnitrBlock{example}
@@ -7598,35 +7597,114 @@ sampling noise.
 
 \subsubsection{Structural regression}\label{structural-regression}
 
+There are four ways to compute the LATE:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  We can directly compute the sample equivalent to the Wald estimator
+  defined in Theorem \ref{thm:IdentLATE}.
+\item
+  We can divide our estimate of the ITE by the proportion of compliers,
+  as Corollary \ref{cor:EncouragWald} suggests.
+\item
+  We can run a regression of \(Y\) on \(D\) using \(R\) as an
+  instrumental variable.
+\item
+  We can run a regression of \(Y\) on \(D\) using \(R\) as an
+  instrumental variable and controlling for some variables \(X_i\).
+\end{enumerate}
+
+It turns out that, in the absence of control variables, the first three
+estimators are fully equivalent. Corollary \ref{cor:EncouragWald} has
+already shown that the first two approaches are equivalent in the
+population. Theorem \ref{thm:WaldIV} below shows that the Wald estimator
+is equivalent to an IV estimator.
+
 For simplicity, in all that follows, I am setting \(E_i=1\) for
 everyone, so that \(N\) is the number of eligible individuals.
 
-\BeginKnitrBlock{lemma}[Wald is IV]
-\protect\hypertarget{lem:WaldIV}{}{\label{lem:WaldIV} \iffalse (Wald is IV)
+\paragraph{Using the Wald estimator}\label{using-the-wald-estimator}
+
+\textbf{\textsc{Write Wald}}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-121}{}{\label{exm:unnamed-chunk-121}
+}Let's check that these results hold in our numerical example.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mean.y.R.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{mean.y.R.}\DecValTok{0}\NormalTok{ <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{mean.D.R.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{mean.D.R.}\DecValTok{0}\NormalTok{ <-}\StringTok{ }\KeywordTok{mean}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{delta.y.Wald <-}\StringTok{ }\NormalTok{(mean.y.R.}\DecValTok{1}\OperatorTok{-}\NormalTok{mean.y.R.}\DecValTok{0}\NormalTok{)}\OperatorTok{/}\NormalTok{(mean.D.R.}\DecValTok{1}\OperatorTok{-}\NormalTok{mean.D.R.}\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The numerator of the Wald estimator is equal to 7.059 \(-\) 6.88 \(=\)
+0.179. The denominator of the Wald estimator is equal to 0.704 \(-\)
+0.491 \(=\) 0.213. Overall, the Wald estimator of the LATE is equal to
+0.179 \(\div\) 0.213 \(=\) 0.841.
+
+\paragraph{Using the ITE}\label{using-the-ite}
+
+\textbf{\textsc{Explain}}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-122}{}{\label{exm:unnamed-chunk-122}
+}Let's check that these results hold in our numerical example.
+\EndKnitrBlock{example}
+
+We already know that the estimated ITE is equal to 0.179, which is equal
+to the numerator of the Wald estimator. We also now that the proportion
+of compliers in our sample is equal to 0.213. As a consequence, again,
+the Wald estimator of the LATE is equal to 0.179 \(\div\) 0.213 \(=\)
+0.841.
+
+\paragraph{Using the IV estimator}\label{using-the-iv-estimator}
+
+\BeginKnitrBlock{theorem}[Wald is IV]
+\protect\hypertarget{thm:WaldIV}{}{\label{thm:WaldIV} \iffalse (Wald is IV)
 \fi{} }Under the assumption that there is at least one individual with
-\(R_i=1\) and one individual with \(D_i=1\), the coefficient \(\beta\)
-in the following regression estimated using \(R_i\) as an IV:
+\(R_i=1\) and \(D_i=1\), the coefficient \(\beta\) in the following
+regression estimated using \(R_i\) as an IV:
 
 \begin{align*}
         Y_i &  = \alpha + \beta D_i + U_i
     \end{align*}
 
-is the Wald estimator in the Encouragement Design and the Bloom
-estimator in the Eligibility Design:
+is the Wald estimator:
 
 \begin{align*}
 \hat{\beta}_{IV} & = \frac{\frac{1}{N}\sum_{i=1}^N\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)} \\
-                                & = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}.
+                                & = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}\\
+                  & = \hat{\Delta}^Y_{Wald} 
 \end{align*}
-\EndKnitrBlock{lemma}
+\EndKnitrBlock{theorem}
 
 \BeginKnitrBlock{proof}
 \iffalse{} {Proof. } \fi{}See in section \ref{proofWaldIV} in the
 appendix.
 \EndKnitrBlock{proof}
 
+\textbf{\textsc{Example}}
+
+\paragraph{USing the IV estimator conditioning on
+covariates}\label{using-the-iv-estimator-conditioning-on-covariates}
+
+\textbf{\textsc{Example}} \textbf{\textsc{Center covariates at mean?}}
+
+Finally, let's run an IV regression
+
+\textbf{\textsc{Does conditioning on covariates improve precision?}}
+
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-3}
+
+\textbf{\textsc{Derive CLT disrtribution }}
 
 \section{Threats to the validity of RCTs}\label{sec:threats}
 
@@ -7730,7 +7808,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-122}{}{\label{exm:unnamed-chunk-122}
+\protect\hypertarget{exm:unnamed-chunk-124}{}{\label{exm:unnamed-chunk-124}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -7784,8 +7862,7 @@ sample size of studies that accumulate evidence on a treatment, probably
 with studies with a small sample size at first, and only large studies
 at the end for the most promising treatments.
 
-\subsection{Meta-analysis as a weighted
-average}\label{meta-analysis-as-a-weighted-average}
+\subsection{Meta-analysis as a weighted average}\label{MetaWA}
 
 The key idea of meta-analysis is to combine the effect size estimates
 stemming from different studies, weighing them by their relative
@@ -7903,7 +7980,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-128}{}{\label{exm:unnamed-chunk-128}
+\protect\hypertarget{exm:unnamed-chunk-130}{}{\label{exm:unnamed-chunk-130}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -7976,7 +8053,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-129}{}{\label{exm:unnamed-chunk-129}
+\protect\hypertarget{exm:unnamed-chunk-131}{}{\label{exm:unnamed-chunk-131}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -8149,7 +8226,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-131}{}{\label{exm:unnamed-chunk-131}
+\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -8246,7 +8323,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-135}{}{\label{exm:unnamed-chunk-135}
+\protect\hypertarget{exm:unnamed-chunk-137}{}{\label{exm:unnamed-chunk-137}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8363,7 +8440,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-136}{}{\label{exm:unnamed-chunk-136}
+\protect\hypertarget{exm:unnamed-chunk-138}{}{\label{exm:unnamed-chunk-138}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -8405,7 +8482,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-138}{}{\label{exm:unnamed-chunk-138}
+\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8514,7 +8591,7 @@ estimate what we want? I'd take the average variance.}}
 \(I^2=ICC*100\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-139}{}{\label{exm:unnamed-chunk-139}
+\protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141}
 }Let's see how these three estimators look like in our example. The cool
 thing is that \texttt{rma} computes these estimators by default, so that
 a simple call to \texttt{summary()} is going to show them. The default
@@ -8639,7 +8716,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
+\protect\hypertarget{exm:unnamed-chunk-142}{}{\label{exm:unnamed-chunk-142}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -8687,34 +8764,40 @@ The main equation that we want to estimate is as follows
 2009)}:
 
 \begin{align}
-  \theta_k & = \beta'X_i + u_i + e_i,
+  \hat{\theta}_k & = \mathbf{X}_k \mathbf{\beta}  + \epsilon_k + \nu_k,
 \end{align}
 
-where \(X_i\) is a vector of variables suspected to be correlated with
-treatment effect heterogeneity and \(\beta\) is a vector of
-coefficients, of the same dimension as \(X_i\). \(X_i\) contains a \(1\)
-as its first term, so that \(\beta_0\), the first component of the
-vector \(\beta\) measures the effect of the treatment when all other
-regressors are set to zero. It might thus be a good idea to set the
-regressors as deviations around their means if we want \(\beta_0\) to
-capture the average effect of the treatment. The error terms \(u_i\) and
-\(e_i\) capture the remaining heterogeneity in effect sizes due to
-remaining unobserved covariates (\(u_i\)) and estimation error due to
-sampling noise (\(e_i\)). It is in addition generally assumed that
-\(e_i\sim\mathbf{N}(0,\sigma^2_i)\) and \(u_i\sim\mathbf{N}(0,\tau^2)\).
+\textbf{\textsc{Center regressors at the mean?}}
+
+where \(\mathbf{X}_k\) is a line vector containing the value of the
+variables suspected to be correlated with treatment effect heterogeneity
+for study \(k\) and \(\mathbf{\beta}\) is a column vector of the
+corresponding coefficients, of the same dimension as \(\mathbf{X}_k\).
+\(\mathbf{X}_k\) contains a \(1\) as its first term, so that
+\(\beta_0\), the first component of the vector \(\mathbf{\beta}\)
+measures the effect of the treatment when all other regressors are set
+to zero. It might thus be a good idea to set the regressors as
+deviations around their means if we want \(\beta_0\) to capture the
+average effect of the treatment. The error term \(\epsilon_k\) captures
+the heterogeneity in estimated effect sizes that is due to sampling
+noise. The error term \(\nu_k\) captures the heterogeneity in effect
+sizes across sites that remains after conditioning on \(\mathbf{X}_k\).
+In addition, it is generally assumed that
+\(\epsilon_k\sim\mathbf{N}(0,\hat{\sigma}^2_k)\) and
+\(\nu_k\sim\mathbf{N}(0,\tau^2)\).
 
 This model is in general called the \textbf{mixed effects linear model}.
-It contains at the same time fixed effects captured by \(\beta'X_i\) and
-random effects captured by \(u_i\). Setting \(\tau^2\) to zero generates
-a \textbf{fixed effects linear model}. It is possible, as usual, to test
-for whether \(\tau^2\) is null or not, which is a test of whether the
-added covariates fully capture the heterogeneity in treatment effects
-across studies.
+It contains at the same time fixed effects captured by
+\(\mathbf{X}_k \mathbf{\beta}\) and random effects captured by
+\(\nu_k\). Setting \(\tau^2\) to zero generates a \textbf{fixed effects
+linear model}. It is possible, as usual, to test for whether \(\tau^2\)
+is null or not, which is a test of whether the added covariates fully
+capture the heterogeneity in treatment effects across studies.
 
 \subsubsection{Estimating the meta-regression
 model}\label{estimating-the-meta-regression-model}
 
-There are basically four ways to estimate the meta-regression model:
+There are at least four ways to estimate the meta-regression model:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -8730,7 +8813,32 @@ There are basically four ways to estimate the meta-regression model:
   Method Of Moments (MOM)
 \end{enumerate}
 
+\paragraph{Weighted Least Squares}\label{weighted-least-squares}
+
+The Weighted Least Squares (WLS) estimator imposes that \(\tau^2=0\). It
+is thus appropriate when we have a fixed effects linear model. It is
+also used as a starting point for estimating the other models.
+
+The WLS estimator of \(\mathbf{\beta}\) is written as follows:
+
+\begin{align*}
+  \mathbf{\hat{\beta}}_{WLS} & = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}\mathbf{X}_k'\hat{\theta}_k.
+\end{align*}
+
+The WLS estimator is similar to the standard OLS estimator, except that
+it gives more weight to mmore precise estimates of the treatment effect.
+This is a generalization of the weighted average that we have studied in
+Section \ref{MetaWA}.
+
+\paragraph{Full Maximum Likelihood
+Estimator}\label{full-maximum-likelihood-estimator}
+
 \textbf{\textsc{Detail estimators.}}
+
+\paragraph{Restricted Maximum Likelihood
+Estimator}\label{restricted-maximum-likelihood-estimator}
+
+\paragraph{Method Of Moments (MOM)}\label{method-of-moments-mom}
 
 \subsubsection{Estimating sampling noise in the meta-regression
 model}\label{estimating-sampling-noise-in-the-meta-regression-model}
@@ -9362,7 +9470,7 @@ As a consequence, under Assumption \ref{def:Mono}, we have:
 
 Using Assumption \ref{def:Fstage} proves the result.
 
-\subsection{Proof of Lemma \ref{lem:WaldIV}}\label{proofWaldIV}
+\subsection{Proof of Theorem \ref{thm:WaldIV}}\label{proofWaldIV}
 
 In matrix notation, we have:
 
@@ -9388,7 +9496,8 @@ The IV estimator is:
     \hat{\Theta}_{IV} &  = (R'X)^{-1}R'Y
 \end{align*}
 
-Under Assumption \ref{def:fullrank}, \(R'X\) is invertible and we have
+If there is at least one observation with \(R_i=1\) and \(D_i=1\),
+\(R'X\) is invertible (its determinant is non null) and we have
 (ommitting the summation index for simplicity):
 
 \begin{align*}
@@ -9396,7 +9505,13 @@ Under Assumption \ref{def:fullrank}, \(R'X\) is invertible and we have
                 & = \frac{1}{N\sum D_iR_i-\sum D_i\sum R_i}\left(\begin{array}{cc} \sum D_iR_i & -\sum D_i \\ -\sum R_i & N \end{array}\right)
 \end{align*}
 
-We have:
+Since:
+
+\begin{align*}
+R'Y &  = \left(\begin{array}{c} \sum Y_i \\ \sum Y_iR_i \end{array}\right),
+\end{align*}
+
+we have:
 
 \begin{align*}
   \hat{\Theta}_{IV} &  =  \left(

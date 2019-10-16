@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-15">
+<meta name="date" content="2019-10-16">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -185,7 +185,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="12" data-path="sec-meta.html"><a href="sec-meta.html"><i class="fa fa-check"></i><b>12</b> Meta-analysis and Publication Bias</a><ul>
 <li class="chapter" data-level="12.1" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis"><i class="fa fa-check"></i><b>12.1</b> Meta-analysis</a><ul>
 <li class="chapter" data-level="12.1.1" data-path="sec-meta.html"><a href="sec-meta.html#basic-setting"><i class="fa fa-check"></i><b>12.1.1</b> Basic setting</a></li>
-<li class="chapter" data-level="12.1.2" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis-as-a-weighted-average"><i class="fa fa-check"></i><b>12.1.2</b> Meta-analysis as a weighted average</a></li>
+<li class="chapter" data-level="12.1.2" data-path="sec-meta.html"><a href="sec-meta.html#MetaWA"><i class="fa fa-check"></i><b>12.1.2</b> Meta-analysis as a weighted average</a></li>
 <li class="chapter" data-level="12.1.3" data-path="sec-meta.html"><a href="sec-meta.html#constantly-updated-meta-analysis"><i class="fa fa-check"></i><b>12.1.3</b> Constantly updated meta-analysis</a></li>
 <li class="chapter" data-level="12.1.4" data-path="sec-meta.html"><a href="sec-meta.html#testing-for-the-homogeneity-of-treatment-effects"><i class="fa fa-check"></i><b>12.1.4</b> Testing for the homogeneity of treatment effects</a></li>
 <li class="chapter" data-level="12.1.5" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis-when-treatment-effects-are-heterogeneous"><i class="fa fa-check"></i><b>12.1.5</b> Meta-analysis when treatment effects are heterogeneous</a></li>
@@ -208,7 +208,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a><ul>
 <li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofIdentLATE"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Theorem @ref(thm:IdentLATE)</a></li>
-<li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Lemma @ref(lem:WaldIV)</a></li>
+<li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Theorem @ref(thm:WaldIV)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -1353,7 +1353,7 @@ delta.y.ols.elig &lt;-<span class="st"> </span>reg.y.ols.elig<span class="op">$<
 <p>There is a very useful results, similar to the one stating that the WW estimator is equivalent to an OLS estimator: in the Eligiblity design, the Bloom estimator is equivalent to an IV estimator:</p>
 
 <div class="theorem">
-<p><span id="thm:BloomIV" class="theorem"><strong>Theorem 3.7  (Bloom is IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated among eligibles using <span class="math inline">\(R_i\)</span> as an IV</p>
+<p><span id="thm:BloomIV" class="theorem"><strong>Theorem 3.7  (Bloom is IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and with <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated among eligibles using <span class="math inline">\(R_i\)</span> as an IV</p>
 <span class="math display">\[\begin{align*}
         Y_i &amp;  = \alpha + \beta D_i + U_i
     \end{align*}\]</span>
@@ -1366,7 +1366,7 @@ delta.y.ols.elig &lt;-<span class="st"> </span>reg.y.ols.elig<span class="op">$<
 
 
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> The proof is straightforward using Lemma <a href="RCT.html#lem:WaldIV">3.1</a> below and setting <span class="math inline">\(D_i=0\)</span> when <span class="math inline">\(R_i=0\)</span>.
+ <span class="proof"><em>Proof. </em></span> The proof is straightforward using Theorem <a href="RCT.html#thm:WaldIV">3.15</a> below and setting <span class="math inline">\(D_i=0\)</span> when <span class="math inline">\(R_i=0\)</span>.
 </div>
 
 
@@ -1688,7 +1688,7 @@ Y_i^{d,r} &amp; = Y_i^d \text{, }\forall (r,d)\in\left\{0,1\right\}^2.
 <p>To generalize from the LATE to the TT, we can make the assumption that the impact on always takers is equal to the impact on compliers, but that seems a little far-fetched. <a href="https://www.nber.org/papers/w16566">Angrist and Fernandez-Val</a> propose to assume that the effect on compliers is equal to the effect on always takers conditional on some observed covariates. When outcomes are bounded (for example because they are between zero and one), we can try to bound the <span class="math inline">\(TT\)</span> using the <span class="math inline">\(LATE\)</span> (see <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.2473">Huber, Laffers and Mellace (2017)</a>).</p>
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> If you see a connexion between the conditions for the Wald estimator to identify LATE and the assumptions behind an IV estimator, you’re correct. The Wald estimator is actually an IV estimator (see Lemma <a href="RCT.html#lem:WaldIV">3.1</a> below).
+ <span class="remark"><em>Remark. </em></span> If you see a connexion between the conditions for the Wald estimator to identify LATE and the assumptions behind an IV estimator, you’re correct. The Wald estimator is actually an IV estimator (see Lemma <a href="#lem:WaldIV"><strong>??</strong></a> below).
 </div>
 
 </div>
@@ -2005,17 +2005,53 @@ reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span
 </div>
 <div id="structural-regression" class="section level4">
 <h4><span class="header-section-number">3.4.2.3</span> Structural regression</h4>
+<p>There are four ways to compute the LATE:</p>
+<ol style="list-style-type: decimal">
+<li>We can directly compute the sample equivalent to the Wald estimator defined in Theorem <a href="RCT.html#thm:IdentLATE">3.9</a>.</li>
+<li>We can divide our estimate of the ITE by the proportion of compliers, as Corollary <a href="RCT.html#cor:EncouragWald">3.2</a> suggests.</li>
+<li>We can run a regression of <span class="math inline">\(Y\)</span> on <span class="math inline">\(D\)</span> using <span class="math inline">\(R\)</span> as an instrumental variable.</li>
+<li>We can run a regression of <span class="math inline">\(Y\)</span> on <span class="math inline">\(D\)</span> using <span class="math inline">\(R\)</span> as an instrumental variable and controlling for some variables <span class="math inline">\(X_i\)</span>.</li>
+</ol>
+<p>It turns out that, in the absence of control variables, the first three estimators are fully equivalent. Corollary <a href="RCT.html#cor:EncouragWald">3.2</a> has already shown that the first two approaches are equivalent in the population. Theorem <a href="RCT.html#thm:WaldIV">3.15</a> below shows that the Wald estimator is equivalent to an IV estimator.</p>
 <p>For simplicity, in all that follows, I am setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
+<div id="using-the-wald-estimator" class="section level5">
+<h5><span class="header-section-number">3.4.2.3.1</span> Using the Wald estimator</h5>
+<p><strong><span style="font-variant: small-caps;">Write Wald</span></strong></p>
 
-<div class="lemma">
-<p><span id="lem:WaldIV" class="lemma"><strong>Lemma 3.1  (Wald is IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated using <span class="math inline">\(R_i\)</span> as an IV:</p>
+<div class="example">
+<span id="exm:unnamed-chunk-121" class="example"><strong>Example 3.25  </strong></span>Let’s check that these results hold in our numerical example.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mean.y.R.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>])
+mean.y.R.<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>])
+mean.D.R.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>])
+mean.D.R.<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>])
+delta.y.Wald &lt;-<span class="st"> </span>(mean.y.R.<span class="dv">1</span><span class="op">-</span>mean.y.R.<span class="dv">0</span>)<span class="op">/</span>(mean.D.R.<span class="dv">1</span><span class="op">-</span>mean.D.R.<span class="dv">0</span>)</code></pre></div>
+<p>The numerator of the Wald estimator is equal to 7.059 <span class="math inline">\(-\)</span> 6.88 <span class="math inline">\(=\)</span> 0.179. The denominator of the Wald estimator is equal to 0.704 <span class="math inline">\(-\)</span> 0.491 <span class="math inline">\(=\)</span> 0.213. Overall, the Wald estimator of the LATE is equal to 0.179 <span class="math inline">\(\div\)</span> 0.213 <span class="math inline">\(=\)</span> 0.841.</p>
+</div>
+<div id="using-the-ite" class="section level5">
+<h5><span class="header-section-number">3.4.2.3.2</span> Using the ITE</h5>
+<p><strong><span style="font-variant: small-caps;">Explain</span></strong></p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-122" class="example"><strong>Example 3.26  </strong></span>Let’s check that these results hold in our numerical example.
+</div>
+
+<p>We already know that the estimated ITE is equal to 0.179, which is equal to the numerator of the Wald estimator. We also now that the proportion of compliers in our sample is equal to 0.213. As a consequence, again, the Wald estimator of the LATE is equal to 0.179 <span class="math inline">\(\div\)</span> 0.213 <span class="math inline">\(=\)</span> 0.841.</p>
+</div>
+<div id="using-the-iv-estimator" class="section level5">
+<h5><span class="header-section-number">3.4.2.3.3</span> Using the IV estimator</h5>
+
+<div class="theorem">
+<p><span id="thm:WaldIV" class="theorem"><strong>Theorem 3.15  (Wald is IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated using <span class="math inline">\(R_i\)</span> as an IV:</p>
 <span class="math display">\[\begin{align*}
         Y_i &amp;  = \alpha + \beta D_i + U_i
     \end{align*}\]</span>
-<p>is the Wald estimator in the Encouragement Design and the Bloom estimator in the Eligibility Design:</p>
+<p>is the Wald estimator:</p>
 <span class="math display">\[\begin{align*}
 \hat{\beta}_{IV} &amp; = \frac{\frac{1}{N}\sum_{i=1}^N\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)\left(R_i-\frac{1}{N}\sum_{i=1}^NR_i\right)} \\
-                                &amp; = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}.
+                                &amp; = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}\\
+                  &amp; = \hat{\Delta}^Y_{Wald} 
 \end{align*}\]</span>
 </div>
 
@@ -2024,10 +2060,19 @@ reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span
  <span class="proof"><em>Proof. </em></span> See in section <a href="proofs.html#proofWaldIV">A.2.2</a> in the appendix.
 </div>
 
+<p><strong><span style="font-variant: small-caps;">Example</span></strong></p>
+</div>
+<div id="using-the-iv-estimator-conditioning-on-covariates" class="section level5">
+<h5><span class="header-section-number">3.4.2.3.4</span> USing the IV estimator conditioning on covariates</h5>
+<p><strong><span style="font-variant: small-caps;">Example</span></strong> <strong><span style="font-variant: small-caps;">Center covariates at mean?</span></strong></p>
+<p>Finally, let’s run an IV regression</p>
+<p><strong><span style="font-variant: small-caps;">Does conditioning on covariates improve precision?</span></strong></p>
+</div>
 </div>
 </div>
 <div id="estimating-sampling-noise-3" class="section level3">
 <h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>
+<p><strong><span style="font-variant: small-caps;">Derive CLT disrtribution </span></strong></p>
 </div>
 </div>
 <div id="sec:threats" class="section level2">

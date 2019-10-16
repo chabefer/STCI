@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-15">
+<meta name="date" content="2019-10-16">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -185,7 +185,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="12" data-path="sec-meta.html"><a href="sec-meta.html"><i class="fa fa-check"></i><b>12</b> Meta-analysis and Publication Bias</a><ul>
 <li class="chapter" data-level="12.1" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis"><i class="fa fa-check"></i><b>12.1</b> Meta-analysis</a><ul>
 <li class="chapter" data-level="12.1.1" data-path="sec-meta.html"><a href="sec-meta.html#basic-setting"><i class="fa fa-check"></i><b>12.1.1</b> Basic setting</a></li>
-<li class="chapter" data-level="12.1.2" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis-as-a-weighted-average"><i class="fa fa-check"></i><b>12.1.2</b> Meta-analysis as a weighted average</a></li>
+<li class="chapter" data-level="12.1.2" data-path="sec-meta.html"><a href="sec-meta.html#MetaWA"><i class="fa fa-check"></i><b>12.1.2</b> Meta-analysis as a weighted average</a></li>
 <li class="chapter" data-level="12.1.3" data-path="sec-meta.html"><a href="sec-meta.html#constantly-updated-meta-analysis"><i class="fa fa-check"></i><b>12.1.3</b> Constantly updated meta-analysis</a></li>
 <li class="chapter" data-level="12.1.4" data-path="sec-meta.html"><a href="sec-meta.html#testing-for-the-homogeneity-of-treatment-effects"><i class="fa fa-check"></i><b>12.1.4</b> Testing for the homogeneity of treatment effects</a></li>
 <li class="chapter" data-level="12.1.5" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis-when-treatment-effects-are-heterogeneous"><i class="fa fa-check"></i><b>12.1.5</b> Meta-analysis when treatment effects are heterogeneous</a></li>
@@ -208,7 +208,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a><ul>
 <li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofIdentLATE"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Theorem @ref(thm:IdentLATE)</a></li>
-<li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Lemma @ref(lem:WaldIV)</a></li>
+<li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Theorem @ref(thm:WaldIV)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -250,7 +250,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The basic setting for a meta-analysis is that you have access to a list of estimates for the effect of a given program and for their precision. These estimates come from the literature, searching published and unpublished sources alike. This data is usually collected after an extensive search of bibliographic databases. Then, one has to select among all the studies selected by the search the ones that are actualy relevant. This is the most excruciating part of a meta-analysis, since a lot of the studies selected by hte search algorithm are actually irrelevant. Finally, one has to extract from each relevant paper an estimate of the effect of the treatment and of its precision. In general, one tries to choose standardized estimates such as the effect size (see Section <a href="FPSI.html#sec:effectsize">2.1.6</a> for a definition) and its standard error. After all this process, we should end up with a dataset like: <span class="math inline">\(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\)</span>, with <span class="math inline">\(\hat{\theta}_k\)</span> the estimated effect size, <span class="math inline">\(\hat{\sigma}_k\)</span> its estimated standard error, and <span class="math inline">\(N\)</span> the number of included studies.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-122" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
+<span id="exm:unnamed-chunk-124" class="example"><strong>Example 12.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.sample &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">1000</span>,<span class="dv">10000</span>,<span class="dv">100000</span>)
@@ -288,7 +288,7 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
 </div>
 <p>Figure <a href="sec-meta.html#fig:confintervalESCLT">12.1</a> shows the resulting sample. I’ve selected 10 studies with <span class="math inline">\(N=\)</span> 100, 7 studies with <span class="math inline">\(N=\)</span> 1000, 2 studies with <span class="math inline">\(N=\)</span> 10^{4}, and 1 study with <span class="math inline">\(N=\)</span> 10^{5}. The studies are represented in that order, mimicking the increasing sample size of studies that accumulate evidence on a treatment, probably with studies with a small sample size at first, and only large studies at the end for the most promising treatments.</p>
 </div>
-<div id="meta-analysis-as-a-weighted-average" class="section level3">
+<div id="MetaWA" class="section level3">
 <h3><span class="header-section-number">12.1.2</span> Meta-analysis as a weighted average</h3>
 <p>The key idea of meta-analysis is to combine the effect size estimates stemming from different studies, weighing them by their relative precision.</p>
 
@@ -357,7 +357,7 @@ Figure 12.1: Example data set: effect sizes and confidence intervals with <span 
 }</code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-128" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
+<span id="exm:unnamed-chunk-130" class="example"><strong>Example 12.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
 </div>
 <p> The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02. A very simple way to implement such an estimator in R is to use the <code>rma</code> command of the <code>metafor</code> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.meta<span class="op">$</span>var.ES &lt;-<span class="st"> </span>data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>
@@ -394,7 +394,7 @@ Figure 12.2: Example data set: forest plot
 <p>Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving. This is a very important tool that enables us to aggregate constantly the information coming from different studies. Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study. The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-129" class="example"><strong>Example 12.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows how constantly updated meta-analysis works in our example.
+<span id="exm:unnamed-chunk-131" class="example"><strong>Example 12.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">12.3</a> shows how constantly updated meta-analysis works in our example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cum.wmae.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(k,theta,sigma2){
@@ -467,7 +467,7 @@ Figure 12.4: Constantly updated meta-analysis with the <code>metafor</code> pack
 <p>What is great with the <span class="math inline">\(Q\)</span> statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(N-1\)</span> degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-131" class="example"><strong>Example 12.4  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package. In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
+<span id="exm:unnamed-chunk-133" class="example"><strong>Example 12.4  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package. In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
 </div>
 <p> The <span class="math inline">\(Q\)</span> statistic in our example has value 12.71, with associated p-value 0.85. We end up not rejecting homogeneity, which is correct.</p>
 
@@ -515,7 +515,7 @@ Figure 12.4: Constantly updated meta-analysis with the <code>metafor</code> pack
 
 
 <div class="example">
-<span id="exm:unnamed-chunk-135" class="example"><strong>Example 12.5  </strong></span>Let’s compute Hedges’ esimator for <span class="math inline">\(\tau^2\)</span> in our numerical example.
+<span id="exm:unnamed-chunk-137" class="example"><strong>Example 12.5  </strong></span>Let’s compute Hedges’ esimator for <span class="math inline">\(\tau^2\)</span> in our numerical example.
 </div>
 
 <p>Let’s first define a few functions to compute each part:</p>
@@ -583,7 +583,7 @@ ES.H.theta.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="
 ES.H.theta.<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">Hwmae</span>(data.meta<span class="op">$</span>theta.<span class="dv">2</span>,data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>,tau.<span class="fl">2.</span>theta.<span class="dv">2</span>)</code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-136" class="example"><strong>Example 12.6  </strong></span>Let’s see how Hedges estimator performs in our example.
+<span id="exm:unnamed-chunk-138" class="example"><strong>Example 12.6  </strong></span>Let’s see how Hedges estimator performs in our example.
 </div>
 <p> Hedges’ estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2. The main problem with Hedges’ estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.</p>
 
@@ -603,7 +603,7 @@ ES.H.theta.<span class="dv">2</span> &lt;-<span class="st"> </span><span class="
 <p><strong><span style="font-variant: small-caps;">Detail other estimators of tau.</span></strong></p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-138" class="example"><strong>Example 12.7  </strong></span>For the moment, let’s see how they perform in our numerical example.
+<span id="exm:unnamed-chunk-140" class="example"><strong>Example 12.7  </strong></span>For the moment, let’s see how they perform in our numerical example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimators &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;DL&quot;</span>, <span class="st">&quot;REML&quot;</span>, <span class="st">&quot;HE&quot;</span>, <span class="st">&quot;HS&quot;</span>, <span class="st">&quot;SJ&quot;</span>, <span class="st">&quot;ML&quot;</span>, <span class="st">&quot;EB&quot;</span>)
@@ -665,7 +665,7 @@ Figure 12.7: Various estimators of the treatment effect with random effects
 <p><span class="math inline">\(ICC\)</span> and <span class="math inline">\(I^2\)</span> are related by the following very simple relation: <span class="math inline">\(I^2=ICC*100\)</span>.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-139" class="example"><strong>Example 12.8  </strong></span>Let’s see how these three estimators look like in our example. The cool thing is that <code>rma</code> computes these estimators by default, so that a simple call to <code>summary()</code> is going to show them. The default random effects estimator is <code>REML</code>, which is deemed to be the best of them all according to simulations <a href="https://journals.sagepub.com/doi/abs/10.3102/10769986030003261">(Viechtbauer, 2002)</a>.
+<span id="exm:unnamed-chunk-141" class="example"><strong>Example 12.8  </strong></span>Let’s see how these three estimators look like in our example. The cool thing is that <code>rma</code> computes these estimators by default, so that a simple call to <code>summary()</code> is going to show them. The default random effects estimator is <code>REML</code>, which is deemed to be the best of them all according to simulations <a href="https://journals.sagepub.com/doi/abs/10.3102/10769986030003261">(Viechtbauer, 2002)</a>.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">meta.example.RE.ES &lt;-<span class="st"> </span><span class="kw">rma</span>(<span class="dt">yi =</span> data.meta<span class="op">$</span>ES,<span class="dt">vi=</span>data.meta<span class="op">$</span>var.ES)
@@ -730,7 +730,7 @@ Figure 12.9: Radial plots with fixed and random effects <span class="math inline
 </ol>
 
 <div class="example">
-<span id="exm:unnamed-chunk-140" class="example"><strong>Example 12.9  </strong></span>Let’s see how big a difference using random versus fixed effects does to the estimation of treatment effects. Let’s plot the two forest plots for the example with <span class="math inline">\(\tau=\)</span> <code>r tau[[1]]^2</code>.
+<span id="exm:unnamed-chunk-142" class="example"><strong>Example 12.9  </strong></span>Let’s see how big a difference using random versus fixed effects does to the estimation of treatment effects. Let’s plot the two forest plots for the example with <span class="math inline">\(\tau=\)</span> <code>r tau[[1]]^2</code>.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">forest</span>(meta.example.FE.theta.<span class="dv">1</span>,<span class="dt">slab =</span> <span class="kw">paste</span>(<span class="st">&#39;Study&#39;</span>,data.meta<span class="op">$</span>id,<span class="dt">sep=</span><span class="st">&#39; &#39;</span>),<span class="dt">xlab=</span><span class="st">&#39;Estimated Meta-analytic Parameter&#39;</span>)
@@ -751,21 +751,40 @@ Figure 12.10: Fixed vs random effects with <span class="math inline">\(\tau^2=\)
 <h4><span class="header-section-number">12.1.6.1</span> The Meta-regression model</h4>
 <p>The main equation that we want to estimate is as follows <a href="https://www.jstor.org/stable/10.7758/9781610441384">(Raudenbusch, 2009)</a>:</p>
 <span class="math display">\[\begin{align}
-  \theta_k &amp; = \beta&#39;X_i + u_i + e_i,
+  \hat{\theta}_k &amp; = \mathbf{X}_k \mathbf{\beta}  + \epsilon_k + \nu_k,
 \end{align}\]</span>
-<p>where <span class="math inline">\(X_i\)</span> is a vector of variables suspected to be correlated with treatment effect heterogeneity and <span class="math inline">\(\beta\)</span> is a vector of coefficients, of the same dimension as <span class="math inline">\(X_i\)</span>. <span class="math inline">\(X_i\)</span> contains a <span class="math inline">\(1\)</span> as its first term, so that <span class="math inline">\(\beta_0\)</span>, the first component of the vector <span class="math inline">\(\beta\)</span> measures the effect of the treatment when all other regressors are set to zero. It might thus be a good idea to set the regressors as deviations around their means if we want <span class="math inline">\(\beta_0\)</span> to capture the average effect of the treatment. The error terms <span class="math inline">\(u_i\)</span> and <span class="math inline">\(e_i\)</span> capture the remaining heterogeneity in effect sizes due to remaining unobserved covariates (<span class="math inline">\(u_i\)</span>) and estimation error due to sampling noise (<span class="math inline">\(e_i\)</span>). It is in addition generally assumed that <span class="math inline">\(e_i\sim\mathbf{N}(0,\sigma^2_i)\)</span> and <span class="math inline">\(u_i\sim\mathbf{N}(0,\tau^2)\)</span>.</p>
-<p>This model is in general called the <strong>mixed effects linear model</strong>. It contains at the same time fixed effects captured by <span class="math inline">\(\beta&#39;X_i\)</span> and random effects captured by <span class="math inline">\(u_i\)</span>. Setting <span class="math inline">\(\tau^2\)</span> to zero generates a <strong>fixed effects linear model</strong>. It is possible, as usual, to test for whether <span class="math inline">\(\tau^2\)</span> is null or not, which is a test of whether the added covariates fully capture the heterogeneity in treatment effects across studies.</p>
+<p><strong><span style="font-variant: small-caps;">Center regressors at the mean?</span></strong></p>
+<p>where <span class="math inline">\(\mathbf{X}_k\)</span> is a line vector containing the value of the variables suspected to be correlated with treatment effect heterogeneity for study <span class="math inline">\(k\)</span> and <span class="math inline">\(\mathbf{\beta}\)</span> is a column vector of the corresponding coefficients, of the same dimension as <span class="math inline">\(\mathbf{X}_k\)</span>. <span class="math inline">\(\mathbf{X}_k\)</span> contains a <span class="math inline">\(1\)</span> as its first term, so that <span class="math inline">\(\beta_0\)</span>, the first component of the vector <span class="math inline">\(\mathbf{\beta}\)</span> measures the effect of the treatment when all other regressors are set to zero. It might thus be a good idea to set the regressors as deviations around their means if we want <span class="math inline">\(\beta_0\)</span> to capture the average effect of the treatment. The error term <span class="math inline">\(\epsilon_k\)</span> captures the heterogeneity in estimated effect sizes that is due to sampling noise. The error term <span class="math inline">\(\nu_k\)</span> captures the heterogeneity in effect sizes across sites that remains after conditioning on <span class="math inline">\(\mathbf{X}_k\)</span>. In addition, it is generally assumed that <span class="math inline">\(\epsilon_k\sim\mathbf{N}(0,\hat{\sigma}^2_k)\)</span> and <span class="math inline">\(\nu_k\sim\mathbf{N}(0,\tau^2)\)</span>.</p>
+<p>This model is in general called the <strong>mixed effects linear model</strong>. It contains at the same time fixed effects captured by <span class="math inline">\(\mathbf{X}_k \mathbf{\beta}\)</span> and random effects captured by <span class="math inline">\(\nu_k\)</span>. Setting <span class="math inline">\(\tau^2\)</span> to zero generates a <strong>fixed effects linear model</strong>. It is possible, as usual, to test for whether <span class="math inline">\(\tau^2\)</span> is null or not, which is a test of whether the added covariates fully capture the heterogeneity in treatment effects across studies.</p>
 </div>
 <div id="estimating-the-meta-regression-model" class="section level4">
 <h4><span class="header-section-number">12.1.6.2</span> Estimating the meta-regression model</h4>
-<p>There are basically four ways to estimate the meta-regression model:</p>
+<p>There are at least four ways to estimate the meta-regression model:</p>
 <ol style="list-style-type: decimal">
 <li>Weighted Least squares (WLS): mostly used for fixed effects models, where <span class="math inline">\(\tau^2\)</span> is assumed to be zero.</li>
 <li>Full Maximum Likelihood Estimator (FMLE)</li>
 <li>Restricted Maximum Likelihood Estimator (RMLE)</li>
 <li>Method Of Moments (MOM)</li>
 </ol>
+<div id="weighted-least-squares" class="section level5">
+<h5><span class="header-section-number">12.1.6.2.1</span> Weighted Least Squares</h5>
+<p>The Weighted Least Squares (WLS) estimator imposes that <span class="math inline">\(\tau^2=0\)</span>. It is thus appropriate when we have a fixed effects linear model. It is also used as a starting point for estimating the other models.</p>
+<p>The WLS estimator of <span class="math inline">\(\mathbf{\beta}\)</span> is written as follows:</p>
+<span class="math display">\[\begin{align*}
+  \mathbf{\hat{\beta}}_{WLS} &amp; = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}\mathbf{X}_k&#39;\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}\mathbf{X}_k&#39;\hat{\theta}_k.
+\end{align*}\]</span>
+<p>The WLS estimator is similar to the standard OLS estimator, except that it gives more weight to mmore precise estimates of the treatment effect. This is a generalization of the weighted average that we have studied in Section <a href="sec-meta.html#MetaWA">12.1.2</a>.</p>
+</div>
+<div id="full-maximum-likelihood-estimator" class="section level5">
+<h5><span class="header-section-number">12.1.6.2.2</span> Full Maximum Likelihood Estimator</h5>
 <p><strong><span style="font-variant: small-caps;">Detail estimators.</span></strong></p>
+</div>
+<div id="restricted-maximum-likelihood-estimator" class="section level5">
+<h5><span class="header-section-number">12.1.6.2.3</span> Restricted Maximum Likelihood Estimator</h5>
+</div>
+<div id="method-of-moments-mom" class="section level5">
+<h5><span class="header-section-number">12.1.6.2.4</span> Method Of Moments (MOM)</h5>
+</div>
 </div>
 <div id="estimating-sampling-noise-in-the-meta-regression-model" class="section level4">
 <h4><span class="header-section-number">12.1.6.3</span> Estimating sampling noise in the meta-regression model</h4>
