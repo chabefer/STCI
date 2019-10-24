@@ -1630,7 +1630,7 @@ Under Assumptions \@ref(def:indelig), \@ref(def:randeligvalid) and \@ref(def:exc
 with $p^D=\Pr(D_i=1)$, $p^R=\Pr(R_i=1)$ and $(p^{DR}=\Pr(D_i=1|R_i=1)$.
 
 ```{proof}
-The proof is immediate using Lemma \@ref(lem:asymWald) in the appendix and setting $p^{AT}=0$.
+The proof is immediate using Theorem \@ref(thm:asymWald), setting $p^{AT}=0$.
 ```
 
 ```{remark}
@@ -2265,6 +2265,7 @@ When controlling for $y^B_i$, we have: $\hat{\Delta}^{D,R}_{OLS(y^B)}=$ `r round
 Under monotonicity, $\Delta^{D,R}_{TT}$ is equal to the proportion of compliers among eligibles.
 Indeed, this is the proportion of eligibles that participate when receiving the encouragement and that does not participate when not receiving it.
 In our example, the proportion of compliers among eligibles is `r round(pr.compliers,3)` in the population and `r round(PrCoElig,3)` in the sample.
+We are thus underestimating the true proportino of compliers, which is going to make us overestimate the LATE.
 
 #### Reduced form regression
 
@@ -2285,8 +2286,8 @@ reg.y.R.ols.yB <- lm(y[E==1]~R[E==1]+yB[E==1])
 $\hat{\Delta}^{y,R}_{WW} =$ `r round(WW.y.R,3)`, while $\hat{\Delta}^{y,R}_{OLS}=$ `r round(reg.y.R.ols$coef[2],3)` which is exactly equal, as expected, to the WW estimator.
 When controlling for $y^B_i$, we have: $\hat{\Delta}^{y,R}_{OLS(y^B)}=$ `r round(reg.y.R.ols.yB$coef[2],3)`.
 In our example, the ITE is `r round(delta.y.ite,3)` in the population and `r round(ITEs,3)` in the sample.
-Without conditioning on $Y_i^B$, we are thus making a very large mistake as to the true ITE.
-This is probably because $y_i^B$ is not identically distributed between treatment and control, generating sampling noise.
+Without conditioning on $Y_i^B$, we are thus overestimating the true ITE by a lot.
+The consequence is that we are going to overestimate the LATE as well.
 
 #### Structural regression
 
@@ -2295,20 +2296,25 @@ There are four ways to compute the LATE:
   1. We can directly compute the sample equivalent to the Wald estimator defined in Theorem \@ref(thm:IdentLATE).
   2. We can divide our estimate of the ITE by the proportion of compliers, as Corollary \@ref(cor:EncouragWald) suggests.
   3. We can run a regression of $Y$ on $D$ using $R$ as an instrumental variable.
-  4. We can run a regression of $Y$ on $D$ using $R$ as an instrumental variable and controlling for some variables $X_i$.
+  4. We can run a regression of $Y$ on $D$ using $R$ as an instrumental variable and controlling for some variables $X$.
 
 It turns out that, in the absence of control variables, the first three estimators are fully equivalent.
 Corollary \@ref(cor:EncouragWald) has already shown that the first two approaches are equivalent in the population.
 Theorem \@ref(thm:WaldIV) below shows that the Wald estimator is equivalent to an IV estimator. 
 
-For simplicity, in all that follows, I am setting $E_i=1$ for everyone, so that $N$ is the number of eligible individuals.
+For simplicity, in all that follows, I am working only in the subgroup of eligible individuals.
+That means that I'm setting $E_i=1$ for everyone, so that $N$ is the number of eligible individuals.
 
 ##### Using the Wald estimator
 
-**<span style="font-variant:small-caps;">Write Wald</span>**
+The empirical counterpart to the Wald estimator is the difference in mean outcomes between treatment and controls divided by the difference in participation rates between the two groups:
+
+\begin{align*}
+\hat{\Delta}^Y_{Wald} & = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}
+\end{align*}
 
 ```{example}
-Let's check that these results hold in our numerical example.
+Let's check how this works in our numerical example.
 ```
 
 ```{r WaldLATE,eval=TRUE,echo=TRUE,results='hide'}
@@ -2323,20 +2329,51 @@ The numerator of the Wald estimator is equal to `r round(mean.y.R.1,3)` $-$ `r r
 The denominator of the Wald estimator is equal to `r round(mean.D.R.1,3)` $-$ `r round(mean.D.R.0,3)` $=$ `r round(mean.D.R.1-mean.D.R.0,3)`.
 Overall, the Wald estimator of the LATE is equal to `r round(mean.y.R.1-mean.y.R.0,3)` $\div$ `r round(mean.D.R.1-mean.D.R.0,3)` $=$ `r round(delta.y.Wald,3)`.
 
+Remember that the true LATE is equal to `r round(delta.y.late,3)`. 
+We are thus severely overestimating the LATE.
+We'll understand why in the next section.
+
 ##### Using the ITE 
 
-**<span style="font-variant:small-caps;">Explain</span>**
+We know from Corollary \@ref(cor:EncouragWald) that dividing the ITE by the proportion of compliers gives the Wald estimator.
+From Theorem \@ref(thm:ITEEncourag), we know that the ITE can be estimated using the sample equivalent to the With/Without estimator as follows:
 
+\begin{align*}
+\hat{\Delta}^{Y,R}_{WW} & = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i).
+\end{align*}
+
+From Theorem \@ref(thm:prEncourag), we also know that the proportion of compliers can be estimated using the sample equivalent to the With/Without estimator as follows:
+
+\begin{align*}
+\hat{\Delta}^{D,R}_{WW} & = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i).
+\end{align*}
 
 ```{example}
-Let's check that these results hold in our numerical example.
+Let's check that this unfolds in our numerical example.
 ```
-
 We already know that the estimated ITE is equal to `r round(WW.y.R,3)`, which is equal to the numerator of the Wald estimator.
 We also now that the proportion of compliers in our sample is equal to `r round(WW.D.R,3)`.
 As a consequence, again, the Wald estimator of the LATE is equal to `r round(WW.y.R,3)` $\div$ `r round(WW.D.R,3)` $=$ `r round(WW.y.R/WW.D.R,3)`.
+Without surprise, we obtain exactly the same results as when using the Wald estimator directly.
+The two approaches are numerically equivalent.
+
+Again, our estimator of the LATE, the Wald estimator, severelt overestimates the LATE.
+The Wald estimator is equal to `r round(delta.y.Wald,3)` while the true LATE is equal to `r round(delta.y.late,3)`. 
+What is the reason for this mistake?
+There are actually two: 
+
+  1. We are overestimating the ITE (truth: `r round(delta.y.ite,3)`; estimate: `r round(WW.y.R,3)`).
+  2. We are underestimating the proportion of compliers (truth: `r round(pr.compliers,3)`; estimate: `r round(WW.D.R,3)`).
+  
+The combination of these two mistakes generates the large discrepancy that we see between our estimate of the LATE and its true value.
+This error comes for covariates that are not distributed identically in the treatment and control groups. 
+Maybe controlling for some of them would improve our fit.
+In order to to that, we need the IV estimator.
 
 ##### Using the IV estimator
+
+A very useful result is that the Wald estimator can be computed as an IV estimator.
+The following theorem proves that point:
 
 ```{theorem,WaldIV,name='Wald is IV'}
 Under the assumption that there is at least one individual with $R_i=1$ and $D_i=1$, the coefficient $\beta$ in the following regression estimated using $R_i$ as an IV:
@@ -2358,21 +2395,267 @@ is the Wald estimator:
 See in section \@ref(proofWaldIV) in the appendix.
 ```
 
-**<span style="font-variant:small-caps;">Example</span>**
+Theorem \@ref(thm:WaldIV) is super powerful since it enables us to directly use the IV estimator to compute the Wald estimator. 
+In order to do so, we're going to use the estimator `ivreg` in the `AER` package.
 
+```{example}
+Let's see how the IV estimator performs in our numerical example.
+```
 
-##### USing the IV estimator conditioning on covariates
+```{r deltay2slsEncourage,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.2sls.encourage <- ivreg(y[E==1]~Ds[E==1]|R[E==1])
+beta.IV <- reg.y.R.2sls.encourage$coef[2]
+```
 
-**<span style="font-variant:small-caps;">Example</span>**
+$\hat{\beta}_{IV}=$ `r round(beta.IV,3)`, which is equal to the Wald estimator, as Theorem \@ref(thm:WaldIV) predicted.
+
+##### Using the IV estimator conditioning on covariates
+
+One nice thing about the IV estimator is that we can use it to control for additional covariates $X$. 
+Estimating the following equation with $R_i$ and $X_i$ as instruments:
+
+\begin{align*}
+    Y_i &  = \alpha +  \beta D_i + \gamma' X_i + U_i
+  \end{align*}
+
+recovers $\beta_{IV}(X)$, which is an estimate of the LATE under linearity assumptions on the potential outcomes.
+
+**<span style="font-variant:small-caps;">Expand on that</span>**
 **<span style="font-variant:small-caps;">Center covariates at mean?</span>**
 
-Finally, let's run an IV regression
+```{example}
+Let's see how this work in our numerical example, when we condition on $y^B_i$.
+```
 
-**<span style="font-variant:small-caps;">Does conditioning on covariates improve precision?</span>**
+```{r delta.y.yB.2sls.encourage,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.yB.2sls.encourage <- ivreg(y[E==1] ~ Ds[E==1] + yB[E==1] | R[E==1] + yB[E==1])
+beta.IV.yB <- reg.y.R.yB.2sls.encourage$coef[2]
+```
+
+$\hat{\beta}_{IV}(y^B)=$ `r round(beta.IV.yB,3)`.
+Remember that the value of $\Delta^y_{LATE}$ in the population is thus `r round(delta.y.late,3)`.
+All of our estimators have overshoot.
+The worse are the ones not conditioning on $y^B$.
+It seems that conditioning on $y^B$ improves the estimator slightly.
+So part of the estimation error in the Wald estimator probably comes from an imbalance in $y_i^B$ between the treatment and control groups.
+Let's check that this is the case.
+
+```{r delta.yB.ols.encourage,eval=TRUE,echo=TRUE,results='hide'}
+reg.yB.R.ols.encourage <- lm(yB[E==1] ~ R[E==1])
+delta.yB.WW.R <- reg.yB.R.ols.encourage$coef[2]
+```
+
+The difference in $y_i^B$ among treated and controls in our example is `r round(delta.yB.WW.R,3)`.
+This is enough to account for the bias on the ITE.
+
+**<span style="font-variant:small-caps;">Expand on that</span>**
+
+```{remark}
+One key question that remains is that whether the structural parameter $\beta(X)$ is still equal to the ratio of the reduced form parameter and the first stage parameter obtained by running OLS conditionnal on $X$.
+```
+
+```{example}
+Let's examine what happens in our example.
+```
+
+```{r delta.y.yB.ols.encourage,eval=TRUE,echo=TRUE,results='hide'}
+reg.y.R.yB.ols.encourage <- lm(y[E==1] ~ R[E==1] + yB[E==1])
+ITE.yB <- reg.y.R.yB.ols.encourage$coef[2]
+
+reg.D.R.yB.ols.encourage <- lm(D[E==1] ~ R[E==1] + yB[E==1])
+prCo.yB <- reg.D.R.yB.ols.encourage$coef[2]
+
+Wald.yB <- ITE.yB/prCo.yB
+```
+
+We find that the ITE conditional on $y^B_i$ is equal to `r round(ITE.yB,3)` while the proportion of compliers conditioning on $y_i^B$ is equal to `r round(prCo.yB,3)`.
+Overall the ratio of these two, which we could call the Wald ratio after conditioning on $y_i^B$ is equal to `r round(Wald.yB,3)`.
+This is actually equal to the IV estimator including $y_i^B$ as a covariate: $\hat{\beta}_{IV}(y^B)=$ `r round(beta.IV.yB,3)`.
+So running the reduced form and first stage regressions separately and dividing the coefficients on $R_i$ recovers the LATE even when conditioning on covariates?
+That's pretty neat and opens up the route for a variety of new estimation techniques called `split sample` estimators, developed by [Angrist and Krueger](http://economics.mit.edu/files/398).
+We'll take more about them later.
+
+```{remark}
+We might want to control nonparametrically on the covariates instead of imposing a linear regression.
+[Frolich's Wald matching estimator](https://www.sciencedirect.com/science/article/abs/pii/S0304407606001023) enables to do just that.
+Its implementation will become clearer after Chapter \@ref(sec:OM).
+```
+
+```{remark}
+The last thing we want to check is whether conditioning on covariates improve precision.
+It seems to be the case in our example with one dataset.
+Let's see what happens over sampling repetitions.
+```
+
+```{example}
+Let's run some Monte Carlo simulations for the sampling noise of IV with and without conditining on $y_i^B$.
+```
+
+```{r MonteCarloEncourage,dependson='param.encouragement',eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.encourage <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  
+  #random allocation among self-selected
+  E <- ifelse(YB<=param["barY"],1,0)
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5 & E==1,1,0)
+  V <- rnorm(N,0,param["sigma2V"])
+  Dindex <- param["baralpha"]+param["theta"]*param["barmu"]+param["psi"]*R-param["barc"]-param["gamma"]*mu-V
+  Ds <- ifelse(Dindex>=0 & E==1,1,0)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  reg.y.R.2sls.encourage <- ivreg(y[E==1]~Ds[E==1]|R[E==1])
+  return(reg.y.R.2sls.encourage$coef[2])
+}
+
+simuls.encourage.N <- function(N,Nsim,param){
+  simuls.encourage <- matrix(unlist(lapply(1:Nsim,monte.carlo.encourage,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.encourage) <- c('Wald')
+  return(simuls.encourage)
+}
+
+sf.simuls.encourage.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sfLibrary(AER)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.encourage,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('Wald')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+#N.sample <- c(100,1000,10000,100000)
+N.sample <- c(1000,10000,100000)
+#N.sample <- c(100,1000)
+#N.sample <- c(1000)
+
+simuls.encourage <- lapply(N.sample,sf.simuls.encourage.N,Nsim=Nsim,param=param)
+names(simuls.encourage) <- N.sample
+```
+
+```{r monte.carlo.encourage.yB,dependson='param.encouragement',eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.encourage.yB <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  
+  #random allocation among self-selected
+  E <- ifelse(YB<=param["barY"],1,0)
+  Rs <- runif(N)
+  R <- ifelse(Rs<=.5 & E==1,1,0)
+  V <- rnorm(N,0,param["sigma2V"])
+  Dindex <- param["baralpha"]+param["theta"]*param["barmu"]+param["psi"]*R-param["barc"]-param["gamma"]*mu-V
+  Ds <- ifelse(Dindex>=0 & E==1,1,0)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  reg.y.R.yB.2sls.encourage <- ivreg(y[E==1]~Ds[E==1] + yB[E==1]|R[E==1] + yB[E==1])
+  return(reg.y.R.yB.2sls.encourage$coef[2])
+}
+
+simuls.encourage.yB.N <- function(N,Nsim,param){
+  simuls.encourage.yB <- matrix(unlist(lapply(1:Nsim,monte.carlo.encourage.yB,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.encourage.yB) <- c('Wald')
+  return(simuls.encourage.yB)
+}
+
+sf.simuls.encourage.yB.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sfLibrary(AER)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.encourage.yB,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('Wald')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+#N.sample <- c(100,1000,10000,100000)
+N.sample <- c(1000,10000,100000)
+#N.sample <- c(100,1000)
+#N.sample <- c(1000)
+
+simuls.encourage.yB <- lapply(N.sample,sf.simuls.encourage.yB.N,Nsim=Nsim,param=param)
+names(simuls.encourage.yB) <- N.sample
+```
+
+```{r MonteCarloHistEncourage,dependson='monte.carlo.encourage',eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the $Wald$ and $Wald(X)$ estimator in an encouragement design over replications of samples of different sizes',fig.subcap=c('$Wald$','$Wald(X)$'),fig.align='center',out.width='50%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.encourage)){
+  hist(simuls.encourage[[i]][,'Wald'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yWald)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.late,col="red")
+}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.encourage.yB)){
+  hist(simuls.encourage.yB[[i]][,'Wald'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yWald)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.late,col="red")
+}
+```
 
 ### Estimating sampling noise
 
-**<span style="font-variant:small-caps;">Derive CLT disrtribution </span>**
+As always, we can estimate samling noise either using the CLT or resampling methods.
+Using the CLT, we can derive the following formula for the distribution of the Bloom estimator:
+Theorem \@ref(thm:asymWald) shows the asymptotic distribution of $\hat{\Delta}^Y_{Wald}$:
 
+```{theorem,asymWald,name='Asymptotic Distribution of $\\hat{\\Delta}^Y_{Wald}$'}
+Under Independence and Validity of the Instrument, Exclusion Restriction, and Full Rank, we have:
+
+\begin{align*}
+  \sqrt{N}(\hat{\Delta}^Y_{Wald}-\Delta^Y_{LATE}) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right)\\
+\end{align*}
+
+Under Monoticity, the variance of the Wald estimator can be decomposed as follows:
+
+\begin{align*}
+\sigma^2_{\hat{\Delta}^Y_{Wald}}  & = \left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i^0|T_i=C}}{p^C(1-p^R)}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y^1_i|T_i=C}}{p^Cp^R}\\
+                                  & \phantom{=} +\frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2}\left[p^{AT}\var{Y_i^1|T_i=AT}+p^{NT}\var{Y^0_i|T_i=NT}\right]
+\end{align*}
+```
+
+with $p^D=\Pr(D_i=1)$, $p^R=\Pr(R_i=1)$ and $(p^{DR}=\Pr(D_i=1|R_i=1)$.
+
+
+```{proof}
+See Section \@ref(ProofAsymWald).
+```
+
+```{example}
+Let's see how the Wald estimator performs in our example:
+```
+Without conditioning on $y_i^B$:
+
+  - True 99\% sampling noise (from the simulations) is `r round(2*quantile(abs(simuls.encourage[['1000']][,'Wald']-delta.y.late),probs=c(0.99)),3)`.
+  - 99\% sampling noise estimated using default 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.2sls.encourage)[2,2]),3)`
+  - 99\% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.2sls.encourage,type='HC2')[2,2]),3)`.
+
+With conditioning on $y_i^B$:
+
+  - True 99\% sampling noise (from the simulations) is `r round(2*quantile(abs(simuls.encourage.yB[['1000']][,'Wald']-delta.y.late),probs=c(0.99)),3)`.
+  - 99\% sampling noise estimated using default 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.yB.2sls.encourage)[2,2]),3)`
+  - 99\% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.yB.2sls.encourage,type='HC2')[2,2]),3)`.
 
 ## Threats to the validity of RCTs {#sec:threats}

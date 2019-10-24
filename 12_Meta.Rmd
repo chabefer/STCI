@@ -421,7 +421,7 @@ tau.2.theta.2 <- tau.2(data.meta$theta.2,data.meta$se.ES^2)
 
 Hedges' estimates of $\tau^2$ in our examples are thus `r round(tau.2.theta.1,2)` and  `r round(tau.2.theta.2,2)` respectively, while the true values are, respectively `r tau[[1]]^2` and `r tau[[2]]^2`.
 
-#### Estimating the average effect of the treatment taking heterogeneity into account 
+#### Estimating the average effect of the treatment taking heterogeneity into account {#sec:RE}
 
 Hedges proposes a new estimator for the average effect of the treatment, an estimator that accounts for the additional noise due to heterogeneous treatment effects accross sites.
 
@@ -659,10 +659,24 @@ The WLS estimator is similar to the standard OLS estimator, except that it gives
 This is a generalization of the weighted average that we have studied in Section \@ref(MetaWA).
 
 ##### Full Maximum Likelihood Estimator
-  
-**<span style="font-variant:small-caps;">Detail estimators.</span>**
 
+The Full Maximum Likelihood Estimator (FMLE) is also a weighted estimator, but, as the random effects estimator presented in Section \@ref(sec:RE), it is using as weigths not only the precision estimates ($\frac{1}{\hat{\sigma}^2_k}$), but the inverse of the sum of the variance due to sampling noise and the variance due to variation in treatment effects across sites.
+In order to make all of this clearer, let's define $\omega_k = \epsilon_k + \nu_k$, and let's denote $\zeta^2_{k}=\hat{\sigma}^2_k+\tau^2$ the variance of $\omega_k$.
+The estimatingn equations for the FMLE estimator are:
+
+\begin{align*}
+  \mathbf{\hat{\beta}}_{FMLE} & = \left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\hat{\theta}_k,\\
+ \hat{\tau}^2_{FMLE} & = \frac{\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}\left((\hat{\theta}_k -\mathbf{X}_k\mathbf{\beta})^2-\hat{\sigma}^2_k\right)}{\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}}
+\end{align*}
+
+where $\hat{\zeta}^2_k$ is an estimate of $\zeta^2_{k}$. 
+In general, the FEML model is estimated by using a first guess for $\mathbf{\beta}$, for example $\mathbf{\hat{\beta}}_{WLS}$.
+Using this first estimate, we can compute a first estimate of $\hat{\tau}^2$ and update the set of weights, and iterate until convergence.
+ 
 ##### Restricted Maximum Likelihood Estimator
+
+ 
+**<span style="font-variant:small-caps;">Detail estimators.</span>**
 
 ##### Method Of Moments (MOM) 
 

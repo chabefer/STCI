@@ -577,3 +577,155 @@ we have:
 As a consequence, $\hat{\beta}_{IV}$ is equal to the ratio of two OLS estimators ($Y_i$ on $R_i$ and a constant and $D_i$ on the same regressors) (see the proof of Lemma \@ref(lem:WWOLS) in section \@ref(proofCLT), just after "Using $D_i^2=D_i$").
 We can use Lemma \@ref(lem:WWOLS) stating that the OLS estimator is the WW estimator to prove the result.
 
+### Proof of Theorem \@ref(thm:asymWald) {#ProofAsymWald}
+
+In order to derive the asymptotic distribution of the Wald estimator, I first use Theorem \@ref(thm:WaldIV) which implies that the asymptotic distribution of Wald is the same as that of $\hat{\beta}_{IV}$.
+Now, I'm going to derive the asymptotic distribution of the IV estimator.
+
+```{lemma,asympIV,name='Asymptotic Distribution of the IV Estimator'}
+Under Independence and Validity of the Instrument, Exclusion Restriction and Full Rank, we have:
+
+\begin{align*}
+  \sqrt{N}(\hat{\Theta}_{IV}-\Theta) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(\begin{array}{c}	0\\	0\end{array},
+  (\sigma_{RX}^{-1})'\mathbf{V_{ru}}\sigma_{RX}^{-1}\right), 
+\end{align*}
+
+with 
+\begin{align*}
+\sigma_{RX}^{-1}& = \frac{\left(\begin{array}{cc}	\esp{D_iR_i} & -\Pr(D_i=1)\\
+                                          -\Pr(R_i=1) & 1 
+                          \end{array}\right)}{(\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0))\Pr(R_i=1)(1-\Pr(R_i=1))}
+                          \\
+\mathbf{V_{ru}}&= \esp{U_i^2\left(\begin{array}{cc}  1 & R_i\\  R_i & R_i\end{array}\right)}                                                                
+\end{align*}
+```
+
+```{proof}
+\begin{align*}
+\sqrt{N}(\hat{\Theta}_{IV}-\Theta) & = \sqrt{N}((R'X)^{-1}R'Y-\Theta) \\
+                                    & = \sqrt{N}((R'X)^{-1}R'(X\Theta+U)-\Theta) \\
+                                    & = \sqrt{N}((R'X)^{-1}R'X\Theta+(X'X)^{-1}X'U)-\Theta) \\
+                                    & = \sqrt{N}(R'X)^{-1}R'U \\
+                                    & = N(R'X)^{-1}\frac{\sqrt{N}}{N}R'U
+\end{align*}
+
+Using Slutsky's Theorem, we have:
+
+\begin{align*}
+\sqrt{N}(\hat{\Theta}_{IV}-\Theta) & \stackrel{d}{\rightarrow} \sigma_{RX}^{-1}ru,
+\end{align*}
+
+where $\sigma_{RX}^{-1}$ is a matrix of constants and $ru$ is a random variable.
+
+We know that $\plims N(R'X)^{-1}=\sigma_{RX}^{-1}$.
+So:
+
+\begin{align*}
+N(R'X)^{-1} & = \frac{N}{N\sum D_iR_i-\sum D_i\sum R_i}\left(\begin{array}{cc} \sum D_iR_i & -\sum D_i \\ -\sum R_i & N \end{array}\right) \\
+            & = \frac{1}{\frac{\sum D_iR_i}{N}-\frac{\sum D_i}{N}\frac{\sum R_i}{N}} 
+                  \left(\begin{array}{cc} 
+                          \frac{\sum D_iR_i}{N} & -\frac{\sum D_i}{N} \\ -\frac{\sum R_i}{N} & 1 
+                        \end{array}
+                  \right) 
+\end{align*}
+
+$\frac{\sum D_iR_i}{N}-\frac{\sum D_i}{N}\frac{\sum R_i}{N}$ is equal to the numerator of the OLS coefficient of a regression of $D_i$ on $R_i$ and a constant (Proof of Lemma 3 in Lecture 0).
+As a consequence of Lemma 3 in Lecture 0, it can be written as the With/Without estimator multiplied by the denominator of the OLS estimator, which is simply the variance of $R_i$.
+
+Let's turn to $\frac{\sqrt{N}}{N}R'U\stackrel{d}{\rightarrow}xu$:
+
+\begin{align*}
+\frac{\sqrt{N}}{N}R'U & = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum^{i=1}_{N}U_i\\  \frac{1}{N}\sum^{i=1}_{N}R_iU_i\end{array}\right)
+\end{align*}
+
+We know that, under Validity of Randomization, both random variables have mean zero: 
+
+\begin{align*}
+\esp{U_i}& = \esp{U_i|R_i=1}\Pr(R_i=1)+\esp{U_i|R_i=0}\Pr(R_i=0)=0 \\
+\esp{U_iR_i}& = \esp{U_i|R_i=1}\Pr(R_i=1)=0
+\end{align*}
+
+Their covariance matrix $\mathbf{V_{ru}}$ can be computed as follows:
+
+\begin{align*}
+\mathbf{V_{ru}} & = \esp{\left(\begin{array}{c}  U_i\\	UiR_i\end{array}\right)\left(\begin{array}{cc}	U_i&	UiR_i\end{array}\right)}
+                  - \esp{\left(\begin{array}{c}	U_i\\	UiR_i\end{array}\right)}\esp{\left(\begin{array}{cc}	U_i&	UiR_i\end{array}\right)}\\
+                & = \esp{\left(\begin{array}{cc}	U_i^2 & U_i^2R_i\\	Ui^2R_i & U_i^2R_i^2\end{array}\right)} 
+                  = \esp{U_i^2\left(\begin{array}{cc}	1 & R_i\\	R_i & R_i^2\end{array}\right)} 
+                  = \esp{U_i^2\left(\begin{array}{cc}	1 & R_i\\	R_i & R_i\end{array}\right)} 
+\end{align*}
+
+Using the Vector CLT, we have that $\frac{\sqrt{N}}{N}R'U\stackrel{d}{\rightarrow}\mathcal{N}\left(\begin{array}{c}  0\\	0\end{array},\mathbf{V_{ru}}\right)$.
+Using Slutsky's theorem and the LLN gives the result.
+```
+
+From Lemma \@ref(thm:asympIV), we know that $\sqrt{N}(\hat{\beta}_{IV}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})$, where $\sigma^2_{\beta}$ is the lower diagonal term of $(\sigma_{RX}^{-1})'\mathbf{V_{ru}}\sigma_{RX}^{-1}$.
+Using the convention $p^R=\Pr(R_i=1)$, $p^D=\Pr(D_i=1)$, $p^D_1=\Pr(D_i=1|R_i=1)$, $p^D_0=\Pr(D_i=1|R_i=0)$ and $p^{DR}=\esp{D_iR_i}$, we have:
+
+\begin{align*}
+(&\sigma_{RX}^{-1})'\mathbf{V_{ru}}\sigma_{RX}^{-1} \\
+                   & = \frac{1}{((p^D_1-p^D_0)p^R(1-p^R))^2}
+                  \left(\begin{array}{cc}
+                         p^{DR}  & -p^R\\
+                        -p^D & 1
+                          \end{array}\right)
+                          \esp{U_i^2\left(\begin{array}{cc}  1 & R_i\\  R_i & R_i\end{array}\right)}
+                        \left(\begin{array}{cc}
+                                         p^{DR}  & -p^D\\
+                                          -p^R & 1
+                          \end{array}\right)\\
+                    & = \frac{1}{((p^D_1-p^D_0)p^R(1-p^R))^2}
+                         \left(\begin{array}{cc}
+                         p^{DR}\esp{U_i^2}-p^R\esp{U_i^2R_i} & \esp{U_i^2R_i}(p^{DR}-p^R)\\
+                        \esp{U_i^2R_i}-p^D\esp{U_i^2} & \esp{U_i^2R_i}(1-p^D)
+                          \end{array}\right)
+                          \left(\begin{array}{cc}
+                                         p^{DR}  & -p^D\\
+                                          -p^R & 1
+                          \end{array}\right)\\
+                    & = \frac{\left(\begin{array}{cc}
+                          p^{DR}(p^{DR}\esp{U_i^2}-p^R\esp{U_i^2R_i})- p^R\esp{U_i^2R_i}(p^{DR}-p^R)
+                            & \esp{U_i^2R_i}(p^{DR}-p^R)-p^{D}(p^{DR}\esp{U_i^2}-p^R\esp{U_i^2R_i})\\
+                          p^{DR}(\esp{U_i^2R_i}-p^D\esp{U_i^2})-p^R\esp{U_i^2R_i}(1-p^D)
+                            & \esp{U_i^2R_i}(1-p^D) - p^{D}(\esp{U_i^2R_i}-p^D\esp{U_i^2})
+                          \end{array}\right)}{((p^D_1-p^D_0)p^R(1-p^R))^2}
+ \end{align*}
+
+As a consequence:
+
+\begin{align*}
+\sigma^2_{\beta} & = \frac{\esp{U_i^2R_i}(1-p^D) - p^{D}(\esp{U_i^2R_i}-p^D\esp{U_i^2})}{((p^D_1-p^D_0)p^R(1-p^R))^2} \\
+                  & = \frac{(p^D)^2\esp{U_i^2}+(1-2p^D)\esp{U_i^2R_i}}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{(p^D)^2(\esp{U_i^2|R_i=1}p^R+\esp{U_i^2|R_i=0}(1-p^R))+(1-2p^D)\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{(p^D)^2\esp{U_i^2|R_i=0}(1-p^R)+(1-2p^D+(p^D)^2)\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{(p^D)^2\esp{U_i^2|R_i=0}(1-p^R)+(1-p^D)^2\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\esp{U_i^2|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\esp{U_i^2|R_i=1}}{p^R}\right].
+\end{align*}
+
+Note that, under monotonicity, $p^C=p^D_1-p^D_0$ and:
+
+\begin{align*}
+\esp{U_i^2|R_i=1} & = p^{AT}\var{Y_i^1|T_i=AT}+p^C\var{Y_i^1|T_i=C}+p^{NT}\var{Y_i^0|T_i=NT} \\
+\esp{U_i^2|R_i=0}  & = p^{AT}\var{Y_i^1|T_i=AT}+p^C\var{Y_i^0|T_i=C}+p^{NT}\var{Y_i^0|T_i=NT}.
+ \end{align*}
+
+The final result comes from the fact that:
+
+\begin{align*}
+\frac{1}{(p^C)^2} &  \left[\left(\frac{p^D}{p^R}\right)^2\frac{1}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{1}{p^R}\right]\\
+  & = \frac{(p^D)^2(1-p^R)+(1-p^D)^2p^R}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D)^2-(p^D)^2p^R+p^R-2p^Dp^R+(p^D)^2p^R}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D)^2+p^R-2p^Dp^R}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D-p^R)^2+p^R-(p^R)^2}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+p^Cp^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+(1-p^{AT}-p^{NT})p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+(1-p^{AT}-p^{NT})p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+p^R-p^{AT}p^R-p^{NT}p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2},
+\end{align*}
+
+where the seventh equality uses the fact that $p^C+p^{AT}+p^{NT}=1$.
+
+

@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-16}
+    \date{2019-10-24}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -6630,8 +6630,8 @@ with \(p^D=\Pr(D_i=1)\), \(p^R=\Pr(R_i=1)\) and
 \((p^{DR}=\Pr(D_i=1|R_i=1)\).
 
 \BeginKnitrBlock{proof}
-\iffalse{} {Proof. } \fi{}The proof is immediate using Lemma
-\ref{lem:asymWald} in the appendix and setting \(p^{AT}=0\).
+\iffalse{} {Proof. } \fi{}The proof is immediate using Theorem
+\ref{thm:asymWald}, setting \(p^{AT}=0\).
 \EndKnitrBlock{proof}
 
 \BeginKnitrBlock{remark}
@@ -7561,7 +7561,8 @@ compliers among eligibles. Indeed, this is the proportion of eligibles
 that participate when receiving the encouragement and that does not
 participate when not receiving it. In our example, the proportion of
 compliers among eligibles is 0.272 in the population and 0.31 in the
-sample.
+sample. We are thus underestimating the true proportino of compliers,
+which is going to make us overestimate the LATE.
 
 \subsubsection{Reduced form regression}\label{reduced-form-regression}
 
@@ -7590,10 +7591,9 @@ increase precision.
 0.179 which is exactly equal, as expected, to the WW estimator. When
 controlling for \(y^B_i\), we have: \(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)
 0.108. In our example, the ITE is 0.047 in the population and 0.044 in
-the sample. Without conditioning on \(Y_i^B\), we are thus making a very
-large mistake as to the true ITE. This is probably because \(y_i^B\) is
-not identically distributed between treatment and control, generating
-sampling noise.
+the sample. Without conditioning on \(Y_i^B\), we are thus
+overestimating the true ITE by a lot. The consequence is that we are
+going to overestimate the LATE as well.
 
 \subsubsection{Structural regression}\label{structural-regression}
 
@@ -7613,7 +7613,7 @@ There are four ways to compute the LATE:
   instrumental variable.
 \item
   We can run a regression of \(Y\) on \(D\) using \(R\) as an
-  instrumental variable and controlling for some variables \(X_i\).
+  instrumental variable and controlling for some variables \(X\).
 \end{enumerate}
 
 It turns out that, in the absence of control variables, the first three
@@ -7622,16 +7622,23 @@ already shown that the first two approaches are equivalent in the
 population. Theorem \ref{thm:WaldIV} below shows that the Wald estimator
 is equivalent to an IV estimator.
 
-For simplicity, in all that follows, I am setting \(E_i=1\) for
+For simplicity, in all that follows, I am working only in the subgroup
+of eligible individuals. That means that I'm setting \(E_i=1\) for
 everyone, so that \(N\) is the number of eligible individuals.
 
 \paragraph{Using the Wald estimator}\label{using-the-wald-estimator}
 
-\textbf{\textsc{Write Wald}}
+The empirical counterpart to the Wald estimator is the difference in
+mean outcomes between treatment and controls divided by the difference
+in participation rates between the two groups:
+
+\begin{align*}
+\hat{\Delta}^Y_{Wald} & = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}
+\end{align*}
 
 \BeginKnitrBlock{example}
 \protect\hypertarget{exm:unnamed-chunk-121}{}{\label{exm:unnamed-chunk-121}
-}Let's check that these results hold in our numerical example.
+}Let's check how this works in our numerical example.
 \EndKnitrBlock{example}
 
 \begin{Shaded}
@@ -7649,22 +7656,64 @@ The numerator of the Wald estimator is equal to 7.059 \(-\) 6.88 \(=\)
 0.491 \(=\) 0.213. Overall, the Wald estimator of the LATE is equal to
 0.179 \(\div\) 0.213 \(=\) 0.841.
 
+Remember that the true LATE is equal to 0.173. We are thus severely
+overestimating the LATE. We'll understand why in the next section.
+
 \paragraph{Using the ITE}\label{using-the-ite}
 
-\textbf{\textsc{Explain}}
+We know from Corollary \ref{cor:EncouragWald} that dividing the ITE by
+the proportion of compliers gives the Wald estimator. From Theorem
+\ref{thm:ITEEncourag}, we know that the ITE can be estimated using the
+sample equivalent to the With/Without estimator as follows:
+
+\begin{align*}
+\hat{\Delta}^{Y,R}_{WW} & = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i).
+\end{align*}
+
+From Theorem \ref{thm:prEncourag}, we also know that the proportion of
+compliers can be estimated using the sample equivalent to the
+With/Without estimator as follows:
+
+\begin{align*}
+\hat{\Delta}^{D,R}_{WW} & = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i).
+\end{align*}
 
 \BeginKnitrBlock{example}
 \protect\hypertarget{exm:unnamed-chunk-122}{}{\label{exm:unnamed-chunk-122}
-}Let's check that these results hold in our numerical example.
-\EndKnitrBlock{example}
+}Let's check that this unfolds in our numerical example.
+\EndKnitrBlock{example} We already know that the estimated ITE is equal
+to 0.179, which is equal to the numerator of the Wald estimator. We also
+now that the proportion of compliers in our sample is equal to 0.213. As
+a consequence, again, the Wald estimator of the LATE is equal to 0.179
+\(\div\) 0.213 \(=\) 0.841. Without surprise, we obtain exactly the same
+results as when using the Wald estimator directly. The two approaches
+are numerically equivalent.
 
-We already know that the estimated ITE is equal to 0.179, which is equal
-to the numerator of the Wald estimator. We also now that the proportion
-of compliers in our sample is equal to 0.213. As a consequence, again,
-the Wald estimator of the LATE is equal to 0.179 \(\div\) 0.213 \(=\)
-0.841.
+Again, our estimator of the LATE, the Wald estimator, severelt
+overestimates the LATE. The Wald estimator is equal to 0.841 while the
+true LATE is equal to 0.173. What is the reason for this mistake? There
+are actually two:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  We are overestimating the ITE (truth: 0.047; estimate: 0.179).
+\item
+  We are underestimating the proportion of compliers (truth: 0.272;
+  estimate: 0.213).
+\end{enumerate}
+
+The combination of these two mistakes generates the large discrepancy
+that we see between our estimate of the LATE and its true value. This
+error comes for covariates that are not distributed identically in the
+treatment and control groups. Maybe controlling for some of them would
+improve our fit. In order to to that, we need the IV estimator.
 
 \paragraph{Using the IV estimator}\label{using-the-iv-estimator}
+
+A very useful result is that the Wald estimator can be computed as an IV
+estimator. The following theorem proves that point:
 
 \BeginKnitrBlock{theorem}[Wald is IV]
 \protect\hypertarget{thm:WaldIV}{}{\label{thm:WaldIV} \iffalse (Wald is IV)
@@ -7690,21 +7739,208 @@ is the Wald estimator:
 appendix.
 \EndKnitrBlock{proof}
 
-\textbf{\textsc{Example}}
+Theorem \ref{thm:WaldIV} is super powerful since it enables us to
+directly use the IV estimator to compute the Wald estimator. In order to
+do so, we're going to use the estimator \texttt{ivreg} in the
+\texttt{AER} package.
 
-\paragraph{USing the IV estimator conditioning on
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-124}{}{\label{exm:unnamed-chunk-124}
+}Let's see how the IV estimator performs in our numerical example.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.y.R.2sls.encourage <-}\StringTok{ }\KeywordTok{ivreg}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{~}\NormalTok{Ds[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]}\OperatorTok{|}\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{beta.IV <-}\StringTok{ }\NormalTok{reg.y.R.2sls.encourage}\OperatorTok{$}\NormalTok{coef[}\DecValTok{2}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\(\hat{\beta}_{IV}=\) 0.841, which is equal to the Wald estimator, as
+Theorem \ref{thm:WaldIV} predicted.
+
+\paragraph{Using the IV estimator conditioning on
 covariates}\label{using-the-iv-estimator-conditioning-on-covariates}
 
-\textbf{\textsc{Example}} \textbf{\textsc{Center covariates at mean?}}
+One nice thing about the IV estimator is that we can use it to control
+for additional covariates \(X\). Estimating the following equation with
+\(R_i\) and \(X_i\) as instruments:
 
-Finally, let's run an IV regression
+\begin{align*}
+    Y_i &  = \alpha +  \beta D_i + \gamma' X_i + U_i
+  \end{align*}
 
-\textbf{\textsc{Does conditioning on covariates improve precision?}}
+recovers \(\beta_{IV}(X)\), which is an estimate of the LATE under
+linearity assumptions on the potential outcomes.
+
+\textbf{\textsc{Expand on that}} \textbf{\textsc{Center covariates at
+mean?}}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-125}{}{\label{exm:unnamed-chunk-125}
+}Let's see how this work in our numerical example, when we condition on
+\(y^B_i\).
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.y.R.yB.2sls.encourage <-}\StringTok{ }\KeywordTok{ivreg}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{~}\StringTok{ }\NormalTok{Ds[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{yB[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{|}\StringTok{ }\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{yB[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{beta.IV.yB <-}\StringTok{ }\NormalTok{reg.y.R.yB.2sls.encourage}\OperatorTok{$}\NormalTok{coef[}\DecValTok{2}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\(\hat{\beta}_{IV}(y^B)=\) 0.464. Remember that the value of
+\(\Delta^y_{LATE}\) in the population is thus 0.173. All of our
+estimators have overshoot. The worse are the ones not conditioning on
+\(y^B\). It seems that conditioning on \(y^B\) improves the estimator
+slightly. So part of the estimation error in the Wald estimator probably
+comes from an imbalance in \(y_i^B\) between the treatment and control
+groups. Let's check that this is the case.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.yB.R.ols.encourage <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(yB[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{~}\StringTok{ }\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{delta.yB.WW.R <-}\StringTok{ }\NormalTok{reg.yB.R.ols.encourage}\OperatorTok{$}\NormalTok{coef[}\DecValTok{2}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+The difference in \(y_i^B\) among treated and controls in our example is
+0.075. This is enough to account for the bias on the ITE.
+
+\textbf{\textsc{Expand on that}}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}One key question that remains is that whether
+the structural parameter \(\beta(X)\) is still equal to the ratio of the
+reduced form parameter and the first stage parameter obtained by running
+OLS conditionnal on \(X\).
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-127}{}{\label{exm:unnamed-chunk-127}
+}Let's examine what happens in our example.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg.y.R.yB.ols.encourage <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{~}\StringTok{ }\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{yB[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{ITE.yB <-}\StringTok{ }\NormalTok{reg.y.R.yB.ols.encourage}\OperatorTok{$}\NormalTok{coef[}\DecValTok{2}\NormalTok{]}
+
+\NormalTok{reg.D.R.yB.ols.encourage <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{~}\StringTok{ }\NormalTok{R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{yB[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{prCo.yB <-}\StringTok{ }\NormalTok{reg.D.R.yB.ols.encourage}\OperatorTok{$}\NormalTok{coef[}\DecValTok{2}\NormalTok{]}
+
+\NormalTok{Wald.yB <-}\StringTok{ }\NormalTok{ITE.yB}\OperatorTok{/}\NormalTok{prCo.yB}
+\end{Highlighting}
+\end{Shaded}
+
+We find that the ITE conditional on \(y^B_i\) is equal to 0.108 while
+the proportion of compliers conditioning on \(y_i^B\) is equal to 0.233.
+Overall the ratio of these two, which we could call the Wald ratio after
+conditioning on \(y_i^B\) is equal to 0.464. This is actually equal to
+the IV estimator including \(y_i^B\) as a covariate:
+\(\hat{\beta}_{IV}(y^B)=\) 0.464. So running the reduced form and first
+stage regressions separately and dividing the coefficients on \(R_i\)
+recovers the LATE even when conditioning on covariates? That's pretty
+neat and opens up the route for a variety of new estimation techniques
+called \texttt{split\ sample} estimators, developed by
+\href{http://economics.mit.edu/files/398}{Angrist and Krueger}. We'll
+take more about them later.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}We might want to control nonparametrically on
+the covariates instead of imposing a linear regression.
+\href{https://www.sciencedirect.com/science/article/abs/pii/S0304407606001023}{Frolich's
+Wald matching estimator} enables to do just that. Its implementation
+will become clearer after Chapter \ref{sec:OM}.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The last thing we want to check is whether
+conditioning on covariates improve precision. It seems to be the case in
+our example with one dataset. Let's see what happens over sampling
+repetitions.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-130}{}{\label{exm:unnamed-chunk-130}
+}Let's run some Monte Carlo simulations for the sampling noise of IV
+with and without conditining on \(y_i^B\).
+\EndKnitrBlock{example}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[$Wald$\label{fig:MonteCarloHistEncourage1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/MonteCarloHistEncourage-1} }\subfloat[$Wald(X)$\label{fig:MonteCarloHistEncourage2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/MonteCarloHistEncourage-2} }
+
+}
+
+\caption{Distribution of the $Wald$ and $Wald(X)$ estimator in an encouragement design over replications of samples of different sizes}\label{fig:MonteCarloHistEncourage}
+\end{figure}
 
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-3}
 
-\textbf{\textsc{Derive CLT disrtribution }}
+As always, we can estimate samling noise either using the CLT or
+resampling methods. Using the CLT, we can derive the following formula
+for the distribution of the Bloom estimator: Theorem \ref{thm:asymWald}
+shows the asymptotic distribution of \(\hat{\Delta}^Y_{Wald}\):
+
+\BeginKnitrBlock{theorem}[Asymptotic Distribution of $\hat{\Delta}^Y_{Wald}$]
+\protect\hypertarget{thm:asymWald}{}{\label{thm:asymWald}
+\iffalse (Asymptotic Distribution of \(\hat{\Delta}^Y_{Wald}\)) \fi{}
+}Under Independence and Validity of the Instrument, Exclusion
+Restriction, and Full Rank, we have:
+
+\begin{align*}
+  \sqrt{N}(\hat{\Delta}^Y_{Wald}-\Delta^Y_{LATE}) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right)\\
+\end{align*}
+
+Under Monoticity, the variance of the Wald estimator can be decomposed
+as follows:
+
+\begin{align*}
+\sigma^2_{\hat{\Delta}^Y_{Wald}}  & = \left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i^0|T_i=C}}{p^C(1-p^R)}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y^1_i|T_i=C}}{p^Cp^R}\\
+                                  & \phantom{=} +\frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2}\left[p^{AT}\var{Y_i^1|T_i=AT}+p^{NT}\var{Y^0_i|T_i=NT}\right]
+\end{align*}
+\EndKnitrBlock{theorem}
+
+with \(p^D=\Pr(D_i=1)\), \(p^R=\Pr(R_i=1)\) and
+\((p^{DR}=\Pr(D_i=1|R_i=1)\).
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}See Section \ref{ProofAsymWald}.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-132}{}{\label{exm:unnamed-chunk-132}
+}Let's see how the Wald estimator performs in our example:
+\EndKnitrBlock{example} Without conditioning on \(y_i^B\):
+
+\begin{itemize}
+\tightlist
+\item
+  True 99\% sampling noise (from the simulations) is 1.166.
+\item
+  99\% sampling noise estimated using default 2SLS standard errors is
+  2.124
+\item
+  99\% sampling noise estimated using heteroskedasticity robust 2SLS
+  standard errors is 2.119.
+\end{itemize}
+
+With conditioning on \(y_i^B\):
+
+\begin{itemize}
+\tightlist
+\item
+  True 99\% sampling noise (from the simulations) is 0.705.
+\item
+  99\% sampling noise estimated using default 2SLS standard errors is
+  0.988
+\item
+  99\% sampling noise estimated using heteroskedasticity robust 2SLS
+  standard errors is 0.975.
+\end{itemize}
 
 \section{Threats to the validity of RCTs}\label{sec:threats}
 
@@ -7808,7 +8044,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-124}{}{\label{exm:unnamed-chunk-124}
+\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -7980,7 +8216,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-130}{}{\label{exm:unnamed-chunk-130}
+\protect\hypertarget{exm:unnamed-chunk-139}{}{\label{exm:unnamed-chunk-139}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -8053,7 +8289,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-131}{}{\label{exm:unnamed-chunk-131}
+\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -8226,7 +8462,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
+\protect\hypertarget{exm:unnamed-chunk-142}{}{\label{exm:unnamed-chunk-142}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -8323,7 +8559,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-137}{}{\label{exm:unnamed-chunk-137}
+\protect\hypertarget{exm:unnamed-chunk-146}{}{\label{exm:unnamed-chunk-146}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8413,8 +8649,7 @@ Hedges' estimates of \(\tau^2\) in our examples are thus 0.2 and 0.73
 respectively, while the true values are, respectively 0.25 and 1.
 
 \subsubsection{Estimating the average effect of the treatment taking
-heterogeneity into
-account}\label{estimating-the-average-effect-of-the-treatment-taking-heterogeneity-into-account}
+heterogeneity into account}\label{sec:RE}
 
 Hedges proposes a new estimator for the average effect of the treatment,
 an estimator that accounts for the additional noise due to heterogeneous
@@ -8440,7 +8675,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-138}{}{\label{exm:unnamed-chunk-138}
+\protect\hypertarget{exm:unnamed-chunk-147}{}{\label{exm:unnamed-chunk-147}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -8482,7 +8717,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
+\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8591,7 +8826,7 @@ estimate what we want? I'd take the average variance.}}
 \(I^2=ICC*100\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141}
+\protect\hypertarget{exm:unnamed-chunk-150}{}{\label{exm:unnamed-chunk-150}
 }Let's see how these three estimators look like in our example. The cool
 thing is that \texttt{rma} computes these estimators by default, so that
 a simple call to \texttt{summary()} is going to show them. The default
@@ -8716,7 +8951,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-142}{}{\label{exm:unnamed-chunk-142}
+\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -8833,10 +9068,31 @@ Section \ref{MetaWA}.
 \paragraph{Full Maximum Likelihood
 Estimator}\label{full-maximum-likelihood-estimator}
 
-\textbf{\textsc{Detail estimators.}}
+The Full Maximum Likelihood Estimator (FMLE) is also a weighted
+estimator, but, as the random effects estimator presented in Section
+\ref{sec:RE}, it is using as weigths not only the precision estimates
+(\(\frac{1}{\hat{\sigma}^2_k}\)), but the inverse of the sum of the
+variance due to sampling noise and the variance due to variation in
+treatment effects across sites. In order to make all of this clearer,
+let's define \(\omega_k = \epsilon_k + \nu_k\), and let's denote
+\(\zeta^2_{k}=\hat{\sigma}^2_k+\tau^2\) the variance of \(\omega_k\).
+The estimatingn equations for the FMLE estimator are:
+
+\begin{align*}
+  \mathbf{\hat{\beta}}_{FMLE} & = \left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\hat{\theta}_k,\\
+ \hat{\tau}^2_{FMLE} & = \frac{\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}\left((\hat{\theta}_k -\mathbf{X}_k\mathbf{\beta})^2-\hat{\sigma}^2_k\right)}{\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}}
+\end{align*}
+
+where \(\hat{\zeta}^2_k\) is an estimate of \(\zeta^2_{k}\). In general,
+the FEML model is estimated by using a first guess for
+\(\mathbf{\beta}\), for example \(\mathbf{\hat{\beta}}_{WLS}\). Using
+this first estimate, we can compute a first estimate of \(\hat{\tau}^2\)
+and update the set of weights, and iterate until convergence.
 
 \paragraph{Restricted Maximum Likelihood
 Estimator}\label{restricted-maximum-likelihood-estimator}
+
+\textbf{\textsc{Detail estimators.}}
 
 \paragraph{Method Of Moments (MOM)}\label{method-of-moments-mom}
 
@@ -9528,6 +9784,175 @@ regressors) (see the proof of Lemma \ref{lem:WWOLS} in section
 \ref{proofCLT}, just after ``Using \(D_i^2=D_i\)''). We can use Lemma
 \ref{lem:WWOLS} stating that the OLS estimator is the WW estimator to
 prove the result.
+
+\subsection{Proof of Theorem \ref{thm:asymWald}}\label{ProofAsymWald}
+
+In order to derive the asymptotic distribution of the Wald estimator, I
+first use Theorem \ref{thm:WaldIV} which implies that the asymptotic
+distribution of Wald is the same as that of \(\hat{\beta}_{IV}\). Now,
+I'm going to derive the asymptotic distribution of the IV estimator.
+
+\BeginKnitrBlock{lemma}[Asymptotic Distribution of the IV Estimator]
+\protect\hypertarget{lem:asympIV}{}{\label{lem:asympIV} \iffalse (Asymptotic
+Distribution of the IV Estimator) \fi{} }Under Independence and Validity
+of the Instrument, Exclusion Restriction and Full Rank, we have:
+
+\begin{align*}
+  \sqrt{N}(\hat{\Theta}_{IV}-\Theta) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},
+  (\sigma_{RX}^{-1})'\mathbf{V_{ru}}\sigma_{RX}^{-1}\right), 
+\end{align*}
+
+with
+
+\begin{align*}
+\sigma_{RX}^{-1}& = \frac{\left(\begin{array}{cc}   \esp{D_iR_i} & -\Pr(D_i=1)\\
+                                          -\Pr(R_i=1) & 1 
+                          \end{array}\right)}{(\Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0))\Pr(R_i=1)(1-\Pr(R_i=1))}
+                          \\
+\mathbf{V_{ru}}&= \esp{U_i^2\left(\begin{array}{cc}  1 & R_i\\  R_i & R_i\end{array}\right)}                                                                
+\end{align*}
+\EndKnitrBlock{lemma}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}
+
+\begin{align*}
+\sqrt{N}(\hat{\Theta}_{IV}-\Theta) & = \sqrt{N}((R'X)^{-1}R'Y-\Theta) \\
+                                    & = \sqrt{N}((R'X)^{-1}R'(X\Theta+U)-\Theta) \\
+                                    & = \sqrt{N}((R'X)^{-1}R'X\Theta+(X'X)^{-1}X'U)-\Theta) \\
+                                    & = \sqrt{N}(R'X)^{-1}R'U \\
+                                    & = N(R'X)^{-1}\frac{\sqrt{N}}{N}R'U
+\end{align*}
+
+Using Slutsky's Theorem, we have:
+
+\begin{align*}
+\sqrt{N}(\hat{\Theta}_{IV}-\Theta) & \stackrel{d}{\rightarrow} \sigma_{RX}^{-1}ru,
+\end{align*}
+
+where \(\sigma_{RX}^{-1}\) is a matrix of constants and \(ru\) is a
+random variable.
+
+We know that \(\plims N(R'X)^{-1}=\sigma_{RX}^{-1}\). So:
+
+\begin{align*}
+N(R'X)^{-1} & = \frac{N}{N\sum D_iR_i-\sum D_i\sum R_i}\left(\begin{array}{cc} \sum D_iR_i & -\sum D_i \\ -\sum R_i & N \end{array}\right) \\
+            & = \frac{1}{\frac{\sum D_iR_i}{N}-\frac{\sum D_i}{N}\frac{\sum R_i}{N}} 
+                  \left(\begin{array}{cc} 
+                          \frac{\sum D_iR_i}{N} & -\frac{\sum D_i}{N} \\ -\frac{\sum R_i}{N} & 1 
+                        \end{array}
+                  \right) 
+\end{align*}
+
+\(\frac{\sum D_iR_i}{N}-\frac{\sum D_i}{N}\frac{\sum R_i}{N}\) is equal
+to the numerator of the OLS coefficient of a regression of \(D_i\) on
+\(R_i\) and a constant (Proof of Lemma 3 in Lecture 0). As a consequence
+of Lemma 3 in Lecture 0, it can be written as the With/Without estimator
+multiplied by the denominator of the OLS estimator, which is simply the
+variance of \(R_i\).
+
+Let's turn to \(\frac{\sqrt{N}}{N}R'U\stackrel{d}{\rightarrow}xu\):
+
+\begin{align*}
+\frac{\sqrt{N}}{N}R'U & = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum^{i=1}_{N}U_i\\  \frac{1}{N}\sum^{i=1}_{N}R_iU_i\end{array}\right)
+\end{align*}
+
+We know that, under Validity of Randomization, both random variables
+have mean zero:
+
+\begin{align*}
+\esp{U_i}& = \esp{U_i|R_i=1}\Pr(R_i=1)+\esp{U_i|R_i=0}\Pr(R_i=0)=0 \\
+\esp{U_iR_i}& = \esp{U_i|R_i=1}\Pr(R_i=1)=0
+\end{align*}
+
+Their covariance matrix \(\mathbf{V_{ru}}\) can be computed as follows:
+
+\begin{align*}
+\mathbf{V_{ru}} & = \esp{\left(\begin{array}{c}  U_i\\  UiR_i\end{array}\right)\left(\begin{array}{cc}  U_i&    UiR_i\end{array}\right)}
+                  - \esp{\left(\begin{array}{c} U_i\\   UiR_i\end{array}\right)}\esp{\left(\begin{array}{cc}    U_i&    UiR_i\end{array}\right)}\\
+                & = \esp{\left(\begin{array}{cc}    U_i^2 & U_i^2R_i\\  Ui^2R_i & U_i^2R_i^2\end{array}\right)} 
+                  = \esp{U_i^2\left(\begin{array}{cc}   1 & R_i\\   R_i & R_i^2\end{array}\right)} 
+                  = \esp{U_i^2\left(\begin{array}{cc}   1 & R_i\\   R_i & R_i\end{array}\right)} 
+\end{align*}
+
+Using the Vector CLT, we have that
+\(\frac{\sqrt{N}}{N}R'U\stackrel{d}{\rightarrow}\mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},\mathbf{V_{ru}}\right)\).
+Using Slutsky's theorem and the LLN gives the result.
+\EndKnitrBlock{proof}
+
+From Lemma \ref{thm:asympIV}, we know that
+\(\sqrt{N}(\hat{\beta}_{IV}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})\),
+where \(\sigma^2_{\beta}\) is the lower diagonal term of
+\((\sigma_{RX}^{-1})'\mathbf{V_{ru}}\sigma_{RX}^{-1}\). Using the
+convention \(p^R=\Pr(R_i=1)\), \(p^D=\Pr(D_i=1)\),
+\(p^D_1=\Pr(D_i=1|R_i=1)\), \(p^D_0=\Pr(D_i=1|R_i=0)\) and
+\(p^{DR}=\esp{D_iR_i}\), we have:
+
+\begin{align*}
+(&\sigma_{RX}^{-1})'\mathbf{V_{ru}}\sigma_{RX}^{-1} \\
+                   & = \frac{1}{((p^D_1-p^D_0)p^R(1-p^R))^2}
+                  \left(\begin{array}{cc}
+                         p^{DR}  & -p^R\\
+                        -p^D & 1
+                          \end{array}\right)
+                          \esp{U_i^2\left(\begin{array}{cc}  1 & R_i\\  R_i & R_i\end{array}\right)}
+                        \left(\begin{array}{cc}
+                                         p^{DR}  & -p^D\\
+                                          -p^R & 1
+                          \end{array}\right)\\
+                    & = \frac{1}{((p^D_1-p^D_0)p^R(1-p^R))^2}
+                         \left(\begin{array}{cc}
+                         p^{DR}\esp{U_i^2}-p^R\esp{U_i^2R_i} & \esp{U_i^2R_i}(p^{DR}-p^R)\\
+                        \esp{U_i^2R_i}-p^D\esp{U_i^2} & \esp{U_i^2R_i}(1-p^D)
+                          \end{array}\right)
+                          \left(\begin{array}{cc}
+                                         p^{DR}  & -p^D\\
+                                          -p^R & 1
+                          \end{array}\right)\\
+                    & = \frac{\left(\begin{array}{cc}
+                          p^{DR}(p^{DR}\esp{U_i^2}-p^R\esp{U_i^2R_i})- p^R\esp{U_i^2R_i}(p^{DR}-p^R)
+                            & \esp{U_i^2R_i}(p^{DR}-p^R)-p^{D}(p^{DR}\esp{U_i^2}-p^R\esp{U_i^2R_i})\\
+                          p^{DR}(\esp{U_i^2R_i}-p^D\esp{U_i^2})-p^R\esp{U_i^2R_i}(1-p^D)
+                            & \esp{U_i^2R_i}(1-p^D) - p^{D}(\esp{U_i^2R_i}-p^D\esp{U_i^2})
+                          \end{array}\right)}{((p^D_1-p^D_0)p^R(1-p^R))^2}
+ \end{align*}
+
+As a consequence:
+
+\begin{align*}
+\sigma^2_{\beta} & = \frac{\esp{U_i^2R_i}(1-p^D) - p^{D}(\esp{U_i^2R_i}-p^D\esp{U_i^2})}{((p^D_1-p^D_0)p^R(1-p^R))^2} \\
+                  & = \frac{(p^D)^2\esp{U_i^2}+(1-2p^D)\esp{U_i^2R_i}}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{(p^D)^2(\esp{U_i^2|R_i=1}p^R+\esp{U_i^2|R_i=0}(1-p^R))+(1-2p^D)\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{(p^D)^2\esp{U_i^2|R_i=0}(1-p^R)+(1-2p^D+(p^D)^2)\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{(p^D)^2\esp{U_i^2|R_i=0}(1-p^R)+(1-p^D)^2\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
+                  & = \frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\esp{U_i^2|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\esp{U_i^2|R_i=1}}{p^R}\right].
+\end{align*}
+
+Note that, under monotonicity, \(p^C=p^D_1-p^D_0\) and:
+
+\begin{align*}
+\esp{U_i^2|R_i=1} & = p^{AT}\var{Y_i^1|T_i=AT}+p^C\var{Y_i^1|T_i=C}+p^{NT}\var{Y_i^0|T_i=NT} \\
+\esp{U_i^2|R_i=0}  & = p^{AT}\var{Y_i^1|T_i=AT}+p^C\var{Y_i^0|T_i=C}+p^{NT}\var{Y_i^0|T_i=NT}.
+ \end{align*}
+
+The final result comes from the fact that:
+
+\begin{align*}
+\frac{1}{(p^C)^2} &  \left[\left(\frac{p^D}{p^R}\right)^2\frac{1}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{1}{p^R}\right]\\
+  & = \frac{(p^D)^2(1-p^R)+(1-p^D)^2p^R}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D)^2-(p^D)^2p^R+p^R-2p^Dp^R+(p^D)^2p^R}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D)^2+p^R-2p^Dp^R}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D-p^R)^2+p^R-(p^R)^2}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^D-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+p^Cp^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+(1-p^{AT}-p^{NT})p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+(1-p^{AT}-p^{NT})p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}+p^R-p^{AT}p^R-p^{NT}p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
+  & = \frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2},
+\end{align*}
+
+where the seventh equality uses the fact that \(p^C+p^{AT}+p^{NT}=1\).
 
 
 \end{document}

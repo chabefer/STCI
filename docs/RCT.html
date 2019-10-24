@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-16">
+<meta name="date" content="2019-10-24">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -209,6 +209,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a><ul>
 <li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofIdentLATE"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Theorem @ref(thm:IdentLATE)</a></li>
 <li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Theorem @ref(thm:WaldIV)</a></li>
+<li class="chapter" data-level="A.2.3" data-path="proofs.html"><a href="proofs.html#ProofAsymWald"><i class="fa fa-check"></i><b>A.2.3</b> Proof of Theorem @ref(thm:asymWald)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -1539,7 +1540,7 @@ Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <
 <p>with <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^R=\Pr(R_i=1)\)</span> and <span class="math inline">\((p^{DR}=\Pr(D_i=1|R_i=1)\)</span>.</p>
 
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> The proof is immediate using Lemma <a href="#lem:asymWald"><strong>??</strong></a> in the appendix and setting <span class="math inline">\(p^{AT}=0\)</span>.
+ <span class="proof"><em>Proof. </em></span> The proof is immediate using Theorem <a href="RCT.html#thm:asymWald">3.16</a>, setting <span class="math inline">\(p^{AT}=0\)</span>.
 </div>
 
 
@@ -1988,7 +1989,7 @@ Finally, the advantage of using OLS other the direct WW comparison is that it gi
 reg.D.R.ols &lt;-<span class="st"> </span><span class="kw">lm</span>(D[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>])
 reg.D.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(D[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>]<span class="op">+</span>yB[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
 <p><span class="math inline">\(\hat{\Delta}^{D,R}_{WW} =\)</span> 0.213, while <span class="math inline">\(\hat{\Delta}^{D,R}_{OLS}=\)</span> 0.213 which is exactly equal, as expected, to the WW estimator. When controlling for <span class="math inline">\(y^B_i\)</span>, we have: <span class="math inline">\(\hat{\Delta}^{D,R}_{OLS(y^B)}=\)</span> 0.233.</p>
-<p>Under monotonicity, <span class="math inline">\(\Delta^{D,R}_{TT}\)</span> is equal to the proportion of compliers among eligibles. Indeed, this is the proportion of eligibles that participate when receiving the encouragement and that does not participate when not receiving it. In our example, the proportion of compliers among eligibles is 0.272 in the population and 0.31 in the sample.</p>
+<p>Under monotonicity, <span class="math inline">\(\Delta^{D,R}_{TT}\)</span> is equal to the proportion of compliers among eligibles. Indeed, this is the proportion of eligibles that participate when receiving the encouragement and that does not participate when not receiving it. In our example, the proportion of compliers among eligibles is 0.272 in the population and 0.31 in the sample. We are thus underestimating the true proportino of compliers, which is going to make us overestimate the LATE.</p>
 </div>
 <div id="reduced-form-regression" class="section level4">
 <h4><span class="header-section-number">3.4.2.2</span> Reduced form regression</h4>
@@ -2001,7 +2002,7 @@ reg.D.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(D[E<span
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">WW.y.R &lt;-<span class="st"> </span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>])<span class="op">-</span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>])
 reg.y.R.ols &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>])
 reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>R[E<span class="op">==</span><span class="dv">1</span>]<span class="op">+</span>yB[E<span class="op">==</span><span class="dv">1</span>])</code></pre></div>
-<p><span class="math inline">\(\hat{\Delta}^{y,R}_{WW} =\)</span> 0.179, while <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS}=\)</span> 0.179 which is exactly equal, as expected, to the WW estimator. When controlling for <span class="math inline">\(y^B_i\)</span>, we have: <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)</span> 0.108. In our example, the ITE is 0.047 in the population and 0.044 in the sample. Without conditioning on <span class="math inline">\(Y_i^B\)</span>, we are thus making a very large mistake as to the true ITE. This is probably because <span class="math inline">\(y_i^B\)</span> is not identically distributed between treatment and control, generating sampling noise.</p>
+<p><span class="math inline">\(\hat{\Delta}^{y,R}_{WW} =\)</span> 0.179, while <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS}=\)</span> 0.179 which is exactly equal, as expected, to the WW estimator. When controlling for <span class="math inline">\(y^B_i\)</span>, we have: <span class="math inline">\(\hat{\Delta}^{y,R}_{OLS(y^B)}=\)</span> 0.108. In our example, the ITE is 0.047 in the population and 0.044 in the sample. Without conditioning on <span class="math inline">\(Y_i^B\)</span>, we are thus overestimating the true ITE by a lot. The consequence is that we are going to overestimate the LATE as well.</p>
 </div>
 <div id="structural-regression" class="section level4">
 <h4><span class="header-section-number">3.4.2.3</span> Structural regression</h4>
@@ -2010,16 +2011,19 @@ reg.y.R.ols.yB &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span
 <li>We can directly compute the sample equivalent to the Wald estimator defined in Theorem <a href="RCT.html#thm:IdentLATE">3.9</a>.</li>
 <li>We can divide our estimate of the ITE by the proportion of compliers, as Corollary <a href="RCT.html#cor:EncouragWald">3.2</a> suggests.</li>
 <li>We can run a regression of <span class="math inline">\(Y\)</span> on <span class="math inline">\(D\)</span> using <span class="math inline">\(R\)</span> as an instrumental variable.</li>
-<li>We can run a regression of <span class="math inline">\(Y\)</span> on <span class="math inline">\(D\)</span> using <span class="math inline">\(R\)</span> as an instrumental variable and controlling for some variables <span class="math inline">\(X_i\)</span>.</li>
+<li>We can run a regression of <span class="math inline">\(Y\)</span> on <span class="math inline">\(D\)</span> using <span class="math inline">\(R\)</span> as an instrumental variable and controlling for some variables <span class="math inline">\(X\)</span>.</li>
 </ol>
 <p>It turns out that, in the absence of control variables, the first three estimators are fully equivalent. Corollary <a href="RCT.html#cor:EncouragWald">3.2</a> has already shown that the first two approaches are equivalent in the population. Theorem <a href="RCT.html#thm:WaldIV">3.15</a> below shows that the Wald estimator is equivalent to an IV estimator.</p>
-<p>For simplicity, in all that follows, I am setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
+<p>For simplicity, in all that follows, I am working only in the subgroup of eligible individuals. That means that I’m setting <span class="math inline">\(E_i=1\)</span> for everyone, so that <span class="math inline">\(N\)</span> is the number of eligible individuals.</p>
 <div id="using-the-wald-estimator" class="section level5">
 <h5><span class="header-section-number">3.4.2.3.1</span> Using the Wald estimator</h5>
-<p><strong><span style="font-variant: small-caps;">Write Wald</span></strong></p>
+<p>The empirical counterpart to the Wald estimator is the difference in mean outcomes between treatment and controls divided by the difference in participation rates between the two groups:</p>
+<span class="math display">\[\begin{align*}
+\hat{\Delta}^Y_{Wald} &amp; = \frac{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i)}{\frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i)}
+\end{align*}\]</span>
 
 <div class="example">
-<span id="exm:unnamed-chunk-121" class="example"><strong>Example 3.25  </strong></span>Let’s check that these results hold in our numerical example.
+<span id="exm:unnamed-chunk-121" class="example"><strong>Example 3.25  </strong></span>Let’s check how this works in our numerical example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mean.y.R.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw">mean</span>(y[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>])
@@ -2028,19 +2032,33 @@ mean.D.R.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw
 mean.D.R.<span class="dv">0</span> &lt;-<span class="st"> </span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>])
 delta.y.Wald &lt;-<span class="st"> </span>(mean.y.R.<span class="dv">1</span><span class="op">-</span>mean.y.R.<span class="dv">0</span>)<span class="op">/</span>(mean.D.R.<span class="dv">1</span><span class="op">-</span>mean.D.R.<span class="dv">0</span>)</code></pre></div>
 <p>The numerator of the Wald estimator is equal to 7.059 <span class="math inline">\(-\)</span> 6.88 <span class="math inline">\(=\)</span> 0.179. The denominator of the Wald estimator is equal to 0.704 <span class="math inline">\(-\)</span> 0.491 <span class="math inline">\(=\)</span> 0.213. Overall, the Wald estimator of the LATE is equal to 0.179 <span class="math inline">\(\div\)</span> 0.213 <span class="math inline">\(=\)</span> 0.841.</p>
+<p>Remember that the true LATE is equal to 0.173. We are thus severely overestimating the LATE. We’ll understand why in the next section.</p>
 </div>
 <div id="using-the-ite" class="section level5">
 <h5><span class="header-section-number">3.4.2.3.2</span> Using the ITE</h5>
-<p><strong><span style="font-variant: small-caps;">Explain</span></strong></p>
+<p>We know from Corollary <a href="RCT.html#cor:EncouragWald">3.2</a> that dividing the ITE by the proportion of compliers gives the Wald estimator. From Theorem <a href="RCT.html#thm:ITEEncourag">3.12</a>, we know that the ITE can be estimated using the sample equivalent to the With/Without estimator as follows:</p>
+<span class="math display">\[\begin{align*}
+\hat{\Delta}^{Y,R}_{WW} &amp; = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N Y_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N Y_i(1-R_i).
+\end{align*}\]</span>
+<p>From Theorem <a href="RCT.html#thm:prEncourag">3.13</a>, we also know that the proportion of compliers can be estimated using the sample equivalent to the With/Without estimator as follows:</p>
+<span class="math display">\[\begin{align*}
+\hat{\Delta}^{D,R}_{WW} &amp; = \frac{1}{\sum_{i=1}^N R_i}\sum_{i=1}^N D_iR_i-\frac{1}{\sum_{i=1}^N (1-R_i)}\sum_{i=1}^N D_i(1-R_i).
+\end{align*}\]</span>
 
 <div class="example">
-<span id="exm:unnamed-chunk-122" class="example"><strong>Example 3.26  </strong></span>Let’s check that these results hold in our numerical example.
+<span id="exm:unnamed-chunk-122" class="example"><strong>Example 3.26  </strong></span>Let’s check that this unfolds in our numerical example.
 </div>
-
-<p>We already know that the estimated ITE is equal to 0.179, which is equal to the numerator of the Wald estimator. We also now that the proportion of compliers in our sample is equal to 0.213. As a consequence, again, the Wald estimator of the LATE is equal to 0.179 <span class="math inline">\(\div\)</span> 0.213 <span class="math inline">\(=\)</span> 0.841.</p>
+<p> We already know that the estimated ITE is equal to 0.179, which is equal to the numerator of the Wald estimator. We also now that the proportion of compliers in our sample is equal to 0.213. As a consequence, again, the Wald estimator of the LATE is equal to 0.179 <span class="math inline">\(\div\)</span> 0.213 <span class="math inline">\(=\)</span> 0.841. Without surprise, we obtain exactly the same results as when using the Wald estimator directly. The two approaches are numerically equivalent.</p>
+<p>Again, our estimator of the LATE, the Wald estimator, severelt overestimates the LATE. The Wald estimator is equal to 0.841 while the true LATE is equal to 0.173. What is the reason for this mistake? There are actually two:</p>
+<ol style="list-style-type: decimal">
+<li>We are overestimating the ITE (truth: 0.047; estimate: 0.179).</li>
+<li>We are underestimating the proportion of compliers (truth: 0.272; estimate: 0.213).</li>
+</ol>
+<p>The combination of these two mistakes generates the large discrepancy that we see between our estimate of the LATE and its true value. This error comes for covariates that are not distributed identically in the treatment and control groups. Maybe controlling for some of them would improve our fit. In order to to that, we need the IV estimator.</p>
 </div>
 <div id="using-the-iv-estimator" class="section level5">
 <h5><span class="header-section-number">3.4.2.3.3</span> Using the IV estimator</h5>
+<p>A very useful result is that the Wald estimator can be computed as an IV estimator. The following theorem proves that point:</p>
 
 <div class="theorem">
 <p><span id="thm:WaldIV" class="theorem"><strong>Theorem 3.15  (Wald is IV)  </strong></span>Under the assumption that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and <span class="math inline">\(D_i=1\)</span>, the coefficient <span class="math inline">\(\beta\)</span> in the following regression estimated using <span class="math inline">\(R_i\)</span> as an IV:</p>
@@ -2060,19 +2078,117 @@ delta.y.Wald &lt;-<span class="st"> </span>(mean.y.R.<span class="dv">1</span><s
  <span class="proof"><em>Proof. </em></span> See in section <a href="proofs.html#proofWaldIV">A.2.2</a> in the appendix.
 </div>
 
-<p><strong><span style="font-variant: small-caps;">Example</span></strong></p>
+<p>Theorem <a href="RCT.html#thm:WaldIV">3.15</a> is super powerful since it enables us to directly use the IV estimator to compute the Wald estimator. In order to do so, we’re going to use the estimator <code>ivreg</code> in the <code>AER</code> package.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-124" class="example"><strong>Example 3.27  </strong></span>Let’s see how the IV estimator performs in our numerical example.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.y.R.2sls.encourage &lt;-<span class="st"> </span><span class="kw">ivreg</span>(y[E<span class="op">==</span><span class="dv">1</span>]<span class="op">~</span>Ds[E<span class="op">==</span><span class="dv">1</span>]<span class="op">|</span>R[E<span class="op">==</span><span class="dv">1</span>])
+beta.IV &lt;-<span class="st"> </span>reg.y.R.2sls.encourage<span class="op">$</span>coef[<span class="dv">2</span>]</code></pre></div>
+<p><span class="math inline">\(\hat{\beta}_{IV}=\)</span> 0.841, which is equal to the Wald estimator, as Theorem <a href="RCT.html#thm:WaldIV">3.15</a> predicted.</p>
 </div>
 <div id="using-the-iv-estimator-conditioning-on-covariates" class="section level5">
-<h5><span class="header-section-number">3.4.2.3.4</span> USing the IV estimator conditioning on covariates</h5>
-<p><strong><span style="font-variant: small-caps;">Example</span></strong> <strong><span style="font-variant: small-caps;">Center covariates at mean?</span></strong></p>
-<p>Finally, let’s run an IV regression</p>
-<p><strong><span style="font-variant: small-caps;">Does conditioning on covariates improve precision?</span></strong></p>
+<h5><span class="header-section-number">3.4.2.3.4</span> Using the IV estimator conditioning on covariates</h5>
+<p>One nice thing about the IV estimator is that we can use it to control for additional covariates <span class="math inline">\(X\)</span>. Estimating the following equation with <span class="math inline">\(R_i\)</span> and <span class="math inline">\(X_i\)</span> as instruments:</p>
+<span class="math display">\[\begin{align*}
+    Y_i &amp;  = \alpha +  \beta D_i + \gamma&#39; X_i + U_i
+  \end{align*}\]</span>
+<p>recovers <span class="math inline">\(\beta_{IV}(X)\)</span>, which is an estimate of the LATE under linearity assumptions on the potential outcomes.</p>
+<p><strong><span style="font-variant: small-caps;">Expand on that</span></strong> <strong><span style="font-variant: small-caps;">Center covariates at mean?</span></strong></p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-125" class="example"><strong>Example 3.28  </strong></span>Let’s see how this work in our numerical example, when we condition on <span class="math inline">\(y^B_i\)</span>.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.y.R.yB.2sls.encourage &lt;-<span class="st"> </span><span class="kw">ivreg</span>(y[E<span class="op">==</span><span class="dv">1</span>] <span class="op">~</span><span class="st"> </span>Ds[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>] <span class="op">|</span><span class="st"> </span>R[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>])
+beta.IV.yB &lt;-<span class="st"> </span>reg.y.R.yB.2sls.encourage<span class="op">$</span>coef[<span class="dv">2</span>]</code></pre></div>
+<p><span class="math inline">\(\hat{\beta}_{IV}(y^B)=\)</span> 0.464. Remember that the value of <span class="math inline">\(\Delta^y_{LATE}\)</span> in the population is thus 0.173. All of our estimators have overshoot. The worse are the ones not conditioning on <span class="math inline">\(y^B\)</span>. It seems that conditioning on <span class="math inline">\(y^B\)</span> improves the estimator slightly. So part of the estimation error in the Wald estimator probably comes from an imbalance in <span class="math inline">\(y_i^B\)</span> between the treatment and control groups. Let’s check that this is the case.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.yB.R.ols.encourage &lt;-<span class="st"> </span><span class="kw">lm</span>(yB[E<span class="op">==</span><span class="dv">1</span>] <span class="op">~</span><span class="st"> </span>R[E<span class="op">==</span><span class="dv">1</span>])
+delta.yB.WW.R &lt;-<span class="st"> </span>reg.yB.R.ols.encourage<span class="op">$</span>coef[<span class="dv">2</span>]</code></pre></div>
+<p>The difference in <span class="math inline">\(y_i^B\)</span> among treated and controls in our example is 0.075. This is enough to account for the bias on the ITE.</p>
+<p><strong><span style="font-variant: small-caps;">Expand on that</span></strong></p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> One key question that remains is that whether the structural parameter <span class="math inline">\(\beta(X)\)</span> is still equal to the ratio of the reduced form parameter and the first stage parameter obtained by running OLS conditionnal on <span class="math inline">\(X\)</span>.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-127" class="example"><strong>Example 3.29  </strong></span>Let’s examine what happens in our example.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reg.y.R.yB.ols.encourage &lt;-<span class="st"> </span><span class="kw">lm</span>(y[E<span class="op">==</span><span class="dv">1</span>] <span class="op">~</span><span class="st"> </span>R[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>])
+ITE.yB &lt;-<span class="st"> </span>reg.y.R.yB.ols.encourage<span class="op">$</span>coef[<span class="dv">2</span>]
+
+reg.D.R.yB.ols.encourage &lt;-<span class="st"> </span><span class="kw">lm</span>(D[E<span class="op">==</span><span class="dv">1</span>] <span class="op">~</span><span class="st"> </span>R[E<span class="op">==</span><span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>yB[E<span class="op">==</span><span class="dv">1</span>])
+prCo.yB &lt;-<span class="st"> </span>reg.D.R.yB.ols.encourage<span class="op">$</span>coef[<span class="dv">2</span>]
+
+Wald.yB &lt;-<span class="st"> </span>ITE.yB<span class="op">/</span>prCo.yB</code></pre></div>
+<p>We find that the ITE conditional on <span class="math inline">\(y^B_i\)</span> is equal to 0.108 while the proportion of compliers conditioning on <span class="math inline">\(y_i^B\)</span> is equal to 0.233. Overall the ratio of these two, which we could call the Wald ratio after conditioning on <span class="math inline">\(y_i^B\)</span> is equal to 0.464. This is actually equal to the IV estimator including <span class="math inline">\(y_i^B\)</span> as a covariate: <span class="math inline">\(\hat{\beta}_{IV}(y^B)=\)</span> 0.464. So running the reduced form and first stage regressions separately and dividing the coefficients on <span class="math inline">\(R_i\)</span> recovers the LATE even when conditioning on covariates? That’s pretty neat and opens up the route for a variety of new estimation techniques called <code>split sample</code> estimators, developed by <a href="http://economics.mit.edu/files/398">Angrist and Krueger</a>. We’ll take more about them later.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> We might want to control nonparametrically on the covariates instead of imposing a linear regression. <a href="https://www.sciencedirect.com/science/article/abs/pii/S0304407606001023">Frolich’s Wald matching estimator</a> enables to do just that. Its implementation will become clearer after Chapter <a href="sec-OM.html#sec:OM">5</a>.
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The last thing we want to check is whether conditioning on covariates improve precision. It seems to be the case in our example with one dataset. Let’s see what happens over sampling repetitions.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-130" class="example"><strong>Example 3.30  </strong></span>Let’s run some Monte Carlo simulations for the sampling noise of IV with and without conditining on <span class="math inline">\(y_i^B\)</span>.
+</div>
+
+<div class="figure" style="text-align: center"><span id="fig:MonteCarloHistEncourage"></span>
+<img src="STCI_files/figure-html/MonteCarloHistEncourage-1.png" alt="Distribution of the $Wald$ and $Wald(X)$ estimator in an encouragement design over replications of samples of different sizes" width="50%" /><img src="STCI_files/figure-html/MonteCarloHistEncourage-2.png" alt="Distribution of the $Wald$ and $Wald(X)$ estimator in an encouragement design over replications of samples of different sizes" width="50%" />
+<p class="caption">
+Figure 3.7: Distribution of the <span class="math inline">\(Wald\)</span> and <span class="math inline">\(Wald(X)\)</span> estimator in an encouragement design over replications of samples of different sizes
+</p>
+</div>
 </div>
 </div>
 </div>
 <div id="estimating-sampling-noise-3" class="section level3">
 <h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>
-<p><strong><span style="font-variant: small-caps;">Derive CLT disrtribution </span></strong></p>
+<p>As always, we can estimate samling noise either using the CLT or resampling methods. Using the CLT, we can derive the following formula for the distribution of the Bloom estimator: Theorem <a href="RCT.html#thm:asymWald">3.16</a> shows the asymptotic distribution of <span class="math inline">\(\hat{\Delta}^Y_{Wald}\)</span>:</p>
+
+<div class="theorem">
+<p><span id="thm:asymWald" class="theorem"><strong>Theorem 3.16  (Asymptotic Distribution of <span class="math inline">\(\hat{\Delta}^Y_{Wald}\)</span>)  </strong></span>Under Independence and Validity of the Instrument, Exclusion Restriction, and Full Rank, we have:</p>
+<span class="math display">\[\begin{align*}
+  \sqrt{N}(\hat{\Delta}^Y_{Wald}-\Delta^Y_{LATE}) &amp;  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right)\\
+\end{align*}\]</span>
+<p>Under Monoticity, the variance of the Wald estimator can be decomposed as follows:</p>
+<span class="math display">\[\begin{align*}
+\sigma^2_{\hat{\Delta}^Y_{Wald}}  &amp; = \left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i^0|T_i=C}}{p^C(1-p^R)}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y^1_i|T_i=C}}{p^Cp^R}\\
+                                  &amp; \phantom{=} +\frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2}\left[p^{AT}\var{Y_i^1|T_i=AT}+p^{NT}\var{Y^0_i|T_i=NT}\right]
+\end{align*}\]</span>
+</div>
+
+<p>with <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^R=\Pr(R_i=1)\)</span> and <span class="math inline">\((p^{DR}=\Pr(D_i=1|R_i=1)\)</span>.</p>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See Section <a href="proofs.html#ProofAsymWald">A.2.3</a>.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-132" class="example"><strong>Example 3.31  </strong></span>Let’s see how the Wald estimator performs in our example:
+</div>
+<p> Without conditioning on <span class="math inline">\(y_i^B\)</span>:</p>
+<ul>
+<li>True 99% sampling noise (from the simulations) is 1.166.</li>
+<li>99% sampling noise estimated using default 2SLS standard errors is 2.124</li>
+<li>99% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is 2.119.</li>
+</ul>
+<p>With conditioning on <span class="math inline">\(y_i^B\)</span>:</p>
+<ul>
+<li>True 99% sampling noise (from the simulations) is 0.705.</li>
+<li>99% sampling noise estimated using default 2SLS standard errors is 0.988</li>
+<li>99% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is 0.975.</li>
+</ul>
 </div>
 </div>
 <div id="sec:threats" class="section level2">
