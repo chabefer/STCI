@@ -1623,11 +1623,11 @@ Under Assumptions \@ref(def:indelig), \@ref(def:randeligvalid) and \@ref(def:exc
 
 \begin{align*}
   \sqrt{N}(\hat{\Delta}^Y_{Bloom}-\Delta^Y_{TT}) &  \stackrel{d}{\rightarrow}
-  \mathcal{N}\left(0,\frac{1}{(p^{DR})^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
+  \mathcal{N}\left(0,\frac{1}{(p^{D}_1)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
 \end{align*}
 ````
 
-with $p^D=\Pr(D_i=1)$, $p^R=\Pr(R_i=1)$ and $(p^{DR}=\Pr(D_i=1|R_i=1)$.
+with $p^D=\Pr(D_i=1)$, $p^R=\Pr(R_i=1)$ and $(p^{D}_1=\Pr(D_i=1|R_i=1)$.
 
 ```{proof}
 The proof is immediate using Theorem \@ref(thm:asymWald), setting $p^{AT}=0$.
@@ -1649,8 +1649,8 @@ Here is a simple function in order to compute the plug-in estimator:
 ```
 
 ```{r var.plugin.RAE,eval=TRUE,echo=TRUE,results='hide'}
-var.RAE.plugin <- function(pDR,pD,pR,V0,V1,N){
-  return(((pD/pR)^2*(V0/(1-pR))+((1-pD)/(1-pR))^2*(V1/pR))/(N*pDR^2))
+var.RAE.plugin <- function(pD1,pD,pR,V0,V1,N){
+  return(((pD/pR)^2*(V0/(1-pR))+((1-pD)/(1-pR))^2*(V1/pR))/(N*pD1^2))
 }
 ```
 
@@ -1661,7 +1661,7 @@ For the sake of the example, I'm working with a sample of size $N=1000$.
 
 ```{r noise.iv.RAE,eval=TRUE,echo=TRUE,results='hide'}
 sn.RAE.simuls <- 2*quantile(abs(simuls.elig[['1000']][,'Bloom']-delta.y.tt),probs=c(0.99))
-sn.RAE.IV.plugin <- 2*qnorm((.99+1)/2)*sqrt(var.RAE.plugin(pDR=mean(Ds[E==1 & R==1]),pD=mean(Ds[E==1]),pR=mean(R[E==1]),V0=var(y[R==0 & E==1]),V1=var(y[R==1 & E==1]),N=length(y[E==1])))
+sn.RAE.IV.plugin <- 2*qnorm((.99+1)/2)*sqrt(var.RAE.plugin(pD1=mean(Ds[E==1 & R==1]),pD=mean(Ds[E==1]),pR=mean(R[E==1]),V0=var(y[R==0 & E==1]),V1=var(y[R==1 & E==1]),N=length(y[E==1])))
 sn.RAE.IV.homo <- 2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.2sls.elig)[2,2])
 sn.RAE.IV.hetero <- 2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.2sls.elig,type='HC2')[2,2])
 ```
@@ -2616,19 +2616,19 @@ for (i in 1:length(simuls.encourage.yB)){
 
 ### Estimating sampling noise
 
-As always, we can estimate samling noise either using the CLT or resampling methods.
+As always, we can estimate sampling noise either using the CLT or resampling methods.
 Using the CLT, we can derive the following formula for the distribution of the Bloom estimator:
 Theorem \@ref(thm:asymWald) shows the asymptotic distribution of $\hat{\Delta}^Y_{Wald}$:
 
 ```{theorem,asymWald,name='Asymptotic Distribution of $\\hat{\\Delta}^Y_{Wald}$'}
-Under Independence and Validity of the Instrument, Exclusion Restriction, and Full Rank, we have:
+Under Assumptions \@ref(def:RandEncouragValid), \@ref(def:IndepEncourag), \@ref(def:ExclRestr), \@ref(def:Fstage), we have:
 
 \begin{align*}
   \sqrt{N}(\hat{\Delta}^Y_{Wald}-\Delta^Y_{LATE}) &  \stackrel{d}{\rightarrow}
   \mathcal{N}\left(0,\frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right)\\
 \end{align*}
 
-Under Monoticity, the variance of the Wald estimator can be decomposed as follows:
+Adding Assumption \@ref(def:Mono), the variance of the Wald estimator can be further decomposed as follows:
 
 \begin{align*}
 \sigma^2_{\hat{\Delta}^Y_{Wald}}  & = \left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i^0|T_i=C}}{p^C(1-p^R)}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y^1_i|T_i=C}}{p^Cp^R}\\
@@ -2636,26 +2636,59 @@ Under Monoticity, the variance of the Wald estimator can be decomposed as follow
 \end{align*}
 ```
 
-with $p^D=\Pr(D_i=1)$, $p^R=\Pr(R_i=1)$ and $(p^{DR}=\Pr(D_i=1|R_i=1)$.
+with $p^D=\Pr(D_i=1)$, $p^R=\Pr(R_i=1)$, $p^{D}_1=\Pr(D_i=1|R_i=1)$, $p^{D}_0=\Pr(D_i=1|R_i=0)$, $p^t=\Pr(T_i=t)$, with $t\in\left\{AT,NT,C,D\right\}$.
 
 
 ```{proof}
 See Section \@ref(ProofAsymWald).
 ```
 
-```{example}
-Let's see how the Wald estimator performs in our example:
+```{remark}
+Theorem \@ref(thm:asymWald) shows that the effective sample size of an encouragement design is equal to the number of compliers.
+Indeed, the denominator of the variance of the Wald Estimatior depends on $p^D_1-p^D_0$, which is an estimate of the proportion of compliers, under Assumption \@ref(def:Mono).
+
+Theorem \@ref(thm:asymWald) also shows that there is a price to pay for the fact that we cannot enforce the effect on always takers and never takers is actually zero.
+Indeed, as the second formula shows, it is not only the variance of the oucomes of the compliers that appears in the formula, but also the variances of the outcomes of the always takers and never takers, therefore increasing sampling noise.
 ```
-Without conditioning on $y_i^B$:
 
-  - True 99\% sampling noise (from the simulations) is `r round(2*quantile(abs(simuls.encourage[['1000']][,'Wald']-delta.y.late),probs=c(0.99)),3)`.
-  - 99\% sampling noise estimated using default 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.2sls.encourage)[2,2]),3)`
-  - 99\% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.2sls.encourage,type='HC2')[2,2]),3)`.
+```{remark}
+In order to compute the formula in Theorem \@ref(thm:asymWald), we can use a plug-in estimator or the IV standard error estimate robist to heteroskedasticity.
+Here is a simple function in order to compute the plug-in estimator:
+```
 
-With conditioning on $y_i^B$:
+```{r var.Encourag.Plugin,eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide'}
+var.Encourage.plugin <- function(pD1,pD0,pD,pR,V0,V1,N){
+  return((1/(pD1-pD0)^2)*((pD/pR)^2*V0/(1-pR)+((1-pD)/(1-pR))^2*V1/pR))
+}
+```
 
-  - True 99\% sampling noise (from the simulations) is `r round(2*quantile(abs(simuls.encourage.yB[['1000']][,'Wald']-delta.y.late),probs=c(0.99)),3)`.
-  - 99\% sampling noise estimated using default 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.yB.2sls.encourage)[2,2]),3)`
-  - 99\% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.yB.2sls.encourage,type='HC2')[2,2]),3)`.
+```{example}
+Let us derive the CLT-based estimates of sampling noise using both the plug-in estimator and the IV standard errors without conditioning on covariates first.
+For the sake of the example, I'm working with a sample of size $N=1000$. 
+```
+
+```{r noise.iv.Encourage,eval=TRUE,echo=TRUE,results='hide'}
+sn.Encourag.simuls <- 2*quantile(abs(simuls.encourage[['1000']][,'Wald']-delta.y.late),probs=c(0.99))
+sn.Encourag.IV.plugin <- 2*qnorm((.99+1)/2)*sqrt(var.Encourage.plugin(pD1=mean(D[E==1 & R==1]),pD0=mean(D[E==1 & R==0]),pD=mean(D[E==1]),pR=mean(R[E==1]),V0=var(y[R==0 & E==1]),V1=var(y[R==1 & E==1]),N=length(y[E==1])))
+sn.Encourag.IV.homo <- 2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.2sls.encourage)[2,2])
+sn.Encourag.IV.hetero <- 2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.2sls.encourage,type='HC2')[2,2])
+```
+
+True 99\% sampling noise (from the simulations) is `r round(sn.Encourag.simuls,3)`.
+99\% sampling noise estimated using the plug-in estimator is `r round(sn.Encourag.IV.homo,3)`.
+99\% sampling noise estimated using default IV standard errors is `r round(sn.Encourag.IV.plugin,3)`.
+99\% sampling noise estimated using heteroskedasticity robust IV standard errors is `r round(sn.Encourag.IV.hetero,3)`.
+
+Conditioning on $y_i^B$:
+
+```{r noise.iv.Encourag.yB,eval=TRUE,echo=TRUE,results='hide'}
+sn.Encourag.simuls.yB <- 2*quantile(abs(simuls.encourage.yB[['1000']][,'Wald']-delta.y.late),probs=c(0.99))
+sn.Encourag.IV.homo.yB <- 2*qnorm((.99+1)/2)*sqrt(vcov(reg.y.R.yB.2sls.encourage)[2,2])
+sn.Encourag.IV.hetero.yB <- 2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.yB.2sls.encourage,type='HC2')[2,2])
+```
+
+True 99\% sampling noise (from the simulations) is `r round(sn.Encourag.simuls.yB,3)`.
+99\% sampling noise estimated using default IV standard errors is `r round(sn.Encourag.IV.homo.yB,3)`.
+99\% sampling noise estimated using heteroskedasticity robust IV standard errors is `r round(sn.Encourag.IV.hetero.yB,3)`.
 
 ## Threats to the validity of RCTs {#sec:threats}

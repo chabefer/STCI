@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-24}
+    \date{2019-10-26}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -6622,12 +6622,12 @@ conditioning on \(E_i=1\) implicit):
 
 \begin{align*}
   \sqrt{N}(\hat{\Delta}^Y_{Bloom}-\Delta^Y_{TT}) &  \stackrel{d}{\rightarrow}
-  \mathcal{N}\left(0,\frac{1}{(p^{DR})^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
+  \mathcal{N}\left(0,\frac{1}{(p^{D}_1)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
 \end{align*}
 \EndKnitrBlock{theorem}
 
 with \(p^D=\Pr(D_i=1)\), \(p^R=\Pr(R_i=1)\) and
-\((p^{DR}=\Pr(D_i=1|R_i=1)\).
+\((p^{D}_1=\Pr(D_i=1|R_i=1)\).
 
 \BeginKnitrBlock{proof}
 \iffalse{} {Proof. } \fi{}The proof is immediate using Theorem
@@ -6657,8 +6657,8 @@ compute the plug-in estimator:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{var.RAE.plugin <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(pDR,pD,pR,V0,V1,N)\{}
-  \KeywordTok{return}\NormalTok{(((pD}\OperatorTok{/}\NormalTok{pR)}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{(V0}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{pR))}\OperatorTok{+}\NormalTok{((}\DecValTok{1}\OperatorTok{-}\NormalTok{pD)}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{pR))}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{(V1}\OperatorTok{/}\NormalTok{pR))}\OperatorTok{/}\NormalTok{(N}\OperatorTok{*}\NormalTok{pDR}\OperatorTok{^}\DecValTok{2}\NormalTok{))}
+\NormalTok{var.RAE.plugin <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(pD1,pD,pR,V0,V1,N)\{}
+  \KeywordTok{return}\NormalTok{(((pD}\OperatorTok{/}\NormalTok{pR)}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{(V0}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{pR))}\OperatorTok{+}\NormalTok{((}\DecValTok{1}\OperatorTok{-}\NormalTok{pD)}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{pR))}\OperatorTok{^}\DecValTok{2}\OperatorTok{*}\NormalTok{(V1}\OperatorTok{/}\NormalTok{pR))}\OperatorTok{/}\NormalTok{(N}\OperatorTok{*}\NormalTok{pD1}\OperatorTok{^}\DecValTok{2}\NormalTok{))}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
@@ -6674,7 +6674,7 @@ of size \(N=1000\).
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{sn.RAE.simuls <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(simuls.elig[[}\StringTok{'1000'}\NormalTok{]][,}\StringTok{'Bloom'}\NormalTok{]}\OperatorTok{-}\NormalTok{delta.y.tt),}\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.99}\NormalTok{))}
-\NormalTok{sn.RAE.IV.plugin <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{var.RAE.plugin}\NormalTok{(}\DataTypeTok{pDR=}\KeywordTok{mean}\NormalTok{(Ds[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pD=}\KeywordTok{mean}\NormalTok{(Ds[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pR=}\KeywordTok{mean}\NormalTok{(R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V0=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V1=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{N=}\KeywordTok{length}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])))}
+\NormalTok{sn.RAE.IV.plugin <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{var.RAE.plugin}\NormalTok{(}\DataTypeTok{pD1=}\KeywordTok{mean}\NormalTok{(Ds[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pD=}\KeywordTok{mean}\NormalTok{(Ds[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pR=}\KeywordTok{mean}\NormalTok{(R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V0=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V1=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{N=}\KeywordTok{length}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])))}
 \NormalTok{sn.RAE.IV.homo <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(reg.y.R.2sls.elig)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
 \NormalTok{sn.RAE.IV.hetero <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcovHC}\NormalTok{(reg.y.R.2sls.elig,}\DataTypeTok{type=}\StringTok{'HC2'}\NormalTok{)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
 \end{Highlighting}
@@ -7879,7 +7879,7 @@ with and without conditining on \(y_i^B\).
 \subsection{Estimating sampling
 noise}\label{estimating-sampling-noise-3}
 
-As always, we can estimate samling noise either using the CLT or
+As always, we can estimate sampling noise either using the CLT or
 resampling methods. Using the CLT, we can derive the following formula
 for the distribution of the Bloom estimator: Theorem \ref{thm:asymWald}
 shows the asymptotic distribution of \(\hat{\Delta}^Y_{Wald}\):
@@ -7887,16 +7887,16 @@ shows the asymptotic distribution of \(\hat{\Delta}^Y_{Wald}\):
 \BeginKnitrBlock{theorem}[Asymptotic Distribution of $\hat{\Delta}^Y_{Wald}$]
 \protect\hypertarget{thm:asymWald}{}{\label{thm:asymWald}
 \iffalse (Asymptotic Distribution of \(\hat{\Delta}^Y_{Wald}\)) \fi{}
-}Under Independence and Validity of the Instrument, Exclusion
-Restriction, and Full Rank, we have:
+}Under Assumptions \ref{def:RandEncouragValid}, \ref{def:IndepEncourag},
+\ref{def:ExclRestr}, \ref{def:Fstage}, we have:
 
 \begin{align*}
   \sqrt{N}(\hat{\Delta}^Y_{Wald}-\Delta^Y_{LATE}) &  \stackrel{d}{\rightarrow}
   \mathcal{N}\left(0,\frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right)\\
 \end{align*}
 
-Under Monoticity, the variance of the Wald estimator can be decomposed
-as follows:
+Adding Assumption \ref{def:Mono}, the variance of the Wald estimator can
+be further decomposed as follows:
 
 \begin{align*}
 \sigma^2_{\hat{\Delta}^Y_{Wald}}  & = \left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i^0|T_i=C}}{p^C(1-p^R)}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y^1_i|T_i=C}}{p^Cp^R}\\
@@ -7904,43 +7904,73 @@ as follows:
 \end{align*}
 \EndKnitrBlock{theorem}
 
-with \(p^D=\Pr(D_i=1)\), \(p^R=\Pr(R_i=1)\) and
-\((p^{DR}=\Pr(D_i=1|R_i=1)\).
+with \(p^D=\Pr(D_i=1)\), \(p^R=\Pr(R_i=1)\),
+\(p^{D}_1=\Pr(D_i=1|R_i=1)\), \(p^{D}_0=\Pr(D_i=1|R_i=0)\),
+\(p^t=\Pr(T_i=t)\), with \(t\in\left\{AT,NT,C,D\right\}\).
 
 \BeginKnitrBlock{proof}
 \iffalse{} {Proof. } \fi{}See Section \ref{ProofAsymWald}.
 \EndKnitrBlock{proof}
 
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Theorem \ref{thm:asymWald} shows that the
+effective sample size of an encouragement design is equal to the number
+of compliers. Indeed, the denominator of the variance of the Wald
+Estimatior depends on \(p^D_1-p^D_0\), which is an estimate of the
+proportion of compliers, under Assumption \ref{def:Mono}.
+
+Theorem \ref{thm:asymWald} also shows that there is a price to pay for
+the fact that we cannot enforce the effect on always takers and never
+takers is actually zero. Indeed, as the second formula shows, it is not
+only the variance of the oucomes of the compliers that appears in the
+formula, but also the variances of the outcomes of the always takers and
+never takers, therefore increasing sampling noise.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}In order to compute the formula in Theorem
+\ref{thm:asymWald}, we can use a plug-in estimator or the IV standard
+error estimate robist to heteroskedasticity. Here is a simple function
+in order to compute the plug-in estimator:
+\EndKnitrBlock{remark}
+
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-132}{}{\label{exm:unnamed-chunk-132}
-}Let's see how the Wald estimator performs in our example:
-\EndKnitrBlock{example} Without conditioning on \(y_i^B\):
+\protect\hypertarget{exm:unnamed-chunk-134}{}{\label{exm:unnamed-chunk-134}
+}Let us derive the CLT-based estimates of sampling noise using both the
+plug-in estimator and the IV standard errors without conditioning on
+covariates first. For the sake of the example, I'm working with a sample
+of size \(N=1000\).
+\EndKnitrBlock{example}
 
-\begin{itemize}
-\tightlist
-\item
-  True 99\% sampling noise (from the simulations) is 1.166.
-\item
-  99\% sampling noise estimated using default 2SLS standard errors is
-  2.124
-\item
-  99\% sampling noise estimated using heteroskedasticity robust 2SLS
-  standard errors is 2.119.
-\end{itemize}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sn.Encourag.simuls <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(simuls.encourage[[}\StringTok{'1000'}\NormalTok{]][,}\StringTok{'Wald'}\NormalTok{]}\OperatorTok{-}\NormalTok{delta.y.late),}\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.99}\NormalTok{))}
+\NormalTok{sn.Encourag.IV.plugin <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{var.Encourage.plugin}\NormalTok{(}\DataTypeTok{pD1=}\KeywordTok{mean}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pD0=}\KeywordTok{mean}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{R}\OperatorTok{==}\DecValTok{0}\NormalTok{]),}\DataTypeTok{pD=}\KeywordTok{mean}\NormalTok{(D[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{pR=}\KeywordTok{mean}\NormalTok{(R[E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V0=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{V1=}\KeywordTok{var}\NormalTok{(y[R}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{E}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DataTypeTok{N=}\KeywordTok{length}\NormalTok{(y[E}\OperatorTok{==}\DecValTok{1}\NormalTok{])))}
+\NormalTok{sn.Encourag.IV.homo <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(reg.y.R.2sls.encourage)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\NormalTok{sn.Encourag.IV.hetero <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcovHC}\NormalTok{(reg.y.R.2sls.encourage,}\DataTypeTok{type=}\StringTok{'HC2'}\NormalTok{)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
 
-With conditioning on \(y_i^B\):
+True 99\% sampling noise (from the simulations) is 1.166. 99\% sampling
+noise estimated using the plug-in estimator is 2.124. 99\% sampling
+noise estimated using default IV standard errors is 23.134. 99\%
+sampling noise estimated using heteroskedasticity robust IV standard
+errors is 2.119.
 
-\begin{itemize}
-\tightlist
-\item
-  True 99\% sampling noise (from the simulations) is 0.705.
-\item
-  99\% sampling noise estimated using default 2SLS standard errors is
-  0.988
-\item
-  99\% sampling noise estimated using heteroskedasticity robust 2SLS
-  standard errors is 0.975.
-\end{itemize}
+Conditioning on \(y_i^B\):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sn.Encourag.simuls.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{quantile}\NormalTok{(}\KeywordTok{abs}\NormalTok{(simuls.encourage.yB[[}\StringTok{'1000'}\NormalTok{]][,}\StringTok{'Wald'}\NormalTok{]}\OperatorTok{-}\NormalTok{delta.y.late),}\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.99}\NormalTok{))}
+\NormalTok{sn.Encourag.IV.homo.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcov}\NormalTok{(reg.y.R.yB.2sls.encourage)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\NormalTok{sn.Encourag.IV.hetero.yB <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{qnorm}\NormalTok{((.}\DecValTok{99}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{vcovHC}\NormalTok{(reg.y.R.yB.2sls.encourage,}\DataTypeTok{type=}\StringTok{'HC2'}\NormalTok{)[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+True 99\% sampling noise (from the simulations) is 0.705. 99\% sampling
+noise estimated using default IV standard errors is 0.988. 99\% sampling
+noise estimated using heteroskedasticity robust IV standard errors is
+0.975.
 
 \section{Threats to the validity of RCTs}\label{sec:threats}
 
@@ -8044,7 +8074,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-133}{}{\label{exm:unnamed-chunk-133}
+\protect\hypertarget{exm:unnamed-chunk-135}{}{\label{exm:unnamed-chunk-135}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -8216,7 +8246,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-139}{}{\label{exm:unnamed-chunk-139}
+\protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -8289,7 +8319,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
+\protect\hypertarget{exm:unnamed-chunk-142}{}{\label{exm:unnamed-chunk-142}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -8462,7 +8492,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-142}{}{\label{exm:unnamed-chunk-142}
+\protect\hypertarget{exm:unnamed-chunk-144}{}{\label{exm:unnamed-chunk-144}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -8559,7 +8589,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-146}{}{\label{exm:unnamed-chunk-146}
+\protect\hypertarget{exm:unnamed-chunk-148}{}{\label{exm:unnamed-chunk-148}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8675,7 +8705,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-147}{}{\label{exm:unnamed-chunk-147}
+\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -8717,7 +8747,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149}
+\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8826,7 +8856,7 @@ estimate what we want? I'd take the average variance.}}
 \(I^2=ICC*100\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-150}{}{\label{exm:unnamed-chunk-150}
+\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152}
 }Let's see how these three estimators look like in our example. The cool
 thing is that \texttt{rma} computes these estimators by default, so that
 a simple call to \texttt{summary()} is going to show them. The default
@@ -8951,7 +8981,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151}
+\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -9070,7 +9100,7 @@ Estimator}\label{full-maximum-likelihood-estimator}
 
 The Full Maximum Likelihood Estimator (FMLE) is also a weighted
 estimator, but, as the random effects estimator presented in Section
-\ref{sec:RE}, it is using as weigths not only the precision estimates
+\ref{sec:RE}, it uses as weigths not only the precision estimates
 (\(\frac{1}{\hat{\sigma}^2_k}\)), but the inverse of the sum of the
 variance due to sampling noise and the variance due to variation in
 treatment effects across sites. In order to make all of this clearer,
@@ -9092,9 +9122,21 @@ and update the set of weights, and iterate until convergence.
 \paragraph{Restricted Maximum Likelihood
 Estimator}\label{restricted-maximum-likelihood-estimator}
 
-\textbf{\textsc{Detail estimators.}}
+The Restricted Maximum Likelihood Estimator (RMLE) is a weigthed
+estimator that is very similar to the FMLE estimartor, except that the
+estimation procedure focuses on estimating \(\tau^2\) first. As a
+consequence, the formula for the \(\tau^2\) estimator is different:
+
+\begin{align*}
+  \mathbf{\hat{\beta}}_{RMLE} & = \left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\hat{\theta}_k,\\
+ \hat{\tau}^2_{RMLE} & = \frac{\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}\left((\hat{\theta}_k -\mathbf{X}_k\mathbf{\beta})^2-\hat{\sigma}^2_k\right)
+                          +\text{tr}\left[\left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right]}
+                          {\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}}
+\end{align*}
 
 \paragraph{Method Of Moments (MOM)}\label{method-of-moments-mom}
+
+\textbf{\textsc{Detail estimators.}}
 
 \subsubsection{Estimating sampling noise in the meta-regression
 model}\label{estimating-sampling-noise-in-the-meta-regression-model}
@@ -9881,7 +9923,7 @@ Using the Vector CLT, we have that
 Using Slutsky's theorem and the LLN gives the result.
 \EndKnitrBlock{proof}
 
-From Lemma \ref{thm:asympIV}, we know that
+From Lemma \ref{lem:asympIV}, we know that
 \(\sqrt{N}(\hat{\beta}_{IV}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})\),
 where \(\sigma^2_{\beta}\) is the lower diagonal term of
 \((\sigma_{RX}^{-1})'\mathbf{V_{ru}}\sigma_{RX}^{-1}\). Using the

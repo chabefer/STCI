@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-24">
+<meta name="date" content="2019-10-26">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1533,11 +1533,11 @@ Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <
 <p><span id="thm:asymBloom" class="theorem"><strong>Theorem 3.8  (Asymptotic Distribution of <span class="math inline">\(\hat{\Delta}^Y_{Bloom}\)</span>)  </strong></span>Under Assumptions <a href="RCT.html#def:indelig">3.5</a>, <a href="RCT.html#def:randeligvalid">3.6</a> and <a href="RCT.html#def:exclrestric">3.7</a> and assuming that there is at least one individual with <span class="math inline">\(R_i=1\)</span> and one individual with <span class="math inline">\(D_i=1\)</span>, we have (keeping the conditioning on <span class="math inline">\(E_i=1\)</span> implicit):</p>
 <span class="math display">\[\begin{align*}
   \sqrt{N}(\hat{\Delta}^Y_{Bloom}-\Delta^Y_{TT}) &amp;  \stackrel{d}{\rightarrow}
-  \mathcal{N}\left(0,\frac{1}{(p^{DR})^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
+  \mathcal{N}\left(0,\frac{1}{(p^{D}_1)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right),
 \end{align*}\]</span>
 </div>
 
-<p>with <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^R=\Pr(R_i=1)\)</span> and <span class="math inline">\((p^{DR}=\Pr(D_i=1|R_i=1)\)</span>.</p>
+<p>with <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^R=\Pr(R_i=1)\)</span> and <span class="math inline">\((p^{D}_1=\Pr(D_i=1|R_i=1)\)</span>.</p>
 
 <div class="proof">
  <span class="proof"><em>Proof. </em></span> The proof is immediate using Theorem <a href="RCT.html#thm:asymWald">3.16</a>, setting <span class="math inline">\(p^{AT}=0\)</span>.
@@ -1553,8 +1553,8 @@ Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <
  <span class="remark"><em>Remark. </em></span> In order to compute an estimate of the sampling noise of hte Bloom estimator, we can either use the plug-in formula from Theorem <a href="RCT.html#thm:asymBloom">3.8</a> or use the IV standard errors robust to heteroskedasticity. Here is a simple function in order to compute the plug-in estimator:
 </div>
 
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">var.RAE.plugin &lt;-<span class="st"> </span><span class="cf">function</span>(pDR,pD,pR,V0,V1,N){
-  <span class="kw">return</span>(((pD<span class="op">/</span>pR)<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(V0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>pR))<span class="op">+</span>((<span class="dv">1</span><span class="op">-</span>pD)<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>pR))<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(V1<span class="op">/</span>pR))<span class="op">/</span>(N<span class="op">*</span>pDR<span class="op">^</span><span class="dv">2</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">var.RAE.plugin &lt;-<span class="st"> </span><span class="cf">function</span>(pD1,pD,pR,V0,V1,N){
+  <span class="kw">return</span>(((pD<span class="op">/</span>pR)<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(V0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>pR))<span class="op">+</span>((<span class="dv">1</span><span class="op">-</span>pD)<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>pR))<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(V1<span class="op">/</span>pR))<span class="op">/</span>(N<span class="op">*</span>pD1<span class="op">^</span><span class="dv">2</span>))
 }</code></pre></div>
 
 <div class="example">
@@ -1562,7 +1562,7 @@ Figure 3.6: Distribution of the <span class="math inline">\(Bloom\)</span> and <
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sn.RAE.simuls &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(simuls.elig[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;Bloom&#39;</span>]<span class="op">-</span>delta.y.tt),<span class="dt">probs=</span><span class="kw">c</span>(<span class="fl">0.99</span>))
-sn.RAE.IV.plugin &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">var.RAE.plugin</span>(<span class="dt">pDR=</span><span class="kw">mean</span>(Ds[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pD=</span><span class="kw">mean</span>(Ds[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pR=</span><span class="kw">mean</span>(R[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V0=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V1=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">N=</span><span class="kw">length</span>(y[E<span class="op">==</span><span class="dv">1</span>])))
+sn.RAE.IV.plugin &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">var.RAE.plugin</span>(<span class="dt">pD1=</span><span class="kw">mean</span>(Ds[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pD=</span><span class="kw">mean</span>(Ds[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pR=</span><span class="kw">mean</span>(R[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V0=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V1=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">N=</span><span class="kw">length</span>(y[E<span class="op">==</span><span class="dv">1</span>])))
 sn.RAE.IV.homo &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcov</span>(reg.y.R.2sls.elig)[<span class="dv">2</span>,<span class="dv">2</span>])
 sn.RAE.IV.hetero &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg.y.R.2sls.elig,<span class="dt">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</code></pre></div>
 <p>True 99% sampling noise (from the simulations) is 0.757. 99% sampling noise estimated using the plug-in estimator is 0.921. 99% sampling noise estimated using default IV standard errors is 1.069. 99% sampling noise estimated using heteroskedasticity robust IV standard errors is 0.92.</p>
@@ -2152,43 +2152,53 @@ Figure 3.7: Distribution of the <span class="math inline">\(Wald\)</span> and <s
 </div>
 <div id="estimating-sampling-noise-3" class="section level3">
 <h3><span class="header-section-number">3.4.3</span> Estimating sampling noise</h3>
-<p>As always, we can estimate samling noise either using the CLT or resampling methods. Using the CLT, we can derive the following formula for the distribution of the Bloom estimator: Theorem <a href="RCT.html#thm:asymWald">3.16</a> shows the asymptotic distribution of <span class="math inline">\(\hat{\Delta}^Y_{Wald}\)</span>:</p>
+<p>As always, we can estimate sampling noise either using the CLT or resampling methods. Using the CLT, we can derive the following formula for the distribution of the Bloom estimator: Theorem <a href="RCT.html#thm:asymWald">3.16</a> shows the asymptotic distribution of <span class="math inline">\(\hat{\Delta}^Y_{Wald}\)</span>:</p>
 
 <div class="theorem">
-<p><span id="thm:asymWald" class="theorem"><strong>Theorem 3.16  (Asymptotic Distribution of <span class="math inline">\(\hat{\Delta}^Y_{Wald}\)</span>)  </strong></span>Under Independence and Validity of the Instrument, Exclusion Restriction, and Full Rank, we have:</p>
+<p><span id="thm:asymWald" class="theorem"><strong>Theorem 3.16  (Asymptotic Distribution of <span class="math inline">\(\hat{\Delta}^Y_{Wald}\)</span>)  </strong></span>Under Assumptions <a href="RCT.html#def:RandEncouragValid">3.9</a>, <a href="RCT.html#def:IndepEncourag">3.10</a>, <a href="RCT.html#def:ExclRestr">3.11</a>, <a href="RCT.html#def:Fstage">3.12</a>, we have:</p>
 <span class="math display">\[\begin{align*}
   \sqrt{N}(\hat{\Delta}^Y_{Wald}-\Delta^Y_{LATE}) &amp;  \stackrel{d}{\rightarrow}
   \mathcal{N}\left(0,\frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y_i|R_i=1}}{p^R}\right]\right)\\
 \end{align*}\]</span>
-<p>Under Monoticity, the variance of the Wald estimator can be decomposed as follows:</p>
+<p>Adding Assumption <a href="RCT.html#def:Mono">3.13</a>, the variance of the Wald estimator can be further decomposed as follows:</p>
 <span class="math display">\[\begin{align*}
 \sigma^2_{\hat{\Delta}^Y_{Wald}}  &amp; = \left(\frac{p^D}{p^R}\right)^2\frac{\var{Y_i^0|T_i=C}}{p^C(1-p^R)}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\var{Y^1_i|T_i=C}}{p^Cp^R}\\
                                   &amp; \phantom{=} +\frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2}\left[p^{AT}\var{Y_i^1|T_i=AT}+p^{NT}\var{Y^0_i|T_i=NT}\right]
 \end{align*}\]</span>
 </div>
 
-<p>with <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^R=\Pr(R_i=1)\)</span> and <span class="math inline">\((p^{DR}=\Pr(D_i=1|R_i=1)\)</span>.</p>
+<p>with <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^R=\Pr(R_i=1)\)</span>, <span class="math inline">\(p^{D}_1=\Pr(D_i=1|R_i=1)\)</span>, <span class="math inline">\(p^{D}_0=\Pr(D_i=1|R_i=0)\)</span>, <span class="math inline">\(p^t=\Pr(T_i=t)\)</span>, with <span class="math inline">\(t\in\left\{AT,NT,C,D\right\}\)</span>.</p>
 
 <div class="proof">
  <span class="proof"><em>Proof. </em></span> See Section <a href="proofs.html#ProofAsymWald">A.2.3</a>.
 </div>
 
 
-<div class="example">
-<span id="exm:unnamed-chunk-132" class="example"><strong>Example 3.31  </strong></span>Let’s see how the Wald estimator performs in our example:
+<div class="remark">
+<p> <span class="remark"><em>Remark. </em></span> Theorem <a href="RCT.html#thm:asymWald">3.16</a> shows that the effective sample size of an encouragement design is equal to the number of compliers. Indeed, the denominator of the variance of the Wald Estimatior depends on <span class="math inline">\(p^D_1-p^D_0\)</span>, which is an estimate of the proportion of compliers, under Assumption <a href="RCT.html#def:Mono">3.13</a>.</p>
+Theorem <a href="RCT.html#thm:asymWald">3.16</a> also shows that there is a price to pay for the fact that we cannot enforce the effect on always takers and never takers is actually zero. Indeed, as the second formula shows, it is not only the variance of the oucomes of the compliers that appears in the formula, but also the variances of the outcomes of the always takers and never takers, therefore increasing sampling noise.
 </div>
-<p> Without conditioning on <span class="math inline">\(y_i^B\)</span>:</p>
-<ul>
-<li>True 99% sampling noise (from the simulations) is 1.166.</li>
-<li>99% sampling noise estimated using default 2SLS standard errors is 2.124</li>
-<li>99% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is 2.119.</li>
-</ul>
-<p>With conditioning on <span class="math inline">\(y_i^B\)</span>:</p>
-<ul>
-<li>True 99% sampling noise (from the simulations) is 0.705.</li>
-<li>99% sampling noise estimated using default 2SLS standard errors is 0.988</li>
-<li>99% sampling noise estimated using heteroskedasticity robust 2SLS standard errors is 0.975.</li>
-</ul>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> In order to compute the formula in Theorem <a href="RCT.html#thm:asymWald">3.16</a>, we can use a plug-in estimator or the IV standard error estimate robist to heteroskedasticity. Here is a simple function in order to compute the plug-in estimator:
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-134" class="example"><strong>Example 3.31  </strong></span>Let us derive the CLT-based estimates of sampling noise using both the plug-in estimator and the IV standard errors without conditioning on covariates first. For the sake of the example, I’m working with a sample of size <span class="math inline">\(N=1000\)</span>.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sn.Encourag.simuls &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(simuls.encourage[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;Wald&#39;</span>]<span class="op">-</span>delta.y.late),<span class="dt">probs=</span><span class="kw">c</span>(<span class="fl">0.99</span>))
+sn.Encourag.IV.plugin &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">var.Encourage.plugin</span>(<span class="dt">pD1=</span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pD0=</span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>R<span class="op">==</span><span class="dv">0</span>]),<span class="dt">pD=</span><span class="kw">mean</span>(D[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">pR=</span><span class="kw">mean</span>(R[E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V0=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">V1=</span><span class="kw">var</span>(y[R<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>E<span class="op">==</span><span class="dv">1</span>]),<span class="dt">N=</span><span class="kw">length</span>(y[E<span class="op">==</span><span class="dv">1</span>])))
+sn.Encourag.IV.homo &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcov</span>(reg.y.R.2sls.encourage)[<span class="dv">2</span>,<span class="dv">2</span>])
+sn.Encourag.IV.hetero &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg.y.R.2sls.encourage,<span class="dt">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</code></pre></div>
+<p>True 99% sampling noise (from the simulations) is 1.166. 99% sampling noise estimated using the plug-in estimator is 2.124. 99% sampling noise estimated using default IV standard errors is 23.134. 99% sampling noise estimated using heteroskedasticity robust IV standard errors is 2.119.</p>
+<p>Conditioning on <span class="math inline">\(y_i^B\)</span>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sn.Encourag.simuls.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">quantile</span>(<span class="kw">abs</span>(simuls.encourage.yB[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;Wald&#39;</span>]<span class="op">-</span>delta.y.late),<span class="dt">probs=</span><span class="kw">c</span>(<span class="fl">0.99</span>))
+sn.Encourag.IV.homo.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcov</span>(reg.y.R.yB.2sls.encourage)[<span class="dv">2</span>,<span class="dv">2</span>])
+sn.Encourag.IV.hetero.yB &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">qnorm</span>((.<span class="dv">99</span><span class="op">+</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">2</span>)<span class="op">*</span><span class="kw">sqrt</span>(<span class="kw">vcovHC</span>(reg.y.R.yB.2sls.encourage,<span class="dt">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</code></pre></div>
+<p>True 99% sampling noise (from the simulations) is 0.705. 99% sampling noise estimated using default IV standard errors is 0.988. 99% sampling noise estimated using heteroskedasticity robust IV standard errors is 0.975.</p>
 </div>
 </div>
 <div id="sec:threats" class="section level2">
