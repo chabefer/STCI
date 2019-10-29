@@ -675,34 +675,87 @@ Using this first estimate, we can compute a first estimate of $\hat{\tau}^2$ and
  
 ##### Restricted Maximum Likelihood Estimator
 
-The Restricted Maximum Likelihood Estimator (RMLE)  is a weigthed estimator that is very similar to the FMLE estimartor, except that the estimation procedure focuses on estimating $\tau^2$ first.
+The Restricted Maximum Likelihood Estimator (RMLE)  is a weigthed estimator that is very similar to the FMLE estimator, except that the estimation procedure focuses on estimating $\tau^2$ first.
 As a consequence, the formula for the $\tau^2$ estimator is different:
 
 \begin{align*}
   \mathbf{\hat{\beta}}_{RMLE} & = \left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\hat{\theta}_k,\\
  \hat{\tau}^2_{RMLE} & = \frac{\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}\left((\hat{\theta}_k -\mathbf{X}_k\mathbf{\beta})^2-\hat{\sigma}^2_k\right)
                           +\text{tr}\left[\left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right]}
-                          {\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}}
+                          {\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}}.
 \end{align*}
 
+Again, this estimator an be computed in a recursive way, starting with an initial guesstimate for the parameters $\beta$, for example the simple $WLS$ estimator.
 
 ##### Method Of Moments (MOM) 
 
+The Methods Of Moments estimator (MOM) does not require to assume that the distirbution of $\nu_k$ is normal.
+MOM only assumes that the distribution of $\nu_k$ is i.i.d. with mean zero and variance $\tau^2$.
+The MOM estimator is a three-step estimator:
 
+  1. Estimate $\beta$ using a simple regression that does require knowing $\tau^2$.
+  2. Estimate $\tau^2$ from the residuals of this regression.
+  3. Run a Weighted Least Squares regression including the new estimate of $\tau^2$ in the weights.
+  
+When the first step uses a simple OLS estimator, we have: 
 
+\begin{align*}
+  \mathbf{\hat{\beta}}_{OLS} & = \left(\sum_{k=1}^N\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\mathbf{X}_k'\hat{\theta}_k \\
+  \hat{\tau}^2_{OLS} & = \frac{RSS-\sum_{k=1}^N\hat{\sigma}^2_k-\text{tr}(S)}{k-p-1}, 
+\end{align*}
 
+where $RSS$ is the Residual Sum of Squares of the OLS regression, $p$ is the number of covariates and:
 
-**<span style="font-variant:small-caps;">Detail estimators.</span>**
+\begin{align*}
+S & = \left(\sum_{k=1}^N\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\mathbf{X}_k'\mathbf{X}_k.
+\end{align*}
+
+When the first step uses the WLS estimator, we have:
+
+\begin{align*}
+  \hat{\tau}^2_{WLS} & = \frac{WRSS-(k-p-1)}{\text{tr}(M)}, 
+\end{align*}
+
+where $WRSS$ is the Residual Sum of Squares of the WLS regression and:
+
+\begin{align*}
+\text{tr}(M) & = \sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k} -\text{tr}\left(\left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\sigma}^4_k}\mathbf{X}_k'\mathbf{X}_k\right).
+\end{align*}
 
 #### Estimating sampling noise in the meta-regression model
 
+##### Under homoskedasticity
 
+Under homoskedasticity, we're assuming that the variance of the treatment effect at various sites does not depend on the site characteristics $\mathbf{X}_k$.
+In that case, the variance of the estimated coefficients is estimated by:
+
+\begin{align*}
+\hat{\text{Var}}_{Homo}(\hat{\mathbf{\beta}}) & = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}.
+\end{align*}
+
+##### Under heteroskedasticity
+
+Under heteroskedasticity, we allow the variance $\tau^2$ to depend on $\mathbf{X}_k$.
+One correct estimator under that assumption is the Huber-White estimator:
+
+\begin{align*}
+\hat{\text{Var}}_{HW}(\hat{\mathbf{\beta}}) & = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}
+                                                  \sum_{k=1}^N\left(\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\right)^2
+                                                  \mathbf{X}_k'(\hat{\theta}_k-\mathbf{X}_k\hat{\mathbf{\beta}})^2\mathbf{X}_k
+                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1},
+\end{align*}
+
+the sandwich estimator.
+
+**<span style="font-variant:small-caps;">Example (regress on noise)</span>**
 
 ### Why vote-counting does not work
 
 ## Publication bias
 
 ### Sources of publication bias
+
+**<span style="font-variant:small-caps;">Publication bias and site selection bias.</span>**
 
 ### Detecting and correcting for publication bias
 

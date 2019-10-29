@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-26}
+    \date{2019-10-29}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -5259,12 +5259,12 @@ pretty drastic here.
 \caption{CLT-based confidence intervals of $\hat{WW}$ and $\hat{OLSX}$ for $\delta=$ 0.99 over sample replications for various sample sizes (true confidence intervals in red)}\label{fig:confintervalCLTBF}
 \end{figure}
 
-\section{Randomization After Self-Selection}\label{sec:design2}
+\section{Self-Selection design}\label{sec:design2}
 
-In Randomization After Self-Selection, individuals are randomly assigned
-to the treatment after having expressed their willingness to receive it.
-This design is able to recover the average effect of the Treatment on
-the Treated (TT).
+In a Self-Selection design, individuals are randomly assigned to the
+treatment after having expressed their willingness to receive it. This
+design is able to recover the average effect of the Treatment on the
+Treated (TT).
 
 In order to explain this design clearly, and especially to make it clear
 how it differs from the following one (randomization after eligibility),
@@ -5387,8 +5387,7 @@ The value of \(\Delta^y_{TT}\) in our illustration is now 0.17.
 
 \subsection{Identification}\label{identification-1}
 
-With Randomization After Self-Selection, identification requires two
-assumptions:
+In a Self-Selection design, identification requires two assumptions:
 
 \BeginKnitrBlock{definition}[Independence Among Self-Selected]
 \protect\hypertarget{def:indepss}{}{\label{def:indepss}
@@ -5405,11 +5404,11 @@ treatment among the eligible applicants.
 
 We need a second assumption:
 
-\BeginKnitrBlock{definition}[Randomization After Self-Selection Validity]
+\BeginKnitrBlock{definition}[Self-Selection design Validity]
 \protect\hypertarget{def:rassval}{}{\label{def:rassval}
-\iffalse (Randomization After Self-Selection Validity) \fi{} }We assume
-that the randomized allocation of the program does not interfere with
-how potential outcomes and self-selection are generated:
+\iffalse (Self-Selection design Validity) \fi{} }We assume that the
+randomized allocation of the program does not interfere with how
+potential outcomes and self-selection are generated:
 
 \begin{align*}
 Y_i & = 
@@ -5425,11 +5424,11 @@ self-selection decisions as in a routine allocation of the treatment.
 
 Under these assumptions, we have the following result:
 
-\BeginKnitrBlock{theorem}[Identification With Randomization After Self-Selection]
+\BeginKnitrBlock{theorem}[Identification in a Self-Selection design]
 \protect\hypertarget{thm:idrass}{}{\label{thm:idrass}
-\iffalse (Identification With Randomization After Self-Selection) \fi{}
-}Under Assumptions \ref{def:indepss} and \ref{def:rassval}, the WW
-estimator among the self-selected identifies TT:
+\iffalse (Identification in a Self-Selection design) \fi{} }Under
+Assumptions \ref{def:indepss} and \ref{def:rassval}, the WW estimator
+among the self-selected identifies TT:
 
 \begin{align*}
   \Delta^Y_{WW|D=1} & = \Delta^Y_{TT},
@@ -5452,14 +5451,14 @@ with:
                     & = \esp{Y_i^1-Y_i^0|D_i=1},
 \end{align*}
 
-where the second equality uses Randomization After Self-Selection
-Validity, the third equality Independence Among Self-Selected and the
-last equality the linearity of the expectation operator.
+where the second equality uses Assummption\ref{def:rassval}, the third
+equality Assumption \ref{def:indepss} and the last equality the
+linearity of the expectation operator.
 \EndKnitrBlock{proof}
 
 \BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}The key intuitions for how Randomization
-After Self-Selection solves the FPCI are:
+\iffalse{} {Remark. } \fi{}The key intuitions for how the Self-Selection
+design solves the FPCI are:
 \EndKnitrBlock{remark}
 
 \begin{itemize}
@@ -5492,7 +5491,7 @@ a random allocation among applicants:
 \protect\hypertarget{exm:unnamed-chunk-82}{}{\label{exm:unnamed-chunk-82}
 }In our numerical example, the following R code generates two random
 groups, one treated and one control, and imposes the Assumption of
-Randomization After Self-Selection Validity:
+Self-Selection design Validity:
 \EndKnitrBlock{example}
 
 \begin{Shaded}
@@ -5510,9 +5509,9 @@ Randomization After Self-Selection Validity:
 \subsubsection{Using the WW Estimator}\label{using-the-ww-estimator-1}
 
 As in the case of the Brute Force Design, we can use the WW estimator to
-estimate the effect of the program with Randomization After
-Self-Selection, except that this time the WW estimator is applied among
-applicant to the program only:
+estimate the effect of the program with a Self-Selection design, except
+that this time the WW estimator is applied among applicants to the
+program only:
 
 \begin{align*}
   \hat{\Delta}^Y_{WW|D=1} & = \frac{1}{\sum_{i=1}^N D_iR_i}\sum_{i=1}^N Y_iD_iR_i-\frac{1}{\sum_{i=1}^N D_i(1-R_i)}\sum_{i=1}^N D_iY_i(1-R_i).
@@ -5538,9 +5537,9 @@ bad sample where confounders are not very well balanced.
 \subsubsection{Using OLS}\label{using-ols-1}
 
 As in the Brute Force Design with the ATE, we can estimate the TT
-parameter with Randomization After Self-Selection using the OLS
-estimator. In the following regression run among applicants only (with
-\(D_i=1\)), \(\beta\) estimates TT:
+parameter with a Self-Selection design using the OLS estimator. In the
+following regression run among applicants only (with \(D_i=1\)),
+\(\beta\) estimates TT:
 
 \begin{align*}
     Y_i &  = \alpha +  \beta R_i + U_i.
@@ -5731,7 +5730,7 @@ in terms of decreased sampling noise.
 
 }
 
-\caption{Distribution of the $WW$ and $OLSX$ estimator with randomization after self-selection over replications of samples of different sizes}\label{fig:montecarlohistselfselectww}
+\caption{Distribution of the $WW$ and $OLSX$ estimator in a Self-Selection design over replications of samples of different sizes}\label{fig:montecarlohistselfselectww}
 \end{figure}
 
 Figure \ref{fig:montecarlohistselfselectww} shows that, in our example,
@@ -5781,15 +5780,15 @@ noise estimated using default OLS standard errors is 0.294. 99\%
 sampling noise estimated using heteroskedasticity robust OLS standard
 errors is 0.299.
 
-\section{Randomization After Eligibility}\label{sec:design3}
+\section{Eligibility design}\label{sec:design3}
 
-In Randomization After Eligiblity, we randomly select two groups among
-the eligibles. Members of the treated group are informed that they are
+In an Eligibility design, we randomly select two groups among the
+eligibles. Members of the treated group are informed that they are
 eligible to the program and are free to self-select into it. Members of
 the control group are not enformed that they are eligible and cannot
-enroll into the program. With Randomization After Eligiblity, we can
-still recover the TT despite the fact that we have not randomized access
-to the programs among the applicants. This is the magic of instrumental
+enroll into the program. In an Eligibility design, we can still recover
+the TT despite the fact that we have not randomized access to the
+programs among the applicants. This is the magic of instrumental
 variables. Let us detail the mechanics of this beautiful result.
 
 \subsection{Identification}\label{identification-2}
@@ -5810,8 +5809,8 @@ Eligibility design rigorously, I need to define new potential outcomes:
 
 \subsubsection{Identification of TT}\label{identification-of-tt}
 
-In a Randomization After Eligiblity design, we need three assumptions to
-ensure identification of the TT:
+In an Eligiblity design, we need three assumptions to ensure
+identification of the TT:
 
 \BeginKnitrBlock{definition}[Independence Among Eligibles]
 \protect\hypertarget{def:indelig}{}{\label{def:indelig}
@@ -6082,14 +6081,14 @@ instrument for program participation.
 Eligibility seems like magic. You do not assign randomly the program,
 but information about the eligiblity status, but you can recover the
 effect of the program anyway. How does this magic work? Randomization
-After Eligibility is also less intrusive than Randomization After
-Self-Selection. With the latter design, you have to actively send away
-individuals that have expressed an interest for entering the program.
-This is harsh. With Randomization After Eligibility, you do not have to
-send away people expressing interest after being informed. And it seems
-that you are not paying a price for that, since you are able to recover
-the same TT parameter. Well, actually, you are going to pay a price in
-terms of larger sampling noise.
+After Eligibility is also less intrusive than Self-Selection design.
+With the latter design, you have to actively send away individuals that
+have expressed an interest for entering the program. This is harsh. With
+Randomization After Eligibility, you do not have to send away people
+expressing interest after being informed. And it seems that you are not
+paying a price for that, since you are able to recover the same TT
+parameter. Well, actually, you are going to pay a price in terms of
+larger sampling noise.
 \EndKnitrBlock{remark} The intuition for all that can be delineated
 using the very same apparatus that we have developed so far. So here
 goes. Under the assumptions made so far, it is easy to show that
@@ -6112,17 +6111,16 @@ under Assumption \ref{def:indelig} and \ref{def:exclrestric}.
 But this cancelling out only happens in the population. In a given
 sample, the sample equivalents to the two members of the second part of
 the equation do not have to be equal, and thus they do not cancel out,
-generating additional sampling noise compared to the Randomization After
-Self-Selection design. Indeed, in the Randomization After Self-Selection
-design, you observe the population with \(D_i^1=1\) in both the
-treatment and control arms (you actually observe this population before
-randomizing the treatment within it), and you can enforce that the
-effect on \(D_i^1=0\) should be zero, under your assumptions. In the
-Randomization After Eligiblity design, you do not observe the population
-with \(D_i^1=1\) in the control arm, and you cannot enforce the equality
-of the outcomes for those with \(D_i^1=0\) present in both arms. You
-have to rely on the sampling estimates to make this cancellation, and
-that generates sampling noise.
+generating additional sampling noise compared to the Self-Selection
+design. Indeed, in the Self-Selection design, you observe the population
+with \(D_i^1=1\) in both the treatment and control arms (you actually
+observe this population before randomizing the treatment within it), and
+you can enforce that the effect on \(D_i^1=0\) should be zero, under
+your assumptions. In an Eligibility design, you do not observe the
+population with \(D_i^1=1\) in the control arm, and you cannot enforce
+the equality of the outcomes for those with \(D_i^1=0\) present in both
+arms. You have to rely on the sampling estimates to make this
+cancellation, and that generates sampling noise.
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}In practice, we use a pseudo-RNG to allocate
@@ -6142,8 +6140,8 @@ the randomized annoucement of the eligibility status:
 \BeginKnitrBlock{example}
 \protect\hypertarget{exm:unnamed-chunk-93}{}{\label{exm:unnamed-chunk-93}
 }In our numerical example, we can actually use the same sample as we did
-for Randomization After Self-Selection. I have to generate it again,
-though, since I am going to allocate \(R_i\) differently.
+for Self-Selection design. I have to generate it again, though, since I
+am going to allocate \(R_i\) differently.
 \EndKnitrBlock{example}
 
 \begin{Shaded}
@@ -6170,8 +6168,7 @@ though, since I am going to allocate \(R_i\) differently.
 \end{Shaded}
 
 The value of TT in our example is the same as the one in the
-Randomization After Self-Selection case. TT in the population is equal
-to 0.17.
+Self-Selection design case. TT in the population is equal to 0.17.
 
 Let's now compute the value of ITE in the population. In our model,
 exclusion restriction holds, so that we can use the fact that
@@ -6229,9 +6226,9 @@ be realized:
 \subsection{Estimating the ITE and the
 TT}\label{estimating-the-ite-and-the-tt}
 
-In general, we start the analysis of Randomization After Eligibility by
-estimating the ITE. Then, we provide the TT by dividing the ITE by the
-proportion of participants among the eligibles.
+In general, we start the analysis of an Eligibility design by estimating
+the ITE. Then, we provide the TT by dividing the ITE by the proportion
+of participants among the eligibles.
 
 Actually, this procedure is akin to an instrumental variables estimator
 and we will see that the Bloom estimator is actually an IV estimator.
@@ -6244,7 +6241,7 @@ structural equation step of an IV procedure.
 
 Estimation of the ITE relies on the WW estimator, in general implemented
 using OLS. It is similar to the estimation of ATE and TT in the Brute
-Force and Randomization After Self-Selection designs.
+Force and Self-Selection designs.
 
 \paragraph{Using the WW estimator}\label{using-the-ww-estimator-2}
 
@@ -6600,7 +6597,7 @@ We can take three things from Figure \ref{fig:montecarlohisteligbloom}:
   there are some samples where no one is treated).
 \item
   Sampling noise from randomization after eligibility is indeed larger
-  than sampling noise from randomization after self-selection.
+  than sampling noise from Self-Selection design.
 \item
   Conditioning on covariates helps.
 \end{enumerate}
@@ -6649,7 +6646,7 @@ proportion of compliers.
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}In order to compute an estimate of the
-sampling noise of hte Bloom estimator, we can either use the plug-in
+sampling noise of the Bloom estimator, we can either use the plug-in
 formula from Theorem \ref{thm:asymBloom} or use the IV standard errors
 robust to heteroskedasticity. Here is a simple function in order to
 compute the plug-in estimator:
@@ -6703,27 +6700,25 @@ noise estimated using heteroskedasticity robust IV standard errors is
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}Sampling noise in the Randomization After
-Eligibility design seems larger than sampling noise in the Randomization
-After Self-Selection design.
-\EndKnitrBlock{remark} In the Randomization After Self-Selection design,
-sampling noise with \(N=1000\) is equal to 0.55. In the Randomization
-After Eligibility design, sampling noise with \(N=1000\) is equal to
-0.76. Why such a difference? Both designs have the same effective sample
-size.
+Eligibility design seems larger than sampling noise in the
+Self-Selection design.
+\EndKnitrBlock{remark} In the Self-Selection design, sampling noise with
+\(N=1000\) is equal to 0.55. In the Eligibility design, sampling noise
+with \(N=1000\) is equal to 0.76. Why such a difference? Both designs
+have the same effective sample size.
 
-In the Randomization After Self-Selection design, the effective sample
-size \(N^{RASS}_e\) is the number of eligible individuals that apply to
-take up the program: \(N^{RASS}_e=N\Pr(D_i=1|E_i=1)\Pr(E_i=1)\). In our
-example, \(N^{RASS}_e=1000 *\) 0.459 \(*\) 0.218 \(=\) 100.
+In the Self-Selection design, the effective sample size \(N^{SS}_e\) is
+the number of eligible individuals that apply to take up the program:
+\(N^{SS}_e=N\Pr(D_i=1|E_i=1)\Pr(E_i=1)\). In our example,
+\(N^{SS}_e=1000 *\) 0.459 \(*\) 0.218 \(=\) 100.
 
-In the Randomization After Eligibility design, the sample size on which
-the regressions are performed is \(N^{RAE}\), the number of eligible
-individuals: \(N^{RAE}=N\Pr(E_i=1)\). In our example, \(N^{RAE}=1000 *\)
-0.459 \(=\) 459. But the effective sample size for the Randomization
-After Eligibility design is actually equal to the one in the
-Randomization After Self-Selection design because only compliers matter
-for the precision of the Bloom estimator, as Theorem \ref{thm:asymBloom}
-shows. Thus \(N^{RASS}_e=N^{RAE}_e\).
+In the Eligibility design, the sample size on which the regressions are
+performed is \(N^{E}\), the number of eligible individuals:
+\(N^{E}=N\Pr(E_i=1)\). In our example, \(N^{E}=1000 *\) 0.459 \(=\) 459.
+But the effective sample size for the Randomization After Eligibility
+design is actually equal to the one in the Self-Selection design because
+only compliers matter for the precision of the Bloom estimator, as
+Theorem \ref{thm:asymBloom} shows. Thus \(N^{SS}_e=N^{E}_e\).
 
 Why then is sampling noise much larger in the Randomization After
 Eligibility design? Probably because the Bloom estimator cannot enforce
@@ -7249,10 +7244,10 @@ as an instrument for program participation.
 \iffalse{} {Remark. } \fi{}The Encouragement design seems like magic.
 You do not assign randomly the program, but only an encouragement to
 take it, and you can recover the effect of the program anyway. The
-Encouragement design is less intrusive than Randomization After
-Self-Selection and Randomization of Eligibility. In an Encouragement
-design, you do not have to refuse the program to agents in the control
-group. You pay two types of prices for that:
+Encouragement design is less intrusive than the Self-Selection and
+Eligibility designs. In an Encouragement design, you do not have to
+refuse the program to agents in the control group. You pay two types of
+prices for that:
 \EndKnitrBlock{remark}
 
 \begin{enumerate}
@@ -7972,11 +7967,228 @@ noise estimated using default IV standard errors is 0.988. 99\% sampling
 noise estimated using heteroskedasticity robust IV standard errors is
 0.975.
 
-\section{Threats to the validity of RCTs}\label{sec:threats}
-
 \chapter{Natural Experiments}\label{NE}
 
+Natural Experiments are situations due to the natural course of events
+that approximate the conditions of a randomized controlled trial. In the
+economists' toolkit, we generally make a distinction between:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Instrumental variables (IV), that rely on finding a plausibly
+  exogeneous source of variation in treatment intake.
+\item
+  Regression Discontinuity Designs (RDD), that exploit a discontinuity
+  in the eligibility to the treatment.
+\item
+  Difference In Differences (DID), that make use of the differential
+  exposure of some groups to the treatment of interest over time.
+\end{enumerate}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The term \emph{Natural Experiments} seems to
+be mostly used by economists. It dates back to Haavelmo (1944)'s paper
+on the Probability Approach to Econometrics, where he makes a
+distinction between the experiments we'd like to make as social
+scientists and the experiments that Nature provides us with, that are in
+general a subset of the experiments we'd like to make. This raises the
+question of our ability to \textbf{identify} the relationships of
+interest from the variation that is present in the data, a traditional
+problem in classical econometrics that has echoes in treatment effect
+estimation, where we also try to \emph{identify} treatment effect
+parameters. At the time of Haavelmo, and until the beginning of the
+1990s, there was no real discussion of the plausibility of the
+\emph{identifying assumptions} (or restrictions) required for
+identification of certain relations, outside of a discussion of their
+theoretical plausiblility. With the credibility revolution brought about
+by Angrist (1990)'s paper and summarized in Angrist and Krueger (2001)'s
+review paper, the notion of natural experiment made a come back, with
+the idea that we might be able to look for specific set of events
+produced by Nature that more credibly identify a relationship of
+interest, \emph{i.e.} that closely approximate true experimental
+conditions.
+\EndKnitrBlock{remark}
+
+\begin{verbatim}
+Outside of economics, Natural Experiments have also flourished, but without the term, and were compiled in the early textbook on research methods by Campbell (1966).
+Both Difference In Differences and Regression Discontinuity Designs have been actually developed outside of economics, mostly in education research.
+Instrumental Variables have had a separate history in economics and in genetics, were it is called the method of path coefficients. 
+\end{verbatim}
+
+\section{Instrumental Variables}\label{instrumental-variables}
+
+Instrumental Variables rely on finding a plausibly exogeneous source of
+variation in treatment intake. In the simple case of a binary
+instrument, the identification and estimation parts are actually similar
+to Encouragements designs in RCTs, that we ahve already studied in
+Section \ref{sec:design4}. The crucial part of an IV design is to
+justify the credibility of the exclusion restriction and independence
+assumptions, which are generally extremely hard to justify.
+
+\subsection{Identification}\label{identification-4}
+
+\subsection{Estimation}\label{estimation}
+
+\subsection{Estimation of sampling
+noise}\label{estimation-of-sampling-noise}
+
+\section{Regression Discontinuity
+Designs}\label{regression-discontinuity-designs}
+
+\section{Difference In Differences}\label{difference-in-differences}
+
 \chapter{Observational Methods}\label{sec:OM}
+
+\chapter{Threats to the validity of Causal Inference}\label{sec:threats}
+
+In this final section, I want to discuss more generally about the
+possible threats to the validity of methods of causaliInference. Most of
+these threast stem from the fact that, much as particles do when
+physicists try to measure their position and velocity, human beings
+react to our experimental devices in sometimes unexpected ways. It is
+classical to make a disctinction between two threat and one specific set
+of problems:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Threats to internal validity: these are the threats that vitiate the
+  result of the experiment in the sample at hand, even when only looking
+  at the Intention to Treat Effect. They also include threats to the
+  exclusion restriction assumption.
+\item
+  Threats to the measurement of precision
+\item
+  Threats to external validity: these are the threats that make the
+  extension of the results from one experiment to the same population at
+  another period of to another population dubious.
+\item
+  Ethical and political issues
+\end{enumerate}
+
+\section{Threats to internal
+validity}\label{threats-to-internal-validity}
+
+Threats to internal validity are the problems that might make the
+results of the experiment not measure the effect of the treatment of
+interest in the ongoing sample. Let's examine the most important ones in
+turn.
+
+\subsection{Survey bias}\label{survey-bias}
+
+There is survey bias if the mere fact of having to answer to a survey
+alters the outcomes of the surveyed individuals. For example,
+administering a health survey might make you pay more attention to your
+health and as a consequence improve it. Survey bias alters the measured
+impact of the treatment since it alters the behavior of the control
+group. As a result, the estimated effect of the treatment might be
+biased.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Note that survey bias might affect all the
+estimators presented in this book, including natural experimental and
+observational estimators. All estimators rely on measuring something and
+thus might be affected by survey bias.
+
+Actually, RCTs might be able to avoid survey bias whereas other methods
+generally cannot. Indeed, survey bias generally occurs with repeated
+sampling: surveying at baseline might trigger a response by individuals,
+and thus bias the measurement at the end of the experiment. RCTs can
+avoid this issue by bypassing the baseline survey, or at least
+collecting baseline information on a subsample of the experimental
+sample. Other estimators that might be able to avoid this problem are
+DID, where the repeated cross section estimator eschews survey bias, and
+RDD and IV, which generally use only cross sectional information.
+Matching in general requires observations for the same individual over
+time, so that avoiding possible survey bias is impossible.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Do we have evidence of the existence and
+extent of survey bias? A paper by
+\href{https://www.pnas.org/content/108/5/1821.short}{Zwane et al (2010)}
+shows that there is extensive survey bias in 2 out of 5 experiments.
+
+In the first example, the authors show that being surveyed more
+frequently (every two weeks \emph{vs} every six months) for the extent
+of diarrhea prevalence and use of chlorine decontamination increases the
+use of chlorine, decreases diarrhea prevalence and decreases the effect
+of a spring protection program, to the extent that it becomes null in
+the frequent survey sample, whereas it is large and positive in the
+infrequent survey sample. The authors speculate that the frequent
+surveys act as a reminder for chlorinating water, which is a substitute
+for well protection.
+
+In a second experiment, the authors randomly run a baseline survey on
+80\% of the households tha would be later included in a RCT where health
+insurance would be offered at randomly selected prices. The baseline
+survey includes questions about health and health insurance, but does
+not mention the particular product that will be offered later. The
+authors find a small imprecise increase in insurance take up in the
+group having undergone the baseline survey (5\% \(\pm\) 6.8), non
+significant at usual levels of confidence. They also find no evidence of
+impact of the baseline survey on the response of households to the price
+incentive.
+
+In a third experiment, the authors report on the effect of being
+surveyed with a survey continaing questions on health status and health
+insurance on the subsequent adoption of health insurance. They find
+evidence that the baseline survey has increased the adoption of health
+insurance by 6.7\% \(\pm\) 6.6, from a mean of 26.4\% in the control
+group. The effect dissipates over time though and becomes much smaller
+15 to 18 months after the treatment.
+
+In a fourth experiment, the authors randomly selected 60\% of targeted
+households to be included in a baseline survey including wuestions on
+household finances and borrowing opportunities.\\
+The sample was then prospected by a micro-credit firm. The aurhors do
+not find higher micro-credit take-up among households surveyed at
+baseline (-0.009 \(\pm\) 0.048, with a baseline take up rate of 0.166).
+Note that the estimates are imprecise though.
+
+In a fifth experiment, the authors randomly assigned the order in which
+households had to be contacted for a baseline survey, along with a fixed
+number of households to be sruveyed by village. The survey contained
+questions about finance and microfinancne use. Also, the survey
+explicitely mentioned that househods were interviewed because they were
+patrons of a micro-finance provider. Sunbsequently, households had to
+decide whether or not to renew their loans from the micro-finance
+provider. The authors do not evidence of an effect of being surveyed on
+the subsequent decision to renew the loan (-0.005 \(\pm\) 0.026 from a
+baseline rate of 0.769).
+\EndKnitrBlock{remark}
+
+\subsection{Experimenter bias}\label{experimenter-bias}
+
+\subsection{Substitution bias}\label{substitution-bias}
+
+\subsection{Diffusion bias}\label{diffusion-bias}
+
+\section{Threats to the measurement of
+precision}\label{threats-to-the-measurement-of-precision}
+
+\subsection{Insufficient precision}\label{insufficient-precision}
+
+\subsection{Clustering}\label{clustering}
+
+\section{Threats to external
+validity}\label{threats-to-external-validity}
+
+\subsection{Randomization bias}\label{randomization-bias}
+
+\subsection{Equilibrium effects}\label{equilibrium-effects}
+
+\subsection{Context effects}\label{context-effects}
+
+\subsection{Site selection bias}\label{site-selection-bias}
+
+\subsection{Publication bias}\label{publication-bias}
+
+\subsection{Ethical and political
+issues}\label{ethical-and-political-issues}
 
 \part{Additional Topics}\label{part-additional-topics}
 
@@ -8074,7 +8286,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-135}{}{\label{exm:unnamed-chunk-135}
+\protect\hypertarget{exm:unnamed-chunk-139}{}{\label{exm:unnamed-chunk-139}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -8246,7 +8458,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141}
+\protect\hypertarget{exm:unnamed-chunk-145}{}{\label{exm:unnamed-chunk-145}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -8319,7 +8531,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-142}{}{\label{exm:unnamed-chunk-142}
+\protect\hypertarget{exm:unnamed-chunk-146}{}{\label{exm:unnamed-chunk-146}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -8492,7 +8704,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-144}{}{\label{exm:unnamed-chunk-144}
+\protect\hypertarget{exm:unnamed-chunk-148}{}{\label{exm:unnamed-chunk-148}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -8589,7 +8801,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-148}{}{\label{exm:unnamed-chunk-148}
+\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8705,7 +8917,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149}
+\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -8747,7 +8959,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151}
+\protect\hypertarget{exm:unnamed-chunk-155}{}{\label{exm:unnamed-chunk-155}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8856,7 +9068,7 @@ estimate what we want? I'd take the average variance.}}
 \(I^2=ICC*100\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152}
+\protect\hypertarget{exm:unnamed-chunk-156}{}{\label{exm:unnamed-chunk-156}
 }Let's see how these three estimators look like in our example. The cool
 thing is that \texttt{rma} computes these estimators by default, so that
 a simple call to \texttt{summary()} is going to show them. The default
@@ -8981,7 +9193,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153}
+\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -9123,7 +9335,7 @@ and update the set of weights, and iterate until convergence.
 Estimator}\label{restricted-maximum-likelihood-estimator}
 
 The Restricted Maximum Likelihood Estimator (RMLE) is a weigthed
-estimator that is very similar to the FMLE estimartor, except that the
+estimator that is very similar to the FMLE estimator, except that the
 estimation procedure focuses on estimating \(\tau^2\) first. As a
 consequence, the formula for the \(\tau^2\) estimator is different:
 
@@ -9131,20 +9343,91 @@ consequence, the formula for the \(\tau^2\) estimator is different:
   \mathbf{\hat{\beta}}_{RMLE} & = \left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\hat{\theta}_k,\\
  \hat{\tau}^2_{RMLE} & = \frac{\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}\left((\hat{\theta}_k -\mathbf{X}_k\mathbf{\beta})^2-\hat{\sigma}^2_k\right)
                           +\text{tr}\left[\left(\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\zeta}^2_k}\mathbf{X}_k'\mathbf{X}_k\right]}
-                          {\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}}
+                          {\sum_{k=1}^N\frac{1}{\hat{\zeta}^4_k}}.
 \end{align*}
+
+Again, this estimator an be computed in a recursive way, starting with
+an initial guesstimate for the parameters \(\beta\), for example the
+simple \(WLS\) estimator.
 
 \paragraph{Method Of Moments (MOM)}\label{method-of-moments-mom}
 
-\textbf{\textsc{Detail estimators.}}
+The Methods Of Moments estimator (MOM) does not require to assume that
+the distirbution of \(\nu_k\) is normal. MOM only assumes that the
+distribution of \(\nu_k\) is i.i.d. with mean zero and variance
+\(\tau^2\). The MOM estimator is a three-step estimator:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Estimate \(\beta\) using a simple regression that does require knowing
+  \(\tau^2\).
+\item
+  Estimate \(\tau^2\) from the residuals of this regression.
+\item
+  Run a Weighted Least Squares regression including the new estimate of
+  \(\tau^2\) in the weights.
+\end{enumerate}
+
+When the first step uses a simple OLS estimator, we have:
+
+\begin{align*}
+  \mathbf{\hat{\beta}}_{OLS} & = \left(\sum_{k=1}^N\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\mathbf{X}_k'\hat{\theta}_k \\
+  \hat{\tau}^2_{OLS} & = \frac{RSS-\sum_{k=1}^N\hat{\sigma}^2_k-\text{tr}(S)}{k-p-1}, 
+\end{align*}
+
+where \(RSS\) is the Residual Sum of Squares of the OLS regression,
+\(p\) is the number of covariates and:
+
+\begin{align*}
+S & = \left(\sum_{k=1}^N\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\mathbf{X}_k'\mathbf{X}_k.
+\end{align*}
+
+When the first step uses the WLS estimator, we have:
+
+\begin{align*}
+  \hat{\tau}^2_{WLS} & = \frac{WRSS-(k-p-1)}{\text{tr}(M)}, 
+\end{align*}
+
+where \(WRSS\) is the Residual Sum of Squares of the WLS regression and:
+
+\begin{align*}
+\text{tr}(M) & = \sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k} -\text{tr}\left(\left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}\sum_{k=1}^N\frac{1}{\hat{\sigma}^4_k}\mathbf{X}_k'\mathbf{X}_k\right).
+\end{align*}
 
 \subsubsection{Estimating sampling noise in the meta-regression
 model}\label{estimating-sampling-noise-in-the-meta-regression-model}
 
+\paragraph{Under homoskedasticity}\label{under-homoskedasticity}
+
+Under homoskedasticity, we're assuming that the variance of the
+treatment effect at various sites does not depend on the site
+characteristics \(\mathbf{X}_k\). In that case, the variance of the
+estimated coefficients is estimated by:
+
+\begin{align*}
+\hat{\text{Var}}_{Homo}(\hat{\mathbf{\beta}}) & = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}.
+\end{align*}
+
+\paragraph{Under heteroskedasticity}\label{under-heteroskedasticity}
+
+Under heteroskedasticity, we allow the variance \(\tau^2\) to depend on
+\(\mathbf{X}_k\). One correct estimator under that assumption is the
+Huber-White estimator:
+
+\begin{align*}
+\hat{\text{Var}}_{HW}(\hat{\mathbf{\beta}}) & = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}
+                                                  \sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'(\hat{\theta}_k-\mathbf{X}_k\hat{\mathbf{\beta}})^2\mathbf{X}_k
+                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1},
+\end{align*}
+
+the sandwich estimator.
+
 \subsection{Why vote-counting does not
 work}\label{why-vote-counting-does-not-work}
 
-\section{Publication bias}\label{publication-bias}
+\section{Publication bias}\label{publication-bias-1}
 
 \subsection{Sources of publication
 bias}\label{sources-of-publication-bias}

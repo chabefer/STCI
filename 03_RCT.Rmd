@@ -572,9 +572,9 @@ print(plot.CI.BF.yB)
 
 ```
 
-## Randomization After Self-Selection {#sec:design2}
+## Self-Selection design {#sec:design2}
 
-In Randomization After Self-Selection, individuals are randomly assigned to the treatment after having expressed their willingness to receive it.
+In a Self-Selection design, individuals are randomly assigned to the treatment after having expressed their willingness to receive it.
 This design is able to recover the average effect of the Treatment on the Treated (TT).
 
 In order to explain this design clearly, and especially to make it clear how it differs from the following one (randomization after eligibility), I have to introduce a slightly more complex selection rule that we have seen so far, one that includes self-selection, \textit{i.e.} take-up decisions by agents.
@@ -669,7 +669,7 @@ The value of $\Delta^y_{TT}$ in our illustration is now `r round(delta.y.tt,3)`.
 
 ### Identification
 
-With Randomization After Self-Selection, identification requires two assumptions:
+In a Self-Selection design, identification requires two assumptions:
 
 ```{definition,indepss,name='Independence Among Self-Selected'}
 We assume that the randomized allocation of the program among applicants is well done: 
@@ -684,7 +684,7 @@ Independence can be enforced by the randomized allocation of the treatment among
 
 We need a second assumption:
 
-```{definition,rassval,name='Randomization After Self-Selection Validity'}
+```{definition,rassval,name='Self-Selection design Validity'}
 We assume that the randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:
 
 \begin{align*}
@@ -700,7 +700,7 @@ with $Y_i^1$, $Y_i^0$ and $D_i$ the same potential outcomes and self-selection d
 
 Under these assumptions, we have the following result:
 
-```{theorem,idrass,name='Identification With Randomization After Self-Selection'}
+```{theorem,idrass,name='Identification in a Self-Selection design'}
 Under Assumptions \@ref(def:indepss) and \@ref(def:rassval), the WW estimator among the self-selected identifies TT:
 
 \begin{align*}
@@ -722,11 +722,11 @@ with:
                     & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
                     & = \esp{Y_i^1-Y_i^0|D_i=1},
 \end{align*}
-where the second equality uses Randomization After Self-Selection Validity, the third equality Independence Among Self-Selected and the last equality the linearity of the expectation operator.
+where the second equality uses Assummption\@ref(def:rassval), the third equality Assumption \@ref(def:indepss) and the last equality the linearity of the expectation operator.
 ```
 
 ```{remark}
-The key intuitions for how Randomization After Self-Selection solves the FPCI are:
+The key intuitions for how the Self-Selection design solves the FPCI are:
 ```
 
   * By allowing for eligibilty and self-selection, we identify the agents that would benefit from the treatment in routine mode (the treated).
@@ -745,7 +745,7 @@ In practice, we use a pseudo-RNG to generate a random allocation among applicant
 \end{align*}
 
 ```{example}
-In our numerical example, the following R code generates two random groups, one treated and one control, and imposes the Assumption of Randomization After Self-Selection Validity:
+In our numerical example, the following R code generates two random groups, one treated and one control, and imposes the Assumption of Self-Selection design Validity:
 ```
 
 ```{r randomRASS,eval=TRUE,echo=TRUE,results='hide'}
@@ -760,7 +760,7 @@ Y <- Y1*R+Y0*(1-R)
 
 #### Using the WW Estimator
 
-As in the case of the Brute Force Design, we can use the WW estimator to estimate the effect of the program with Randomization After Self-Selection, except that this time the WW estimator is applied among applicant to the program only:
+As in the case of the Brute Force Design, we can use the WW estimator to estimate the effect of the program with a Self-Selection design, except that this time the WW estimator is applied among applicants to the program only:
 
 \begin{align*}
   \hat{\Delta}^Y_{WW|D=1} & = \frac{1}{\sum_{i=1}^N D_iR_i}\sum_{i=1}^N Y_iD_iR_i-\frac{1}{\sum_{i=1}^N D_i(1-R_i)}\sum_{i=1}^N D_iY_i(1-R_i).
@@ -780,7 +780,7 @@ We just drew a bad sample where confounders are not very well balanced.
 
 #### Using OLS
 
-As in the Brute Force Design with the ATE, we can estimate the TT parameter with Randomization After Self-Selection using the OLS estimator.
+As in the Brute Force Design with the ATE, we can estimate the TT parameter with a Self-Selection design using the OLS estimator.
 In the following regression run among applicants only (with $D_i=1$), $\beta$ estimates TT:
 
 \begin{align*}
@@ -934,7 +934,7 @@ simuls.self.select.yB.ww <- lapply(N.sample,sf.simuls.self.select.yB.ww.N,Nsim=N
 names(simuls.self.select.yB.ww) <- N.sample
 ```
 
-```{r montecarlohistselfselectww,dependson='monte.carlo.self.select.ww',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the $WW$ and $OLSX$ estimator with randomization after self-selection over replications of samples of different sizes',fig.subcap=c('$WW$','$OLSX$'),fig.align='center',out.width="50%",fig.pos='htbp'}
+```{r montecarlohistselfselectww,dependson='monte.carlo.self.select.ww',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the $WW$ and $OLSX$ estimator in a Self-Selection design over replications of samples of different sizes',fig.subcap=c('$WW$','$OLSX$'),fig.align='center',out.width="50%",fig.pos='htbp'}
 par(mfrow=c(2,2))
 for (i in 1:length(simuls.self.select.ww)){
   hist(simuls.self.select.ww[[i]][,'WW'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yWW)),xlim=c(-0.15,0.55))
@@ -981,12 +981,12 @@ True 99\% sampling noise (from the simulations) is `r round(sn.RASS.simuls.yB,3)
 99\% sampling noise estimated using heteroskedasticity robust OLS standard errors is `r round(sn.RASS.OLS.hetero.yB,3)`.
 
 
-## Randomization After Eligibility {#sec:design3}
+## Eligibility design {#sec:design3}
 
-In Randomization After Eligiblity, we randomly select two groups among the eligibles.
+In an Eligibility design, we randomly select two groups among the eligibles.
 Members of the treated group are informed that they are eligible to the program and are free to self-select into it.
 Members of the control group are not enformed that they are eligible and cannot enroll into the program.
-With Randomization After Eligiblity, we can still recover the TT despite the fact that we have not randomized access to the programs among the applicants.
+In an Eligibility design, we can still recover the TT despite the fact that we have not randomized access to the programs among the applicants.
 This is the magic of instrumental variables. 
 Let us detail the mechanics of this beautiful result.
 
@@ -999,7 +999,7 @@ In order to state the identification results in the Randomization After Eligibil
 
 #### Identification of TT
 
-In a Randomization After Eligiblity design, we need three assumptions to ensure identification of the TT:
+In an Eligiblity design, we need three assumptions to ensure identification of the TT:
 
 ```{definition,indelig,name='Independence Among Eligibles'}
 We assume that the randomized allocation of the program among eligibles is well done: 
@@ -1196,7 +1196,7 @@ The eligibility annoucement serves as an instrument for program participation.
 The design using Randomization After Eligibility seems like magic. 
 You do not assign randomly the program, but information about the eligiblity status, but you can recover the effect of the program anyway. 
 How does this magic work?
-Randomization After Eligibility is also less intrusive than Randomization After Self-Selection.
+Randomization After Eligibility is also less intrusive than Self-Selection design.
 With the latter design, you have to actively send away individuals that have expressed an interest for entering the program.
 This is harsh.
 With Randomization After Eligibility, you do not have to send away people expressing interest after being informed.
@@ -1219,9 +1219,9 @@ The second part is due to the difference in outcomes between the two treatment a
 This second part cancels out under Assumption \@ref(def:indelig) and \@ref(def:exclrestric).
 
 But this cancelling out only happens in the population.
-In a given sample, the sample equivalents to the two members of the second part of the equation do not have to be equal, and thus they do not cancel out, generating additional sampling noise compared to the Randomization After Self-Selection design.
-Indeed, in the Randomization After Self-Selection design, you observe the population with $D_i^1=1$ in both the treatment and control arms (you actually observe this population before randomizing the treatment within it), and you can enforce that the effect on $D_i^1=0$ should be zero, under your assumptions.
-In the Randomization After Eligiblity design, you do not observe the population with $D_i^1=1$ in the control arm, and you cannot enforce the equality of the outcomes for those with $D_i^1=0$ present in both arms.
+In a given sample, the sample equivalents to the two members of the second part of the equation do not have to be equal, and thus they do not cancel out, generating additional sampling noise compared to the Self-Selection design.
+Indeed, in the Self-Selection design, you observe the population with $D_i^1=1$ in both the treatment and control arms (you actually observe this population before randomizing the treatment within it), and you can enforce that the effect on $D_i^1=0$ should be zero, under your assumptions.
+In an Eligibility design, you do not observe the population with $D_i^1=1$ in the control arm, and you cannot enforce the equality of the outcomes for those with $D_i^1=0$ present in both arms.
 You have to rely on the sampling estimates to make this cancellation, and that generates sampling noise.
 
 ```{remark}
@@ -1239,7 +1239,7 @@ In practice, we use a pseudo-RNG to allocate the randomized annoucement of the e
 \end{align*}
 
 ```{example}
-In our numerical example, we can actually use the same sample as we did for Randomization After Self-Selection.
+In our numerical example, we can actually use the same sample as we did for Self-Selection design.
 I have to generate it again, though, since I am going to allocate $R_i$ differently.
 ```
 
@@ -1264,7 +1264,7 @@ Y0 <- exp(y0)
 Y1 <- exp(y1)
 ```
 
-The value of TT in our example is the same as the one in the Randomization After Self-Selection case.
+The value of TT in our example is the same as the one in the Self-Selection design case.
 TT in the population is equal to `r round(delta.y.tt,3)`.
 
 Let's now compute the value of ITE in the population.
@@ -1309,7 +1309,7 @@ Y <- Y1*Ds+Y0*(1-Ds)
 
 ### Estimating the ITE and the TT
 
-In general, we start the analysis of Randomization After Eligibility by estimating the ITE.
+In general, we start the analysis of an Eligibility design by estimating the ITE.
 Then, we provide the TT by dividing the ITE by the proportion of participants among the eligibles.
 
 Actually, this procedure is akin to an instrumental variables estimator and we will see that the Bloom estimator is actually an IV estimator.
@@ -1320,7 +1320,7 @@ Estimation of the TT corresponds to the structural equation step of an IV proced
 #### Estimating the ITE
 
 Estimation of the ITE relies on the WW estimator, in general implemented using OLS.
-It is similar to the estimation of ATE and TT in the Brute Force and Randomization After Self-Selection designs.
+It is similar to the estimation of ATE and TT in the Brute Force and Self-Selection designs.
 
 ##### Using the WW estimator
 
@@ -1610,7 +1610,7 @@ for (i in 1:length(simuls.elig.yB)){
 We can take three things from Figure \@ref(fig:montecarlohisteligbloom):
 
   1. Problems with the IV estimator appear with $N=100$ (probably because there are some samples where no one is treated).
-  2. Sampling noise from randomization after eligibility is indeed larger than sampling noise from randomization after self-selection.
+  2. Sampling noise from randomization after eligibility is indeed larger than sampling noise from Self-Selection design.
   3. Conditioning on covariates helps.
 
 ### Estimating sampling noise
@@ -1644,7 +1644,7 @@ You might have very low precision despite a very large sample size if you have a
 ```
 
 ```{remark}
-In order to compute an estimate of the sampling noise of hte Bloom estimator, we can either use the plug-in formula from Theorem \@ref(thm:asymBloom) or use the IV standard errors robust to heteroskedasticity.
+In order to compute an estimate of the sampling noise of the Bloom estimator, we can either use the plug-in formula from Theorem \@ref(thm:asymBloom) or use the IV standard errors robust to heteroskedasticity.
 Here is a simple function in order to compute the plug-in estimator:
 ```
 
@@ -1684,20 +1684,20 @@ True 99\% sampling noise (from the simulations) is `r round(sn.RAE.simuls.yB,3)`
 99\% sampling noise estimated using heteroskedasticity robust IV standard errors is `r round(sn.RAE.IV.hetero.yB,3)`.
 
 ```{remark}
-Sampling noise in the Randomization After Eligibility design seems larger than sampling noise in the Randomization After Self-Selection design.
+Sampling noise in the Randomization After Eligibility design seems larger than sampling noise in the Self-Selection design.
 ```
-In the Randomization After Self-Selection design, sampling noise with $N=1000$ is equal to `r round(2*quantile(abs(simuls.self.select.ww[['1000']][,'WW']-delta.y.tt),probs=c(0.99)),2)`. 
-In the Randomization After Eligibility design, sampling noise with $N=1000$ is equal to `r round(2*quantile(abs(simuls.elig[['1000']][,'Bloom']-delta.y.tt),probs=c(0.99)),2)`.
+In the Self-Selection design, sampling noise with $N=1000$ is equal to `r round(2*quantile(abs(simuls.self.select.ww[['1000']][,'WW']-delta.y.tt),probs=c(0.99)),2)`. 
+In the Eligibility design, sampling noise with $N=1000$ is equal to `r round(2*quantile(abs(simuls.elig[['1000']][,'Bloom']-delta.y.tt),probs=c(0.99)),2)`.
 Why such a difference? 
 Both designs have the same effective sample size. 
 
-In the Randomization After Self-Selection design, the effective sample size $N^{RASS}_e$ is the number of eligible individuals that apply to take up the program: $N^{RASS}_e=N\Pr(D_i=1|E_i=1)\Pr(E_i=1)$. 
-In our example, $N^{RASS}_e=1000 *$ `r round(prD1.elig,3)` $*$ `r round(mvtnorm::pmvnorm(mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut),3)` $=$ `r round(1000*prD1.elig*(mvtnorm::pmvnorm(mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)),0)`.
+In the Self-Selection design, the effective sample size $N^{SS}_e$ is the number of eligible individuals that apply to take up the program: $N^{SS}_e=N\Pr(D_i=1|E_i=1)\Pr(E_i=1)$. 
+In our example, $N^{SS}_e=1000 *$ `r round(prD1.elig,3)` $*$ `r round(mvtnorm::pmvnorm(mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut),3)` $=$ `r round(1000*prD1.elig*(mvtnorm::pmvnorm(mean=mean.mu.yB.Dstar,sigma=cov.mu.yB.Dstar,lower=lower.cut,upper=upper.cut)),0)`.
 
-In the Randomization After Eligibility design, the sample size on which the regressions are performed is $N^{RAE}$, the number of eligible individuals: $N^{RAE}=N\Pr(E_i=1)$. 
-In our example, $N^{RAE}=1000 *$ `r round(prD1.elig,3)` $=$ `r round(1000*prD1.elig,0)`.
-But the effective sample size for the Randomization After Eligibility design is actually equal to the one in the Randomization After Self-Selection design because only compliers matter for the precision of the Bloom estimator, as Theorem \@ref(thm:asymBloom) shows.
-Thus $N^{RASS}_e=N^{RAE}_e$.
+In the Eligibility design, the sample size on which the regressions are performed is $N^{E}$, the number of eligible individuals: $N^{E}=N\Pr(E_i=1)$. 
+In our example, $N^{E}=1000 *$ `r round(prD1.elig,3)` $=$ `r round(1000*prD1.elig,0)`.
+But the effective sample size for the Randomization After Eligibility design is actually equal to the one in the Self-Selection design because only compliers matter for the precision of the Bloom estimator, as Theorem \@ref(thm:asymBloom) shows.
+Thus $N^{SS}_e=N^{E}_e$.
 
 Why then is sampling noise much larger in the Randomization After Eligibility design? 
 Probably because the Bloom estimator cannot enforce the fact that the impact of the program on non compliers is zero.
@@ -2031,7 +2031,7 @@ The encouragement serves as an instrument for program participation.
 ```{remark}
 The Encouragement design seems like magic. 
 You do not assign randomly the program, but only an encouragement to take it, and you can recover the effect of the program anyway. 
-The Encouragement design is less intrusive than Randomization After Self-Selection and Randomization of Eligibility.
+The Encouragement design is less intrusive than the Self-Selection and Eligibility designs.
 In an Encouragement design, you do not have to refuse the program to agents in the control group. 
 You pay two types of prices for that:
 ```
@@ -2690,5 +2690,3 @@ sn.Encourag.IV.hetero.yB <- 2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.y.R.yB.2sls.encou
 True 99\% sampling noise (from the simulations) is `r round(sn.Encourag.simuls.yB,3)`.
 99\% sampling noise estimated using default IV standard errors is `r round(sn.Encourag.IV.homo.yB,3)`.
 99\% sampling noise estimated using heteroskedasticity robust IV standard errors is `r round(sn.Encourag.IV.hetero.yB,3)`.
-
-## Threats to the validity of RCTs {#sec:threats}
