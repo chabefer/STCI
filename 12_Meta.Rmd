@@ -736,16 +736,35 @@ In that case, the variance of the estimated coefficients is estimated by:
 ##### Under heteroskedasticity
 
 Under heteroskedasticity, we allow the variance $\tau^2$ to depend on $\mathbf{X}_k$.
-One correct estimator under that assumption is the Huber-White estimator:
+One correct estimator under that assumption is the Huber-White sandwich estimator:
 
 \begin{align*}
 \hat{\text{Var}}_{HW}(\hat{\mathbf{\beta}}) & = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}
                                                   \sum_{k=1}^N\left(\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\right)^2
                                                   \mathbf{X}_k'(\hat{\theta}_k-\mathbf{X}_k\hat{\mathbf{\beta}})^2\mathbf{X}_k
-                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1},
+                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}.
 \end{align*}
 
-the sandwich estimator.
+```{example}
+Let's see how all of these estimators work in our example. 
+In order to run a regression, I first need a covariate. 
+I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
+Let's see how this works.
+```
+
+```{r MetaReg,eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
+# Let me generate the noise as a deviation from the true treatment effect
+data.meta$nu.1 <- data.meta$theta.1 - data.meta$ES
+data.meta$nu.2 <- data.meta$theta.2 - data.meta$ES
+
+# Let me now run a meta regression
+metaReg.example.RE.theta.1.ES <- lapply(estimators,function(method){return(rma(theta.1 ~ nu.1,data=data.meta,vi=data.meta$var.ES,method=method))})
+metaReg.example.RE.theta.2.ES <- lapply(estimators,function(method){return(rma(theta.2 ~ nu.2,data=data.meta,vi=data.meta$var.ES,method=method))})
+
+#Let's see what the estimation looks like when we ran an REML regression:
+summary(metaReg.example.RE.theta.1.ES[[2]])
+```
+
 
 **<span style="font-variant:small-caps;">Example (regress on noise)</span>**
 

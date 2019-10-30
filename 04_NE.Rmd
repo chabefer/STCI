@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # Natural Experiments {#NE}
 
 Natural Experiments are situations due to the natural course of events that approximate the conditions of a randomized controlled trial.
@@ -15,7 +20,7 @@ At the time of Haavelmo, and until the beginning of the 1990s, there was no real
 With the credibility revolution brought about by Angrist (1990)'s paper and summarized in Angrist and Krueger (2001)'s review paper, the notion of natural experiment made a come back, with the idea that we might be able to look for specific set of events produced by Nature that more credibly identify a relationship of interest, *i.e.* that closely approximate true experimental conditions.
 ```
 
-```{remarks}
+```{remark}
 Outside of economics, Natural Experiments have also flourished, but without the term, and were compiled in the early textbook on research methods by Campbell (1966).
 Both Difference In Differences and Regression Discontinuity Designs have been actually developed outside of economics, mostly in education research.
 Instrumental Variables have had a separate history in economics and in genetics, were it is called the method of path coefficients. 
@@ -24,8 +29,70 @@ Instrumental Variables have had a separate history in economics and in genetics,
 ## Instrumental Variables
 
 Instrumental Variables rely on finding a plausibly exogeneous source of variation in treatment intake.
-In the simple case of a binary instrument, the identification and estimation parts are actually similar to Encouragements designs in RCTs, that we ahve already studied in Section \@ref(sec:design4).
-The crucial part of an IV design is to justify the credibility of the exclusion restriction and independence assumptions, which are generally extremely hard to justify.
+In the simple case of a binary instrument, the identification and estimation parts are actually identical to Encouragements designs in RCTs, that we have already studied in Section \@ref(sec:design4).
+As a consequence, unless we make very strong assumptions, an IV design is going to recover a Local Average Treatment Effect.
+Our classical assumptions are going to show up again: Independence, Exclusion Restriction, Monotonicity.
+
+```{remark}
+Examples of Instrumental Variables are:
+```
+
+  - Distance to college or to school for studying the impact of college or school enrollement on education, earnings and other outcomes.
+  - Random draft lottery number for investigating the impact of military experience on earnings and other outcomes.
+  - Randomized encouragement to participate in order to study the impact of a program.
+
+```{remark}
+The crucial part of an IV design is to justify the credibility of the exclusion restriction and independence assumptions.
+It is in general very difficult to justify these assumptions, especially the exclusion restriction assumption. 
+In the examples above, one could argue that schools or colleges might be built where they are necessary, i.e. close to destitute populations, or, on the contrary, that they are built far from difficult neighbourhoods. 
+As soon as distance to school becomes correlated with other determinants of schooling, such as parental income and education, the independence assumption is violated.
+
+Even if school placement is truly independent of potential education and earnings outcomes at first, parents, by choosing where to live, will sort themselves such as the parents that pay more attention to education end up located closer to school.
+As a consequence, the independence assumption might be violated again.
+
+Even when the instrumen is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest. 
+For example, receiving a low draft lottery number makes one more likely to be drafted. 
+In response, one might decide to increase his length of stay in college in order to use the waiver for the draft reserved for students.
+If receiving a low draft lottery number increases the number of years of education, and in turn subsequent earnings, then the exclusion restriction assumption is violated.
+```
+
+In this section, I'm going to denote $Z_i$ a binary instrument that can either take value $0$ or $1$.
+In general, we try to reserve the value $1$ for the instrument value that increases participation in the treatment of interest.
+In our examples, that would be when for example, the distance to college is low, the draft lottery number is low, or someone receives an encouragement to enter a program.
+
+```{remark}
+Since Monotonicity is going to play such a particular role, and since we have already explored this assumption a little in Chapter \@ref(RCT), I am going to use as an example a model where the Monotonicity assumption actualluy does not hold. 
+It will, I hope, help us understand better the way Monotonicity works and how it interacts with other assumptions.
+The key component of the model that makes Monotonicity necessary is the fact that treatment effects are heterogeneous and correlated with participation in the treatment.
+We'll see later that Monotonicity is unnecessary when treatment effects are orthogonal to take up.
+```
+
+```{example}
+Let's see how we can generate a model without Monotonicity:
+```
+
+\begin{align*}
+D_i & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
+Z_i & \sim\mathcal{B}(p_Z) \\
+Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
+\kappa_i & = 
+\begin{cases}
+\bar{\kappa} & \text{ if } \xi = 1 \\
+\underline{\kappa} & \text{ if } \xi = 0
+\end{cases} \\
+\xi & \sim\mathcal{B}(p_{\xi}) \\
+\xi & \Ind (Y_i^0,Y_i^1,V_i,Z_i)
+\end{align*}
+
+The key component of the model that generates is the coefficient $\kappa_i$, that determines how individuals' participation into the program reacts to the instrument $Z_i$.
+$\kappa_i$ is a coefficient, but it varies accross the population.
+It is sometimes called a heterogeneous or a random coefficient.
+In my simplified model, $\kappa_i$ can take only to values, $\bar{\kappa}$ or $\underline{\kappa}$.
+If $\bar{\kappa}$ and $\underline{\kappa}$ have different signs (let's say $\bar{\kappa}>0$ and $\underline{\kappa}<0$), then some individuals are going to be more likely to enter the program when they receive an encouragement (when $Z_i=1$) and some individuals will be less likely to enter the treatment when $Z_i=1$.
+This is going to define two populations reacting to the encouragement: the compliers and the defiers.
+
+
+
 
 ### Identification 
 

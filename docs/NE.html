@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-29">
+<meta name="date" content="2019-10-30">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -272,12 +272,55 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
  <span class="remark"><em>Remark. </em></span> The term <em>Natural Experiments</em> seems to be mostly used by economists. It dates back to Haavelmo (1944)’s paper on the Probability Approach to Econometrics, where he makes a distinction between the experiments we’d like to make as social scientists and the experiments that Nature provides us with, that are in general a subset of the experiments we’d like to make. This raises the question of our ability to <strong>identify</strong> the relationships of interest from the variation that is present in the data, a traditional problem in classical econometrics that has echoes in treatment effect estimation, where we also try to <em>identify</em> treatment effect parameters. At the time of Haavelmo, and until the beginning of the 1990s, there was no real discussion of the plausibility of the <em>identifying assumptions</em> (or restrictions) required for identification of certain relations, outside of a discussion of their theoretical plausiblility. With the credibility revolution brought about by Angrist (1990)’s paper and summarized in Angrist and Krueger (2001)’s review paper, the notion of natural experiment made a come back, with the idea that we might be able to look for specific set of events produced by Nature that more credibly identify a relationship of interest, <em>i.e.</em> that closely approximate true experimental conditions.
 </div>
 
-<pre class="remarks"><code>Outside of economics, Natural Experiments have also flourished, but without the term, and were compiled in the early textbook on research methods by Campbell (1966).
-Both Difference In Differences and Regression Discontinuity Designs have been actually developed outside of economics, mostly in education research.
-Instrumental Variables have had a separate history in economics and in genetics, were it is called the method of path coefficients. </code></pre>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Outside of economics, Natural Experiments have also flourished, but without the term, and were compiled in the early textbook on research methods by Campbell (1966). Both Difference In Differences and Regression Discontinuity Designs have been actually developed outside of economics, mostly in education research. Instrumental Variables have had a separate history in economics and in genetics, were it is called the method of path coefficients.
+</div>
+
 <div id="instrumental-variables" class="section level2">
 <h2><span class="header-section-number">4.1</span> Instrumental Variables</h2>
-<p>Instrumental Variables rely on finding a plausibly exogeneous source of variation in treatment intake. In the simple case of a binary instrument, the identification and estimation parts are actually similar to Encouragements designs in RCTs, that we ahve already studied in Section <a href="RCT.html#sec:design4">3.4</a>. The crucial part of an IV design is to justify the credibility of the exclusion restriction and independence assumptions, which are generally extremely hard to justify.</p>
+<p>Instrumental Variables rely on finding a plausibly exogeneous source of variation in treatment intake. In the simple case of a binary instrument, the identification and estimation parts are actually identical to Encouragements designs in RCTs, that we have already studied in Section <a href="RCT.html#sec:design4">3.4</a>. As a consequence, unless we make very strong assumptions, an IV design is going to recover a Local Average Treatment Effect. Our classical assumptions are going to show up again: Independence, Exclusion Restriction, Monotonicity.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Examples of Instrumental Variables are:
+</div>
+
+<ul>
+<li>Distance to college or to school for studying the impact of college or school enrollement on education, earnings and other outcomes.</li>
+<li>Random draft lottery number for investigating the impact of military experience on earnings and other outcomes.</li>
+<li>Randomized encouragement to participate in order to study the impact of a program.</li>
+</ul>
+
+<div class="remark">
+<p> <span class="remark"><em>Remark. </em></span> The crucial part of an IV design is to justify the credibility of the exclusion restriction and independence assumptions. It is in general very difficult to justify these assumptions, especially the exclusion restriction assumption. In the examples above, one could argue that schools or colleges might be built where they are necessary, i.e. close to destitute populations, or, on the contrary, that they are built far from difficult neighbourhoods. As soon as distance to school becomes correlated with other determinants of schooling, such as parental income and education, the independence assumption is violated.</p>
+<p>Even if school placement is truly independent of potential education and earnings outcomes at first, parents, by choosing where to live, will sort themselves such as the parents that pay more attention to education end up located closer to school. As a consequence, the independence assumption might be violated again.</p>
+Even when the instrumen is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest. For example, receiving a low draft lottery number makes one more likely to be drafted. In response, one might decide to increase his length of stay in college in order to use the waiver for the draft reserved for students. If receiving a low draft lottery number increases the number of years of education, and in turn subsequent earnings, then the exclusion restriction assumption is violated.
+</div>
+
+<p>In this section, I’m going to denote <span class="math inline">\(Z_i\)</span> a binary instrument that can either take value <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>. In general, we try to reserve the value <span class="math inline">\(1\)</span> for the instrument value that increases participation in the treatment of interest. In our examples, that would be when for example, the distance to college is low, the draft lottery number is low, or someone receives an encouragement to enter a program.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Since Monotonicity is going to play such a particular role, and since we have already explored this assumption a little in Chapter <a href="RCT.html#RCT">3</a>, I am going to use as an example a model where the Monotonicity assumption actualluy does not hold. It will, I hope, help us understand better the way Monotonicity works and how it interacts with other assumptions. The key component of the model that makes Monotonicity necessary is the fact that treatment effects are heterogeneous and correlated with participation in the treatment. We’ll see later that Monotonicity is unnecessary when treatment effects are orthogonal to take up.
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-140" class="example"><strong>Example 4.1  </strong></span>Let’s see how we can generate a model without Monotonicity:
+</div>
+
+<span class="math display">\[\begin{align*}
+D_i &amp; = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
+Z_i &amp; \sim\mathcal{B}(p_Z) \\
+Z_i &amp; \Ind (Y_i^0,Y_i^1,V_i) \\
+\kappa_i &amp; = 
+\begin{cases}
+\bar{\kappa} &amp; \text{ if } \xi = 1 \\
+\underline{\kappa} &amp; \text{ if } \xi = 0
+\end{cases} \\
+\xi &amp; \sim\mathcal{B}(p_{\xi}) \\
+\xi &amp; \Ind (Y_i^0,Y_i^1,V_i,Z_i)
+\end{align*}\]</span>
+<p>The key component of the model that generates is the coefficient <span class="math inline">\(\kappa_i\)</span>, that determines how individuals’ participation into the program reacts to the instrument <span class="math inline">\(Z_i\)</span>. <span class="math inline">\(\kappa_i\)</span> is a coefficient, but it varies accross the population. It is sometimes called a heterogeneous or a random coefficient. In my simplified model, <span class="math inline">\(\kappa_i\)</span> can take only to values, <span class="math inline">\(\bar{\kappa}\)</span> or <span class="math inline">\(\underline{\kappa}\)</span>. If <span class="math inline">\(\bar{\kappa}\)</span> and <span class="math inline">\(\underline{\kappa}\)</span> have different signs (let’s say <span class="math inline">\(\bar{\kappa}&gt;0\)</span> and <span class="math inline">\(\underline{\kappa}&lt;0\)</span>), then some individuals are going to be more likely to enter the program when they receive an encouragement (when <span class="math inline">\(Z_i=1\)</span>) and some individuals will be less likely to enter the treatment when <span class="math inline">\(Z_i=1\)</span>. This is going to define two populations reacting to the encouragement: the compliers and the defiers.</p>
 <div id="identification-4" class="section level3">
 <h3><span class="header-section-number">4.1.1</span> Identification</h3>
 </div>

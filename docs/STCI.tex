@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-29}
+    \date{2019-10-30}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8011,21 +8011,124 @@ interest, \emph{i.e.} that closely approximate true experimental
 conditions.
 \EndKnitrBlock{remark}
 
-\begin{verbatim}
-Outside of economics, Natural Experiments have also flourished, but without the term, and were compiled in the early textbook on research methods by Campbell (1966).
-Both Difference In Differences and Regression Discontinuity Designs have been actually developed outside of economics, mostly in education research.
-Instrumental Variables have had a separate history in economics and in genetics, were it is called the method of path coefficients. 
-\end{verbatim}
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Outside of economics, Natural Experiments
+have also flourished, but without the term, and were compiled in the
+early textbook on research methods by Campbell (1966). Both Difference
+In Differences and Regression Discontinuity Designs have been actually
+developed outside of economics, mostly in education research.
+Instrumental Variables have had a separate history in economics and in
+genetics, were it is called the method of path coefficients.
+\EndKnitrBlock{remark}
 
 \section{Instrumental Variables}\label{instrumental-variables}
 
 Instrumental Variables rely on finding a plausibly exogeneous source of
 variation in treatment intake. In the simple case of a binary
-instrument, the identification and estimation parts are actually similar
-to Encouragements designs in RCTs, that we ahve already studied in
-Section \ref{sec:design4}. The crucial part of an IV design is to
+instrument, the identification and estimation parts are actually
+identical to Encouragements designs in RCTs, that we have already
+studied in Section \ref{sec:design4}. As a consequence, unless we make
+very strong assumptions, an IV design is going to recover a Local
+Average Treatment Effect. Our classical assumptions are going to show up
+again: Independence, Exclusion Restriction, Monotonicity.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Examples of Instrumental Variables are:
+\EndKnitrBlock{remark}
+
+\begin{itemize}
+\tightlist
+\item
+  Distance to college or to school for studying the impact of college or
+  school enrollement on education, earnings and other outcomes.
+\item
+  Random draft lottery number for investigating the impact of military
+  experience on earnings and other outcomes.
+\item
+  Randomized encouragement to participate in order to study the impact
+  of a program.
+\end{itemize}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The crucial part of an IV design is to
 justify the credibility of the exclusion restriction and independence
-assumptions, which are generally extremely hard to justify.
+assumptions. It is in general very difficult to justify these
+assumptions, especially the exclusion restriction assumption. In the
+examples above, one could argue that schools or colleges might be built
+where they are necessary, i.e.~close to destitute populations, or, on
+the contrary, that they are built far from difficult neighbourhoods. As
+soon as distance to school becomes correlated with other determinants of
+schooling, such as parental income and education, the independence
+assumption is violated.
+
+Even if school placement is truly independent of potential education and
+earnings outcomes at first, parents, by choosing where to live, will
+sort themselves such as the parents that pay more attention to education
+end up located closer to school. As a consequence, the independence
+assumption might be violated again.
+
+Even when the instrumen is truly random, such as a draft lottery number,
+and thus the independence assumption seems fine, the instrument may
+directly affect the outcomes by other ways than the treatment of
+interest. For example, receiving a low draft lottery number makes one
+more likely to be drafted. In response, one might decide to increase his
+length of stay in college in order to use the waiver for the draft
+reserved for students. If receiving a low draft lottery number increases
+the number of years of education, and in turn subsequent earnings, then
+the exclusion restriction assumption is violated.
+\EndKnitrBlock{remark}
+
+In this section, I'm going to denote \(Z_i\) a binary instrument that
+can either take value \(0\) or \(1\). In general, we try to reserve the
+value \(1\) for the instrument value that increases participation in the
+treatment of interest. In our examples, that would be when for example,
+the distance to college is low, the draft lottery number is low, or
+someone receives an encouragement to enter a program.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Since Monotonicity is going to play such a
+particular role, and since we have already explored this assumption a
+little in Chapter \ref{RCT}, I am going to use as an example a model
+where the Monotonicity assumption actualluy does not hold. It will, I
+hope, help us understand better the way Monotonicity works and how it
+interacts with other assumptions. The key component of the model that
+makes Monotonicity necessary is the fact that treatment effects are
+heterogeneous and correlated with participation in the treatment. We'll
+see later that Monotonicity is unnecessary when treatment effects are
+orthogonal to take up.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
+}Let's see how we can generate a model without Monotonicity:
+\EndKnitrBlock{example}
+
+\begin{align*}
+D_i & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
+Z_i & \sim\mathcal{B}(p_Z) \\
+Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
+\kappa_i & = 
+\begin{cases}
+\bar{\kappa} & \text{ if } \xi = 1 \\
+\underline{\kappa} & \text{ if } \xi = 0
+\end{cases} \\
+\xi & \sim\mathcal{B}(p_{\xi}) \\
+\xi & \Ind (Y_i^0,Y_i^1,V_i,Z_i)
+\end{align*}
+
+The key component of the model that generates is the coefficient
+\(\kappa_i\), that determines how individuals' participation into the
+program reacts to the instrument \(Z_i\). \(\kappa_i\) is a coefficient,
+but it varies accross the population. It is sometimes called a
+heterogeneous or a random coefficient. In my simplified model,
+\(\kappa_i\) can take only to values, \(\bar{\kappa}\) or
+\(\underline{\kappa}\). If \(\bar{\kappa}\) and \(\underline{\kappa}\)
+have different signs (let's say \(\bar{\kappa}>0\) and
+\(\underline{\kappa}<0\)), then some individuals are going to be more
+likely to enter the program when they receive an encouragement (when
+\(Z_i=1\)) and some individuals will be less likely to enter the
+treatment when \(Z_i=1\). This is going to define two populations
+reacting to the encouragement: the compliers and the defiers.
 
 \subsection{Identification}\label{identification-4}
 
@@ -8286,7 +8389,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-139}{}{\label{exm:unnamed-chunk-139}
+\protect\hypertarget{exm:unnamed-chunk-143}{}{\label{exm:unnamed-chunk-143}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -8458,7 +8561,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-145}{}{\label{exm:unnamed-chunk-145}
+\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -8531,7 +8634,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-146}{}{\label{exm:unnamed-chunk-146}
+\protect\hypertarget{exm:unnamed-chunk-150}{}{\label{exm:unnamed-chunk-150}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -8704,7 +8807,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-148}{}{\label{exm:unnamed-chunk-148}
+\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -8801,7 +8904,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152}
+\protect\hypertarget{exm:unnamed-chunk-156}{}{\label{exm:unnamed-chunk-156}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -8917,7 +9020,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153}
+\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -8959,7 +9062,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-155}{}{\label{exm:unnamed-chunk-155}
+\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -9068,7 +9171,7 @@ estimate what we want? I'd take the average variance.}}
 \(I^2=ICC*100\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-156}{}{\label{exm:unnamed-chunk-156}
+\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160}
 }Let's see how these three estimators look like in our example. The cool
 thing is that \texttt{rma} computes these estimators by default, so that
 a simple call to \texttt{summary()} is going to show them. The default
@@ -9193,7 +9296,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157}
+\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -9414,15 +9517,69 @@ estimated coefficients is estimated by:
 
 Under heteroskedasticity, we allow the variance \(\tau^2\) to depend on
 \(\mathbf{X}_k\). One correct estimator under that assumption is the
-Huber-White estimator:
+Huber-White sandwich estimator:
 
 \begin{align*}
 \hat{\text{Var}}_{HW}(\hat{\mathbf{\beta}}) & = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}
-                                                  \sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'(\hat{\theta}_k-\mathbf{X}_k\hat{\mathbf{\beta}})^2\mathbf{X}_k
-                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1},
+                                                  \sum_{k=1}^N\left(\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\right)^2
+                                                  \mathbf{X}_k'(\hat{\theta}_k-\mathbf{X}_k\hat{\mathbf{\beta}})^2\mathbf{X}_k
+                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k'\mathbf{X}_k\right)^{-1}.
 \end{align*}
 
-the sandwich estimator.
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162}
+}Let's see how all of these estimators work in our example. In order to
+run a regression, I first need a covariate. I'm going to use the exact
+value of the noise that I've added to the regressions, so that I should
+be able to perfectly capture the heterogeneity in treatment effects.
+Let's see how this works.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Let me generate the noise as a deviation from the true treatment effect}
+\NormalTok{data.meta}\OperatorTok{$}\NormalTok{nu.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\NormalTok{data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{1} \OperatorTok{-}\StringTok{ }\NormalTok{data.meta}\OperatorTok{$}\NormalTok{ES}
+\NormalTok{data.meta}\OperatorTok{$}\NormalTok{nu.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\NormalTok{data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{2} \OperatorTok{-}\StringTok{ }\NormalTok{data.meta}\OperatorTok{$}\NormalTok{ES}
+
+\CommentTok{# Let me now run a meta regression}
+\NormalTok{metaReg.example.RE.theta.}\FloatTok{1.}\NormalTok{ES <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(estimators,}\ControlFlowTok{function}\NormalTok{(method)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{rma}\NormalTok{(theta.}\DecValTok{1} \OperatorTok{~}\StringTok{ }\NormalTok{nu.}\DecValTok{1}\NormalTok{,}\DataTypeTok{data=}\NormalTok{data.meta,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\NormalTok{method))\})}
+\NormalTok{metaReg.example.RE.theta.}\FloatTok{2.}\NormalTok{ES <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(estimators,}\ControlFlowTok{function}\NormalTok{(method)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{rma}\NormalTok{(theta.}\DecValTok{2} \OperatorTok{~}\StringTok{ }\NormalTok{nu.}\DecValTok{2}\NormalTok{,}\DataTypeTok{data=}\NormalTok{data.meta,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\NormalTok{method))\})}
+
+\CommentTok{#Let's see what the estimation looks like when we ran an REML regression:}
+\KeywordTok{summary}\NormalTok{(metaReg.example.RE.theta.}\FloatTok{1.}\NormalTok{ES[[}\DecValTok{2}\NormalTok{]])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Mixed-Effects Model (k = 20; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc  
+##  12.3736  -24.7471  -18.7471  -16.0760  -17.0329  
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0 (SE = 0.0005)
+## tau (square root of estimated tau^2 value):             0
+## I^2 (residual heterogeneity / unaccounted variability): 0.00%
+## H^2 (unaccounted variability / sampling variability):   1.00
+## R^2 (amount of heterogeneity accounted for):            100.00%
+## 
+## Test for Residual Heterogeneity: 
+## QE(df = 18) = 11.7947, p-val = 0.8577
+## 
+## Test of Moderators (coefficient(s) 2): 
+## QM(df = 1) = 1009.6599, p-val < .0001
+## 
+## Model Results:
+## 
+##          estimate      se     zval    pval   ci.lb   ci.ub     
+## intrcpt    0.1981  0.0085  23.1790  <.0001  0.1813  0.2148  ***
+## nu.1       0.9708  0.0306  31.7751  <.0001  0.9109  1.0307  ***
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\textbf{\textsc{Example (regress on noise)}}
 
 \subsection{Why vote-counting does not
 work}\label{why-vote-counting-does-not-work}
@@ -9431,6 +9588,8 @@ work}\label{why-vote-counting-does-not-work}
 
 \subsection{Sources of publication
 bias}\label{sources-of-publication-bias}
+
+\textbf{\textsc{Publication bias and site selection bias.}}
 
 \subsection{Detecting and correcting for publication
 bias}\label{detecting-and-correcting-for-publication-bias}

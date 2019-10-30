@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-29">
+<meta name="date" content="2019-10-30">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -278,7 +278,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The basic setting for a meta-analysis is that you have access to a list of estimates for the effect of a given program and for their precision. These estimates come from the literature, searching published and unpublished sources alike. This data is usually collected after an extensive search of bibliographic databases. Then, one has to select among all the studies selected by the search the ones that are actualy relevant. This is the most excruciating part of a meta-analysis, since a lot of the studies selected by hte search algorithm are actually irrelevant. Finally, one has to extract from each relevant paper an estimate of the effect of the treatment and of its precision. In general, one tries to choose standardized estimates such as the effect size (see Section <a href="FPSI.html#sec:effectsize">2.1.6</a> for a definition) and its standard error. After all this process, we should end up with a dataset like: <span class="math inline">\(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\)</span>, with <span class="math inline">\(\hat{\theta}_k\)</span> the estimated effect size, <span class="math inline">\(\hat{\sigma}_k\)</span> its estimated standard error, and <span class="math inline">\(N\)</span> the number of included studies.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-139" class="example"><strong>Example 13.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
+<span id="exm:unnamed-chunk-143" class="example"><strong>Example 13.1  </strong></span>Let’s see how such a dataset would look like? Let’s build one from our simulations.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N.sample &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">100</span>,<span class="dv">1000</span>,<span class="dv">10000</span>,<span class="dv">100000</span>)
@@ -385,7 +385,7 @@ Figure 13.1: Example data set: effect sizes and confidence intervals with <span 
 }</code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-145" class="example"><strong>Example 13.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
+<span id="exm:unnamed-chunk-149" class="example"><strong>Example 13.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
 </div>
 <p> The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02. A very simple way to implement such an estimator in R is to use the <code>rma</code> command of the <code>metafor</code> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.meta<span class="op">$</span>var.ES &lt;-<span class="st"> </span>data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>
@@ -422,7 +422,7 @@ Figure 13.2: Example data set: forest plot
 <p>Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving. This is a very important tool that enables us to aggregate constantly the information coming from different studies. Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study. The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-146" class="example"><strong>Example 13.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">13.3</a> shows how constantly updated meta-analysis works in our example.
+<span id="exm:unnamed-chunk-150" class="example"><strong>Example 13.3  </strong></span>Figure <a href="sec-meta.html#fig:cumWMAE">13.3</a> shows how constantly updated meta-analysis works in our example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cum.wmae.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="cf">function</span>(k,theta,sigma2){
@@ -495,7 +495,7 @@ Figure 13.4: Constantly updated meta-analysis with the <code>metafor</code> pack
 <p>What is great with the <span class="math inline">\(Q\)</span> statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(N-1\)</span> degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-148" class="example"><strong>Example 13.4  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package. In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
+<span id="exm:unnamed-chunk-152" class="example"><strong>Example 13.4  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package. In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
 </div>
 <p> The <span class="math inline">\(Q\)</span> statistic in our example has value 12.71, with associated p-value 0.85. We end up not rejecting homogeneity, which is correct.</p>
 
@@ -543,7 +543,7 @@ Figure 13.4: Constantly updated meta-analysis with the <code>metafor</code> pack
 
 
 <div class="example">
-<span id="exm:unnamed-chunk-152" class="example"><strong>Example 13.5  </strong></span>Let’s compute Hedges’ esimator for <span class="math inline">\(\tau^2\)</span> in our numerical example.
+<span id="exm:unnamed-chunk-156" class="example"><strong>Example 13.5  </strong></span>Let’s compute Hedges’ esimator for <span class="math inline">\(\tau^2\)</span> in our numerical example.
 </div>
 
 <p>Let’s first define a few functions to compute each part:</p>
@@ -611,7 +611,7 @@ ES.H.theta.<span class="dv">1</span> &lt;-<span class="st"> </span><span class="
 ES.H.theta.<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">Hwmae</span>(data.meta<span class="op">$</span>theta.<span class="dv">2</span>,data.meta<span class="op">$</span>se.ES<span class="op">^</span><span class="dv">2</span>,tau.<span class="fl">2.</span>theta.<span class="dv">2</span>)</code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-153" class="example"><strong>Example 13.6  </strong></span>Let’s see how Hedges estimator performs in our example.
+<span id="exm:unnamed-chunk-157" class="example"><strong>Example 13.6  </strong></span>Let’s see how Hedges estimator performs in our example.
 </div>
 <p> Hedges’ estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2. The main problem with Hedges’ estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.</p>
 
@@ -631,7 +631,7 @@ ES.H.theta.<span class="dv">2</span> &lt;-<span class="st"> </span><span class="
 <p><strong><span style="font-variant: small-caps;">Detail other estimators of tau.</span></strong></p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-155" class="example"><strong>Example 13.7  </strong></span>For the moment, let’s see how they perform in our numerical example.
+<span id="exm:unnamed-chunk-159" class="example"><strong>Example 13.7  </strong></span>For the moment, let’s see how they perform in our numerical example.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimators &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;DL&quot;</span>, <span class="st">&quot;REML&quot;</span>, <span class="st">&quot;HE&quot;</span>, <span class="st">&quot;HS&quot;</span>, <span class="st">&quot;SJ&quot;</span>, <span class="st">&quot;ML&quot;</span>, <span class="st">&quot;EB&quot;</span>)
@@ -693,7 +693,7 @@ Figure 13.7: Various estimators of the treatment effect with random effects
 <p><span class="math inline">\(ICC\)</span> and <span class="math inline">\(I^2\)</span> are related by the following very simple relation: <span class="math inline">\(I^2=ICC*100\)</span>.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-156" class="example"><strong>Example 13.8  </strong></span>Let’s see how these three estimators look like in our example. The cool thing is that <code>rma</code> computes these estimators by default, so that a simple call to <code>summary()</code> is going to show them. The default random effects estimator is <code>REML</code>, which is deemed to be the best of them all according to simulations <a href="https://journals.sagepub.com/doi/abs/10.3102/10769986030003261">(Viechtbauer, 2002)</a>.
+<span id="exm:unnamed-chunk-160" class="example"><strong>Example 13.8  </strong></span>Let’s see how these three estimators look like in our example. The cool thing is that <code>rma</code> computes these estimators by default, so that a simple call to <code>summary()</code> is going to show them. The default random effects estimator is <code>REML</code>, which is deemed to be the best of them all according to simulations <a href="https://journals.sagepub.com/doi/abs/10.3102/10769986030003261">(Viechtbauer, 2002)</a>.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">meta.example.RE.ES &lt;-<span class="st"> </span><span class="kw">rma</span>(<span class="dt">yi =</span> data.meta<span class="op">$</span>ES,<span class="dt">vi=</span>data.meta<span class="op">$</span>var.ES)
@@ -758,7 +758,7 @@ Figure 13.9: Radial plots with fixed and random effects <span class="math inline
 </ol>
 
 <div class="example">
-<span id="exm:unnamed-chunk-157" class="example"><strong>Example 13.9  </strong></span>Let’s see how big a difference using random versus fixed effects does to the estimation of treatment effects. Let’s plot the two forest plots for the example with <span class="math inline">\(\tau=\)</span> <code>r tau[[1]]^2</code>.
+<span id="exm:unnamed-chunk-161" class="example"><strong>Example 13.9  </strong></span>Let’s see how big a difference using random versus fixed effects does to the estimation of treatment effects. Let’s plot the two forest plots for the example with <span class="math inline">\(\tau=\)</span> <code>r tau[[1]]^2</code>.
 </div>
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">forest</span>(meta.example.FE.theta.<span class="dv">1</span>,<span class="dt">slab =</span> <span class="kw">paste</span>(<span class="st">&#39;Study&#39;</span>,data.meta<span class="op">$</span>id,<span class="dt">sep=</span><span class="st">&#39; &#39;</span>),<span class="dt">xlab=</span><span class="st">&#39;Estimated Meta-analytic Parameter&#39;</span>)
@@ -861,13 +861,55 @@ S &amp; = \left(\sum_{k=1}^N\mathbf{X}_k&#39;\mathbf{X}_k\right)^{-1}\sum_{k=1}^
 </div>
 <div id="under-heteroskedasticity" class="section level5">
 <h5><span class="header-section-number">13.1.6.3.2</span> Under heteroskedasticity</h5>
-<p>Under heteroskedasticity, we allow the variance <span class="math inline">\(\tau^2\)</span> to depend on <span class="math inline">\(\mathbf{X}_k\)</span>. One correct estimator under that assumption is the Huber-White estimator:</p>
+<p>Under heteroskedasticity, we allow the variance <span class="math inline">\(\tau^2\)</span> to depend on <span class="math inline">\(\mathbf{X}_k\)</span>. One correct estimator under that assumption is the Huber-White sandwich estimator:</p>
 <span class="math display">\[\begin{align*}
 \hat{\text{Var}}_{HW}(\hat{\mathbf{\beta}}) &amp; = \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k&#39;\mathbf{X}_k\right)^{-1}
-                                                  \sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k&#39;(\hat{\theta}_k-\mathbf{X}_k\hat{\mathbf{\beta}})^2\mathbf{X}_k
-                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k&#39;\mathbf{X}_k\right)^{-1},
+                                                  \sum_{k=1}^N\left(\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\right)^2
+                                                  \mathbf{X}_k&#39;(\hat{\theta}_k-\mathbf{X}_k\hat{\mathbf{\beta}})^2\mathbf{X}_k
+                                                  \left(\sum_{k=1}^N\frac{1}{\hat{\sigma}^2_k+\hat{\tau}^2}\mathbf{X}_k&#39;\mathbf{X}_k\right)^{-1}.
 \end{align*}\]</span>
-<p>the sandwich estimator.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-162" class="example"><strong>Example 13.10  </strong></span>Let’s see how all of these estimators work in our example. In order to run a regression, I first need a covariate. I’m going to use the exact value of the noise that I’ve added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects. Let’s see how this works.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Let me generate the noise as a deviation from the true treatment effect</span>
+data.meta<span class="op">$</span>nu.<span class="dv">1</span> &lt;-<span class="st"> </span>data.meta<span class="op">$</span>theta.<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>data.meta<span class="op">$</span>ES
+data.meta<span class="op">$</span>nu.<span class="dv">2</span> &lt;-<span class="st"> </span>data.meta<span class="op">$</span>theta.<span class="dv">2</span> <span class="op">-</span><span class="st"> </span>data.meta<span class="op">$</span>ES
+
+<span class="co"># Let me now run a meta regression</span>
+metaReg.example.RE.theta.<span class="fl">1.</span>ES &lt;-<span class="st"> </span><span class="kw">lapply</span>(estimators,<span class="cf">function</span>(method){<span class="kw">return</span>(<span class="kw">rma</span>(theta.<span class="dv">1</span> <span class="op">~</span><span class="st"> </span>nu.<span class="dv">1</span>,<span class="dt">data=</span>data.meta,<span class="dt">vi=</span>data.meta<span class="op">$</span>var.ES,<span class="dt">method=</span>method))})
+metaReg.example.RE.theta.<span class="fl">2.</span>ES &lt;-<span class="st"> </span><span class="kw">lapply</span>(estimators,<span class="cf">function</span>(method){<span class="kw">return</span>(<span class="kw">rma</span>(theta.<span class="dv">2</span> <span class="op">~</span><span class="st"> </span>nu.<span class="dv">2</span>,<span class="dt">data=</span>data.meta,<span class="dt">vi=</span>data.meta<span class="op">$</span>var.ES,<span class="dt">method=</span>method))})
+
+<span class="co">#Let&#39;s see what the estimation looks like when we ran an REML regression:</span>
+<span class="kw">summary</span>(metaReg.example.RE.theta.<span class="fl">1.</span>ES[[<span class="dv">2</span>]])</code></pre></div>
+<pre><code>## 
+## Mixed-Effects Model (k = 20; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc  
+##  12.3736  -24.7471  -18.7471  -16.0760  -17.0329  
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0 (SE = 0.0005)
+## tau (square root of estimated tau^2 value):             0
+## I^2 (residual heterogeneity / unaccounted variability): 0.00%
+## H^2 (unaccounted variability / sampling variability):   1.00
+## R^2 (amount of heterogeneity accounted for):            100.00%
+## 
+## Test for Residual Heterogeneity: 
+## QE(df = 18) = 11.7947, p-val = 0.8577
+## 
+## Test of Moderators (coefficient(s) 2): 
+## QM(df = 1) = 1009.6599, p-val &lt; .0001
+## 
+## Model Results:
+## 
+##          estimate      se     zval    pval   ci.lb   ci.ub     
+## intrcpt    0.1981  0.0085  23.1790  &lt;.0001  0.1813  0.2148  ***
+## nu.1       0.9708  0.0306  31.7751  &lt;.0001  0.9109  1.0307  ***
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><strong><span style="font-variant: small-caps;">Example (regress on noise)</span></strong></p>
 </div>
 </div>
 </div>
@@ -879,6 +921,7 @@ S &amp; = \left(\sum_{k=1}^N\mathbf{X}_k&#39;\mathbf{X}_k\right)^{-1}\sum_{k=1}^
 <h2><span class="header-section-number">13.2</span> Publication bias</h2>
 <div id="sources-of-publication-bias" class="section level3">
 <h3><span class="header-section-number">13.2.1</span> Sources of publication bias</h3>
+<p><strong><span style="font-variant: small-caps;">Publication bias and site selection bias.</span></strong></p>
 </div>
 <div id="detecting-and-correcting-for-publication-bias" class="section level3">
 <h3><span class="header-section-number">13.2.2</span> Detecting and correcting for publication bias</h3>
