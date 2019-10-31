@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-30}
+    \date{2019-10-31}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8116,11 +8116,12 @@ Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \xi & \Ind (Y_i^0,Y_i^1,V_i,Z_i)
 \end{align*}
 
+\textbf{\textsc{Give the complete model (\(Y_i\) as well).}}
+
 The key component of the model that generates is the coefficient
 \(\kappa_i\), that determines how individuals' participation into the
 program reacts to the instrument \(Z_i\). \(\kappa_i\) is a coefficient,
-but it varies accross the population. It is sometimes called a
-heterogeneous or a random coefficient. In my simplified model,
+but it varies accross the population. In my simplified model,
 \(\kappa_i\) can take only to values, \(\bar{\kappa}\) or
 \(\underline{\kappa}\). If \(\bar{\kappa}\) and \(\underline{\kappa}\)
 have different signs (let's say \(\bar{\kappa}>0\) and
@@ -8130,7 +8131,53 @@ likely to enter the program when they receive an encouragement (when
 treatment when \(Z_i=1\). This is going to define two populations
 reacting to the encouragement: the compliers and the defiers.
 
+Let's generate some data according to this process. For that, let's
+choose values for the new parameters.
+
 \subsection{Identification}\label{identification-4}
+
+\subsubsection{Assumptions}\label{assumptions}
+
+\BeginKnitrBlock{definition}[First Stage Full Rank]
+\protect\hypertarget{def:FirstStage}{}{\label{def:FirstStage}
+\iffalse (First Stage Full Rank) \fi{} }We assume that the instrument
+\(Z_i\) has a direct effect on treatment participation:
+
+\begin{align*}
+\Pr(D_i=1|Z_i=1)\neq\Pr(D_i=1|Z_i=0).
+\end{align*}
+\EndKnitrBlock{definition}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141}
+}Let's see how this assumption works in our example. Let's first compute
+the average values of \(Y_i\) and \(D_i\) as a function of \(Z_i\), for
+later use.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{means.IV <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\KeywordTok{mean}\NormalTok{(Ds[Z}\OperatorTok{==}\DecValTok{0}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(Ds[Z}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(y0[Z}\OperatorTok{==}\DecValTok{0}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(y0[Z}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(y[Z}\OperatorTok{==}\DecValTok{0}\NormalTok{]),}\KeywordTok{mean}\NormalTok{(y[Z}\OperatorTok{==}\DecValTok{1}\NormalTok{]),}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{means.IV <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(means.IV,}\DataTypeTok{nrow=}\DecValTok{2}\NormalTok{,}\DataTypeTok{ncol=}\DecValTok{4}\NormalTok{,}\DataTypeTok{byrow=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{dimnames=}\KeywordTok{list}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{'Z=0'}\NormalTok{,}\StringTok{'Z=1'}\NormalTok{),}\KeywordTok{c}\NormalTok{(}\StringTok{'D'}\NormalTok{,}\StringTok{'y0'}\NormalTok{,}\StringTok{'y'}\NormalTok{,}\StringTok{'Z'}\NormalTok{)))}
+\NormalTok{means.IV <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(means.IV)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/IVFirstStage-1} 
+
+}
+
+\caption{Proportion of participants as a function of $Z_i$}\label{fig:IVFirstStage}
+\end{figure}
+
+Figure \ref{fig:IVFirstStage} shows that the proportion of treated when
+\(Z_i=1\) in our sample is equal to 0.56 while the proportion of treated
+when \(Z_i=0\) is equal to 0.27, in accordance with Assumption
+\ref{def:FirstStage}.
+
+\textbf{\textsc{Give result in the population.}}
 
 \subsection{Estimation}\label{estimation}
 
@@ -8389,7 +8436,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-143}{}{\label{exm:unnamed-chunk-143}
+\protect\hypertarget{exm:unnamed-chunk-144}{}{\label{exm:unnamed-chunk-144}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -8561,7 +8608,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149}
+\protect\hypertarget{exm:unnamed-chunk-150}{}{\label{exm:unnamed-chunk-150}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -8634,7 +8681,7 @@ meta-analysis works is simply by performing a new meta-analysis each
 time a new results pops up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-150}{}{\label{exm:unnamed-chunk-150}
+\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151}
 }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
 works in our example.
 \EndKnitrBlock{example}
@@ -8807,7 +8854,7 @@ with \(N-1\) degrees of freedom, and thus it can directly be used to
 test for the hypothesis of homogeneous treatment effects.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152}
+\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153}
 }In our example, we have already computed the \(Q\) statistic when we
 have used the \texttt{rma} function in the \texttt{metafor} package. In
 order to access it, we just need to extract it using
@@ -8904,7 +8951,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-156}{}{\label{exm:unnamed-chunk-156}
+\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -9020,7 +9067,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157}
+\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -9062,7 +9109,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159}
+\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -9116,6 +9163,8 @@ effects.
 
 \caption{Various estimators of the treatment effect with random effects}\label{fig:RandomOthersES}
 \end{figure}
+
+\textbf{\textsc{Add error bars here.}}
 
 \subsubsection{Other estimators of inter-site
 variability}\label{other-estimators-of-inter-site-variability}
@@ -9171,7 +9220,7 @@ estimate what we want? I'd take the average variance.}}
 \(I^2=ICC*100\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160}
+\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161}
 }Let's see how these three estimators look like in our example. The cool
 thing is that \texttt{rma} computes these estimators by default, so that
 a simple call to \texttt{summary()} is going to show them. The default
@@ -9296,7 +9345,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161}
+\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -9527,7 +9576,7 @@ Huber-White sandwich estimator:
 \end{align*}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162}
+\protect\hypertarget{exm:unnamed-chunk-163}{}{\label{exm:unnamed-chunk-163}
 }Let's see how all of these estimators work in our example. In order to
 run a regression, I first need a covariate. I'm going to use the exact
 value of the noise that I've added to the regressions, so that I should
@@ -9579,7 +9628,49 @@ Let's see how this works.
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
-\textbf{\textsc{Example (regress on noise)}}
+We can see that the estimated coefficient for the noise is large and
+almost equal to one, that the estimation of residual inter-site variance
+becomes zero and that the precision of our estimared treatment effect
+becomes much greater (since all variance due to site effects has been
+absorbed by the regressor).
+
+Let's now look at the estimated coefficients. For that, we are going to
+use the function \texttt{coef(summary())} that extracts a dataframe of
+the coefficients along with their standard errors.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{list.coef.tot.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(metaReg.example.RE.theta.}\FloatTok{1.}\NormalTok{ES,}\ControlFlowTok{function}\NormalTok{(res)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{coef}\NormalTok{(}\KeywordTok{summary}\NormalTok{(res)))\})}
+\NormalTok{list.coef.tot.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(metaReg.example.RE.theta.}\FloatTok{2.}\NormalTok{ES,}\ControlFlowTok{function}\NormalTok{(res)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{coef}\NormalTok{(}\KeywordTok{summary}\NormalTok{(res)))\})}
+
+\NormalTok{list.coef.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(list.coef.tot.}\DecValTok{1}\NormalTok{,}\StringTok{'[['}\NormalTok{,}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)))}
+\NormalTok{list.se.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(list.coef.tot.}\DecValTok{1}\NormalTok{,}\StringTok{'[['}\NormalTok{,}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{)))}
+\NormalTok{list.coef.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(list.coef.tot.}\DecValTok{2}\NormalTok{,}\StringTok{'[['}\NormalTok{,}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)))}
+\NormalTok{list.se.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{lapply}\NormalTok{(list.coef.tot.}\DecValTok{2}\NormalTok{,}\StringTok{'[['}\NormalTok{,}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{)))}
+
+\NormalTok{result.Meta <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{Method=}\KeywordTok{rep}\NormalTok{(estimators,}\DecValTok{2}\NormalTok{),}\DataTypeTok{ES.Meta=}\KeywordTok{c}\NormalTok{(list.coef.}\DecValTok{1}\NormalTok{,list.coef.}\DecValTok{2}\NormalTok{),}\DataTypeTok{se.ES=}\KeywordTok{c}\NormalTok{(list.se.}\DecValTok{1}\NormalTok{,list.se.}\DecValTok{2}\NormalTok{),}\DataTypeTok{tau2=}\KeywordTok{c}\NormalTok{(}\KeywordTok{rep}\NormalTok{(tau[[}\DecValTok{1}\NormalTok{]]}\OperatorTok{^}\DecValTok{2}\NormalTok{,}\KeywordTok{length}\NormalTok{(estimators)),}\KeywordTok{rep}\NormalTok{(tau[[}\DecValTok{2}\NormalTok{]]}\OperatorTok{^}\DecValTok{2}\NormalTok{,}\KeywordTok{length}\NormalTok{(estimators))))}
+
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data=}\NormalTok{result.Meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{Method, }\DataTypeTok{y=}\NormalTok{ES.Meta, }\DataTypeTok{group=}\KeywordTok{as.factor}\NormalTok{(tau2), }\DataTypeTok{color=}\KeywordTok{as.factor}\NormalTok{(tau2))) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_point}\NormalTok{(}\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(}\FloatTok{0.7}\NormalTok{))}\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{min=}\NormalTok{ES.Meta}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES,}\DataTypeTok{max=}\NormalTok{ES.Meta}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES),}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(}\FloatTok{0.7}\NormalTok{),}\DataTypeTok{width=}\FloatTok{0.1}\NormalTok{)}\OperatorTok{+}
+\StringTok{    }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{    }\KeywordTok{expand_limits}\NormalTok{(}\DataTypeTok{y=}\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.6\linewidth]{STCI_files/figure-latex/MetaRegCoef-1} 
+
+}
+
+\caption{Various estimators of Effect Size in a Meta-Regression}\label{fig:MetaRegCoef}
+\end{figure}
+
+Figure \ref{fig:MetaRegCoef} shows that all estimators perform very well
+and deliver a precise estimate of the true effect.
+
+\textbf{\textsc{I think SJn is the MOM estimator, check that.}}
 
 \subsection{Why vote-counting does not
 work}\label{why-vote-counting-does-not-work}

@@ -498,6 +498,9 @@ ggplot(data=result.RE, aes(x=Method, y=ES.RE, fill=as.factor(tau2))) +
     geom_bar(stat="identity", position=position_dodge())
 ```
 
+**<span style="font-variant:small-caps;">Add error bars here.</span>**
+
+
 #### Other estimators of inter-site variability
 
 $\tau^2$ is a pretty difficult measure of treatment effect heterogeneity to interpret. 
@@ -765,8 +768,32 @@ metaReg.example.RE.theta.2.ES <- lapply(estimators,function(method){return(rma(t
 summary(metaReg.example.RE.theta.1.ES[[2]])
 ```
 
+We can see that the estimated coefficient for the noise is large and almost equal to one, that the estimation of residual inter-site variance becomes zero and that the precision of our estimared treatment effect becomes much greater (since all variance due to site effects has been absorbed by the regressor).
 
-**<span style="font-variant:small-caps;">Example (regress on noise)</span>**
+Let's now look at the estimated coefficients. 
+For that, we are going to use the function `coef(summary())` that extracts a dataframe of the coefficients along with their standard errors.
+
+```{r MetaRegCoef,eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Various estimators of Effect Size in a Meta-Regression',fig.align='center', out.width=cst, fig.pos='htbp', fig.height=8, fig.width=12}
+list.coef.tot.1 <- lapply(metaReg.example.RE.theta.1.ES,function(res){return(coef(summary(res)))})
+list.coef.tot.2 <- lapply(metaReg.example.RE.theta.2.ES,function(res){return(coef(summary(res)))})
+
+list.coef.1 <- unlist(lapply(list.coef.tot.1,'[[',c(1,1)))
+list.se.1 <- unlist(lapply(list.coef.tot.1,'[[',c(2,1)))
+list.coef.2 <- unlist(lapply(list.coef.tot.2,'[[',c(1,1)))
+list.se.2 <- unlist(lapply(list.coef.tot.2,'[[',c(2,1)))
+
+result.Meta <- data.frame(Method=rep(estimators,2),ES.Meta=c(list.coef.1,list.coef.2),se.ES=c(list.se.1,list.se.2),tau2=c(rep(tau[[1]]^2,length(estimators)),rep(tau[[2]]^2,length(estimators))))
+
+ggplot(data=result.Meta, aes(x=Method, y=ES.Meta, group=as.factor(tau2), color=as.factor(tau2))) +
+    geom_point(stat="identity", position=position_dodge(0.7))+
+    geom_errorbar(aes(min=ES.Meta-qnorm((1+delta.2)/2)*se.ES,max=ES.Meta+qnorm((1+delta.2)/2)*se.ES),position=position_dodge(0.7),width=0.1)+
+    geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+    expand_limits(y=0)
+```
+
+Figure \@ref(fig:MetaRegCoef) shows that all estimators perform very well and deliver a precise estimate of the true effect.
+
+**<span style="font-variant:small-caps;">I think SJn is the MOM estimator, check that.</span>**
 
 ### Why vote-counting does not work
 

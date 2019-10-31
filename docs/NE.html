@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-30">
+<meta name="date" content="2019-10-31">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -320,9 +320,38 @@ Z_i &amp; \Ind (Y_i^0,Y_i^1,V_i) \\
 \xi &amp; \sim\mathcal{B}(p_{\xi}) \\
 \xi &amp; \Ind (Y_i^0,Y_i^1,V_i,Z_i)
 \end{align*}\]</span>
-<p>The key component of the model that generates is the coefficient <span class="math inline">\(\kappa_i\)</span>, that determines how individuals’ participation into the program reacts to the instrument <span class="math inline">\(Z_i\)</span>. <span class="math inline">\(\kappa_i\)</span> is a coefficient, but it varies accross the population. It is sometimes called a heterogeneous or a random coefficient. In my simplified model, <span class="math inline">\(\kappa_i\)</span> can take only to values, <span class="math inline">\(\bar{\kappa}\)</span> or <span class="math inline">\(\underline{\kappa}\)</span>. If <span class="math inline">\(\bar{\kappa}\)</span> and <span class="math inline">\(\underline{\kappa}\)</span> have different signs (let’s say <span class="math inline">\(\bar{\kappa}&gt;0\)</span> and <span class="math inline">\(\underline{\kappa}&lt;0\)</span>), then some individuals are going to be more likely to enter the program when they receive an encouragement (when <span class="math inline">\(Z_i=1\)</span>) and some individuals will be less likely to enter the treatment when <span class="math inline">\(Z_i=1\)</span>. This is going to define two populations reacting to the encouragement: the compliers and the defiers.</p>
+<p><strong><span style="font-variant: small-caps;">Give the complete model (<span class="math inline">\(Y_i\)</span> as well).</span></strong></p>
+<p>The key component of the model that generates is the coefficient <span class="math inline">\(\kappa_i\)</span>, that determines how individuals’ participation into the program reacts to the instrument <span class="math inline">\(Z_i\)</span>. <span class="math inline">\(\kappa_i\)</span> is a coefficient, but it varies accross the population. In my simplified model, <span class="math inline">\(\kappa_i\)</span> can take only to values, <span class="math inline">\(\bar{\kappa}\)</span> or <span class="math inline">\(\underline{\kappa}\)</span>. If <span class="math inline">\(\bar{\kappa}\)</span> and <span class="math inline">\(\underline{\kappa}\)</span> have different signs (let’s say <span class="math inline">\(\bar{\kappa}&gt;0\)</span> and <span class="math inline">\(\underline{\kappa}&lt;0\)</span>), then some individuals are going to be more likely to enter the program when they receive an encouragement (when <span class="math inline">\(Z_i=1\)</span>) and some individuals will be less likely to enter the treatment when <span class="math inline">\(Z_i=1\)</span>. This is going to define two populations reacting to the encouragement: the compliers and the defiers.</p>
+<p>Let’s generate some data according to this process. For that, let’s choose values for the new parameters.</p>
 <div id="identification-4" class="section level3">
 <h3><span class="header-section-number">4.1.1</span> Identification</h3>
+<div id="assumptions" class="section level4">
+<h4><span class="header-section-number">4.1.1.1</span> Assumptions</h4>
+
+<div class="definition">
+<p><span id="def:FirstStage" class="definition"><strong>Definition 4.1  (First Stage Full Rank)  </strong></span>We assume that the instrument <span class="math inline">\(Z_i\)</span> has a direct effect on treatment participation:</p>
+<span class="math display">\[\begin{align*}
+\Pr(D_i=1|Z_i=1)\neq\Pr(D_i=1|Z_i=0).
+\end{align*}\]</span>
+</div>
+
+
+<div class="example">
+<span id="exm:unnamed-chunk-141" class="example"><strong>Example 4.2  </strong></span>Let’s see how this assumption works in our example. Let’s first compute the average values of <span class="math inline">\(Y_i\)</span> and <span class="math inline">\(D_i\)</span> as a function of <span class="math inline">\(Z_i\)</span>, for later use.
+</div>
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">means.IV &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">mean</span>(Ds[Z<span class="op">==</span><span class="dv">0</span>]),<span class="kw">mean</span>(Ds[Z<span class="op">==</span><span class="dv">1</span>]),<span class="kw">mean</span>(y0[Z<span class="op">==</span><span class="dv">0</span>]),<span class="kw">mean</span>(y0[Z<span class="op">==</span><span class="dv">1</span>]),<span class="kw">mean</span>(y[Z<span class="op">==</span><span class="dv">0</span>]),<span class="kw">mean</span>(y[Z<span class="op">==</span><span class="dv">1</span>]),<span class="dv">0</span>,<span class="dv">1</span>)
+means.IV &lt;-<span class="st"> </span><span class="kw">matrix</span>(means.IV,<span class="dt">nrow=</span><span class="dv">2</span>,<span class="dt">ncol=</span><span class="dv">4</span>,<span class="dt">byrow=</span><span class="ot">FALSE</span>,<span class="dt">dimnames=</span><span class="kw">list</span>(<span class="kw">c</span>(<span class="st">&#39;Z=0&#39;</span>,<span class="st">&#39;Z=1&#39;</span>),<span class="kw">c</span>(<span class="st">&#39;D&#39;</span>,<span class="st">&#39;y0&#39;</span>,<span class="st">&#39;y&#39;</span>,<span class="st">&#39;Z&#39;</span>)))
+means.IV &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(means.IV)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:IVFirstStage"></span>
+<img src="STCI_files/figure-html/IVFirstStage-1.png" alt="Proportion of participants as a function of $Z_i$" width="60%" />
+<p class="caption">
+Figure 4.1: Proportion of participants as a function of <span class="math inline">\(Z_i\)</span>
+</p>
+</div>
+<p>Figure <a href="NE.html#fig:IVFirstStage">4.1</a> shows that the proportion of treated when <span class="math inline">\(Z_i=1\)</span> in our sample is equal to 0.56 while the proportion of treated when <span class="math inline">\(Z_i=0\)</span> is equal to 0.27, in accordance with Assumption <a href="NE.html#def:FirstStage">4.1</a>.</p>
+<p><strong><span style="font-variant: small-caps;">Give result in the population.</span></strong></p>
+</div>
 </div>
 <div id="estimation" class="section level3">
 <h3><span class="header-section-number">4.1.2</span> Estimation</h3>

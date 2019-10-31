@@ -84,18 +84,79 @@ Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \xi & \Ind (Y_i^0,Y_i^1,V_i,Z_i)
 \end{align*}
 
+**<span style="font-variant:small-caps;">Give the complete model ($Y_i$ as well).</span>**
+
+
 The key component of the model that generates is the coefficient $\kappa_i$, that determines how individuals' participation into the program reacts to the instrument $Z_i$.
 $\kappa_i$ is a coefficient, but it varies accross the population.
-It is sometimes called a heterogeneous or a random coefficient.
 In my simplified model, $\kappa_i$ can take only to values, $\bar{\kappa}$ or $\underline{\kappa}$.
 If $\bar{\kappa}$ and $\underline{\kappa}$ have different signs (let's say $\bar{\kappa}>0$ and $\underline{\kappa}<0$), then some individuals are going to be more likely to enter the program when they receive an encouragement (when $Z_i=1$) and some individuals will be less likely to enter the treatment when $Z_i=1$.
 This is going to define two populations reacting to the encouragement: the compliers and the defiers.
 
+Let's generate some data according to this process.
+For that, let's choose values for the new parameters.
 
+```{r param.IV,eval=TRUE,echo=FALSE,results='hide'}
+param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,-1,0.5,0.9)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB","pZ","barkappa","underbarkappa","pxi")
+```
 
+```{r simul.IV,eval=TRUE,echo=FALSE,results='hide'}
+set.seed(1234)
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+Z <- rbinom(N,1,param["pZ"])
+xi <- rbinom(N,1,param["pxi"]) 
+kappa <- ifelse(xi==1,param["barkappa"],param["underbarkappa"])
+Ds[yB+kappa*Z+V<=log(param["barY"])] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
 
 ### Identification 
 
+#### Assumptions
+
+```{definition,FirstStage,name='First Stage Full Rank'}
+We assume that the instrument $Z_i$ has a direct effect on treatment participation:
+
+\begin{align*}
+\Pr(D_i=1|Z_i=1)\neq\Pr(D_i=1|Z_i=0).
+\end{align*}
+```
+
+```{example}
+Let's see how this assumption works in our example.
+Let's first compute the average values of $Y_i$ and $D_i$ as a function of $Z_i$, for later use.
+```
+
+```{r graph.illus.IV,eval=TRUE,echo=TRUE,results='markup'}
+means.IV <- c(mean(Ds[Z==0]),mean(Ds[Z==1]),mean(y0[Z==0]),mean(y0[Z==1]),mean(y[Z==0]),mean(y[Z==1]),0,1)
+means.IV <- matrix(means.IV,nrow=2,ncol=4,byrow=FALSE,dimnames=list(c('Z=0','Z=1'),c('D','y0','y','Z')))
+means.IV <- as.data.frame(means.IV)
+```
+
+```{r IVFirstStage,eval=TRUE,echo=FALSE,results='hide',echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Proportion of participants as a function of $Z_i$',fig.align='center',out.width=cst,fig.pos='htbp'}
+ggplot(means.IV, aes(x=as.factor(Z), y=D)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black')+
+  xlab('Z')+
+  ylab('Pr(D=1|Z)')
+```
+
+Figure \@ref(fig:IVFirstStage) shows that the proportion of treated when $Z_i=1$ in our sample is equal to `r round(mean(Ds[Z==1]),2)` while the proportion of treated when $Z_i=0$ is equal to  `r round(mean(Ds[Z==0]),2)`, in accordance with Assumption \@ref(def:FirstStage).
+
+**<span style="font-variant:small-caps;">Give result in the population.</span>**
 
 ### Estimation
 
