@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-31">
+<meta name="date" content="2019-11-05">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -940,6 +940,24 @@ Figure 13.11: Various estimators of Effect Size in a Meta-Regression
 </div>
 <div id="why-vote-counting-does-not-work" class="section level3">
 <h3><span class="header-section-number">13.1.7</span> Why vote-counting does not work</h3>
+<p>Vote-counting is an alternative to weighted average or meta-regression. The term, coined by Light and Smith (1971), refers to the practice of counting the numbet of studies that fall under one of three categories:</p>
+<ul>
+<li>Significant and positive,</li>
+<li>Insignificant,</li>
+<li>Significant and negative.</li>
+</ul>
+<p>A vote-counting approach concludes that there is evidence in favor of the treatment when the majority of effects fall in the first category, that there is no evidence that the treatment has an impact whenthe majority of studies fall in the second category, and that there is evidence that the treatment is defavorable when the majority of studies fall in the third category. In general, majority is evaluated at 33%.</p>
+<p>The main problem with the vote counting approach is that it does not give more weight to more precise studies. As a consequence, there is a very realistic possibility that the probability of finding the truth decrease as we add more studies to the meta-analysis.</p>
+<p>Let’s see how this could happen with a simulation taken from HEdges and Olkin’s book. Let <span class="math inline">\(p\)</span> be the probaility that a given result is significant and positive. <span class="math inline">\(p\)</span> depends on the sample size <span class="math inline">\(n\)</span> of the study, and on the true treatment effect, <span class="math inline">\(\theta\)</span>:</p>
+<span class="math display">\[\begin{align*}
+  p &amp; = \int_{C_{\alpha}}^{\infty}f(t;\theta,n),
+\end{align*}\]</span>
+<p>where <span class="math inline">\(f\)</span> is the density of the test statistic <span class="math inline">\(T\)</span> used to evaluate whether the effect is significant or not, and <span class="math inline">\(C_{\alpha}\)</span> is the critical value of the test <span class="math inline">\(T\)</span>. If <span class="math inline">\(n\)</span> and <span class="math inline">\(\theta\)</span> are constant over studies (for simplicity), the process of accumulating significant results can be modelled as a binomial with parameter <span class="math inline">\(p\)</span>. The probability that over <span class="math inline">\(K\)</span> studies, we have a proportion of significant results larger than a pre-specified threshold (let’s say <span class="math inline">\(C_0\)</span>) is equal to:</p>
+<span class="math display">\[\begin{align*}
+  \Pr(\frac{X}{K}&gt;C_0) &amp; = \sum_{k=\text{int}(C_{0}k)+1}^{K}\left(\begin{array}{c}K\\k\end{array}\right)p^k(1-p)^(K-k),
+\end{align*}\]</span>
+<p>where <span class="math inline">\(\text{int}(a)\)</span> is the greatest integer larger or equal to <span class="math inline">\(a\)</span> and <span class="math inline">\(0\leq C_0\leq 1\)</span>. In order to use this formula, we simply have to choose a test. Let’s choose the two-sided t-test of a zero treatment effect in an RCT with equal tozes for treated and control groups. In that case, <span class="math inline">\(p\)</span> is simply the power of the test. In Chapter <a href="Power.html#Power">7</a>, we derive a formula for the power of the test:</p>
+<p><strong><span style="font-variant: small-caps;">Continue, assuming unit variance because standardized effect size.</span></strong></p>
 </div>
 </div>
 <div id="publication-bias-1" class="section level2">

@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-10-31">
+<meta name="date" content="2019-11-05">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -314,17 +314,63 @@ Z_i &amp; \sim\mathcal{B}(p_Z) \\
 Z_i &amp; \Ind (Y_i^0,Y_i^1,V_i) \\
 \kappa_i &amp; = 
 \begin{cases}
-\bar{\kappa} &amp; \text{ if } \xi = 1 \\
+-\bar{\kappa} &amp; \text{ if } \xi = 1 \\
 \underline{\kappa} &amp; \text{ if } \xi = 0
 \end{cases} \\
 \xi &amp; \sim\mathcal{B}(p_{\xi}) \\
 \xi &amp; \Ind (Y_i^0,Y_i^1,V_i,Z_i)
 \end{align*}\]</span>
 <p><strong><span style="font-variant: small-caps;">Give the complete model (<span class="math inline">\(Y_i\)</span> as well).</span></strong></p>
-<p>The key component of the model that generates is the coefficient <span class="math inline">\(\kappa_i\)</span>, that determines how individuals’ participation into the program reacts to the instrument <span class="math inline">\(Z_i\)</span>. <span class="math inline">\(\kappa_i\)</span> is a coefficient, but it varies accross the population. In my simplified model, <span class="math inline">\(\kappa_i\)</span> can take only to values, <span class="math inline">\(\bar{\kappa}\)</span> or <span class="math inline">\(\underline{\kappa}\)</span>. If <span class="math inline">\(\bar{\kappa}\)</span> and <span class="math inline">\(\underline{\kappa}\)</span> have different signs (let’s say <span class="math inline">\(\bar{\kappa}&gt;0\)</span> and <span class="math inline">\(\underline{\kappa}&lt;0\)</span>), then some individuals are going to be more likely to enter the program when they receive an encouragement (when <span class="math inline">\(Z_i=1\)</span>) and some individuals will be less likely to enter the treatment when <span class="math inline">\(Z_i=1\)</span>. This is going to define two populations reacting to the encouragement: the compliers and the defiers.</p>
+<p>The key component of the model that generates a failure of Monotonicity is the coefficient <span class="math inline">\(\kappa_i\)</span>, that determines how individuals’ participation into the program reacts to the instrument <span class="math inline">\(Z_i\)</span>. <span class="math inline">\(\kappa_i\)</span> is a coefficient whose value varies accross the population. In my simplified model, <span class="math inline">\(\kappa_i\)</span> can take only two values, <span class="math inline">\(-\bar{\kappa}\)</span> or <span class="math inline">\(\underline{\kappa}\)</span>. When <span class="math inline">\(-\bar{\kappa}\)</span> and <span class="math inline">\(\underline{\kappa}\)</span> have opposite signs (let’s say <span class="math inline">\(-\bar{\kappa}&lt;0\)</span> and <span class="math inline">\(\underline{\kappa}&gt;0\)</span>), then individuals with <span class="math inline">\(\kappa_i=-\bar{\kappa}\)</span> are going to be more likely to enter the program when they receive an encouragement (when <span class="math inline">\(Z_i=1\)</span>) while individuals with <span class="math inline">\(\kappa_i=\underline{\kappa}\)</span> will be less likely to enter the program when <span class="math inline">\(Z_i=1\)</span>. When <span class="math inline">\(-bar{\kappa}\)</span> and <span class="math inline">\(\underline{\kappa}\)</span> have different signs, we have four types of reactions when the instrumental variable moves from <span class="math inline">\(Z_i=0\)</span> to <span class="math inline">\(Z_i=1\)</span>, holding everything else constant. These four types of reactions define four types of individuals:</p>
+<ul>
+<li><strong>Always takers</strong> (<span class="math inline">\(T_i=at\)</span>): individuals that participate in the program both when <span class="math inline">\(Z_i=0\)</span> and <span class="math inline">\(Z_i=1\)</span>.</li>
+<li><strong>Never takers</strong> (<span class="math inline">\(T_i=nt\)</span>): individuals that do not participate in the program both when <span class="math inline">\(Z_i=0\)</span> and <span class="math inline">\(Z_i=1\)</span>.</li>
+<li><strong>Compliers</strong> (<span class="math inline">\(T_i=c\)</span>): individuals that do not participate in the program when <span class="math inline">\(Z_i=0\)</span> but that participate in the program when <span class="math inline">\(Z_i=1\)</span> .</li>
+<li><strong>Defiers</strong> (<span class="math inline">\(T_i=d\)</span>): individuals that participate in the program when <span class="math inline">\(Z_i=0\)</span> but that do not participate in the program when <span class="math inline">\(Z_i=1\)</span> .</li>
+</ul>
+<p>In our model, these four types are a funtion of <span class="math inline">\(V_i\)</span> and <span class="math inline">\(\kappa_i\)</span>. In order to see this let’s define, as in Section @ref(#sec:design4), <span class="math inline">\(D^z_i\)</span> the participation decision of individual <span class="math inline">\(i\)</span> when the instrument is exogenously set to <span class="math inline">\(Z_i=z\)</span>, with <span class="math inline">\(z\in\left\{0,1\right\}\)</span>. When <span class="math inline">\(\kappa_i=-\bar{\kappa}&lt;0\)</span>, we have three types defined by where <span class="math inline">\(V_i\)</span> lies with respect to a series of thresholds:</p>
+<ul>
+<li><strong>Always takers</strong> (<span class="math inline">\(T_i=at\)</span>) are such that <span class="math inline">\(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1\)</span> and <span class="math inline">\(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\)</span>, so that they actually are such that: <span class="math inline">\(V_i\leq\bar{y}-y_i^B\)</span>. This is because <span class="math inline">\(V_i\leq\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B+\bar{\kappa}\)</span>, when <span class="math inline">\(\bar{\kappa}&gt;0\)</span>.</li>
+<li><strong>Never takers</strong> (<span class="math inline">\(T_i=nt\)</span>) are such that <span class="math inline">\(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0\)</span> and <span class="math inline">\(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\)</span>, so that they actually are such that: <span class="math inline">\(V_i&gt;\bar{y}-y_i^B+\bar{\kappa}\)</span>. This is because <span class="math inline">\(V_i&gt;\bar{y}-y_i^B+\bar{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B\)</span>, when <span class="math inline">\(\bar{\kappa}&gt;0\)</span>.</li>
+<li><strong>Compliers</strong> (<span class="math inline">\(T_i=c\)</span>) are such that <span class="math inline">\(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1\)</span> and <span class="math inline">\(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\)</span>, so that they actually are such that: <span class="math inline">\(\bar{y}-y_i^B&lt;V_i\leq\bar{y}-y_i^B+\bar{\kappa}\)</span>.</li>
+</ul>
+<p>When <span class="math inline">\(\kappa_i=\underline{\kappa}&lt;0\)</span>, we have three types defined by where <span class="math inline">\(V_i\)</span> lies with respect to a series of thresholds:</p>
+<ul>
+<li><strong>Always takers</strong> (<span class="math inline">\(T_i=at\)</span>) are such that <span class="math inline">\(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=1\)</span> and <span class="math inline">\(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\)</span>, so that they actually are such that: <span class="math inline">\(V_i\leq\bar{y}-y_i^B-\underline{\kappa}\)</span>. This is because <span class="math inline">\(V_i\leq\bar{y}-y_i^B-\underline{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B\)</span>, when <span class="math inline">\(\underline{\kappa}&gt;0\)</span>.</li>
+<li><strong>Never takers</strong> (<span class="math inline">\(T_i=nt\)</span>) are such that <span class="math inline">\(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0\)</span> and <span class="math inline">\(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\)</span>, so that they actually are such that: <span class="math inline">\(V_i&gt;\bar{y}-y_i^B\)</span>. This is because <span class="math inline">\(V_i&gt;\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B-\underline{\kappa}\)</span>, when <span class="math inline">\(\underline{\kappa}&gt;0\)</span>.</li>
+<li><strong>Defiers</strong> (<span class="math inline">\(T_i=c\)</span>) are such that <span class="math inline">\(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0\)</span> and <span class="math inline">\(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\)</span>, so that they actually are such that: <span class="math inline">\(\bar{y}-y_i^B-\underline{\kappa}&lt;V_i\leq\bar{y}-y_i^B\)</span>.</li>
+</ul>
+<p><strong><span style="font-variant: small-caps;">Give two plots for V_i as a funciton of the thresholds, depending on the vaueof kappa_i, showing the types. Don’t forget to put the whole model above.</span></strong></p>
 <p>Let’s generate some data according to this process. For that, let’s choose values for the new parameters.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">param &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>,<span class="fl">0.9</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="fl">7.98</span>,<span class="fl">0.5</span>,<span class="op">-</span><span class="dv">1</span>,<span class="fl">0.5</span>,<span class="fl">0.9</span>)
+<span class="kw">names</span>(param) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>,<span class="st">&quot;gamma&quot;</span>,<span class="st">&quot;baryB&quot;</span>,<span class="st">&quot;pZ&quot;</span>,<span class="st">&quot;barkappa&quot;</span>,<span class="st">&quot;underbarkappa&quot;</span>,<span class="st">&quot;pxi&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1234</span>)
+mu &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))
+UB &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))
+yB &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st"> </span>UB 
+YB &lt;-<span class="st"> </span><span class="kw">exp</span>(yB)
+Ds &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,N)
+Z &lt;-<span class="st"> </span><span class="kw">rbinom</span>(N,<span class="dv">1</span>,param[<span class="st">&quot;pZ&quot;</span>])
+xi &lt;-<span class="st"> </span><span class="kw">rbinom</span>(N,<span class="dv">1</span>,param[<span class="st">&quot;pxi&quot;</span>]) 
+kappa &lt;-<span class="st"> </span><span class="kw">ifelse</span>(xi<span class="op">==</span><span class="dv">1</span>,param[<span class="st">&quot;barkappa&quot;</span>],param[<span class="st">&quot;underbarkappa&quot;</span>])
+Ds[yB<span class="op">+</span>kappa<span class="op">*</span>Z<span class="op">+</span>V<span class="op">&lt;=</span><span class="kw">log</span>(param[<span class="st">&quot;barY&quot;</span>])] &lt;-<span class="st"> </span><span class="dv">1</span> 
+epsilon &lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))
+eta&lt;-<span class="st"> </span><span class="kw">rnorm</span>(N,<span class="dv">0</span>,<span class="kw">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]))
+U0 &lt;-<span class="st"> </span>param[<span class="st">&quot;rho&quot;</span>]<span class="op">*</span>UB <span class="op">+</span><span class="st"> </span>epsilon
+y0 &lt;-<span class="st"> </span>mu <span class="op">+</span><span class="st">  </span>U0 <span class="op">+</span><span class="st"> </span>param[<span class="st">&quot;delta&quot;</span>]
+alpha &lt;-<span class="st"> </span>param[<span class="st">&quot;baralpha&quot;</span>]<span class="op">+</span><span class="st">  </span>param[<span class="st">&quot;theta&quot;</span>]<span class="op">*</span>mu <span class="op">+</span><span class="st"> </span>eta
+y1 &lt;-<span class="st"> </span>y0<span class="op">+</span>alpha
+Y0 &lt;-<span class="st"> </span><span class="kw">exp</span>(y0)
+Y1 &lt;-<span class="st"> </span><span class="kw">exp</span>(y1)
+y &lt;-<span class="st"> </span>y1<span class="op">*</span>Ds<span class="op">+</span>y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)
+Y &lt;-<span class="st"> </span>Y1<span class="op">*</span>Ds<span class="op">+</span>Y0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>Ds)</code></pre></div>
 <div id="identification-4" class="section level3">
 <h3><span class="header-section-number">4.1.1</span> Identification</h3>
+<p>We need several assumptions for identification in an Instrumental Variable framework. We are going to explore two sets of assumption that secure the identification of two different parameters:</p>
+<ul>
+<li>The Average Treatment Effect on the Treated (<span class="math inline">\(TT\)</span>): identification will happen through the assumption of independence of treatment effects from potential treatment choice</li>
+<li>The Local Average Treatment Effect (<span class="math inline">\(LATE\)</span>)</li>
+</ul>
 <div id="assumptions" class="section level4">
 <h4><span class="header-section-number">4.1.1.1</span> Assumptions</h4>
 

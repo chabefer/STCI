@@ -77,7 +77,7 @@ Z_i & \sim\mathcal{B}(p_Z) \\
 Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \kappa_i & = 
 \begin{cases}
-\bar{\kappa} & \text{ if } \xi = 1 \\
+-\bar{\kappa} & \text{ if } \xi = 1 \\
 \underline{\kappa} & \text{ if } \xi = 0
 \end{cases} \\
 \xi & \sim\mathcal{B}(p_{\xi}) \\
@@ -86,22 +86,48 @@ Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 
 **<span style="font-variant:small-caps;">Give the complete model ($Y_i$ as well).</span>**
 
+The key component of the model that generates a failure of Monotonicity is the coefficient $\kappa_i$, that determines how individuals' participation into the program reacts to the instrument $Z_i$.
+$\kappa_i$ is a coefficient whose value varies accross the population.
+In my simplified model, $\kappa_i$ can take only two values, $-\bar{\kappa}$ or $\underline{\kappa}$.
+When $-\bar{\kappa}$ and $\underline{\kappa}$ have opposite signs (let's say $-\bar{\kappa}<0$ and $\underline{\kappa}>0$), then individuals with $\kappa_i=-\bar{\kappa}$ are going to be more likely to enter the program when they receive an encouragement (when $Z_i=1$) while individuals with $\kappa_i=\underline{\kappa}$ will be less likely to enter the program when $Z_i=1$.
+When $-bar{\kappa}$ and $\underline{\kappa}$ have different signs, we have four types of reactions when the instrumental variable moves from $Z_i=0$ to $Z_i=1$, holding everything else constant.
+These four types of reactions define four types of individuals:
 
-The key component of the model that generates is the coefficient $\kappa_i$, that determines how individuals' participation into the program reacts to the instrument $Z_i$.
-$\kappa_i$ is a coefficient, but it varies accross the population.
-In my simplified model, $\kappa_i$ can take only to values, $\bar{\kappa}$ or $\underline{\kappa}$.
-If $\bar{\kappa}$ and $\underline{\kappa}$ have different signs (let's say $\bar{\kappa}>0$ and $\underline{\kappa}<0$), then some individuals are going to be more likely to enter the program when they receive an encouragement (when $Z_i=1$) and some individuals will be less likely to enter the treatment when $Z_i=1$.
-This is going to define two populations reacting to the encouragement: the compliers and the defiers.
+  * **Always takers** ($T_i=at$): individuals that participate in the program both when $Z_i=0$ and $Z_i=1$.
+  * **Never takers** ($T_i=nt$): individuals that do not participate in the program both when $Z_i=0$ and $Z_i=1$.
+  * **Compliers** ($T_i=c$): individuals that do not participate in the program when $Z_i=0$ but that participate in the program when $Z_i=1$ .
+  * **Defiers** ($T_i=d$): individuals that participate in the program when $Z_i=0$ but that do not participate in the program when $Z_i=1$ .
+  
+In our model, these four types are a funtion of $V_i$ and $\kappa_i$.
+In order to see this let's define, as in Section \@ref(#sec:design4), $D^z_i$ the participation decision of individual $i$ when the instrument is exogenously set to $Z_i=z$, with $z\in\left\{0,1\right\}$.
+When $\kappa_i=-\bar{\kappa}<0$, we have three types defined by where $V_i$ lies with respect to a series of thresholds:
+
+  * **Always takers** ($T_i=at$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $V_i\leq\bar{y}-y_i^B$.
+  This is because $V_i\leq\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B+\bar{\kappa}$, when $\bar{\kappa}>0$.
+  * **Never takers** ($T_i=nt$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $V_i>\bar{y}-y_i^B+\bar{\kappa}$.
+  This is because $V_i>\bar{y}-y_i^B+\bar{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B$, when $\bar{\kappa}>0$.
+  * **Compliers** ($T_i=c$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $\bar{y}-y_i^B<V_i\leq\bar{y}-y_i^B+\bar{\kappa}$.
+  
+When $\kappa_i=\underline{\kappa}<0$, we have three types defined by where $V_i$ lies with respect to a series of thresholds:
+
+  * **Always takers** ($T_i=at$) are such that $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $V_i\leq\bar{y}-y_i^B-\underline{\kappa}$.
+  This is because $V_i\leq\bar{y}-y_i^B-\underline{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B$, when $\underline{\kappa}>0$.
+  * **Never takers** ($T_i=nt$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $V_i>\bar{y}-y_i^B$.
+  This is because $V_i>\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B-\underline{\kappa}$, when $\underline{\kappa}>0$.
+  * **Defiers** ($T_i=c$) are such that $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $\bar{y}-y_i^B-\underline{\kappa}<V_i\leq\bar{y}-y_i^B$.
+  
+**<span style="font-variant:small-caps;">Give two plots for V_i as a funciton of the thresholds, depending on the vaueof kappa_i, showing the types. Don't forget to put the whole model above.</span>**
+  
 
 Let's generate some data according to this process.
 For that, let's choose values for the new parameters.
 
-```{r param.IV,eval=TRUE,echo=FALSE,results='hide'}
+```{r param.IV,eval=TRUE,echo=TRUE,results='hide'}
 param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,-1,0.5,0.9)
 names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB","pZ","barkappa","underbarkappa","pxi")
 ```
 
-```{r simul.IV,eval=TRUE,echo=FALSE,results='hide'}
+```{r simul.IV,eval=TRUE,echo=TRUE,results='hide'}
 set.seed(1234)
 mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
 UB <- rnorm(N,0,sqrt(param["sigma2U"]))
@@ -125,6 +151,12 @@ Y <- Y1*Ds+Y0*(1-Ds)
 ```
 
 ### Identification 
+
+We need several assumptions for identification in an Instrumental Variable framework.
+We are going to explore two sets of assumption that secure the identification of two different parameters: 
+
+  * The Average Treatment Effect on the Treated ($TT$): identification will happen through the assumption of independence of treatment effects from potential treatment choice
+  * The Local Average Treatment Effect ($LATE$)
 
 #### Assumptions
 

@@ -797,6 +797,44 @@ Figure \@ref(fig:MetaRegCoef) shows that all estimators perform very well and de
 
 ### Why vote-counting does not work
 
+Vote-counting is an alternative to weighted average or meta-regression.
+The term, coined by Light and Smith (1971), refers to the practice of counting the numbet of studies that fall under one of three categories:
+
+  * Significant and positive,
+  * Insignificant,
+  * Significant and negative.
+  
+A vote-counting approach concludes that there is evidence in favor of the treatment when the majority of effects fall in the first category, that there is no evidence that the treatment has an impact whenthe majority of studies fall in the second category, and that there is evidence that the treatment is defavorable when the majority of studies fall in the third category.
+In general, majority is evaluated at 33\%.
+
+The main problem with the vote counting approach is that it does not give more weight to more precise studies. 
+As a consequence, there is a very realistic possibility that the probability of finding the truth decrease as we add more studies to the meta-analysis.
+
+Let's see how this could happen with a simulation taken from HEdges and Olkin's book.
+Let $p$ be the probaility that a given result is significant and positive. 
+$p$ depends on the sample size $n$ of the study, and on the true treatment effect, $\theta$:
+
+\begin{align*}
+  p & = \int_{C_{\alpha}}^{\infty}f(t;\theta,n),
+\end{align*}
+
+where $f$ is the density of the test statistic $T$ used to evaluate whether the effect is significant or not, and $C_{\alpha}$ is the critical value of the test $T$.
+If $n$ and $\theta$ are constant over studies (for simplicity), the process of accumulating significant results can be modelled as a binomial with parameter $p$.
+The probability that over $K$ studies, we have a proportion of significant results larger than a pre-specified threshold (let's say $C_0$) is equal to:
+
+\begin{align*}
+  \Pr(\frac{X}{K}>C_0) & = \sum_{k=\text{int}(C_{0}k)+1}^{K}\left(\begin{array}{c}K\\k\end{array}\right)p^k(1-p)^(K-k),
+\end{align*}
+
+where $\text{int}(a)$ is the greatest integer larger or equal to $a$ and $0\leq C_0\leq 1$.
+In order to use this formula, we simply have to choose a test.
+Let's choose the two-sided t-test of a zero treatment effect in an RCT with equal tozes for treated and control groups.
+In that case, $p$ is simply the power of the test.
+In Chapter \@ref(Power), we derive a formula for the power of the test: 
+
+**<span style="font-variant:small-caps;">Continue, assuming unit variance because standardized effect size.</span>**
+
+
 ## Publication bias
 
 ### Sources of publication bias

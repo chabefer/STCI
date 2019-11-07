@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-10-31}
+    \date{2019-11-05}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8109,7 +8109,7 @@ Z_i & \sim\mathcal{B}(p_Z) \\
 Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \kappa_i & = 
 \begin{cases}
-\bar{\kappa} & \text{ if } \xi = 1 \\
+-\bar{\kappa} & \text{ if } \xi = 1 \\
 \underline{\kappa} & \text{ if } \xi = 0
 \end{cases} \\
 \xi & \sim\mathcal{B}(p_{\xi}) \\
@@ -8118,23 +8118,153 @@ Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 
 \textbf{\textsc{Give the complete model (\(Y_i\) as well).}}
 
-The key component of the model that generates is the coefficient
-\(\kappa_i\), that determines how individuals' participation into the
-program reacts to the instrument \(Z_i\). \(\kappa_i\) is a coefficient,
-but it varies accross the population. In my simplified model,
-\(\kappa_i\) can take only to values, \(\bar{\kappa}\) or
-\(\underline{\kappa}\). If \(\bar{\kappa}\) and \(\underline{\kappa}\)
-have different signs (let's say \(\bar{\kappa}>0\) and
-\(\underline{\kappa}<0\)), then some individuals are going to be more
-likely to enter the program when they receive an encouragement (when
-\(Z_i=1\)) and some individuals will be less likely to enter the
-treatment when \(Z_i=1\). This is going to define two populations
-reacting to the encouragement: the compliers and the defiers.
+The key component of the model that generates a failure of Monotonicity
+is the coefficient \(\kappa_i\), that determines how individuals'
+participation into the program reacts to the instrument \(Z_i\).
+\(\kappa_i\) is a coefficient whose value varies accross the population.
+In my simplified model, \(\kappa_i\) can take only two values,
+\(-\bar{\kappa}\) or \(\underline{\kappa}\). When \(-\bar{\kappa}\) and
+\(\underline{\kappa}\) have opposite signs (let's say
+\(-\bar{\kappa}<0\) and \(\underline{\kappa}>0\)), then individuals with
+\(\kappa_i=-\bar{\kappa}\) are going to be more likely to enter the
+program when they receive an encouragement (when \(Z_i=1\)) while
+individuals with \(\kappa_i=\underline{\kappa}\) will be less likely to
+enter the program when \(Z_i=1\). When \(-bar{\kappa}\) and
+\(\underline{\kappa}\) have different signs, we have four types of
+reactions when the instrumental variable moves from \(Z_i=0\) to
+\(Z_i=1\), holding everything else constant. These four types of
+reactions define four types of individuals:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Always takers} (\(T_i=at\)): individuals that participate in
+  the program both when \(Z_i=0\) and \(Z_i=1\).
+\item
+  \textbf{Never takers} (\(T_i=nt\)): individuals that do not
+  participate in the program both when \(Z_i=0\) and \(Z_i=1\).
+\item
+  \textbf{Compliers} (\(T_i=c\)): individuals that do not participate in
+  the program when \(Z_i=0\) but that participate in the program when
+  \(Z_i=1\) .
+\item
+  \textbf{Defiers} (\(T_i=d\)): individuals that participate in the
+  program when \(Z_i=0\) but that do not participate in the program when
+  \(Z_i=1\) .
+\end{itemize}
+
+In our model, these four types are a funtion of \(V_i\) and
+\(\kappa_i\). In order to see this let's define, as in Section
+@ref(\#sec:design4), \(D^z_i\) the participation decision of individual
+\(i\) when the instrument is exogenously set to \(Z_i=z\), with
+\(z\in\left\{0,1\right\}\). When \(\kappa_i=-\bar{\kappa}<0\), we have
+three types defined by where \(V_i\) lies with respect to a series of
+thresholds:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Always takers} (\(T_i=at\)) are such that
+  \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1\) and
+  \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\), so that they actually are
+  such that: \(V_i\leq\bar{y}-y_i^B\). This is because
+  \(V_i\leq\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B+\bar{\kappa}\),
+  when \(\bar{\kappa}>0\).
+\item
+  \textbf{Never takers} (\(T_i=nt\)) are such that
+  \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0\) and
+  \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\), so that they actually are
+  such that: \(V_i>\bar{y}-y_i^B+\bar{\kappa}\). This is because
+  \(V_i>\bar{y}-y_i^B+\bar{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B\),
+  when \(\bar{\kappa}>0\).
+\item
+  \textbf{Compliers} (\(T_i=c\)) are such that
+  \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1\) and
+  \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\), so that they actually are
+  such that: \(\bar{y}-y_i^B<V_i\leq\bar{y}-y_i^B+\bar{\kappa}\).
+\end{itemize}
+
+When \(\kappa_i=\underline{\kappa}<0\), we have three types defined by
+where \(V_i\) lies with respect to a series of thresholds:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Always takers} (\(T_i=at\)) are such that
+  \(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=1\) and
+  \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\), so that they actually are
+  such that: \(V_i\leq\bar{y}-y_i^B-\underline{\kappa}\). This is
+  because
+  \(V_i\leq\bar{y}-y_i^B-\underline{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B\),
+  when \(\underline{\kappa}>0\).
+\item
+  \textbf{Never takers} (\(T_i=nt\)) are such that
+  \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0\) and
+  \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\), so that they actually are
+  such that: \(V_i>\bar{y}-y_i^B\). This is because
+  \(V_i>\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B-\underline{\kappa}\),
+  when \(\underline{\kappa}>0\).
+\item
+  \textbf{Defiers} (\(T_i=c\)) are such that
+  \(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0\) and
+  \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\), so that they actually are
+  such that: \(\bar{y}-y_i^B-\underline{\kappa}<V_i\leq\bar{y}-y_i^B\).
+\end{itemize}
+
+\textbf{\textsc{Give two plots for V\_i as a funciton of the thresholds,
+depending on the vaueof kappa\_i, showing the types. Don't forget to put
+the whole model above.}}
 
 Let's generate some data according to this process. For that, let's
 choose values for the new parameters.
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{7.98}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\OperatorTok{-}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.9}\NormalTok{)}
+\KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"baryB"}\NormalTok{,}\StringTok{"pZ"}\NormalTok{,}\StringTok{"barkappa"}\NormalTok{,}\StringTok{"underbarkappa"}\NormalTok{,}\StringTok{"pxi"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{mu <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{UB }
+\NormalTok{YB <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{Z <-}\StringTok{ }\KeywordTok{rbinom}\NormalTok{(N,}\DecValTok{1}\NormalTok{,param[}\StringTok{"pZ"}\NormalTok{])}
+\NormalTok{xi <-}\StringTok{ }\KeywordTok{rbinom}\NormalTok{(N,}\DecValTok{1}\NormalTok{,param[}\StringTok{"pxi"}\NormalTok{]) }
+\NormalTok{kappa <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(xi}\OperatorTok{==}\DecValTok{1}\NormalTok{,param[}\StringTok{"barkappa"}\NormalTok{],param[}\StringTok{"underbarkappa"}\NormalTok{])}
+\NormalTok{Ds[yB}\OperatorTok{+}\NormalTok{kappa}\OperatorTok{*}\NormalTok{Z}\OperatorTok{+}\NormalTok{V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
+\NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{U0 <-}\StringTok{ }\NormalTok{param[}\StringTok{"rho"}\NormalTok{]}\OperatorTok{*}\NormalTok{UB }\OperatorTok{+}\StringTok{ }\NormalTok{epsilon}
+\NormalTok{y0 <-}\StringTok{ }\NormalTok{mu }\OperatorTok{+}\StringTok{  }\NormalTok{U0 }\OperatorTok{+}\StringTok{ }\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha <-}\StringTok{ }\NormalTok{param[}\StringTok{"baralpha"}\NormalTok{]}\OperatorTok{+}\StringTok{  }\NormalTok{param[}\StringTok{"theta"}\NormalTok{]}\OperatorTok{*}\NormalTok{mu }\OperatorTok{+}\StringTok{ }\NormalTok{eta}
+\NormalTok{y1 <-}\StringTok{ }\NormalTok{y0}\OperatorTok{+}\NormalTok{alpha}
+\NormalTok{Y0 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 <-}\StringTok{ }\KeywordTok{exp}\NormalTok{(y1)}
+\NormalTok{y <-}\StringTok{ }\NormalTok{y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
 \subsection{Identification}\label{identification-4}
+
+We need several assumptions for identification in an Instrumental
+Variable framework. We are going to explore two sets of assumption that
+secure the identification of two different parameters:
+
+\begin{itemize}
+\tightlist
+\item
+  The Average Treatment Effect on the Treated (\(TT\)): identification
+  will happen through the assumption of independence of treatment
+  effects from potential treatment choice
+\item
+  The Local Average Treatment Effect (\(LATE\))
+\end{itemize}
 
 \subsubsection{Assumptions}\label{assumptions}
 
@@ -9674,6 +9804,64 @@ and deliver a precise estimate of the true effect.
 
 \subsection{Why vote-counting does not
 work}\label{why-vote-counting-does-not-work}
+
+Vote-counting is an alternative to weighted average or meta-regression.
+The term, coined by Light and Smith (1971), refers to the practice of
+counting the numbet of studies that fall under one of three categories:
+
+\begin{itemize}
+\tightlist
+\item
+  Significant and positive,
+\item
+  Insignificant,
+\item
+  Significant and negative.
+\end{itemize}
+
+A vote-counting approach concludes that there is evidence in favor of
+the treatment when the majority of effects fall in the first category,
+that there is no evidence that the treatment has an impact whenthe
+majority of studies fall in the second category, and that there is
+evidence that the treatment is defavorable when the majority of studies
+fall in the third category. In general, majority is evaluated at 33\%.
+
+The main problem with the vote counting approach is that it does not
+give more weight to more precise studies. As a consequence, there is a
+very realistic possibility that the probability of finding the truth
+decrease as we add more studies to the meta-analysis.
+
+Let's see how this could happen with a simulation taken from HEdges and
+Olkin's book. Let \(p\) be the probaility that a given result is
+significant and positive. \(p\) depends on the sample size \(n\) of the
+study, and on the true treatment effect, \(\theta\):
+
+\begin{align*}
+  p & = \int_{C_{\alpha}}^{\infty}f(t;\theta,n),
+\end{align*}
+
+where \(f\) is the density of the test statistic \(T\) used to evaluate
+whether the effect is significant or not, and \(C_{\alpha}\) is the
+critical value of the test \(T\). If \(n\) and \(\theta\) are constant
+over studies (for simplicity), the process of accumulating significant
+results can be modelled as a binomial with parameter \(p\). The
+probability that over \(K\) studies, we have a proportion of significant
+results larger than a pre-specified threshold (let's say \(C_0\)) is
+equal to:
+
+\begin{align*}
+  \Pr(\frac{X}{K}>C_0) & = \sum_{k=\text{int}(C_{0}k)+1}^{K}\left(\begin{array}{c}K\\k\end{array}\right)p^k(1-p)^(K-k),
+\end{align*}
+
+where \(\text{int}(a)\) is the greatest integer larger or equal to \(a\)
+and \(0\leq C_0\leq 1\). In order to use this formula, we simply have to
+choose a test. Let's choose the two-sided t-test of a zero treatment
+effect in an RCT with equal tozes for treated and control groups. In
+that case, \(p\) is simply the power of the test. In Chapter
+\ref{Power}, we derive a formula for the power of the test:
+
+\textbf{\textsc{Continue, assuming unit variance because standardized
+effect size.}}
 
 \section{Publication bias}\label{publication-bias-1}
 
