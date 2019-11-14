@@ -26,11 +26,11 @@ In this section, I am going to present only the most important ones.
 I'll defer the reader to other more specialized publications if needed.
 
 I first present the basics of meta-analysis: the constitution and structure of the sample.
-Second, I present the simplest method to aggregate effects: the weighted average.
-Third, I present tests for deciding whether the effects are from a homogeneous or a heterogeneous population.
-Fourth, I explain how to conduct a meta-analysis when effects are heterogeneous.
-Fifth, I cover the meta-regression that we use to account for heterogeneity in treatment effects.
-Finally, I explain why usual intuitive methods such as vote-counting are biased.
+Second, I present the problems of the intuitive "vote-counting" method.
+Third, I present the methods used when treatment effects are homogeneous across studies, called fixed effects models.
+Fourth, I move to the methods used when effects are heterogeneous across studies, or random effects models, and the tests used to decide whether we are in a fixed or random effects framework.
+Fifth, I present meta-regression, that tries to capture treatment effect heterogeneity by including covariates.
+Finally, I present constantly updated meta-analysis, a way to aggregate results of individual studies as they come.
 
 ### Basic setting
 
@@ -83,9 +83,121 @@ Figure \@ref(fig:confintervalESCLT) shows the resulting sample.
 I've selected `r N.plot.ES.CLT[[1]]` studies with $N=$ `r N.sample[[1]]`, `r N.plot.ES.CLT[[2]]` studies with $N=$ `r N.sample[[2]]`, `r N.plot.ES.CLT[[3]]` studies with $N=$ `r N.sample[[3]]`, and `r N.plot.ES.CLT[[4]]` study with $N=$ `r N.sample[[4]]`.
 The studies are represented in that order, mimicking the increasing sample size of studies that accumulate evidence on a treatment, probably with studies with a small sample size at first, and only large studies at the end for the most promising treatments.
 
-### Meta-analysis as a weighted average {#MetaWA}
+### Why vote-counting does not work
 
-The key idea of meta-analysis is to combine the effect size estimates stemming from different studies, weighing them by their relative precision.
+Vote-counting is an alternative to weighted average or meta-regression.
+The term, coined by Light and Smith (1971), refers to the practice of counting the number of studies that fall under one of three categories:
+
+  * Significant and positive,
+  * Insignificant,
+  * Significant and negative.
+  
+A vote-counting approach concludes that there is evidence in favor of the treatment when the majority of effects fall in the first category, that there is no evidence that the treatment has an impact whenthe majority of studies fall in the second category, and that there is evidence that the treatment is defavorable when the majority of studies fall in the third category.
+In general, majority is evaluated at 33\%.
+
+The main problem with the vote counting approach is that it does not give more weight to more precise studies. 
+As a consequence, there is a very realistic possibility that the probability of finding the truth decrease as we add more studies to the meta-analysis.
+
+Let's see how this could happen with a simulation taken from HEdges and Olkin's book.
+Let $p$ be the probaility that a given result is significant and positive. 
+$p$ depends on the sample size $n$ of the study, and on the true treatment effect, $\theta$:
+
+\begin{align*}
+  p & = \int_{C_{\alpha}}^{\infty}f(t;\theta,n),
+\end{align*}
+
+where $f$ is the density of the test statistic $T$ used to evaluate whether the effect is significant or not, and $C_{\alpha}$ is the critical value of the test $T$.
+If $n$ and $\theta$ are constant over studies (for simplicity), the process of accumulating significant results can be modelled as a binomial with parameter $p$.
+The probability that over $K$ studies, we have a proportion of significant results larger than a pre-specified threshold (let's say $C_0$) is equal to:
+
+\begin{align*}
+  \Pr(\frac{X}{K}>C_0) & = \sum_{k=\text{int}(C_{0}k)+1}^{K}\left(\begin{array}{c}K\\k\end{array}\right)p^k(1-p)^{K-k},
+\end{align*}
+
+where $\text{int}(a)$ is the greatest integer larger or equal to $a$ and $0\leq C_0\leq 1$.
+In order to use this formula, we simply have to choose a test.
+Let's choose the two-sided t-test of a zero treatment effect in an RCT with equal tozes for treated and control groups.
+In that case, $p$ is simply the power of the test.
+In Chapter \@ref(Power), we have derived a formula for the power of this test when $N$ is large: 
+
+\begin{align*}
+  \kappa & = \Phi\left(\frac{\beta_A}{\sqrt{\var{\hat{E}}}}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right),
+\end{align*}
+
+with $\var{\hat{E}}=\frac{C(\hat{E})}{N}$ and $C(\hat{E})$ the variance of the estimator across sampling replications.
+Let's make the simplifying assumption that the treatment effect is constant, so that the variance of the estimator is basically the variance of the outcomes.
+Let's also assume that we are working with effect sizes, so that our outcomes are normalized to have mean zero and variance one.
+Under these assumptions, $C(\hat{E})=1$ and we can implement the power formula:
+
+```{r VoteCounting,eval=TRUE,echo=TRUE,results=FALSE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Detection probability of the vote counting rule',fig.subcap=c("$\\beta^A=0.1$","$\\beta^A=0.2$"),fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+PowerTwoside <- function(betaA,alpha,N,CE=1){
+  return(pnorm(-betaA/sqrt(CE/N)-qnorm(1-alpha/2))+pnorm(betaA/sqrt(CE/N)-qnorm(1-alpha/2)))
+}
+
+PowerTwosideStudent <- function(betaA,alpha,N,CE=1){
+  return(pt(-betaA/sqrt(CE/N)-qnorm(1-alpha/2),df=N-1)+pt(betaA/sqrt(CE/N)-qnorm(1-alpha/2),df=N-1))
+}
+
+VoteCounting <- function(betaA,C0,K,...){
+  return(pbinom(q=C0*K,size=K,prob=PowerTwosideStudent(betaA=betaA,...),lower.tail = FALSE))
+}
+
+PowerTwosideStudent(betaA=0.1,alpha=0.05,N=300)
+VoteCounting(C0=.33,K=3000,betaA=0.1,alpha=0.05,N=300)
+
+Sample.size <- c(20,50,100,200,300)
+BetaA <- seq(0.1,1.5,by=0.1)
+K.list <- c(10,20,30,50,100,1000)
+
+power.vote <- data.frame("Power"= 0,'BetaA'= 0,'N'= 0,'K'= 0)
+  
+#power.vote <- sapply(BetaA,VoteCounting,C0=.33,K=K.list[[1]],alpha=0.05,N=Sample.size[[1]])
+#power.vote <- cbind(power.vote,BetaA,Sample.size[[1]],K.list[[1]])
+
+for (j in (1:length(K.list))){
+  for (k in (1:length(Sample.size))){
+    power.vote.int <- sapply(BetaA,VoteCounting,C0=.33,K=K.list[[j]],alpha=0.05,N=Sample.size[[k]])
+    power.vote.int <- cbind(power.vote.int,BetaA,Sample.size[[k]],K.list[[j]])
+    colnames(power.vote.int) <- c('Power','BetaA','N','K')
+    power.vote <- rbind(power.vote,power.vote.int)  
+  }
+}
+
+power.vote <- power.vote[-1,]
+power.vote$K.int <- power.vote$K
+power.vote$K <- as.factor(power.vote$K)
+
+#ggplot(data=filter(power.vote,K==10),aes(x=N,y=Power,group=as.factor(BetaA),shape=as.factor(BetaA),color=as.factor(BetaA)))+
+#  geom_line()+
+#  geom_point()
+
+ggplot(data=filter(power.vote,BetaA==0.1),aes(x=N,y=Power,group=K,shape=K,color=K))+
+  geom_line()+
+  geom_point()+
+  xlab("N (BetaA=0.1)")+
+  ylab("Detection probability of the vote counting rule")+
+  theme_bw() + 
+  scale_fill_discrete(name="K")
+
+
+ggplot(data=filter(power.vote,BetaA==0.2),aes(x=N,y=Power,group=K,shape=K,color=K))+
+  geom_line()+
+  geom_point()+
+  xlab("N (BetaA=0.2)")+
+  ylab("Detection probability of the vote counting rule")+
+  theme_bw()
+
+```
+
+Figure \@ref(fig:VoteCounting) shows that the vote counting rule has a very inconvenient property: when the power of the test is lower than 33\%, the probability that the vote counting rule detects a true effect decreases with the number of studies included in the meta-analysis, and converges to zero when the number of studies gets large.  
+For example, when $N=100$ and $\beta_A=0.1$, the probability of detecting the effect using the vote counting method is equal to `r round(select(filter(power.vote,BetaA==0.1,N==100,K==10),Power)[[1]],3)` with $K=10$ studies and decreases to `r round(select(filter(power.vote,BetaA==0.1,N==100,K==20),Power)[[1]],3)` when $K=20$, and `r round(select(filter(power.vote,BetaA==0.1,N==100,K==100),Power)[[1]],3)` when $K=100$.
+The pattern is reverse for more powerful studies, such as when $N=300$ and $\beta_A=0.1$ or when $N=100$ and $\beta_A=0.2$.
+
+The intuition for this result is that the vote counting method does not average out the sampling noise in each individual study. 
+
+### Meta-analysis when treatment effects are homogeneous: the fixed effects approach {#MetaWA}
+
+The key idea of meta-analysis with fixed effects is to combine the effect size estimates stemming from different studies, weighing them by their relative precision.
 
 ```{definition,metaweights,name='Weighted Meta-Analytic Estimator'}
 The weighted meta-analytic estimator is
@@ -185,80 +297,7 @@ Figure \@ref(fig:FEforestplot) presents the forest plot for our example using th
 forest(meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
 ```
 
-### Constantly updated meta-analysis
-
-Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving.
-This is a very important tool that enables us to aggregate constantly the information coming from different studies.
-Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study.
-The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
-
-```{example}
-Figure \@ref(fig:cumWMAE) shows how constantly updated meta-analysis works in our example.
-```
-
-```{r cumWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Constantly updated meta-analysis',fig.subcap=c('Initial data set','Constantly updated dataset'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
-cum.wmae.1 <- function(k,theta,sigma2){
-  return(c(weighted.mean(theta[1:k],(1/sigma2[1:k])/(sum(1/sigma2[1:k]))),1/sum(1/sigma2[1:k])))
-}
-
-cum.wmae <- function(theta,sigma2){
-  return(sapply(1:length(theta),cum.wmae.1,theta=theta,sigma2=sigma2))
-}
-
-cum.test <- as.data.frame(t(cum.wmae(data.meta$ES,data.meta$se.ES^2)))
-colnames(cum.test) <- c('cum.ES','cum.var')
-cum.test$id <- 1:nrow(cum.test)
-cum.test$cum.se.ES <- sqrt(cum.test$cum.var)
-
-  ggplot(data.meta, aes(x=forcats::fct_rev(as.factor(id)), y=ES)) +
-      geom_bar(position=position_dodge(), stat="identity", colour='black') +
-      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
-      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
-      xlab("Studies")+
-      ylab("Initial effect size")+
-      theme_bw()+
-      coord_flip()
-
-  ggplot(cum.test, aes(x=forcats::fct_rev(as.factor(id)), y=cum.ES)) +
-      geom_bar(position=position_dodge(), stat="identity", colour='black') +
-      geom_errorbar(aes(ymin=cum.ES-qnorm((delta.2+1)/2)*cum.se.ES, ymax=cum.ES+qnorm((delta.2+1)/2)*cum.se.ES), width=.2,position=position_dodge(.9),color='blue') +
-      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
-      xlab("Studies")+
-      ylab("Cumulative effect size")+
-      theme_bw()+
-      coord_flip()
-
-```
-
-Figure \@ref(fig:cumWMAE) shows that combining several imprecise estimates might help you reach the same precision as running a larger experiment.  
-For instance, cumulating the first 10 studies with a small sample size ($N=$ `r N.sample[[1]]`), the meta-analytic effect is estimated at `r round(select(filter(cum.test,id==10),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==10),cum.se.ES),2)`. 
-This is very close to the individual estimate obtained from the first estimate with a larger sample size (sample 11 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[2]]`): `r round(select(filter(data.meta,id==11),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==11),se.ES),2)`. 
-Both estimates actually have the exact same precision (because they actually have the same sample size).
-The same is true when combining the first 17 studies.
-The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==17),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==17),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size (sample 18 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[3]]`) is  `r round(select(filter(data.meta,id==18),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==18),se.ES),2)`. 
-Finally, the same result occurs when combining the first 19 studies.
-The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==19),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==19),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size (sample 20 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[4]]`) is  `r round(select(filter(data.meta,id==20),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==20),se.ES),2)`. 
-
-As a conclusion, constantly updated meta-analysis would have each time delivered the same result than the one found with a much larger study, rendering this additional study almost irrelevant.
-This is a very important result: beyond the apparent messiness of the first noisy estimates in Figures \@ref(fig:confintervalESCLT) and \@ref(fig:FEforestplot) lies an order that can be retrieved and made apparent using constantly updated meta-analysis.
-Sometimes, the answer is right there in front of our eyes, we just lack the ability to see it.
-Constantly updated meta-analysis serves as a binocular to magnify what is there.
-Think about how costly it woud be to run a very large study, just to find out that the we did not really need it because we had known the result all along.
-
-```{remark}
-Something pretty cool is that I can reproduce Figure \@ref(fig:cumWMAE) using the `metafor` package with much less lines of code.
-```
-
-```{r cumWMAEmetafor,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Constantly updated meta-analysis with the `metafor` package',fig.subcap=c('Initial data set','Constantly updated dataset'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
-forest(meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
-cumul.meta.example.FE <- cumul(meta.example.FE, order=data.meta$id)
-forest(cumul.meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Cumulated Parameter')
-```
-
-You can also call each of the individual results of the cumulative meta-analysis using `cumul.meta.example.FE$estimate`. 
-For example, the cumulated effect size after the 10 first studies is equal to `r round(cumul.meta.example.FE$estimate[[10]],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*cumul.meta.example.FE$se[[10]],2)`.
-
-### Testing for the homogeneity of treatment effects
+### Meta-analysis when treatment effects are heterogeneous: the random effects approach
 
 One key assumption that we have just made so far is that of homogeneous treatment effect.
 We have worked under the assumption that each study was drawn from the same population, where the treatment effect is a constant.
@@ -278,56 +317,23 @@ Why would the treatment effects differ in each study?
   The treatment effect is zero.
   Now, test the vaccine in a population where the disease is endemic: the treatment effect might be huge.
 
-We can also think that the treatment effect differs in each sample because the composition of the sample changes.
-But this is normal variation due to sampling noise and is to be expected.
-It is not the same thing as assuming that the population effect differs.
-
-What can we do in order to test whether there is heterogeneity in treatment effects?
-One way is to build an index comparing the usual variation in treatment effects stemming from sampling noise to the one stemming from variation between studies.
-If we find that the variation between studies dwarves the variation due to sampling noise in each study, then there is some heterogeneity for sure.
-One statistics that does that is the $Q$ statistic where the variation in treatment effects between studies is estimated using the difference between the individual effect size and the average one squared:
-
-\begin{align*}
-  Q & = \sum_{k=1}^N\frac{(\hat{\theta}_k-\bar{\theta})^2}{\hat{\sigma}^2_k}.
-\end{align*}
-
-What is great with the $Q$ statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a $\chi^2$ distribution with $N-1$ degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
-
-```{example}
-In our example, we have already computed the $Q$ statistic when we have used the `rma` function in the `metafor` package. 
-In order to access it, we just need to extract it using `meta.example.FE$QE` for the $Q$ statistic and `meta.example.FE$QEp` for its p-value.  
-```
-The $Q$ statistic in our example has value `r round(meta.example.FE$QE,2)`, with associated p-value `r round(meta.example.FE$QEp,2)`.
-We end up not rejecting homogeneity, which is correct.
-
-```{remark}
-The problem with using test statistics for testing for treatment effect homogeneity is that, when precision increases, we might end up rejecting homogeneity despite the fact that it is there.
-```
-
-**<span style="font-variant:small-caps;">Test with $N=10^5$.</span>**
-
-```{remark}
-The $\chi^2$ distribution with $k$ degrees of freedom is asymptotically distributed as a normal with mean $k$ and variance $2k$.
-So, when $k$ is large, a good rule of thumb for assessing the homogeneity of the treatment effect estimates is to compare the $Q$ statistic to the number of studies. 
-If it is much larger, homogeneity is probably not guaranteed.
-```
-
-### Meta-analysis when treatment effects are heterogeneous
-
 When each study draws a treatment effect from a distinct population, meta-analysis has to take into account that treatment effects are heterogeneous.
 The main consequence of treatment effect heterogeneity is that the weighting approach we have used so far underestimates the uncertainty around the true effect, since it does not acknowledge that there is additional variation within each study.
 
 There are two main ways to account for heterogeneity in meta-analysis:
 
-  1. **Meta-regression** trying to capture the heterogeneity in treatment effects with observed covariates.
-  2. **Random effects** allowing for additional random noise in each study.
+  1. **Random effects** allowing for additional random noise in each study.
+  2. **Meta-regression** trying to capture the heterogeneity in treatment effects with observed covariates.
   
-In this section, we are going to study the random effects approach, and we'll defer the meta-regression for the next section.
+In this section, we study the random effects estimator, and the next section will cover the meta-regression estimator.
+Before implementing the random effects estimator, we need to decide whether there is heterogeneity in treatment effects or not.
 
-#### Estimating the variance of the treatment effect across sites
+**<span style="font-variant:small-caps;">Generate noise right  now and show the plot.</span>**
 
-The key component of the random effects approach is the estimation of the size of the variance of the treatment effect in the population.
-Indeed, the observed effect size estimate for a given study $k$ is modelled as follows in the random effects approach:
+#### Estimating the heterogeneity of treatment effects
+
+A necessary first step is to estimate the variance in treatment effects that is due to treatment effect heterogeneity, beyond sampling noise.
+The observed effect size estimate for a given study $k$ is modelled as follows:
 
 \begin{align*}
 \hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
@@ -335,6 +341,13 @@ Indeed, the observed effect size estimate for a given study $k$ is modelled as f
 
 where $\epsilon_k$ is due to sampling noise and $\nu_k$ is due to the heterogeneity in effect sizes across sites, while $\alpha$ is the average of the effect size accross all populations.
 We denote the variance of $\nu_k$ as $\tau^2$.
+$\nu_k$ is the random effect that gives the random effects approach its name.
+
+There are several ways to estimate this variation.
+I'm gooing to start with the most intuitive one, Hedges' estimator, and I'll then move on to the other ones available.
+I'll conclude with the formal statistical tests used to decide whether treatment effects are heterogeneous or not.
+
+##### Hedges' estimator of treatment effect heterogeneity
 
 Since Hedges, $\tau^2$ is estimated as the residual variance in effect sizes that is not explained by sampling noise.
 In order to compute this estimator, first estimate the overall variance in $\hat{\theta}_k$, then estimate the component of the variance due to sampling noise and finally take the difference between the two.
@@ -421,7 +434,101 @@ tau.2.theta.2 <- tau.2(data.meta$theta.2,data.meta$se.ES^2)
 
 Hedges' estimates of $\tau^2$ in our examples are thus `r round(tau.2.theta.1,2)` and  `r round(tau.2.theta.2,2)` respectively, while the true values are, respectively `r tau[[1]]^2` and `r tau[[2]]^2`.
 
-#### Estimating the average effect of the treatment taking heterogeneity into account {#sec:RE}
+##### Other estimators of treatment effects heterogeneity 
+
+$\tau^2$ is a pretty difficult measure of treatment effect heterogeneity to interpret. 
+That's why other indicators have been built that are easier to interpret. 
+We are going to review several of them in this section.
+
+The first alternative or complement to $\tau^2$ is Higgin's $I^2$:
+
+\begin{align*}
+  I^2 & = \frac{Q-(N-1)}{Q}*100
+\end{align*}
+
+The interpretation of $I^2$ is pretty straightforward: it is the distance between the actual value of the $Q$ statistic and its value under the null of treatment effect homogeneity (it is equal to the number of studies $N$, with a correction for degress of freedom).
+It can also be interpreted as the fraction of the overall variance (remember that $Q$ is the sum of variance ratios) that is not explained by within study sampling noise.
+
+Another complement to $\tau^2$ is $H^2$:
+
+\begin{align*}
+  H^2 & = \frac{Q}{N-1}
+\end{align*}
+
+If $H^2$ is above one, then there is unexplained heterogeneity, again by the fact that $Q$ has mean $N-1$ under the null of treatment effect homogeneity.
+
+Finally, we can also define the Intra Class Correlation ($ICC$), which precisely measures the share of total variance attributable to treatment effect heterogeneity:
+
+\begin{align*}
+  ICC & = \frac{\tau^2}{\tau^2+S^2}
+\end{align*}
+
+Where $S^2$ is the amount of variance due to sampling noise. 
+An estimator for $S^2$ is:
+
+\begin{align*}
+  S^2 & = \frac{(N-1)\sum_{k=1}^N\frac{1}{\sigma^2_k}}{(\sum_{k=1}^N\frac{1}{\sigma^2_k})^2-\sum_{k=1}^N(\frac{1}{\sigma^2_k})^2}.
+\end{align*}
+
+**<span style="font-variant:small-caps;">I do not understand the formula for $S^2$. Why does it estimate what we want? I'd take the average variance.</span>**
+
+$ICC$ and $I^2$ are related by the following very simple relation: $I^2=ICC*100$.
+
+```{example}
+Let's see how these three estimators look like in our example. 
+The cool thing is that `rma` computes these estimators by default, so that a simple call to `summary()` is going to show them.
+The default random effects estimator is `REML`, which is deemed to be the best of them all according to simulations [(Viechtbauer, 2002)](https://journals.sagepub.com/doi/abs/10.3102/10769986030003261).
+```
+
+```{r I2H2ICC,eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
+meta.example.RE.ES <- rma(yi = data.meta$ES,vi=data.meta$var.ES)
+meta.example.RE.theta.1 <- rma(yi = data.meta$theta.1,vi=data.meta$var.ES)
+meta.example.RE.theta.2 <- rma(yi = data.meta$theta.2,vi=data.meta$var.ES)
+
+tau2.hat <- c(meta.example.RE.ES$tau2,meta.example.RE.theta.1$tau2,meta.example.RE.theta.2$tau2)
+I2 <-  c(meta.example.RE.theta.1$I2,meta.example.RE.theta.2$I2,meta.example.RE.ES$I2)
+H2 <-  c(meta.example.RE.theta.1$H2,meta.example.RE.theta.2$H2,meta.example.RE.ES$H2)
+
+# illustration of results returned by summary
+summary(meta.example.RE.theta.2)
+```
+
+The estimate of $I^2$ in our example is of `r round(I2[[3]],2)` when $\tau^2$ is equal to 0, of `r round(I2[[1]],2)` when $\tau^2$ is equal to `r tau[[1]]^2` and of `r round(I2[[2]],2)` when $\tau^2$ is equal to `r tau[[2]]^2`.
+The estimate of $H^2$ in our example is of `r round(H2[[3]],2)` when $\tau^2$ is equal to 0, of `r round(H2[[1]],2)` when $\tau^2$ is equal to `r tau[[1]]^2` and of `r round(H2[[2]],2)` when $\tau^2$ is equal to `r tau[[2]]^2`.
+
+##### Testing for the homogeneity of treatment effects
+
+What can we do in order to test whether there is heterogeneity in treatment effects?
+One way is to build an index comparing the usual variation in treatment effects stemming from sampling noise to the one stemming from variation between studies.
+If we find that the variation between studies dwarves the variation due to sampling noise in each study, then there is some heterogeneity for sure.
+One statistics that does that is the $Q$ statistic where the variation in treatment effects between studies is estimated using the difference between the individual effect size and the average one squared:
+
+\begin{align*}
+  Q & = \sum_{k=1}^N\frac{(\hat{\theta}_k-\bar{\theta})^2}{\hat{\sigma}^2_k}.
+\end{align*}
+
+What is great with the $Q$ statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a $\chi^2$ distribution with $N-1$ degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
+
+```{example}
+In our example, we have already computed the $Q$ statistic when we have used the `rma` function in the `metafor` package. 
+In order to access it, we just need to extract it using `meta.example.FE$QE` for the $Q$ statistic and `meta.example.FE$QEp` for its p-value.  
+```
+The $Q$ statistic in our example has value `r round(meta.example.FE$QE,2)`, with associated p-value `r round(meta.example.FE$QEp,2)`.
+We end up not rejecting homogeneity, which is correct.
+
+```{remark}
+The problem with using test statistics for testing for treatment effect homogeneity is that, when precision increases, we might end up rejecting homogeneity despite the fact that it is there.
+```
+
+**<span style="font-variant:small-caps;">Test with $N=10^5$.</span>**
+
+```{remark}
+The $\chi^2$ distribution with $k$ degrees of freedom is asymptotically distributed as a normal with mean $k$ and variance $2k$.
+So, when $k$ is large, a good rule of thumb for assessing the homogeneity of the treatment effect estimates is to compare the $Q$ statistic to the number of studies. 
+If it is much larger, homogeneity is probably not guaranteed.
+```
+
+#### Random effects models {#sec:RE}
 
 Hedges proposes a new estimator for the average effect of the treatment, an estimator that accounts for the additional noise due to heterogeneous treatment effects accross sites.
 
@@ -500,70 +607,7 @@ ggplot(data=result.RE, aes(x=Method, y=ES.RE, fill=as.factor(tau2))) +
 
 **<span style="font-variant:small-caps;">Add error bars here.</span>**
 
-
-#### Other estimators of inter-site variability
-
-$\tau^2$ is a pretty difficult measure of treatment effect heterogeneity to interpret. 
-That's why other indicators have been built that are easier to interpret. 
-We are going to review several of them in this section.
-
-The first alternative or complement to $\tau^2$ is Higgin's $I^2$:
-
-\begin{align*}
-  I^2 & = \frac{Q-(N-1)}{Q}*100
-\end{align*}
-
-The interpretation of $I^2$ is pretty straightforward: it is the distance between the actual value of the $Q$ statistic and its value under the null of treatment effect homogeneity (it is equal to the number of studies $N$, with a correction for degress of freedom).
-It can also be interpreted as the fraction of the overall variance (remember that $Q$ is the sum of variance ratios) that is not explained by within study sampling noise.
-
-Another complement to $\tau^2$ is $H^2$:
-
-\begin{align*}
-  H^2 & = \frac{Q}{N-1}
-\end{align*}
-
-If $H^2$ is above one, then there is unexplained heterogeneity, again by the fact that $Q$ has mean $N-1$ under the null of treatment effect homogeneity.
-
-Finally, we can also define the Intra Class Correlation ($ICC$), which precisely measures the share of total variance attributable to treatment effect heterogeneity:
-
-\begin{align*}
-  ICC & = \frac{\tau^2}{\tau^2+S^2}
-\end{align*}
-
-Where $S^2$ is the amount of variance due to sampling noise. 
-An estimator for $S^2$ is:
-
-\begin{align*}
-  S^2 & = \frac{(N-1)\sum_{k=1}^N\frac{1}{\sigma^2_k}}{(\sum_{k=1}^N\frac{1}{\sigma^2_k})^2-\sum_{k=1}^N(\frac{1}{\sigma^2_k})^2}.
-\end{align*}
-
-**<span style="font-variant:small-caps;">I do not understand the formula for $S^2$. Why does it estimate what we want? I'd take the average variance.</span>**
-
-$ICC$ and $I^2$ are related by the following very simple relation: $I^2=ICC*100$.
-
-```{example}
-Let's see how these three estimators look like in our example. 
-The cool thing is that `rma` computes these estimators by default, so that a simple call to `summary()` is going to show them.
-The default random effects estimator is `REML`, which is deemed to be the best of them all according to simulations [(Viechtbauer, 2002)](https://journals.sagepub.com/doi/abs/10.3102/10769986030003261).
-```
-
-```{r I2H2ICC,eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
-meta.example.RE.ES <- rma(yi = data.meta$ES,vi=data.meta$var.ES)
-meta.example.RE.theta.1 <- rma(yi = data.meta$theta.1,vi=data.meta$var.ES)
-meta.example.RE.theta.2 <- rma(yi = data.meta$theta.2,vi=data.meta$var.ES)
-
-tau2.hat <- c(meta.example.RE.ES$tau2,meta.example.RE.theta.1$tau2,meta.example.RE.theta.2$tau2)
-I2 <-  c(meta.example.RE.theta.1$I2,meta.example.RE.theta.2$I2,meta.example.RE.ES$I2)
-H2 <-  c(meta.example.RE.theta.1$H2,meta.example.RE.theta.2$H2,meta.example.RE.ES$H2)
-
-# illustration of results returned by summary
-summary(meta.example.RE.theta.2)
-```
-
-The estimate of $I^2$ in our example is of `r round(I2[[3]],2)` when $\tau^2$ is equal to 0, of `r round(I2[[1]],2)` when $\tau^2$ is equal to `r tau[[1]]^2` and of `r round(I2[[2]],2)` when $\tau^2$ is equal to `r tau[[2]]^2`.
-The estimate of $H^2$ in our example is of `r round(H2[[3]],2)` when $\tau^2$ is equal to 0, of `r round(H2[[1]],2)` when $\tau^2$ is equal to `r tau[[1]]^2` and of `r round(H2[[2]],2)` when $\tau^2$ is equal to `r tau[[2]]^2`.
-
-#### Presenting the results of a random effects meta-analysis
+##### Presenting the results of a random effects meta-analysis
 
 In order to illustrate the results of a random effects meta-analysis, you can first show the forest plot.
 Let's see how it works in our example:
@@ -795,45 +839,85 @@ Figure \@ref(fig:MetaRegCoef) shows that all estimators perform very well and de
 
 **<span style="font-variant:small-caps;">I think SJn is the MOM estimator, check that.</span>**
 
-### Why vote-counting does not work
+### Constantly updated meta-analysis
 
-Vote-counting is an alternative to weighted average or meta-regression.
-The term, coined by Light and Smith (1971), refers to the practice of counting the numbet of studies that fall under one of three categories:
+Constantly updated meta-analysis performs the meta-analysis in a progressive manner, as the results keep arriving.
+This is a very important tool that enables us to aggregate constantly the information coming from different studies.
+Moreover, restrospectively, it helps us to assess when we would have reached enough precision so that we could have foregone an additional study.
+The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
-  * Significant and positive,
-  * Insignificant,
-  * Significant and negative.
-  
-A vote-counting approach concludes that there is evidence in favor of the treatment when the majority of effects fall in the first category, that there is no evidence that the treatment has an impact whenthe majority of studies fall in the second category, and that there is evidence that the treatment is defavorable when the majority of studies fall in the third category.
-In general, majority is evaluated at 33\%.
+```{example}
+Figure \@ref(fig:cumWMAE) shows how constantly updated meta-analysis works in our example.
+```
 
-The main problem with the vote counting approach is that it does not give more weight to more precise studies. 
-As a consequence, there is a very realistic possibility that the probability of finding the truth decrease as we add more studies to the meta-analysis.
+```{r cumWMAE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Constantly updated meta-analysis',fig.subcap=c('Initial data set','Constantly updated dataset'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+cum.wmae.1 <- function(k,theta,sigma2){
+  return(c(weighted.mean(theta[1:k],(1/sigma2[1:k])/(sum(1/sigma2[1:k]))),1/sum(1/sigma2[1:k])))
+}
 
-Let's see how this could happen with a simulation taken from HEdges and Olkin's book.
-Let $p$ be the probaility that a given result is significant and positive. 
-$p$ depends on the sample size $n$ of the study, and on the true treatment effect, $\theta$:
+cum.wmae <- function(theta,sigma2){
+  return(sapply(1:length(theta),cum.wmae.1,theta=theta,sigma2=sigma2))
+}
 
-\begin{align*}
-  p & = \int_{C_{\alpha}}^{\infty}f(t;\theta,n),
-\end{align*}
+cum.test <- as.data.frame(t(cum.wmae(data.meta$ES,data.meta$se.ES^2)))
+colnames(cum.test) <- c('cum.ES','cum.var')
+cum.test$id <- 1:nrow(cum.test)
+cum.test$cum.se.ES <- sqrt(cum.test$cum.var)
 
-where $f$ is the density of the test statistic $T$ used to evaluate whether the effect is significant or not, and $C_{\alpha}$ is the critical value of the test $T$.
-If $n$ and $\theta$ are constant over studies (for simplicity), the process of accumulating significant results can be modelled as a binomial with parameter $p$.
-The probability that over $K$ studies, we have a proportion of significant results larger than a pre-specified threshold (let's say $C_0$) is equal to:
+  ggplot(data.meta, aes(x=forcats::fct_rev(as.factor(id)), y=ES)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      xlab("Studies")+
+      ylab("Initial effect size")+
+      theme_bw()+
+      coord_flip()
 
-\begin{align*}
-  \Pr(\frac{X}{K}>C_0) & = \sum_{k=\text{int}(C_{0}k)+1}^{K}\left(\begin{array}{c}K\\k\end{array}\right)p^k(1-p)^(K-k),
-\end{align*}
+  ggplot(cum.test, aes(x=forcats::fct_rev(as.factor(id)), y=cum.ES)) +
+      geom_bar(position=position_dodge(), stat="identity", colour='black') +
+      geom_errorbar(aes(ymin=cum.ES-qnorm((delta.2+1)/2)*cum.se.ES, ymax=cum.ES+qnorm((delta.2+1)/2)*cum.se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      xlab("Studies")+
+      ylab("Cumulative effect size")+
+      theme_bw()+
+      coord_flip()
 
-where $\text{int}(a)$ is the greatest integer larger or equal to $a$ and $0\leq C_0\leq 1$.
-In order to use this formula, we simply have to choose a test.
-Let's choose the two-sided t-test of a zero treatment effect in an RCT with equal tozes for treated and control groups.
-In that case, $p$ is simply the power of the test.
-In Chapter \@ref(Power), we derive a formula for the power of the test: 
+```
 
-**<span style="font-variant:small-caps;">Continue, assuming unit variance because standardized effect size.</span>**
+Figure \@ref(fig:cumWMAE) shows that combining several imprecise estimates might help you reach the same precision as running a larger experiment.  
+For instance, cumulating the first 10 studies with a small sample size ($N=$ `r N.sample[[1]]`), the meta-analytic effect is estimated at `r round(select(filter(cum.test,id==10),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==10),cum.se.ES),2)`. 
+This is very close to the individual estimate obtained from the first estimate with a larger sample size (sample 11 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[2]]`): `r round(select(filter(data.meta,id==11),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==11),se.ES),2)`. 
+Both estimates actually have the exact same precision (because they actually have the same sample size).
+The same is true when combining the first 17 studies.
+The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==17),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==17),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size (sample 18 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[3]]`) is  `r round(select(filter(data.meta,id==18),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==18),se.ES),2)`. 
+Finally, the same result occurs when combining the first 19 studies.
+The meta-analytic effect is estimated at `r round(select(filter(cum.test,id==19),cum.ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(cum.test,id==19),cum.se.ES),2)`, while the effect estimated using one unique RCT with a larger sample size (sample 20 on Figure \@ref(fig:cumWMAE), with $N=$ `r N.sample[[4]]`) is  `r round(select(filter(data.meta,id==20),ES),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*select(filter(data.meta,id==20),se.ES),2)`. 
 
+As a conclusion, constantly updated meta-analysis would have each time delivered the same result than the one found with a much larger study, rendering this additional study almost irrelevant.
+This is a very important result: beyond the apparent messiness of the first noisy estimates in Figures \@ref(fig:confintervalESCLT) and \@ref(fig:FEforestplot) lies an order that can be retrieved and made apparent using constantly updated meta-analysis.
+Sometimes, the answer is right there in front of our eyes, we just lack the ability to see it.
+Constantly updated meta-analysis serves as a binocular to magnify what is there.
+Think about how costly it woud be to run a very large study, just to find out that the we did not really need it because we had known the result all along.
+
+```{remark}
+Something pretty cool is that I can reproduce Figure \@ref(fig:cumWMAE) using the `metafor` package with much less lines of code.
+```
+
+```{r cumWMAEmetafor,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Constantly updated meta-analysis with the `metafor` package',fig.subcap=c('Initial data set','Constantly updated dataset'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+forest(meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
+cumul.meta.example.FE <- cumul(meta.example.FE, order=data.meta$id)
+forest(cumul.meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Cumulated Parameter')
+```
+
+You can also call each of the individual results of the cumulative meta-analysis using `cumul.meta.example.FE$estimate`. 
+For example, the cumulated effect size after the 10 first studies is equal to `r round(cumul.meta.example.FE$estimate[[10]],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*cumul.meta.example.FE$se[[10]],2)`.
+
+
+Second, I present the simplest method to aggregate effects: the weighted average.
+Third, I present tests for deciding whether the effects are from a homogeneous or a heterogeneous population.
+Fourth, I explain how to conduct a meta-analysis when effects are heterogeneous.
+Fifth, I cover the meta-regression that we use to account for heterogeneity in treatment effects.
+Finally, I explain why usual intuitive methods such as vote-counting are biased.
 
 ## Publication bias
 

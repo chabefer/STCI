@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-11-05}
+    \date{2019-11-14}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8085,26 +8085,27 @@ treatment of interest. In our examples, that would be when for example,
 the distance to college is low, the draft lottery number is low, or
 someone receives an encouragement to enter a program.
 
-\BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}Since Monotonicity is going to play such a
-particular role, and since we have already explored this assumption a
-little in Chapter \ref{RCT}, I am going to use as an example a model
-where the Monotonicity assumption actualluy does not hold. It will, I
-hope, help us understand better the way Monotonicity works and how it
-interacts with other assumptions. The key component of the model that
-makes Monotonicity necessary is the fact that treatment effects are
-heterogeneous and correlated with participation in the treatment. We'll
-see later that Monotonicity is unnecessary when treatment effects are
-orthogonal to take up.
-\EndKnitrBlock{remark}
+\subsection{An example where Monotonicity does not
+hold}\label{an-example-where-monotonicity-does-not-hold}
+
+Since Monotonicity is going to play such a particular role, and since we
+have already explored this assumption a little in Chapter \ref{RCT}, I
+am going to use as an example a model where the Monotonicity assumption
+actually does not hold. It will, I hope, help us understand better the
+way Monotonicity works and how it interacts with the other assumptions.
+The key component of the model that makes Monotonicity necessary is the
+fact that treatment effects are heterogeneous and correlated with
+participation in the treatment. We'll see later that Monotonicity is
+unnecessary when treatment effects are orthogonal to take up.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
+\protect\hypertarget{exm:unnamed-chunk-139}{}{\label{exm:unnamed-chunk-139}
 }Let's see how we can generate a model without Monotonicity:
 \EndKnitrBlock{example}
 
 \begin{align*}
 D_i & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
+Z_i & \sim\mathcal{N}(0,\sigma^2_{\mu}+\sigma^2_{U}) \\
 Z_i & \sim\mathcal{B}(p_Z) \\
 Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \kappa_i & = 
@@ -8116,7 +8117,8 @@ Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \xi & \Ind (Y_i^0,Y_i^1,V_i,Z_i)
 \end{align*}
 
-\textbf{\textsc{Give the complete model (\(Y_i\) as well).}}
+\textbf{\textsc{Give the complete model (\(Y_i\) as well). Explain that
+we use a fuzzy eligibility rule.}}
 
 The key component of the model that generates a failure of Monotonicity
 is the coefficient \(\kappa_i\), that determines how individuals'
@@ -8129,7 +8131,7 @@ In my simplified model, \(\kappa_i\) can take only two values,
 \(\kappa_i=-\bar{\kappa}\) are going to be more likely to enter the
 program when they receive an encouragement (when \(Z_i=1\)) while
 individuals with \(\kappa_i=\underline{\kappa}\) will be less likely to
-enter the program when \(Z_i=1\). When \(-bar{\kappa}\) and
+enter the program when \(Z_i=1\). When \(-\bar{\kappa}\) and
 \(\underline{\kappa}\) have different signs, we have four types of
 reactions when the instrumental variable moves from \(Z_i=0\) to
 \(Z_i=1\), holding everything else constant. These four types of
@@ -8138,11 +8140,11 @@ reactions define four types of individuals:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Always takers} (\(T_i=at\)): individuals that participate in
+  \textbf{Always takers} (\(T_i=a\)): individuals that participate in
   the program both when \(Z_i=0\) and \(Z_i=1\).
 \item
-  \textbf{Never takers} (\(T_i=nt\)): individuals that do not
-  participate in the program both when \(Z_i=0\) and \(Z_i=1\).
+  \textbf{Never takers} (\(T_i=n\)): individuals that do not participate
+  in the program both when \(Z_i=0\) and \(Z_i=1\).
 \item
   \textbf{Compliers} (\(T_i=c\)): individuals that do not participate in
   the program when \(Z_i=0\) but that participate in the program when
@@ -8153,35 +8155,36 @@ reactions define four types of individuals:
   \(Z_i=1\) .
 \end{itemize}
 
-In our model, these four types are a funtion of \(V_i\) and
+In our model, these four types are a function of \(y_i^B+V_i\) and
 \(\kappa_i\). In order to see this let's define, as in Section
-@ref(\#sec:design4), \(D^z_i\) the participation decision of individual
+\ref{sec:design4}, \(D^z_i\) the participation decision of individual
 \(i\) when the instrument is exogenously set to \(Z_i=z\), with
 \(z\in\left\{0,1\right\}\). When \(\kappa_i=-\bar{\kappa}<0\), we have
-three types defined by where \(V_i\) lies with respect to a series of
-thresholds:
+three types of reactions to the instrument. It turns out that each of
+type can be defined by where \(y_i^B+V_i\) lies with respect to a series
+of thresholds:
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Always takers} (\(T_i=at\)) are such that
+  \textbf{Always takers} (\(T_i=a\)) are such that
   \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1\) and
   \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\), so that they actually are
-  such that: \(V_i\leq\bar{y}-y_i^B\). This is because
-  \(V_i\leq\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B+\bar{\kappa}\),
+  such that: \(y_i^B+V_i\leq\bar{y}\). This is because
+  \(y_i^B+V_i\leq\bar{y} \Rightarrow y_i^B+V_i\leq\bar{y}+\bar{\kappa}\),
   when \(\bar{\kappa}>0\).
 \item
-  \textbf{Never takers} (\(T_i=nt\)) are such that
+  \textbf{Never takers} (\(T_i=n\)) are such that
   \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0\) and
   \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\), so that they actually are
-  such that: \(V_i>\bar{y}-y_i^B+\bar{\kappa}\). This is because
-  \(V_i>\bar{y}-y_i^B+\bar{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B\),
-  when \(\bar{\kappa}>0\).
+  such that: \(y_i^B+V_i>\bar{y}+\bar{\kappa}\). This is because
+  \(y_i^B+V_i>\bar{y}+\bar{\kappa} \Rightarrow y_i^B+V_i>\bar{y}\), when
+  \(\bar{\kappa}>0\).
 \item
   \textbf{Compliers} (\(T_i=c\)) are such that
   \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1\) and
   \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\), so that they actually are
-  such that: \(\bar{y}-y_i^B<V_i\leq\bar{y}-y_i^B+\bar{\kappa}\).
+  such that: \(\bar{y}<y_i^B+V_i\leq\bar{y}+\bar{\kappa}\).
 \end{itemize}
 
 When \(\kappa_i=\underline{\kappa}<0\), we have three types defined by
@@ -8190,37 +8193,34 @@ where \(V_i\) lies with respect to a series of thresholds:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Always takers} (\(T_i=at\)) are such that
+  \textbf{Always takers} (\(T_i=a\)) are such that
   \(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=1\) and
   \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\), so that they actually are
-  such that: \(V_i\leq\bar{y}-y_i^B-\underline{\kappa}\). This is
+  such that: \(y_i^B+V_i\leq\bar{y}-\underline{\kappa}\). This is
   because
-  \(V_i\leq\bar{y}-y_i^B-\underline{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B\),
+  \(y_i^B+V_i\leq\bar{y}-\underline{\kappa} \Rightarrow y_i^B+V_i\leq\bar{y}\),
   when \(\underline{\kappa}>0\).
 \item
-  \textbf{Never takers} (\(T_i=nt\)) are such that
+  \textbf{Never takers} (\(T_i=n\)) are such that
   \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0\) and
   \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\), so that they actually are
-  such that: \(V_i>\bar{y}-y_i^B\). This is because
-  \(V_i>\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B-\underline{\kappa}\),
+  such that: \(y_i^B+V_i>\bar{y}\). This is because
+  \(y_i^B+V_i>\bar{y} \Rightarrow y_i^B+V_i\leq\bar{y}-\underline{\kappa}\),
   when \(\underline{\kappa}>0\).
 \item
-  \textbf{Defiers} (\(T_i=c\)) are such that
+  \textbf{Defiers} (\(T_i=d\)) are such that
   \(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0\) and
   \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\), so that they actually are
-  such that: \(\bar{y}-y_i^B-\underline{\kappa}<V_i\leq\bar{y}-y_i^B\).
+  such that: \(\bar{y}-\underline{\kappa}<V_i+y_i^B\leq\bar{y}\).
 \end{itemize}
 
-\textbf{\textsc{Give two plots for V\_i as a funciton of the thresholds,
-depending on the vaueof kappa\_i, showing the types. Don't forget to put
-the whole model above.}}
-
-Let's generate some data according to this process. For that, let's
-choose values for the new parameters.
+Let's visualize how this works in a plot. Before that, let's generate
+some data according to this process. For that, let's choose values for
+the new parameters.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{7.98}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\OperatorTok{-}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.9}\NormalTok{)}
+\NormalTok{param <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{7.98}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.9}\NormalTok{)}
 \KeywordTok{names}\NormalTok{(param) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"baryB"}\NormalTok{,}\StringTok{"pZ"}\NormalTok{,}\StringTok{"barkappa"}\NormalTok{,}\StringTok{"underbarkappa"}\NormalTok{,}\StringTok{"pxi"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -8235,7 +8235,8 @@ choose values for the new parameters.
 \NormalTok{Ds <-}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
 \NormalTok{Z <-}\StringTok{ }\KeywordTok{rbinom}\NormalTok{(N,}\DecValTok{1}\NormalTok{,param[}\StringTok{"pZ"}\NormalTok{])}
 \NormalTok{xi <-}\StringTok{ }\KeywordTok{rbinom}\NormalTok{(N,}\DecValTok{1}\NormalTok{,param[}\StringTok{"pxi"}\NormalTok{]) }
-\NormalTok{kappa <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(xi}\OperatorTok{==}\DecValTok{1}\NormalTok{,param[}\StringTok{"barkappa"}\NormalTok{],param[}\StringTok{"underbarkappa"}\NormalTok{])}
+\NormalTok{kappa <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(xi}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\OperatorTok{-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{],param[}\StringTok{"underbarkappa"}\NormalTok{])}
+\NormalTok{V <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\OperatorTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
 \NormalTok{Ds[yB}\OperatorTok{+}\NormalTok{kappa}\OperatorTok{*}\NormalTok{Z}\OperatorTok{+}\NormalTok{V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] <-}\StringTok{ }\DecValTok{1} 
 \NormalTok{epsilon <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
 \NormalTok{eta<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
@@ -8249,6 +8250,91 @@ choose values for the new parameters.
 \NormalTok{Y <-}\StringTok{ }\NormalTok{Y1}\OperatorTok{*}\NormalTok{Ds}\OperatorTok{+}\NormalTok{Y0}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{Ds)}
 \end{Highlighting}
 \end{Shaded}
+
+We can now define the types variable \(T_i\):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{D1 <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(yB}\OperatorTok{+}\NormalTok{kappa}\OperatorTok{+}\NormalTok{V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{D0 <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(yB}\OperatorTok{+}\NormalTok{V}\OperatorTok{<=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{AT <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(D1}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{D0}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{NT <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(D1}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{D0}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{C <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(D1}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{D0}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{D <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(D1}\OperatorTok{==}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{D0}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{Type <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(AT}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\StringTok{'a'}\NormalTok{,}
+            \KeywordTok{ifelse}\NormalTok{(NT}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\StringTok{'n'}\NormalTok{,}
+                   \KeywordTok{ifelse}\NormalTok{(C}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\StringTok{'c'}\NormalTok{,}
+                          \KeywordTok{ifelse}\NormalTok{(D}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\StringTok{'d'}\NormalTok{,}\StringTok{""}\NormalTok{))))}
+
+\NormalTok{data.non.mono <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\KeywordTok{cbind}\NormalTok{(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta,epsilon,Ds,kappa,xi,Z,mu,UB))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#ggplot(data.non.mono, aes(x=V, y=yB),color(as.factor(Type))) +}
+\CommentTok{#    geom_point(shape=1)+}
+\CommentTok{#    facet_grid(.~ as.factor(kappa))}
+
+\KeywordTok{plot}\NormalTok{(yB[AT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[AT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],y[AT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{11}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{11}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'yB+V'}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Outcomes"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(yB[NT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[NT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],y[NT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(yB[C}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[C}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],y[C}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(yB[D}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[D}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],y[D}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==-}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\StringTok{'green'}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{+}\NormalTok{param[}\StringTok{'barkappa'}\NormalTok{],}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{)}
+\CommentTok{#abline(v=log(param["barY"])-param['underbarkappa'],col='red')}
+\KeywordTok{text}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{c}\NormalTok{(}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{+}\NormalTok{param[}\StringTok{'barkappa'}\NormalTok{]),}\DataTypeTok{y=}\KeywordTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{5}\NormalTok{),}\DataTypeTok{labels=}\KeywordTok{c}\NormalTok{(}\KeywordTok{expression}\NormalTok{(}\KeywordTok{bar}\NormalTok{(}\StringTok{'y'}\NormalTok{)),}\KeywordTok{expression}\NormalTok{(}\KeywordTok{bar}\NormalTok{(}\StringTok{'y'}\NormalTok{)}\OperatorTok{+}\KeywordTok{bar}\NormalTok{(kappa))),}\DataTypeTok{pos=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{4}\NormalTok{),}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{'red'}\NormalTok{,}\StringTok{'red'}\NormalTok{),}\DataTypeTok{lty=}\KeywordTok{c}\NormalTok{(}\StringTok{'solid'}\NormalTok{,}\StringTok{'solid'}\NormalTok{))}
+\KeywordTok{legend}\NormalTok{(}\DecValTok{5}\NormalTok{,}\FloatTok{10.5}\NormalTok{,}\KeywordTok{c}\NormalTok{(}\StringTok{'AT'}\NormalTok{,}\StringTok{'NT'}\NormalTok{,}\StringTok{'C'}\NormalTok{,}\StringTok{'D'}\NormalTok{),}\DataTypeTok{pch=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{'black'}\NormalTok{,}\StringTok{'blue'}\NormalTok{,}\StringTok{'red'}\NormalTok{,}\StringTok{'green'}\NormalTok{),}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{)}
+\KeywordTok{title}\NormalTok{(}\KeywordTok{expression}\NormalTok{(}\DataTypeTok{kappa=}\KeywordTok{bar}\NormalTok{(kappa)))}
+
+\KeywordTok{plot}\NormalTok{(yB[AT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[AT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],y[AT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{11}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{11}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'yB+V'}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Outcomes"}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(yB[NT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[NT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],y[NT}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\StringTok{'blue'}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(yB[C}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[C}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],y[C}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(yB[D}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]]}\OperatorTok{+}\NormalTok{V[D}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],y[D}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{kappa}\OperatorTok{==}\NormalTok{param[}\StringTok{"underbarkappa"}\NormalTok{]],}\DataTypeTok{pch=}\DecValTok{1}\NormalTok{,}\DataTypeTok{col=}\StringTok{'green'}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{)}
+\CommentTok{#abline(v=log(param["barY"])-param['barkappa'],col='red')}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{'underbarkappa'}\NormalTok{],}\DataTypeTok{col=}\StringTok{'red'}\NormalTok{)}
+\KeywordTok{text}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{c}\NormalTok{(}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\KeywordTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\OperatorTok{-}\NormalTok{param[}\StringTok{'underbarkappa'}\NormalTok{]),}\DataTypeTok{y=}\KeywordTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{5}\NormalTok{),}\DataTypeTok{labels=}\KeywordTok{c}\NormalTok{(}\KeywordTok{expression}\NormalTok{(}\KeywordTok{bar}\NormalTok{(}\StringTok{'y'}\NormalTok{)),}\KeywordTok{expression}\NormalTok{(}\KeywordTok{bar}\NormalTok{(}\StringTok{'y'}\NormalTok{)}\OperatorTok{-}\KeywordTok{underbar}\NormalTok{(kappa))),}\DataTypeTok{pos=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{),}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{'red'}\NormalTok{,}\StringTok{'red'}\NormalTok{),}\DataTypeTok{lty=}\KeywordTok{c}\NormalTok{(}\StringTok{'solid'}\NormalTok{,}\StringTok{'solid'}\NormalTok{))}
+\KeywordTok{legend}\NormalTok{(}\DecValTok{5}\NormalTok{,}\FloatTok{10.5}\NormalTok{,}\KeywordTok{c}\NormalTok{(}\StringTok{'AT'}\NormalTok{,}\StringTok{'NT'}\NormalTok{,}\StringTok{'C'}\NormalTok{,}\StringTok{'D'}\NormalTok{),}\DataTypeTok{pch=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{'black'}\NormalTok{,}\StringTok{'blue'}\NormalTok{,}\StringTok{'red'}\NormalTok{,}\StringTok{'green'}\NormalTok{),}\DataTypeTok{ncol=}\DecValTok{1}\NormalTok{)}
+\KeywordTok{title}\NormalTok{(}\KeywordTok{expression}\NormalTok{(}\DataTypeTok{kappa=}\KeywordTok{underbar}\NormalTok{(kappa)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[$\kappa=\bar{\kappa}$\label{fig:plottypes1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/plottypes-1} }\subfloat[$\kappa=\underline{\kappa}$\label{fig:plottypes2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/plottypes-2} }
+
+}
+
+\caption{Types}\label{fig:plottypes}
+\end{figure}
+
+As Figure \ref{fig:plottypes} shows how the different types interact
+with \(\kappa_i\). When \(\kappa_i=-\bar{\kappa}\), individuals with
+\(y_i^B+V_i\) below \(\bar{y}\) always take the program. Even when
+\(Z_i=1\) and \(\bar{\kappa}\) is subtracted from their index, it is
+still low enough so that they get to participate. When \(y_i^B+V_i\) is
+in between \(\bar{y}\) and \(\bar{y}+\bar{\kappa}\), the individuals are
+such that their index without subtracting \(\bar{\kappa}\) is above
+\(\bar{y}\), but it is below \(\bar{y}\) when \(\bar{\kappa}\) is
+subtracted from it. These individuals participate when \(Z_i=1\) and do
+not participate when \(Z_i=0\): they are compliers. Individuals such
+that \(y_i^B+V_i\) is above \(\bar{y}+\bar{\kappa}\) will have an index
+above \(\bar{y}\) whether we substract \(\bar{\kappa}\) from it or not.
+They are never takers.
+
+When \(\kappa_i=\underline{\kappa}\), individuals with \(y_i^B+V_i\)
+below \(\bar{y}-\underline{\kappa}\) always take the program. Even when
+\(Z_i=0\) and \(\underline{\kappa}\) is not subtracted from their index,
+it is still low enough so that they get to participate. When
+\(y_i^B+V_i\) is in between \(\bar{y}-\underline{\kappa}\) and
+\(\bar{y}\), the individuals are such that their index without adding
+\(\underline{\kappa}\) is below \(\bar{y}\), but it is above \(\bar{y}\)
+when \(\underline{\kappa}\) is added to it. These individuals
+participate when \(Z_i=0\) and do not participate when \(Z_i=1\): they
+are defiers. Individuals such that \(y_i^B+V_i\) is above \(\bar{y}\)
+will have an index above \(\bar{y}\) whether we add
+\(\underline{\kappa}\) from it or not. They are never takers.
 
 \subsection{Identification}\label{identification-4}
 
@@ -8279,7 +8365,7 @@ secure the identification of two different parameters:
 \EndKnitrBlock{definition}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141}
+\protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140}
 }Let's see how this assumption works in our example. Let's first compute
 the average values of \(Y_i\) and \(D_i\) as a function of \(Z_i\), for
 later use.
@@ -8303,8 +8389,8 @@ later use.
 \end{figure}
 
 Figure \ref{fig:IVFirstStage} shows that the proportion of treated when
-\(Z_i=1\) in our sample is equal to 0.56 while the proportion of treated
-when \(Z_i=0\) is equal to 0.27, in accordance with Assumption
+\(Z_i=1\) in our sample is equal to 0.55 while the proportion of treated
+when \(Z_i=0\) is equal to 0.33, in accordance with Assumption
 \ref{def:FirstStage}.
 
 \textbf{\textsc{Give result in the population.}}
@@ -8538,13 +8624,16 @@ section, I am going to present only the most important ones. I'll defer
 the reader to other more specialized publications if needed.
 
 I first present the basics of meta-analysis: the constitution and
-structure of the sample. Second, I present the simplest method to
-aggregate effects: the weighted average. Third, I present tests for
-deciding whether the effects are from a homogeneous or a heterogeneous
-population. Fourth, I explain how to conduct a meta-analysis when
-effects are heterogeneous. Fifth, I cover the meta-regression that we
-use to account for heterogeneity in treatment effects. Finally, I
-explain why usual intuitive methods such as vote-counting are biased.
+structure of the sample. Second, I present the problems of the intuitive
+``vote-counting'' method. Third, I present the methods used when
+treatment effects are homogeneous across studies, called fixed effects
+models. Fourth, I move to the methods used when effects are
+heterogeneous across studies, or random effects models, and the tests
+used to decide whether we are in a fixed or random effects framework.
+Fifth, I present meta-regression, that tries to capture treatment effect
+heterogeneity by including covariates. Finally, I present constantly
+updated meta-analysis, a way to aggregate results of individual studies
+as they come.
 
 \subsection{Basic setting}\label{basic-setting}
 
@@ -8566,7 +8655,7 @@ like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with
 estimated standard error, and \(N\) the number of included studies.
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-144}{}{\label{exm:unnamed-chunk-144}
+\protect\hypertarget{exm:unnamed-chunk-143}{}{\label{exm:unnamed-chunk-143}
 }Let's see how such a dataset would look like? Let's build one from our
 simulations.
 \EndKnitrBlock{example}
@@ -8620,11 +8709,168 @@ sample size of studies that accumulate evidence on a treatment, probably
 with studies with a small sample size at first, and only large studies
 at the end for the most promising treatments.
 
-\subsection{Meta-analysis as a weighted average}\label{MetaWA}
+\subsection{Why vote-counting does not
+work}\label{why-vote-counting-does-not-work}
 
-The key idea of meta-analysis is to combine the effect size estimates
-stemming from different studies, weighing them by their relative
-precision.
+Vote-counting is an alternative to weighted average or meta-regression.
+The term, coined by Light and Smith (1971), refers to the practice of
+counting the number of studies that fall under one of three categories:
+
+\begin{itemize}
+\tightlist
+\item
+  Significant and positive,
+\item
+  Insignificant,
+\item
+  Significant and negative.
+\end{itemize}
+
+A vote-counting approach concludes that there is evidence in favor of
+the treatment when the majority of effects fall in the first category,
+that there is no evidence that the treatment has an impact whenthe
+majority of studies fall in the second category, and that there is
+evidence that the treatment is defavorable when the majority of studies
+fall in the third category. In general, majority is evaluated at 33\%.
+
+The main problem with the vote counting approach is that it does not
+give more weight to more precise studies. As a consequence, there is a
+very realistic possibility that the probability of finding the truth
+decrease as we add more studies to the meta-analysis.
+
+Let's see how this could happen with a simulation taken from HEdges and
+Olkin's book. Let \(p\) be the probaility that a given result is
+significant and positive. \(p\) depends on the sample size \(n\) of the
+study, and on the true treatment effect, \(\theta\):
+
+\begin{align*}
+  p & = \int_{C_{\alpha}}^{\infty}f(t;\theta,n),
+\end{align*}
+
+where \(f\) is the density of the test statistic \(T\) used to evaluate
+whether the effect is significant or not, and \(C_{\alpha}\) is the
+critical value of the test \(T\). If \(n\) and \(\theta\) are constant
+over studies (for simplicity), the process of accumulating significant
+results can be modelled as a binomial with parameter \(p\). The
+probability that over \(K\) studies, we have a proportion of significant
+results larger than a pre-specified threshold (let's say \(C_0\)) is
+equal to:
+
+\begin{align*}
+  \Pr(\frac{X}{K}>C_0) & = \sum_{k=\text{int}(C_{0}k)+1}^{K}\left(\begin{array}{c}K\\k\end{array}\right)p^k(1-p)^{K-k},
+\end{align*}
+
+where \(\text{int}(a)\) is the greatest integer larger or equal to \(a\)
+and \(0\leq C_0\leq 1\). In order to use this formula, we simply have to
+choose a test. Let's choose the two-sided t-test of a zero treatment
+effect in an RCT with equal tozes for treated and control groups. In
+that case, \(p\) is simply the power of the test. In Chapter
+\ref{Power}, we have derived a formula for the power of this test when
+\(N\) is large:
+
+\begin{align*}
+  \kappa & = \Phi\left(\frac{\beta_A}{\sqrt{\var{\hat{E}}}}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right),
+\end{align*}
+
+with \(\var{\hat{E}}=\frac{C(\hat{E})}{N}\) and \(C(\hat{E})\) the
+variance of the estimator across sampling replications. Let's make the
+simplifying assumption that the treatment effect is constant, so that
+the variance of the estimator is basically the variance of the outcomes.
+Let's also assume that we are working with effect sizes, so that our
+outcomes are normalized to have mean zero and variance one. Under these
+assumptions, \(C(\hat{E})=1\) and we can implement the power formula:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{PowerTwoside <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(betaA,alpha,N,}\DataTypeTok{CE=}\DecValTok{1}\NormalTok{)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{pnorm}\NormalTok{(}\OperatorTok{-}\NormalTok{betaA}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(CE}\OperatorTok{/}\NormalTok{N)}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{alpha}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{+}\KeywordTok{pnorm}\NormalTok{(betaA}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(CE}\OperatorTok{/}\NormalTok{N)}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{alpha}\OperatorTok{/}\DecValTok{2}\NormalTok{)))}
+\NormalTok{\}}
+
+\NormalTok{PowerTwosideStudent <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(betaA,alpha,N,}\DataTypeTok{CE=}\DecValTok{1}\NormalTok{)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{pt}\NormalTok{(}\OperatorTok{-}\NormalTok{betaA}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(CE}\OperatorTok{/}\NormalTok{N)}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{alpha}\OperatorTok{/}\DecValTok{2}\NormalTok{),}\DataTypeTok{df=}\NormalTok{N}\OperatorTok{-}\DecValTok{1}\NormalTok{)}\OperatorTok{+}\KeywordTok{pt}\NormalTok{(betaA}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(CE}\OperatorTok{/}\NormalTok{N)}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{alpha}\OperatorTok{/}\DecValTok{2}\NormalTok{),}\DataTypeTok{df=}\NormalTok{N}\OperatorTok{-}\DecValTok{1}\NormalTok{))}
+\NormalTok{\}}
+
+\NormalTok{VoteCounting <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(betaA,C0,K,...)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{pbinom}\NormalTok{(}\DataTypeTok{q=}\NormalTok{C0}\OperatorTok{*}\NormalTok{K,}\DataTypeTok{size=}\NormalTok{K,}\DataTypeTok{prob=}\KeywordTok{PowerTwosideStudent}\NormalTok{(}\DataTypeTok{betaA=}\NormalTok{betaA,...),}\DataTypeTok{lower.tail =} \OtherTok{FALSE}\NormalTok{))}
+\NormalTok{\}}
+
+\KeywordTok{PowerTwosideStudent}\NormalTok{(}\DataTypeTok{betaA=}\FloatTok{0.1}\NormalTok{,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{N=}\DecValTok{300}\NormalTok{)}
+\KeywordTok{VoteCounting}\NormalTok{(}\DataTypeTok{C0=}\NormalTok{.}\DecValTok{33}\NormalTok{,}\DataTypeTok{K=}\DecValTok{3000}\NormalTok{,}\DataTypeTok{betaA=}\FloatTok{0.1}\NormalTok{,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{N=}\DecValTok{300}\NormalTok{)}
+
+\NormalTok{Sample.size <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{20}\NormalTok{,}\DecValTok{50}\NormalTok{,}\DecValTok{100}\NormalTok{,}\DecValTok{200}\NormalTok{,}\DecValTok{300}\NormalTok{)}
+\NormalTok{BetaA <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\FloatTok{0.1}\NormalTok{,}\FloatTok{1.5}\NormalTok{,}\DataTypeTok{by=}\FloatTok{0.1}\NormalTok{)}
+\NormalTok{K.list <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{10}\NormalTok{,}\DecValTok{20}\NormalTok{,}\DecValTok{30}\NormalTok{,}\DecValTok{50}\NormalTok{,}\DecValTok{100}\NormalTok{,}\DecValTok{1000}\NormalTok{)}
+
+\NormalTok{power.vote <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\StringTok{"Power"}\NormalTok{=}\StringTok{ }\DecValTok{0}\NormalTok{,}\StringTok{'BetaA'}\NormalTok{=}\StringTok{ }\DecValTok{0}\NormalTok{,}\StringTok{'N'}\NormalTok{=}\StringTok{ }\DecValTok{0}\NormalTok{,}\StringTok{'K'}\NormalTok{=}\StringTok{ }\DecValTok{0}\NormalTok{)}
+  
+\CommentTok{#power.vote <- sapply(BetaA,VoteCounting,C0=.33,K=K.list[[1]],alpha=0.05,N=Sample.size[[1]])}
+\CommentTok{#power.vote <- cbind(power.vote,BetaA,Sample.size[[1]],K.list[[1]])}
+
+\ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in}\NormalTok{ (}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(K.list)))\{}
+  \ControlFlowTok{for}\NormalTok{ (k }\ControlFlowTok{in}\NormalTok{ (}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(Sample.size)))\{}
+\NormalTok{    power.vote.int <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(BetaA,VoteCounting,}\DataTypeTok{C0=}\NormalTok{.}\DecValTok{33}\NormalTok{,}\DataTypeTok{K=}\NormalTok{K.list[[j]],}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{N=}\NormalTok{Sample.size[[k]])}
+\NormalTok{    power.vote.int <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(power.vote.int,BetaA,Sample.size[[k]],K.list[[j]])}
+    \KeywordTok{colnames}\NormalTok{(power.vote.int) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'Power'}\NormalTok{,}\StringTok{'BetaA'}\NormalTok{,}\StringTok{'N'}\NormalTok{,}\StringTok{'K'}\NormalTok{)}
+\NormalTok{    power.vote <-}\StringTok{ }\KeywordTok{rbind}\NormalTok{(power.vote,power.vote.int)  }
+\NormalTok{  \}}
+\NormalTok{\}}
+
+\NormalTok{power.vote <-}\StringTok{ }\NormalTok{power.vote[}\OperatorTok{-}\DecValTok{1}\NormalTok{,]}
+\NormalTok{power.vote}\OperatorTok{$}\NormalTok{K.int <-}\StringTok{ }\NormalTok{power.vote}\OperatorTok{$}\NormalTok{K}
+\NormalTok{power.vote}\OperatorTok{$}\NormalTok{K <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(power.vote}\OperatorTok{$}\NormalTok{K)}
+
+\CommentTok{#ggplot(data=filter(power.vote,K==10),aes(x=N,y=Power,group=as.factor(BetaA),shape=as.factor(BetaA),color=as.factor(BetaA)))+}
+\CommentTok{#  geom_line()+}
+\CommentTok{#  geom_point()}
+
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data=}\KeywordTok{filter}\NormalTok{(power.vote,BetaA}\OperatorTok{==}\FloatTok{0.1}\NormalTok{),}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{N,}\DataTypeTok{y=}\NormalTok{Power,}\DataTypeTok{group=}\NormalTok{K,}\DataTypeTok{shape=}\NormalTok{K,}\DataTypeTok{color=}\NormalTok{K))}\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlab}\NormalTok{(}\StringTok{"N (BetaA=0.1)"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Detection probability of the vote counting rule"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_bw}\NormalTok{() }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\KeywordTok{scale_fill_discrete}\NormalTok{(}\DataTypeTok{name=}\StringTok{"K"}\NormalTok{)}
+
+
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data=}\KeywordTok{filter}\NormalTok{(power.vote,BetaA}\OperatorTok{==}\FloatTok{0.2}\NormalTok{),}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{N,}\DataTypeTok{y=}\NormalTok{Power,}\DataTypeTok{group=}\NormalTok{K,}\DataTypeTok{shape=}\NormalTok{K,}\DataTypeTok{color=}\NormalTok{K))}\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlab}\NormalTok{(}\StringTok{"N (BetaA=0.2)"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Detection probability of the vote counting rule"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[$\beta^A=0.1$\label{fig:VoteCounting1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/VoteCounting-1} }\subfloat[$\beta^A=0.2$\label{fig:VoteCounting2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/VoteCounting-2} }
+
+}
+
+\caption{Detection probability of the vote counting rule}\label{fig:VoteCounting}
+\end{figure}
+
+Figure \ref{fig:VoteCounting} shows that the vote counting rule has a
+very inconvenient property: when the power of the test is lower than
+33\%, the probability that the vote counting rule detects a true effect
+decreases with the number of studies included in the meta-analysis, and
+converges to zero when the number of studies gets large.\\
+For example, when \(N=100\) and \(\beta_A=0.1\), the probability of
+detecting the effect using the vote counting method is equal to 0.076
+with \(K=10\) studies and decreases to 0.043 when \(K=20\), and 0 when
+\(K=100\). The pattern is reverse for more powerful studies, such as
+when \(N=300\) and \(\beta_A=0.1\) or when \(N=100\) and
+\(\beta_A=0.2\).
+
+The intuition for this result is that the vote counting method does not
+average out the sampling noise in each individual study.
+
+\subsection{Meta-analysis when treatment effects are homogeneous: the
+fixed effects approach}\label{MetaWA}
+
+The key idea of meta-analysis with fixed effects is to combine the
+effect size estimates stemming from different studies, weighing them by
+their relative precision.
 
 \BeginKnitrBlock{definition}[Weighted Meta-Analytic Estimator]
 \protect\hypertarget{def:metaweights}{}{\label{def:metaweights}
@@ -8738,7 +8984,7 @@ meta-analytic estimator is the most efficient estimator available.
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-150}{}{\label{exm:unnamed-chunk-150}
+\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149}
 }Let's use our meta-analytic estimator to estimate the effect size of
 our treatment.
 \EndKnitrBlock{example} The estimated treatment effect size with our
@@ -8798,130 +9044,9 @@ in the \texttt{metafor} package:
 \caption{Example data set: forest plot}\label{fig:FEforestplot}
 \end{figure}
 
-\subsection{Constantly updated
-meta-analysis}\label{constantly-updated-meta-analysis}
-
-Constantly updated meta-analysis performs the meta-analysis in a
-progressive manner, as the results keep arriving. This is a very
-important tool that enables us to aggregate constantly the information
-coming from different studies. Moreover, restrospectively, it helps us
-to assess when we would have reached enough precision so that we could
-have foregone an additional study. The way constantly updated
-meta-analysis works is simply by performing a new meta-analysis each
-time a new results pops up.
-
-\BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151}
-}Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
-works in our example.
-\EndKnitrBlock{example}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{cum.wmae.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(k,theta,sigma2)\{}
-  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\KeywordTok{weighted.mean}\NormalTok{(theta[}\DecValTok{1}\OperatorTok{:}\NormalTok{k],(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k]))),}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k])))}
-\NormalTok{\}}
-
-\NormalTok{cum.wmae <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(theta,sigma2)\{}
-  \KeywordTok{return}\NormalTok{(}\KeywordTok{sapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(theta),cum.wmae.}\DecValTok{1}\NormalTok{,}\DataTypeTok{theta=}\NormalTok{theta,}\DataTypeTok{sigma2=}\NormalTok{sigma2))}
-\NormalTok{\}}
-
-\NormalTok{cum.test <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{t}\NormalTok{(}\KeywordTok{cum.wmae}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES,data.meta}\OperatorTok{$}\NormalTok{se.ES}\OperatorTok{^}\DecValTok{2}\NormalTok{)))}
-\KeywordTok{colnames}\NormalTok{(cum.test) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'cum.ES'}\NormalTok{,}\StringTok{'cum.var'}\NormalTok{)}
-\NormalTok{cum.test}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(cum.test)}
-\NormalTok{cum.test}\OperatorTok{$}\NormalTok{cum.se.ES <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(cum.test}\OperatorTok{$}\NormalTok{cum.var)}
-
-  \KeywordTok{ggplot}\NormalTok{(data.meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{forcats}\OperatorTok{::}\KeywordTok{fct_rev}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(id)), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Initial effect size"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
-\StringTok{      }\KeywordTok{coord_flip}\NormalTok{()}
-
-  \KeywordTok{ggplot}\NormalTok{(cum.test, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{forcats}\OperatorTok{::}\KeywordTok{fct_rev}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(id)), }\DataTypeTok{y=}\NormalTok{cum.ES)) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{cum.ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES, }\DataTypeTok{ymax=}\NormalTok{cum.ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
-\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Cumulative effect size"}\NormalTok{)}\OperatorTok{+}
-\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
-\StringTok{      }\KeywordTok{coord_flip}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}[htbp]
-
-{\centering \subfloat[Initial data set\label{fig:cumWMAE1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAE-1} }\subfloat[Constantly updated dataset\label{fig:cumWMAE2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAE-2} }
-
-}
-
-\caption{Constantly updated meta-analysis}\label{fig:cumWMAE}
-\end{figure}
-
-Figure \ref{fig:cumWMAE} shows that combining several imprecise
-estimates might help you reach the same precision as running a larger
-experiment.\\
-For instance, cumulating the first 10 studies with a small sample size
-(\(N=\) 100), the meta-analytic effect is estimated at 0.2 \(\pm\) 0.18.
-This is very close to the individual estimate obtained from the first
-estimate with a larger sample size (sample 11 on Figure
-\ref{fig:cumWMAE}, with \(N=\) 1000): 0.17 \(\pm\) 0.18. Both estimates
-actually have the exact same precision (because they actually have the
-same sample size). The same is true when combining the first 17 studies.
-The meta-analytic effect is estimated at 0.24 \(\pm\) 0.06, while the
-effect estimated using one unique RCT with a larger sample size (sample
-18 on Figure \ref{fig:cumWMAE}, with \(N=\) 10\^{}\{4\}) is 0.21 \(\pm\)
-0.05. Finally, the same result occurs when combining the first 19
-studies. The meta-analytic effect is estimated at 0.21 \(\pm\) 0.03,
-while the effect estimated using one unique RCT with a larger sample
-size (sample 20 on Figure \ref{fig:cumWMAE}, with \(N=\) 10\^{}\{5\}) is
-0.19 \(\pm\) 0.02.
-
-As a conclusion, constantly updated meta-analysis would have each time
-delivered the same result than the one found with a much larger study,
-rendering this additional study almost irrelevant. This is a very
-important result: beyond the apparent messiness of the first noisy
-estimates in Figures \ref{fig:confintervalESCLT} and
-\ref{fig:FEforestplot} lies an order that can be retrieved and made
-apparent using constantly updated meta-analysis. Sometimes, the answer
-is right there in front of our eyes, we just lack the ability to see it.
-Constantly updated meta-analysis serves as a binocular to magnify what
-is there. Think about how costly it woud be to run a very large study,
-just to find out that the we did not really need it because we had known
-the result all along.
-
-\BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}Something pretty cool is that I can reproduce
-Figure \ref{fig:cumWMAE} using the \texttt{metafor} package with much
-less lines of code.
-\EndKnitrBlock{remark}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{forest}\NormalTok{(meta.example.FE,}\DataTypeTok{slab =} \KeywordTok{paste}\NormalTok{(}\StringTok{'Study'}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{id,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Estimated Meta-analytic Parameter'}\NormalTok{)}
-\NormalTok{cumul.meta.example.FE <-}\StringTok{ }\KeywordTok{cumul}\NormalTok{(meta.example.FE, }\DataTypeTok{order=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{id)}
-\KeywordTok{forest}\NormalTok{(cumul.meta.example.FE,}\DataTypeTok{slab =} \KeywordTok{paste}\NormalTok{(}\StringTok{'Study'}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{id,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Estimated Meta-analytic Cumulated Parameter'}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{figure}[htbp]
-
-{\centering \subfloat[Initial data set\label{fig:cumWMAEmetafor1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAEmetafor-1} }\subfloat[Constantly updated dataset\label{fig:cumWMAEmetafor2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAEmetafor-2} }
-
-}
-
-\caption{Constantly updated meta-analysis with the `metafor` package}\label{fig:cumWMAEmetafor}
-\end{figure}
-
-You can also call each of the individual results of the cumulative
-meta-analysis using \texttt{cumul.meta.example.FE\$estimate}. For
-example, the cumulated effect size after the 10 first studies is equal
-to 0.2 \(\pm\) 0.18.
-
-\subsection{Testing for the homogeneity of treatment
-effects}\label{testing-for-the-homogeneity-of-treatment-effects}
+\subsection{Meta-analysis when treatment effects are heterogeneous: the
+random effects
+approach}\label{meta-analysis-when-treatment-effects-are-heterogeneous-the-random-effects-approach}
 
 One key assumption that we have just made so far is that of homogeneous
 treatment effect. We have worked under the assumption that each study
@@ -8958,63 +9083,6 @@ constant. Why would the treatment effects differ in each study?
   huge.
 \end{enumerate}
 
-We can also think that the treatment effect differs in each sample
-because the composition of the sample changes. But this is normal
-variation due to sampling noise and is to be expected. It is not the
-same thing as assuming that the population effect differs.
-
-What can we do in order to test whether there is heterogeneity in
-treatment effects? One way is to build an index comparing the usual
-variation in treatment effects stemming from sampling noise to the one
-stemming from variation between studies. If we find that the variation
-between studies dwarves the variation due to sampling noise in each
-study, then there is some heterogeneity for sure. One statistics that
-does that is the \(Q\) statistic where the variation in treatment
-effects between studies is estimated using the difference between the
-individual effect size and the average one squared:
-
-\begin{align*}
-  Q & = \sum_{k=1}^N\frac{(\hat{\theta}_k-\bar{\theta})^2}{\hat{\sigma}^2_k}.
-\end{align*}
-
-What is great with the \(Q\) statistic is that, under the Null
-hypothesis that all the treatment effects are equal to the same
-constant, it is distributed asymptotically as a \(\chi^2\) distribution
-with \(N-1\) degrees of freedom, and thus it can directly be used to
-test for the hypothesis of homogeneous treatment effects.
-
-\BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153}
-}In our example, we have already computed the \(Q\) statistic when we
-have used the \texttt{rma} function in the \texttt{metafor} package. In
-order to access it, we just need to extract it using
-\texttt{meta.example.FE\$QE} for the \(Q\) statistic and
-\texttt{meta.example.FE\$QEp} for its p-value.
-\EndKnitrBlock{example} The \(Q\) statistic in our example has value
-12.71, with associated p-value 0.85. We end up not rejecting
-homogeneity, which is correct.
-
-\BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}The problem with using test statistics for
-testing for treatment effect homogeneity is that, when precision
-increases, we might end up rejecting homogeneity despite the fact that
-it is there.
-\EndKnitrBlock{remark}
-
-\textbf{\textsc{Test with \(N=10^5\).}}
-
-\BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}The \(\chi^2\) distribution with \(k\)
-degrees of freedom is asymptotically distributed as a normal with mean
-\(k\) and variance \(2k\). So, when \(k\) is large, a good rule of thumb
-for assessing the homogeneity of the treatment effect estimates is to
-compare the \(Q\) statistic to the number of studies. If it is much
-larger, homogeneity is probably not guaranteed.
-\EndKnitrBlock{remark}
-
-\subsection{Meta-analysis when treatment effects are
-heterogeneous}\label{meta-analysis-when-treatment-effects-are-heterogeneous}
-
 When each study draws a treatment effect from a distinct population,
 meta-analysis has to take into account that treatment effects are
 heterogeneous. The main consequence of treatment effect heterogeneity is
@@ -9028,23 +9096,27 @@ There are two main ways to account for heterogeneity in meta-analysis:
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{Meta-regression} trying to capture the heterogeneity in
-  treatment effects with observed covariates.
-\item
   \textbf{Random effects} allowing for additional random noise in each
   study.
+\item
+  \textbf{Meta-regression} trying to capture the heterogeneity in
+  treatment effects with observed covariates.
 \end{enumerate}
 
-In this section, we are going to study the random effects approach, and
-we'll defer the meta-regression for the next section.
+In this section, we study the random effects estimator, and the next
+section will cover the meta-regression estimator. Before implementing
+the random effects estimator, we need to decide whether there is
+heterogeneity in treatment effects or not.
 
-\subsubsection{Estimating the variance of the treatment effect across
-sites}\label{estimating-the-variance-of-the-treatment-effect-across-sites}
+\textbf{\textsc{Generate noise right now and show the plot.}}
 
-The key component of the random effects approach is the estimation of
-the size of the variance of the treatment effect in the population.
-Indeed, the observed effect size estimate for a given study \(k\) is
-modelled as follows in the random effects approach:
+\subsubsection{Estimating the heterogeneity of treatment
+effects}\label{estimating-the-heterogeneity-of-treatment-effects}
+
+A necessary first step is to estimate the variance in treatment effects
+that is due to treatment effect heterogeneity, beyond sampling noise.
+The observed effect size estimate for a given study \(k\) is modelled as
+follows:
 
 \begin{align*}
 \hat{\theta}_k & = \alpha + \epsilon_k + \nu_k,
@@ -9053,7 +9125,16 @@ modelled as follows in the random effects approach:
 where \(\epsilon_k\) is due to sampling noise and \(\nu_k\) is due to
 the heterogeneity in effect sizes across sites, while \(\alpha\) is the
 average of the effect size accross all populations. We denote the
-variance of \(\nu_k\) as \(\tau^2\).
+variance of \(\nu_k\) as \(\tau^2\). \(\nu_k\) is the random effect that
+gives the random effects approach its name.
+
+There are several ways to estimate this variation. I'm gooing to start
+with the most intuitive one, Hedges' estimator, and I'll then move on to
+the other ones available. I'll conclude with the formal statistical
+tests used to decide whether treatment effects are heterogeneous or not.
+
+\paragraph{Hedges' estimator of treatment effect
+heterogeneity}\label{hedges-estimator-of-treatment-effect-heterogeneity}
 
 Since Hedges, \(\tau^2\) is estimated as the residual variance in effect
 sizes that is not explained by sampling noise. In order to compute this
@@ -9081,7 +9162,7 @@ equation.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157}
+\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151}
 }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \EndKnitrBlock{example}
 
@@ -9170,8 +9251,168 @@ Let's see now how Hedge's estimator performs:
 Hedges' estimates of \(\tau^2\) in our examples are thus 0.2 and 0.73
 respectively, while the true values are, respectively 0.25 and 1.
 
-\subsubsection{Estimating the average effect of the treatment taking
-heterogeneity into account}\label{sec:RE}
+\paragraph{Other estimators of treatment effects
+heterogeneity}\label{other-estimators-of-treatment-effects-heterogeneity}
+
+\(\tau^2\) is a pretty difficult measure of treatment effect
+heterogeneity to interpret. That's why other indicators have been built
+that are easier to interpret. We are going to review several of them in
+this section.
+
+The first alternative or complement to \(\tau^2\) is Higgin's \(I^2\):
+
+\begin{align*}
+  I^2 & = \frac{Q-(N-1)}{Q}*100
+\end{align*}
+
+The interpretation of \(I^2\) is pretty straightforward: it is the
+distance between the actual value of the \(Q\) statistic and its value
+under the null of treatment effect homogeneity (it is equal to the
+number of studies \(N\), with a correction for degress of freedom). It
+can also be interpreted as the fraction of the overall variance
+(remember that \(Q\) is the sum of variance ratios) that is not
+explained by within study sampling noise.
+
+Another complement to \(\tau^2\) is \(H^2\):
+
+\begin{align*}
+  H^2 & = \frac{Q}{N-1}
+\end{align*}
+
+If \(H^2\) is above one, then there is unexplained heterogeneity, again
+by the fact that \(Q\) has mean \(N-1\) under the null of treatment
+effect homogeneity.
+
+Finally, we can also define the Intra Class Correlation (\(ICC\)), which
+precisely measures the share of total variance attributable to treatment
+effect heterogeneity:
+
+\begin{align*}
+  ICC & = \frac{\tau^2}{\tau^2+S^2}
+\end{align*}
+
+Where \(S^2\) is the amount of variance due to sampling noise. An
+estimator for \(S^2\) is:
+
+\begin{align*}
+  S^2 & = \frac{(N-1)\sum_{k=1}^N\frac{1}{\sigma^2_k}}{(\sum_{k=1}^N\frac{1}{\sigma^2_k})^2-\sum_{k=1}^N(\frac{1}{\sigma^2_k})^2}.
+\end{align*}
+
+\textbf{\textsc{I do not understand the formula for \(S^2\). Why does it
+estimate what we want? I'd take the average variance.}}
+
+\(ICC\) and \(I^2\) are related by the following very simple relation:
+\(I^2=ICC*100\).
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152}
+}Let's see how these three estimators look like in our example. The cool
+thing is that \texttt{rma} computes these estimators by default, so that
+a simple call to \texttt{summary()} is going to show them. The default
+random effects estimator is \texttt{REML}, which is deemed to be the
+best of them all according to simulations
+\href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer,
+2002)}.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{meta.example.RE.ES <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{ES,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES)}
+\NormalTok{meta.example.RE.theta.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{1}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES)}
+\NormalTok{meta.example.RE.theta.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{2}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES)}
+
+\NormalTok{tau2.hat <-}\StringTok{ }\KeywordTok{c}\NormalTok{(meta.example.RE.ES}\OperatorTok{$}\NormalTok{tau2,meta.example.RE.theta.}\DecValTok{1}\OperatorTok{$}\NormalTok{tau2,meta.example.RE.theta.}\DecValTok{2}\OperatorTok{$}\NormalTok{tau2)}
+\NormalTok{I2 <-}\StringTok{  }\KeywordTok{c}\NormalTok{(meta.example.RE.theta.}\DecValTok{1}\OperatorTok{$}\NormalTok{I2,meta.example.RE.theta.}\DecValTok{2}\OperatorTok{$}\NormalTok{I2,meta.example.RE.ES}\OperatorTok{$}\NormalTok{I2)}
+\NormalTok{H2 <-}\StringTok{  }\KeywordTok{c}\NormalTok{(meta.example.RE.theta.}\DecValTok{1}\OperatorTok{$}\NormalTok{H2,meta.example.RE.theta.}\DecValTok{2}\OperatorTok{$}\NormalTok{H2,meta.example.RE.ES}\OperatorTok{$}\NormalTok{H2)}
+
+\CommentTok{# illustration of results returned by summary}
+\KeywordTok{summary}\NormalTok{(meta.example.RE.theta.}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Random-Effects Model (k = 20; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc  
+## -24.7208   49.4417   53.4417   55.3305   54.1917  
+## 
+## tau^2 (estimated amount of total heterogeneity): 0.7507 (SE = 0.2583)
+## tau (square root of estimated tau^2 value):      0.8664
+## I^2 (total heterogeneity / total variability):   99.59%
+## H^2 (total variability / sampling variability):  241.82
+## 
+## Test for Heterogeneity: 
+## Q(df = 19) = 1927.7020, p-val < .0001
+## 
+## Model Results:
+## 
+## estimate      se    zval    pval   ci.lb   ci.ub    
+##   0.6015  0.1997  3.0127  0.0026  0.2102  0.9929  **
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+The estimate of \(I^2\) in our example is of 0 when \(\tau^2\) is equal
+to 0, of 98.71 when \(\tau^2\) is equal to 0.25 and of 99.59 when
+\(\tau^2\) is equal to 1. The estimate of \(H^2\) in our example is of 1
+when \(\tau^2\) is equal to 0, of 77.4 when \(\tau^2\) is equal to 0.25
+and of 241.82 when \(\tau^2\) is equal to 1.
+
+\paragraph{Testing for the homogeneity of treatment
+effects}\label{testing-for-the-homogeneity-of-treatment-effects}
+
+What can we do in order to test whether there is heterogeneity in
+treatment effects? One way is to build an index comparing the usual
+variation in treatment effects stemming from sampling noise to the one
+stemming from variation between studies. If we find that the variation
+between studies dwarves the variation due to sampling noise in each
+study, then there is some heterogeneity for sure. One statistics that
+does that is the \(Q\) statistic where the variation in treatment
+effects between studies is estimated using the difference between the
+individual effect size and the average one squared:
+
+\begin{align*}
+  Q & = \sum_{k=1}^N\frac{(\hat{\theta}_k-\bar{\theta})^2}{\hat{\sigma}^2_k}.
+\end{align*}
+
+What is great with the \(Q\) statistic is that, under the Null
+hypothesis that all the treatment effects are equal to the same
+constant, it is distributed asymptotically as a \(\chi^2\) distribution
+with \(N-1\) degrees of freedom, and thus it can directly be used to
+test for the hypothesis of homogeneous treatment effects.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153}
+}In our example, we have already computed the \(Q\) statistic when we
+have used the \texttt{rma} function in the \texttt{metafor} package. In
+order to access it, we just need to extract it using
+\texttt{meta.example.FE\$QE} for the \(Q\) statistic and
+\texttt{meta.example.FE\$QEp} for its p-value.
+\EndKnitrBlock{example} The \(Q\) statistic in our example has value
+12.71, with associated p-value 0.85. We end up not rejecting
+homogeneity, which is correct.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The problem with using test statistics for
+testing for treatment effect homogeneity is that, when precision
+increases, we might end up rejecting homogeneity despite the fact that
+it is there.
+\EndKnitrBlock{remark}
+
+\textbf{\textsc{Test with \(N=10^5\).}}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The \(\chi^2\) distribution with \(k\)
+degrees of freedom is asymptotically distributed as a normal with mean
+\(k\) and variance \(2k\). So, when \(k\) is large, a good rule of thumb
+for assessing the homogeneity of the treatment effect estimates is to
+compare the \(Q\) statistic to the number of studies. If it is much
+larger, homogeneity is probably not guaranteed.
+\EndKnitrBlock{remark}
+
+\subsubsection{Random effects models}\label{sec:RE}
 
 Hedges proposes a new estimator for the average effect of the treatment,
 an estimator that accounts for the additional noise due to heterogeneous
@@ -9197,7 +9438,7 @@ is \[
 \end{Shaded}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158}
+\protect\hypertarget{exm:unnamed-chunk-156}{}{\label{exm:unnamed-chunk-156}
 }Let's see how Hedges estimator performs in our example.
 \EndKnitrBlock{example} Hedges' estimates of the average effect size is
 equal to 0.3 and 0.65 respectively, while the true value is 0.2. The
@@ -9239,7 +9480,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160}
+\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158}
 }For the moment, let's see how they perform in our numerical example.
 \EndKnitrBlock{example}
 
@@ -9296,116 +9537,7 @@ effects.
 
 \textbf{\textsc{Add error bars here.}}
 
-\subsubsection{Other estimators of inter-site
-variability}\label{other-estimators-of-inter-site-variability}
-
-\(\tau^2\) is a pretty difficult measure of treatment effect
-heterogeneity to interpret. That's why other indicators have been built
-that are easier to interpret. We are going to review several of them in
-this section.
-
-The first alternative or complement to \(\tau^2\) is Higgin's \(I^2\):
-
-\begin{align*}
-  I^2 & = \frac{Q-(N-1)}{Q}*100
-\end{align*}
-
-The interpretation of \(I^2\) is pretty straightforward: it is the
-distance between the actual value of the \(Q\) statistic and its value
-under the null of treatment effect homogeneity (it is equal to the
-number of studies \(N\), with a correction for degress of freedom). It
-can also be interpreted as the fraction of the overall variance
-(remember that \(Q\) is the sum of variance ratios) that is not
-explained by within study sampling noise.
-
-Another complement to \(\tau^2\) is \(H^2\):
-
-\begin{align*}
-  H^2 & = \frac{Q}{N-1}
-\end{align*}
-
-If \(H^2\) is above one, then there is unexplained heterogeneity, again
-by the fact that \(Q\) has mean \(N-1\) under the null of treatment
-effect homogeneity.
-
-Finally, we can also define the Intra Class Correlation (\(ICC\)), which
-precisely measures the share of total variance attributable to treatment
-effect heterogeneity:
-
-\begin{align*}
-  ICC & = \frac{\tau^2}{\tau^2+S^2}
-\end{align*}
-
-Where \(S^2\) is the amount of variance due to sampling noise. An
-estimator for \(S^2\) is:
-
-\begin{align*}
-  S^2 & = \frac{(N-1)\sum_{k=1}^N\frac{1}{\sigma^2_k}}{(\sum_{k=1}^N\frac{1}{\sigma^2_k})^2-\sum_{k=1}^N(\frac{1}{\sigma^2_k})^2}.
-\end{align*}
-
-\textbf{\textsc{I do not understand the formula for \(S^2\). Why does it
-estimate what we want? I'd take the average variance.}}
-
-\(ICC\) and \(I^2\) are related by the following very simple relation:
-\(I^2=ICC*100\).
-
-\BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161}
-}Let's see how these three estimators look like in our example. The cool
-thing is that \texttt{rma} computes these estimators by default, so that
-a simple call to \texttt{summary()} is going to show them. The default
-random effects estimator is \texttt{REML}, which is deemed to be the
-best of them all according to simulations
-\href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer,
-2002)}.
-\EndKnitrBlock{example}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{meta.example.RE.ES <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{ES,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES)}
-\NormalTok{meta.example.RE.theta.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{1}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES)}
-\NormalTok{meta.example.RE.theta.}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta.}\DecValTok{2}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES)}
-
-\NormalTok{tau2.hat <-}\StringTok{ }\KeywordTok{c}\NormalTok{(meta.example.RE.ES}\OperatorTok{$}\NormalTok{tau2,meta.example.RE.theta.}\DecValTok{1}\OperatorTok{$}\NormalTok{tau2,meta.example.RE.theta.}\DecValTok{2}\OperatorTok{$}\NormalTok{tau2)}
-\NormalTok{I2 <-}\StringTok{  }\KeywordTok{c}\NormalTok{(meta.example.RE.theta.}\DecValTok{1}\OperatorTok{$}\NormalTok{I2,meta.example.RE.theta.}\DecValTok{2}\OperatorTok{$}\NormalTok{I2,meta.example.RE.ES}\OperatorTok{$}\NormalTok{I2)}
-\NormalTok{H2 <-}\StringTok{  }\KeywordTok{c}\NormalTok{(meta.example.RE.theta.}\DecValTok{1}\OperatorTok{$}\NormalTok{H2,meta.example.RE.theta.}\DecValTok{2}\OperatorTok{$}\NormalTok{H2,meta.example.RE.ES}\OperatorTok{$}\NormalTok{H2)}
-
-\CommentTok{# illustration of results returned by summary}
-\KeywordTok{summary}\NormalTok{(meta.example.RE.theta.}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## 
-## Random-Effects Model (k = 20; tau^2 estimator: REML)
-## 
-##   logLik  deviance       AIC       BIC      AICc  
-## -24.7208   49.4417   53.4417   55.3305   54.1917  
-## 
-## tau^2 (estimated amount of total heterogeneity): 0.7507 (SE = 0.2583)
-## tau (square root of estimated tau^2 value):      0.8664
-## I^2 (total heterogeneity / total variability):   99.59%
-## H^2 (total variability / sampling variability):  241.82
-## 
-## Test for Heterogeneity: 
-## Q(df = 19) = 1927.7020, p-val < .0001
-## 
-## Model Results:
-## 
-## estimate      se    zval    pval   ci.lb   ci.ub    
-##   0.6015  0.1997  3.0127  0.0026  0.2102  0.9929  **
-## 
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-\end{verbatim}
-
-The estimate of \(I^2\) in our example is of 0 when \(\tau^2\) is equal
-to 0, of 98.71 when \(\tau^2\) is equal to 0.25 and of 99.59 when
-\(\tau^2\) is equal to 1. The estimate of \(H^2\) in our example is of 1
-when \(\tau^2\) is equal to 0, of 77.4 when \(\tau^2\) is equal to 0.25
-and of 241.82 when \(\tau^2\) is equal to 1.
-
-\subsubsection{Presenting the results of a random effects
+\paragraph{Presenting the results of a random effects
 meta-analysis}\label{presenting-the-results-of-a-random-effects-meta-analysis}
 
 In order to illustrate the results of a random effects meta-analysis,
@@ -9475,7 +9607,7 @@ faces two issues:
 \end{enumerate}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162}
+\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159}
 }Let's see how big a difference using random versus fixed effects does
 to the estimation of treatment effects. Let's plot the two forest plots
 for the example with \(\tau=\) \texttt{r\ tau{[}{[}1{]}{]}\^{}2}.
@@ -9706,7 +9838,7 @@ Huber-White sandwich estimator:
 \end{align*}
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-163}{}{\label{exm:unnamed-chunk-163}
+\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160}
 }Let's see how all of these estimators work in our example. In order to
 run a regression, I first need a covariate. I'm going to use the exact
 value of the noise that I've added to the regressions, so that I should
@@ -9802,66 +9934,135 @@ and deliver a precise estimate of the true effect.
 
 \textbf{\textsc{I think SJn is the MOM estimator, check that.}}
 
-\subsection{Why vote-counting does not
-work}\label{why-vote-counting-does-not-work}
+\subsection{Constantly updated
+meta-analysis}\label{constantly-updated-meta-analysis}
 
-Vote-counting is an alternative to weighted average or meta-regression.
-The term, coined by Light and Smith (1971), refers to the practice of
-counting the numbet of studies that fall under one of three categories:
+Constantly updated meta-analysis performs the meta-analysis in a
+progressive manner, as the results keep arriving. This is a very
+important tool that enables us to aggregate constantly the information
+coming from different studies. Moreover, restrospectively, it helps us
+to assess when we would have reached enough precision so that we could
+have foregone an additional study. The way constantly updated
+meta-analysis works is simply by performing a new meta-analysis each
+time a new results pops up.
 
-\begin{itemize}
-\tightlist
-\item
-  Significant and positive,
-\item
-  Insignificant,
-\item
-  Significant and negative.
-\end{itemize}
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161}
+}Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis
+works in our example.
+\EndKnitrBlock{example}
 
-A vote-counting approach concludes that there is evidence in favor of
-the treatment when the majority of effects fall in the first category,
-that there is no evidence that the treatment has an impact whenthe
-majority of studies fall in the second category, and that there is
-evidence that the treatment is defavorable when the majority of studies
-fall in the third category. In general, majority is evaluated at 33\%.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cum.wmae.}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(k,theta,sigma2)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\KeywordTok{weighted.mean}\NormalTok{(theta[}\DecValTok{1}\OperatorTok{:}\NormalTok{k],(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k])}\OperatorTok{/}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k]))),}\DecValTok{1}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{sigma2[}\DecValTok{1}\OperatorTok{:}\NormalTok{k])))}
+\NormalTok{\}}
 
-The main problem with the vote counting approach is that it does not
-give more weight to more precise studies. As a consequence, there is a
-very realistic possibility that the probability of finding the truth
-decrease as we add more studies to the meta-analysis.
+\NormalTok{cum.wmae <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(theta,sigma2)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{sapply}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(theta),cum.wmae.}\DecValTok{1}\NormalTok{,}\DataTypeTok{theta=}\NormalTok{theta,}\DataTypeTok{sigma2=}\NormalTok{sigma2))}
+\NormalTok{\}}
 
-Let's see how this could happen with a simulation taken from HEdges and
-Olkin's book. Let \(p\) be the probaility that a given result is
-significant and positive. \(p\) depends on the sample size \(n\) of the
-study, and on the true treatment effect, \(\theta\):
+\NormalTok{cum.test <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{t}\NormalTok{(}\KeywordTok{cum.wmae}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES,data.meta}\OperatorTok{$}\NormalTok{se.ES}\OperatorTok{^}\DecValTok{2}\NormalTok{)))}
+\KeywordTok{colnames}\NormalTok{(cum.test) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'cum.ES'}\NormalTok{,}\StringTok{'cum.var'}\NormalTok{)}
+\NormalTok{cum.test}\OperatorTok{$}\NormalTok{id <-}\StringTok{ }\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(cum.test)}
+\NormalTok{cum.test}\OperatorTok{$}\NormalTok{cum.se.ES <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(cum.test}\OperatorTok{$}\NormalTok{cum.var)}
 
-\begin{align*}
-  p & = \int_{C_{\alpha}}^{\infty}f(t;\theta,n),
-\end{align*}
+  \KeywordTok{ggplot}\NormalTok{(data.meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{forcats}\OperatorTok{::}\KeywordTok{fct_rev}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(id)), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Initial effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{      }\KeywordTok{coord_flip}\NormalTok{()}
 
-where \(f\) is the density of the test statistic \(T\) used to evaluate
-whether the effect is significant or not, and \(C_{\alpha}\) is the
-critical value of the test \(T\). If \(n\) and \(\theta\) are constant
-over studies (for simplicity), the process of accumulating significant
-results can be modelled as a binomial with parameter \(p\). The
-probability that over \(K\) studies, we have a proportion of significant
-results larger than a pre-specified threshold (let's say \(C_0\)) is
-equal to:
+  \KeywordTok{ggplot}\NormalTok{(cum.test, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{forcats}\OperatorTok{::}\KeywordTok{fct_rev}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(id)), }\DataTypeTok{y=}\NormalTok{cum.ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'black'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{cum.ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES, }\DataTypeTok{ymax=}\NormalTok{cum.ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{cum.se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Cumulative effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}\OperatorTok{+}
+\StringTok{      }\KeywordTok{coord_flip}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
 
-\begin{align*}
-  \Pr(\frac{X}{K}>C_0) & = \sum_{k=\text{int}(C_{0}k)+1}^{K}\left(\begin{array}{c}K\\k\end{array}\right)p^k(1-p)^(K-k),
-\end{align*}
+\begin{figure}[htbp]
 
-where \(\text{int}(a)\) is the greatest integer larger or equal to \(a\)
-and \(0\leq C_0\leq 1\). In order to use this formula, we simply have to
-choose a test. Let's choose the two-sided t-test of a zero treatment
-effect in an RCT with equal tozes for treated and control groups. In
-that case, \(p\) is simply the power of the test. In Chapter
-\ref{Power}, we derive a formula for the power of the test:
+{\centering \subfloat[Initial data set\label{fig:cumWMAE1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAE-1} }\subfloat[Constantly updated dataset\label{fig:cumWMAE2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAE-2} }
 
-\textbf{\textsc{Continue, assuming unit variance because standardized
-effect size.}}
+}
+
+\caption{Constantly updated meta-analysis}\label{fig:cumWMAE}
+\end{figure}
+
+Figure \ref{fig:cumWMAE} shows that combining several imprecise
+estimates might help you reach the same precision as running a larger
+experiment.\\
+For instance, cumulating the first 10 studies with a small sample size
+(\(N=\) 100), the meta-analytic effect is estimated at 0.2 \(\pm\) 0.18.
+This is very close to the individual estimate obtained from the first
+estimate with a larger sample size (sample 11 on Figure
+\ref{fig:cumWMAE}, with \(N=\) 1000): 0.17 \(\pm\) 0.18. Both estimates
+actually have the exact same precision (because they actually have the
+same sample size). The same is true when combining the first 17 studies.
+The meta-analytic effect is estimated at 0.24 \(\pm\) 0.06, while the
+effect estimated using one unique RCT with a larger sample size (sample
+18 on Figure \ref{fig:cumWMAE}, with \(N=\) 10\^{}\{4\}) is 0.21 \(\pm\)
+0.05. Finally, the same result occurs when combining the first 19
+studies. The meta-analytic effect is estimated at 0.21 \(\pm\) 0.03,
+while the effect estimated using one unique RCT with a larger sample
+size (sample 20 on Figure \ref{fig:cumWMAE}, with \(N=\) 10\^{}\{5\}) is
+0.19 \(\pm\) 0.02.
+
+As a conclusion, constantly updated meta-analysis would have each time
+delivered the same result than the one found with a much larger study,
+rendering this additional study almost irrelevant. This is a very
+important result: beyond the apparent messiness of the first noisy
+estimates in Figures \ref{fig:confintervalESCLT} and
+\ref{fig:FEforestplot} lies an order that can be retrieved and made
+apparent using constantly updated meta-analysis. Sometimes, the answer
+is right there in front of our eyes, we just lack the ability to see it.
+Constantly updated meta-analysis serves as a binocular to magnify what
+is there. Think about how costly it woud be to run a very large study,
+just to find out that the we did not really need it because we had known
+the result all along.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Something pretty cool is that I can reproduce
+Figure \ref{fig:cumWMAE} using the \texttt{metafor} package with much
+less lines of code.
+\EndKnitrBlock{remark}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{forest}\NormalTok{(meta.example.FE,}\DataTypeTok{slab =} \KeywordTok{paste}\NormalTok{(}\StringTok{'Study'}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{id,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Estimated Meta-analytic Parameter'}\NormalTok{)}
+\NormalTok{cumul.meta.example.FE <-}\StringTok{ }\KeywordTok{cumul}\NormalTok{(meta.example.FE, }\DataTypeTok{order=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{id)}
+\KeywordTok{forest}\NormalTok{(cumul.meta.example.FE,}\DataTypeTok{slab =} \KeywordTok{paste}\NormalTok{(}\StringTok{'Study'}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{id,}\DataTypeTok{sep=}\StringTok{' '}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Estimated Meta-analytic Cumulated Parameter'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[Initial data set\label{fig:cumWMAEmetafor1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAEmetafor-1} }\subfloat[Constantly updated dataset\label{fig:cumWMAEmetafor2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/cumWMAEmetafor-2} }
+
+}
+
+\caption{Constantly updated meta-analysis with the `metafor` package}\label{fig:cumWMAEmetafor}
+\end{figure}
+
+You can also call each of the individual results of the cumulative
+meta-analysis using \texttt{cumul.meta.example.FE\$estimate}. For
+example, the cumulated effect size after the 10 first studies is equal
+to 0.2 \(\pm\) 0.18.
+
+Second, I present the simplest method to aggregate effects: the weighted
+average. Third, I present tests for deciding whether the effects are
+from a homogeneous or a heterogeneous population. Fourth, I explain how
+to conduct a meta-analysis when effects are heterogeneous. Fifth, I
+cover the meta-regression that we use to account for heterogeneity in
+treatment effects. Finally, I explain why usual intuitive methods such
+as vote-counting are biased.
 
 \section{Publication bias}\label{publication-bias-1}
 

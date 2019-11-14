@@ -60,12 +60,12 @@ In this section, I'm going to denote $Z_i$ a binary instrument that can either t
 In general, we try to reserve the value $1$ for the instrument value that increases participation in the treatment of interest.
 In our examples, that would be when for example, the distance to college is low, the draft lottery number is low, or someone receives an encouragement to enter a program.
 
-```{remark}
-Since Monotonicity is going to play such a particular role, and since we have already explored this assumption a little in Chapter \@ref(RCT), I am going to use as an example a model where the Monotonicity assumption actualluy does not hold. 
-It will, I hope, help us understand better the way Monotonicity works and how it interacts with other assumptions.
+### An example where Monotonicity does not hold
+
+Since Monotonicity is going to play such a particular role, and since we have already explored this assumption a little in Chapter \@ref(RCT), I am going to use as an example a model where the Monotonicity assumption actually does not hold. 
+It will, I hope, help us understand better the way Monotonicity works and how it interacts with the other assumptions.
 The key component of the model that makes Monotonicity necessary is the fact that treatment effects are heterogeneous and correlated with participation in the treatment.
 We'll see later that Monotonicity is unnecessary when treatment effects are orthogonal to take up.
-```
 
 ```{example}
 Let's see how we can generate a model without Monotonicity:
@@ -73,6 +73,7 @@ Let's see how we can generate a model without Monotonicity:
 
 \begin{align*}
 D_i & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
+Z_i & \sim\mathcal{N}(0,\sigma^2_{\mu}+\sigma^2_{U}) \\
 Z_i & \sim\mathcal{B}(p_Z) \\
 Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \kappa_i & = 
@@ -84,46 +85,45 @@ Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
 \xi & \Ind (Y_i^0,Y_i^1,V_i,Z_i)
 \end{align*}
 
-**<span style="font-variant:small-caps;">Give the complete model ($Y_i$ as well).</span>**
+**<span style="font-variant:small-caps;">Give the complete model ($Y_i$ as well). Explain that we use a fuzzy eligibility rule.</span>**
 
 The key component of the model that generates a failure of Monotonicity is the coefficient $\kappa_i$, that determines how individuals' participation into the program reacts to the instrument $Z_i$.
 $\kappa_i$ is a coefficient whose value varies accross the population.
 In my simplified model, $\kappa_i$ can take only two values, $-\bar{\kappa}$ or $\underline{\kappa}$.
 When $-\bar{\kappa}$ and $\underline{\kappa}$ have opposite signs (let's say $-\bar{\kappa}<0$ and $\underline{\kappa}>0$), then individuals with $\kappa_i=-\bar{\kappa}$ are going to be more likely to enter the program when they receive an encouragement (when $Z_i=1$) while individuals with $\kappa_i=\underline{\kappa}$ will be less likely to enter the program when $Z_i=1$.
-When $-bar{\kappa}$ and $\underline{\kappa}$ have different signs, we have four types of reactions when the instrumental variable moves from $Z_i=0$ to $Z_i=1$, holding everything else constant.
+When $-\bar{\kappa}$ and $\underline{\kappa}$ have different signs, we have four types of reactions when the instrumental variable moves from $Z_i=0$ to $Z_i=1$, holding everything else constant.
 These four types of reactions define four types of individuals:
 
-  * **Always takers** ($T_i=at$): individuals that participate in the program both when $Z_i=0$ and $Z_i=1$.
-  * **Never takers** ($T_i=nt$): individuals that do not participate in the program both when $Z_i=0$ and $Z_i=1$.
+  * **Always takers** ($T_i=a$): individuals that participate in the program both when $Z_i=0$ and $Z_i=1$.
+  * **Never takers** ($T_i=n$): individuals that do not participate in the program both when $Z_i=0$ and $Z_i=1$.
   * **Compliers** ($T_i=c$): individuals that do not participate in the program when $Z_i=0$ but that participate in the program when $Z_i=1$ .
   * **Defiers** ($T_i=d$): individuals that participate in the program when $Z_i=0$ but that do not participate in the program when $Z_i=1$ .
   
-In our model, these four types are a funtion of $V_i$ and $\kappa_i$.
-In order to see this let's define, as in Section \@ref(#sec:design4), $D^z_i$ the participation decision of individual $i$ when the instrument is exogenously set to $Z_i=z$, with $z\in\left\{0,1\right\}$.
-When $\kappa_i=-\bar{\kappa}<0$, we have three types defined by where $V_i$ lies with respect to a series of thresholds:
+In our model, these four types are a function of $y_i^B+V_i$ and $\kappa_i$.
+In order to see this let's define, as in Section \@ref(sec:design4), $D^z_i$ the participation decision of individual $i$ when the instrument is exogenously set to $Z_i=z$, with $z\in\left\{0,1\right\}$.
+When $\kappa_i=-\bar{\kappa}<0$, we have three types of reactions to the instrument.
+It turns out that each of type can be defined by where $y_i^B+V_i$ lies with respect to a series of thresholds:
 
-  * **Always takers** ($T_i=at$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $V_i\leq\bar{y}-y_i^B$.
-  This is because $V_i\leq\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B+\bar{\kappa}$, when $\bar{\kappa}>0$.
-  * **Never takers** ($T_i=nt$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $V_i>\bar{y}-y_i^B+\bar{\kappa}$.
-  This is because $V_i>\bar{y}-y_i^B+\bar{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B$, when $\bar{\kappa}>0$.
-  * **Compliers** ($T_i=c$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $\bar{y}-y_i^B<V_i\leq\bar{y}-y_i^B+\bar{\kappa}$.
+  * **Always takers** ($T_i=a$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $y_i^B+V_i\leq\bar{y}$.
+  This is because $y_i^B+V_i\leq\bar{y} \Rightarrow y_i^B+V_i\leq\bar{y}+\bar{\kappa}$, when $\bar{\kappa}>0$.
+  * **Never takers** ($T_i=n$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $y_i^B+V_i>\bar{y}+\bar{\kappa}$.
+  This is because $y_i^B+V_i>\bar{y}+\bar{\kappa} \Rightarrow y_i^B+V_i>\bar{y}$, when $\bar{\kappa}>0$.
+  * **Compliers** ($T_i=c$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $\bar{y}<y_i^B+V_i\leq\bar{y}+\bar{\kappa}$.
   
 When $\kappa_i=\underline{\kappa}<0$, we have three types defined by where $V_i$ lies with respect to a series of thresholds:
 
-  * **Always takers** ($T_i=at$) are such that $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $V_i\leq\bar{y}-y_i^B-\underline{\kappa}$.
-  This is because $V_i\leq\bar{y}-y_i^B-\underline{\kappa} \Rightarrow V_i\leq\bar{y}-y_i^B$, when $\underline{\kappa}>0$.
-  * **Never takers** ($T_i=nt$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $V_i>\bar{y}-y_i^B$.
-  This is because $V_i>\bar{y}-y_i^B \Rightarrow V_i\leq\bar{y}-y_i^B-\underline{\kappa}$, when $\underline{\kappa}>0$.
-  * **Defiers** ($T_i=c$) are such that $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $\bar{y}-y_i^B-\underline{\kappa}<V_i\leq\bar{y}-y_i^B$.
-  
-**<span style="font-variant:small-caps;">Give two plots for V_i as a funciton of the thresholds, depending on the vaueof kappa_i, showing the types. Don't forget to put the whole model above.</span>**
-  
+  * **Always takers** ($T_i=a$) are such that $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $y_i^B+V_i\leq\bar{y}-\underline{\kappa}$.
+  This is because $y_i^B+V_i\leq\bar{y}-\underline{\kappa} \Rightarrow y_i^B+V_i\leq\bar{y}$, when $\underline{\kappa}>0$.
+  * **Never takers** ($T_i=n$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $y_i^B+V_i>\bar{y}$.
+  This is because $y_i^B+V_i>\bar{y} \Rightarrow y_i^B+V_i\leq\bar{y}-\underline{\kappa}$, when $\underline{\kappa}>0$.
+  * **Defiers** ($T_i=d$) are such that $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $\bar{y}-\underline{\kappa}<V_i+y_i^B\leq\bar{y}$.
 
-Let's generate some data according to this process.
+Let's visualize how this works in a plot.
+Before that, let's generate some data according to this process.
 For that, let's choose values for the new parameters.
 
 ```{r param.IV,eval=TRUE,echo=TRUE,results='hide'}
-param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,-1,0.5,0.9)
+param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,1,0.5,0.9)
 names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB","pZ","barkappa","underbarkappa","pxi")
 ```
 
@@ -136,7 +136,8 @@ YB <- exp(yB)
 Ds <- rep(0,N)
 Z <- rbinom(N,1,param["pZ"])
 xi <- rbinom(N,1,param["pxi"]) 
-kappa <- ifelse(xi==1,param["barkappa"],param["underbarkappa"])
+kappa <- ifelse(xi==1,-param["barkappa"],param["underbarkappa"])
+V <- rnorm(N,0,sqrt(param["sigma2mu"]+param["sigma2U"]))
 Ds[yB+kappa*Z+V<=log(param["barY"])] <- 1 
 epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
 eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
@@ -149,6 +150,67 @@ Y1 <- exp(y1)
 y <- y1*Ds+y0*(1-Ds)
 Y <- Y1*Ds+Y0*(1-Ds)
 ```
+
+We can now define the types variable $T_i$:
+
+```{r types.illustration,eval=TRUE,echo=TRUE,results='hide'}
+D1 <- ifelse(yB+kappa+V<=log(param["barY"]),1,0)
+D0 <- ifelse(yB+V<=log(param["barY"]),1,0)
+AT <- ifelse(D1==1 & D0==1,1,0)
+NT <- ifelse(D1==0 & D0==0,1,0)
+C <- ifelse(D1==1 & D0==0,1,0)
+D <- ifelse(D1==0 & D0==1,1,0)
+Type <- ifelse(AT==1,'a',
+            ifelse(NT==1,'n',
+                   ifelse(C==1,'c',
+                          ifelse(D==1,'d',""))))
+
+data.non.mono <- data.frame(cbind(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta,epsilon,Ds,kappa,xi,Z,mu,UB))
+```
+
+```{r plottypes,eval=TRUE,echo=TRUE,fig.cap='Types',fig.subcap=c('$\\kappa=\\bar{\\kappa}$','$\\kappa=\\underline{\\kappa}$'),fig.align='center',out.width='50%',fig.pos='htbp'}
+#ggplot(data.non.mono, aes(x=V, y=yB),color(as.factor(Type))) +
+#    geom_point(shape=1)+
+#    facet_grid(.~ as.factor(kappa))
+
+plot(yB[AT==1 & kappa==-param["barkappa"]]+V[AT==1 & kappa==-param["barkappa"]],y[AT==1 & kappa==-param["barkappa"]],pch=1,xlim=c(5,11),ylim=c(5,11),xlab='yB+V',ylab="Outcomes")
+points(yB[NT==1 & kappa==-param["barkappa"]]+V[NT==1 & kappa==-param["barkappa"]],y[NT==1 & kappa==-param["barkappa"]],pch=1,col='blue')
+points(yB[C==1 & kappa==-param["barkappa"]]+V[C==1 & kappa==-param["barkappa"]],y[C==1 & kappa==-param["barkappa"]],pch=1,col='red')
+points(yB[D==1 & kappa==-param["barkappa"]]+V[D==1 & kappa==-param["barkappa"]],y[D==1 & kappa==-param["barkappa"]],pch=1,col='green')
+abline(v=log(param["barY"]),col='red')
+abline(v=log(param["barY"])+param['barkappa'],col='red')
+#abline(v=log(param["barY"])-param['underbarkappa'],col='red')
+text(x=c(log(param["barY"]),log(param["barY"])+param['barkappa']),y=c(5,5),labels=c(expression(bar('y')),expression(bar('y')+bar(kappa))),pos=c(2,4),col=c('red','red'),lty=c('solid','solid'))
+legend(5,10.5,c('AT','NT','C','D'),pch=c(1,1,1,1),col=c('black','blue','red','green'),ncol=1)
+title(expression(kappa=bar(kappa)))
+
+plot(yB[AT==1 & kappa==param["underbarkappa"]]+V[AT==1 & kappa==param["underbarkappa"]],y[AT==1 & kappa==param["underbarkappa"]],pch=1,xlim=c(5,11),ylim=c(5,11),xlab='yB+V',ylab="Outcomes")
+points(yB[NT==1 & kappa==param["underbarkappa"]]+V[NT==1 & kappa==param["underbarkappa"]],y[NT==1 & kappa==param["underbarkappa"]],pch=1,col='blue')
+points(yB[C==1 & kappa==param["underbarkappa"]]+V[C==1 & kappa==param["underbarkappa"]],y[C==1 & kappa==param["underbarkappa"]],pch=1,col='red')
+points(yB[D==1 & kappa==param["underbarkappa"]]+V[D==1 & kappa==param["underbarkappa"]],y[D==1 & kappa==param["underbarkappa"]],pch=1,col='green')
+abline(v=log(param["barY"]),col='red')
+#abline(v=log(param["barY"])-param['barkappa'],col='red')
+abline(v=log(param["barY"])-param['underbarkappa'],col='red')
+text(x=c(log(param["barY"]),log(param["barY"])-param['underbarkappa']),y=c(5,5),labels=c(expression(bar('y')),expression(bar('y')-underbar(kappa))),pos=c(2,2),col=c('red','red'),lty=c('solid','solid'))
+legend(5,10.5,c('AT','NT','C','D'),pch=c(1,1,1,1),col=c('black','blue','red','green'),ncol=1)
+title(expression(kappa=underbar(kappa)))
+
+```
+
+As Figure \@ref(fig:plottypes) shows how the different types interact with $\kappa_i$.
+When $\kappa_i=-\bar{\kappa}$, individuals with $y_i^B+V_i$ below $\bar{y}$ always take the program.
+Even when $Z_i=1$ and $\bar{\kappa}$ is subtracted from their index, it is still low enough so that they get to participate.
+When $y_i^B+V_i$ is in between $\bar{y}$ and $\bar{y}+\bar{\kappa}$, the individuals are such that their index without subtracting $\bar{\kappa}$ is above $\bar{y}$, but it is below $\bar{y}$ when $\bar{\kappa}$ is subtracted from it.
+These individuals participate when $Z_i=1$ and do not participate when $Z_i=0$: they are compliers.
+Individuals such that $y_i^B+V_i$ is above $\bar{y}+\bar{\kappa}$ will have an index above $\bar{y}$ whether we substract $\bar{\kappa}$ from it or not.
+They are never takers.
+
+When $\kappa_i=\underline{\kappa}$, individuals with $y_i^B+V_i$ below $\bar{y}-\underline{\kappa}$ always take the program.
+Even when $Z_i=0$ and $\underline{\kappa}$ is not subtracted from their index, it is still low enough so that they get to participate.
+When $y_i^B+V_i$ is in between $\bar{y}-\underline{\kappa}$ and $\bar{y}$, the individuals are such that their index without adding $\underline{\kappa}$ is below $\bar{y}$, but it is above $\bar{y}$ when $\underline{\kappa}$ is added to it.
+These individuals participate when $Z_i=0$ and do not participate when $Z_i=1$: they are defiers.
+Individuals such that $y_i^B+V_i$ is above $\bar{y}$ will have an index above $\bar{y}$ whether we add $\underline{\kappa}$ from it or not.
+They are never takers.
 
 ### Identification 
 
