@@ -25,7 +25,7 @@
 <meta name="author" content="The SKY Community">
 
 
-<meta name="date" content="2019-11-14">
+<meta name="date" content="2019-11-19">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -219,11 +219,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="13.1.5" data-path="sec-meta.html"><a href="sec-meta.html#meta-regression"><i class="fa fa-check"></i><b>13.1.5</b> Meta-regression</a></li>
 <li class="chapter" data-level="13.1.6" data-path="sec-meta.html"><a href="sec-meta.html#constantly-updated-meta-analysis"><i class="fa fa-check"></i><b>13.1.6</b> Constantly updated meta-analysis</a></li>
 </ul></li>
-<li class="chapter" data-level="13.2" data-path="sec-meta.html"><a href="sec-meta.html#publication-bias-1"><i class="fa fa-check"></i><b>13.2</b> Publication bias</a><ul>
-<li class="chapter" data-level="13.2.1" data-path="sec-meta.html"><a href="sec-meta.html#sources-of-publication-bias"><i class="fa fa-check"></i><b>13.2.1</b> Sources of publication bias</a></li>
-<li class="chapter" data-level="13.2.2" data-path="sec-meta.html"><a href="sec-meta.html#detecting-and-correcting-for-publication-bias"><i class="fa fa-check"></i><b>13.2.2</b> Detecting and correcting for publication bias</a></li>
-<li class="chapter" data-level="13.2.3" data-path="sec-meta.html"><a href="sec-meta.html#vote-counting-and-publication-bias"><i class="fa fa-check"></i><b>13.2.3</b> Vote counting and publication bias</a></li>
-<li class="chapter" data-level="13.2.4" data-path="sec-meta.html"><a href="sec-meta.html#the-value-of-a-statistically-significant-result"><i class="fa fa-check"></i><b>13.2.4</b> The value of a statistically significant result</a></li>
+<li class="chapter" data-level="13.2" data-path="sec-meta.html"><a href="sec-meta.html#publication-bias-and-site-selection-bias"><i class="fa fa-check"></i><b>13.2</b> Publication bias and site selection bias</a><ul>
+<li class="chapter" data-level="13.2.1" data-path="sec-meta.html"><a href="sec-meta.html#sources-of-publication-bias-and-of-site-selection-bias-and-questionable-research-practices"><i class="fa fa-check"></i><b>13.2.1</b> Sources of publication bias and of site selection bias and Questionable Research Practices</a></li>
+<li class="chapter" data-level="13.2.2" data-path="sec-meta.html"><a href="sec-meta.html#detection-of-and-correction-for-publication-bias"><i class="fa fa-check"></i><b>13.2.2</b> Detection of and correction for publication bias</a></li>
+<li class="chapter" data-level="13.2.3" data-path="sec-meta.html"><a href="sec-meta.html#detection-of-and-correction-for-site-selection-bias"><i class="fa fa-check"></i><b>13.2.3</b> Detection of and correction for site selection bias</a></li>
+<li class="chapter" data-level="13.2.4" data-path="sec-meta.html"><a href="sec-meta.html#vote-counting-and-publication-bias"><i class="fa fa-check"></i><b>13.2.4</b> Vote counting and publication bias</a></li>
+<li class="chapter" data-level="13.2.5" data-path="sec-meta.html"><a href="sec-meta.html#the-value-of-a-statistically-significant-result"><i class="fa fa-check"></i><b>13.2.5</b> The value of a statistically significant result</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="14" data-path="Bounds.html"><a href="Bounds.html"><i class="fa fa-check"></i><b>14</b> Bounds</a></li>
@@ -268,7 +269,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li>Explaining variations in treatment effectiveness by relating changes in effect size to changes in sample characteristics.</li>
 </ol>
 <p>One key issue that meta-analysis has to face – actually, we all have to face it, meta-analysis simply makes it more apparent – is that of publication bias. Publication bias is due to the fact that referees and editors have a marked preference for publishing statistically significant results. The problem with this approach is that the distribution of published results is going to be censored on the left: we will have more statistically significant results in the published record, and as a consequence, the average published result will be an upward biased estimate of the true treatment effect in the population. This is potentially a very severe problem if the amount of censoring due to publication bias is large. Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.</p>
-<p>In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.Most of the material presented here stems from the reference book by <a href="https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis">Hedges and Olkin</a>. When needed, I update this book with new references that I then cite. the R code comes mainly from a <a href="http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf">wonderful set of slides</a> explaining of the <code>metafor</code> package works.</p>
+<p>In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias. Most of the material presented here stems from the reference book by <a href="https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis">Hedges and Olkin</a>. When needed, I update this book with new references that I then cite. the R code comes mainly from a <a href="http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf">wonderful set of slides</a> explaining of the <code>metafor</code> package works.</p>
 <div id="meta-analysis" class="section level2">
 <h2><span class="header-section-number">13.1</span> Meta-analysis</h2>
 <p>There are several approaches and refinements to meta-analysis. In this section, I am going to present only the most important ones. I’ll defer the reader to other more specialized publications if needed.</p>
@@ -402,8 +403,7 @@ Figure 13.2: Detection probability of the vote counting rule
 </p>
 </div>
 <p>Figure <a href="sec-meta.html#fig:VoteCounting">13.2</a> shows that the vote counting rule has a very inconvenient property: when the power of the test is lower than 33%, the probability that the vote counting rule detects a true effect decreases with the number of studies included in the meta-analysis, and converges to zero when the number of studies gets large.<br />
-For example, when <span class="math inline">\(N=100\)</span> and <span class="math inline">\(\beta_A=0.1\)</span>, the probability of detecting the effect using the vote counting method is equal to 0.076 with <span class="math inline">\(K=10\)</span> studies and decreases to 0.043 when <span class="math inline">\(K=20\)</span>, and 0 when <span class="math inline">\(K=100\)</span>. The pattern is reverse for more powerful studies, such as when <span class="math inline">\(N=300\)</span> and <span class="math inline">\(\beta_A=0.1\)</span> or when <span class="math inline">\(N=100\)</span> and <span class="math inline">\(\beta_A=0.2\)</span>.</p>
-<p>The intuition for this result is that the vote counting method does not average out the sampling noise in each individual study.</p>
+For example, when <span class="math inline">\(N=100\)</span> and <span class="math inline">\(\beta_A=0.1\)</span>, the probability of detecting the effect using the vote counting method is equal to 0.076 with <span class="math inline">\(K=10\)</span> studies and decreases to 0.043 when <span class="math inline">\(K=20\)</span>, and 0 when <span class="math inline">\(K=100\)</span>. The pattern is reverse for more powerful studies, such as when <span class="math inline">\(N=300\)</span> and <span class="math inline">\(\beta_A=0.1\)</span> or when <span class="math inline">\(N=100\)</span> and <span class="math inline">\(\beta_A=0.2\)</span>. The intuition for this result is that the vote counting method does not average out the sampling noise in each individual study.</p>
 </div>
 <div id="MetaWA" class="section level3">
 <h3><span class="header-section-number">13.1.3</span> Meta-analysis when treatment effects are homogeneous: the fixed effects approach</h3>
@@ -1030,35 +1030,72 @@ Figure 13.12: Constantly updated meta-analysis with the <code>metafor</code> pac
 </p>
 </div>
 <p>You can also call each of the individual results of the cumulative meta-analysis using <code>cumul.meta.example.FE$estimate</code>. For example, the cumulated effect size after the 10 first studies is equal to 0.2 <span class="math inline">\(\pm\)</span> 0.18.</p>
-<p>Second, I present the simplest method to aggregate effects: the weighted average. Third, I present tests for deciding whether the effects are from a homogeneous or a heterogeneous population. Fourth, I explain how to conduct a meta-analysis when effects are heterogeneous. Fifth, I cover the meta-regression that we use to account for heterogeneity in treatment effects. Finally, I explain why usual intuitive methods such as vote-counting are biased.</p>
 </div>
 </div>
-<div id="publication-bias-1" class="section level2">
-<h2><span class="header-section-number">13.2</span> Publication bias</h2>
-<div id="sources-of-publication-bias" class="section level3">
-<h3><span class="header-section-number">13.2.1</span> Sources of publication bias</h3>
-<p><strong><span style="font-variant: small-caps;">Publication bias and site selection bias.</span></strong></p>
+<div id="publication-bias-and-site-selection-bias" class="section level2">
+<h2><span class="header-section-number">13.2</span> Publication bias and site selection bias</h2>
+<p>Up to now, we have made the assumption that a meta-analysis can access the results of <strong>ALL</strong> of the studies conducted on a topic. Problems appear when the publisehd record does not contain <strong>ALL</strong> of the studies conducted on a topic, but only a non-representative sample of them.</p>
+<p>In the first section below, I detail the two main types of biases: publication bias and site selection bias. In the second section, I present methods that help to detect and correct for publication bias. In the third section, I present methods tha help to detect and correct for site selection bias. In the last section, I take a step back and ask whether publication bias can be somehow optimal.</p>
+<div id="sources-of-publication-bias-and-of-site-selection-bias-and-questionable-research-practices" class="section level3">
+<h3><span class="header-section-number">13.2.1</span> Sources of publication bias and of site selection bias and Questionable Research Practices</h3>
+<p>This section explains the sources of publication bias and site selection bias. I also expalin how they trigger the use of Questionable Research Practices that bias the published record even more.</p>
+<div id="publication-bias-1" class="section level4">
+<h4><span class="header-section-number">13.2.1.1</span> Publication bias</h4>
+<p>There is publication bias when the eventual publication of the results of a research project depends on the results themselves. In general, the probability that a result is published increases drastically when the results reach the usual levels of statistical significance. On the contrary, the probability that a non significant result is published decreases drastically.</p>
+<p><strong><span style="font-variant: small-caps;">Give evidence of that behavior.</span></strong></p>
+<p>The reasons for this behavior are pretty well understood: editors and referees consider that only statistically significant results are of scientific interest, and that non significant results bring close to no information on a topic, especially if they are imprecise. Knowing this, most researchers choose not to invest time in trying to send a paper with a non significant result for publication.</p>
+<p>What are the consequences of publishing only statistically significant results? Well, among imprecisely estimated effects, only the largest ones are going to reach publication, generating a pattern of over estimation of the true treatment effect. They key trade off is whether the resulting bias is very large or not.</p>
+<p><strong><span style="font-variant: small-caps;">Numerical example.</span></strong></p>
+<p><strong><span style="font-variant: small-caps;">Publication bias and random effects</span></strong></p>
 </div>
-<div id="detecting-and-correcting-for-publication-bias" class="section level3">
-<h3><span class="header-section-number">13.2.2</span> Detecting and correcting for publication bias</h3>
+<div id="site-selection-bias-1" class="section level4">
+<h4><span class="header-section-number">13.2.1.2</span> Site selection bias</h4>
+<p>There is site selection bias when researchers only implement an intervention in sites where they expect it to work. How can they do so? There are several informations that one can use to select sites for implementing a treatment and maximizing its effectiveness. First, researchers might only be able to work with highly motivated implementation agents. This might generate larger effects of the treatment. Second, researchers might have an informal knowledge on the types of individuals that react to the treatment well, and decied to include them preferentially in the experimental study. Third, researchers might try out several different treatments in small informal pilots, and choose to run at scale only the most effective one(s). Finally, researchers, by conducting an extensive diagnosis of the problem that they face on the ground, might end up selecting a treatment that is more appropriate than a randomly selected treatment.</p>
+<p>What are the consequences of site selection bias? If the selection process remains undocumented, a policy-maker trying to implement a treatment with a proven track record might fail to obtain the expected results because the site on which she decides to implement it is not representative of the distribution of sites in which the program has been implemented. Ommitting to present the process of site selection is like not explaining the recommendations of use, or worse the diagnosis of the disease, for a drug. If we do not know which disease the drug is effective against, we might end up expecting great results of a cold medecine against cancer.</p>
+</div>
+<div id="questionable-research-practices" class="section level4">
+<h4><span class="header-section-number">13.2.1.3</span> Questionable Research Practices</h4>
+<p>Publication bias triggers and is aggravated by the use of Questionable Research Practices (QRPs). QRPs enable researchers (sometimes unknowingly) to obtain more statistically significant results than should be the case in view of the true effect of the treatment that they are looking at and the power of their test. Normally, when a treatment has no effect, only 5% of the treatment effects are going to turn out positive and significant when using a standard two-sided t-test. But, with QRPs, this figure can increase to 10, 20 or even, 50% in some cases.</p>
+<p><strong><span style="font-variant: small-caps;">References.</span></strong></p>
+<p>What are the most iusual QRPs?</p>
+<ul>
+<li>Choosing a sample that generates significant effects: that includes stopping data collection when an effet of interest is found or deciding on critera of inclusion of observations based on statistical singificance. Sometimes, simply stopping to do robustness checks when results are significant is enough to bias usual tests of statistical significance.</li>
+<li>Choosing an outcome because the effect of the treatment is statistially significant. If we have test 100 outcomes, all of them with a true effect of the treatment of zero, between 2 and 3 are expected to turn out with positive effects just by the sheer property of the tests that we are using.</li>
+<li>Choosing an identification strategy that generates significant treatment effects. Researcher smight try out various instruments and various natural expeirments before settling down on the one that yields a statistically significant result.</li>
+<li>Choosing a subgroup for which significant effects are obtained. Analysis by subgroups offers a lot of opportunities for finding spurious significant effects.</li>
+</ul>
+<p>The key question os whether these QRPs only move borderline significant results into the realm of significance, and thus have small effects of the size of the treatment effect, or if they enable to transform small effects into much larger ones.</p>
+</div>
+</div>
+<div id="detection-of-and-correction-for-publication-bias" class="section level3">
+<h3><span class="header-section-number">13.2.2</span> Detection of and correction for publication bias</h3>
+<div id="ex-post-methods" class="section level4">
+<h4><span class="header-section-number">13.2.2.1</span> Ex post methods</h4>
+</div>
 <div id="p-curving" class="section level4">
-<h4><span class="header-section-number">13.2.2.1</span> P-curving</h4>
+<h4><span class="header-section-number">13.2.2.2</span> P-curving</h4>
 </div>
 <div id="pet-peese" class="section level4">
-<h4><span class="header-section-number">13.2.2.2</span> PET-PEESE</h4>
+<h4><span class="header-section-number">13.2.2.3</span> PET-PEESE</h4>
 </div>
 <div id="kasy-and-andrews-approach" class="section level4">
-<h4><span class="header-section-number">13.2.2.3</span> Kasy and Andrews approach</h4>
+<h4><span class="header-section-number">13.2.2.4</span> Kasy and Andrews approach</h4>
 </div>
 <div id="last-approach" class="section level4">
-<h4><span class="header-section-number">13.2.2.4</span> Last approach</h4>
+<h4><span class="header-section-number">13.2.2.5</span> Last approach</h4>
 </div>
+<div id="ex-ante-methods" class="section level4">
+<h4><span class="header-section-number">13.2.2.6</span> Ex ante methods</h4>
+</div>
+</div>
+<div id="detection-of-and-correction-for-site-selection-bias" class="section level3">
+<h3><span class="header-section-number">13.2.3</span> Detection of and correction for site selection bias</h3>
 </div>
 <div id="vote-counting-and-publication-bias" class="section level3">
-<h3><span class="header-section-number">13.2.3</span> Vote counting and publication bias</h3>
+<h3><span class="header-section-number">13.2.4</span> Vote counting and publication bias</h3>
 </div>
 <div id="the-value-of-a-statistically-significant-result" class="section level3">
-<h3><span class="header-section-number">13.2.4</span> The value of a statistically significant result</h3>
+<h3><span class="header-section-number">13.2.5</span> The value of a statistically significant result</h3>
 
 </div>
 </div>

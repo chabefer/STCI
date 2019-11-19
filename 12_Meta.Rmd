@@ -15,7 +15,8 @@ The problem with this approach is that the distribution of published results is 
 This is potentially a very severe problem if the amount of censoring due to publication bias is large.
 Eventually, this hinges on the true distribution of treatment effects: if it is centered on zero or close to zero, we run the risk of having very large publication bias.
 
-In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.Most of the material presented here stems from the reference book by [Hedges and Olkin](https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis).
+In this chapter, I present first the tools for meta-analysis, and I then move on to testing and correcting for publication bias.
+Most of the material presented here stems from the reference book by [Hedges and Olkin](https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis).
 When needed, I update this book with new references that I then cite.
 the R code comes mainly from a [wonderful set of slides](http://www.edii.uclm.es/~useR-2013/Tutorials/kovalchik/kovalchik_meta_tutorial.pdf) explaining of the `metafor` package works. 
 
@@ -129,7 +130,7 @@ Let's make the simplifying assumption that the treatment effect is constant, so 
 Let's also assume that we are working with effect sizes, so that our outcomes are normalized to have mean zero and variance one.
 Under these assumptions, $C(\hat{E})=1$ and we can implement the power formula:
 
-```{r VoteCounting,eval=TRUE,echo=TRUE,results=FALSE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Detection probability of the vote counting rule',fig.subcap=c("$\\beta^A=0.1$","$\\beta^A=0.2$"),fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
+```{r VoteCounting,eval=TRUE,echo=TRUE,results=FALSE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Detection probability of the vote counting rule',fig.subcap=c("$\\beta_A=0.1$","$\\beta_A=0.2$"),fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
 PowerTwoside <- function(betaA,alpha,N,CE=1){
   return(pnorm(-betaA/sqrt(CE/N)-qnorm(1-alpha/2))+pnorm(betaA/sqrt(CE/N)-qnorm(1-alpha/2)))
 }
@@ -192,7 +193,6 @@ ggplot(data=filter(power.vote,BetaA==0.2),aes(x=N,y=Power,group=K,shape=K,color=
 Figure \@ref(fig:VoteCounting) shows that the vote counting rule has a very inconvenient property: when the power of the test is lower than 33\%, the probability that the vote counting rule detects a true effect decreases with the number of studies included in the meta-analysis, and converges to zero when the number of studies gets large.  
 For example, when $N=100$ and $\beta_A=0.1$, the probability of detecting the effect using the vote counting method is equal to `r round(select(filter(power.vote,BetaA==0.1,N==100,K==10),Power)[[1]],3)` with $K=10$ studies and decreases to `r round(select(filter(power.vote,BetaA==0.1,N==100,K==20),Power)[[1]],3)` when $K=20$, and `r round(select(filter(power.vote,BetaA==0.1,N==100,K==100),Power)[[1]],3)` when $K=100$.
 The pattern is reverse for more powerful studies, such as when $N=300$ and $\beta_A=0.1$ or when $N=100$ and $\beta_A=0.2$.
-
 The intuition for this result is that the vote counting method does not average out the sampling noise in each individual study. 
 
 ### Meta-analysis when treatment effects are homogeneous: the fixed effects approach {#MetaWA}
@@ -912,20 +912,87 @@ forest(cumul.meta.example.FE,slab = paste('Study',data.meta$id,sep=' '),xlab='Es
 You can also call each of the individual results of the cumulative meta-analysis using `cumul.meta.example.FE$estimate`. 
 For example, the cumulated effect size after the 10 first studies is equal to `r round(cumul.meta.example.FE$estimate[[10]],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*cumul.meta.example.FE$se[[10]],2)`.
 
+## Publication bias and site selection bias
 
-Second, I present the simplest method to aggregate effects: the weighted average.
-Third, I present tests for deciding whether the effects are from a homogeneous or a heterogeneous population.
-Fourth, I explain how to conduct a meta-analysis when effects are heterogeneous.
-Fifth, I cover the meta-regression that we use to account for heterogeneity in treatment effects.
-Finally, I explain why usual intuitive methods such as vote-counting are biased.
+Up to now, we have made the assumption that a meta-analysis can access the results of **ALL** of the studies conducted on a topic. 
+Problems appear when the publisehd record does not contain **ALL** of the studies conducted on a topic, but only a non-representative sample of them. 
 
-## Publication bias
+In the first section below, I detail the two main types of biases: publication bias and site selection bias.
+In the second section, I present methods that help to detect and correct for publication bias.
+In the third section, I present methods tha help to detect and correct for site selection bias.
+In the last section, I take a step back and ask whether publication bias can be somehow optimal.
 
-### Sources of publication bias
 
-**<span style="font-variant:small-caps;">Publication bias and site selection bias.</span>**
+### Sources of publication bias and of site selection bias and Questionable Research Practices
 
-### Detecting and correcting for publication bias
+This section explains the sources of publication bias and site selection bias.
+I also expalin how they trigger the use of Questionable Research Practices that bias the published record even more.
+
+#### Publication bias
+
+There is publication bias when the eventual publication of the results of a research project depends on the results themselves. 
+In general, the probability that a result is published increases drastically when the results reach the usual levels of statistical significance.
+On the contrary, the probability that a non significant result is published decreases drastically.
+
+**<span style="font-variant:small-caps;">Give evidence of that behavior.</span>**
+
+The reasons for this behavior are pretty well understood: editors and referees consider that only statistically significant results are of scientific interest, and that non significant results bring close to no information on a topic, especially if they are imprecise.
+Knowing this, most researchers choose not to invest time in trying to send a paper with a non significant result for publication.
+
+What are the consequences of publishing only statistically significant results?
+Well, among imprecisely estimated effects, only the largest ones are going to reach publication, generating a pattern of over estimation of the true treatment effect.
+They key trade off is whether the resulting bias is very large or not. 
+
+**<span style="font-variant:small-caps;">Numerical example.</span>**
+
+
+
+**<span style="font-variant:small-caps;">Publication bias and random effects</span>**
+
+
+#### Site selection bias 
+
+There is site selection bias when researchers only implement an intervention in sites where they expect it to work.
+How can they do so?
+There are several informations that one can use to select sites for implementing a treatment and maximizing its effectiveness.
+First, researchers might only be able to work with highly motivated implementation agents.
+This might generate larger effects of the treatment.
+Second, researchers might have an informal knowledge on the types of individuals that react to the treatment well, and decied to include them preferentially in the experimental study.
+Third, researchers might try out several different treatments in small informal pilots, and choose to run at scale only the most effective one(s).
+Finally, researchers, by conducting an extensive diagnosis of the problem that they face on the ground, might end up selecting a treatment that is more appropriate than a randomly selected treatment.
+
+What are the consequences of site selection bias?
+If the selection process remains undocumented, a policy-maker trying to implement a treatment with a proven track record might fail to obtain the expected results because the site on which she decides to implement it is not representative of the distribution of sites in which the program has been implemented.
+Ommitting to present the process of site selection is like not explaining the recommendations of use, or worse the diagnosis of the disease, for a drug.
+If we do not know which disease the drug is effective against, we might end up expecting great results of a cold medecine against cancer. 
+
+#### Questionable Research Practices
+
+Publication bias triggers and is aggravated by the use of Questionable Research Practices (QRPs).
+QRPs enable researchers (sometimes unknowingly) to obtain more statistically significant results than should be the case in view of the true effect of the treatment that they are looking at and the power of their test. 
+Normally, when a treatment has no effect, only 5\% of the treatment effects are going to turn out positive and significant when using a standard two-sided t-test.
+But, with QRPs, this figure can increase to 10, 20 or even, 50\% in some cases.
+
+**<span style="font-variant:small-caps;">References.</span>**
+
+What are the most iusual QRPs?
+
+  * Choosing a sample that generates significant effects: that includes stopping data collection when an effet of interest is found or deciding on critera of inclusion of observations based on statistical singificance.
+  Sometimes, simply stopping to do robustness checks when results are significant is enough to bias usual tests of statistical significance.
+  * Choosing an outcome because the effect of the treatment is statistially significant.
+  If we have test 100 outcomes, all of them with a true effect of the treatment of zero, between 2 and 3 are expected to turn out with positive effects just by the sheer property of the tests that we are using.
+  * Choosing an identification strategy that generates significant treatment effects.
+  Researcher smight try out various instruments and various natural expeirments before settling down on the one that yields a statistically significant result.
+  * Choosing a subgroup for which significant effects are obtained.
+  Analysis by subgroups offers a lot of opportunities for finding spurious significant effects.
+  
+The key question os whether these QRPs only move borderline significant results into the realm of significance, and thus have small effects of the size of the treatment effect, or if they enable to transform small effects into much larger ones.
+
+
+
+### Detection of and correction for publication bias
+
+#### Ex post methods
 
 #### P-curving
 
@@ -934,6 +1001,10 @@ Finally, I explain why usual intuitive methods such as vote-counting are biased.
 #### Kasy and Andrews approach
 
 #### Last approach
+
+#### Ex ante methods
+
+### Detection of and correction for site selection bias
 
 ### Vote counting and publication bias
 

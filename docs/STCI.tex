@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-11-14}
+    \date{2019-11-19}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8609,7 +8609,7 @@ distribution of treatment effects: if it is centered on zero or close to
 zero, we run the risk of having very large publication bias.
 
 In this chapter, I present first the tools for meta-analysis, and I then
-move on to testing and correcting for publication bias.Most of the
+move on to testing and correcting for publication bias. Most of the
 material presented here stems from the reference book by
 \href{https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis}{Hedges
 and Olkin}. When needed, I update this book with new references that I
@@ -8843,7 +8843,7 @@ assumptions, \(C(\hat{E})=1\) and we can implement the power formula:
 
 \begin{figure}[htbp]
 
-{\centering \subfloat[$\beta^A=0.1$\label{fig:VoteCounting1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/VoteCounting-1} }\subfloat[$\beta^A=0.2$\label{fig:VoteCounting2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/VoteCounting-2} }
+{\centering \subfloat[$\beta_A=0.1$\label{fig:VoteCounting1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/VoteCounting-1} }\subfloat[$\beta_A=0.2$\label{fig:VoteCounting2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/VoteCounting-2} }
 
 }
 
@@ -8860,10 +8860,8 @@ detecting the effect using the vote counting method is equal to 0.076
 with \(K=10\) studies and decreases to 0.043 when \(K=20\), and 0 when
 \(K=100\). The pattern is reverse for more powerful studies, such as
 when \(N=300\) and \(\beta_A=0.1\) or when \(N=100\) and
-\(\beta_A=0.2\).
-
-The intuition for this result is that the vote counting method does not
-average out the sampling noise in each individual study.
+\(\beta_A=0.2\). The intuition for this result is that the vote counting
+method does not average out the sampling noise in each individual study.
 
 \subsection{Meta-analysis when treatment effects are homogeneous: the
 fixed effects approach}\label{MetaWA}
@@ -10056,23 +10054,138 @@ meta-analysis using \texttt{cumul.meta.example.FE\$estimate}. For
 example, the cumulated effect size after the 10 first studies is equal
 to 0.2 \(\pm\) 0.18.
 
-Second, I present the simplest method to aggregate effects: the weighted
-average. Third, I present tests for deciding whether the effects are
-from a homogeneous or a heterogeneous population. Fourth, I explain how
-to conduct a meta-analysis when effects are heterogeneous. Fifth, I
-cover the meta-regression that we use to account for heterogeneity in
-treatment effects. Finally, I explain why usual intuitive methods such
-as vote-counting are biased.
+\section{Publication bias and site selection
+bias}\label{publication-bias-and-site-selection-bias}
 
-\section{Publication bias}\label{publication-bias-1}
+Up to now, we have made the assumption that a meta-analysis can access
+the results of \textbf{ALL} of the studies conducted on a topic.
+Problems appear when the publisehd record does not contain \textbf{ALL}
+of the studies conducted on a topic, but only a non-representative
+sample of them.
 
-\subsection{Sources of publication
-bias}\label{sources-of-publication-bias}
+In the first section below, I detail the two main types of biases:
+publication bias and site selection bias. In the second section, I
+present methods that help to detect and correct for publication bias. In
+the third section, I present methods tha help to detect and correct for
+site selection bias. In the last section, I take a step back and ask
+whether publication bias can be somehow optimal.
 
-\textbf{\textsc{Publication bias and site selection bias.}}
+\subsection{Sources of publication bias and of site selection bias and
+Questionable Research
+Practices}\label{sources-of-publication-bias-and-of-site-selection-bias-and-questionable-research-practices}
 
-\subsection{Detecting and correcting for publication
-bias}\label{detecting-and-correcting-for-publication-bias}
+This section explains the sources of publication bias and site selection
+bias. I also expalin how they trigger the use of Questionable Research
+Practices that bias the published record even more.
+
+\subsubsection{Publication bias}\label{publication-bias-1}
+
+There is publication bias when the eventual publication of the results
+of a research project depends on the results themselves. In general, the
+probability that a result is published increases drastically when the
+results reach the usual levels of statistical significance. On the
+contrary, the probability that a non significant result is published
+decreases drastically.
+
+\textbf{\textsc{Give evidence of that behavior.}}
+
+The reasons for this behavior are pretty well understood: editors and
+referees consider that only statistically significant results are of
+scientific interest, and that non significant results bring close to no
+information on a topic, especially if they are imprecise. Knowing this,
+most researchers choose not to invest time in trying to send a paper
+with a non significant result for publication.
+
+What are the consequences of publishing only statistically significant
+results? Well, among imprecisely estimated effects, only the largest
+ones are going to reach publication, generating a pattern of over
+estimation of the true treatment effect. They key trade off is whether
+the resulting bias is very large or not.
+
+\textbf{\textsc{Numerical example.}}
+
+\textbf{\textsc{Publication bias and random effects}}
+
+\subsubsection{Site selection bias}\label{site-selection-bias-1}
+
+There is site selection bias when researchers only implement an
+intervention in sites where they expect it to work. How can they do so?
+There are several informations that one can use to select sites for
+implementing a treatment and maximizing its effectiveness. First,
+researchers might only be able to work with highly motivated
+implementation agents. This might generate larger effects of the
+treatment. Second, researchers might have an informal knowledge on the
+types of individuals that react to the treatment well, and decied to
+include them preferentially in the experimental study. Third,
+researchers might try out several different treatments in small informal
+pilots, and choose to run at scale only the most effective one(s).
+Finally, researchers, by conducting an extensive diagnosis of the
+problem that they face on the ground, might end up selecting a treatment
+that is more appropriate than a randomly selected treatment.
+
+What are the consequences of site selection bias? If the selection
+process remains undocumented, a policy-maker trying to implement a
+treatment with a proven track record might fail to obtain the expected
+results because the site on which she decides to implement it is not
+representative of the distribution of sites in which the program has
+been implemented. Ommitting to present the process of site selection is
+like not explaining the recommendations of use, or worse the diagnosis
+of the disease, for a drug. If we do not know which disease the drug is
+effective against, we might end up expecting great results of a cold
+medecine against cancer.
+
+\subsubsection{Questionable Research
+Practices}\label{questionable-research-practices}
+
+Publication bias triggers and is aggravated by the use of Questionable
+Research Practices (QRPs). QRPs enable researchers (sometimes
+unknowingly) to obtain more statistically significant results than
+should be the case in view of the true effect of the treatment that they
+are looking at and the power of their test. Normally, when a treatment
+has no effect, only 5\% of the treatment effects are going to turn out
+positive and significant when using a standard two-sided t-test. But,
+with QRPs, this figure can increase to 10, 20 or even, 50\% in some
+cases.
+
+\textbf{\textsc{References.}}
+
+What are the most iusual QRPs?
+
+\begin{itemize}
+\tightlist
+\item
+  Choosing a sample that generates significant effects: that includes
+  stopping data collection when an effet of interest is found or
+  deciding on critera of inclusion of observations based on statistical
+  singificance. Sometimes, simply stopping to do robustness checks when
+  results are significant is enough to bias usual tests of statistical
+  significance.
+\item
+  Choosing an outcome because the effect of the treatment is
+  statistially significant. If we have test 100 outcomes, all of them
+  with a true effect of the treatment of zero, between 2 and 3 are
+  expected to turn out with positive effects just by the sheer property
+  of the tests that we are using.
+\item
+  Choosing an identification strategy that generates significant
+  treatment effects. Researcher smight try out various instruments and
+  various natural expeirments before settling down on the one that
+  yields a statistically significant result.
+\item
+  Choosing a subgroup for which significant effects are obtained.
+  Analysis by subgroups offers a lot of opportunities for finding
+  spurious significant effects.
+\end{itemize}
+
+The key question os whether these QRPs only move borderline significant
+results into the realm of significance, and thus have small effects of
+the size of the treatment effect, or if they enable to transform small
+effects into much larger ones.
+
+\subsection{Detection of and correction for publication
+bias}\label{detection-of-and-correction-for-publication-bias}
+
+\subsubsection{Ex post methods}\label{ex-post-methods}
 
 \subsubsection{P-curving}\label{p-curving}
 
@@ -10082,6 +10195,11 @@ bias}\label{detecting-and-correcting-for-publication-bias}
 approach}\label{kasy-and-andrews-approach}
 
 \subsubsection{Last approach}\label{last-approach}
+
+\subsubsection{Ex ante methods}\label{ex-ante-methods}
+
+\subsection{Detection of and correction for site selection
+bias}\label{detection-of-and-correction-for-site-selection-bias}
 
 \subsection{Vote counting and publication
 bias}\label{vote-counting-and-publication-bias}
