@@ -123,7 +123,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2019-11-19}
+    \date{2019-11-21}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -10098,11 +10098,104 @@ with a non significant result for publication.
 
 What are the consequences of publishing only statistically significant
 results? Well, among imprecisely estimated effects, only the largest
-ones are going to reach publication, generating a pattern of over
-estimation of the true treatment effect. They key trade off is whether
-the resulting bias is very large or not.
+ones are going to reach publication, generating a pattern of
+overestimation of the true treatment effect. They key trade-off is
+whether the resulting bias is very large or not.
 
-\textbf{\textsc{Numerical example.}}
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-163}{}{\label{exm:unnamed-chunk-163}
+}What does publication bias look like in our example? Let's assume that
+only statistically significant effects are published. Would it change
+our estimate? In order to see whether that is the case, let's build
+Figure \ref{fig:confintervalESCLT} with the addition of fixed effects
+estimator using all results and using only statistically significant
+results.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{meta.example.FE.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+
+\NormalTok{meta.example.FE.small <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{)}\OperatorTok{$}\NormalTok{ES,}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+\NormalTok{meta.example.FE.small.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{)}\OperatorTok{$}\NormalTok{ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+
+\NormalTok{meta.example.FE.interm <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{ES,}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+\NormalTok{meta.example.FE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta.}\DecValTok{2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+
+
+  \KeywordTok{ggplot}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{), }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_point}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{coef}\NormalTok{(meta.example.FE.small)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dotted"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{coef}\NormalTok{(meta.example.FE.small.pubbias)), }\DataTypeTok{colour=}\StringTok{"green"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dotted"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies (only small sample size)"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}
+
+  \KeywordTok{ggplot}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{), }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_point}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{coef}\NormalTok{(meta.example.FE.interm)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dotted"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{coef}\NormalTok{(meta.example.FE.interm.pubbias)), }\DataTypeTok{colour=}\StringTok{"green"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dotted"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies (only small and intermediate sample size)"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}
+
+
+  \KeywordTok{ggplot}\NormalTok{(data.meta, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{ES)) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_point}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_errorbar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{ymin=}\NormalTok{ES}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES, }\DataTypeTok{ymax=}\NormalTok{ES}\OperatorTok{+}\KeywordTok{qnorm}\NormalTok{((delta.}\DecValTok{2}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{se.ES), }\DataTypeTok{width=}\NormalTok{.}\DecValTok{2}\NormalTok{,}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(.}\DecValTok{9}\NormalTok{),}\DataTypeTok{color=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{ES}\NormalTok{(param)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dashed"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{coef}\NormalTok{(meta.example.FE)), }\DataTypeTok{colour=}\StringTok{"#990000"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dotted"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_hline}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{yintercept=}\KeywordTok{coef}\NormalTok{(meta.example.FE.pubbias)), }\DataTypeTok{colour=}\StringTok{"green"}\NormalTok{, }\DataTypeTok{linetype=}\StringTok{"dotted"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Studies (all)"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Effect size"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[All studies\label{fig:PubBias1}]{\includegraphics[width=0.33\linewidth]{STCI_files/figure-latex/PubBias-1} }\subfloat[Only imprecise studies\label{fig:PubBias2}]{\includegraphics[width=0.33\linewidth]{STCI_files/figure-latex/PubBias-2} }\subfloat[All studies\label{fig:PubBias3}]{\includegraphics[width=0.33\linewidth]{STCI_files/figure-latex/PubBias-3} }
+
+}
+
+\caption{Illustration of publication bias}\label{fig:PubBias}
+\end{figure}
+
+Figure \ref{fig:PubBias} shows that publication bias can be a sizable
+problem. Remember that the true effect that we are trying to estimate is
+0.2. When only imprecise studies with small sample size are available,
+the effect estimated using only the statisticaly significant studies
+(actually, the only study that reports a statistically significant
+result) is equal to 0.51 \(\pm\) 0.5, while the effect estimated all the
+10 studies with a small sample size is 0.2 \(\pm\) 0.18. When studies
+with small and intermediate sample size are available, the effect
+estimated using only the statisticaly significant studies is equal to
+0.29 \(\pm\) 0.08, while the effect estimated all the 17 studies with a
+small and intermediate sample size is 0.24 \(\pm\) 0.06. It is only when
+studies with large and very large sample size are added to the
+estimation that publication bias is not a problem anymore. The effect
+estimated using only the statisticaly significant studies is equal to
+0.2 \(\pm\) 0.02, while the effect estimated all the studies is 0.19
+\(\pm\) 0.02.
+
+As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the
+true effect by:
+
+\begin{itemize}
+\tightlist
+\item
+  148 \%, or 0.3 of a standard deviation, with studies with a small
+  sample size,
+\item
+  40 \%, or 0.08 of a standard deviation, with studies with a small or
+  intermediate sample size,
+\item
+  4 \%, or 0.01 of a standard deviation, with all studies.
+\end{itemize}
 
 \textbf{\textsc{Publication bias and random effects}}
 
@@ -10177,7 +10270,7 @@ What are the most iusual QRPs?
   spurious significant effects.
 \end{itemize}
 
-The key question os whether these QRPs only move borderline significant
+The key question is whether these QRPs only move borderline significant
 results into the realm of significance, and thus have small effects of
 the size of the treatment effect, or if they enable to transform small
 effects into much larger ones.

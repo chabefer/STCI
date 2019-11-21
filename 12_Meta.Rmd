@@ -940,12 +940,71 @@ The reasons for this behavior are pretty well understood: editors and referees c
 Knowing this, most researchers choose not to invest time in trying to send a paper with a non significant result for publication.
 
 What are the consequences of publishing only statistically significant results?
-Well, among imprecisely estimated effects, only the largest ones are going to reach publication, generating a pattern of over estimation of the true treatment effect.
-They key trade off is whether the resulting bias is very large or not. 
+Well, among imprecisely estimated effects, only the largest ones are going to reach publication, generating a pattern of overestimation of the true treatment effect.
+They key trade-off is whether the resulting bias is very large or not.
 
-**<span style="font-variant:small-caps;">Numerical example.</span>**
+```{example}
+What does publication bias look like in our example? 
+Let's assume that only statistically significant effects are published.
+Would it change our estimate?
+In order to see whether that is the case, let's build Figure \@ref(fig:confintervalESCLT) with the addition of fixed effects estimator using all results and using only statistically significant results.
+```
+
+```{r PubBias,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Illustration of publication bias',fig.subcap=c('All studies', 'Only imprecise studies'), fig.align='center',out.width='33%',fig.pos='htbp',fig.height=8,fig.width=12}
+meta.example.FE.pubbias <- rma(yi = data.meta$ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)],vi=data.meta$var.ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>qnorm((1+delta.2)/2)],method="FE")
+
+meta.example.FE.small <- rma(yi = filter(data.meta,id<=10)$ES,vi=filter(data.meta,id<=10)$var.ES,method="FE")
+meta.example.FE.small.pubbias <- rma(yi = filter(data.meta,id<=10)$ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)],vi=filter(data.meta,id<=10)$var.ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>qnorm((1+delta.2)/2)],method="FE")
+
+meta.example.FE.interm <- rma(yi = filter(data.meta,id<=17)$ES,vi=filter(data.meta,id<=17)$var.ES,method="FE")
+meta.example.FE.interm.pubbias <- rma(yi = filter(data.meta,id<=17)$ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)],vi=filter(data.meta,id<=17)$var.ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>qnorm((1+delta.2)/2)],method="FE")
 
 
+  ggplot(filter(data.meta,id<=10), aes(x=as.factor(id), y=ES)) +
+      geom_point(position=position_dodge(), stat="identity", colour='blue') +
+      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      geom_hline(aes(yintercept=coef(meta.example.FE.small)), colour="#990000", linetype="dotted")+
+      geom_hline(aes(yintercept=coef(meta.example.FE.small.pubbias)), colour="green", linetype="dotted")+
+      xlab("Studies (only small sample size)")+
+      ylab("Effect size")+
+      theme_bw()
+
+  ggplot(filter(data.meta,id<=17), aes(x=as.factor(id), y=ES)) +
+      geom_point(position=position_dodge(), stat="identity", colour='blue') +
+      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      geom_hline(aes(yintercept=coef(meta.example.FE.interm)), colour="#990000", linetype="dotted")+
+      geom_hline(aes(yintercept=coef(meta.example.FE.interm.pubbias)), colour="green", linetype="dotted")+
+      xlab("Studies (only small and intermediate sample size)")+
+      ylab("Effect size")+
+      theme_bw()
+
+
+  ggplot(data.meta, aes(x=as.factor(id), y=ES)) +
+      geom_point(position=position_dodge(), stat="identity", colour='blue') +
+      geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      geom_hline(aes(yintercept=coef(meta.example.FE)), colour="#990000", linetype="dotted")+
+      geom_hline(aes(yintercept=coef(meta.example.FE.pubbias)), colour="green", linetype="dotted")+
+      xlab("Studies (all)")+
+      ylab("Effect size")+
+      theme_bw()
+
+```
+
+Figure \@ref(fig:PubBias) shows that publication bias can be a sizable problem.
+Remember that the true effect that we are trying to estimate is `r round(ES(param),2)`.
+When only imprecise studies with small sample size are available, the effect estimated using only the statisticaly significant studies (actually, the only study that reports a statistically significant result) is equal to `r round(coef(meta.example.FE.small.pubbias),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.small.pubbias)$se,2)`, while the effect estimated all the 10 studies with a small sample size is `r round(coef(meta.example.FE.small),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.small)$se,2)`.
+When studies with small and intermediate sample size are available, the effect estimated using only the statisticaly significant studies is equal to `r round(coef(meta.example.FE.interm.pubbias),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.interm.pubbias)$se,2)`, while the effect estimated all the 17 studies with a small and intermediate sample size is `r round(coef(meta.example.FE.interm),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.interm)$se,2)`.
+It is only when studies with large and very large sample size are added to the estimation that publication bias is not a problem anymore. 
+The effect estimated using only the statisticaly significant studies is equal to `r round(coef(meta.example.FE.pubbias),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.pubbias)$se,2)`, while the effect estimated all the studies is `r round(coef(meta.example.FE),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE)$se,2)`.
+
+As a conclusion of Figure \@ref(fig:PubBias), publication bias biases the true effect by:
+
+  * `r round(100*abs(coef(meta.example.FE.small.pubbias)-ES(param))/ES(param),0)` \%, or `r round(abs(coef(meta.example.FE.small.pubbias)-ES(param)),2)` of a standard deviation, with studies with a small sample size,
+  * `r round(100*abs(coef(meta.example.FE.interm.pubbias)-ES(param))/ES(param),0)` \%, or `r round(abs(coef(meta.example.FE.interm.pubbias)-ES(param)),2)` of a standard deviation, with studies with a small or intermediate sample size,
+  * `r round(100*abs(coef(meta.example.FE.pubbias)-ES(param))/ES(param),0)` \%, or `r round(abs(coef(meta.example.FE.pubbias)-ES(param)),2)` of a standard deviation, with all studies.
 
 **<span style="font-variant:small-caps;">Publication bias and random effects</span>**
 
@@ -986,7 +1045,7 @@ What are the most iusual QRPs?
   * Choosing a subgroup for which significant effects are obtained.
   Analysis by subgroups offers a lot of opportunities for finding spurious significant effects.
   
-The key question os whether these QRPs only move borderline significant results into the realm of significance, and thus have small effects of the size of the treatment effect, or if they enable to transform small effects into much larger ones.
+The key question is whether these QRPs only move borderline significant results into the realm of significance, and thus have small effects of the size of the treatment effect, or if they enable to transform small effects into much larger ones.
 
 
 
