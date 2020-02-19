@@ -639,8 +639,8 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
   
 ```{example}
 Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
-Let's plot the two forest plots for the example with $\tau=$ `r tau[[1]]^2`.
 ```
+Let's plot the two forest plots for the example with $\tau=$ `r tau[[1]]^2`.
 
 ```{r FEvsRE,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap=paste('Fixed vs random effects with','$\\tau^2=$',tau[[1]]^2,sep=' '),fig.subcap=c('Fixed effects','Random effects'), fig.align='center', out.width="50%", fig.pos='htbp', fig.height=8, fig.width=12}
 forest(meta.example.FE.theta.1,slab = paste('Study',data.meta$id,sep=' '),xlab='Estimated Meta-analytic Parameter')
@@ -959,7 +959,6 @@ meta.example.FE.small.pubbias <- rma(yi = filter(data.meta,id<=10)$ES[abs(data.m
 meta.example.FE.interm <- rma(yi = filter(data.meta,id<=17)$ES,vi=filter(data.meta,id<=17)$var.ES,method="FE")
 meta.example.FE.interm.pubbias <- rma(yi = filter(data.meta,id<=17)$ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)],vi=filter(data.meta,id<=17)$var.ES[abs(data.meta$ES/sqrt(data.meta$var.ES))>qnorm((1+delta.2)/2)],method="FE")
 
-
   ggplot(filter(data.meta,id<=10), aes(x=as.factor(id), y=ES)) +
       geom_point(position=position_dodge(), stat="identity", colour='blue') +
       geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
@@ -980,7 +979,6 @@ meta.example.FE.interm.pubbias <- rma(yi = filter(data.meta,id<=17)$ES[abs(data.
       ylab("Effect size")+
       theme_bw()
 
-
   ggplot(data.meta, aes(x=as.factor(id), y=ES)) +
       geom_point(position=position_dodge(), stat="identity", colour='blue') +
       geom_errorbar(aes(ymin=ES-qnorm((delta.2+1)/2)*se.ES, ymax=ES+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
@@ -990,7 +988,6 @@ meta.example.FE.interm.pubbias <- rma(yi = filter(data.meta,id<=17)$ES[abs(data.
       xlab("Studies (all)")+
       ylab("Effect size")+
       theme_bw()
-
 ```
 
 Figure \@ref(fig:PubBias) shows that publication bias can be a sizable problem.
@@ -1006,7 +1003,55 @@ As a conclusion of Figure \@ref(fig:PubBias), publication bias biases the true e
   * `r round(100*abs(coef(meta.example.FE.interm.pubbias)-ES(param))/ES(param),0)` \%, or `r round(abs(coef(meta.example.FE.interm.pubbias)-ES(param)),2)` of a standard deviation, with studies with a small or intermediate sample size,
   * `r round(100*abs(coef(meta.example.FE.pubbias)-ES(param))/ES(param),0)` \%, or `r round(abs(coef(meta.example.FE.pubbias)-ES(param)),2)` of a standard deviation, with all studies.
 
-**<span style="font-variant:small-caps;">Publication bias and random effects</span>**
+With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
+
+```{example}
+Here is how that impacts the truth in our example:
+```
+For more realism, 
+
+```{r PubBiasRE,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Illustration of publication bias with Random Effects',fig.subcap=c('All studies', 'Only imprecise studies'), fig.align='center',out.width='33%',fig.pos='htbp',fig.height=8,fig.width=12}
+meta.example.RE <- rma(yi = data.meta$theta.1,vi=data.meta$var.ES,method="REML")
+meta.example.RE.pubbias <- rma(yi = data.meta$theta.1[abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)],vi=data.meta$var.ES[abs(data.meta$theta.1/sqrt(data.meta$var.ES))>qnorm((1+delta.2)/2)],method="REML")
+
+meta.example.RE.small <- rma(yi = filter(data.meta,id<=10)$theta.1,vi=filter(data.meta,id<=10)$var.ES,method="REML")
+meta.example.RE.small.pubbias <- rma(yi = filter(data.meta,id<=10)$theta.1[abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)],vi=filter(data.meta,id<=10)$var.ES[abs(data.meta$theta.1/sqrt(data.meta$var.ES))>qnorm((1+delta.2)/2)],method="REML")
+
+meta.example.RE.interm <- rma(yi = filter(data.meta,id<=17)$theta.1,vi=filter(data.meta,id<=17)$var.ES,method="REML")
+meta.example.RE.interm.pubbias <- rma(yi = filter(data.meta,id<=17)$ES[abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)],vi=filter(data.meta,id<=17)$var.ES[abs(data.meta$theta.1/sqrt(data.meta$var.ES))>qnorm((1+delta.2)/2)],method="REML")
+
+  ggplot(filter(data.meta,id<=10), aes(x=as.factor(id), y=theta.1)) +
+      geom_point(position=position_dodge(), stat="identity", colour='blue') +
+      geom_errorbar(aes(ymin=theta.1-qnorm((delta.2+1)/2)*se.ES, ymax=theta.1+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      geom_hline(aes(yintercept=coef(meta.example.RE.small)), colour="#990000", linetype="dotted")+
+      geom_hline(aes(yintercept=coef(meta.example.RE.small.pubbias)), colour="green", linetype="dotted")+
+      xlab("Studies (only small sample size)")+
+      ylab("Effect size")+
+      theme_bw()
+
+  ggplot(filter(data.meta,id<=17), aes(x=as.factor(id), y=theta.1)) +
+      geom_point(position=position_dodge(), stat="identity", colour='blue') +
+      geom_errorbar(aes(ymin=theta.1-qnorm((delta.2+1)/2)*se.ES, ymax=theta.1+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      geom_hline(aes(yintercept=coef(meta.example.RE.interm)), colour="#990000", linetype="dotted")+
+      geom_hline(aes(yintercept=coef(meta.example.RE.interm.pubbias)), colour="green", linetype="dotted")+
+      xlab("Studies (only small and intermediate sample size)")+
+      ylab("Effect size")+
+      theme_bw()
+
+  ggplot(data.meta, aes(x=as.factor(id), y=theta.1)) +
+      geom_point(position=position_dodge(), stat="identity", colour='blue') +
+      geom_errorbar(aes(ymin=theta.1-qnorm((delta.2+1)/2)*se.ES, ymax=theta.1+qnorm((delta.2+1)/2)*se.ES), width=.2,position=position_dodge(.9),color='blue') +
+      geom_hline(aes(yintercept=ES(param)), colour="#990000", linetype="dashed")+
+      geom_hline(aes(yintercept=coef(meta.example.RE)), colour="#990000", linetype="dotted")+
+      geom_hline(aes(yintercept=coef(meta.example.RE.pubbias)), colour="green", linetype="dotted")+
+      xlab("Studies (all)")+
+      ylab("Effect size")+
+      theme_bw()
+```
+
+
 
 
 #### Site selection bias 
@@ -1016,14 +1061,16 @@ How can they do so?
 There are several informations that one can use to select sites for implementing a treatment and maximizing its effectiveness.
 First, researchers might only be able to work with highly motivated implementation agents.
 This might generate larger effects of the treatment.
-Second, researchers might have an informal knowledge on the types of individuals that react to the treatment well, and decied to include them preferentially in the experimental study.
+Second, researchers might have an informal knowledge on the types of individuals who react to the treatment well, and might decide to include them preferentially in the experimental study.
 Third, researchers might try out several different treatments in small informal pilots, and choose to run at scale only the most effective one(s).
 Finally, researchers, by conducting an extensive diagnosis of the problem that they face on the ground, might end up selecting a treatment that is more appropriate than a randomly selected treatment.
 
 What are the consequences of site selection bias?
-If the selection process remains undocumented, a policy-maker trying to implement a treatment with a proven track record might fail to obtain the expected results because the site on which she decides to implement it is not representative of the distribution of sites in which the program has been implemented.
-Ommitting to present the process of site selection is like not explaining the recommendations of use, or worse the diagnosis of the disease, for a drug.
+If the selection process remains undocumented, a policy-maker trying to implement a treatment with a proven track record might fail to obtain the expected results because the site on which she decides to implement it is not representative of the distribution of sites in which the program has been evaluated.
+Ommitting to detail the process of site selection is akin to not explaining the recommendations of use, or worse the diagnosis of the disease, for a drug.
 If we do not know which disease the drug is effective against, we might end up expecting great results of a cold medecine against cancer. 
+
+**<span style="font-variant:small-caps;">Simulations.</span>**
 
 #### Questionable Research Practices
 
@@ -1034,32 +1081,36 @@ But, with QRPs, this figure can increase to 10, 20 or even, 50\% in some cases.
 
 **<span style="font-variant:small-caps;">References.</span>**
 
-What are the most iusual QRPs?
+What are the most usual QRPs?
 
   * Choosing a sample that generates significant effects: that includes stopping data collection when an effet of interest is found or deciding on critera of inclusion of observations based on statistical singificance.
   Sometimes, simply stopping to do robustness checks when results are significant is enough to bias usual tests of statistical significance.
-  * Choosing an outcome because the effect of the treatment is statistially significant.
-  If we have test 100 outcomes, all of them with a true effect of the treatment of zero, between 2 and 3 are expected to turn out with positive effects just by the sheer property of the tests that we are using.
+  * Choosing an outcome because the effect of the treatment is statistically significant.
+  If we test a treatment on 100 outcomes for which the true effect of the treatment is null, between 2 and 3 outcomes are expected to turn out with positive effects just by the sheer property of the tests that we are using.
   * Choosing an identification strategy that generates significant treatment effects.
-  Researcher smight try out various instruments and various natural expeirments before settling down on the one that yields a statistically significant result.
+  Researcher smight try out various instruments and various natural experiments before settling down on the one that yields a statistically significant result.
   * Choosing a subgroup for which significant effects are obtained.
   Analysis by subgroups offers a lot of opportunities for finding spurious significant effects.
   
 The key question is whether these QRPs only move borderline significant results into the realm of significance, and thus have small effects of the size of the treatment effect, or if they enable to transform small effects into much larger ones.
+Note though that even if the QRPs only transform barely non-significant results in barely significant ones, the sheer repetition of these results in a meta-analysis is going to overestimate precision and might yield eventually to a confidence interval that does not contain the true effect, maybe by a large margin.
 
-
+**<span style="font-variant:small-caps;">Simulations.</span>**
 
 ### Detection of and correction for publication bias
 
+Over the years, researchers have become aware of the problem that publication bias raises for meta-analyses and they have developed methods to detect and correct for it.  
+
+
 #### Ex post methods
 
-#### P-curving
+##### P-curving
 
-#### PET-PEESE
+##### PET-PEESE
 
-#### Kasy and Andrews approach
+##### Kasy and Andrews approach
 
-#### Last approach
+##### Last approach
 
 #### Ex ante methods
 
@@ -1068,3 +1119,7 @@ The key question is whether these QRPs only move borderline significant results 
 ### Vote counting and publication bias
 
 ### The value of a statistically significant result
+
+
+**<span style="font-variant:small-caps;">Publication bias and random effects</span>**
+
