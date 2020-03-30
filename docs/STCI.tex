@@ -1,6 +1,3 @@
-\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
-\PassOptionsToPackage{hyphens}{url}
-%
 \documentclass[]{book}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
@@ -9,26 +6,23 @@
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provides euro and other symbols
 \else % if luatex or xelatex
-  \usepackage{unicode-math}
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
   \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
 \fi
 % use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 % use microtype if available
 \IfFileExists{microtype.sty}{%
-\usepackage[]{microtype}
+\usepackage{microtype}
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\IfFileExists{parskip.sty}{%
-\usepackage{parskip}
-}{% else
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
 \usepackage{hyperref}
-\hypersetup{
+\hypersetup{unicode=true,
             pdftitle={Statistical Tools for Causal Inference},
             pdfauthor={The SKY Community},
             pdfborder={0 0 0},
@@ -75,8 +69,6 @@
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs}
-% Fix footnotes in tables (requires footnote package)
-\IfFileExists{footnote.sty}{\usepackage{footnote}\makesavenoteenv{longtable}}{}
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -86,6 +78,12 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
@@ -100,10 +98,31 @@
 \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
 
-% set default figure placement to htbp
-\makeatletter
-\def\fps@figure{htbp}
-\makeatother
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Statistical Tools for Causal Inference}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{The SKY Community}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2020-03-30}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -119,10 +138,6 @@
 \newcommand{\plims}{\text{plim}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
 \DeclareMathOperator{\diag}{diag}
-
-\title{Statistical Tools for Causal Inference}
-\author{The SKY Community}
-\date{2020-02-19}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -355,11 +370,11 @@ In order to see how many observations eventually receive the treatment with this
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}
+\begin{table}[t]
 
 \caption{\label{tab:tableDsharp}Treatment allocation with sharp cutoff rule}
 \centering
-\begin{tabular}[t]{lr}
+\begin{tabular}{lr}
 \toprule
 0 & 769\\
 1 & 231\\
@@ -1885,11 +1900,11 @@ Let's also compute precision and the signal to noise ratio and put all of these 
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}
+\begin{table}[t]
 
 \caption{\label{tab:precisionsignal}Sampling noise of $\hat{WW}$ for the population treatment effect with $\delta=$ 0.99 for various sample sizes}
 \centering
-\begin{tabular}[t]{lccc}
+\begin{tabular}{lccc}
 \toprule
   & Sampling noise & Precision & Signal to noise ratio\\
 \midrule
@@ -2132,11 +2147,11 @@ Let's also compute sampling noise, precision and the signal to noise ratio in th
 \end{Highlighting}
 \end{Shaded}
 
-\begin{table}
+\begin{table}[t]
 
 \caption{\label{tab:sampnoisesample}Sampling noise of $\hat{WW}$ for the sample treatment effect with $\delta=$ 0.99 and for various sample sizes}
 \centering
-\begin{tabular}[t]{lccc}
+\begin{tabular}{lccc}
 \toprule
   & Sampling noise & Precision & Signal to noise ratio\\
 \midrule
@@ -8172,10 +8187,10 @@ In order to see whether that is the case, let's build Figure \ref{fig:confinterv
 
 Figure \ref{fig:PubBias} shows that publication bias can be a sizable problem.
 Remember that the true effect that we are trying to estimate is 0.2.
-When only imprecise studies with small sample size are available, the effect estimated using only the statisticaly significant studies (actually, the only study that reports a statistically significant result) is equal to 0.51 \(\pm\) 0.5, while the effect estimated all the 10 studies with a small sample size is 0.2 \(\pm\) 0.18.
-When studies with small and intermediate sample size are available, the effect estimated using only the statisticaly significant studies is equal to 0.29 \(\pm\) 0.08, while the effect estimated all the 17 studies with a small and intermediate sample size is 0.24 \(\pm\) 0.06.
+When only imprecise studies with small sample size are available, the effect estimated using only the statistically significant studies (actually, the only study that reports a statistically significant result) is equal to 0.51 \(\pm\) 0.5, while the effect estimated all the 10 studies with a small sample size is 0.2 \(\pm\) 0.18.
+When studies with small and intermediate sample size are available, the effect estimated using only the statistically significant studies is equal to 0.29 \(\pm\) 0.08, while the effect estimated all the 17 studies with a small and intermediate sample size is 0.24 \(\pm\) 0.06.
 It is only when studies with large and very large sample size are added to the estimation that publication bias is not a problem anymore.
-The effect estimated using only the statisticaly significant studies is equal to 0.2 \(\pm\) 0.02, while the effect estimated all the studies is 0.19 \(\pm\) 0.02.
+The effect estimated using only the statistically significant studies is equal to 0.2 \(\pm\) 0.02, while the effect estimated all the studies is 0.19 \(\pm\) 0.02.
 
 As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true effect by:
 
@@ -8195,8 +8210,6 @@ With random effects, this behavior becomes even more severe, since only the site
 \protect\hypertarget{exm:unnamed-chunk-164}{}{\label{exm:unnamed-chunk-164} }Here is how that impacts the truth in our example:
 \EndKnitrBlock{example}
 
-For more realism,
-
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{meta.example.RE <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =}\NormalTok{ data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\NormalTok{,}\DataTypeTok{vi=}\NormalTok{data.meta}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
@@ -8206,7 +8219,7 @@ For more realism,
 \NormalTok{meta.example.RE.small.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{)}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\NormalTok{[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
 
 \NormalTok{meta.example.RE.interm <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\NormalTok{,}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
-\NormalTok{meta.example.RE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
+\NormalTok{meta.example.RE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(}\DataTypeTok{yi =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\NormalTok{[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)],}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
 
   \KeywordTok{ggplot}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{10}\NormalTok{), }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\KeywordTok{as.factor}\NormalTok{(id), }\DataTypeTok{y=}\NormalTok{theta}\FloatTok{.1}\NormalTok{)) }\OperatorTok{+}
 \StringTok{      }\KeywordTok{geom_point}\NormalTok{(}\DataTypeTok{position=}\KeywordTok{position_dodge}\NormalTok{(), }\DataTypeTok{stat=}\StringTok{"identity"}\NormalTok{, }\DataTypeTok{colour=}\StringTok{'blue'}\NormalTok{) }\OperatorTok{+}
@@ -8248,6 +8261,25 @@ For more realism,
 
 \caption{Illustration of publication bias with Random Effects}\label{fig:PubBiasRE}
 \end{figure}
+
+Figure \ref{fig:PubBiasRE} shows that publication bias can be a sizable problem with random effects as well.
+Remember that the true effect that we are trying to estimate is 0.2.
+When only imprecise studies with small sample size are available, the effect estimated using only the statistically significant studies is equal to 0.64 \(\pm\) 0.29, while the effect estimated all the 10 studies with a small sample size is 0.17 \(\pm\) 0.27.
+When studies with small and intermediate sample size are available, the effect estimated using only the statistically significant studies is equal to 0.26 \(\pm\) 0.39, while the effect estimated all the 17 studies with a small and intermediate sample size is 0.14 \(\pm\) 0.27.
+It is only when studies with large and very large sample size are added to the estimation that publication bias is not a problem anymore.
+The effect estimated using only the statisticaly significant studies is equal to 0.22 \(\pm\) 0.31, while the effect estimated all the studies is 0.13 \(\pm\) 0.23.
+
+As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true effect by:
+
+\begin{itemize}
+\tightlist
+\item
+  212 \%, or 0.43 of a standard deviation, with studies with a small sample size,
+\item
+  25 \%, or 0.05 of a standard deviation, with studies with a small or intermediate sample size,
+\item
+  7 \%, or 0.01 of a standard deviation, with all studies.
+\end{itemize}
 
 \hypertarget{site-selection-bias-1}{%
 \subsubsection{Site selection bias}\label{site-selection-bias-1}}
@@ -8306,23 +8338,96 @@ Note though that even if the QRPs only transform barely non-significant results 
 
 Over the years, researchers have become aware of the problem that publication bias raises for meta-analyses and they have developed methods to detect and correct for it.
 
-\hypertarget{ex-post-methods}{%
-\subsubsection{Ex post methods}\label{ex-post-methods}}
+\hypertarget{funnel-plot-asymmetry}{%
+\subsubsection{Funnel plot asymmetry}\label{funnel-plot-asymmetry}}
 
-\hypertarget{p-curving}{%
-\paragraph{P-curving}\label{p-curving}}
+The first tool to identify the extent of publication bias is the funnel plot.
+The funnel plot plots the effect size as a function of its precision (or standard error).
+In the absence of publication bias, results should be distributed symetrically around the mean treatment effect estimate.
+We say that in this case the funnel plot is symmetric.
+In the presence of publication bias, results that are not statistically significant will be missing.
+They will be concentrated on the lower left part of the plot, were standard errors are large and estimated effects small.
+Missing results generate an asymetric funnel plot.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }Let's see how the funnel plot works in our example.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{funnel}\NormalTok{(meta.example.FE.interm,}\DataTypeTok{xlab=}\StringTok{'Effect size (without publication bias)'}\NormalTok{,}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.382}\NormalTok{,}\DecValTok{0}\NormalTok{),}\DataTypeTok{refline=}\DecValTok{0}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{ES}\NormalTok{(param),}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{coef}\NormalTok{(meta.example.FE.interm),}\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\KeywordTok{funnel}\NormalTok{(meta.example.FE.interm.pubbias,}\DataTypeTok{xlab=}\StringTok{'Effect size (with publication bias)'}\NormalTok{,}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.382}\NormalTok{,}\DecValTok{0}\NormalTok{),}\DataTypeTok{refline=}\DecValTok{0}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{ES}\NormalTok{(param),}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{coef}\NormalTok{(meta.example.FE.interm.pubbias),}\DataTypeTok{col=}\StringTok{"green"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[Without publication bias\label{fig:FunnelPlotFE1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/FunnelPlotFE-1} }\subfloat[With publication bias\label{fig:FunnelPlotFE2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/FunnelPlotFE-2} }
+
+}
+
+\caption{Funnel plot with and without publication bias (homogeneous treatment effects, small and intermediate precision)}\label{fig:FunnelPlotFE}
+\end{figure}
+
+Figure \ref{fig:FunnelPlotFE} shows how a funnel plot works.
+The x-axis presents the effect size of each study (here, in the homogeneous treatment effect case, analyzed using fixed effects).
+The y-axis presents the standard error, in an inverted scale, so that the most precise studies appear at the top of the graph.
+The two diagonal lines stemming out of zero present the 95\% confidence intervals arounf zero, a.k.a. the two sided tests of statistical significance.
+In the plot, we focus of studies with small to intermediate precision.
+In our example, very precise studies are so much more precise that they make the problem of publication bias vanish.
+
+When there is no publication bias, the funnel plot does not seem to exhibit asymmetry: there are as many imprecise studies on the left and on the right of the average effect.
+When there is publication bias, all the studies that fall within the confidence interval compatible with a zero treatment effect disappear.
+As a consequence, the remaining treatment effects are inflated versions of the truth.
+Moreover, we see that there is an increasing relationship between standard error and effect size.
+This is a sign of funnel plot asymmetry.
+
+For the sake of completeness, her is what the funnel plot looks like with heterogeneous treatment effects analyzed using a random effects approach.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{funnel}\NormalTok{(meta.example.RE.interm,}\DataTypeTok{xlab=}\StringTok{'Effect size (without publication bias)'}\NormalTok{,}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.382}\NormalTok{,}\DecValTok{0}\NormalTok{),}\DataTypeTok{refline=}\DecValTok{0}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{ES}\NormalTok{(param),}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{coef}\NormalTok{(meta.example.RE.interm),}\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\KeywordTok{funnel}\NormalTok{(meta.example.RE.interm.pubbias,}\DataTypeTok{xlab=}\StringTok{'Effect size (with publication bias)'}\NormalTok{,}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.382}\NormalTok{,}\DecValTok{0}\NormalTok{),}\DataTypeTok{refline=}\DecValTok{0}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{ES}\NormalTok{(param),}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\KeywordTok{coef}\NormalTok{(meta.example.RE.interm.pubbias),}\DataTypeTok{col=}\StringTok{"green"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[Without publication bias\label{fig:FunnelPlotRE1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/FunnelPlotRE-1} }\subfloat[With publication bias\label{fig:FunnelPlotRE2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/FunnelPlotRE-2} }
+
+}
+
+\caption{Funnel plot with and without publication bias (heterogeneous treatment effects, small and intermediate precision)}\label{fig:FunnelPlotRE}
+\end{figure}
 
 \hypertarget{pet-peese}{%
-\paragraph{PET-PEESE}\label{pet-peese}}
+\subsubsection{PET-PEESE}\label{pet-peese}}
+
+\hypertarget{p-curving}{%
+\subsubsection{P-curving}\label{p-curving}}
+
+\hypertarget{z-curving}{%
+\subsubsection{Z-curving}\label{z-curving}}
 
 \hypertarget{kasy-and-andrews-approach}{%
-\paragraph{Kasy and Andrews approach}\label{kasy-and-andrews-approach}}
+\subsubsection{Kasy and Andrews approach}\label{kasy-and-andrews-approach}}
 
-\hypertarget{last-approach}{%
-\paragraph{Last approach}\label{last-approach}}
+\hypertarget{fukumura}{%
+\subsubsection{Fukumura}\label{fukumura}}
 
-\hypertarget{ex-ante-methods}{%
-\subsubsection{Ex ante methods}\label{ex-ante-methods}}
+\hypertarget{other-methods-trim-and-fill-and-selection-models}{%
+\subsubsection{Other methods: trim and fill and selection models}\label{other-methods-trim-and-fill-and-selection-models}}
+
+\hypertarget{getting-rid-of-publication-bias-registered-reports-and-pre-analysis-plans}{%
+\subsection{Getting rid of publication bias: registered reports and pre-analysis plans}\label{getting-rid-of-publication-bias-registered-reports-and-pre-analysis-plans}}
 
 \hypertarget{detection-of-and-correction-for-site-selection-bias}{%
 \subsection{Detection of and correction for site selection bias}\label{detection-of-and-correction-for-site-selection-bias}}
@@ -9079,5 +9184,6 @@ The final result comes from the fact that:
 \end{align*}
 
 where the seventh equality uses the fact that \(p^C+p^{AT}+p^{NT}=1\).
+
 
 \end{document}
