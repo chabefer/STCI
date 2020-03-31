@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-03-30}
+    \date{2020-03-31}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8386,7 +8386,7 @@ As a consequence, the remaining treatment effects are inflated versions of the t
 Moreover, we see that there is an increasing relationship between standard error and effect size.
 This is a sign of funnel plot asymmetry.
 
-For the sake of completeness, her is what the funnel plot looks like with heterogeneous treatment effects analyzed using a random effects approach.
+For the sake of completeness, Figure \ref{fig:FunnelPlotRE} shows what the funnel plot looks like with heterogeneous treatment effects analyzed using a random effects approach.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -8408,8 +8408,125 @@ For the sake of completeness, her is what the funnel plot looks like with hetero
 \caption{Funnel plot with and without publication bias (heterogeneous treatment effects, small and intermediate precision)}\label{fig:FunnelPlotRE}
 \end{figure}
 
-\hypertarget{pet-peese}{%
-\subsubsection{PET-PEESE}\label{pet-peese}}
+How do we implement these intuitions rigorously?
+The next section present the tools developed to do just that.
+
+\hypertarget{fat-pet-peese}{%
+\subsubsection{FAT-PET-PEESE}\label{fat-pet-peese}}
+
+\href{https://books.google.fr/books?hl=fr\&lr=\&id=jSQEdEsL7VoC\&oi=fnd\&pg=PP2\&dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics\&ots=jTXmePff2F\&sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8\#v=onepage\&q=doucouliagos\%20and\%20stanley\%20meta-regression\%20analysis\%20in\%20economics\&f=false}{Docouliagos and Stanley (2012)} have developed a method based on funnel plot asymetru to detect publication bias and correct for it.
+Their approach is based on three steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The Funnel Asymmetry Test (FAT) that tests whether there is a relationship between effect sizes and their precision.
+\item
+  The Precision-Effect Test (PET) that estimates the effect corrected for publication bias and tests for its existence.
+\item
+  The Precision-Effect Estimate with Standard Error (PEESE) that estimates the effect corrected for publication bias using a non-linear model for the standard error.
+  When there is a genuine effect, PEESE offers a less biased estimate than PET.
+\end{enumerate}
+
+The authors suggest to implement these procedures in a sequence, starting with the existence of publication bias, evidence for the existence of a non-zero effect once publication bias is accounted for and then estimate the bias-corrected effect when it is detected to be non-zero.
+Let's examine these approaches in turn.
+
+The Funnel Asymmetry Test and the Precision-Effect Test are based on the following meta-regression:
+
+\begin{align*}
+\hat{\theta}_k & = \alpha_0 + \alpha_1\hat{\sigma}_k  + \epsilon_k + \nu_k,
+\end{align*}
+
+Whether we assume that \(\tau^2\), the variance of \(\nu_k\) is zero or not makes the FAT model a fixed or a random effects model.
+We run this regression with either Weighted Least Squares (in the fixed effects model) or with one of the methods appropriate for random effects (I'm going to use REML in what follows).
+
+The Funnel Asymmetry Test tests the assumption that \(\alpha_1=0\) using a standard two-sided t-test.
+Rejecting the null means that there is sign of publication bias.
+The Precision-Effect Test tests whether \(\alpha_0=0\).
+Rejecting the null means that there is evidence of a true effect.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's see in practice how FAT and PET work in our example.
+\EndKnitrBlock{example}
+
+We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
+I'm focusing on the case with only small and intermediate precision estimates, as in the funnel plots in Figure \ref{fig:FunnelPlotFE}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{FAT.PET.FE.interm <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(ES }\OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(var.ES), }\DataTypeTok{data=} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+\NormalTok{FAT.PET.FE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(ES }\OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(var.ES), }\DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+
+\KeywordTok{summary}\NormalTok{(FAT.PET.FE.interm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Fixed-Effects with Moderators Model (k = 17)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   8.6124    9.5293  -13.2247  -11.5583  -12.3676   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 9.5293, p-val = 0.8483
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.4952, p-val = 0.4816
+## 
+## Model Results:
+## 
+##               estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt         0.2791  0.0634   4.4053  <.0001   0.1549  0.4033  *** 
+## sqrt(var.ES)   -0.3397  0.4828  -0.7037  0.4816  -1.2861  0.6066      
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(FAT.PET.FE.interm.pubbias)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Fixed-Effects with Moderators Model (k = 6)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   6.4279    3.0645   -8.8557   -9.2722   -4.8557   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 4) = 3.0645, p-val = 0.5471
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 1.1380, p-val = 0.2861
+## 
+## Model Results:
+## 
+##               estimate      se    zval    pval    ci.lb   ci.ub 
+## intrcpt         0.1352  0.1470  0.9195  0.3578  -0.1530  0.4233    
+## sqrt(var.ES)    1.6351  1.5327  1.0668  0.2861  -1.3691  4.6392    
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+The results of the analysis are as expected, even though the small sample size prevents us from drawing conclusive results.
+When running the regression on the whole sample, in the absence of publication bais, we find that the estimated coefficient for the standard error in the meta-analytic regression is -0.34 \(\pm\) 0.95.
+As a consequence, there is no sign of publication bias, with a pretty decent precision level.
+When running the regression on the sample with publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is 1.64 \(\pm\) 3.
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low to be able to detect publication bias.
+This is a characteristic of the Funnel Asymetry Test to have low power, especially in our case where only one observation with small sample size drives all the results.
+
+The Precision-Effect Test detects a positive effect in the absence of publication bias (0.28 \(\pm\) 0.12) that is significantly different from zero.
+But, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
+The Precision-Effect Test does not detect a positive effect in the presence of publication bias (0.14 \(\pm\) 0.29).
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
+
+PEESE + graph with curves + RE
 
 \hypertarget{p-curving}{%
 \subsubsection{P-curving}\label{p-curving}}

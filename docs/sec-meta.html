@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-03-30" />
+<meta name="date" content="2020-03-31" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1443,7 +1443,7 @@ When there is publication bias, all the studies that fall within the confidence 
 As a consequence, the remaining treatment effects are inflated versions of the truth.
 Moreover, we see that there is an increasing relationship between standard error and effect size.
 This is a sign of funnel plot asymmetry.</p>
-<p>For the sake of completeness, her is what the funnel plot looks like with heterogeneous treatment effects analyzed using a random effects approach.</p>
+<p>For the sake of completeness, Figure <a href="sec-meta.html#fig:FunnelPlotRE">13.16</a> shows what the funnel plot looks like with heterogeneous treatment effects analyzed using a random effects approach.</p>
 <div class="sourceCode" id="cb158"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb158-1" data-line-number="1"><span class="kw">funnel</span>(meta.example.RE.interm,<span class="dt">xlab=</span><span class="st">&#39;Effect size (without publication bias)&#39;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="fl">0.382</span>,<span class="dv">0</span>),<span class="dt">refline=</span><span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb158-2" data-line-number="2"><span class="kw">abline</span>(<span class="dt">v=</span><span class="kw">ES</span>(param),<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</a>
 <a class="sourceLine" id="cb158-3" data-line-number="3"><span class="kw">abline</span>(<span class="dt">v=</span><span class="kw">coef</span>(meta.example.RE.interm),<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>)</a>
@@ -1456,9 +1456,94 @@ This is a sign of funnel plot asymmetry.</p>
 Figure 13.16: Funnel plot with and without publication bias (heterogeneous treatment effects, small and intermediate precision)
 </p>
 </div>
+<p>How do we implement these intuitions rigorously?
+The next section present the tools developed to do just that.</p>
 </div>
-<div id="pet-peese" class="section level4">
-<h4><span class="header-section-number">13.2.2.2</span> PET-PEESE</h4>
+<div id="fat-pet-peese" class="section level4">
+<h4><span class="header-section-number">13.2.2.2</span> FAT-PET-PEESE</h4>
+<p><a href="https://books.google.fr/books?hl=fr&amp;lr=&amp;id=jSQEdEsL7VoC&amp;oi=fnd&amp;pg=PP2&amp;dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics&amp;ots=jTXmePff2F&amp;sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8#v=onepage&amp;q=doucouliagos%20and%20stanley%20meta-regression%20analysis%20in%20economics&amp;f=false">Docouliagos and Stanley (2012)</a> have developed a method based on funnel plot asymetru to detect publication bias and correct for it.
+Their approach is based on three steps:</p>
+<ol style="list-style-type: decimal">
+<li>The Funnel Asymmetry Test (FAT) that tests whether there is a relationship between effect sizes and their precision.</li>
+<li>The Precision-Effect Test (PET) that estimates the effect corrected for publication bias and tests for its existence.</li>
+<li>The Precision-Effect Estimate with Standard Error (PEESE) that estimates the effect corrected for publication bias using a non-linear model for the standard error.
+When there is a genuine effect, PEESE offers a less biased estimate than PET.</li>
+</ol>
+<p>The authors suggest to implement these procedures in a sequence, starting with the existence of publication bias, evidence for the existence of a non-zero effect once publication bias is accounted for and then estimate the bias-corrected effect when it is detected to be non-zero.
+Let’s examine these approaches in turn.</p>
+<p>The Funnel Asymmetry Test and the Precision-Effect Test are based on the following meta-regression:</p>
+<p><span class="math display">\[\begin{align*}
+\hat{\theta}_k &amp; = \alpha_0 + \alpha_1\hat{\sigma}_k  + \epsilon_k + \nu_k,
+\end{align*}\]</span></p>
+<p>Whether we assume that <span class="math inline">\(\tau^2\)</span>, the variance of <span class="math inline">\(\nu_k\)</span> is zero or not makes the FAT model a fixed or a random effects model.
+We run this regression with either Weighted Least Squares (in the fixed effects model) or with one of the methods appropriate for random effects (I’m going to use REML in what follows).</p>
+<p>The Funnel Asymmetry Test tests the assumption that <span class="math inline">\(\alpha_1=0\)</span> using a standard two-sided t-test.
+Rejecting the null means that there is sign of publication bias.
+The Precision-Effect Test tests whether <span class="math inline">\(\alpha_0=0\)</span>.
+Rejecting the null means that there is evidence of a true effect.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-166" class="example"><strong>Example 13.14  </strong></span>Let’s see in practice how FAT and PET work in our example.
+</div>
+
+<p>We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
+I’m focusing on the case with only small and intermediate precision estimates, as in the funnel plots in Figure <a href="sec-meta.html#fig:FunnelPlotFE">13.15</a>.</p>
+<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb159-1" data-line-number="1">FAT.PET.FE.interm &lt;-<span class="st"> </span><span class="kw">rma</span>(ES <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(var.ES), <span class="dt">data=</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>)<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
+<a class="sourceLine" id="cb159-2" data-line-number="2">FAT.PET.FE.interm.pubbias &lt;-<span class="st"> </span><span class="kw">rma</span>(ES <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(var.ES), <span class="dt">data =</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>)),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
+<a class="sourceLine" id="cb159-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb159-4" data-line-number="4"><span class="kw">summary</span>(FAT.PET.FE.interm)</a></code></pre></div>
+<pre><code>## 
+## Fixed-Effects with Moderators Model (k = 17)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   8.6124    9.5293  -13.2247  -11.5583  -12.3676   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 9.5293, p-val = 0.8483
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.4952, p-val = 0.4816
+## 
+## Model Results:
+## 
+##               estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt         0.2791  0.0634   4.4053  &lt;.0001   0.1549  0.4033  *** 
+## sqrt(var.ES)   -0.3397  0.4828  -0.7037  0.4816  -1.2861  0.6066      
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb161"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb161-1" data-line-number="1"><span class="kw">summary</span>(FAT.PET.FE.interm.pubbias)</a></code></pre></div>
+<pre><code>## 
+## Fixed-Effects with Moderators Model (k = 6)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   6.4279    3.0645   -8.8557   -9.2722   -4.8557   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 4) = 3.0645, p-val = 0.5471
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 1.1380, p-val = 0.2861
+## 
+## Model Results:
+## 
+##               estimate      se    zval    pval    ci.lb   ci.ub 
+## intrcpt         0.1352  0.1470  0.9195  0.3578  -0.1530  0.4233    
+## sqrt(var.ES)    1.6351  1.5327  1.0668  0.2861  -1.3691  4.6392    
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>The results of the analysis are as expected, even though the small sample size prevents us from drawing conclusive results.
+When running the regression on the whole sample, in the absence of publication bais, we find that the estimated coefficient for the standard error in the meta-analytic regression is -0.34 <span class="math inline">\(\pm\)</span> 0.95.
+As a consequence, there is no sign of publication bias, with a pretty decent precision level.
+When running the regression on the sample with publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is 1.64 <span class="math inline">\(\pm\)</span> 3.
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low to be able to detect publication bias.
+This is a characteristic of the Funnel Asymetry Test to have low power, especially in our case where only one observation with small sample size drives all the results.</p>
+<p>The Precision-Effect Test detects a positive effect in the absence of publication bias (0.28 <span class="math inline">\(\pm\)</span> 0.12) that is significantly different from zero.
+But, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
+The Precision-Effect Test does not detect a positive effect in the presence of publication bias (0.14 <span class="math inline">\(\pm\)</span> 0.29).
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.</p>
+<p>PEESE + graph with curves + RE</p>
 </div>
 <div id="p-curving" class="section level4">
 <h4><span class="header-section-number">13.2.2.3</span> P-curving</h4>
