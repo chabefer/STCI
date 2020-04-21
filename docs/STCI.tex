@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-03-31}
+    \date{2020-04-21}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8414,7 +8414,7 @@ The next section present the tools developed to do just that.
 \hypertarget{fat-pet-peese}{%
 \subsubsection{FAT-PET-PEESE}\label{fat-pet-peese}}
 
-\href{https://books.google.fr/books?hl=fr\&lr=\&id=jSQEdEsL7VoC\&oi=fnd\&pg=PP2\&dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics\&ots=jTXmePff2F\&sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8\#v=onepage\&q=doucouliagos\%20and\%20stanley\%20meta-regression\%20analysis\%20in\%20economics\&f=false}{Docouliagos and Stanley (2012)} have developed a method based on funnel plot asymetru to detect publication bias and correct for it.
+\href{https://books.google.fr/books?hl=fr\&lr=\&id=jSQEdEsL7VoC\&oi=fnd\&pg=PP2\&dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics\&ots=jTXmePff2F\&sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8\#v=onepage\&q=doucouliagos\%20and\%20stanley\%20meta-regression\%20analysis\%20in\%20economics\&f=false}{Docouliagos and Stanley (2012)} have developed a method based on funnel plot asymmetry to detect publication bias and correct for it.
 Their approach is based on three steps:
 
 \begin{enumerate}
@@ -8432,31 +8432,41 @@ Their approach is based on three steps:
 The authors suggest to implement these procedures in a sequence, starting with the existence of publication bias, evidence for the existence of a non-zero effect once publication bias is accounted for and then estimate the bias-corrected effect when it is detected to be non-zero.
 Let's examine these approaches in turn.
 
-The Funnel Asymmetry Test and the Precision-Effect Test are based on the following meta-regression:
+The FAT and the PET are based on the following meta-regression:
 
 \begin{align*}
 \hat{\theta}_k & = \alpha_0 + \alpha_1\hat{\sigma}_k  + \epsilon_k + \nu_k,
 \end{align*}
 
+The PEESE is based on the following meta-regression:
+
+\begin{align*}
+\hat{\theta}_k & = \beta_0 + \beta_1\hat{\sigma}^2_k  + \epsilon_k + \nu_k,
+\end{align*}
+
 Whether we assume that \(\tau^2\), the variance of \(\nu_k\) is zero or not makes the FAT model a fixed or a random effects model.
 We run this regression with either Weighted Least Squares (in the fixed effects model) or with one of the methods appropriate for random effects (I'm going to use REML in what follows).
 
-The Funnel Asymmetry Test tests the assumption that \(\alpha_1=0\) using a standard two-sided t-test.
+The FAT tests the assumption that \(\alpha_1=0\) using a standard two-sided t-test.
 Rejecting the null means that there is sign of publication bias.
-The Precision-Effect Test tests whether \(\alpha_0=0\).
+The PET tests whether \(\alpha_0=0\).
 Rejecting the null means that there is evidence of a true effect.
+The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \BeginKnitrBlock{example}
-\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's see in practice how FAT and PET work in our example.
+\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's see in practice how FAT, PET and PEESE work in our example.
+We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \EndKnitrBlock{example}
 
-We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 I'm focusing on the case with only small and intermediate precision estimates, as in the funnel plots in Figure \ref{fig:FunnelPlotFE}.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{FAT.PET.FE.interm <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(ES }\OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(var.ES), }\DataTypeTok{data=} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
 \NormalTok{FAT.PET.FE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(ES }\OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(var.ES), }\DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+
+\NormalTok{PEESE.FE.interm <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(ES }\OperatorTok{~}\StringTok{ }\NormalTok{var.ES, }\DataTypeTok{data=} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
+\NormalTok{PEESE.FE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(ES }\OperatorTok{~}\StringTok{ }\NormalTok{var.ES, }\DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"FE"}\NormalTok{)}
 
 \KeywordTok{summary}\NormalTok{(FAT.PET.FE.interm)}
 \end{Highlighting}
@@ -8514,19 +8524,247 @@ I'm focusing on the case with only small and intermediate precision estimates, a
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(PEESE.FE.interm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Fixed-Effects with Moderators Model (k = 17)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   8.6741    9.4058  -13.3483  -11.6818  -12.4911   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 9.4058, p-val = 0.8554
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.6187, p-val = 0.4315
+## 
+## Model Results:
+## 
+##          estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt    0.2568  0.0379   6.7699  <.0001   0.1825  0.3312  *** 
+## var.ES    -0.9426  1.1983  -0.7866  0.4315  -3.2912  1.4061      
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(PEESE.FE.interm.pubbias)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Fixed-Effects with Moderators Model (k = 6)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   6.3347    3.2508   -8.6694   -9.0859   -4.6694   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 4) = 3.2508, p-val = 0.5168
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.9516, p-val = 0.3293
+## 
+## Model Results:
+## 
+##          estimate      se    zval    pval    ci.lb    ci.ub 
+## intrcpt    0.2460  0.0569  4.3210  <.0001   0.1344   0.3576  *** 
+## var.ES     4.3828  4.4928  0.9755  0.3293  -4.4229  13.1885      
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
 The results of the analysis are as expected, even though the small sample size prevents us from drawing conclusive results.
-When running the regression on the whole sample, in the absence of publication bais, we find that the estimated coefficient for the standard error in the meta-analytic regression is -0.34 \(\pm\) 0.95.
-As a consequence, there is no sign of publication bias, with a pretty decent precision level.
+When running the regression on the whole sample, in the absence of publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is -0.34 \(\pm\) 0.95.
+As a consequence, the FAT detects no sign of publication bias, with a pretty decent precision level.
 When running the regression on the sample with publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is 1.64 \(\pm\) 3.
-The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low to be able to detect publication bias.
-This is a characteristic of the Funnel Asymetry Test to have low power, especially in our case where only one observation with small sample size drives all the results.
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
+This is a characteristic of the FAT to have low power, especially in our case where only one observation with small sample size drives all the results.
 
-The Precision-Effect Test detects a positive effect in the absence of publication bias (0.28 \(\pm\) 0.12) that is significantly different from zero.
-But, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
-The Precision-Effect Test does not detect a positive effect in the presence of publication bias (0.14 \(\pm\) 0.29).
-Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
+In the absence of publication bias, the PET detects a positive effect (0.28 \(\pm\) 0.12) that is significantly different from zero, which is a sign of existence of a true effect.
+The PEESE is of 0.26 \(\pm\) 0.07 .
+Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (0.24 \(\pm\) 0.06), since the FAT has not detected signs of publication bias.
+In the presence of publication bias, the PET does not detect a positive effect (0.14 \(\pm\) 0.29).
+The PEESE is of 0.25 \(\pm\) 0.11 .
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (0.29 \(\pm\) 0.08), since the FAT has not detected signs of publication bias.
+Note nevertheless that in both cases the PEESE is almost as good as the meta-analytic estimate.
 
-PEESE + graph with curves + RE
+Let's now look at what happens when we are in a random effects world.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{FAT.PET.RE.interm <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(theta}\FloatTok{.1} \OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(var.ES), }\DataTypeTok{data=} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
+\NormalTok{FAT.PET.RE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(theta}\FloatTok{.1} \OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(var.ES), }\DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
+
+\NormalTok{PEESE.RE.interm <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(theta}\FloatTok{.1} \OperatorTok{~}\StringTok{ }\NormalTok{var.ES, }\DataTypeTok{data=} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{)}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
+\NormalTok{PEESE.RE.interm.pubbias <-}\StringTok{ }\KeywordTok{rma}\NormalTok{(theta}\FloatTok{.1} \OperatorTok{~}\StringTok{ }\NormalTok{var.ES, }\DataTypeTok{data =} \KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{)),}\DataTypeTok{vi=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES,}\DataTypeTok{method=}\StringTok{"REML"}\NormalTok{)}
+
+\KeywordTok{summary}\NormalTok{(FAT.PET.RE.interm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Mixed-Effects Model (k = 17; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+## -12.7096   25.4191   31.4191   33.5433   33.6010   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.2872 (SE = 0.1228)
+## tau (square root of estimated tau^2 value):             0.5359
+## I^2 (residual heterogeneity / unaccounted variability): 94.22%
+## H^2 (unaccounted variability / sampling variability):   17.30
+## R^2 (amount of heterogeneity accounted for):            0.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 391.5159, p-val < .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.0212, p-val = 0.8842
+## 
+## Model Results:
+## 
+##               estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt         0.1733  0.2929   0.5915  0.5542  -0.4009  0.7474    
+## sqrt(var.ES)   -0.1876  1.2878  -0.1457  0.8842  -2.7116  2.3364    
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(FAT.PET.RE.interm.pubbias)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Mixed-Effects Model (k = 10; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##  -7.3071   14.6142   20.6142   20.8526   26.6142   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.3548 (SE = 0.1874)
+## tau (square root of estimated tau^2 value):             0.5956
+## I^2 (residual heterogeneity / unaccounted variability): 97.16%
+## H^2 (unaccounted variability / sampling variability):   35.27
+## R^2 (amount of heterogeneity accounted for):            5.24%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 8) = 367.0309, p-val < .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 1.4973, p-val = 0.2211
+## 
+## Model Results:
+## 
+##               estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt        -0.1548  0.3876  -0.3993  0.6897  -0.9145  0.6050    
+## sqrt(var.ES)    3.0194  2.4676   1.2236  0.2211  -1.8170  7.8558    
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(PEESE.RE.interm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Mixed-Effects Model (k = 17; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+## -12.6655   25.3311   31.3311   33.4552   33.5129   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.2860 (SE = 0.1221)
+## tau (square root of estimated tau^2 value):             0.5348
+## I^2 (residual heterogeneity / unaccounted variability): 94.21%
+## H^2 (unaccounted variability / sampling variability):   17.28
+## R^2 (amount of heterogeneity accounted for):            0.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 392.0762, p-val < .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.0801, p-val = 0.7772
+## 
+## Model Results:
+## 
+##          estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt    0.1801  0.2103   0.8562  0.3919  -0.2321  0.5923    
+## var.ES    -0.8540  3.0178  -0.2830  0.7772  -6.7687  5.0607    
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(PEESE.RE.interm.pubbias)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Mixed-Effects Model (k = 10; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##  -7.3644   14.7288   20.7288   20.9671   26.7288   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.3597 (SE = 0.1896)
+## tau (square root of estimated tau^2 value):             0.5998
+## I^2 (residual heterogeneity / unaccounted variability): 97.21%
+## H^2 (unaccounted variability / sampling variability):   35.87
+## R^2 (amount of heterogeneity accounted for):            3.91%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 8) = 370.0068, p-val < .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 1.3503, p-val = 0.2452
+## 
+## Model Results:
+## 
+##          estimate      se    zval    pval    ci.lb    ci.ub 
+## intrcpt    0.0678  0.2540  0.2669  0.7895  -0.4301   0.5657    
+## var.ES     7.5975  6.5381  1.1620  0.2452  -5.2169  20.4118    
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+In the absence of publication bias, the FAT estimate of the coefficient for the standard error in the meta-analytic regression is -0.19 \(\pm\) 2.52.
+As a consequence, the FAT detects no sign of publication bias.
+The PET does not detect a positive effect but its estimate is close to the truth, even if imprecise (0.28 \(\pm\) 0.57).
+We would interpret this as absence of evidence for an effect.
+The PEESE is of 0.18 \(\pm\) 0.41, close to the truth but highly imprecise.
+Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and should focus only on the simple meta-analytic one (0.14 \(\pm\) 0.27), since the FAT has not detected signs of publication bias.
+
+The FAT estimate of the coefficient for the standard error in the meta-analytic regression is 3.02 \(\pm\) 4.84.
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
+The PET does not detect a positive effect, and even returns a negative one (-0.15 \(\pm\) 0.76), however extremely imprecise.
+The PEESE at least returns a positive even though imprecise effect of 0.07 \(\pm\) 0.5.
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (0.26 \(\pm\) 0.39), since the FAT has not detected signs of publication bias.
+In both cases the PEESE contains the true value in its confidence interval, but it does much less well than in the fixed effects case.
+
+\textbf{\textsc{Some simulations would be great here in order to assess whether the estimated sampling noise of PEESE is actually of the same magnitude as what would stem from Monte Carlos.}}
+
+I'd like to end this section on FAT-PET-PEESE by giving a graphical intuition of how this estimator corrects for publication bias.
+I'll supplement the graphical intuition with some intuition stemming from Heckman's selection model.
+
+graph with curves
 
 \hypertarget{p-curving}{%
 \subsubsection{P-curving}\label{p-curving}}

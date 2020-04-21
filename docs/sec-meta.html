@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-03-31" />
+<meta name="date" content="2020-04-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1461,7 +1461,7 @@ The next section present the tools developed to do just that.</p>
 </div>
 <div id="fat-pet-peese" class="section level4">
 <h4><span class="header-section-number">13.2.2.2</span> FAT-PET-PEESE</h4>
-<p><a href="https://books.google.fr/books?hl=fr&amp;lr=&amp;id=jSQEdEsL7VoC&amp;oi=fnd&amp;pg=PP2&amp;dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics&amp;ots=jTXmePff2F&amp;sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8#v=onepage&amp;q=doucouliagos%20and%20stanley%20meta-regression%20analysis%20in%20economics&amp;f=false">Docouliagos and Stanley (2012)</a> have developed a method based on funnel plot asymetru to detect publication bias and correct for it.
+<p><a href="https://books.google.fr/books?hl=fr&amp;lr=&amp;id=jSQEdEsL7VoC&amp;oi=fnd&amp;pg=PP2&amp;dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics&amp;ots=jTXmePff2F&amp;sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8#v=onepage&amp;q=doucouliagos%20and%20stanley%20meta-regression%20analysis%20in%20economics&amp;f=false">Docouliagos and Stanley (2012)</a> have developed a method based on funnel plot asymmetry to detect publication bias and correct for it.
 Their approach is based on three steps:</p>
 <ol style="list-style-type: decimal">
 <li>The Funnel Asymmetry Test (FAT) that tests whether there is a relationship between effect sizes and their precision.</li>
@@ -1471,27 +1471,35 @@ When there is a genuine effect, PEESE offers a less biased estimate than PET.</l
 </ol>
 <p>The authors suggest to implement these procedures in a sequence, starting with the existence of publication bias, evidence for the existence of a non-zero effect once publication bias is accounted for and then estimate the bias-corrected effect when it is detected to be non-zero.
 Let’s examine these approaches in turn.</p>
-<p>The Funnel Asymmetry Test and the Precision-Effect Test are based on the following meta-regression:</p>
+<p>The FAT and the PET are based on the following meta-regression:</p>
 <p><span class="math display">\[\begin{align*}
 \hat{\theta}_k &amp; = \alpha_0 + \alpha_1\hat{\sigma}_k  + \epsilon_k + \nu_k,
 \end{align*}\]</span></p>
+<p>The PEESE is based on the following meta-regression:</p>
+<p><span class="math display">\[\begin{align*}
+\hat{\theta}_k &amp; = \beta_0 + \beta_1\hat{\sigma}^2_k  + \epsilon_k + \nu_k,
+\end{align*}\]</span></p>
 <p>Whether we assume that <span class="math inline">\(\tau^2\)</span>, the variance of <span class="math inline">\(\nu_k\)</span> is zero or not makes the FAT model a fixed or a random effects model.
 We run this regression with either Weighted Least Squares (in the fixed effects model) or with one of the methods appropriate for random effects (I’m going to use REML in what follows).</p>
-<p>The Funnel Asymmetry Test tests the assumption that <span class="math inline">\(\alpha_1=0\)</span> using a standard two-sided t-test.
+<p>The FAT tests the assumption that <span class="math inline">\(\alpha_1=0\)</span> using a standard two-sided t-test.
 Rejecting the null means that there is sign of publication bias.
-The Precision-Effect Test tests whether <span class="math inline">\(\alpha_0=0\)</span>.
-Rejecting the null means that there is evidence of a true effect.</p>
+The PET tests whether <span class="math inline">\(\alpha_0=0\)</span>.
+Rejecting the null means that there is evidence of a true effect.
+The PEESE estimates the bias-corrected effect size by using <span class="math inline">\(\hat{\beta}_1\)</span>.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-166" class="example"><strong>Example 13.14  </strong></span>Let’s see in practice how FAT and PET work in our example.
+<span id="exm:unnamed-chunk-166" class="example"><strong>Example 13.14  </strong></span>Let’s see in practice how FAT, PET and PEESE work in our example.
+We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 </div>
 
-<p>We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
-I’m focusing on the case with only small and intermediate precision estimates, as in the funnel plots in Figure <a href="sec-meta.html#fig:FunnelPlotFE">13.15</a>.</p>
+<p>I’m focusing on the case with only small and intermediate precision estimates, as in the funnel plots in Figure <a href="sec-meta.html#fig:FunnelPlotFE">13.15</a>.</p>
 <div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb159-1" data-line-number="1">FAT.PET.FE.interm &lt;-<span class="st"> </span><span class="kw">rma</span>(ES <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(var.ES), <span class="dt">data=</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>)<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
 <a class="sourceLine" id="cb159-2" data-line-number="2">FAT.PET.FE.interm.pubbias &lt;-<span class="st"> </span><span class="kw">rma</span>(ES <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(var.ES), <span class="dt">data =</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>)),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
 <a class="sourceLine" id="cb159-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb159-4" data-line-number="4"><span class="kw">summary</span>(FAT.PET.FE.interm)</a></code></pre></div>
+<a class="sourceLine" id="cb159-4" data-line-number="4">PEESE.FE.interm &lt;-<span class="st"> </span><span class="kw">rma</span>(ES <span class="op">~</span><span class="st"> </span>var.ES, <span class="dt">data=</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>)<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
+<a class="sourceLine" id="cb159-5" data-line-number="5">PEESE.FE.interm.pubbias &lt;-<span class="st"> </span><span class="kw">rma</span>(ES <span class="op">~</span><span class="st"> </span>var.ES, <span class="dt">data =</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>)),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
+<a class="sourceLine" id="cb159-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb159-7" data-line-number="7"><span class="kw">summary</span>(FAT.PET.FE.interm)</a></code></pre></div>
 <pre><code>## 
 ## Fixed-Effects with Moderators Model (k = 17)
 ## 
@@ -1533,17 +1541,192 @@ I’m focusing on the case with only small and intermediate precision estimates,
 ## 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb163-1" data-line-number="1"><span class="kw">summary</span>(PEESE.FE.interm)</a></code></pre></div>
+<pre><code>## 
+## Fixed-Effects with Moderators Model (k = 17)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   8.6741    9.4058  -13.3483  -11.6818  -12.4911   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 9.4058, p-val = 0.8554
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.6187, p-val = 0.4315
+## 
+## Model Results:
+## 
+##          estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt    0.2568  0.0379   6.7699  &lt;.0001   0.1825  0.3312  *** 
+## var.ES    -0.9426  1.1983  -0.7866  0.4315  -3.2912  1.4061      
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb165-1" data-line-number="1"><span class="kw">summary</span>(PEESE.FE.interm.pubbias)</a></code></pre></div>
+<pre><code>## 
+## Fixed-Effects with Moderators Model (k = 6)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##   6.3347    3.2508   -8.6694   -9.0859   -4.6694   
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 4) = 3.2508, p-val = 0.5168
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.9516, p-val = 0.3293
+## 
+## Model Results:
+## 
+##          estimate      se    zval    pval    ci.lb    ci.ub 
+## intrcpt    0.2460  0.0569  4.3210  &lt;.0001   0.1344   0.3576  *** 
+## var.ES     4.3828  4.4928  0.9755  0.3293  -4.4229  13.1885      
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>The results of the analysis are as expected, even though the small sample size prevents us from drawing conclusive results.
-When running the regression on the whole sample, in the absence of publication bais, we find that the estimated coefficient for the standard error in the meta-analytic regression is -0.34 <span class="math inline">\(\pm\)</span> 0.95.
-As a consequence, there is no sign of publication bias, with a pretty decent precision level.
+When running the regression on the whole sample, in the absence of publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is -0.34 <span class="math inline">\(\pm\)</span> 0.95.
+As a consequence, the FAT detects no sign of publication bias, with a pretty decent precision level.
 When running the regression on the sample with publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is 1.64 <span class="math inline">\(\pm\)</span> 3.
-The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low to be able to detect publication bias.
-This is a characteristic of the Funnel Asymetry Test to have low power, especially in our case where only one observation with small sample size drives all the results.</p>
-<p>The Precision-Effect Test detects a positive effect in the absence of publication bias (0.28 <span class="math inline">\(\pm\)</span> 0.12) that is significantly different from zero.
-But, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
-The Precision-Effect Test does not detect a positive effect in the presence of publication bias (0.14 <span class="math inline">\(\pm\)</span> 0.29).
-Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.</p>
-<p>PEESE + graph with curves + RE</p>
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
+This is a characteristic of the FAT to have low power, especially in our case where only one observation with small sample size drives all the results.</p>
+<p>In the absence of publication bias, the PET detects a positive effect (0.28 <span class="math inline">\(\pm\)</span> 0.12) that is significantly different from zero, which is a sign of existence of a true effect.
+The PEESE is of 0.26 <span class="math inline">\(\pm\)</span> 0.07 .
+Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (0.24 <span class="math inline">\(\pm\)</span> 0.06), since the FAT has not detected signs of publication bias.
+In the presence of publication bias, the PET does not detect a positive effect (0.14 <span class="math inline">\(\pm\)</span> 0.29).
+The PEESE is of 0.25 <span class="math inline">\(\pm\)</span> 0.11 .
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (0.29 <span class="math inline">\(\pm\)</span> 0.08), since the FAT has not detected signs of publication bias.
+Note nevertheless that in both cases the PEESE is almost as good as the meta-analytic estimate.</p>
+<p>Let’s now look at what happens when we are in a random effects world.</p>
+<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb167-1" data-line-number="1">FAT.PET.RE.interm &lt;-<span class="st"> </span><span class="kw">rma</span>(theta<span class="fl">.1</span> <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(var.ES), <span class="dt">data=</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>)<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;REML&quot;</span>)</a>
+<a class="sourceLine" id="cb167-2" data-line-number="2">FAT.PET.RE.interm.pubbias &lt;-<span class="st"> </span><span class="kw">rma</span>(theta<span class="fl">.1</span> <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(var.ES), <span class="dt">data =</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>)),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;REML&quot;</span>)</a>
+<a class="sourceLine" id="cb167-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb167-4" data-line-number="4">PEESE.RE.interm &lt;-<span class="st"> </span><span class="kw">rma</span>(theta<span class="fl">.1</span> <span class="op">~</span><span class="st"> </span>var.ES, <span class="dt">data=</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>)<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;REML&quot;</span>)</a>
+<a class="sourceLine" id="cb167-5" data-line-number="5">PEESE.RE.interm.pubbias &lt;-<span class="st"> </span><span class="kw">rma</span>(theta<span class="fl">.1</span> <span class="op">~</span><span class="st"> </span>var.ES, <span class="dt">data =</span> <span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>)),<span class="dt">vi=</span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>var.ES,<span class="dt">method=</span><span class="st">&quot;REML&quot;</span>)</a>
+<a class="sourceLine" id="cb167-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb167-7" data-line-number="7"><span class="kw">summary</span>(FAT.PET.RE.interm)</a></code></pre></div>
+<pre><code>## 
+## Mixed-Effects Model (k = 17; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+## -12.7096   25.4191   31.4191   33.5433   33.6010   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.2872 (SE = 0.1228)
+## tau (square root of estimated tau^2 value):             0.5359
+## I^2 (residual heterogeneity / unaccounted variability): 94.22%
+## H^2 (unaccounted variability / sampling variability):   17.30
+## R^2 (amount of heterogeneity accounted for):            0.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 391.5159, p-val &lt; .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.0212, p-val = 0.8842
+## 
+## Model Results:
+## 
+##               estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt         0.1733  0.2929   0.5915  0.5542  -0.4009  0.7474    
+## sqrt(var.ES)   -0.1876  1.2878  -0.1457  0.8842  -2.7116  2.3364    
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb169-1" data-line-number="1"><span class="kw">summary</span>(FAT.PET.RE.interm.pubbias)</a></code></pre></div>
+<pre><code>## 
+## Mixed-Effects Model (k = 10; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##  -7.3071   14.6142   20.6142   20.8526   26.6142   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.3548 (SE = 0.1874)
+## tau (square root of estimated tau^2 value):             0.5956
+## I^2 (residual heterogeneity / unaccounted variability): 97.16%
+## H^2 (unaccounted variability / sampling variability):   35.27
+## R^2 (amount of heterogeneity accounted for):            5.24%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 8) = 367.0309, p-val &lt; .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 1.4973, p-val = 0.2211
+## 
+## Model Results:
+## 
+##               estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt        -0.1548  0.3876  -0.3993  0.6897  -0.9145  0.6050    
+## sqrt(var.ES)    3.0194  2.4676   1.2236  0.2211  -1.8170  7.8558    
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb171-1" data-line-number="1"><span class="kw">summary</span>(PEESE.RE.interm)</a></code></pre></div>
+<pre><code>## 
+## Mixed-Effects Model (k = 17; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+## -12.6655   25.3311   31.3311   33.4552   33.5129   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.2860 (SE = 0.1221)
+## tau (square root of estimated tau^2 value):             0.5348
+## I^2 (residual heterogeneity / unaccounted variability): 94.21%
+## H^2 (unaccounted variability / sampling variability):   17.28
+## R^2 (amount of heterogeneity accounted for):            0.00%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 15) = 392.0762, p-val &lt; .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 0.0801, p-val = 0.7772
+## 
+## Model Results:
+## 
+##          estimate      se     zval    pval    ci.lb   ci.ub 
+## intrcpt    0.1801  0.2103   0.8562  0.3919  -0.2321  0.5923    
+## var.ES    -0.8540  3.0178  -0.2830  0.7772  -6.7687  5.0607    
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb173-1" data-line-number="1"><span class="kw">summary</span>(PEESE.RE.interm.pubbias)</a></code></pre></div>
+<pre><code>## 
+## Mixed-Effects Model (k = 10; tau^2 estimator: REML)
+## 
+##   logLik  deviance       AIC       BIC      AICc 
+##  -7.3644   14.7288   20.7288   20.9671   26.7288   
+## 
+## tau^2 (estimated amount of residual heterogeneity):     0.3597 (SE = 0.1896)
+## tau (square root of estimated tau^2 value):             0.5998
+## I^2 (residual heterogeneity / unaccounted variability): 97.21%
+## H^2 (unaccounted variability / sampling variability):   35.87
+## R^2 (amount of heterogeneity accounted for):            3.91%
+## 
+## Test for Residual Heterogeneity:
+## QE(df = 8) = 370.0068, p-val &lt; .0001
+## 
+## Test of Moderators (coefficient 2):
+## QM(df = 1) = 1.3503, p-val = 0.2452
+## 
+## Model Results:
+## 
+##          estimate      se    zval    pval    ci.lb    ci.ub 
+## intrcpt    0.0678  0.2540  0.2669  0.7895  -0.4301   0.5657    
+## var.ES     7.5975  6.5381  1.1620  0.2452  -5.2169  20.4118    
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>In the absence of publication bias, the FAT estimate of the coefficient for the standard error in the meta-analytic regression is -0.19 <span class="math inline">\(\pm\)</span> 2.52.
+As a consequence, the FAT detects no sign of publication bias.
+The PET does not detect a positive effect but its estimate is close to the truth, even if imprecise (0.28 <span class="math inline">\(\pm\)</span> 0.57).
+We would interpret this as absence of evidence for an effect.
+The PEESE is of 0.18 <span class="math inline">\(\pm\)</span> 0.41, close to the truth but highly imprecise.
+Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and should focus only on the simple meta-analytic one (0.14 <span class="math inline">\(\pm\)</span> 0.27), since the FAT has not detected signs of publication bias.</p>
+<p>The FAT estimate of the coefficient for the standard error in the meta-analytic regression is 3.02 <span class="math inline">\(\pm\)</span> 4.84.
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
+The PET does not detect a positive effect, and even returns a negative one (-0.15 <span class="math inline">\(\pm\)</span> 0.76), however extremely imprecise.
+The PEESE at least returns a positive even though imprecise effect of 0.07 <span class="math inline">\(\pm\)</span> 0.5.
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (0.26 <span class="math inline">\(\pm\)</span> 0.39), since the FAT has not detected signs of publication bias.
+In both cases the PEESE contains the true value in its confidence interval, but it does much less well than in the fixed effects case.</p>
+<p><strong><span class="smallcaps">Some simulations would be great here in order to assess whether the estimated sampling noise of PEESE is actually of the same magnitude as what would stem from Monte Carlos.</span></strong></p>
+<p>I’d like to end this section on FAT-PET-PEESE by giving a graphical intuition of how this estimator corrects for publication bias.
+I’ll supplement the graphical intuition with some intuition stemming from Heckman’s selection model.</p>
+<p>graph with curves</p>
 </div>
 <div id="p-curving" class="section level4">
 <h4><span class="header-section-number">13.2.2.3</span> P-curving</h4>

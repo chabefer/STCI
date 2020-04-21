@@ -1164,7 +1164,7 @@ The next section present the tools developed to do just that.
 
 #### FAT-PET-PEESE
 
-[Docouliagos and Stanley (2012)](https://books.google.fr/books?hl=fr&lr=&id=jSQEdEsL7VoC&oi=fnd&pg=PP2&dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics&ots=jTXmePff2F&sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8#v=onepage&q=doucouliagos%20and%20stanley%20meta-regression%20analysis%20in%20economics&f=false) have developed a method based on funnel plot asymetru to detect publication bias and correct for it.
+[Docouliagos and Stanley (2012)](https://books.google.fr/books?hl=fr&lr=&id=jSQEdEsL7VoC&oi=fnd&pg=PP2&dq=doucouliagos+and+stanley+meta-regression+analysis+in+economics&ots=jTXmePff2F&sig=Dm5EOhOroc5K8EUYvqK4fvJrPs8#v=onepage&q=doucouliagos%20and%20stanley%20meta-regression%20analysis%20in%20economics&f=false) have developed a method based on funnel plot asymmetry to detect publication bias and correct for it.
 Their approach is based on three steps:
 
   1. The Funnel Asymmetry Test (FAT) that tests whether there is a relationship between effect sizes and their precision.
@@ -1175,49 +1175,102 @@ Their approach is based on three steps:
 The authors suggest to implement these procedures in a sequence, starting with the existence of publication bias, evidence for the existence of a non-zero effect once publication bias is accounted for and then estimate the bias-corrected effect when it is detected to be non-zero.
 Let's examine these approaches in turn.
 
-The Funnel Asymmetry Test and the Precision-Effect Test are based on the following meta-regression:
+The FAT and the PET are based on the following meta-regression:
 
 \begin{align*}
 \hat{\theta}_k & = \alpha_0 + \alpha_1\hat{\sigma}_k  + \epsilon_k + \nu_k,
 \end{align*}
 
+The PEESE is based on the following meta-regression:
+
+\begin{align*}
+\hat{\theta}_k & = \beta_0 + \beta_1\hat{\sigma}^2_k  + \epsilon_k + \nu_k,
+\end{align*}
+
 Whether we assume that $\tau^2$, the variance of $\nu_k$ is zero or not makes the FAT model a fixed or a random effects model.
 We run this regression with either Weighted Least Squares (in the fixed effects model) or with one of the methods appropriate for random effects (I'm going to use REML in what follows).
 
-The Funnel Asymmetry Test tests the assumption that $\alpha_1=0$ using a standard two-sided t-test.
+The FAT tests the assumption that $\alpha_1=0$ using a standard two-sided t-test.
 Rejecting the null means that there is sign of publication bias.
-The Precision-Effect Test tests whether $\alpha_0=0$.
+The PET tests whether $\alpha_0=0$.
 Rejecting the null means that there is evidence of a true effect.
+The PEESE estimates the bias-corrected effect size by using $\hat{\beta}_1$.
 
 ```{example}
-Let's see in practice how FAT and PET work in our example.
+Let's see in practice how FAT, PET and PEESE work in our example.
+We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 ```
 
-We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 I'm focusing on the case with only small and intermediate precision estimates, as in the funnel plots in Figure \@ref(fig:FunnelPlotFE).
 
-```{r FATPETFE,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
+```{r FATPETPEESEFE,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
 FAT.PET.FE.interm <- rma(ES ~ sqrt(var.ES), data= filter(data.meta,id<=17),vi=filter(data.meta,id<=17)$var.ES,method="FE")
 FAT.PET.FE.interm.pubbias <- rma(ES ~ sqrt(var.ES), data = filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)),vi=filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES,method="FE")
 
+PEESE.FE.interm <- rma(ES ~ var.ES, data= filter(data.meta,id<=17),vi=filter(data.meta,id<=17)$var.ES,method="FE")
+PEESE.FE.interm.pubbias <- rma(ES ~ var.ES, data = filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)),vi=filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES,method="FE")
+
 summary(FAT.PET.FE.interm)
 summary(FAT.PET.FE.interm.pubbias)
+
+summary(PEESE.FE.interm)
+summary(PEESE.FE.interm.pubbias)
 ```
 
 The results of the analysis are as expected, even though the small sample size prevents us from drawing conclusive results.
-When running the regression on the whole sample, in the absence of publication bais, we find that the estimated coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.FE.interm)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.FE.interm)$se[2],2)`. 
-As a consequence, there is no sign of publication bias, with a pretty decent precision level.
+When running the regression on the whole sample, in the absence of publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.FE.interm)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.FE.interm)$se[2],2)`. 
+As a consequence, the FAT detects no sign of publication bias, with a pretty decent precision level.
 When running the regression on the sample with publication bias, we find that the estimated coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.FE.interm.pubbias)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.FE.interm.pubbias)$se[2],2)`. 
-The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low to be able to detect publication bias.
-This is a characteristic of the Funnel Asymetry Test to have low power, especially in our case where only one observation with small sample size drives all the results.
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
+This is a characteristic of the FAT to have low power, especially in our case where only one observation with small sample size drives all the results.
 
-The Precision-Effect Test detects a positive effect in the absence of publication bias (`r round(coef(FAT.PET.FE.interm)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.FE.interm)$se[1],2)`) that is significantly different from zero.
-But, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
-The Precision-Effect Test does not detect a positive effect in the presence of publication bias (`r round(coef(FAT.PET.FE.interm.pubbias)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.FE.interm.pubbias)$se[1],2)`).
-Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using this estimate and focus only on the simple meta-analytic one, since the Funnel Asymmetry Test has not detected signs of publication bias.
-Remember that the simple meta-analytic effect estimated using only the statistically significant studies is equal to `r round(coef(meta.example.FE.interm.pubbias),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.interm.pubbias)$se,2)`, while the effect estimated all the 17 studies with a small and intermediate sample size is `r round(coef(meta.example.FE.interm),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.interm)$se,2)`.
+In the absence of publication bias, the PET detects a positive effect (`r round(coef(FAT.PET.FE.interm)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.FE.interm)$se[1],2)`) that is significantly different from zero, which is a sign of existence of a true effect.
+The PEESE is of `r round(coef(PEESE.FE.interm)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(PEESE.FE.interm)$se[1],2)` .
+Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (`r round(coef(meta.example.FE.interm),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.interm)$se,2)`), since the FAT has not detected signs of publication bias.
+In the presence of publication bias, the PET does not detect a positive effect (`r round(coef(FAT.PET.FE.interm.pubbias)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.FE.interm.pubbias)$se[1],2)`).
+The PEESE is of `r round(coef(PEESE.FE.interm.pubbias)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(PEESE.FE.interm.pubbias)$se[1],2)` .
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (`r round(coef(meta.example.FE.interm.pubbias),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.FE.interm.pubbias)$se,2)`), since the FAT has not detected signs of publication bias.
+Note nevertheless that in both cases the PEESE is almost as good as the meta-analytic estimate.
 
-PEESE + graph with curves + RE
+Let's now look at what happens when we are in a random effects world.
+
+```{r FATPETPEESERE,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
+FAT.PET.RE.interm <- rma(theta.1 ~ sqrt(var.ES), data= filter(data.meta,id<=17),vi=filter(data.meta,id<=17)$var.ES,method="REML")
+FAT.PET.RE.interm.pubbias <- rma(theta.1 ~ sqrt(var.ES), data = filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)),vi=filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES,method="REML")
+
+PEESE.RE.interm <- rma(theta.1 ~ var.ES, data= filter(data.meta,id<=17),vi=filter(data.meta,id<=17)$var.ES,method="REML")
+PEESE.RE.interm.pubbias <- rma(theta.1 ~ var.ES, data = filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)),vi=filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES,method="REML")
+
+summary(FAT.PET.RE.interm)
+summary(FAT.PET.RE.interm.pubbias)
+
+summary(PEESE.RE.interm)
+summary(PEESE.RE.interm.pubbias)
+```
+
+In the absence of publication bias, the FAT estimate of the coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.RE.interm)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm)$se[2],2)`. 
+As a consequence, the FAT detects no sign of publication bias.
+The PET does not detect a positive effect but its estimate is close to the truth, even if imprecise (`r round(coef(FAT.PET.FE.interm)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm)$se[1],2)`).
+We would interpret this as absence of evidence for an effect.
+The PEESE is of `r round(coef(PEESE.RE.interm)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(PEESE.RE.interm)$se[1],2)`, close to the truth but highly imprecise.
+Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and should focus only on the simple meta-analytic one (`r round(coef(meta.example.RE.interm),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.RE.interm)$se,2)`), since the FAT has not detected signs of publication bias.
+
+The FAT estimate of the coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.RE.interm.pubbias)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm.pubbias)$se[2],2)`. 
+The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
+The PET does not detect a positive effect, and even returns a negative one (`r round(coef(FAT.PET.RE.interm.pubbias)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm.pubbias)$se[1],2)`), however extremely imprecise.
+The PEESE at least returns a positive even though imprecise effect of `r round(coef(PEESE.RE.interm.pubbias)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(PEESE.RE.interm.pubbias)$se[1],2)`.
+Again, following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and focus only on the simple meta-analytic one (`r round(coef(meta.example.RE.interm.pubbias),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.RE.interm.pubbias)$se,2)`), since the FAT has not detected signs of publication bias.
+In both cases the PEESE contains the true value in its confidence interval, but it does much less well than in the fixed effects case.
+
+**<span style="font-variant:small-caps;">Some simulations would be great here in order to assess whether the estimated sampling noise of PEESE is actually of the same magnitude as what would stem from Monte Carlos.</span>**
+
+
+I'd like to end this section on FAT-PET-PEESE by giving a graphical intuition of how this estimator corrects for publication bias. 
+I'll supplement the graphical intuition with some intuition stemming from Heckman's selection model.
+
+graph with curves
+
+
 
 #### P-curving
 
