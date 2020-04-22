@@ -1063,8 +1063,6 @@ As a conclusion of Figure \@ref(fig:PubBias), publication bias biases the true e
   * `r round(100*abs(coef(meta.example.RE.interm.pubbias)-ES(param))/ES(param),0)` \%, or `r round(abs(coef(meta.example.RE.interm.pubbias)-ES(param)),2)` of a standard deviation, with studies with a small or intermediate sample size,
   * `r round(100*abs(coef(meta.example.RE.pubbias)-ES(param))/ES(param),0)` \%, or `r round(abs(coef(meta.example.RE.pubbias)-ES(param)),2)` of a standard deviation, with all studies.
 
-
-
 #### Site selection bias 
 
 There is site selection bias when researchers only implement an intervention in sites where they expect it to work.
@@ -1255,7 +1253,7 @@ We would interpret this as absence of evidence for an effect.
 The PEESE is of `r round(coef(PEESE.RE.interm)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(PEESE.RE.interm)$se[1],2)`, close to the truth but highly imprecise.
 Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and should focus only on the simple meta-analytic one (`r round(coef(meta.example.RE.interm),2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(meta.example.RE.interm)$se,2)`), since the FAT has not detected signs of publication bias.
 
-The FAT estimate of the coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.RE.interm.pubbias)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm.pubbias)$se[2],2)`. 
+In the presence of publication bias, the FAT estimate of the coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.RE.interm.pubbias)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm.pubbias)$se[2],2)`. 
 The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
 The PET does not detect a positive effect, and even returns a negative one (`r round(coef(FAT.PET.RE.interm.pubbias)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm.pubbias)$se[1],2)`), however extremely imprecise.
 The PEESE at least returns a positive even though imprecise effect of `r round(coef(PEESE.RE.interm.pubbias)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(PEESE.RE.interm.pubbias)$se[1],2)`.
@@ -1264,13 +1262,51 @@ In both cases the PEESE contains the true value in its confidence interval, but 
 
 **<span style="font-variant:small-caps;">Some simulations would be great here in order to assess whether the estimated sampling noise of PEESE is actually of the same magnitude as what would stem from Monte Carlos.</span>**
 
-
 I'd like to end this section on FAT-PET-PEESE by giving a graphical intuition of how this estimator corrects for publication bias. 
 I'll supplement the graphical intuition with some intuition stemming from Heckman's selection model.
+The key intuition for understanding the FAT-PET and especially the PEESE estimator is the fact that, in the presence of publication bias, the meta-regression is akin to a censored or truncated model.
+As a consequence, and as Stanley and Docouliagos explain, we have something like:
 
-graph with curves
+\begin{align*}
+\esp{\hat{\theta}_k||\frac{\hat{\theta}_k}{\hat{\sigma}_k}|>1.96} & = \alpha_0 + \alpha_1\hat{\sigma}_k\lambda(\hat{\theta}_k,\hat{\sigma}_k) + \epsilon_k + \nu_k,
+\end{align*}
 
+**<span style="font-variant:small-caps;">Do the derivation.</span>**
 
+with $\lambda$ the Inverted Mills Ratio.
+Approximating the nonlinear function of $\hat{\sigma}_k$ by a second order polynomial whose minium is when $\hat{\sigma}_k=0$ gives rise to PEESE.
+FAT-PET approximate this function linearly instead. 
+One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
+
+```{example}
+Let's see how the funnel plot works in our example.
+```
+
+```{r FunnelPlotREPETPEESE,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Funnel plot with PET and PEESE',fig.subcap=c('Fixed effects', 'Random effects'), fig.align='center',out.width='50%',fig.pos='htbp',fig.height=8,fig.width=12}
+plot(filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$ES ~ sqrt(filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES),xlim=c(0,0.382),ylim=c(-0.5,1),xlab='Standard error', ylab ='Effect size', main='Homogeneous effects')
+abline(h=ES(param),col="red")
+abline(h=coef(meta.example.FE.interm.pubbias),col="green")
+curve((coef(FAT.PET.FE.interm.pubbias)[1]+coef(FAT.PET.FE.interm.pubbias)[2]*x),col="blue", add = TRUE)
+curve(expr=coef(PEESE.FE.interm.pubbias)[1]+coef(PEESE.FE.interm.pubbias)[2]*x^2,col="blue",lty=2,add = TRUE)
+legend("bottomright",
+       legend = c("Truth", "Meta","FAT-PET","PEESE"),
+       col = c('red', 'green','blue','blue'),
+       lty= c(1,1,1,2),
+       bg = "white")
+
+plot(filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$theta.1 ~ sqrt(filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES),xlim=c(0,0.382),ylim=c(-1,1),xlab='Standard error', ylab ='Effect size', main='Heterogeneous effects')
+abline(h=ES(param),col="red")
+abline(h=coef(meta.example.RE.interm.pubbias),col="green")
+curve((coef(FAT.PET.RE.interm.pubbias)[1]+coef(FAT.PET.RE.interm.pubbias)[2]*x),col="blue", add = TRUE)
+curve(expr=coef(PEESE.RE.interm.pubbias)[1]+coef(PEESE.RE.interm.pubbias)[2]*x^2,col="blue",lty=2,add = TRUE)
+legend("bottomright",
+       legend = c("Truth", "Meta","FAT-PET","PEESE"),
+       col = c('red', 'green','blue','blue'),
+       lty= c(1,1,1,2),
+       bg = "white")
+```
+
+On Figure (\@ref(fig:FunnelPlotREPETPEESE)), we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect. 
 
 #### P-curving
 

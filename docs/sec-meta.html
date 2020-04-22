@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-04-21" />
+<meta name="date" content="2020-04-22" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1717,7 +1717,7 @@ The PET does not detect a positive effect but its estimate is close to the truth
 We would interpret this as absence of evidence for an effect.
 The PEESE is of 0.18 <span class="math inline">\(\pm\)</span> 0.41, close to the truth but highly imprecise.
 Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and should focus only on the simple meta-analytic one (0.14 <span class="math inline">\(\pm\)</span> 0.27), since the FAT has not detected signs of publication bias.</p>
-<p>The FAT estimate of the coefficient for the standard error in the meta-analytic regression is 3.02 <span class="math inline">\(\pm\)</span> 4.84.
+<p>In the presence of publication bias, the FAT estimate of the coefficient for the standard error in the meta-analytic regression is 3.02 <span class="math inline">\(\pm\)</span> 4.84.
 The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
 The PET does not detect a positive effect, and even returns a negative one (-0.15 <span class="math inline">\(\pm\)</span> 0.76), however extremely imprecise.
 The PEESE at least returns a positive even though imprecise effect of 0.07 <span class="math inline">\(\pm\)</span> 0.5.
@@ -1725,8 +1725,50 @@ Again, following the practice suggested by Docouliagos and Stanley, we should re
 In both cases the PEESE contains the true value in its confidence interval, but it does much less well than in the fixed effects case.</p>
 <p><strong><span class="smallcaps">Some simulations would be great here in order to assess whether the estimated sampling noise of PEESE is actually of the same magnitude as what would stem from Monte Carlos.</span></strong></p>
 <p>I’d like to end this section on FAT-PET-PEESE by giving a graphical intuition of how this estimator corrects for publication bias.
-I’ll supplement the graphical intuition with some intuition stemming from Heckman’s selection model.</p>
-<p>graph with curves</p>
+I’ll supplement the graphical intuition with some intuition stemming from Heckman’s selection model.
+The key intuition for understanding the FAT-PET and especially the PEESE estimator is the fact that, in the presence of publication bias, the meta-regression is akin to a censored or truncated model.
+As a consequence, and as Stanley and Docouliagos explain, we have something like:</p>
+<p><span class="math display">\[\begin{align*}
+\esp{\hat{\theta}_k||\frac{\hat{\theta}_k}{\hat{\sigma}_k}|&gt;1.96} &amp; = \alpha_0 + \alpha_1\hat{\sigma}_k\lambda(\hat{\theta}_k,\hat{\sigma}_k) + \epsilon_k + \nu_k,
+\end{align*}\]</span></p>
+<p><strong><span class="smallcaps">Do the derivation.</span></strong></p>
+<p>with <span class="math inline">\(\lambda\)</span> the Inverted Mills Ratio.
+Approximating the nonlinear function of <span class="math inline">\(\hat{\sigma}_k\)</span> by a second order polynomial whose minium is when <span class="math inline">\(\hat{\sigma}_k=0\)</span> gives rise to PEESE.
+FAT-PET approximate this function linearly instead.
+One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-167" class="example"><strong>Example 13.15  </strong></span>Let’s see how the funnel plot works in our example.
+</div>
+
+<div class="sourceCode" id="cb175"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb175-1" data-line-number="1"><span class="kw">plot</span>(<span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>ES <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>var.ES),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="fl">0.382</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="fl">0.5</span>,<span class="dv">1</span>),<span class="dt">xlab=</span><span class="st">&#39;Standard error&#39;</span>, <span class="dt">ylab =</span><span class="st">&#39;Effect size&#39;</span>, <span class="dt">main=</span><span class="st">&#39;Homogeneous effects&#39;</span>)</a>
+<a class="sourceLine" id="cb175-2" data-line-number="2"><span class="kw">abline</span>(<span class="dt">h=</span><span class="kw">ES</span>(param),<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</a>
+<a class="sourceLine" id="cb175-3" data-line-number="3"><span class="kw">abline</span>(<span class="dt">h=</span><span class="kw">coef</span>(meta.example.FE.interm.pubbias),<span class="dt">col=</span><span class="st">&quot;green&quot;</span>)</a>
+<a class="sourceLine" id="cb175-4" data-line-number="4"><span class="kw">curve</span>((<span class="kw">coef</span>(FAT.PET.FE.interm.pubbias)[<span class="dv">1</span>]<span class="op">+</span><span class="kw">coef</span>(FAT.PET.FE.interm.pubbias)[<span class="dv">2</span>]<span class="op">*</span>x),<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>, <span class="dt">add =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb175-5" data-line-number="5"><span class="kw">curve</span>(<span class="dt">expr=</span><span class="kw">coef</span>(PEESE.FE.interm.pubbias)[<span class="dv">1</span>]<span class="op">+</span><span class="kw">coef</span>(PEESE.FE.interm.pubbias)[<span class="dv">2</span>]<span class="op">*</span>x<span class="op">^</span><span class="dv">2</span>,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>,<span class="dt">lty=</span><span class="dv">2</span>,<span class="dt">add =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb175-6" data-line-number="6"><span class="kw">legend</span>(<span class="st">&quot;bottomright&quot;</span>,</a>
+<a class="sourceLine" id="cb175-7" data-line-number="7">       <span class="dt">legend =</span> <span class="kw">c</span>(<span class="st">&quot;Truth&quot;</span>, <span class="st">&quot;Meta&quot;</span>,<span class="st">&quot;FAT-PET&quot;</span>,<span class="st">&quot;PEESE&quot;</span>),</a>
+<a class="sourceLine" id="cb175-8" data-line-number="8">       <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&#39;red&#39;</span>, <span class="st">&#39;green&#39;</span>,<span class="st">&#39;blue&#39;</span>,<span class="st">&#39;blue&#39;</span>),</a>
+<a class="sourceLine" id="cb175-9" data-line-number="9">       <span class="dt">lty=</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb175-10" data-line-number="10">       <span class="dt">bg =</span> <span class="st">&quot;white&quot;</span>)</a>
+<a class="sourceLine" id="cb175-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb175-12" data-line-number="12"><span class="kw">plot</span>(<span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>theta<span class="fl">.1</span> <span class="op">~</span><span class="st"> </span><span class="kw">sqrt</span>(<span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>var.ES),<span class="dt">xlim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="fl">0.382</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>),<span class="dt">xlab=</span><span class="st">&#39;Standard error&#39;</span>, <span class="dt">ylab =</span><span class="st">&#39;Effect size&#39;</span>, <span class="dt">main=</span><span class="st">&#39;Heterogeneous effects&#39;</span>)</a>
+<a class="sourceLine" id="cb175-13" data-line-number="13"><span class="kw">abline</span>(<span class="dt">h=</span><span class="kw">ES</span>(param),<span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</a>
+<a class="sourceLine" id="cb175-14" data-line-number="14"><span class="kw">abline</span>(<span class="dt">h=</span><span class="kw">coef</span>(meta.example.RE.interm.pubbias),<span class="dt">col=</span><span class="st">&quot;green&quot;</span>)</a>
+<a class="sourceLine" id="cb175-15" data-line-number="15"><span class="kw">curve</span>((<span class="kw">coef</span>(FAT.PET.RE.interm.pubbias)[<span class="dv">1</span>]<span class="op">+</span><span class="kw">coef</span>(FAT.PET.RE.interm.pubbias)[<span class="dv">2</span>]<span class="op">*</span>x),<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>, <span class="dt">add =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb175-16" data-line-number="16"><span class="kw">curve</span>(<span class="dt">expr=</span><span class="kw">coef</span>(PEESE.RE.interm.pubbias)[<span class="dv">1</span>]<span class="op">+</span><span class="kw">coef</span>(PEESE.RE.interm.pubbias)[<span class="dv">2</span>]<span class="op">*</span>x<span class="op">^</span><span class="dv">2</span>,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>,<span class="dt">lty=</span><span class="dv">2</span>,<span class="dt">add =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb175-17" data-line-number="17"><span class="kw">legend</span>(<span class="st">&quot;bottomright&quot;</span>,</a>
+<a class="sourceLine" id="cb175-18" data-line-number="18">       <span class="dt">legend =</span> <span class="kw">c</span>(<span class="st">&quot;Truth&quot;</span>, <span class="st">&quot;Meta&quot;</span>,<span class="st">&quot;FAT-PET&quot;</span>,<span class="st">&quot;PEESE&quot;</span>),</a>
+<a class="sourceLine" id="cb175-19" data-line-number="19">       <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&#39;red&#39;</span>, <span class="st">&#39;green&#39;</span>,<span class="st">&#39;blue&#39;</span>,<span class="st">&#39;blue&#39;</span>),</a>
+<a class="sourceLine" id="cb175-20" data-line-number="20">       <span class="dt">lty=</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb175-21" data-line-number="21">       <span class="dt">bg =</span> <span class="st">&quot;white&quot;</span>)</a></code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:FunnelPlotREPETPEESE"></span>
+<img src="STCI_files/figure-html/FunnelPlotREPETPEESE-1.png" alt="Funnel plot with PET and PEESE" width="50%" /><img src="STCI_files/figure-html/FunnelPlotREPETPEESE-2.png" alt="Funnel plot with PET and PEESE" width="50%" />
+<p class="caption">
+Figure 13.17: Funnel plot with PET and PEESE
+</p>
+</div>
+<p>On Figure (<a href="sec-meta.html#fig:FunnelPlotREPETPEESE">13.17</a>), we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect.</p>
 </div>
 <div id="p-curving" class="section level4">
 <h4><span class="header-section-number">13.2.2.3</span> P-curving</h4>

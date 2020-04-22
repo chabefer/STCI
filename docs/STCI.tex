@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-04-21}
+    \date{2020-04-22}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8752,7 +8752,7 @@ We would interpret this as absence of evidence for an effect.
 The PEESE is of 0.18 \(\pm\) 0.41, close to the truth but highly imprecise.
 Following the practice suggested by Docouliagos and Stanley, we should refrain from using these estimates and should focus only on the simple meta-analytic one (0.14 \(\pm\) 0.27), since the FAT has not detected signs of publication bias.
 
-The FAT estimate of the coefficient for the standard error in the meta-analytic regression is 3.02 \(\pm\) 4.84.
+In the presence of publication bias, the FAT estimate of the coefficient for the standard error in the meta-analytic regression is 3.02 \(\pm\) 4.84.
 The coefficient is positive, as expected if larger results occur with smaller sample size, but the precision of this coefficient is too low for the FAT to be able to detect publication bias.
 The PET does not detect a positive effect, and even returns a negative one (-0.15 \(\pm\) 0.76), however extremely imprecise.
 The PEESE at least returns a positive even though imprecise effect of 0.07 \(\pm\) 0.5.
@@ -8763,8 +8763,60 @@ In both cases the PEESE contains the true value in its confidence interval, but 
 
 I'd like to end this section on FAT-PET-PEESE by giving a graphical intuition of how this estimator corrects for publication bias.
 I'll supplement the graphical intuition with some intuition stemming from Heckman's selection model.
+The key intuition for understanding the FAT-PET and especially the PEESE estimator is the fact that, in the presence of publication bias, the meta-regression is akin to a censored or truncated model.
+As a consequence, and as Stanley and Docouliagos explain, we have something like:
 
-graph with curves
+\begin{align*}
+\esp{\hat{\theta}_k||\frac{\hat{\theta}_k}{\hat{\sigma}_k}|>1.96} & = \alpha_0 + \alpha_1\hat{\sigma}_k\lambda(\hat{\theta}_k,\hat{\sigma}_k) + \epsilon_k + \nu_k,
+\end{align*}
+
+\textbf{\textsc{Do the derivation.}}
+
+with \(\lambda\) the Inverted Mills Ratio.
+Approximating the nonlinear function of \(\hat{\sigma}_k\) by a second order polynomial whose minium is when \(\hat{\sigma}_k=0\) gives rise to PEESE.
+FAT-PET approximate this function linearly instead.
+One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-167}{}{\label{exm:unnamed-chunk-167} }Let's see how the funnel plot works in our example.
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{ES }\OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES),}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\FloatTok{0.382}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Standard error'}\NormalTok{, }\DataTypeTok{ylab =}\StringTok{'Effect size'}\NormalTok{, }\DataTypeTok{main=}\StringTok{'Homogeneous effects'}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{h=}\KeywordTok{ES}\NormalTok{(param),}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{h=}\KeywordTok{coef}\NormalTok{(meta.example.FE.interm.pubbias),}\DataTypeTok{col=}\StringTok{"green"}\NormalTok{)}
+\KeywordTok{curve}\NormalTok{((}\KeywordTok{coef}\NormalTok{(FAT.PET.FE.interm.pubbias)[}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\KeywordTok{coef}\NormalTok{(FAT.PET.FE.interm.pubbias)[}\DecValTok{2}\NormalTok{]}\OperatorTok{*}\NormalTok{x),}\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{, }\DataTypeTok{add =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{curve}\NormalTok{(}\DataTypeTok{expr=}\KeywordTok{coef}\NormalTok{(PEESE.FE.interm.pubbias)[}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\KeywordTok{coef}\NormalTok{(PEESE.FE.interm.pubbias)[}\DecValTok{2}\NormalTok{]}\OperatorTok{*}\NormalTok{x}\OperatorTok{^}\DecValTok{2}\NormalTok{,}\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{2}\NormalTok{,}\DataTypeTok{add =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}
+       \DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"Truth"}\NormalTok{, }\StringTok{"Meta"}\NormalTok{,}\StringTok{"FAT-PET"}\NormalTok{,}\StringTok{"PEESE"}\NormalTok{),}
+       \DataTypeTok{col =} \KeywordTok{c}\NormalTok{(}\StringTok{'red'}\NormalTok{, }\StringTok{'green'}\NormalTok{,}\StringTok{'blue'}\NormalTok{,}\StringTok{'blue'}\NormalTok{),}
+       \DataTypeTok{lty=} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{),}
+       \DataTypeTok{bg =} \StringTok{"white"}\NormalTok{)}
+
+\KeywordTok{plot}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1} \OperatorTok{~}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES),}\DataTypeTok{xlim=}\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\FloatTok{0.382}\NormalTok{),}\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{xlab=}\StringTok{'Standard error'}\NormalTok{, }\DataTypeTok{ylab =}\StringTok{'Effect size'}\NormalTok{, }\DataTypeTok{main=}\StringTok{'Heterogeneous effects'}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{h=}\KeywordTok{ES}\NormalTok{(param),}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{h=}\KeywordTok{coef}\NormalTok{(meta.example.RE.interm.pubbias),}\DataTypeTok{col=}\StringTok{"green"}\NormalTok{)}
+\KeywordTok{curve}\NormalTok{((}\KeywordTok{coef}\NormalTok{(FAT.PET.RE.interm.pubbias)[}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\KeywordTok{coef}\NormalTok{(FAT.PET.RE.interm.pubbias)[}\DecValTok{2}\NormalTok{]}\OperatorTok{*}\NormalTok{x),}\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{, }\DataTypeTok{add =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{curve}\NormalTok{(}\DataTypeTok{expr=}\KeywordTok{coef}\NormalTok{(PEESE.RE.interm.pubbias)[}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\KeywordTok{coef}\NormalTok{(PEESE.RE.interm.pubbias)[}\DecValTok{2}\NormalTok{]}\OperatorTok{*}\NormalTok{x}\OperatorTok{^}\DecValTok{2}\NormalTok{,}\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{,}\DataTypeTok{lty=}\DecValTok{2}\NormalTok{,}\DataTypeTok{add =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"bottomright"}\NormalTok{,}
+       \DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"Truth"}\NormalTok{, }\StringTok{"Meta"}\NormalTok{,}\StringTok{"FAT-PET"}\NormalTok{,}\StringTok{"PEESE"}\NormalTok{),}
+       \DataTypeTok{col =} \KeywordTok{c}\NormalTok{(}\StringTok{'red'}\NormalTok{, }\StringTok{'green'}\NormalTok{,}\StringTok{'blue'}\NormalTok{,}\StringTok{'blue'}\NormalTok{),}
+       \DataTypeTok{lty=} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{),}
+       \DataTypeTok{bg =} \StringTok{"white"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[Fixed effects\label{fig:FunnelPlotREPETPEESE1}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/FunnelPlotREPETPEESE-1} }\subfloat[Random effects\label{fig:FunnelPlotREPETPEESE2}]{\includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/FunnelPlotREPETPEESE-2} }
+
+}
+
+\caption{Funnel plot with PET and PEESE}\label{fig:FunnelPlotREPETPEESE}
+\end{figure}
+
+On Figure (\ref{fig:FunnelPlotREPETPEESE}), we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect.
 
 \hypertarget{p-curving}{%
 \subsubsection{P-curving}\label{p-curving}}
