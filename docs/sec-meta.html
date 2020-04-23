@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-04-22" />
+<meta name="date" content="2020-04-23" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1768,10 +1768,38 @@ One way to see how this operates is to add the FAT-PET and PEESE estimates to th
 Figure 13.17: Funnel plot with PET and PEESE
 </p>
 </div>
-<p>On Figure (<a href="sec-meta.html#fig:FunnelPlotREPETPEESE">13.17</a>), we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect.</p>
+<p>On Figure <a href="sec-meta.html#fig:FunnelPlotREPETPEESE">13.17</a>, we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect.</p>
 </div>
 <div id="p-curving" class="section level4">
 <h4><span class="header-section-number">13.2.2.3</span> P-curving</h4>
+<p><a href="http://www.p-curve.com">P-curving</a> has been proposed by Uri Simonsohn, Leif Nelson and Joseph Simmons in order to measure the evidential value of a set of published results.
+The basic idea is rather simple: when there is a true effect, the distribution of p-values of statistically significant results should be denser at lower p-values.
+This is because when there is a true effect, the density of the distribution of the p-values of statistically significant results decreases with the p-values.
+When there is no effect and in the absence of QRPs, p-values of statistically significant results are uniformly distributed, and their density is thus flat.
+When there is no effect and there are QRPs, the density of the distribution of the p-values of statistically significant results increases with the p-values.
+P-curving interprets the shape of teh p-curve as showing signs of true effect (we say it has evidential value), no effect, or QRPs.
+P-curving has two applications: detection of publication bias and QRPs and correction for publication bias and QRPs.</p>
+<div id="proof-of-evidential-value-using-p-curving" class="section level5">
+<h5><span class="header-section-number">13.2.2.3.1</span> Proof of evidential value using p-curving</h5>
+<p>The basic idea behind using p-curving for measuring whether a result has evidential value rests on the fact that, when there is no effects and no QPRs, p-values of statistically significant results are distributed uniformly.
+This is because, in the absence of any effect and of QRPs, the p-value measures the probability that a result of the same size or higher happens.
+When the effect is non existent and there are no QRPs, a p-value of 0.05 will occur 5% of the time and a p-value of 0.04 will occur 4% of the time
+So, p-values between 0.05 and 0.04 will occur 1% of the time, as p-values between 0.04 and 0.03 and so on.
+When there is a true effect, more small p-values are observed than larger ones.
+When there is no effet and there are QRPs, more p-values are observed closer to 0.05 than further away.</p>
+<p>How to go from this intuition to testing for the existence of evidential value?
+One first very simple approach would simply be to separate the set of statistically significant p-values <span class="math inline">\(\left[0,0.05\right]\)</span> in half.
+In the absence of effect and of QRPs, the probability that a statistically significant p-value falls into one of these two sets (<span class="math inline">\(\left[0,0.025\right]\)</span> and <span class="math inline">\(\left]0.025,0.05\right]\)</span>) is 0.5.
+Comparing the actual proportion of p-values falling in these sets to the theoretical uniform value gives a first simple test of evidential value.</p>
+<p>A rigorous test can be built by computing the probability that an event such as observed would have happened under the null of no effect and no QRPs.
+This can be done using the Binomial law, since under the null of no effect and no QRPs, <span class="math inline">\(X\)</span>, the number of results falling in the <span class="math inline">\(\left]0.025,0.05\right]\)</span> set, follows a binomial <span class="math inline">\(Bi(n,p)\)</span>, with <span class="math inline">\(n\)</span> the number of studies and <span class="math inline">\(p=0.5\)</span>.
+The probability of observing <span class="math inline">\(x\)</span> studies among <span class="math inline">\(n\)</span> in the <span class="math inline">\(\left]0.025,0.05\right]\)</span> set is thus <span class="math inline">\(\Pr(X=x)=b(x,n,p)\)</span>, where <span class="math inline">\(b(x,n,p)\)</span> is the density of the binomial distribution.
+The probability of observing <span class="math inline">\(x\)</span> studies or more among <span class="math inline">\(n\)</span> in the <span class="math inline">\(\left]0.025,0.05\right]\)</span> set is <span class="math inline">\(\Pr(X\geq x)=1-B(x-1,n,p)\)</span>, where <span class="math inline">\(B(x,n,p)\)</span> is the cumulative of the binomial distribution.</p>
+<p>For example, if we have 6 studies, with five of them falling in the <span class="math inline">\(\left]0.025,0.05\right]\)</span> set, we have <span class="math inline">\(5/6=\)</span> 83 % of studies close to 0.05.
+Under the null of no effect and no QRPs, this would have happened with probability 0.09 and this or something worse would have happened with probability 0.11.
+This is not definitive evidence against the null, but we’re getting there.</p>
+<p>Another test use the p-value of the p-values, or pp-value.</p>
+</div>
 </div>
 <div id="z-curving" class="section level4">
 <h4><span class="header-section-number">13.2.2.4</span> Z-curving</h4>

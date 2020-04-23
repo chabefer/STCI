@@ -1306,9 +1306,49 @@ legend("bottomright",
        bg = "white")
 ```
 
-On Figure (\@ref(fig:FunnelPlotREPETPEESE)), we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect. 
+On Figure \@ref(fig:FunnelPlotREPETPEESE), we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect. 
 
 #### P-curving
+
+[P-curving](http://www.p-curve.com) has been proposed by Uri Simonsohn, Leif Nelson and Joseph Simmons in order to measure the evidential value of a set of published results.
+The basic idea is rather simple: when there is a true effect, the distribution of p-values of statistically significant results should be denser at lower p-values.
+This is because when there is a true effect, the density of the distribution of the p-values of statistically significant results decreases with the p-values.
+When there is no effect and in the absence of QRPs, p-values of statistically significant results are uniformly distributed, and their density is thus flat.
+When there is no effect and there are QRPs, the density of the distribution of the p-values of statistically significant results increases with the p-values.
+P-curving interprets the shape of teh p-curve as showing signs of true effect (we say it has evidential value), no effect, or QRPs.
+P-curving has two applications: detection of publication bias and QRPs and correction for publication bias and QRPs.
+
+##### Proof of evidential value using p-curving
+
+The basic idea behind using p-curving for measuring whether a result has evidential value rests on the fact that, when there is no effects and no QPRs, p-values of statistically significant results are distributed uniformly.
+This is because, in the absence of any effect and of QRPs, the p-value measures the probability that a result of the same size or higher happens.
+When the effect is non existent and there are no QRPs, a p-value of 0.05 will occur 5\% of the time and a p-value of 0.04 will occur 4\% of the time
+So, p-values between 0.05 and 0.04 will occur 1\% of the time, as p-values between 0.04 and 0.03 and so on.
+When there is a true effect, more small p-values are observed than larger ones.
+When there is no effet and there are QRPs, more p-values are observed closer to 0.05 than further away.
+
+How to go from this intuition to testing for the existence of evidential value?
+One first very simple approach would simply be to separate the set of statistically significant p-values $\left[0,0.05\right]$ in half.
+In the absence of effect and of QRPs, the probability that a statistically significant p-value falls into one of these two sets ($\left[0,0.025\right]$ and $\left]0.025,0.05\right]$) is 0.5.
+Comparing the actual proportion of p-values falling in these sets to the theoretical uniform value gives a first simple test of evidential value.
+
+A rigorous test can be built by computing the probability that an event such as observed would have happened under the null of no effect and no QRPs. 
+This can be done using the Binomial law, since under the null of no effect and no QRPs, $X$, the number of results falling in the $\left]0.025,0.05\right]$ set, follows a binomial $Bi(n,p)$, with $n$ the number of studies and $p=0.5$.
+The probability of observing $x$ studies among $n$ in the $\left]0.025,0.05\right]$ set is thus $\Pr(X=x)=b(x,n,p)$, where $b(x,n,p)$ is the density of the binomial distribution.
+The probability of observing $x$ studies or more among $n$ in the $\left]0.025,0.05\right]$ set is $\Pr(X\geq x)=1-B(x-1,n,p)$, where $B(x,n,p)$ is the cumulative of the binomial distribution.
+
+For example, if we have 6 studies, with five of them falling in the $\left]0.025,0.05\right]$ set, we have $5/6=$ `r round(100*5/6,0)` \% of studies close to 0.05.
+Under the null of no effect and no QRPs, this would have happened with probability  `r round(dbinom(5,6,0.5),2)` and this or something worse would have happened with probability `r round(1-pbinom(5-1,6,0.5),2)`.
+This is not definitive evidence against the null, but we're getting there.
+
+Another test use the distribution of the p-values of the p-values, or pp-value.
+
+
+
+
+
+
+
 
 #### Z-curving 
 
