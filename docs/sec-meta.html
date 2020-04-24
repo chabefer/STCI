@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-04-23" />
+<meta name="date" content="2020-04-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1796,9 +1796,92 @@ This can be done using the Binomial law, since under the null of no effect and n
 The probability of observing <span class="math inline">\(x\)</span> studies among <span class="math inline">\(n\)</span> in the <span class="math inline">\(\left]0.025,0.05\right]\)</span> set is thus <span class="math inline">\(\Pr(X=x)=b(x,n,p)\)</span>, where <span class="math inline">\(b(x,n,p)\)</span> is the density of the binomial distribution.
 The probability of observing <span class="math inline">\(x\)</span> studies or more among <span class="math inline">\(n\)</span> in the <span class="math inline">\(\left]0.025,0.05\right]\)</span> set is <span class="math inline">\(\Pr(X\geq x)=1-B(x-1,n,p)\)</span>, where <span class="math inline">\(B(x,n,p)\)</span> is the cumulative of the binomial distribution.</p>
 <p>For example, if we have 6 studies, with five of them falling in the <span class="math inline">\(\left]0.025,0.05\right]\)</span> set, we have <span class="math inline">\(5/6=\)</span> 83 % of studies close to 0.05.
-Under the null of no effect and no QRPs, this would have happened with probability 0.09 and this or something worse would have happened with probability 0.11.
-This is not definitive evidence against the null, but we’re getting there.</p>
-<p>Another test use the p-value of the p-values, or pp-value.</p>
+Under the null of no effect and no QRPs, this would have happened with probability 0.09.
+If we define the alternative to be the existence of QRPs, this or something worse (meaning more QRPs) would have happened with probability 0.11.
+This is not definitive evidence against the null and in favor of QRPs, but we’re getting there.
+If we define the alternative as being a true effect, we would obtain the same results per symmetry of the binomail distribution.
+Let’s write a function that takes a vector of p-values and returns the binomial test statistic and p-value for the null of no effect and no QRPs.</p>
+<div class="sourceCode" id="cb176"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb176-1" data-line-number="1">pcurve.binom &lt;-<span class="st"> </span><span class="cf">function</span>(pvalues,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>){</a>
+<a class="sourceLine" id="cb176-2" data-line-number="2">  p.upper &lt;-<span class="st"> </span><span class="kw">ifelse</span>(pvalues<span class="op">&gt;</span><span class="fl">0.025</span>,<span class="dv">1</span>,<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb176-3" data-line-number="3">  p.lower &lt;-<span class="st"> </span><span class="kw">ifelse</span>(pvalues<span class="op">&lt;=</span><span class="fl">0.025</span>,<span class="dv">1</span>,<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb176-4" data-line-number="4">  pbinom.True &lt;-<span class="st"> </span><span class="kw">pbinom</span>(<span class="kw">sum</span>(p.lower),<span class="kw">length</span>(pvalues),<span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb176-5" data-line-number="5">  <span class="cf">if</span> (alter<span class="op">==</span><span class="st">&#39;QRP&#39;</span>){</a>
+<a class="sourceLine" id="cb176-6" data-line-number="6">    pbinom.True &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">-</span><span class="kw">pbinom</span>(<span class="kw">sum</span>(p.upper)<span class="op">-</span><span class="dv">1</span>,<span class="kw">length</span>(pvalues),<span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb176-7" data-line-number="7">  }</a>
+<a class="sourceLine" id="cb176-8" data-line-number="8">  <span class="kw">return</span>(pbinom.True)</a>
+<a class="sourceLine" id="cb176-9" data-line-number="9">}</a></code></pre></div>
+<p>Another test use the distribution of the p-values of the p-values, or pp-value.
+The test works as follows.
+Let’s say you have a set of p-values <span class="math inline">\(p_i\)</span>.
+For each <span class="math inline">\(p_i\)</span>, compute the probability to observe this p-value or a more extreme one if the null were true.
+This is not too hard since <span class="math inline">\(p_i\)</span> is distributed uniformly on <span class="math inline">\(\left[0,0.05\right]\)</span> under the null and thus both its density and cumulative are known.
+The only twist you have to pay attention to is how you define extreme.
+This depends on what is your alternative hypothesis.
+If you are comparing the null to a case with QRPs, then more extreme means a p-value closer to 0.05.
+If you are comparing the null to a case where there is a true effect, then more extreme means a p-value closer to 0.
+In the latter case, the pp-value of <span class="math inline">\(p_i=p_k\)</span> is <span class="math inline">\(pp^r_k=\Pr(p_i\leq p)=p_k/0.05\)</span>, from the cumulative of a uniform.
+In the former case, the pp-value of <span class="math inline">\(p_i=p_k\)</span> is <span class="math inline">\(pp^l_k=\Pr(p_i\geq p)=1-p_k/0.05\)</span>.
+Now, you can aggregate the pp-values using Fisher’s method: <span class="math inline">\(F_{pp}^s=-2\sum_k\ln(pp^s_k)\)</span>, for <span class="math inline">\(s\in\left\{l,r\right\}\)</span>.
+<span class="math inline">\(F_{pp}^s\)</span> is distributed <span class="math inline">\(\chi^2(2k)\)</span> under the null.</p>
+<div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb177-1" data-line-number="1">pp.test &lt;-<span class="st"> </span><span class="cf">function</span>(pvalues,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>){</a>
+<a class="sourceLine" id="cb177-2" data-line-number="2">  pp &lt;-<span class="st"> </span>pvalues<span class="op">/</span><span class="fl">0.05</span></a>
+<a class="sourceLine" id="cb177-3" data-line-number="3">  <span class="cf">if</span> (alter<span class="op">==</span><span class="st">&#39;QRP&#39;</span>){</a>
+<a class="sourceLine" id="cb177-4" data-line-number="4">    pp &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">-</span>pp</a>
+<a class="sourceLine" id="cb177-5" data-line-number="5">  }</a>
+<a class="sourceLine" id="cb177-6" data-line-number="6">  Fpp &lt;-<span class="st"> </span><span class="dv">-2</span><span class="op">*</span><span class="kw">sum</span>(<span class="kw">log</span>(pp))</a>
+<a class="sourceLine" id="cb177-7" data-line-number="7">  dfChis &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">length</span>(pvalues)</a>
+<a class="sourceLine" id="cb177-8" data-line-number="8">  pChisquare.Fpp &lt;-<span class="st"> </span><span class="kw">pchisq</span>(Fpp,dfChis,<span class="dt">lower.tail=</span>F)</a>
+<a class="sourceLine" id="cb177-9" data-line-number="9">  qChisquare<span class="fl">.5</span> &lt;-<span class="st"> </span><span class="kw">qchisq</span>(<span class="fl">0.05</span>,dfChis,<span class="dt">lower.tail=</span>F)</a>
+<a class="sourceLine" id="cb177-10" data-line-number="10">  <span class="kw">return</span>(<span class="kw">c</span>(pChisquare.Fpp,Fpp,dfChis,qChisquare<span class="fl">.5</span>))</a>
+<a class="sourceLine" id="cb177-11" data-line-number="11">}</a></code></pre></div>
+<p>Imagine for example that we have three studies with p-values 0.001, 0.002 and 0.04.
+Let’s compute the test against both alternatives:</p>
+<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb178-1" data-line-number="1">pvalex &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.001</span>,<span class="fl">0.002</span>,<span class="fl">0.04</span>)</a>
+<a class="sourceLine" id="cb178-2" data-line-number="2">p.binom.test.True &lt;-<span class="st"> </span><span class="kw">pcurve.binom</span>(pvalex,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>)</a>
+<a class="sourceLine" id="cb178-3" data-line-number="3">p.binom.test.QRP &lt;-<span class="st"> </span><span class="kw">pcurve.binom</span>(pvalex,<span class="dt">alter=</span><span class="st">&#39;QRP&#39;</span>)</a>
+<a class="sourceLine" id="cb178-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb178-5" data-line-number="5">pp.ex.QRP &lt;-<span class="st"> </span><span class="kw">pp.test</span>(pvalex,<span class="dt">alter=</span><span class="st">&#39;QRP&#39;</span>)</a>
+<a class="sourceLine" id="cb178-6" data-line-number="6">pp.ex.True &lt;-<span class="st"> </span><span class="kw">pp.test</span>(pvalex,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>)</a></code></pre></div>
+<p>The Chi-square statistic against QRPs is 3.34 and the corresponding p-value is 0.76.
+The Chi-square statistic against a true effect is 14.71 and the corresponding p-value is 0.02.</p>
+<p>There is a last test based on the p-curve tool that compares the actual distribution of statistically significant p-values to that that would be generated by a real but small effect, one that we would be powered to detect in only 33% of the samples.
+The test simply reverses the null and alternative of the previous test when the alternative was that there exists a true effect.
+I do not really see what one has to gain from this additional test so I’m going to abstain from encoding for now.
+It uses non-central distributions to compute the pp-values.</p>
+<p><strong><span class="smallcaps">Code the additional pp-value test.</span></strong></p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-168" class="example"><strong>Example 13.16  </strong></span>Let’s see how these tests work in our example.
+</div>
+
+<p>We first have to compute the p-values for each statistically significant effect.
+Then, we can implement our tests.</p>
+<div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb179-1" data-line-number="1">data.meta<span class="op">$</span>p.FE &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES)),<span class="dt">lower.tail=</span>F)</a>
+<a class="sourceLine" id="cb179-2" data-line-number="2">data.meta<span class="op">$</span>p.RE &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES)),<span class="dt">lower.tail=</span>F)</a>
+<a class="sourceLine" id="cb179-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb179-4" data-line-number="4">pvalex.FE &lt;-<span class="st"> </span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>ES<span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>p.FE</a>
+<a class="sourceLine" id="cb179-5" data-line-number="5">pvalex.RE &lt;-<span class="st"> </span><span class="kw">filter</span>(data.meta,id<span class="op">&lt;=</span><span class="dv">17</span>,<span class="kw">abs</span>(data.meta<span class="op">$</span>theta<span class="fl">.1</span><span class="op">/</span><span class="kw">sqrt</span>(data.meta<span class="op">$</span>var.ES))<span class="op">&gt;=</span><span class="kw">qnorm</span>((<span class="dv">1</span><span class="op">+</span>delta<span class="fl">.2</span>)<span class="op">/</span><span class="dv">2</span>))<span class="op">$</span>p.RE</a>
+<a class="sourceLine" id="cb179-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb179-7" data-line-number="7">p.binom.test.True.FE &lt;-<span class="st"> </span><span class="kw">pcurve.binom</span>(pvalex.FE,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>)</a>
+<a class="sourceLine" id="cb179-8" data-line-number="8">p.binom.test.QRP.FE &lt;-<span class="st"> </span><span class="kw">pcurve.binom</span>(pvalex.FE,<span class="dt">alter=</span><span class="st">&#39;QRP&#39;</span>)</a>
+<a class="sourceLine" id="cb179-9" data-line-number="9">pp.ex.QRP.FE &lt;-<span class="st"> </span><span class="kw">pp.test</span>(pvalex.FE,<span class="dt">alter=</span><span class="st">&#39;QRP&#39;</span>)</a>
+<a class="sourceLine" id="cb179-10" data-line-number="10">pp.ex.True.FE &lt;-<span class="st"> </span><span class="kw">pp.test</span>(pvalex.FE,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>)</a>
+<a class="sourceLine" id="cb179-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb179-12" data-line-number="12">p.binom.test.True.RE &lt;-<span class="st"> </span><span class="kw">pcurve.binom</span>(pvalex.RE,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>)</a>
+<a class="sourceLine" id="cb179-13" data-line-number="13">p.binom.test.QRP.RE &lt;-<span class="st"> </span><span class="kw">pcurve.binom</span>(pvalex.RE,<span class="dt">alter=</span><span class="st">&#39;QRP&#39;</span>)</a>
+<a class="sourceLine" id="cb179-14" data-line-number="14">pp.ex.QRP.RE &lt;-<span class="st"> </span><span class="kw">pp.test</span>(pvalex.RE,<span class="dt">alter=</span><span class="st">&#39;QRP&#39;</span>)</a>
+<a class="sourceLine" id="cb179-15" data-line-number="15">pp.ex.True.RE &lt;-<span class="st"> </span><span class="kw">pp.test</span>(pvalex.RE,<span class="dt">alter=</span><span class="st">&#39;True&#39;</span>)</a></code></pre></div>
+<p>In the homogeneous effects case, the p-value of the null of an absence of an effect versus QRPs is of 0.76.
+The p-value of a null of an absence of an effect versus a true effect is 0.
+In the heterogeneous effects case, the p-value of a null of an absence of an effect versus QRPs is of 1 while the test statistic of a null of an absence of an effect versus a true effect is 0.
+In both case, we clearly reject the absence of an effect.
+As a consequence, the set of p-values has evidential value.
+We also reject the existence of QRPs.
+That means that there is no p-hacking creating an undue mass of p-values close to 0.05, but that does not mean that there is no publicaiton bias.
+P-curving has nothing to say about publication bias.
+It can only say whether there is a true effect or not and whether there are signs of QRPs.</p>
+<p>A cool way to present the results of p-curving is to draw the density of the statistically significant p-values against a uniform and the density that would occur under 33% power.</p>
+<p>TO DO</p>
 </div>
 </div>
 <div id="z-curving" class="section level4">

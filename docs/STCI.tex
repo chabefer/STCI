@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-04-23}
+    \date{2020-04-24}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -8850,10 +8850,120 @@ The probability of observing \(x\) studies among \(n\) in the \(\left]0.025,0.05
 The probability of observing \(x\) studies or more among \(n\) in the \(\left]0.025,0.05\right]\) set is \(\Pr(X\geq x)=1-B(x-1,n,p)\), where \(B(x,n,p)\) is the cumulative of the binomial distribution.
 
 For example, if we have 6 studies, with five of them falling in the \(\left]0.025,0.05\right]\) set, we have \(5/6=\) 83 \% of studies close to 0.05.
-Under the null of no effect and no QRPs, this would have happened with probability 0.09 and this or something worse would have happened with probability 0.11.
-This is not definitive evidence against the null, but we're getting there.
+Under the null of no effect and no QRPs, this would have happened with probability 0.09.
+If we define the alternative to be the existence of QRPs, this or something worse (meaning more QRPs) would have happened with probability 0.11.
+This is not definitive evidence against the null and in favor of QRPs, but we're getting there.
+If we define the alternative as being a true effect, we would obtain the same results per symmetry of the binomail distribution.
+Let's write a function that takes a vector of p-values and returns the binomial test statistic and p-value for the null of no effect and no QRPs.
 
-Another test use the p-value of the p-values, or pp-value.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pcurve.binom <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(pvalues,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)\{}
+\NormalTok{  p.upper <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(pvalues}\OperatorTok{>}\FloatTok{0.025}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  p.lower <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(pvalues}\OperatorTok{<=}\FloatTok{0.025}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{  pbinom.True <-}\StringTok{ }\KeywordTok{pbinom}\NormalTok{(}\KeywordTok{sum}\NormalTok{(p.lower),}\KeywordTok{length}\NormalTok{(pvalues),}\FloatTok{0.5}\NormalTok{)}
+  \ControlFlowTok{if}\NormalTok{ (alter}\OperatorTok{==}\StringTok{'QRP'}\NormalTok{)\{}
+\NormalTok{    pbinom.True <-}\StringTok{ }\DecValTok{1}\OperatorTok{-}\KeywordTok{pbinom}\NormalTok{(}\KeywordTok{sum}\NormalTok{(p.upper)}\OperatorTok{-}\DecValTok{1}\NormalTok{,}\KeywordTok{length}\NormalTok{(pvalues),}\FloatTok{0.5}\NormalTok{)}
+\NormalTok{  \}}
+  \KeywordTok{return}\NormalTok{(pbinom.True)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Another test use the distribution of the p-values of the p-values, or pp-value.
+The test works as follows.
+Let's say you have a set of p-values \(p_i\).
+For each \(p_i\), compute the probability to observe this p-value or a more extreme one if the null were true.
+This is not too hard since \(p_i\) is distributed uniformly on \(\left[0,0.05\right]\) under the null and thus both its density and cumulative are known.
+The only twist you have to pay attention to is how you define extreme.
+This depends on what is your alternative hypothesis.
+If you are comparing the null to a case with QRPs, then more extreme means a p-value closer to 0.05.
+If you are comparing the null to a case where there is a true effect, then more extreme means a p-value closer to 0.
+In the latter case, the pp-value of \(p_i=p_k\) is \(pp^r_k=\Pr(p_i\leq p)=p_k/0.05\), from the cumulative of a uniform.
+In the former case, the pp-value of \(p_i=p_k\) is \(pp^l_k=\Pr(p_i\geq p)=1-p_k/0.05\).
+Now, you can aggregate the pp-values using Fisher's method: \(F_{pp}^s=-2\sum_k\ln(pp^s_k)\), for \(s\in\left\{l,r\right\}\).
+\(F_{pp}^s\) is distributed \(\chi^2(2k)\) under the null.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pp.test <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(pvalues,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)\{}
+\NormalTok{  pp <-}\StringTok{ }\NormalTok{pvalues}\OperatorTok{/}\FloatTok{0.05}
+  \ControlFlowTok{if}\NormalTok{ (alter}\OperatorTok{==}\StringTok{'QRP'}\NormalTok{)\{}
+\NormalTok{    pp <-}\StringTok{ }\DecValTok{1}\OperatorTok{-}\NormalTok{pp}
+\NormalTok{  \}}
+\NormalTok{  Fpp <-}\StringTok{ }\DecValTok{-2}\OperatorTok{*}\KeywordTok{sum}\NormalTok{(}\KeywordTok{log}\NormalTok{(pp))}
+\NormalTok{  dfChis <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{length}\NormalTok{(pvalues)}
+\NormalTok{  pChisquare.Fpp <-}\StringTok{ }\KeywordTok{pchisq}\NormalTok{(Fpp,dfChis,}\DataTypeTok{lower.tail=}\NormalTok{F)}
+\NormalTok{  qChisquare}\FloatTok{.5}\NormalTok{ <-}\StringTok{ }\KeywordTok{qchisq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,dfChis,}\DataTypeTok{lower.tail=}\NormalTok{F)}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(pChisquare.Fpp,Fpp,dfChis,qChisquare}\FloatTok{.5}\NormalTok{))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Imagine for example that we have three studies with p-values 0.001, 0.002 and 0.04.
+Let's compute the test against both alternatives:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pvalex <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{0.001}\NormalTok{,}\FloatTok{0.002}\NormalTok{,}\FloatTok{0.04}\NormalTok{)}
+\NormalTok{p.binom.test.True <-}\StringTok{ }\KeywordTok{pcurve.binom}\NormalTok{(pvalex,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)}
+\NormalTok{p.binom.test.QRP <-}\StringTok{ }\KeywordTok{pcurve.binom}\NormalTok{(pvalex,}\DataTypeTok{alter=}\StringTok{'QRP'}\NormalTok{)}
+
+\NormalTok{pp.ex.QRP <-}\StringTok{ }\KeywordTok{pp.test}\NormalTok{(pvalex,}\DataTypeTok{alter=}\StringTok{'QRP'}\NormalTok{)}
+\NormalTok{pp.ex.True <-}\StringTok{ }\KeywordTok{pp.test}\NormalTok{(pvalex,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The Chi-square statistic against QRPs is 3.34 and the corresponding p-value is 0.76.
+The Chi-square statistic against a true effect is 14.71 and the corresponding p-value is 0.02.
+
+There is a last test based on the p-curve tool that compares the actual distribution of statistically significant p-values to that that would be generated by a real but small effect, one that we would be powered to detect in only 33\% of the samples.
+The test simply reverses the null and alternative of the previous test when the alternative was that there exists a true effect.
+I do not really see what one has to gain from this additional test so I'm going to abstain from encoding for now.
+It uses non-central distributions to compute the pp-values.
+
+\textbf{\textsc{Code the additional pp-value test.}}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's see how these tests work in our example.
+\EndKnitrBlock{example}
+
+We first have to compute the p-values for each statistically significant effect.
+Then, we can implement our tests.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data.meta}\OperatorTok{$}\NormalTok{p.FE <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{pnorm}\NormalTok{(}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)),}\DataTypeTok{lower.tail=}\NormalTok{F)}
+\NormalTok{data.meta}\OperatorTok{$}\NormalTok{p.RE <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\KeywordTok{pnorm}\NormalTok{(}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)),}\DataTypeTok{lower.tail=}\NormalTok{F)}
+
+\NormalTok{pvalex.FE <-}\StringTok{ }\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{p.FE}
+\NormalTok{pvalex.RE <-}\StringTok{ }\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{p.RE}
+
+\NormalTok{p.binom.test.True.FE <-}\StringTok{ }\KeywordTok{pcurve.binom}\NormalTok{(pvalex.FE,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)}
+\NormalTok{p.binom.test.QRP.FE <-}\StringTok{ }\KeywordTok{pcurve.binom}\NormalTok{(pvalex.FE,}\DataTypeTok{alter=}\StringTok{'QRP'}\NormalTok{)}
+\NormalTok{pp.ex.QRP.FE <-}\StringTok{ }\KeywordTok{pp.test}\NormalTok{(pvalex.FE,}\DataTypeTok{alter=}\StringTok{'QRP'}\NormalTok{)}
+\NormalTok{pp.ex.True.FE <-}\StringTok{ }\KeywordTok{pp.test}\NormalTok{(pvalex.FE,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)}
+
+\NormalTok{p.binom.test.True.RE <-}\StringTok{ }\KeywordTok{pcurve.binom}\NormalTok{(pvalex.RE,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)}
+\NormalTok{p.binom.test.QRP.RE <-}\StringTok{ }\KeywordTok{pcurve.binom}\NormalTok{(pvalex.RE,}\DataTypeTok{alter=}\StringTok{'QRP'}\NormalTok{)}
+\NormalTok{pp.ex.QRP.RE <-}\StringTok{ }\KeywordTok{pp.test}\NormalTok{(pvalex.RE,}\DataTypeTok{alter=}\StringTok{'QRP'}\NormalTok{)}
+\NormalTok{pp.ex.True.RE <-}\StringTok{ }\KeywordTok{pp.test}\NormalTok{(pvalex.RE,}\DataTypeTok{alter=}\StringTok{'True'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+In the homogeneous effects case, the p-value of the null of an absence of an effect versus QRPs is of 0.76.
+The p-value of a null of an absence of an effect versus a true effect is 0.
+In the heterogeneous effects case, the p-value of a null of an absence of an effect versus QRPs is of 1 while the test statistic of a null of an absence of an effect versus a true effect is 0.
+In both case, we clearly reject the absence of an effect.
+As a consequence, the set of p-values has evidential value.
+We also reject the existence of QRPs.
+That means that there is no p-hacking creating an undue mass of p-values close to 0.05, but that does not mean that there is no publicaiton bias.
+P-curving has nothing to say about publication bias.
+It can only say whether there is a true effect or not and whether there are signs of QRPs.
+
+A cool way to present the results of p-curving is to draw the density of the statistically significant p-values against a uniform and the density that would occur under 33\% power.
+
+TO DO
 
 \hypertarget{z-curving}{%
 \subsubsection{Z-curving}\label{z-curving}}
