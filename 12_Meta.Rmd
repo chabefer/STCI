@@ -1235,9 +1235,11 @@ Let's now look at what happens when we are in a random effects world.
 ```{r FATPETPEESERE,dependson=c('monte.carlo'),eval=TRUE,echo=TRUE,results='markup',warning=FALSE,error=FALSE,message=FALSE}
 FAT.PET.RE.interm <- rma(theta.1 ~ sqrt(var.ES), data= filter(data.meta,id<=17),vi=filter(data.meta,id<=17)$var.ES,method="REML")
 FAT.PET.RE.interm.pubbias <- rma(theta.1 ~ sqrt(var.ES), data = filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)),vi=filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES,method="REML")
+FAT.PET.RE.interm.pubbias.pos <- rma(theta.1 ~ sqrt(var.ES), data = filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2),data.meta$theta.1>0),vi=filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2),data.meta$theta.1>0)$var.ES,method="REML")
 
 PEESE.RE.interm <- rma(theta.1 ~ var.ES, data= filter(data.meta,id<=17),vi=filter(data.meta,id<=17)$var.ES,method="REML")
 PEESE.RE.interm.pubbias <- rma(theta.1 ~ var.ES, data = filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2)),vi=filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES,method="REML")
+PEESE.RE.interm.pubbias.pos <- rma(theta.1 ~ var.ES, data = filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2),data.meta$theta.1>0),vi=filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2),data.meta$theta.1>0)$var.ES,method="REML")
 
 summary(FAT.PET.RE.interm)
 summary(FAT.PET.RE.interm.pubbias)
@@ -1298,15 +1300,27 @@ plot(filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnor
 abline(h=ES(param),col="red")
 abline(h=coef(meta.example.RE.interm.pubbias),col="green")
 curve((coef(FAT.PET.RE.interm.pubbias)[1]+coef(FAT.PET.RE.interm.pubbias)[2]*x),col="blue", add = TRUE)
+curve((coef(FAT.PET.RE.interm.pubbias.pos)[1]+coef(FAT.PET.RE.interm.pubbias.pos)[2]*x),col="blue",lty=4, add = TRUE)
 curve(expr=coef(PEESE.RE.interm.pubbias)[1]+coef(PEESE.RE.interm.pubbias)[2]*x^2,col="blue",lty=2,add = TRUE)
+curve(expr=coef(PEESE.RE.interm.pubbias.pos)[1]+coef(PEESE.RE.interm.pubbias.pos)[2]*x^2,col="blue",lty=3,add = TRUE)
 legend("bottomright",
-       legend = c("Truth", "Meta","FAT-PET","PEESE"),
-       col = c('red', 'green','blue','blue'),
-       lty= c(1,1,1,2),
+       legend = c("Truth", "Meta","FAT-PET","FAT-PET+","PEESE","PEESE+"),
+       col = c('red', 'green','blue','blue','blue','blue'),
+       lty= c(1,1,1,4,2,3),
        bg = "white")
 ```
 
 On Figure \@ref(fig:FunnelPlotREPETPEESE), we see how PET and PEESE operate to deliver an estimate corrected for publication bias: they fit a line (PET) or a curve (PEESE) and use the intercept of this line or curve as an estimate of the true treatment effect. 
+The plot for the hetergeneous treatment effects case suggests that both FAT-PET and PEESE are biased by a statistically significant negative result.
+I think there is a good case to be made for focusing only on results of the same sign when using these tools.
+When we get rid of that observation from the sample, the FAT estimate of the coefficient for the standard error in the meta-analytic regression is `r round(coef(FAT.PET.RE.interm.pubbias.pos)[2],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm.pubbias.pos)$se[2],2)`. 
+The PET estimate is now `r round(coef(FAT.PET.RE.interm.pubbias.pos)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(FAT.PET.RE.interm.pubbias.pos)$se[1],2)`.
+The PEESE estimates an effect of `r round(coef(PEESE.RE.interm.pubbias.pos)[1],2)` $\pm$ `r round(qnorm((delta.2+1)/2)*summary(PEESE.RE.interm.pubbias.pos)$se[1],2)`.
+This correction does not seem to improve the estimator much in our example.
+
+Nevertheless, it is worth to investigate further how PEESE behaves when observations from the over side of zero enter the picture. 
+They seem to introduce a lot of noise. 
+I'd advocate for always using only values from one side, but we need theory and simulations to prove that intuition.
 
 #### P-curving
 
@@ -1442,8 +1456,87 @@ P-curving has nothing to say about publication bias.
 It can only say whether there is a true effect or not and whether there are signs of QRPs.
 
 A cool way to present the results of p-curving is to draw the density of the statistically significant p-values against a uniform and the density that would occur under 33\% power.
+Let me try and build such a graph in our example.
+First, we have to split the overall set $\left[0,0.05\right]$ into equal-sized p-values bins, lets say $\left[0,0.01\right[$, $\left[0.01,0.02\right[$, $\left[0.02,0.03\right[$, $\left[0.03,0.04\right[$, $\left[0.04,0.05\right]$.
+I'm gonna name each interval after its higher end point.
+Second, we have to compute how many of our observations fall in each of the bins.
+Third, just plot the corresponding density.
 
-TO DO
+The addition of the density of p-values if the real test had 33\% power is slightly more involved, because it requires the notions of power and MDE that we studied in Chapter \@ref(Power).
+As in Chapter \@ref(Power), we're going to use the CLT approximation to the distribution of the treatment effect estimate over sampling replications.
+The key idea is to recognize that, with a power of $\kappa$ for a two-sided test, the distribution is a standard normal centered at $MDE_{\kappa,\alpha}=\Phi^{-1}(\kappa)+\Phi^{-1}(1-\alpha/2)$.
+This is an approximation that assumes away the mass of the distribution that lies below zero.
+This appromixation is useful since it delivers closed form solutions and it most of the time is accurate enough. 
+The lower below $\kappa=$ 33\% we're going, the likelier it is that this approximation is at fault. 
+Now, the probability that this distribution gives a p-value of 0.05 or smaller for a two-sided test of the true effect being zero with size 5\% is equal to $\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-\alpha/2))=\kappa$ by definition.
+The probability that it gives a p-value of $p$ for the same test is of $\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-p/2))$.
+Conditionnal on having a p-value inferior to 5\% (\textit{i.e.} a statistically significant result), the probability of having a p-value between $p_1$ and $p_2$ (\textit{i.e.} the pp-value) is thus: 
+
+\begin{align*}
+  pp_{\kappa,\alpha}(p_1,p_2) & = \frac{1}{\kappa}\left(\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-p_2/2))-\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-p_1/2))\right).
+\end{align*}
+
+Let's write a function that gives us this result.
+
+```{r ppCurvePower,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+MDE.var <- function(alpha=0.05,kappa=0.33,varE=1){
+  return((qnorm(kappa)+qnorm(1-alpha/2))*sqrt(varE))
+}
+
+ppCurvePower <- function(p1,p2,alpha=0.05,kappa=0.33,varE=1){
+  return((pnorm(MDE.var(alpha=alpha,kappa=kappa)-qnorm(1-p2/2))
+          -pnorm(MDE.var(alpha=alpha,kappa=kappa)-qnorm(1-p1/2)))/kappa)
+}
+```
+
+Now, let's plot the p-curve plot.
+
+```{r pCurvePlot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='P-curve plot in our example', fig.align='center',out.width='50%',fig.pos='htbp',fig.height=8,fig.width=12}
+pCurve.hist <- function(pvalues,power=.33){
+  dens1 <- sum(ifelse(abs(pvalues-0.005)<0.005,1,0)/length(pvalues))
+  dens2 <- sum(ifelse(abs(pvalues-0.015)<0.005,1,0)/length(pvalues))
+  dens3 <- sum(ifelse(abs(pvalues-0.025)<0.005,1,0)/length(pvalues))
+  dens4 <- sum(ifelse(abs(pvalues-0.035)<0.005,1,0)/length(pvalues))
+  dens5 <- sum(ifelse(abs(pvalues-0.045)<0.005,1,0)/length(pvalues))
+  dens <- c(dens1,dens2,dens3,dens4,dens5)
+  p.hist.1 <- cbind(c(0.01,0.02,0.03,0.04,0.05),dens)
+  p.hist.1 <- as.data.frame(p.hist.1)
+  colnames(p.hist.1) <- c('p','density')
+  p.hist.1$Data <- c("Observed")
+  p.hist.2 <- cbind(c(0.01,0.02,0.03,0.04,0.05),0.2)
+  p.hist.2 <- as.data.frame(p.hist.2)
+  colnames(p.hist.2) <- c('p','density')
+  p.hist.2$Data <- c("Uniform")
+  dens331 <- ppCurvePower(0,0.01)
+  dens332 <- ppCurvePower(0.01,0.02)
+  dens333 <- ppCurvePower(0.02,0.03)
+  dens334 <- ppCurvePower(0.03,0.04)
+  dens335 <- ppCurvePower(0.04,0.05)
+  dens33 <- c(dens331,dens332,dens333,dens334,dens335)
+  p.hist.3 <- cbind(c(0.01,0.02,0.03,0.04,0.05),dens33)
+  p.hist.3 <- as.data.frame(p.hist.3)
+  colnames(p.hist.3) <- c('p','density')
+  p.hist.3$Data <- c("Power33")
+  p.hist <- rbind(p.hist.1,p.hist.2,p.hist.3)
+  return(p.hist)
+}
+
+p.hist.FE <- pCurve.hist(pvalex.FE)
+p.hist.FE$Effect <- "Homogeneous"
+p.hist.RE <- pCurve.hist(pvalex.RE)
+p.hist.RE$Effect <- "Heterogeneous"
+p.hist.ex <- rbind(p.hist.FE,p.hist.RE)
+p.hist.ex$Effect <- factor(p.hist.ex$Effect,levels=c("Homogeneous","Heterogeneous"))
+p.hist.ex$Data <- factor(p.hist.ex$Data,levels=c("Observed","Uniform","Power33"))
+
+ggplot(data=p.hist.ex, aes(x=p, y=density, color=Data)) +
+    geom_point() +
+    geom_line() +
+    facet_grid(. ~ Effect)+
+    theme_bw()
+```
+
+##### Correction for QRPs and publication bias using p-curving
 
 #### Z-curving 
 
