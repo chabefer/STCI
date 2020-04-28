@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-04-25" />
+<meta name="date" content="2020-04-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1901,15 +1901,15 @@ Second, we have to compute how many of our observations fall in each of the bins
 Third, just plot the corresponding density.</p>
 <p>The addition of the density of p-values if the real test had 33% power is slightly more involved, because it requires the notions of power and MDE that we studied in Chapter <a href="Power.html#Power">7</a>.
 As in Chapter <a href="Power.html#Power">7</a>, we’re going to use the CLT approximation to the distribution of the treatment effect estimate over sampling replications.
-The key idea is to recognize that, with a power of <span class="math inline">\(\kappa\)</span> for a two-sided test, the distribution is a standard normal centered at <span class="math inline">\(MDE_{\kappa,\alpha}=\Phi^{-1}(\kappa)+\Phi^{-1}(1-\alpha/2)\)</span>.
+The key idea is to recognize that, with a power of <span class="math inline">\(\kappa\)</span> for a two-sided test, the distribution of the treatment effect divided by its standard error <span class="math inline">\(\sqrt{V[\hat{E}]}\)</span> is a standard normal centered at <span class="math inline">\(MDE^n_{\kappa,\alpha}=\frac{MDE_{\kappa,\alpha}}{\sqrt{V[\hat{E}]}}=\Phi^{-1}(\kappa)+\Phi^{-1}(1-\alpha/2)\)</span>.
 This is an approximation that assumes away the mass of the distribution that lies below zero.
 This appromixation is useful since it delivers closed form solutions and it most of the time is accurate enough.
 The lower below <span class="math inline">\(\kappa=\)</span> 33% we’re going, the likelier it is that this approximation is at fault.
-Now, the probability that this distribution gives a p-value of 0.05 or smaller for a two-sided test of the true effect being zero with size 5% is equal to <span class="math inline">\(\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-\alpha/2))=\kappa\)</span> by definition.
-The probability that it gives a p-value of <span class="math inline">\(p\)</span> for the same test is of <span class="math inline">\(\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-p/2))\)</span>.
+Now, the probability that this distribution gives a p-value of 0.05 or smaller for a two-sided test of the true effect being zero with size 5% is equal to <span class="math inline">\(\Phi(MDE^n_{\kappa,\alpha}-\Phi^{-1}(1-\alpha/2))=\kappa\)</span> by definition.
+The probability that it gives a p-value of <span class="math inline">\(p\)</span> for the same test is of <span class="math inline">\(\Phi(MDE^n_{\kappa,\alpha}-\Phi^{-1}(1-p/2))\)</span>.
 Conditionnal on having a p-value inferior to 5% ( a statistically significant result), the probability of having a p-value between <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_2\)</span> ( the pp-value) is thus:</p>
 <p><span class="math display">\[\begin{align*}
-  pp_{\kappa,\alpha}(p_1,p_2) &amp; = \frac{1}{\kappa}\left(\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-p_2/2))-\Phi(MDE_{\kappa,\alpha}-\Phi^{-1}(1-p_1/2))\right).
+  pp_{\kappa,\alpha}(p_1,p_2) &amp; = \frac{1}{\kappa}\left(\Phi(MDE^n_{\kappa,\alpha}-\Phi^{-1}(1-p_2/2))-\Phi(MDE^n_{\kappa,\alpha}-\Phi^{-1}(1-p_1/2))\right).
 \end{align*}\]</span></p>
 <p>Let’s write a function that gives us this result.</p>
 <div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb180-1" data-line-number="1">MDE.var &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">alpha=</span><span class="fl">0.05</span>,<span class="dt">kappa=</span><span class="fl">0.33</span>,<span class="dt">varE=</span><span class="dv">1</span>){</a>
@@ -1964,14 +1964,85 @@ Conditionnal on having a p-value inferior to 5% ( a statistically significant re
 <a class="sourceLine" id="cb181-41" data-line-number="41"><span class="st">    </span><span class="kw">facet_grid</span>(. <span class="op">~</span><span class="st"> </span>Effect)<span class="op">+</span></a>
 <a class="sourceLine" id="cb181-42" data-line-number="42"><span class="st">    </span><span class="kw">theme_bw</span>()</a></code></pre></div>
 <div class="figure" style="text-align: center"><span id="fig:pCurvePlot"></span>
-<img src="STCI_files/figure-html/pCurvePlot-1.png" alt="P-curve plot in our example" width="50%" />
+<img src="STCI_files/figure-html/pCurvePlot-1.png" alt="P-curve plot in our example" width="75%" />
 <p class="caption">
 Figure 13.18: P-curve plot in our example
 </p>
 </div>
 </div>
-<div id="correction-for-qrps-and-publication-bias-using-p-curving" class="section level5">
-<h5><span class="header-section-number">13.2.2.3.2</span> Correction for QRPs and publication bias using p-curving</h5>
+<div id="correction-for-publication-bias-using-p-curving" class="section level5">
+<h5><span class="header-section-number">13.2.2.3.2</span> Correction for publication bias using p-curving</h5>
+<p>In a <a href="https://poseidon01.ssrn.com/delivery.php?ID=968120070017096022067095015077090081127015066012065038099103064095066125118101087000019101125033110002058114102117068031082117013010054030001011069073086069105087004037003126007029115080118115116004080116094099076097092111007065003101127024028025084&amp;EXT=pdf">separate paper</a>, Simonsohn, Nelson and Simmons proposed a way to use p-curve to correct treatment effect estimates from publication bias.
+The underlying idea is rather simple, but also brilliant: the shape of the p-curve changes with the true underlying effect.
+It goes from uniform in the absence of any effect to right-skewed when there is an effect.
+The strength of the right-skewness tells us something about the underlying strength of the measured effect.
+For a given sample size, an increase in right-skewness will mean an increasae in effect size.
+The key difficulty is to separate the impact of sample size from that of effect size on the shape of the p-curve.
+Since sample size is known, it should be doable.
+Let’s see how.</p>
+<p>The key technical intuition behind the p-curve approach to correction for publication bias is to notice that the pp-curve computed for the true treatment effect shold be uniform.
+We have seen in the previous section that the pp-curve (the proportion of p-values that fall within identical intervals) is uniform when the true effect is zero.
+If we compute the pp-curve with a different assumption and apply it to the actual p-values that we observe, it is going to be uniform only for the actual treatment effect.
+So the only thing to do is to take all of the significant p-values and to compute their pp-curve for various levels of treatment effect, or, better, to look for the treatment effect that minimizes the distance between the observed pp-curve and a uniform.
+The authors propose to minimize a Kolmogorov-Smirnov metric to do so.</p>
+<p>Let’s first explore the way the concept works.
+For each treatment effect <span class="math inline">\(\hat{\theta}_k\)</span> and its estimated standard error <span class="math inline">\(\hat{\sigma}_k\)</span> we know from the CLT that they are distributed approximately as a normal.
+If we assume that the true treatment effect is <span class="math inline">\(\theta_c\)</span>, with <span class="math inline">\(c\)</span> for candidate value, we know that <span class="math inline">\(\frac{\hat{\theta}_k-\theta_c}{\hat{\sigma}_k}\)</span> is distributed as a centered standardized normal distribution, under the assumption of homogeneous treatment effect across studies.
+Homogeneity is a crucial assumption for the pp-curve approach to correction for publication bias.
+I’ll try to see how we can relax it later, but for now, I’m going to assume <span class="math inline">\(\tau^2=0\)</span>.
+One way to compute the pp-value is to start directly with the treatment effect and its standard error, and to recover the pp-value from there.
+The pp-value is the probability that we have a draw of an estimator <span class="math inline">\(\hat{\theta}\)</span> of mean <span class="math inline">\(\theta_c\)</span> and standard error <span class="math inline">\(\hat{\sigma}_k\)</span> that is greater or equal to <span class="math inline">\(\hat{\theta}_k\)</span> given that it is a statistically significant result:</p>
+<p><span class="math display">\[\begin{align*}
+  pp(\hat{\theta}_k,\hat{\sigma}_k,\theta_c) &amp; = \Pr\left(\hat{\theta}\geq\hat{\theta}_k\left|
+                                            \left|\frac{\hat{\theta}}{\hat{\sigma}_k}\right|
+                                            \geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right.\right).
+\end{align*}\]</span></p>
+<p>Let’s assume that we are only looking at statistically significant results for two-sided t-tests, but that are located on the positive side of the threshold: <span class="math inline">\(\frac{\hat{\sigma}_k}{\hat{\theta}_k}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\)</span>.
+This assumption will be innocuous in most cases of homogeneous treatment effect when the true effect we examine is positive since the mass of the distribution will fall on the positive side of the threshold, especially for significant results.</p>
+<p>How do we compute the pp-value for a candidate value <span class="math inline">\(\theta_c\)</span>?</p>
+
+<div class="theorem">
+<p><span id="thm:ppvalueHomogPos" class="theorem"><strong>Theorem 13.3  (pp-value with homogeneous positive treatment effect)  </strong></span>Under the assumption that the treatment effect is homogeneous across studies and equal to <span class="math inline">\(\theta_c\)</span>, that the estimated effects <span class="math inline">\(\hat{\sigma}_k\)</span> are approximately normally distributed with mean <span class="math inline">\(\theta_c\)</span> and standard error <span class="math inline">\(\hat{\theta}_k\)</span> and that we use only effects are positive and significant at the level <span class="math inline">\(\alpha\)</span> following a two-sided test, the pp-value of a result with estimated effect <span class="math inline">\(\hat{\sigma}_k\)</span> and estimated standard error is:</p>
+<span class="math display">\[\begin{align*}
+  pp(\hat{\theta}_k,\hat{\sigma}_k,\theta_c) &amp; = \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
+                                                      {\Phi\left(\frac{\theta_c}{\hat{\sigma}_k}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}.
+ \end{align*}\]</span>
+</div>
+
+
+<div class="proof">
+<p> <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
+  pp(\hat{\theta}_k,\hat{\sigma}_k,\theta_c) &amp; = \Pr\left(\hat{\theta}\geq\hat{\theta}_k\left|\frac{\hat{\theta}}{\hat{\sigma}_k}
+                                                    \geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right.\right)\\
+                                              &amp; = \frac{\Pr\left(\hat{\theta}\geq\hat{\theta}_k\land\hat{\theta}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k\right)}
+            {\Pr\left(\hat{\theta}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k\right)} \\
+              &amp; = \frac{\Pr\left(\hat{\theta}\geq\hat{\theta}_k\right)}
+            {\Pr\left(\hat{\theta}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k\right)} \\
+  &amp; \approx \frac{1-\Phi\left(\frac{\hat{\theta}_k-\theta_c}{\hat{\sigma}_k}\right)}
+                                                      {1-\Phi\left(\frac{\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k-\theta_c}
+                                                                  {\hat{\sigma}_k}\right)}\\
+ &amp; \approx \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
+                                                      {\Phi\left(\frac{\theta_c}{\hat{\sigma}_k}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}
+\end{align*}\]</span></p>
+The second equality stems from Bayes theorem.
+The third equality stems from the fact that <span class="math inline">\(\hat{\theta}\geq\hat{\theta}_k\Rightarrow\hat{\theta}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k\)</span> since <span class="math inline">\(\hat{\theta}_k\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k\)</span> by assumption.
+The fourth equality stems from using the normality approximation to the distribution of <span class="math inline">\(\hat{\theta}\)</span>.
+The fifth equality uses the usual propertyf of the cumulative of the standardized and centered normal distribution that <span class="math inline">\(1-\Phi(x)=\Phi(-x)\)</span>.
+</div>
+
+<p>First, we know that the p-value stems from a test assuming <span class="math inline">\(\theta_c=0\)</span>.
+As a consequence, <span class="math inline">\(p_0(\hat{\theta}_k,\hat{\sigma}_k)\)</span>, the p-value under the two-sided null of a zero effect can be found using the following formula:</p>
+<p><span class="math display">\[\begin{align*}
+  p_0(\hat{\theta}_k,\hat{\sigma}_k) &amp; = 2\left(1-\Phi\left(\left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right|\right)\right).
+\end{align*}\]</span></p>
+<p>The pp-value is the probability of observing this p-value or a smaller one if the true effect is <span class="math inline">\(\theta_c\)</span>, conditional on observing a statistically significant effect ( <span class="math inline">\(p_0(\hat{\theta}_k,\hat{\sigma}_k)\leq0.05\)</span>).</p>
+<p>invert the p-value under the null to recover the t-statistic, and then to transform the test statistic by using the hypothetized true value and finally to reform a new p-value for this modified distribution and to divide it by the probability of obtaining a significant treatment effect ( power).</p>
+<p><span class="math display">\[\begin{align*}
+  \left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right| &amp; = \Phi^{-1}\left(1-\frac{p_0(\hat{\theta}_k,\hat{\sigma}_k)}{2}\right).
+\end{align*}\]</span></p>
+<p>One problem with this approach is that you have to be very careful with the sign of the estimated treatment effect.
+It also has the problem of going to p-values from treatment effects, and then move back to treatment effects to go to pp-values.
+A simpler approach is to eschew the p-value and</p>
 </div>
 </div>
 <div id="z-curving" class="section level4">
