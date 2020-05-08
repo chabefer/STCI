@@ -1370,7 +1370,6 @@ pcurve.binom <- function(pvalues,alter='True'){
 }
 ```
 
-
 Another test use the distribution of the p-values of the p-values, or pp-value.
 The test works as follows. 
 Let's say you have a set of p-values $p_i$.
@@ -1547,7 +1546,7 @@ The key difficulty is to separate the impact of sample size from that of effect 
 Since sample size is known, it should be doable.
 Let's see how.
 
-The key technical intuition behind the p-curve approach to correction for publication bias is to notice that the pp-curve computed for the true treatment effect shold be uniform.
+The key technical intuition behind the p-curve approach to correction for publication bias is to notice that the pp-curve computed for the true treatment effect should be uniform on $\left[0,1\right]$.
 We have seen in the previous section that the pp-curve (the proportion of p-values that fall within identical intervals) is uniform when the true effect is zero.
 If we compute the pp-curve with a different assumption and apply it to the actual p-values that we observe, it is going to be uniform only for the actual treatment effect.
 So the only thing to do is to take all of the significant p-values and to compute their pp-curve for various levels of treatment effect, or, better, to look for the treatment effect that minimizes the distance between the observed pp-curve and a uniform.
@@ -1573,7 +1572,7 @@ This assumption will be innocuous in most cases of homogeneous treatment effect 
 How do we compute the pp-value for a candidate value $\theta_c$?
 
 ```{theorem,ppvalueHomogPos,name='pp-value with homogeneous positive treatment effect'}
-Under the assumption that the treatment effect is homogeneous across studies and equal to $\theta_c$, that the estimated effects $\hat{\sigma}_k$ are approximately normally distributed with mean $\theta_c$ and standard error $\hat{\theta}_k$ and that we use only effects are positive and significant at the level $\alpha$ following a two-sided test, the pp-value of a result with estimated effect $\hat{\sigma}_k$ and estimated standard error is:
+Under the assumption that the treatment effect is homogeneous across studies and equal to $\theta_c$, that the estimated effects $\hat{\theta}_k$ are approximately normally distributed with mean $\theta_c$ and standard error $\hat{\theta}_k$ and that we use only effects are positive and significant at the level $\alpha$ following a two-sided test, the pp-value of a result with estimated effect $\hat{\theta}_k$ and estimated standard error is $\hat{sigma_k}$:
 
 \begin{align*}
   pp(\hat{\theta}_k,\hat{\sigma}_k,\theta_c) & = \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
@@ -1593,44 +1592,111 @@ Under the assumption that the treatment effect is homogeneous across studies and
                                                       {1-\Phi\left(\frac{\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k-\theta_c}
                                                                   {\hat{\sigma}_k}\right)}\\
  & \approx \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
-                                                      {\Phi\left(\frac{\theta_c}{\hat{\sigma}_k}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}
+                                                      {\Phi\left(\frac{\theta_c}{\hat{\sigma}_k}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}.
 \end{align*}
 
 The second equality stems from Bayes theorem.
 The third equality stems from the fact that $\hat{\theta}\geq\hat{\theta}_k\Rightarrow\hat{\theta}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k$ since $\hat{\theta}_k\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k$ by assumption.
 The fourth equality stems from using the normality approximation to the distribution of $\hat{\theta}$.
-The fifth equality uses the usual propertyf of the cumulative of the standardized and centered normal distribution that $1-\Phi(x)=\Phi(-x)$. 
+The fifth equality uses the usual property of the cumulative of the standardized and centered normal distribution that $1-\Phi(x)=\Phi(-x)$. 
+```
+
+Another way to compute the pp-value is to start from the p-value.
+This approach is especially useful when we do not have access to an estimate of the treatment effect, but only to the p-value of a two-sided t-test and to the sample size. 
+In this case, we can generally only recover the effect size of the treatment effect $d_c$, that is the treatment effect scaled by the standard error of the outcome $\sigma_{Y}$ (under the assumption of homogeneous treatment effects, there is no heteroskedasticity, and the variance of outcomes is identical in both the treatment and control groups). 
+In order to do so, we use the fact that $d_c=\frac{\theta_c}{\sqrt{N}\hat{\sigma_k}}$ since $\hat{\sigma_k}\approx\frac{\sigma_{Y}}{\sqrt{N}}$ for the With/Without estimator without control variables (using the CLT).
+Note that this is a highly restrictive assumption, excluding that the With/Without estimator controls for covariates, or the use of other estimators.
+
+```{corollary,pppvalueHomogPos,name='Building pp-value from p-values'}
+Under the assumption that the effect size is homogeneous across studies and equal to $d_c$, that the estimated effects sizes $\hat{d}_k$ are approximately normally distributed with mean $d_c$, that we use only effects are positive and significant at the level $\alpha$ following a two-sided test, and that $\hat{\sigma_k}\approx\frac{\sigma_{Y}}{\sqrt{N}}$, the pp-value of a result with sample size $N_k$ and p-value $\hat{p}_k$ is:
+
+\begin{align*}
+  pp_p(\hat{p}_k,N_k,d_c) & \approx \frac{\Phi\left(\sqrt{N}d_c-\Phi^{-1}\left(1-\frac{p_k}{2}\right)\right)}
+                                        {\Phi\left(\sqrt{N}d_c-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}.
+ \end{align*}
+```
+
+```{proof}
+From the formula for two-sided t-tests, we have that: 
+  
+\begin{align*}
+  p_k & = 2\left(1-\Phi\left(\left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right|\right)\right).
+\end{align*}
+
+As a consequence:
+  
+\begin{align*}
+  \left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right| & = \Phi^{-1}\left(1-\frac{p_k}{2}\right).
+\end{align*}
+
+Using the assumption that all significant effects are positive, and the fact that $\sqrt{N}d_c\approx\frac{\theta_c}{\hat{\sigma}_k}$ under the assumption that $\hat{\sigma_k}\approx\frac{\sigma_{Y}}{\sqrt{N}}$, we obtain the result by using Theorem \@ref(thm:ppvalueHomogPos).
+```
+
+```{remark}
+Using only positive values is a benefit, since the preferred direction is less likely to have been slectively underreported.
+```
+
+```{remark}
+The authors use Student $t$ distributions instead of a normal approximation.
+This will not matter as loong as sample size is large enough.
+Generalizing the results of this section to Student-$t$ distributions is simple, but the normal approximation should work most of the time. 
+```
+
+```{remark}
+There seems to be a mistake in the numerator in the original paper: the authors subtract power whereas it does not seem to be required.
+```
+
+```{remark}
+The assumption of homogeneous treatment effects is key here: it enables to use the standard normal as an approximation.
+The test has to be modified to account for heterogeneous treatment effects.
+Heterogeneity in treatment effects might bias the estimate.
+```
+
+In order to estimate the parameter $\theta_c$ (or $d_c$ if using p-values only), the authors make use of the fact that, under the true $\theta_c$, the pp-values are uniformly distributed on $\left[0,1\right]$.
+The authors propose to choose the value $\hat{\theta}_c$ that makes the pp-curve as close to a uniform as possible as an estimator of $\theta_c$.
+As a metric for estimating the distance between the observed pp-curve and the uniform $\left[0,1\right]$, the authors propose to use the [Kolmogorov-Smirnov statistic](https://en.wikipedia.org/wiki/Kolmogorov–Smirnov_test): the maximum value of the absolute difference between the empirical cdf of pp-values and the theoretical values of the cdf of the uniform $\left[0,1\right]$.
+The objective function proposed by the authors minimizes this distance.
+
+**<span style="font-variant:small-caps;">Another approach coud use the distance between the observed pp-curve of the previous section and the pp-curve with various levels of power. Once the power is identified, the effect size is identified. Still another approach would be to use the standardized distribution of effects (distributed as a standardized normal) to estimate the mean of the distribution and then recover the treatment effect. </span>**
+
+Let's write the functions to compute just that:
+
+```{r ppCurveEst,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+ppCurveEst <- function(thetac,thetak,sigmak,alpha=0.05){
+  return((pnorm((thetac-thetak)/sigmak)/pnorm(thetac/sigmak-qnorm(1-alpha/2))))
+}
+#KS statistic
+KS.stat.unif <- function(vector){
+  return(ks.test(x=vector,y=punif)$statistic)
+}
+#Estimating thetac that minimizes the KS distance by brute grid search first
+# will program the optimize function after
+ppCurveEstES <- function(thetak,sigmak,thetacl,thetach,alpha=0.05,ngrid=100){
+  # break thetac values in a grid
+  thetac.grid <- seq(from=thetacl,to=thetach,length.out=ngrid)
+  # computes the ppcurve for each point of the grid: outputs a matrix where columns are the ppcurves at each values of thetac
+  ppCurve.grid <- sapply(thetac.grid,ppCurveEst,thetak=thetak,sigmak=sigmak,alpha=alpha)
+  # compute sht KS stat for each value of thetac (over columns)
+  KS.grid <- apply(ppCurve.grid,2,KS.stat.unif)
+  # computes the value of thetac for which the KS stat is minimum (match identifies the rank of the min in the KSgrid)
+  min.theta.c <- thetac.grid[match(min(KS.grid),KS.grid)]
+  # returns the optimal thetac, the grid of thetac, the KS stats on the grid, for potential plot, and the ecdf of ppvalues at the optimum theta for graph against the uniform
+  return(list(min.theta.c,thetac.grid,KS.grid,ecdf(ppCurve.grid[,match(min(KS.grid),KS.grid)])))
+}
+
+test <- ppCurveEstES(thetak=c(4,2,3,1),sigmak=c(1,1,1,0.5),thetacl=0,thetach=10,alpha=0.05,ngrid=100)
+
+plot(test[[2]],test[[3]])
+
+plot(test[[4]])
+curve(punif,add=T)
 ```
 
 
-What about if we have only the p-value and sample size?
 
-Remark that using only positive values is a benefit, sicne the preferred direction is less likely to have been slectively underreported.
-
-Remark that there seems to be a mistake in the numérator in the original paper.
-
-First, we know that the p-value stems from a test assuming $\theta_c=0$.
-As a consequence, $p_0(\hat{\theta}_k,\hat{\sigma}_k)$, the p-value under the two-sided null of a zero effect can be found using the following formula: 
-
-\begin{align*}
-  p_0(\hat{\theta}_k,\hat{\sigma}_k) & = 2\left(1-\Phi\left(\left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right|\right)\right).
-\end{align*}
-
-The pp-value is the probability of observing this p-value or a smaller one if the true effect is $\theta_c$, conditional on observing a statistically significant effect (\textit{i.e.} $p_0(\hat{\theta}_k,\hat{\sigma}_k)\leq0.05$).
-
-
-
-
-invert the p-value under the null to recover the t-statistic, and then to transform the test statistic by using the hypothetized true value and finally to reform a new p-value for this modified distribution and to divide it by the probability of obtaining a significant treatment effect (\textit{a.k.a.} power).
-
-\begin{align*}
-  \left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right| & = \Phi^{-1}\left(1-\frac{p_0(\hat{\theta}_k,\hat{\sigma}_k)}{2}\right).
-\end{align*}
-
-One problem with this approach is that you have to be very careful with the sign of the estimated treatment effect.
-It also has the problem of going to p-values from treatment effects, and then move back to treatment effects to go to pp-values.
-A simpler approach is to eschew the p-value and 
-
+```{example}
+Let's see how this approach works in our example.
+```
 
 
 

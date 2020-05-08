@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-04-28}
+    \date{2020-05-08}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -9081,7 +9081,7 @@ The key difficulty is to separate the impact of sample size from that of effect 
 Since sample size is known, it should be doable.
 Let's see how.
 
-The key technical intuition behind the p-curve approach to correction for publication bias is to notice that the pp-curve computed for the true treatment effect shold be uniform.
+The key technical intuition behind the p-curve approach to correction for publication bias is to notice that the pp-curve computed for the true treatment effect should be uniform on \(\left[0,1\right]\).
 We have seen in the previous section that the pp-curve (the proportion of p-values that fall within identical intervals) is uniform when the true effect is zero.
 If we compute the pp-curve with a different assumption and apply it to the actual p-values that we observe, it is going to be uniform only for the actual treatment effect.
 So the only thing to do is to take all of the significant p-values and to compute their pp-curve for various levels of treatment effect, or, better, to look for the treatment effect that minimizes the distance between the observed pp-curve and a uniform.
@@ -9101,13 +9101,13 @@ The pp-value is the probability that we have a draw of an estimator \(\hat{\thet
                                             \geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right.\right).
 \end{align*}
 
-Let's assume that we are only looking at statistically significant results for two-sided t-tests, but that are located on the positive side of the threshold: \(\frac{\hat{\sigma}_k}{\hat{\theta}_k}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\).
+Let's assume that we are only looking at statistically significant results for two-sided t-tests, but that are located on the positive side of the threshold: \(\frac{\hat{\theta}_k}{\hat{\sigma}_k}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\).
 This assumption will be innocuous in most cases of homogeneous treatment effect when the true effect we examine is positive since the mass of the distribution will fall on the positive side of the threshold, especially for significant results.
 
 How do we compute the pp-value for a candidate value \(\theta_c\)?
 
 \BeginKnitrBlock{theorem}[pp-value with homogeneous positive treatment effect]
-\protect\hypertarget{thm:ppvalueHomogPos}{}{\label{thm:ppvalueHomogPos} \iffalse (pp-value with homogeneous positive treatment effect) \fi{} }Under the assumption that the treatment effect is homogeneous across studies and equal to \(\theta_c\), that the estimated effects \(\hat{\sigma}_k\) are approximately normally distributed with mean \(\theta_c\) and standard error \(\hat{\theta}_k\) and that we use only effects are positive and significant at the level \(\alpha\) following a two-sided test, the pp-value of a result with estimated effect \(\hat{\sigma}_k\) and estimated standard error is:
+\protect\hypertarget{thm:ppvalueHomogPos}{}{\label{thm:ppvalueHomogPos} \iffalse (pp-value with homogeneous positive treatment effect) \fi{} }Under the assumption that the treatment effect is homogeneous across studies and equal to \(\theta_c\), that the estimated effects \(\hat{\theta}_k\) are approximately normally distributed with mean \(\theta_c\) and standard error \(\hat{\theta}_k\) and that we use only effects are positive and significant at the level \(\alpha\) following a two-sided test, the pp-value of a result with estimated effect \(\hat{\theta}_k\) and estimated standard error is \(\hat{sigma_k}\):
 
 \begin{align*}
   pp(\hat{\theta}_k,\hat{\sigma}_k,\theta_c) & = \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
@@ -9127,33 +9127,119 @@ How do we compute the pp-value for a candidate value \(\theta_c\)?
                                                       {1-\Phi\left(\frac{\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k-\theta_c}
                                                                   {\hat{\sigma}_k}\right)}\\
  & \approx \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
-                                                      {\Phi\left(\frac{\theta_c}{\hat{\sigma}_k}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}
+                                                      {\Phi\left(\frac{\theta_c}{\hat{\sigma}_k}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}.
 \end{align*}
 
 The second equality stems from Bayes theorem.
 The third equality stems from the fact that \(\hat{\theta}\geq\hat{\theta}_k\Rightarrow\hat{\theta}\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k\) since \(\hat{\theta}_k\geq\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\hat{\sigma}_k\) by assumption.
 The fourth equality stems from using the normality approximation to the distribution of \(\hat{\theta}\).
-The fifth equality uses the usual propertyf of the cumulative of the standardized and centered normal distribution that \(1-\Phi(x)=\Phi(-x)\).
+The fifth equality uses the usual property of the cumulative of the standardized and centered normal distribution that \(1-\Phi(x)=\Phi(-x)\).
 \EndKnitrBlock{proof}
 
-First, we know that the p-value stems from a test assuming \(\theta_c=0\).
-As a consequence, \(p_0(\hat{\theta}_k,\hat{\sigma}_k)\), the p-value under the two-sided null of a zero effect can be found using the following formula:
+Another way to compute the pp-value is to start from the p-value.
+This approach is especially useful when we do not have access to an estimate of the treatment effect, but only to the p-value of a two-sided t-test and to the sample size.
+In this case, we can generally only recover the effect size of the treatment effect \(d_c\), that is the treatment effect scaled by the standard error of the outcome \(\sigma_{Y}\) (under the assumption of homogeneous treatment effects, there is no heteroskedasticity, and the variance of outcomes is identical in both the treatment and control groups).
+In order to do so, we use the fact that \(d_c=\frac{\theta_c}{\sqrt{N}\hat{\sigma_k}}\) since \(\hat{\sigma_k}\approx\frac{\sigma_{Y}}{\sqrt{N}}\) for the With/Without estimator without control variables (using the CLT).
+Note that this is a highly restrictive assumption, excluding that the With/Without estimator controls for covariates, or the use of other estimators.
+
+\BeginKnitrBlock{corollary}[Building pp-value from p-values]
+\protect\hypertarget{cor:pppvalueHomogPos}{}{\label{cor:pppvalueHomogPos} \iffalse (Building pp-value from p-values) \fi{} }Under the assumption that the effect size is homogeneous across studies and equal to \(d_c\), that the estimated effects sizes \(\hat{d}_k\) are approximately normally distributed with mean \(d_c\), that we use only effects are positive and significant at the level \(\alpha\) following a two-sided test, and that \(\hat{\sigma_k}\approx\frac{\sigma_{Y}}{\sqrt{N}}\), the pp-value of a result with sample size \(N_k\) and p-value \(\hat{p}_k\) is:
 
 \begin{align*}
-  p_0(\hat{\theta}_k,\hat{\sigma}_k) & = 2\left(1-\Phi\left(\left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right|\right)\right).
-\end{align*}
+  pp_p(\hat{p}_k,N_k,d_c) & \approx \frac{\Phi\left(\sqrt{N}d_c-\Phi^{-1}\left(1-\frac{p_k}{2}\right)\right)}
+                                        {\Phi\left(\sqrt{N}d_c-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}.
+ \end{align*}
+\EndKnitrBlock{corollary}
 
-The pp-value is the probability of observing this p-value or a smaller one if the true effect is \(\theta_c\), conditional on observing a statistically significant effect (\textit{i.e.} \(p_0(\hat{\theta}_k,\hat{\sigma}_k)\leq0.05\)).
-
-invert the p-value under the null to recover the t-statistic, and then to transform the test statistic by using the hypothetized true value and finally to reform a new p-value for this modified distribution and to divide it by the probability of obtaining a significant treatment effect (\textit{a.k.a.} power).
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}From the formula for two-sided t-tests, we have that:
 
 \begin{align*}
-  \left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right| & = \Phi^{-1}\left(1-\frac{p_0(\hat{\theta}_k,\hat{\sigma}_k)}{2}\right).
+  p_k & = 2\left(1-\Phi\left(\left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right|\right)\right).
 \end{align*}
 
-One problem with this approach is that you have to be very careful with the sign of the estimated treatment effect.
-It also has the problem of going to p-values from treatment effects, and then move back to treatment effects to go to pp-values.
-A simpler approach is to eschew the p-value and
+As a consequence:
+
+\begin{align*}
+  \left|\frac{\hat{\theta}_k}{\hat{\sigma}_k}\right| & = \Phi^{-1}\left(1-\frac{p_k}{2}\right).
+\end{align*}
+
+Using the assumption that all significant effects are positive, and the fact that \(\sqrt{N}d_c\approx\frac{\theta_c}{\hat{\sigma}_k}\) under the assumption that \(\hat{\sigma_k}\approx\frac{\sigma_{Y}}{\sqrt{N}}\), we obtain the result by using Theorem \ref{thm:ppvalueHomogPos}.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Using only positive values is a benefit, since the preferred direction is less likely to have been slectively underreported.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The authors use Student \(t\) distributions instead of a normal approximation.
+This will not matter as loong as sample size is large enough.
+Generalizing the results of this section to Student-\(t\) distributions is simple, but the normal approximation should work most of the time.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}There seems to be a mistake in the numerator in the original paper: the authors subtract power whereas it does not seem to be required.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The assumption of homogeneous treatment effects is key here: it enables to use the standard normal as an approximation.
+The test has to be modified to account for heterogeneous treatment effects.
+Heterogeneity in treatment effects might bias the estimate.
+\EndKnitrBlock{remark}
+
+In order to estimate the parameter \(\theta_c\) (or \(d_c\) if using p-values only), the authors make use of the fact that, under the true \(\theta_c\), the pp-values are uniformly distributed on \(\left[0,1\right]\).
+The authors propose to choose the value \(\hat{\theta}_c\) that makes the pp-curve as close to a uniform as possible as an estimator of \(\theta_c\).
+As a metric for estimating the distance between the observed pp-curve and the uniform \(\left[0,1\right]\), the authors propose to use the \href{https://en.wikipedia.org/wiki/Kolmogorov–Smirnov_test}{Kolmogorov-Smirnov statistic}: the maximum value of the absolute difference between the empirical cdf of pp-values and the theoretical values of the cdf of the uniform \(\left[0,1\right]\).
+The objective function proposed by the authors minimizes this distance.
+
+\textbf{\textsc{Another approach coud use the distance between the observed pp-curve of the previous section and the pp-curve with various levels of power. Once the power is identified, the effect size is identified. Still another approach would be to use the standardized distribution of effects (distributed as a standardized normal) to estimate the mean of the distribution and then recover the treatment effect. }}
+
+Let's write the functions to compute just that:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ppCurveEst <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(thetac,thetak,sigmak,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{)\{}
+  \KeywordTok{return}\NormalTok{((}\KeywordTok{pnorm}\NormalTok{((thetac}\OperatorTok{-}\NormalTok{thetak)}\OperatorTok{/}\NormalTok{sigmak)}\OperatorTok{/}\KeywordTok{pnorm}\NormalTok{(thetac}\OperatorTok{/}\NormalTok{sigmak}\OperatorTok{-}\KeywordTok{qnorm}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{alpha}\OperatorTok{/}\DecValTok{2}\NormalTok{))))}
+\NormalTok{\}}
+\CommentTok{#KS statistic}
+\NormalTok{KS.stat.unif <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(vector)\{}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{ks.test}\NormalTok{(}\DataTypeTok{x=}\NormalTok{vector,}\DataTypeTok{y=}\NormalTok{punif)}\OperatorTok{$}\NormalTok{statistic)}
+\NormalTok{\}}
+\CommentTok{#Estimating thetac that minimizes the KS distance by brute grid search first}
+\CommentTok{# will program the optimize function after}
+\NormalTok{ppCurveEstES <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(thetak,sigmak,thetacl,thetach,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{ngrid=}\DecValTok{100}\NormalTok{)\{}
+  \CommentTok{# break thetac values in a grid}
+\NormalTok{  thetac.grid <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\DataTypeTok{from=}\NormalTok{thetacl,}\DataTypeTok{to=}\NormalTok{thetach,}\DataTypeTok{length.out=}\NormalTok{ngrid)}
+  \CommentTok{# computes the ppcurve for each point of the grid: outputs a matrix where columns are the ppcurves at each values of thetac}
+\NormalTok{  ppCurve.grid <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(thetac.grid,ppCurveEst,}\DataTypeTok{thetak=}\NormalTok{thetak,}\DataTypeTok{sigmak=}\NormalTok{sigmak,}\DataTypeTok{alpha=}\NormalTok{alpha)}
+  \CommentTok{# compute sht KS stat for each value of thetac (over columns)}
+\NormalTok{  KS.grid <-}\StringTok{ }\KeywordTok{apply}\NormalTok{(ppCurve.grid,}\DecValTok{2}\NormalTok{,KS.stat.unif)}
+  \CommentTok{# computes the value of thetac for which the KS stat is minimum (match identifies the rank of the min in the KSgrid)}
+\NormalTok{  min.theta.c <-}\StringTok{ }\NormalTok{thetac.grid[}\KeywordTok{match}\NormalTok{(}\KeywordTok{min}\NormalTok{(KS.grid),KS.grid)]}
+  \CommentTok{# returns the optimal thetac, the grid of thetac, the KS stats on the grid, for potential plot, and the ecdf of ppvalues at the optimum theta for graph against the uniform}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(min.theta.c,thetac.grid,KS.grid,}\KeywordTok{ecdf}\NormalTok{(ppCurve.grid[,}\KeywordTok{match}\NormalTok{(}\KeywordTok{min}\NormalTok{(KS.grid),KS.grid)])))}
+\NormalTok{\}}
+
+\NormalTok{test <-}\StringTok{ }\KeywordTok{ppCurveEstES}\NormalTok{(}\DataTypeTok{thetak=}\KeywordTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{sigmak=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{),}\DataTypeTok{thetacl=}\DecValTok{0}\NormalTok{,}\DataTypeTok{thetach=}\DecValTok{10}\NormalTok{,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{ngrid=}\DecValTok{100}\NormalTok{)}
+
+\KeywordTok{plot}\NormalTok{(test[[}\DecValTok{2}\NormalTok{]],test[[}\DecValTok{3}\NormalTok{]])}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STCI_files/figure-latex/ppCurveEst-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(test[[}\DecValTok{4}\NormalTok{]])}
+\KeywordTok{curve}\NormalTok{(punif,}\DataTypeTok{add=}\NormalTok{T)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STCI_files/figure-latex/ppCurveEst-2.pdf}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }Let's see how this approach works in our example.
+\EndKnitrBlock{example}
 
 \hypertarget{z-curving}{%
 \subsubsection{Z-curving}\label{z-curving}}
