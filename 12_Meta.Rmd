@@ -1644,6 +1644,8 @@ Generalizing the results of this section to Student-$t$ distributions is simple,
 
 ```{remark}
 There seems to be a mistake in the numerator in the original paper: the authors subtract power whereas it does not seem to be required.
+At least, I do not understand their derivation.
+Both appraoches yield similar results in their example, except for one case.
 ```
 
 ```{remark}
@@ -1657,8 +1659,6 @@ The authors propose to choose the value $\hat{\theta}_c$ that makes the pp-curve
 As a metric for estimating the distance between the observed pp-curve and the uniform $\left[0,1\right]$, the authors propose to use the [Kolmogorov-Smirnov statistic](https://en.wikipedia.org/wiki/Kolmogorov–Smirnov_test): the maximum value of the absolute difference between the empirical cdf of pp-values and the theoretical values of the cdf of the uniform $\left[0,1\right]$.
 The objective function proposed by the authors minimizes this distance.
 
-**<span style="font-variant:small-caps;">Another approach coud use the distance between the observed pp-curve of the previous section and the pp-curve with various levels of power. Once the power is identified, the effect size is identified. Still another approach would be to use the standardized distribution of effects (distributed as a standardized normal) to estimate the mean of the distribution and then recover the treatment effect. </span>**
-
 Let's write the functions to compute just that:
 
 ```{r ppCurveEst,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
@@ -1669,6 +1669,10 @@ ppCurveEst <- function(thetac,thetak,sigmak,alpha=0.05){
 KS.stat.unif <- function(vector){
   return(ks.test(x=vector,y=punif)$statistic)
 }
+ppCurve.Loss.KS <- function(thetac,thetak,sigmak,alpha=0.05){
+  ppvalues <- ppCurveEst(thetac=thetac,thetak=thetak,sigmak=sigmak,alpha=alpha)
+  return(KS.stat.unif(ppvalues))
+}
 #Estimating thetac that minimizes the KS distance by brute grid search first
 # will program the optimize function after
 ppCurveEstES <- function(thetak,sigmak,thetacl,thetach,alpha=0.05,ngrid=100){
@@ -1676,28 +1680,57 @@ ppCurveEstES <- function(thetak,sigmak,thetacl,thetach,alpha=0.05,ngrid=100){
   thetac.grid <- seq(from=thetacl,to=thetach,length.out=ngrid)
   # computes the ppcurve for each point of the grid: outputs a matrix where columns are the ppcurves at each values of thetac
   ppCurve.grid <- sapply(thetac.grid,ppCurveEst,thetak=thetak,sigmak=sigmak,alpha=alpha)
-  # compute sht KS stat for each value of thetac (over columns)
+  # compute KS stat for each value of thetac (over columns)
   KS.grid <- apply(ppCurve.grid,2,KS.stat.unif)
   # computes the value of thetac for which the KS stat is minimum (match identifies the rank of the min in the KSgrid)
   min.theta.c <- thetac.grid[match(min(KS.grid),KS.grid)]
+  # optimizes over KS stat to find value of thetac that minimizes the KS stat
+  thetahat <- optimize(ppCurve.Loss.KS,c(min.theta.c-0.1,min.theta.c+0.1),thetak=thetak,sigmak=sigmak,alpha=alpha)
   # returns the optimal thetac, the grid of thetac, the KS stats on the grid, for potential plot, and the ecdf of ppvalues at the optimum theta for graph against the uniform
-  return(list(min.theta.c,thetac.grid,KS.grid,ecdf(ppCurve.grid[,match(min(KS.grid),KS.grid)])))
+  return(list(thetahat$minimum,thetac.grid,KS.grid,ecdf(ppCurve.grid[,match(min(KS.grid),KS.grid)])))
 }
-
-test <- ppCurveEstES(thetak=c(4,2,3,1),sigmak=c(1,1,1,0.5),thetacl=0,thetach=10,alpha=0.05,ngrid=100)
-
-plot(test[[2]],test[[3]])
-
-plot(test[[4]])
-curve(punif,add=T)
 ```
-
-
 
 ```{example}
 Let's see how this approach works in our example.
 ```
+Let's start with the homogeneous treatment effect case 
 
+
+```{r pCurvePubBiasFEPlot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Correction for publication bias using p-curving with homogeneous effects',fig.subcap=c('KS objective function','Cumulative distribution of pp-values at the optimum'),fig.align='center',out.width='45%',fig.pos='htbp',fig.height=6,fig.width=12}
+# I'm keeping only significant and positive estimates
+# Maybe this could be enforced within the function for ease of reading and use
+ppCurveBiasCorrFE <- ppCurveEstES(thetak=filter(data.meta,id<=17,data.meta$ES>0,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$ES,sigmak=sqrt(filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES),thetacl=0,thetach=10,alpha=0.05,ngrid=100)
+plot(ppCurveBiasCorrFE[[2]],ppCurveBiasCorrFE[[3]],xlab="thetac",ylab="KS statistic")
+plot(ppCurveBiasCorrFE[[4]],xlab = "ppvalues",ylab="cumulative density",main="Cumulative density of pp-values at the optimum")
+curve(punif,add=T)
+```
+
+The bias corrected estimate using p-curving in the homogeneous treatment effect case is equal to `r round(ppCurveBiasCorrFE[[1]],2)`, which is spot on.
+Remember the true treatment effect is `r round(ES(param),2)`.
+Let's see what happens when effects are heterogeneous.
+
+```{r pCurvePubBiasREPlot,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Correction for publication bias using p-curving with heterogeneous effects',fig.subcap=c('KS objective function','Cumulative distribution of pp-values at the optimum'),fig.align='center',out.width='45%',fig.pos='htbp',fig.height=6,fig.width=12}
+# I'm keeping only significant and positive estimates
+# Maybe this could be enforced within the function for ease of reading and use
+ppCurveBiasCorrRE <- ppCurveEstES(thetak=filter(data.meta,id<=17,data.meta$ES>0,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$theta.1,sigmak=sqrt(filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES),thetacl=0,thetach=10,alpha=0.05,ngrid=100)
+plot(ppCurveBiasCorrRE[[2]],ppCurveBiasCorrRE[[3]],xlab="thetac",ylab="KS statistic")
+plot(ppCurveBiasCorrRE[[4]],xlab = "ppvalues",ylab="cumulative density",main="Cumulative density of pp-values at the optimum")
+curve(punif,add=T)
+```
+
+The bias corrected estimate using p-curving in the heterogeneous treatment effect case is equal to `r round(ppCurveBiasCorrRE[[1]],2)`. 
+
+```{remark}
+The approach is probably incorrect in the heterogeneous treatment effect case since we do not normalize using $\tau^2$.
+I think using an estimate of $\tau^2$ to normalize the estimates would restore the validity of the procedure.
+```
+
+```{remark}
+Another approach than using the KS statistic could use the distance between the observed pp-curve in Figure \@ref(fig:pCurvePlot) and the pp-curve with various levels of power. 
+Once the power is identified, the effect size is identified. 
+Still another approach would be to use the standardized distribution of effects (distributed as a standardized normal) to estimate the mean of the distribution and then recover the treatment effect.
+```
 
 
 #### Z-curving 

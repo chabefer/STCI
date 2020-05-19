@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-05-08}
+    \date{2020-05-19}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -9179,6 +9179,8 @@ Generalizing the results of this section to Student-\(t\) distributions is simpl
 
 \BeginKnitrBlock{remark}
 \iffalse{} {Remark. } \fi{}There seems to be a mistake in the numerator in the original paper: the authors subtract power whereas it does not seem to be required.
+At least, I do not understand their derivation.
+Both appraoches yield similar results in their example, except for one case.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{remark}
@@ -9192,8 +9194,6 @@ The authors propose to choose the value \(\hat{\theta}_c\) that makes the pp-cur
 As a metric for estimating the distance between the observed pp-curve and the uniform \(\left[0,1\right]\), the authors propose to use the \href{https://en.wikipedia.org/wiki/Kolmogorov–Smirnov_test}{Kolmogorov-Smirnov statistic}: the maximum value of the absolute difference between the empirical cdf of pp-values and the theoretical values of the cdf of the uniform \(\left[0,1\right]\).
 The objective function proposed by the authors minimizes this distance.
 
-\textbf{\textsc{Another approach coud use the distance between the observed pp-curve of the previous section and the pp-curve with various levels of power. Once the power is identified, the effect size is identified. Still another approach would be to use the standardized distribution of effects (distributed as a standardized normal) to estimate the mean of the distribution and then recover the treatment effect. }}
-
 Let's write the functions to compute just that:
 
 \begin{Shaded}
@@ -9205,6 +9205,10 @@ Let's write the functions to compute just that:
 \NormalTok{KS.stat.unif <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(vector)\{}
   \KeywordTok{return}\NormalTok{(}\KeywordTok{ks.test}\NormalTok{(}\DataTypeTok{x=}\NormalTok{vector,}\DataTypeTok{y=}\NormalTok{punif)}\OperatorTok{$}\NormalTok{statistic)}
 \NormalTok{\}}
+\NormalTok{ppCurve.Loss.KS <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(thetac,thetak,sigmak,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{)\{}
+\NormalTok{  ppvalues <-}\StringTok{ }\KeywordTok{ppCurveEst}\NormalTok{(}\DataTypeTok{thetac=}\NormalTok{thetac,}\DataTypeTok{thetak=}\NormalTok{thetak,}\DataTypeTok{sigmak=}\NormalTok{sigmak,}\DataTypeTok{alpha=}\NormalTok{alpha)}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{KS.stat.unif}\NormalTok{(ppvalues))}
+\NormalTok{\}}
 \CommentTok{#Estimating thetac that minimizes the KS distance by brute grid search first}
 \CommentTok{# will program the optimize function after}
 \NormalTok{ppCurveEstES <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(thetak,sigmak,thetacl,thetach,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{ngrid=}\DecValTok{100}\NormalTok{)\{}
@@ -9212,34 +9216,80 @@ Let's write the functions to compute just that:
 \NormalTok{  thetac.grid <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\DataTypeTok{from=}\NormalTok{thetacl,}\DataTypeTok{to=}\NormalTok{thetach,}\DataTypeTok{length.out=}\NormalTok{ngrid)}
   \CommentTok{# computes the ppcurve for each point of the grid: outputs a matrix where columns are the ppcurves at each values of thetac}
 \NormalTok{  ppCurve.grid <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(thetac.grid,ppCurveEst,}\DataTypeTok{thetak=}\NormalTok{thetak,}\DataTypeTok{sigmak=}\NormalTok{sigmak,}\DataTypeTok{alpha=}\NormalTok{alpha)}
-  \CommentTok{# compute sht KS stat for each value of thetac (over columns)}
+  \CommentTok{# compute KS stat for each value of thetac (over columns)}
 \NormalTok{  KS.grid <-}\StringTok{ }\KeywordTok{apply}\NormalTok{(ppCurve.grid,}\DecValTok{2}\NormalTok{,KS.stat.unif)}
   \CommentTok{# computes the value of thetac for which the KS stat is minimum (match identifies the rank of the min in the KSgrid)}
 \NormalTok{  min.theta.c <-}\StringTok{ }\NormalTok{thetac.grid[}\KeywordTok{match}\NormalTok{(}\KeywordTok{min}\NormalTok{(KS.grid),KS.grid)]}
+  \CommentTok{# optimizes over KS stat to find value of thetac that minimizes the KS stat}
+\NormalTok{  thetahat <-}\StringTok{ }\KeywordTok{optimize}\NormalTok{(ppCurve.Loss.KS,}\KeywordTok{c}\NormalTok{(min.theta.c}\FloatTok{-0.1}\NormalTok{,min.theta.c}\FloatTok{+0.1}\NormalTok{),}\DataTypeTok{thetak=}\NormalTok{thetak,}\DataTypeTok{sigmak=}\NormalTok{sigmak,}\DataTypeTok{alpha=}\NormalTok{alpha)}
   \CommentTok{# returns the optimal thetac, the grid of thetac, the KS stats on the grid, for potential plot, and the ecdf of ppvalues at the optimum theta for graph against the uniform}
-  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(min.theta.c,thetac.grid,KS.grid,}\KeywordTok{ecdf}\NormalTok{(ppCurve.grid[,}\KeywordTok{match}\NormalTok{(}\KeywordTok{min}\NormalTok{(KS.grid),KS.grid)])))}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(thetahat}\OperatorTok{$}\NormalTok{minimum,thetac.grid,KS.grid,}\KeywordTok{ecdf}\NormalTok{(ppCurve.grid[,}\KeywordTok{match}\NormalTok{(}\KeywordTok{min}\NormalTok{(KS.grid),KS.grid)])))}
 \NormalTok{\}}
-
-\NormalTok{test <-}\StringTok{ }\KeywordTok{ppCurveEstES}\NormalTok{(}\DataTypeTok{thetak=}\KeywordTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{sigmak=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{),}\DataTypeTok{thetacl=}\DecValTok{0}\NormalTok{,}\DataTypeTok{thetach=}\DecValTok{10}\NormalTok{,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{ngrid=}\DecValTok{100}\NormalTok{)}
-
-\KeywordTok{plot}\NormalTok{(test[[}\DecValTok{2}\NormalTok{]],test[[}\DecValTok{3}\NormalTok{]])}
 \end{Highlighting}
 \end{Shaded}
-
-\includegraphics{STCI_files/figure-latex/ppCurveEst-1.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{plot}\NormalTok{(test[[}\DecValTok{4}\NormalTok{]])}
-\KeywordTok{curve}\NormalTok{(punif,}\DataTypeTok{add=}\NormalTok{T)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{STCI_files/figure-latex/ppCurveEst-2.pdf}
 
 \BeginKnitrBlock{example}
 \protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }Let's see how this approach works in our example.
 \EndKnitrBlock{example}
+
+Let's start with the homogeneous treatment effect case
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# I'm keeping only significant and positive estimates}
+\CommentTok{# Maybe this could be enforced within the function for ease of reading and use}
+\NormalTok{ppCurveBiasCorrFE <-}\StringTok{ }\KeywordTok{ppCurveEstES}\NormalTok{(}\DataTypeTok{thetak=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{>}\DecValTok{0}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{ES,}\DataTypeTok{sigmak=}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES),}\DataTypeTok{thetacl=}\DecValTok{0}\NormalTok{,}\DataTypeTok{thetach=}\DecValTok{10}\NormalTok{,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{ngrid=}\DecValTok{100}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(ppCurveBiasCorrFE[[}\DecValTok{2}\NormalTok{]],ppCurveBiasCorrFE[[}\DecValTok{3}\NormalTok{]],}\DataTypeTok{xlab=}\StringTok{"thetac"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"KS statistic"}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(ppCurveBiasCorrFE[[}\DecValTok{4}\NormalTok{]],}\DataTypeTok{xlab =} \StringTok{"ppvalues"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"cumulative density"}\NormalTok{,}\DataTypeTok{main=}\StringTok{"Cumulative density of pp-values at the optimum"}\NormalTok{)}
+\KeywordTok{curve}\NormalTok{(punif,}\DataTypeTok{add=}\NormalTok{T)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[KS objective function\label{fig:pCurvePubBiasFEPlot1}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasFEPlot-1} }\subfloat[Cumulative distribution of pp-values at the optimum\label{fig:pCurvePubBiasFEPlot2}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasFEPlot-2} }
+
+}
+
+\caption{Correction for publication bias using p-curving with homogeneous effects}\label{fig:pCurvePubBiasFEPlot}
+\end{figure}
+
+The bias corrected estimate using p-curving in the homogeneous treatment effect case is equal to 0.2, which is spot on.
+Remember the true treatment effect is 0.2.
+Let's see what happens when effects are heterogeneous.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# I'm keeping only significant and positive estimates}
+\CommentTok{# Maybe this could be enforced within the function for ease of reading and use}
+\NormalTok{ppCurveBiasCorrRE <-}\StringTok{ }\KeywordTok{ppCurveEstES}\NormalTok{(}\DataTypeTok{thetak=}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{>}\DecValTok{0}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\NormalTok{,}\DataTypeTok{sigmak=}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES),}\DataTypeTok{thetacl=}\DecValTok{0}\NormalTok{,}\DataTypeTok{thetach=}\DecValTok{10}\NormalTok{,}\DataTypeTok{alpha=}\FloatTok{0.05}\NormalTok{,}\DataTypeTok{ngrid=}\DecValTok{100}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(ppCurveBiasCorrRE[[}\DecValTok{2}\NormalTok{]],ppCurveBiasCorrRE[[}\DecValTok{3}\NormalTok{]],}\DataTypeTok{xlab=}\StringTok{"thetac"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"KS statistic"}\NormalTok{)}
+\KeywordTok{plot}\NormalTok{(ppCurveBiasCorrRE[[}\DecValTok{4}\NormalTok{]],}\DataTypeTok{xlab =} \StringTok{"ppvalues"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"cumulative density"}\NormalTok{,}\DataTypeTok{main=}\StringTok{"Cumulative density of pp-values at the optimum"}\NormalTok{)}
+\KeywordTok{curve}\NormalTok{(punif,}\DataTypeTok{add=}\NormalTok{T)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \subfloat[KS objective function\label{fig:pCurvePubBiasREPlot1}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasREPlot-1} }\subfloat[Cumulative distribution of pp-values at the optimum\label{fig:pCurvePubBiasREPlot2}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasREPlot-2} }
+
+}
+
+\caption{Correction for publication bias using p-curving with heterogeneous effects}\label{fig:pCurvePubBiasREPlot}
+\end{figure}
+
+The bias corrected estimate using p-curving in the heterogeneous treatment effect case is equal to 0.35.
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}The approach is probably incorrect in the heterogeneous treatment effect case since we do not normalize using \(\tau^2\).
+I think using an estimate of \(\tau^2\) to normalize the estimates would restore the validity of the procedure.
+\EndKnitrBlock{remark}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}Another approach than using the KS statistic could use the distance between the observed pp-curve in Figure \ref{fig:pCurvePlot} and the pp-curve with various levels of power.
+Once the power is identified, the effect size is identified.
+Still another approach would be to use the standardized distribution of effects (distributed as a standardized normal) to estimate the mean of the distribution and then recover the treatment effect.
+\EndKnitrBlock{remark}
 
 \hypertarget{z-curving}{%
 \subsubsection{Z-curving}\label{z-curving}}
