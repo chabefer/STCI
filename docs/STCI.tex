@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-05-19}
+    \date{2020-05-21}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -9107,7 +9107,7 @@ This assumption will be innocuous in most cases of homogeneous treatment effect 
 How do we compute the pp-value for a candidate value \(\theta_c\)?
 
 \BeginKnitrBlock{theorem}[pp-value with homogeneous positive treatment effect]
-\protect\hypertarget{thm:ppvalueHomogPos}{}{\label{thm:ppvalueHomogPos} \iffalse (pp-value with homogeneous positive treatment effect) \fi{} }Under the assumption that the treatment effect is homogeneous across studies and equal to \(\theta_c\), that the estimated effects \(\hat{\theta}_k\) are approximately normally distributed with mean \(\theta_c\) and standard error \(\hat{\theta}_k\) and that we use only effects are positive and significant at the level \(\alpha\) following a two-sided test, the pp-value of a result with estimated effect \(\hat{\theta}_k\) and estimated standard error is \(\hat{sigma_k}\):
+\protect\hypertarget{thm:ppvalueHomogPos}{}{\label{thm:ppvalueHomogPos} \iffalse (pp-value with homogeneous positive treatment effect) \fi{} }Under the assumption that the treatment effect is homogeneous across studies and equal to \(\theta_c\), that the estimated effects \(\hat{\theta}_k\) are approximately normally distributed with mean \(\theta_c\) and standard error \(\hat{\sigma}_k\) and that we use only effects that are positive and significant at the level \(\alpha\) following a two-sided test, the pp-value of a result with estimated effect \(\hat{\theta}_k\) and estimated standard error is \(\hat{\sigma}_k\):
 
 \begin{align*}
   pp(\hat{\theta}_k,\hat{\sigma}_k,\theta_c) & = \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
@@ -9281,8 +9281,12 @@ Let's see what happens when effects are heterogeneous.
 The bias corrected estimate using p-curving in the heterogeneous treatment effect case is equal to 0.35.
 
 \BeginKnitrBlock{remark}
-\iffalse{} {Remark. } \fi{}The approach is probably incorrect in the heterogeneous treatment effect case since we do not normalize using \(\tau^2\).
+\iffalse{} {Remark. } \fi{}The approach might be incorrect in the heterogeneous treatment effect case since we do not normalize using \(\tau^2\).
 I think using an estimate of \(\tau^2\) to normalize the estimates would restore the validity of the procedure.
+It is also possible that the distribution of significant p-values is uniform even under heterogeneity of the treatment effect.
+In that case, the p-curve approach would still be valid.
+This is scope for further reasearch: first some simulations would be welcome.
+Simulations by the authors seem to suggest that p-curve does fine when treatment effects are heterogeneous: see \href{http://datacolada.org/67}{here}.
 \EndKnitrBlock{remark}
 
 \BeginKnitrBlock{remark}
@@ -9294,14 +9298,64 @@ Still another approach would be to use the standardized distribution of effects 
 \hypertarget{z-curving}{%
 \subsubsection{Z-curving}\label{z-curving}}
 
-\hypertarget{kasy-and-andrews-approach}{%
-\subsubsection{Kasy and Andrews approach}\label{kasy-and-andrews-approach}}
+See \href{https://replicationindex.files.wordpress.com/2018/10/final-revision-874-manuscript-in-pdf-2236-1-4-20180425-mva-final-002.pdf}{here}
+
+\hypertarget{selection-models}{%
+\subsubsection{Selection models}\label{selection-models}}
+
+Publication bias generates a usual pattern for economists: a selection model.
+The probability that a result is published depends on several properties, let's say its significance, as measured for example by the t-statistic of a two-sided t-test of the estimated parameter being null.
+The resulting distribution of observed effect sizes is a truncated or censored distribution compared to the distribution of true effect sizes.
+It has been a long goal of statisticians and economists to try to recover properties of the distribution of a latent unobserved variable from what is observed (think distribution of wages for women, when labor force participation for women was far lower than it is today).
+
+Statisticians have been using selection models to try to correct for publication bias since at least Hedges.
+In this section, I'm going to follow closely \href{https://www.aeaweb.org/articles?id=10.1257/aer.20180310}{Andrews and Kasy approach}.
+Andrews and Kasy carefully delineate non-parameteric identification of a selection model in the case of heterogeneous treatment effects.
+They then present ways to estimate the parameters of this model and propose a \href{https://maxkasy.github.io/home/metastudy/}{web-app} to perform their estimation strategy.
+
+Andrews and Kasy assume that there is a true treatment effect in all the populations that is equal to \(\theta\).
+In each study \(k\), the true treatment effect \(\theta^*_k\) is drawn from a distribution with mean \(\theta\).
+If the distribution of \(\theta^*_k\) is degenerate, then we have homogeneous treatment effects.
+The estimator of \(\theta^*_k\) in each study, \(\hat{\theta}^*_k\), is distributed as a normal centered at \(\theta^*_k\) with variance \(\sigma^{*2}_k\), whose estimator in the sample \(k\) is \(\hat{\sigma}^{*2}_k\).
+The normality assumption is not too crazy here: it follows from the CLT.
+
+Andrews and Kasy posit that, because of selection bias, we observe only a subset of these latent effects, noted \(\hat{\theta}_k\), those for which \(D_k=1\).
+\(D_k\) is distributed as a Bernoulli random variable, with probability of success \(p(\hat{Z}_k^*)\), where \(\hat{Z}_k^*=\frac{\hat{\theta}^*_k}{\hat{\sigma}^{*}_k}\) is the test statistic of t-test for the null assumption that \(\theta_k=0\).
+So Andrews and Kasy assume that all publication bias is driven by the value of the t-statistic \(\hat{Z}_k^*\).
+Note that it is equivalent to assuming that it is driven by the p-value of this test, since one is a monotone transformation of the other.
+
+As a consequence of the assumed selection model, the density of observed t-stats is (noting \(Z_k^*=\frac{\theta^*_k}{\sigma^{*}_k}\) and \(Z_k=\frac{\theta_k}{\sigma_k}\)):
+
+\begin{align*}
+  f_{\hat{Z}|Z}(\hat{z}|z) & = f_{\hat{Z}^*|Z^*,D=1}(\hat{z}|z)\\
+                           & = \frac{\Pr(D=1|\hat{Z}_k^*=\hat{z},Z_k^*=z)}{\Pr(D=1|Z_k^*=z)}\phi(\hat{z}-z)\\
+                           & = \frac{p(\hat{z})}{\esp{p(\hat{Z}^*_k)|Z_k^*=z}}\phi(\hat{z}-z).
+\end{align*}
+
+The first equality is obtained by using Bayes' equality twice (once to undo the conditioning on \(D=1\) and once to generate the conditioning on \(Z^*_k=z\)) and the fact that \(f_{\hat{Z}^*|Z^*}\) is normally distributed with mean \(Z^*\) and variance 1.
+
+The key result in Andrews and Kasy is their Proposition 3:
+
+\BeginKnitrBlock{proposition}[Identification of the true effect in meta-analysis]
+\protect\hypertarget{prp:AKident}{}{\label{prp:AKident} \iffalse (Identification of the true effect in meta-analysis) \fi{} }Under the assumption that \(\theta^*_k\Ind\sigma^*_k\), and that the support of \(\sigma_k\) contains an open interval, \(p(.)\) is identified up to scale and the distribution of \(\theta\) is identified.
+\EndKnitrBlock{proposition}
+
+\BeginKnitrBlock{proof}
+\iffalse{} {Proof. } \fi{}See Andrews and Kasy, \href{supplemtary material}{https://www.aeaweb.org/content/file?id=10286}.
+\EndKnitrBlock{proof}
+
+\BeginKnitrBlock{remark}
+\iffalse{} {Remark. } \fi{}There might be a mistake in the proof of Proposition 3.
+Equation (2) states that the derivative of the density with respect to precision is equal to a constant plus a unique term function of the density of latent variables.
+Im pretty sure there is another term accounting for the probability of publication as a function of precision.
+Whether this kills identification or not remains to be seen.
+\EndKnitrBlock{remark}
 
 \hypertarget{fukumura}{%
 \subsubsection{Fukumura}\label{fukumura}}
 
-\hypertarget{other-methods-trim-and-fill-and-selection-models}{%
-\subsubsection{Other methods: trim and fill and selection models}\label{other-methods-trim-and-fill-and-selection-models}}
+\hypertarget{trim-and-fill}{%
+\subsubsection{Trim and fill}\label{trim-and-fill}}
 
 \hypertarget{getting-rid-of-publication-bias-registered-reports-and-pre-analysis-plans}{%
 \subsection{Getting rid of publication bias: registered reports and pre-analysis plans}\label{getting-rid-of-publication-bias-registered-reports-and-pre-analysis-plans}}

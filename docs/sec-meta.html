@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-05-19" />
+<meta name="date" content="2020-05-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -2002,7 +2002,7 @@ This assumption will be innocuous in most cases of homogeneous treatment effect 
 <p>How do we compute the pp-value for a candidate value <span class="math inline">\(\theta_c\)</span>?</p>
 
 <div class="theorem">
-<p><span id="thm:ppvalueHomogPos" class="theorem"><strong>Theorem 13.3  (pp-value with homogeneous positive treatment effect)  </strong></span>Under the assumption that the treatment effect is homogeneous across studies and equal to <span class="math inline">\(\theta_c\)</span>, that the estimated effects <span class="math inline">\(\hat{\theta}_k\)</span> are approximately normally distributed with mean <span class="math inline">\(\theta_c\)</span> and standard error <span class="math inline">\(\hat{\theta}_k\)</span> and that we use only effects are positive and significant at the level <span class="math inline">\(\alpha\)</span> following a two-sided test, the pp-value of a result with estimated effect <span class="math inline">\(\hat{\theta}_k\)</span> and estimated standard error is <span class="math inline">\(\hat{sigma_k}\)</span>:</p>
+<p><span id="thm:ppvalueHomogPos" class="theorem"><strong>Theorem 13.3  (pp-value with homogeneous positive treatment effect)  </strong></span>Under the assumption that the treatment effect is homogeneous across studies and equal to <span class="math inline">\(\theta_c\)</span>, that the estimated effects <span class="math inline">\(\hat{\theta}_k\)</span> are approximately normally distributed with mean <span class="math inline">\(\theta_c\)</span> and standard error <span class="math inline">\(\hat{\sigma}_k\)</span> and that we use only effects that are positive and significant at the level <span class="math inline">\(\alpha\)</span> following a two-sided test, the pp-value of a result with estimated effect <span class="math inline">\(\hat{\theta}_k\)</span> and estimated standard error is <span class="math inline">\(\hat{\sigma}_k\)</span>:</p>
 <span class="math display">\[\begin{align*}
   pp(\hat{\theta}_k,\hat{\sigma}_k,\theta_c) &amp; = \frac{\Phi\left(\frac{\theta_c-\hat{\theta}_k}{\hat{\sigma}_k}\right)}
                                                       {\Phi\left(\frac{\theta_c}{\hat{\sigma}_k}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)}.
@@ -2151,8 +2151,12 @@ Figure 13.20: Correction for publication bias using p-curving with heterogeneous
 <p>The bias corrected estimate using p-curving in the heterogeneous treatment effect case is equal to 0.35.</p>
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> The approach is probably incorrect in the heterogeneous treatment effect case since we do not normalize using <span class="math inline">\(\tau^2\)</span>.
+ <span class="remark"><em>Remark. </em></span> The approach might be incorrect in the heterogeneous treatment effect case since we do not normalize using <span class="math inline">\(\tau^2\)</span>.
 I think using an estimate of <span class="math inline">\(\tau^2\)</span> to normalize the estimates would restore the validity of the procedure.
+It is also possible that the distribution of significant p-values is uniform even under heterogeneity of the treatment effect.
+In that case, the p-curve approach would still be valid.
+This is scope for further reasearch: first some simulations would be welcome.
+Simulations by the authors seem to suggest that p-curve does fine when treatment effects are heterogeneous: see .
 </div>
 
 
@@ -2166,15 +2170,59 @@ Still another approach would be to use the standardized distribution of effects 
 </div>
 <div id="z-curving" class="section level4">
 <h4><span class="header-section-number">13.2.2.4</span> Z-curving</h4>
+<p>See </p>
 </div>
-<div id="kasy-and-andrews-approach" class="section level4">
-<h4><span class="header-section-number">13.2.2.5</span> Kasy and Andrews approach</h4>
+<div id="selection-models" class="section level4">
+<h4><span class="header-section-number">13.2.2.5</span> Selection models</h4>
+<p>Publication bias generates a usual pattern for economists: a selection model.
+The probability that a result is published depends on several properties, let’s say its significance, as measured for example by the t-statistic of a two-sided t-test of the estimated parameter being null.
+The resulting distribution of observed effect sizes is a truncated or censored distribution compared to the distribution of true effect sizes.
+It has been a long goal of statisticians and economists to try to recover properties of the distribution of a latent unobserved variable from what is observed (think distribution of wages for women, when labor force participation for women was far lower than it is today).</p>
+<p>Statisticians have been using selection models to try to correct for publication bias since at least Hedges.
+In this section, I’m going to follow closely .
+Andrews and Kasy carefully delineate non-parameteric identification of a selection model in the case of heterogeneous treatment effects.
+They then present ways to estimate the parameters of this model and propose a  to perform their estimation strategy.</p>
+<p>Andrews and Kasy assume that there is a true treatment effect in all the populations that is equal to <span class="math inline">\(\theta\)</span>.
+In each study <span class="math inline">\(k\)</span>, the true treatment effect <span class="math inline">\(\theta^*_k\)</span> is drawn from a distribution with mean <span class="math inline">\(\theta\)</span>.
+If the distribution of <span class="math inline">\(\theta^*_k\)</span> is degenerate, then we have homogeneous treatment effects.
+The estimator of <span class="math inline">\(\theta^*_k\)</span> in each study, <span class="math inline">\(\hat{\theta}^*_k\)</span>, is distributed as a normal centered at <span class="math inline">\(\theta^*_k\)</span> with variance <span class="math inline">\(\sigma^{*2}_k\)</span>, whose estimator in the sample <span class="math inline">\(k\)</span> is <span class="math inline">\(\hat{\sigma}^{*2}_k\)</span>.
+The normality assumption is not too crazy here: it follows from the CLT.</p>
+<p>Andrews and Kasy posit that, because of selection bias, we observe only a subset of these latent effects, noted <span class="math inline">\(\hat{\theta}_k\)</span>, those for which <span class="math inline">\(D_k=1\)</span>.
+<span class="math inline">\(D_k\)</span> is distributed as a Bernoulli random variable, with probability of success <span class="math inline">\(p(\hat{Z}_k^*)\)</span>, where <span class="math inline">\(\hat{Z}_k^*=\frac{\hat{\theta}^*_k}{\hat{\sigma}^{*}_k}\)</span> is the test statistic of t-test for the null assumption that <span class="math inline">\(\theta_k=0\)</span>.
+So Andrews and Kasy assume that all publication bias is driven by the value of the t-statistic <span class="math inline">\(\hat{Z}_k^*\)</span>.
+Note that it is equivalent to assuming that it is driven by the p-value of this test, since one is a monotone transformation of the other.</p>
+<p>As a consequence of the assumed selection model, the density of observed t-stats is (noting <span class="math inline">\(Z_k^*=\frac{\theta^*_k}{\sigma^{*}_k}\)</span> and <span class="math inline">\(Z_k=\frac{\theta_k}{\sigma_k}\)</span>):</p>
+<p><span class="math display">\[\begin{align*}
+  f_{\hat{Z}|Z}(\hat{z}|z) &amp; = f_{\hat{Z}^*|Z^*,D=1}(\hat{z}|z)\\
+                           &amp; = \frac{\Pr(D=1|\hat{Z}_k^*=\hat{z},Z_k^*=z)}{\Pr(D=1|Z_k^*=z)}\phi(\hat{z}-z)\\
+                           &amp; = \frac{p(\hat{z})}{\esp{p(\hat{Z}^*_k)|Z_k^*=z}}\phi(\hat{z}-z).
+\end{align*}\]</span></p>
+<p>The first equality is obtained by using Bayes’ equality twice (once to undo the conditioning on <span class="math inline">\(D=1\)</span> and once to generate the conditioning on <span class="math inline">\(Z^*_k=z\)</span>) and the fact that <span class="math inline">\(f_{\hat{Z}^*|Z^*}\)</span> is normally distributed with mean <span class="math inline">\(Z^*\)</span> and variance 1.</p>
+<p>The key result in Andrews and Kasy is their Proposition 3:</p>
+
+<div class="proposition">
+<span id="prp:AKident" class="proposition"><strong>Proposition 13.1  (Identification of the true effect in meta-analysis)  </strong></span>Under the assumption that <span class="math inline">\(\theta^*_k\Ind\sigma^*_k\)</span>, and that the support of <span class="math inline">\(\sigma_k\)</span> contains an open interval, <span class="math inline">\(p(.)\)</span> is identified up to scale and the distribution of <span class="math inline">\(\theta\)</span> is identified.
+</div>
+
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See Andrews and Kasy, .
+</div>
+
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> There might be a mistake in the proof of Proposition 3.
+Equation (2) states that the derivative of the density with respect to precision is equal to a constant plus a unique term function of the density of latent variables.
+Im pretty sure there is another term accounting for the probability of publication as a function of precision.
+Whether this kills identification or not remains to be seen.
+</div>
+
 </div>
 <div id="fukumura" class="section level4">
 <h4><span class="header-section-number">13.2.2.6</span> Fukumura</h4>
 </div>
-<div id="other-methods-trim-and-fill-and-selection-models" class="section level4">
-<h4><span class="header-section-number">13.2.2.7</span> Other methods: trim and fill and selection models</h4>
+<div id="trim-and-fill" class="section level4">
+<h4><span class="header-section-number">13.2.2.7</span> Trim and fill</h4>
 </div>
 </div>
 <div id="getting-rid-of-publication-bias-registered-reports-and-pre-analysis-plans" class="section level3">
