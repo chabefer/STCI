@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-05-21" />
+<meta name="date" content="2020-05-22" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -2170,7 +2170,7 @@ Still another approach would be to use the standardized distribution of effects 
 </div>
 <div id="z-curving" class="section level4">
 <h4><span class="header-section-number">13.2.2.4</span> Z-curving</h4>
-<p>See </p>
+<p>See <a href="https://replicationindex.files.wordpress.com/2018/10/final-revision-874-manuscript-in-pdf-2236-1-4-20180425-mva-final-002.pdf">here</a>.</p>
 </div>
 <div id="selection-models" class="section level4">
 <h4><span class="header-section-number">13.2.2.5</span> Selection models</h4>
@@ -2179,9 +2179,9 @@ The probability that a result is published depends on several properties, let’
 The resulting distribution of observed effect sizes is a truncated or censored distribution compared to the distribution of true effect sizes.
 It has been a long goal of statisticians and economists to try to recover properties of the distribution of a latent unobserved variable from what is observed (think distribution of wages for women, when labor force participation for women was far lower than it is today).</p>
 <p>Statisticians have been using selection models to try to correct for publication bias since at least Hedges.
-In this section, I’m going to follow closely .
+In this section, I’m going to follow closely <a href="https://www.aeaweb.org/articles?id=10.1257/aer.20180310">Andrews and Kasy’s approach</a>.
 Andrews and Kasy carefully delineate non-parameteric identification of a selection model in the case of heterogeneous treatment effects.
-They then present ways to estimate the parameters of this model and propose a  to perform their estimation strategy.</p>
+They then present ways to estimate the parameters of this model and propose a <a href="https://maxkasy.github.io/home/metastudy/">web-app</a> to perform their estimation strategy.</p>
 <p>Andrews and Kasy assume that there is a true treatment effect in all the populations that is equal to <span class="math inline">\(\theta\)</span>.
 In each study <span class="math inline">\(k\)</span>, the true treatment effect <span class="math inline">\(\theta^*_k\)</span> is drawn from a distribution with mean <span class="math inline">\(\theta\)</span>.
 If the distribution of <span class="math inline">\(\theta^*_k\)</span> is degenerate, then we have homogeneous treatment effects.
@@ -2194,27 +2194,65 @@ Note that it is equivalent to assuming that it is driven by the p-value of this 
 <p>As a consequence of the assumed selection model, the density of observed t-stats is (noting <span class="math inline">\(Z_k^*=\frac{\theta^*_k}{\sigma^{*}_k}\)</span> and <span class="math inline">\(Z_k=\frac{\theta_k}{\sigma_k}\)</span>):</p>
 <p><span class="math display">\[\begin{align*}
   f_{\hat{Z}|Z}(\hat{z}|z) &amp; = f_{\hat{Z}^*|Z^*,D=1}(\hat{z}|z)\\
-                           &amp; = \frac{\Pr(D=1|\hat{Z}_k^*=\hat{z},Z_k^*=z)}{\Pr(D=1|Z_k^*=z)}\phi(\hat{z}-z)\\
+                           &amp; = \frac{\Pr(D_k=1|\hat{Z}_k^*=\hat{z},Z_k^*=z)}{\Pr(D_k=1|Z_k^*=z)}\phi(\hat{z}-z)\\
                            &amp; = \frac{p(\hat{z})}{\esp{p(\hat{Z}^*_k)|Z_k^*=z}}\phi(\hat{z}-z).
 \end{align*}\]</span></p>
 <p>The first equality is obtained by using Bayes’ equality twice (once to undo the conditioning on <span class="math inline">\(D=1\)</span> and once to generate the conditioning on <span class="math inline">\(Z^*_k=z\)</span>) and the fact that <span class="math inline">\(f_{\hat{Z}^*|Z^*}\)</span> is normally distributed with mean <span class="math inline">\(Z^*\)</span> and variance 1.</p>
 <p>The key result in Andrews and Kasy is their Proposition 3:</p>
 
 <div class="proposition">
-<span id="prp:AKident" class="proposition"><strong>Proposition 13.1  (Identification of the true effect in meta-analysis)  </strong></span>Under the assumption that <span class="math inline">\(\theta^*_k\Ind\sigma^*_k\)</span>, and that the support of <span class="math inline">\(\sigma_k\)</span> contains an open interval, <span class="math inline">\(p(.)\)</span> is identified up to scale and the distribution of <span class="math inline">\(\theta\)</span> is identified.
+<span id="prp:AKident" class="proposition"><strong>Proposition 13.1  (Identification of the true effect in meta-analysis)  </strong></span>Under the assumption that <span class="math inline">\(\theta^*_k\Ind\sigma^*_k\)</span>, and that the support of <span class="math inline">\(\sigma_k\)</span> contains an open interval, <span class="math inline">\(p(.)\)</span> is identified up to scale and the distribution of <span class="math inline">\(\theta^*_k\)</span> is identified.
 </div>
 
 
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> See Andrews and Kasy, .
+<p> <span class="proof"><em>Proof. </em></span> See <a href="https://www.aeaweb.org/content/file?id=10286">Andrews and Kasy’s supplementary material</a>.
+Let’s detail the proof somehow.
+The proof works by using the way the density of observed <span class="math inline">\(\hat{Z}\)</span> changes with precision (<span class="math inline">\(\hat{\pi_k}=\frac{1}{\hat{\sigma}_k}\)</span>).
+Without loss of generality, the authors choose to look at the density of <span class="math inline">\(\hat{Z}\)</span> when <span class="math inline">\(\hat{\sigma}_k=1\)</span>.
+They define <span class="math inline">\(h(z)=f_{\hat{Z}^*|\hat{\sigma}^*_k}(z|1)\)</span>.
+The first insight of the proof is that identifying <span class="math inline">\(h(.)\)</span> identifies <span class="math inline">\(p(.)\)</span> and the distribution of <span class="math inline">\(\theta^*_k\)</span>, <span class="math inline">\(f_{\theta^*}\)</span>.
+When <span class="math inline">\(h(.)\)</span> is identified, <span class="math inline">\(f_{\theta^*}\)</span> is identified by deconvolution since <span class="math inline">\(h=f_{\theta^*}*\phi\)</span>, where <span class="math inline">\(*\)</span> is the convolution operator.
+This is because we can think of <span class="math inline">\(\hat{\theta}^*_k=\theta^*_k+\epsilon^*_k\)</span>, where <span class="math inline">\(\epsilon^*_k\)</span> is independent from <span class="math inline">\(\theta^*_k\)</span> (since <span class="math inline">\(\theta^*_k\Ind\sigma^*_k\)</span>) and follows a normal with mean zero and variance <span class="math inline">\(\hat{\sigma}^{*2}_k\)</span>, here one.
+The density of a sum of independent random variables is the convolution of their densities, hence the result.
+Now, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  f_{\hat{Z}|\hat{\sigma}}(z|s) &amp; = f_{\hat{Z}^*|\hat{\sigma}^*,D=1}(z|z)\\
+                           &amp; = \frac{\Pr(D_k=1|\hat{Z}_k^*=z,\hat{\sigma}^*_k=s)}{\Pr(D_k=1|\hat{\sigma}_k^*=s)}f_{\hat{Z}^*|\hat{\sigma}^*}(z|s)\\
+                           &amp; = \frac{p(z)}{\esp{p(\hat{Z}^*_k)|\hat{\sigma}^*_k=s}}f_{\hat{Z}^*|\hat{\sigma}^*}(z|s).
+\end{align*}\]</span></p>
+<p>As a consequence, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  p(z)&amp; = \esp{p(\hat{Z}^*_k)|\hat{\sigma}_k^*=s}\frac{f_{\hat{Z}|\hat{\sigma}}(z|s)}{h(z)}.
+\end{align*}\]</span></p>
+<p>So, once we know <span class="math inline">\(h(z)\)</span>, we know <span class="math inline">\(p(z)\)</span> up to a constant, since <span class="math inline">\(f_{\hat{Z}|\hat{\sigma}}(z|s)\)</span> is known by definition, and <span class="math inline">\(\esp{p(\hat{Z}^*_k)|\hat{\sigma}_k^*=s}\)</span> does not change with <span class="math inline">\(z\)</span>.</p>
+<p>In order to identify <span class="math inline">\(h(z)\)</span>, we look at how the density of observed effects changes when precision changes:</p>
+<p><span class="math display">\[\begin{align*}
+  g(z) &amp; = \partial_{\pi} f_{\hat{Z}|\hat{\sigma}}(z|\frac{1}{\pi})|_{\pi=1}\\
+      &amp; = C_1 + \partial_{\pi}f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})|_{\pi=1}.
+\end{align*}\]</span></p>
+<p><span class="math inline">\(C_1\)</span> is a constant in <span class="math inline">\(z\)</span>.
+This is because <span class="math inline">\(p(z)\)</span> does not depend on <span class="math inline">\(\pi\)</span> and because <span class="math inline">\(\esp{p(\hat{Z}^*_k)|\hat{\sigma}_k^*=s}\)</span> does not depend on <span class="math inline">\(z\)</span>.
+Note that <span class="math inline">\(g(z)\)</span> is identified in the population.</p>
+<p>Now, using the fact that, because <span class="math inline">\(\theta^*_k\Ind\sigma^*_k\)</span>, we have <span class="math inline">\(h=f_{\theta^*}*\phi\)</span>, and thus <span class="math inline">\(f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})=\int\phi(z-t\pi)df_{\theta^*}(t)\)</span>, and the fact that <span class="math inline">\(\phi&#39;(z)=-z\phi(z)\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  \partial_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) &amp; = -\int(z-t)\phi(z-t)df_{\theta^*}(t)\\
+   \partial^2_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) &amp; = - f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) +\int(z-t)^2\phi(z-t)df_{\theta^*}(t)\\
+   \partial_{\pi} f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})|_{\pi=1} &amp; = \int t(z-t)\phi(z-t)df_{\theta^*}(t)\\
+            &amp; = - \left[f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)+z\partial_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) +\partial^2_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)\right],
+\end{align*}\]</span></p>
+<p>which gives, using the expression for <span class="math inline">\(g(z)\)</span> above:</p>
+<p><span class="math display">\[\begin{align*}
+  h&#39;&#39;(z) &amp; = (C_1-1-g(z))h(z)-zh&#39;(z),
+\end{align*}\]</span></p>
+<p>A second order differential equation.</p>
+Check derivatives above.
 </div>
 
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> There might be a mistake in the proof of Proposition 3.
-Equation (2) states that the derivative of the density with respect to precision is equal to a constant plus a unique term function of the density of latent variables.
-Im pretty sure there is another term accounting for the probability of publication as a function of precision.
-Whether this kills identification or not remains to be seen.
+ <span class="remark"><em>Remark. </em></span> Note that <span class="math inline">\(p(z)\)</span> does not depend on <span class="math inline">\(\pi\)</span> is a harsh assumption, that stems from assuming that the probability of publication only depends on <span class="math inline">\(\pi\)</span> through <span class="math inline">\(\hat{Z}^*\)</span>.
+This is a highly restrictive assumption
 </div>
 
 </div>
