@@ -24,7 +24,7 @@
 <meta name="author" content="The SKY Community" />
 
 
-<meta name="date" content="2020-05-22" />
+<meta name="date" content="2020-05-26" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,6 +56,7 @@ $$
 \newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
 \newcommand{\plims}{\text{plim}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\partdersq}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \DeclareMathOperator{\diag}{diag}
 $$
 
@@ -2182,8 +2183,8 @@ It has been a long goal of statisticians and economists to try to recover proper
 In this section, I’m going to follow closely <a href="https://www.aeaweb.org/articles?id=10.1257/aer.20180310">Andrews and Kasy’s approach</a>.
 Andrews and Kasy carefully delineate non-parameteric identification of a selection model in the case of heterogeneous treatment effects.
 They then present ways to estimate the parameters of this model and propose a <a href="https://maxkasy.github.io/home/metastudy/">web-app</a> to perform their estimation strategy.</p>
-<p>Andrews and Kasy assume that there is a true treatment effect in all the populations that is equal to <span class="math inline">\(\theta\)</span>.
-In each study <span class="math inline">\(k\)</span>, the true treatment effect <span class="math inline">\(\theta^*_k\)</span> is drawn from a distribution with mean <span class="math inline">\(\theta\)</span>.
+<p>Andrews and Kasy assume that there is a true treatment effect in all the populations that is equal to <span class="math inline">\(\theta^*_c\)</span>.
+In each study <span class="math inline">\(k\)</span>, the true treatment effect <span class="math inline">\(\theta^*_k\)</span> is drawn from a distribution with mean <span class="math inline">\(\theta^*_c\)</span>.
 If the distribution of <span class="math inline">\(\theta^*_k\)</span> is degenerate, then we have homogeneous treatment effects.
 The estimator of <span class="math inline">\(\theta^*_k\)</span> in each study, <span class="math inline">\(\hat{\theta}^*_k\)</span>, is distributed as a normal centered at <span class="math inline">\(\theta^*_k\)</span> with variance <span class="math inline">\(\sigma^{*2}_k\)</span>, whose estimator in the sample <span class="math inline">\(k\)</span> is <span class="math inline">\(\hat{\sigma}^{*2}_k\)</span>.
 The normality assumption is not too crazy here: it follows from the CLT.</p>
@@ -2228,33 +2229,81 @@ Now, we have:</p>
 <p>So, once we know <span class="math inline">\(h(z)\)</span>, we know <span class="math inline">\(p(z)\)</span> up to a constant, since <span class="math inline">\(f_{\hat{Z}|\hat{\sigma}}(z|s)\)</span> is known by definition, and <span class="math inline">\(\esp{p(\hat{Z}^*_k)|\hat{\sigma}_k^*=s}\)</span> does not change with <span class="math inline">\(z\)</span>.</p>
 <p>In order to identify <span class="math inline">\(h(z)\)</span>, we look at how the density of observed effects changes when precision changes:</p>
 <p><span class="math display">\[\begin{align*}
-  g(z) &amp; = \partial_{\pi} f_{\hat{Z}|\hat{\sigma}}(z|\frac{1}{\pi})|_{\pi=1}\\
-      &amp; = C_1 + \partial_{\pi}f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})|_{\pi=1}.
+  g(z) &amp; = \partder{\ln f_{\hat{Z}|\hat{\sigma}}(z|\frac{1}{\pi})}{\pi}|_{\pi=1}\\
+      &amp; = C_1 + \partder{\ln f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})}{\pi}|_{\pi=1}.
 \end{align*}\]</span></p>
 <p><span class="math inline">\(C_1\)</span> is a constant in <span class="math inline">\(z\)</span>.
 This is because <span class="math inline">\(p(z)\)</span> does not depend on <span class="math inline">\(\pi\)</span> and because <span class="math inline">\(\esp{p(\hat{Z}^*_k)|\hat{\sigma}_k^*=s}\)</span> does not depend on <span class="math inline">\(z\)</span>.
 Note that <span class="math inline">\(g(z)\)</span> is identified in the population.</p>
 <p>Now, using the fact that, because <span class="math inline">\(\theta^*_k\Ind\sigma^*_k\)</span>, we have <span class="math inline">\(h=f_{\theta^*}*\phi\)</span>, and thus <span class="math inline">\(f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})=\int\phi(z-t\pi)df_{\theta^*}(t)\)</span>, and the fact that <span class="math inline">\(\phi&#39;(z)=-z\phi(z)\)</span>, we have:</p>
 <p><span class="math display">\[\begin{align*}
-  \partial_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) &amp; = -\int(z-t)\phi(z-t)df_{\theta^*}(t)\\
-   \partial^2_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) &amp; = - f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) +\int(z-t)^2\phi(z-t)df_{\theta^*}(t)\\
-   \partial_{\pi} f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})|_{\pi=1} &amp; = \int t(z-t)\phi(z-t)df_{\theta^*}(t)\\
-            &amp; = - \left[f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)+z\partial_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) +\partial^2_{z} f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)\right],
+  \partder{f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)}{z} &amp; = -\int(z-t)\phi(z-t)df_{\theta^*}(t)\\
+   \partdersq{f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)}{z} &amp; = - f_{\hat{Z}^*|\hat{\sigma}^*}(z|1) +\int(z-t)^2\phi(z-t)df_{\theta^*}(t)\\
+   \partder{f_{\hat{Z}^*|\hat{\sigma}^*}(z|\frac{1}{\pi})}{\pi}|_{\pi=1} &amp; = \int t(z-t)\phi(z-t)df_{\theta^*}(t)\\
+            &amp; = - \left[f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)+z\partder{f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)}{z} + \partdersq{f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)}{z}\right].
 \end{align*}\]</span></p>
-<p>which gives, using the expression for <span class="math inline">\(g(z)\)</span> above:</p>
+<p>The last equation comes from rearranging all the terms in the various terms and factoring what remains.
+Note that <span class="math inline">\(f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)\)</span> disappears when you add <span class="math inline">\(\partdersq{f_{\hat{Z}^*|\hat{\sigma}^*}(z|1)}{z}\)</span>.
+REgrouping under the intergal sign, factoring and simplifying gives the result.</p>
+<p>Now, using the expression for <span class="math inline">\(g(z)\)</span> above, we have a second order differential equation in <span class="math inline">\(h(.)\)</span>:</p>
 <p><span class="math display">\[\begin{align*}
-  h&#39;&#39;(z) &amp; = (C_1-1-g(z))h(z)-zh&#39;(z),
+  h&#39;&#39;(z) &amp; = (C_1-1-g(z))h(z)-zh&#39;(z).
 \end{align*}\]</span></p>
-<p>A second order differential equation.</p>
-Check derivatives above.
+Given <span class="math inline">\(C_1\)</span> and initial conditions <span class="math inline">\(h(0)=h_0\)</span> and <span class="math inline">\(h&#39;(0)=h&#39;_0\)</span>, there is a unique solution to this equation, thereby identifying <span class="math inline">\(h(.)\)</span>, <span class="math inline">\(p(.)\)</span> and <span class="math inline">\(f_{\theta^*}\)</span>.
+The rest of the proof in <a href="https://www.aeaweb.org/content/file?id=10286">Andrews and Kasy’s supplementary material</a> shows that <span class="math inline">\(C_1\)</span>, <span class="math inline">\(h_0\)</span> and <span class="math inline">\(h&#39;_0\)</span> are all identified.
+The proof builds new differential equations involving the second order derivative of <span class="math inline">\(f_{\hat{Z}|\frac{1}{\pi}}\)</span> with respect to <span class="math inline">\(\pi\)</span>.
+The constants are identified after successive derivations with respect to <span class="math inline">\(z\)</span> so that we have an equation for them that depends on the third order derivative of <span class="math inline">\(g\)</span>.
 </div>
 
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> Note that <span class="math inline">\(p(z)\)</span> does not depend on <span class="math inline">\(\pi\)</span> is a harsh assumption, that stems from assuming that the probability of publication only depends on <span class="math inline">\(\pi\)</span> through <span class="math inline">\(\hat{Z}^*\)</span>.
-This is a highly restrictive assumption
+<p> <span class="remark"><em>Remark. </em></span> The authors derive an equation for the case where <span class="math inline">\(\theta^*\)</span> is normally distributed with mean <span class="math inline">\(\theta\)</span> and variance <span class="math inline">\(\tau^2\)</span>.
+The second order differential equation becomes:</p>
+<p><span class="math display">\[\begin{align*}
+  -\frac{1}{\tau^2+1} &amp; = C_1-g(z)-1+z\frac{z-\theta}{\tau^2+1}-\left(\frac{z-\theta}{\tau^2+1}\right).
+\end{align*}\]</span></p>
+The authors argue that evaluating this equation for different values of <span class="math inline">\(z\)</span> pins down <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\tau^2\)</span>.
+It seems not enough to prove identification since we need uniqueness of the parameter values obtained.
+There are already two values of <span class="math inline">\(\theta\)</span> compatible for agiven <span class="math inline">\(z\)</span> and <span class="math inline">\(\tau^2\)</span>.
+We need more to ensure uniqueness.
 </div>
 
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Note that <span class="math inline">\(p(z)\)</span> does not depend on <span class="math inline">\(\pi\)</span> is not a trivial assumption.
+It stems from assuming that the probability of publication only depends on <span class="math inline">\(\pi\)</span> through <span class="math inline">\(\hat{Z}^*\)</span>.
+It means for example that editors and authors do not look at precision independently of its effect on the t-statistic.
+The authors study identification in this case, assuming independence of the probabilities of selection based on both approaches.
+</div>
+
+<p>For estimation, Andrews and Kasy follow the approach in <a href="https://projecteuclid.org/euclid.ss/1177011364">Hedges</a> and estimate their model by parametric maximum likelihood.
+They also propose in their <a href="https://www.aeaweb.org/content/file?id=10286">supplementary material</a> an approach based on a Generalized Method of Moments estimator that tries to emulate their identification strategy.
+Finally, they offer a <a href="https://maxkasy.github.io/home/metastudy/">web-app</a> to implement their most straightforward estimators.</p>
+<p>The likelihood can be written as:</p>
+<p><span class="math display">\[\begin{align*}
+  f_{\hat{\theta},\hat{\sigma}}(t,s) &amp; = \frac{p\left(\frac{t}{s}\right)\int\phi\left(\frac{t-\theta}{s}\right)f_{\theta^*}(\theta) d\theta}
+                                              {\int p\left(\frac{t&#39;}{s}\right)\int\phi\left(\frac{t&#39;-\theta}{s}\right)f_{\theta^*}(\theta) d\theta dt&#39;}f_{\sigma}(s).
+\end{align*}\]</span></p>
+<p>Under the assumption that <span class="math inline">\(\theta^*\)</span> is normally distributed with mean <span class="math inline">\(\theta^*_c\)</span> and variance <span class="math inline">\(\tau^2\)</span>, we have the following likelihood:</p>
+<p><span class="math display">\[\begin{align*}
+  f^n_{\hat{\theta},\hat{\sigma}}(t,s) &amp; = \frac{p\left(\frac{t}{s}\right)\phi\left(\frac{t-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}
+                                              {\int p\left(\frac{t&#39;}{s}\right)\phi\left(\frac{t&#39;-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)dt&#39;}f_{\sigma}(s).
+\end{align*}\]</span></p>
+<p>Assuming that <span class="math inline">\(p(.)\)</span> is a step function such that <span class="math inline">\(p(z)=p_1\)</span> if <span class="math inline">\(z&lt;1.96\)</span> and <span class="math inline">\(p(z)=1\)</span> if <span class="math inline">\(z\geq1.96\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  f^n_{\hat{\theta},\hat{\sigma}}(t,s) &amp; = \frac{p\left(\frac{t}{s}\right)\phi\left(\frac{t-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}
+                                              {p_1\Phi\left(\frac{1.96s-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)+1-\Phi\left(\frac{1.96s-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}f_{\sigma}(s).
+\end{align*}\]</span></p>
+<p>The likelihood is simply the product of this term computed at each values <span class="math inline">\(t=\hat{\theta}_k\)</span> and <span class="math inline">\(s=\hat{\sigma}_k\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+\mathcal{L}(p_1,\theta^*_c,\tau^2)=\Pi_{k=1}^Nf^n_{\hat{\theta},\hat{\sigma}}(\hat{\theta}_k,\hat{\sigma}_k)
+\end{align*}\]</span></p>
+<p>Taking logs, we see that <span class="math inline">\(f_{\sigma}(s)\)</span> is a constant that does not contribute to the likelihood.
+We solve for the optimal vector of parameters by using a nonlinear optimisation routine.
+The authors use <code>nlminb</code>.
+One could also probably use <code>optim</code>.
+What is nice with these procedures is that they do not require computing the first and second order derivatives of the objective function: they compute them numerically.</p>
+<p>Let’s write an R function that maximizes this log likelihood:</p>
 </div>
 <div id="fukumura" class="section level4">
 <h4><span class="header-section-number">13.2.2.6</span> Fukumura</h4>
