@@ -122,7 +122,7 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{2020-05-26}
+    \date{2020-05-27}
 
 % shape of the text in the page
 %\usepackage[top=1.5in, bottom=1.5in, right=1.5in, left=1.5in]{geometry}
@@ -9464,6 +9464,98 @@ One could also probably use \texttt{optim}.
 What is nice with these procedures is that they do not require computing the first and second order derivatives of the objective function: they compute them numerically.
 
 Let's write an R function that maximizes this log likelihood:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# log-likelihood}
+\NormalTok{Lk <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(thetak,sigmak,p1,thetac,tau)\{}
+\NormalTok{  f <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(thetak}\OperatorTok{/}\NormalTok{sigmak}\OperatorTok{<}\KeywordTok{qnorm}\NormalTok{(}\DecValTok{1}\FloatTok{-0.05}\OperatorTok{/}\DecValTok{2}\NormalTok{),p1,}\DecValTok{1}\NormalTok{)}\OperatorTok{*}\KeywordTok{dnorm}\NormalTok{((thetak}\OperatorTok{-}\NormalTok{thetac)}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(sigmak}\OperatorTok{^}\DecValTok{2}\OperatorTok{+}\NormalTok{tau}\OperatorTok{^}\DecValTok{2}\NormalTok{))}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\KeywordTok{pnorm}\NormalTok{(}\KeywordTok{qnorm}\NormalTok{(}\DecValTok{1}\FloatTok{-0.05}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{*}\NormalTok{sigmak}\OperatorTok{-}\NormalTok{thetac}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(sigmak}\OperatorTok{^}\DecValTok{2}\OperatorTok{+}\NormalTok{tau}\OperatorTok{^}\DecValTok{2}\NormalTok{))}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{p1))}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{log}\NormalTok{(f)))}
+\NormalTok{\}}
+\CommentTok{#log-likelihood prepared for nlminb: vector of parameters and minimization}
+\NormalTok{Lk.param <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(param,thetak,sigmak)\{}
+\NormalTok{  f <-}\StringTok{ }\KeywordTok{Lk}\NormalTok{(}\DataTypeTok{thetak=}\NormalTok{thetak,}\DataTypeTok{sigmak=}\NormalTok{sigmak,}\DataTypeTok{p1=}\NormalTok{param[[}\DecValTok{1}\NormalTok{]],}\DataTypeTok{thetac=}\NormalTok{param[}\DecValTok{2}\NormalTok{],}\DataTypeTok{tau=}\NormalTok{param[}\DecValTok{3}\NormalTok{])}
+  \KeywordTok{return}\NormalTok{(}\OperatorTok{-}\NormalTok{f)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\BeginKnitrBlock{example}
+\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Let's see how this works in our example.
+Let's first prepare the sample.
+We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
+\EndKnitrBlock{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# sample with p1=0: only positive significant results}
+\CommentTok{# homogeneous effects}
+\NormalTok{thetak.FE}\FloatTok{.0}\NormalTok{ <-}\StringTok{ }\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{>}\DecValTok{0}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{ES}
+\NormalTok{sigmak.FE}\FloatTok{.0}\NormalTok{ <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES)}
+\CommentTok{# heterogeneous effects}
+\NormalTok{thetak.RE}\FloatTok{.0}\NormalTok{ <-}\StringTok{ }\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{>}\DecValTok{0}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}
+\NormalTok{sigmak.RE}\FloatTok{.0}\NormalTok{ <-}\StringTok{ }\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,}\KeywordTok{abs}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES))}\OperatorTok{>=}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES)}
+
+\CommentTok{# sample with p1=0.1, for insignificant or negative results}
+\NormalTok{p1 <-}\StringTok{ }\FloatTok{0.5}
+\CommentTok{# drawing 10% among insignificant and negative observations}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{set.FE <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(}\KeywordTok{runif}\NormalTok{(}\KeywordTok{length}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)}\OperatorTok{<}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{ES))}\OperatorTok{<=}\NormalTok{p1,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}\OperatorTok{==}\DecValTok{1}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{set.RE <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(}\KeywordTok{runif}\NormalTok{(}\KeywordTok{length}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)}\OperatorTok{<}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\NormalTok{))}\OperatorTok{<=}\NormalTok{p1,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}\OperatorTok{==}\DecValTok{1}
+
+\CommentTok{# homogeneous effects}
+\NormalTok{thetak.FE}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\KeywordTok{c}\NormalTok{(thetak.FE}\FloatTok{.0}\NormalTok{,}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)}\OperatorTok{<}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{ES[}\KeywordTok{which}\NormalTok{(set.FE)]) }
+\NormalTok{sigmak.FE}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\KeywordTok{c}\NormalTok{(sigmak.FE}\FloatTok{.0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{ES}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)}\OperatorTok{<}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{which}\NormalTok{(set.FE)]))}
+\CommentTok{# heterogeneous effects}
+\NormalTok{thetak.RE}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\KeywordTok{c}\NormalTok{(thetak.RE}\FloatTok{.0}\NormalTok{,}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)}\OperatorTok{<}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\NormalTok{[}\KeywordTok{which}\NormalTok{(set.RE)])}
+\NormalTok{sigmak.RE}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\KeywordTok{c}\NormalTok{(sigmak.RE}\FloatTok{.0}\NormalTok{,}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{filter}\NormalTok{(data.meta,id}\OperatorTok{<=}\DecValTok{17}\NormalTok{,data.meta}\OperatorTok{$}\NormalTok{theta}\FloatTok{.1}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(data.meta}\OperatorTok{$}\NormalTok{var.ES)}\OperatorTok{<}\KeywordTok{qnorm}\NormalTok{((}\DecValTok{1}\OperatorTok{+}\NormalTok{delta}\FloatTok{.2}\NormalTok{)}\OperatorTok{/}\DecValTok{2}\NormalTok{))}\OperatorTok{$}\NormalTok{var.ES[}\KeywordTok{which}\NormalTok{(set.RE)]))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# optimization procedure using nlminb}
+\NormalTok{MaxEval<-}\DecValTok{10}\OperatorTok{^}\DecValTok{5}
+\NormalTok{MaxIter<-}\DecValTok{10}\OperatorTok{^}\DecValTok{5}
+\NormalTok{Tol<-}\DecValTok{10}\OperatorTok{^}\NormalTok{(}\OperatorTok{-}\DecValTok{8}\NormalTok{)}
+\NormalTok{stepsize<-}\DecValTok{10}\OperatorTok{^}\NormalTok{(}\OperatorTok{-}\DecValTok{6}\NormalTok{)}
+\NormalTok{lower.b <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\OperatorTok{-}\OtherTok{Inf}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{upper.b <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\OtherTok{Inf}\NormalTok{,}\OtherTok{Inf}\NormalTok{)}
+
+\NormalTok{optim.Lk.FE}\FloatTok{.0}\NormalTok{ <-}\StringTok{ }\KeywordTok{nlminb}\NormalTok{(}\DataTypeTok{objective=}\NormalTok{Lk.param, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{lower=}\NormalTok{lower.b,}\DataTypeTok{upper=}\NormalTok{upper.b,}\DataTypeTok{control=}\KeywordTok{list}\NormalTok{(}\DataTypeTok{eval.max=}\NormalTok{MaxEval,}\DataTypeTok{iter.max=}\NormalTok{MaxIter,}\DataTypeTok{abs.tol=}\NormalTok{Tol),}\DataTypeTok{thetak=}\NormalTok{thetak.FE}\FloatTok{.0}\NormalTok{,}\DataTypeTok{sigmak=}\NormalTok{sigmak.FE}\FloatTok{.0}\NormalTok{)}
+\NormalTok{optim.Lk.FE}\FloatTok{.0}\OperatorTok{$}\NormalTok{par}
+\end{Highlighting}
+\end{Shaded}
+
+{[}1{]} 0.00 -100842.04 15537.35
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{optim.Lk.FE}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\KeywordTok{nlminb}\NormalTok{(}\DataTypeTok{objective=}\NormalTok{Lk.param, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{lower=}\NormalTok{lower.b,}\DataTypeTok{upper=}\NormalTok{upper.b,}\DataTypeTok{control=}\KeywordTok{list}\NormalTok{(}\DataTypeTok{eval.max=}\NormalTok{MaxEval,}\DataTypeTok{iter.max=}\NormalTok{MaxIter,}\DataTypeTok{abs.tol=}\NormalTok{Tol),}\DataTypeTok{thetak=}\NormalTok{thetak.FE}\FloatTok{.1}\NormalTok{,}\DataTypeTok{sigmak=}\NormalTok{sigmak.FE}\FloatTok{.1}\NormalTok{)}
+\NormalTok{optim.Lk.FE}\FloatTok{.1}\OperatorTok{$}\NormalTok{par}
+\end{Highlighting}
+\end{Shaded}
+
+{[}1{]} 4.022253e-02 -2.458894e+05 2.198610e+05
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{optim.Lk.RE}\FloatTok{.0}\NormalTok{ <-}\StringTok{ }\KeywordTok{nlminb}\NormalTok{(}\DataTypeTok{objective=}\NormalTok{Lk.param, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{lower=}\NormalTok{lower.b,}\DataTypeTok{upper=}\NormalTok{upper.b,}\DataTypeTok{control=}\KeywordTok{list}\NormalTok{(}\DataTypeTok{eval.max=}\NormalTok{MaxEval,}\DataTypeTok{iter.max=}\NormalTok{MaxIter,}\DataTypeTok{abs.tol=}\NormalTok{Tol),}\DataTypeTok{thetak=}\NormalTok{thetak.RE}\FloatTok{.0}\NormalTok{,}\DataTypeTok{sigmak=}\NormalTok{sigmak.RE}\FloatTok{.0}\NormalTok{)}
+\NormalTok{optim.Lk.RE}\FloatTok{.0}\OperatorTok{$}\NormalTok{par}
+\end{Highlighting}
+\end{Shaded}
+
+{[}1{]} 0.0000000 -5.4013892 0.1920429
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{optim.Lk.RE}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\KeywordTok{nlminb}\NormalTok{(}\DataTypeTok{objective=}\NormalTok{Lk.param, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DataTypeTok{lower=}\NormalTok{lower.b,}\DataTypeTok{upper=}\NormalTok{upper.b,}\DataTypeTok{control=}\KeywordTok{list}\NormalTok{(}\DataTypeTok{eval.max=}\NormalTok{MaxEval,}\DataTypeTok{iter.max=}\NormalTok{MaxIter,}\DataTypeTok{abs.tol=}\NormalTok{Tol),}\DataTypeTok{thetak=}\NormalTok{thetak.RE}\FloatTok{.1}\NormalTok{,}\DataTypeTok{sigmak=}\NormalTok{sigmak.RE}\FloatTok{.1}\NormalTok{)}
+\NormalTok{optim.Lk.RE}\FloatTok{.1}\OperatorTok{$}\NormalTok{par}
+\end{Highlighting}
+\end{Shaded}
+
+{[}1{]} 2.708295e-02 -3.523757e+05 2.777820e+05
 
 \hypertarget{fukumura}{%
 \subsubsection{Fukumura}\label{fukumura}}

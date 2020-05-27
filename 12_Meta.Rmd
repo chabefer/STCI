@@ -1903,10 +1903,68 @@ What is nice with these procedures is that they do not require computing the fir
 
 Let's write an R function that maximizes this log likelihood:
 
+```{r SelectModelLikelihood,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+# log-likelihood
+Lk <- function(thetak,sigmak,p1,thetac,tau){
+  f <- ifelse(thetak/sigmak<qnorm(1-0.05/2),p1,1)*dnorm((thetak-thetac)/sqrt(sigmak^2+tau^2))/(1-pnorm(qnorm(1-0.05/2)*sigmak-thetac/sqrt(sigmak^2+tau^2))*(1-p1))
+  return(sum(log(f)))
+}
+#log-likelihood prepared for nlminb: vector of parameters and minimization
+Lk.param <- function(param,thetak,sigmak){
+  f <- Lk(thetak=thetak,sigmak=sigmak,p1=param[[1]],thetac=param[2],tau=param[3])
+  return(-f)
+}
+```
 
+```{example}
+Let's see how this works in our example.
+Let's first prepare the sample.
+We are going to simulate two procedures of censoring: one with $p_1=0.5$ and one with $p_1=0$.
+```
 
+```{r dataL,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+# sample with p1=0: only positive significant results
+# homogeneous effects
+thetak.FE.0 <- filter(data.meta,id<=17,data.meta$ES>0,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$ES
+sigmak.FE.0 <- sqrt(filter(data.meta,id<=17,abs(data.meta$ES/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES)
+# heterogeneous effects
+thetak.RE.0 <- filter(data.meta,id<=17,data.meta$theta.1>0,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$theta.1
+sigmak.RE.0 <- sqrt(filter(data.meta,id<=17,abs(data.meta$theta.1/sqrt(data.meta$var.ES))>=qnorm((1+delta.2)/2))$var.ES)
 
+# sample with p1=0.1, for insignificant or negative results
+p1 <- 0.5
+# drawing 10% among insignificant and negative observations
+set.seed(1234)
+set.FE <- ifelse(runif(length(filter(data.meta,id<=17,data.meta$ES/sqrt(data.meta$var.ES)<qnorm((1+delta.2)/2))$ES))<=p1,1,0)==1
+set.seed(1234)
+set.RE <- ifelse(runif(length(filter(data.meta,id<=17,data.meta$theta.1/sqrt(data.meta$var.ES)<qnorm((1+delta.2)/2))$theta.1))<=p1,1,0)==1
 
+# homogeneous effects
+thetak.FE.1 <- c(thetak.FE.0,filter(data.meta,id<=17,data.meta$ES/sqrt(data.meta$var.ES)<qnorm((1+delta.2)/2))$ES[which(set.FE)]) 
+sigmak.FE.1 <- c(sigmak.FE.0,sqrt(filter(data.meta,id<=17,data.meta$ES/sqrt(data.meta$var.ES)<qnorm((1+delta.2)/2))$var.ES[which(set.FE)]))
+# heterogeneous effects
+thetak.RE.1 <- c(thetak.RE.0,filter(data.meta,id<=17,data.meta$theta.1/sqrt(data.meta$var.ES)<qnorm((1+delta.2)/2))$theta.1[which(set.RE)])
+sigmak.RE.1 <- c(sigmak.RE.0,sqrt(filter(data.meta,id<=17,data.meta$theta.1/sqrt(data.meta$var.ES)<qnorm((1+delta.2)/2))$var.ES[which(set.RE)]))
+```
+
+```{r nlminbL,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE}
+# optimization procedure using nlminb
+MaxEval<-10^5
+MaxIter<-10^5
+Tol<-10^(-8)
+stepsize<-10^(-6)
+lower.b <- c(0,-Inf,0)
+upper.b <- c(1,Inf,Inf)
+
+optim.Lk.FE.0 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.FE.0,sigmak=sigmak.FE.0)
+optim.Lk.FE.0$par
+optim.Lk.FE.1 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.FE.1,sigmak=sigmak.FE.1)
+optim.Lk.FE.1$par
+optim.Lk.RE.0 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.RE.0,sigmak=sigmak.RE.0)
+optim.Lk.RE.0$par
+optim.Lk.RE.1 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.RE.1,sigmak=sigmak.RE.1)
+optim.Lk.RE.1$par
+```
 
 #### Fukumura
 
