@@ -1727,7 +1727,12 @@ I think using an estimate of $\tau^2$ to normalize the estimates would restore t
 It is also possible that the distribution of significant p-values is uniform even under heterogeneity of the treatment effect. 
 In that case, the p-curve approach would still be valid.
 This is scope for further reasearch: first some simulations would be welcome. 
-Simulations by the authors seem to suggest that p-curve does fine when treatment effects are heterogeneous: see \href{http://datacolada.org/67}{here}.
+Simulations by the authors seem to suggest that p-curve does fine when treatment effects are heterogeneous: see [here](http://datacolada.org/67)
+```
+
+```{remark}
+Anther problem with p-curving when correcting for publication bias is the existence of QRPs: QRPs might bias the bias correction because of an excess mass around 0.05.
+Simulations by the author in the original paper show that this biases the estimate downward.
 ```
 
 ```{remark}
@@ -1947,7 +1952,7 @@ thetak.RE.1 <- c(thetak.RE.0,filter(data.meta,id<=17,data.meta$theta.1/sqrt(data
 sigmak.RE.1 <- c(sigmak.RE.0,sqrt(filter(data.meta,id<=17,data.meta$theta.1/sqrt(data.meta$var.ES)<qnorm((1+delta.2)/2))$var.ES[which(set.RE)]))
 ```
 
-```{r nlminbL,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE}
+```{r nlminbL,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
 # optimization procedure using nlminb
 MaxEval<-10^5
 MaxIter<-10^5
@@ -1955,16 +1960,30 @@ Tol<-10^(-8)
 stepsize<-10^(-6)
 lower.b <- c(0,-Inf,0)
 upper.b <- c(1,Inf,Inf)
-
-optim.Lk.FE.0 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.FE.0,sigmak=sigmak.FE.0)
-optim.Lk.FE.0$par
-optim.Lk.FE.1 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.FE.1,sigmak=sigmak.FE.1)
-optim.Lk.FE.1$par
-optim.Lk.RE.0 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.RE.0,sigmak=sigmak.RE.0)
-optim.Lk.RE.0$par
-optim.Lk.RE.1 <- nlminb(objective=Lk.param, start=c(0.5,1,1),lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.RE.1,sigmak=sigmak.RE.1)
-optim.Lk.RE.1$par
+start.val <- c(0.5,1,1)
+  
+optim.Lk.FE.0 <- nlminb(objective=Lk.param, start=start.val,lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.FE.0,sigmak=sigmak.FE.0)
+optim.Lk.FE.1 <- nlminb(objective=Lk.param, start=start.val,lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.FE.1,sigmak=sigmak.FE.1)
+optim.Lk.RE.0 <- nlminb(objective=Lk.param, start=start.val,lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.RE.0,sigmak=sigmak.RE.0)
+optim.Lk.RE.1 <- nlminb(objective=Lk.param, start=start.val,lower=lower.b,upper=upper.b,control=list(eval.max=MaxEval,iter.max=MaxIter,abs.tol=Tol),thetak=thetak.RE.1,sigmak=sigmak.RE.1)
 ```
+
+```{r resultsMatrixAK,eval=TRUE,echo=TRUE,results='asis',warning=FALSE,error=FALSE,message=FALSE}
+paramAK <- rbind(optim.Lk.FE.0$par,optim.Lk.FE.1$par,optim.Lk.RE.0$par,optim.Lk.RE.1$par)
+colnames(paramAK) <- c("$p_1$","$\\theta_c$","$\\tau$")
+rownames(paramAK) <- c("FE0","FE50","RE0","RE50")
+knitr::kable(paramAK,digits=2,caption='Parameter estimates of Andrews and Kasy selection model',align=c('l','c','c','c'),booktabs=TRUE)
+```
+
+Table \ref{tab:resultsMatrixAK} shows the parameter estimates of the model for various data configurations (no treatment effect heterogeneity vs treatment effect heterogeneity and 0\% or 50\% of non significant observations published).
+The results do not look great.
+The estimates of $p_1$ are correct when no non significant effects are published, by they are not nearly large enough when $50\%$ of insignificant observations are published.
+The estimates of $\theta_c$ are completely crazy: all negative and large in asbolute value while the true value of $\theta_c$ is $\theta_c=$ `r round(ES(param),2)`. 
+The estimates of $\tau$ are also all misleading.
+For fixed effects, the estimates should be zero.
+For random effects, the true $\tau$ is $\tau=$ `r round(tau[[1]],2)`.
+The estimates are much too large, apart from the third one that is close to home.
+Overall, barring a coding error, selection models do not look super promising here.
 
 #### Fukumura
 
