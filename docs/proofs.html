@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html >
-
+<html lang="" xml:lang="">
 <head>
 
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>A Proofs | Statistical Tools for Causal Inference</title>
-  <meta name="description" content="This is an open source collaborative book.">
-  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+  <meta name="description" content="This is an open source collaborative book." />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
   <meta property="og:title" content="A Proofs | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
@@ -22,25 +21,28 @@
   <meta name="twitter:description" content="This is an open source collaborative book." />
   
 
-<meta name="author" content="The SKY Community">
+<meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2020-05-28">
+<meta name="date" content="2021-09-27" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Bounds.html">
+<link rel="prev" href="mediation-analysis.html"/>
 
-<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
 
 
 
@@ -48,6 +50,9 @@
 
 
 
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
 $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
@@ -63,42 +68,70 @@ $$
 
 
 <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
+
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -119,24 +152,30 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Introduction</a></li>
 <li class="part"><span><b>I Fundamental Problems of Inference</b></span></li>
 <li class="chapter" data-level="" data-path="introduction-the-two-fundamental-problems-of-inference.html"><a href="introduction-the-two-fundamental-problems-of-inference.html"><i class="fa fa-check"></i>Introduction: the Two Fundamental Problems of Inference</a></li>
-<li class="chapter" data-level="1" data-path="FPCI.html"><a href="FPCI.html"><i class="fa fa-check"></i><b>1</b> Fundamental Problem of Causal Inference</a><ul>
-<li class="chapter" data-level="1.1" data-path="FPCI.html"><a href="FPCI.html#rubin-causal-model"><i class="fa fa-check"></i><b>1.1</b> Rubin Causal Model</a><ul>
+<li class="chapter" data-level="1" data-path="FPCI.html"><a href="FPCI.html"><i class="fa fa-check"></i><b>1</b> Fundamental Problem of Causal Inference</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="FPCI.html"><a href="FPCI.html#rubin-causal-model"><i class="fa fa-check"></i><b>1.1</b> Rubin Causal Model</a>
+<ul>
 <li class="chapter" data-level="1.1.1" data-path="FPCI.html"><a href="FPCI.html#treatment-allocation-rule"><i class="fa fa-check"></i><b>1.1.1</b> Treatment allocation rule</a></li>
 <li class="chapter" data-level="1.1.2" data-path="FPCI.html"><a href="FPCI.html#potential-outcomes"><i class="fa fa-check"></i><b>1.1.2</b> Potential outcomes</a></li>
 <li class="chapter" data-level="1.1.3" data-path="FPCI.html"><a href="FPCI.html#switching-equation"><i class="fa fa-check"></i><b>1.1.3</b> Switching equation</a></li>
 </ul></li>
-<li class="chapter" data-level="1.2" data-path="FPCI.html"><a href="FPCI.html#treatment-effects"><i class="fa fa-check"></i><b>1.2</b> Treatment effects</a><ul>
+<li class="chapter" data-level="1.2" data-path="FPCI.html"><a href="FPCI.html#treatment-effects"><i class="fa fa-check"></i><b>1.2</b> Treatment effects</a>
+<ul>
 <li class="chapter" data-level="1.2.1" data-path="FPCI.html"><a href="FPCI.html#individual-level-treatment-effects"><i class="fa fa-check"></i><b>1.2.1</b> Individual level treatment effects</a></li>
 <li class="chapter" data-level="1.2.2" data-path="FPCI.html"><a href="FPCI.html#average-treatment-effect-on-the-treated"><i class="fa fa-check"></i><b>1.2.2</b> Average treatment effect on the treated</a></li>
 </ul></li>
 <li class="chapter" data-level="1.3" data-path="FPCI.html"><a href="FPCI.html#fundamental-problem-of-causal-inference"><i class="fa fa-check"></i><b>1.3</b> Fundamental problem of causal inference</a></li>
-<li class="chapter" data-level="1.4" data-path="FPCI.html"><a href="FPCI.html#intuitive-estimators-confounding-factors-and-selection-bias"><i class="fa fa-check"></i><b>1.4</b> Intuitive estimators, confounding factors and selection bias</a><ul>
+<li class="chapter" data-level="1.4" data-path="FPCI.html"><a href="FPCI.html#intuitive-estimators-confounding-factors-and-selection-bias"><i class="fa fa-check"></i><b>1.4</b> Intuitive estimators, confounding factors and selection bias</a>
+<ul>
 <li class="chapter" data-level="1.4.1" data-path="FPCI.html"><a href="FPCI.html#withwithout-comparison-selection-bias-and-cross-sectional-confounders"><i class="fa fa-check"></i><b>1.4.1</b> With/Without comparison, selection bias and cross-sectional confounders</a></li>
 <li class="chapter" data-level="1.4.2" data-path="FPCI.html"><a href="FPCI.html#the-beforeafter-comparison-temporal-confounders-and-time-trend-bias"><i class="fa fa-check"></i><b>1.4.2</b> The before/after comparison, temporal confounders and time trend bias</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="2" data-path="FPSI.html"><a href="FPSI.html"><i class="fa fa-check"></i><b>2</b> Fundamental Problem of Statistical Inference</a><ul>
-<li class="chapter" data-level="2.1" data-path="FPSI.html"><a href="FPSI.html#sec:sampnoise"><i class="fa fa-check"></i><b>2.1</b> What is sampling noise? Definition and illustration</a><ul>
+<li class="chapter" data-level="2" data-path="FPSI.html"><a href="FPSI.html"><i class="fa fa-check"></i><b>2</b> Fundamental Problem of Statistical Inference</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="FPSI.html"><a href="FPSI.html#sec:sampnoise"><i class="fa fa-check"></i><b>2.1</b> What is sampling noise? Definition and illustration</a>
+<ul>
 <li class="chapter" data-level="2.1.1" data-path="FPSI.html"><a href="FPSI.html#sec:definitionnoise"><i class="fa fa-check"></i><b>2.1.1</b> Sampling noise, a definition</a></li>
 <li class="chapter" data-level="2.1.2" data-path="FPSI.html"><a href="FPSI.html#sec:illusnoisepop"><i class="fa fa-check"></i><b>2.1.2</b> Sampling noise for the population treatment effect</a></li>
 <li class="chapter" data-level="2.1.3" data-path="FPSI.html"><a href="FPSI.html#sec:illusnoisesamp"><i class="fa fa-check"></i><b>2.1.3</b> Sampling noise for the sample treatment effect</a></li>
@@ -144,7 +183,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="2.1.5" data-path="FPSI.html"><a href="FPSI.html#reporting-sampling-noise-a-proposal"><i class="fa fa-check"></i><b>2.1.5</b> Reporting sampling noise: a proposal</a></li>
 <li class="chapter" data-level="2.1.6" data-path="FPSI.html"><a href="FPSI.html#sec:effectsize"><i class="fa fa-check"></i><b>2.1.6</b> Using effect sizes to normalize the reporting of treatment effects and their precision</a></li>
 </ul></li>
-<li class="chapter" data-level="2.2" data-path="FPSI.html"><a href="FPSI.html#sec:estimsampnoise"><i class="fa fa-check"></i><b>2.2</b> Estimating sampling noise</a><ul>
+<li class="chapter" data-level="2.2" data-path="FPSI.html"><a href="FPSI.html#sec:estimsampnoise"><i class="fa fa-check"></i><b>2.2</b> Estimating sampling noise</a>
+<ul>
 <li class="chapter" data-level="2.2.1" data-path="FPSI.html"><a href="FPSI.html#sec:assumptions"><i class="fa fa-check"></i><b>2.2.1</b> Assumptions</a></li>
 <li class="chapter" data-level="2.2.2" data-path="FPSI.html"><a href="FPSI.html#sec:cheb"><i class="fa fa-check"></i><b>2.2.2</b> Using Chebyshev’s inequality</a></li>
 <li class="chapter" data-level="2.2.3" data-path="FPSI.html"><a href="FPSI.html#sec:CLT"><i class="fa fa-check"></i><b>2.2.3</b> Using the Central Limit Theorem</a></li>
@@ -152,29 +192,36 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 </ul></li>
 <li class="part"><span><b>II Methods of Causal Inference</b></span></li>
-<li class="chapter" data-level="3" data-path="RCT.html"><a href="RCT.html"><i class="fa fa-check"></i><b>3</b> Randomized Controlled Trials</a><ul>
-<li class="chapter" data-level="3.1" data-path="RCT.html"><a href="RCT.html#sec:design1"><i class="fa fa-check"></i><b>3.1</b> Brute Force Design</a><ul>
+<li class="chapter" data-level="3" data-path="RCT.html"><a href="RCT.html"><i class="fa fa-check"></i><b>3</b> Randomized Controlled Trials</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="RCT.html"><a href="RCT.html#sec:design1"><i class="fa fa-check"></i><b>3.1</b> Brute Force Design</a>
+<ul>
 <li class="chapter" data-level="3.1.1" data-path="RCT.html"><a href="RCT.html#identification"><i class="fa fa-check"></i><b>3.1.1</b> Identification</a></li>
 <li class="chapter" data-level="3.1.2" data-path="RCT.html"><a href="RCT.html#estimating-ate"><i class="fa fa-check"></i><b>3.1.2</b> Estimating ATE</a></li>
 </ul></li>
-<li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Self-Selection design</a><ul>
+<li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Self-Selection design</a>
+<ul>
 <li class="chapter" data-level="3.2.1" data-path="RCT.html"><a href="RCT.html#identification-1"><i class="fa fa-check"></i><b>3.2.1</b> Identification</a></li>
 <li class="chapter" data-level="3.2.2" data-path="RCT.html"><a href="RCT.html#estimating-tt"><i class="fa fa-check"></i><b>3.2.2</b> Estimating TT</a></li>
 <li class="chapter" data-level="3.2.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-1"><i class="fa fa-check"></i><b>3.2.3</b> Estimating Sampling Noise</a></li>
 </ul></li>
-<li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Eligibility design</a><ul>
+<li class="chapter" data-level="3.3" data-path="RCT.html"><a href="RCT.html#sec:design3"><i class="fa fa-check"></i><b>3.3</b> Eligibility design</a>
+<ul>
 <li class="chapter" data-level="3.3.1" data-path="RCT.html"><a href="RCT.html#identification-2"><i class="fa fa-check"></i><b>3.3.1</b> Identification</a></li>
 <li class="chapter" data-level="3.3.2" data-path="RCT.html"><a href="RCT.html#estimating-the-ite-and-the-tt"><i class="fa fa-check"></i><b>3.3.2</b> Estimating the ITE and the TT</a></li>
 <li class="chapter" data-level="3.3.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-2"><i class="fa fa-check"></i><b>3.3.3</b> Estimating sampling noise</a></li>
 </ul></li>
-<li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a><ul>
+<li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a>
+<ul>
 <li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-3"><i class="fa fa-check"></i><b>3.4.1</b> Identification</a></li>
 <li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect"><i class="fa fa-check"></i><b>3.4.2</b> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</a></li>
 <li class="chapter" data-level="3.4.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.3</b> Estimating sampling noise</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="NE.html"><a href="NE.html"><i class="fa fa-check"></i><b>4</b> Natural Experiments</a><ul>
-<li class="chapter" data-level="4.1" data-path="NE.html"><a href="NE.html#instrumental-variables"><i class="fa fa-check"></i><b>4.1</b> Instrumental Variables</a><ul>
+<li class="chapter" data-level="4" data-path="NE.html"><a href="NE.html"><i class="fa fa-check"></i><b>4</b> Natural Experiments</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="NE.html"><a href="NE.html#instrumental-variables"><i class="fa fa-check"></i><b>4.1</b> Instrumental Variables</a>
+<ul>
 <li class="chapter" data-level="4.1.1" data-path="NE.html"><a href="NE.html#an-example-where-monotonicity-does-not-hold"><i class="fa fa-check"></i><b>4.1.1</b> An example where Monotonicity does not hold</a></li>
 <li class="chapter" data-level="4.1.2" data-path="NE.html"><a href="NE.html#identification-4"><i class="fa fa-check"></i><b>4.1.2</b> Identification</a></li>
 <li class="chapter" data-level="4.1.3" data-path="NE.html"><a href="NE.html#estimation"><i class="fa fa-check"></i><b>4.1.3</b> Estimation</a></li>
@@ -183,25 +230,29 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="4.2" data-path="NE.html"><a href="NE.html#regression-discontinuity-designs"><i class="fa fa-check"></i><b>4.2</b> Regression Discontinuity Designs</a></li>
 <li class="chapter" data-level="4.3" data-path="NE.html"><a href="NE.html#difference-in-differences"><i class="fa fa-check"></i><b>4.3</b> Difference In Differences</a></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="sec-OM.html"><a href="sec-OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a></li>
-<li class="chapter" data-level="6" data-path="sec-threats.html"><a href="sec-threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a><ul>
-<li class="chapter" data-level="6.1" data-path="sec-threats.html"><a href="sec-threats.html#threats-to-internal-validity"><i class="fa fa-check"></i><b>6.1</b> Threats to internal validity</a><ul>
-<li class="chapter" data-level="6.1.1" data-path="sec-threats.html"><a href="sec-threats.html#survey-bias"><i class="fa fa-check"></i><b>6.1.1</b> Survey bias</a></li>
-<li class="chapter" data-level="6.1.2" data-path="sec-threats.html"><a href="sec-threats.html#experimenter-bias"><i class="fa fa-check"></i><b>6.1.2</b> Experimenter bias</a></li>
-<li class="chapter" data-level="6.1.3" data-path="sec-threats.html"><a href="sec-threats.html#substitution-bias"><i class="fa fa-check"></i><b>6.1.3</b> Substitution bias</a></li>
-<li class="chapter" data-level="6.1.4" data-path="sec-threats.html"><a href="sec-threats.html#diffusion-bias"><i class="fa fa-check"></i><b>6.1.4</b> Diffusion bias</a></li>
+<li class="chapter" data-level="5" data-path="sec:OM.html"><a href="sec:OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a></li>
+<li class="chapter" data-level="6" data-path="sec:threats.html"><a href="sec:threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="sec:threats.html"><a href="sec:threats.html#threats-to-internal-validity"><i class="fa fa-check"></i><b>6.1</b> Threats to internal validity</a>
+<ul>
+<li class="chapter" data-level="6.1.1" data-path="sec:threats.html"><a href="sec:threats.html#survey-bias"><i class="fa fa-check"></i><b>6.1.1</b> Survey bias</a></li>
+<li class="chapter" data-level="6.1.2" data-path="sec:threats.html"><a href="sec:threats.html#experimenter-bias"><i class="fa fa-check"></i><b>6.1.2</b> Experimenter bias</a></li>
+<li class="chapter" data-level="6.1.3" data-path="sec:threats.html"><a href="sec:threats.html#substitution-bias"><i class="fa fa-check"></i><b>6.1.3</b> Substitution bias</a></li>
+<li class="chapter" data-level="6.1.4" data-path="sec:threats.html"><a href="sec:threats.html#diffusion-bias"><i class="fa fa-check"></i><b>6.1.4</b> Diffusion bias</a></li>
 </ul></li>
-<li class="chapter" data-level="6.2" data-path="sec-threats.html"><a href="sec-threats.html#threats-to-the-measurement-of-precision"><i class="fa fa-check"></i><b>6.2</b> Threats to the measurement of precision</a><ul>
-<li class="chapter" data-level="6.2.1" data-path="sec-threats.html"><a href="sec-threats.html#insufficient-precision"><i class="fa fa-check"></i><b>6.2.1</b> Insufficient precision</a></li>
-<li class="chapter" data-level="6.2.2" data-path="sec-threats.html"><a href="sec-threats.html#clustering"><i class="fa fa-check"></i><b>6.2.2</b> Clustering</a></li>
+<li class="chapter" data-level="6.2" data-path="sec:threats.html"><a href="sec:threats.html#threats-to-the-measurement-of-precision"><i class="fa fa-check"></i><b>6.2</b> Threats to the measurement of precision</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="sec:threats.html"><a href="sec:threats.html#insufficient-precision"><i class="fa fa-check"></i><b>6.2.1</b> Insufficient precision</a></li>
+<li class="chapter" data-level="6.2.2" data-path="sec:threats.html"><a href="sec:threats.html#clustering"><i class="fa fa-check"></i><b>6.2.2</b> Clustering</a></li>
 </ul></li>
-<li class="chapter" data-level="6.3" data-path="sec-threats.html"><a href="sec-threats.html#threats-to-external-validity"><i class="fa fa-check"></i><b>6.3</b> Threats to external validity</a><ul>
-<li class="chapter" data-level="6.3.1" data-path="sec-threats.html"><a href="sec-threats.html#randomization-bias"><i class="fa fa-check"></i><b>6.3.1</b> Randomization bias</a></li>
-<li class="chapter" data-level="6.3.2" data-path="sec-threats.html"><a href="sec-threats.html#equilibrium-effects"><i class="fa fa-check"></i><b>6.3.2</b> Equilibrium effects</a></li>
-<li class="chapter" data-level="6.3.3" data-path="sec-threats.html"><a href="sec-threats.html#context-effects"><i class="fa fa-check"></i><b>6.3.3</b> Context effects</a></li>
-<li class="chapter" data-level="6.3.4" data-path="sec-threats.html"><a href="sec-threats.html#site-selection-bias"><i class="fa fa-check"></i><b>6.3.4</b> Site selection bias</a></li>
-<li class="chapter" data-level="6.3.5" data-path="sec-threats.html"><a href="sec-threats.html#publication-bias"><i class="fa fa-check"></i><b>6.3.5</b> Publication bias</a></li>
-<li class="chapter" data-level="6.3.6" data-path="sec-threats.html"><a href="sec-threats.html#ethical-and-political-issues"><i class="fa fa-check"></i><b>6.3.6</b> Ethical and political issues</a></li>
+<li class="chapter" data-level="6.3" data-path="sec:threats.html"><a href="sec:threats.html#threats-to-external-validity"><i class="fa fa-check"></i><b>6.3</b> Threats to external validity</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="sec:threats.html"><a href="sec:threats.html#randomization-bias"><i class="fa fa-check"></i><b>6.3.1</b> Randomization bias</a></li>
+<li class="chapter" data-level="6.3.2" data-path="sec:threats.html"><a href="sec:threats.html#equilibrium-effects"><i class="fa fa-check"></i><b>6.3.2</b> Equilibrium effects</a></li>
+<li class="chapter" data-level="6.3.3" data-path="sec:threats.html"><a href="sec:threats.html#context-effects"><i class="fa fa-check"></i><b>6.3.3</b> Context effects</a></li>
+<li class="chapter" data-level="6.3.4" data-path="sec:threats.html"><a href="sec:threats.html#site-selection-bias"><i class="fa fa-check"></i><b>6.3.4</b> Site selection bias</a></li>
+<li class="chapter" data-level="6.3.5" data-path="sec:threats.html"><a href="sec:threats.html#publication-bias"><i class="fa fa-check"></i><b>6.3.5</b> Publication bias</a></li>
+<li class="chapter" data-level="6.3.6" data-path="sec:threats.html"><a href="sec:threats.html#ethical-and-political-issues"><i class="fa fa-check"></i><b>6.3.6</b> Ethical and political issues</a></li>
 </ul></li>
 </ul></li>
 <li class="part"><span><b>III Additional Topics</b></span></li>
@@ -211,32 +262,46 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="10" data-path="LaLonde.html"><a href="LaLonde.html"><i class="fa fa-check"></i><b>10</b> LaLonde Tests</a></li>
 <li class="chapter" data-level="11" data-path="Diffusion.html"><a href="Diffusion.html"><i class="fa fa-check"></i><b>11</b> Diffusion effects</a></li>
 <li class="chapter" data-level="12" data-path="Distribution.html"><a href="Distribution.html"><i class="fa fa-check"></i><b>12</b> Distributional effects</a></li>
-<li class="chapter" data-level="13" data-path="sec-meta.html"><a href="sec-meta.html"><i class="fa fa-check"></i><b>13</b> Meta-analysis and Publication Bias</a><ul>
-<li class="chapter" data-level="13.1" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis"><i class="fa fa-check"></i><b>13.1</b> Meta-analysis</a><ul>
-<li class="chapter" data-level="13.1.1" data-path="sec-meta.html"><a href="sec-meta.html#basic-setting"><i class="fa fa-check"></i><b>13.1.1</b> Basic setting</a></li>
-<li class="chapter" data-level="13.1.2" data-path="sec-meta.html"><a href="sec-meta.html#why-vote-counting-does-not-work"><i class="fa fa-check"></i><b>13.1.2</b> Why vote-counting does not work</a></li>
-<li class="chapter" data-level="13.1.3" data-path="sec-meta.html"><a href="sec-meta.html#MetaWA"><i class="fa fa-check"></i><b>13.1.3</b> Meta-analysis when treatment effects are homogeneous: the fixed effects approach</a></li>
-<li class="chapter" data-level="13.1.4" data-path="sec-meta.html"><a href="sec-meta.html#meta-analysis-when-treatment-effects-are-heterogeneous-the-random-effects-approach"><i class="fa fa-check"></i><b>13.1.4</b> Meta-analysis when treatment effects are heterogeneous: the random effects approach</a></li>
-<li class="chapter" data-level="13.1.5" data-path="sec-meta.html"><a href="sec-meta.html#meta-regression"><i class="fa fa-check"></i><b>13.1.5</b> Meta-regression</a></li>
-<li class="chapter" data-level="13.1.6" data-path="sec-meta.html"><a href="sec-meta.html#constantly-updated-meta-analysis"><i class="fa fa-check"></i><b>13.1.6</b> Constantly updated meta-analysis</a></li>
+<li class="chapter" data-level="13" data-path="sec:meta.html"><a href="sec:meta.html"><i class="fa fa-check"></i><b>13</b> Meta-analysis and Publication Bias</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="sec:meta.html"><a href="sec:meta.html#meta-analysis"><i class="fa fa-check"></i><b>13.1</b> Meta-analysis</a>
+<ul>
+<li class="chapter" data-level="13.1.1" data-path="sec:meta.html"><a href="sec:meta.html#basic-setting"><i class="fa fa-check"></i><b>13.1.1</b> Basic setting</a></li>
+<li class="chapter" data-level="13.1.2" data-path="sec:meta.html"><a href="sec:meta.html#why-vote-counting-does-not-work"><i class="fa fa-check"></i><b>13.1.2</b> Why vote-counting does not work</a></li>
+<li class="chapter" data-level="13.1.3" data-path="sec:meta.html"><a href="sec:meta.html#MetaWA"><i class="fa fa-check"></i><b>13.1.3</b> Meta-analysis when treatment effects are homogeneous: the fixed effects approach</a></li>
+<li class="chapter" data-level="13.1.4" data-path="sec:meta.html"><a href="sec:meta.html#meta-analysis-when-treatment-effects-are-heterogeneous-the-random-effects-approach"><i class="fa fa-check"></i><b>13.1.4</b> Meta-analysis when treatment effects are heterogeneous: the random effects approach</a></li>
+<li class="chapter" data-level="13.1.5" data-path="sec:meta.html"><a href="sec:meta.html#meta-regression"><i class="fa fa-check"></i><b>13.1.5</b> Meta-regression</a></li>
+<li class="chapter" data-level="13.1.6" data-path="sec:meta.html"><a href="sec:meta.html#constantly-updated-meta-analysis"><i class="fa fa-check"></i><b>13.1.6</b> Constantly updated meta-analysis</a></li>
 </ul></li>
-<li class="chapter" data-level="13.2" data-path="sec-meta.html"><a href="sec-meta.html#publication-bias-and-site-selection-bias"><i class="fa fa-check"></i><b>13.2</b> Publication bias and site selection bias</a><ul>
-<li class="chapter" data-level="13.2.1" data-path="sec-meta.html"><a href="sec-meta.html#sources-of-publication-bias-and-of-site-selection-bias-and-questionable-research-practices"><i class="fa fa-check"></i><b>13.2.1</b> Sources of publication bias and of site selection bias and Questionable Research Practices</a></li>
-<li class="chapter" data-level="13.2.2" data-path="sec-meta.html"><a href="sec-meta.html#detection-of-and-correction-for-publication-bias"><i class="fa fa-check"></i><b>13.2.2</b> Detection of and correction for publication bias</a></li>
-<li class="chapter" data-level="13.2.3" data-path="sec-meta.html"><a href="sec-meta.html#getting-rid-of-publication-bias-registered-reports-and-pre-analysis-plans"><i class="fa fa-check"></i><b>13.2.3</b> Getting rid of publication bias: registered reports and pre-analysis plans</a></li>
-<li class="chapter" data-level="13.2.4" data-path="sec-meta.html"><a href="sec-meta.html#detection-of-and-correction-for-site-selection-bias"><i class="fa fa-check"></i><b>13.2.4</b> Detection of and correction for site selection bias</a></li>
-<li class="chapter" data-level="13.2.5" data-path="sec-meta.html"><a href="sec-meta.html#vote-counting-and-publication-bias"><i class="fa fa-check"></i><b>13.2.5</b> Vote counting and publication bias</a></li>
-<li class="chapter" data-level="13.2.6" data-path="sec-meta.html"><a href="sec-meta.html#the-value-of-a-statistically-significant-result"><i class="fa fa-check"></i><b>13.2.6</b> The value of a statistically significant result</a></li>
+<li class="chapter" data-level="13.2" data-path="sec:meta.html"><a href="sec:meta.html#publication-bias-and-site-selection-bias"><i class="fa fa-check"></i><b>13.2</b> Publication bias and site selection bias</a>
+<ul>
+<li class="chapter" data-level="13.2.1" data-path="sec:meta.html"><a href="sec:meta.html#sources-of-publication-bias-and-of-site-selection-bias-and-questionable-research-practices"><i class="fa fa-check"></i><b>13.2.1</b> Sources of publication bias and of site selection bias and Questionable Research Practices</a></li>
+<li class="chapter" data-level="13.2.2" data-path="sec:meta.html"><a href="sec:meta.html#detection-of-and-correction-for-publication-bias"><i class="fa fa-check"></i><b>13.2.2</b> Detection of and correction for publication bias</a></li>
+<li class="chapter" data-level="13.2.3" data-path="sec:meta.html"><a href="sec:meta.html#getting-rid-of-publication-bias-registered-reports-and-pre-analysis-plans"><i class="fa fa-check"></i><b>13.2.3</b> Getting rid of publication bias: registered reports and pre-analysis plans</a></li>
+<li class="chapter" data-level="13.2.4" data-path="sec:meta.html"><a href="sec:meta.html#detection-of-and-correction-for-site-selection-bias"><i class="fa fa-check"></i><b>13.2.4</b> Detection of and correction for site selection bias</a></li>
+<li class="chapter" data-level="13.2.5" data-path="sec:meta.html"><a href="sec:meta.html#vote-counting-and-publication-bias"><i class="fa fa-check"></i><b>13.2.5</b> Vote counting and publication bias</a></li>
+<li class="chapter" data-level="13.2.6" data-path="sec:meta.html"><a href="sec:meta.html#the-value-of-a-statistically-significant-result"><i class="fa fa-check"></i><b>13.2.6</b> The value of a statistically significant result</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="14" data-path="Bounds.html"><a href="Bounds.html"><i class="fa fa-check"></i><b>14</b> Bounds</a></li>
+<li class="chapter" data-level="15" data-path="mediation-analysis.html"><a href="mediation-analysis.html"><i class="fa fa-check"></i><b>15</b> Mediation Analysis</a>
+<ul>
+<li class="chapter" data-level="15.1" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-a-framework"><i class="fa fa-check"></i><b>15.1</b> Mediation analysis: a framework</a></li>
+<li class="chapter" data-level="15.2" data-path="mediation-analysis.html"><a href="mediation-analysis.html#the-fundamental-problem-of-mediation-analysis"><i class="fa fa-check"></i><b>15.2</b> The Fundamental Problem of Mediation Analysis</a></li>
+<li class="chapter" data-level="15.3" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-under-unconfoundedness"><i class="fa fa-check"></i><b>15.3</b> Mediation analysis under unconfoundedness</a></li>
+<li class="chapter" data-level="15.4" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-with-panel-data"><i class="fa fa-check"></i><b>15.4</b> Mediation analysis with panel data</a></li>
+<li class="chapter" data-level="15.5" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-with-instruments"><i class="fa fa-check"></i><b>15.5</b> Mediation analysis with instruments</a></li>
+</ul></li>
 <li class="appendix"><span><b>Appendix</b></span></li>
-<li class="chapter" data-level="A" data-path="proofs.html"><a href="proofs.html"><i class="fa fa-check"></i><b>A</b> Proofs</a><ul>
-<li class="chapter" data-level="A.1" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-reffpsi"><i class="fa fa-check"></i><b>A.1</b> Proofs of results in Chapter @ref(FPSI)</a><ul>
+<li class="chapter" data-level="A" data-path="proofs.html"><a href="proofs.html"><i class="fa fa-check"></i><b>A</b> Proofs</a>
+<ul>
+<li class="chapter" data-level="A.1" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-reffpsi"><i class="fa fa-check"></i><b>A.1</b> Proofs of results in Chapter @ref(FPSI)</a>
+<ul>
 <li class="chapter" data-level="A.1.1" data-path="proofs.html"><a href="proofs.html#proofcheb"><i class="fa fa-check"></i><b>A.1.1</b> Proof of Theorem @ref(thm:uppsampnoise)</a></li>
 <li class="chapter" data-level="A.1.2" data-path="proofs.html"><a href="proofs.html#proofCLT"><i class="fa fa-check"></i><b>A.1.2</b> Proof of Theorem @ref(thm:asympnoiseWW)</a></li>
 </ul></li>
-<li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a><ul>
+<li class="chapter" data-level="A.2" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refrct"><i class="fa fa-check"></i><b>A.2</b> Proofs of results in Chapter @ref(RCT)</a>
+<ul>
 <li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofIdentLATE"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Theorem @ref(thm:IdentLATE)</a></li>
 <li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Theorem @ref(thm:WaldIV)</a></li>
 <li class="chapter" data-level="A.2.3" data-path="proofs.html"><a href="proofs.html#ProofAsymWald"><i class="fa fa-check"></i><b>A.2.3</b> Proof of Theorem @ref(thm:asymWald)</a></li>
@@ -262,25 +327,28 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="proofs" class="section level1">
+<div id="proofs" class="section level1" number="16">
 <h1><span class="header-section-number">A</span> Proofs</h1>
-<div id="proofs-of-results-in-chapter-reffpsi" class="section level2">
+<div id="proofs-of-results-in-chapter-reffpsi" class="section level2" number="16.1">
 <h2><span class="header-section-number">A.1</span> Proofs of results in Chapter <a href="FPSI.html#FPSI">2</a></h2>
-<div id="proofcheb" class="section level3">
+<div id="proofcheb" class="section level3" number="16.1.1">
 <h3><span class="header-section-number">A.1.1</span> Proof of Theorem <a href="FPSI.html#thm:uppsampnoise">2.3</a></h3>
-<p>In order to use Theorem <a href="FPSI.html#thm:cheb">2.2</a> for studying the behavior of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>, we have to prove that it is unbiased and we have to compute <span class="math inline">\(\var{\hat{\Delta^Y_{WW}}}\)</span>. Let’s first prove that the <span class="math inline">\(WW\)</span> estimator is an unbiased estimator of <span class="math inline">\(TT\)</span>:</p>
+<p>In order to use Theorem <a href="FPSI.html#thm:cheb">2.2</a> for studying the behavior of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>, we have to prove that it is unbiased and we have to compute <span class="math inline">\(\var{\hat{\Delta^Y_{WW}}}\)</span>.
+Let’s first prove that the <span class="math inline">\(WW\)</span> estimator is an unbiased estimator of <span class="math inline">\(TT\)</span>:</p>
 
 <div class="lemma">
 <p><span id="lem:unbiasww" class="lemma"><strong>Lemma A.1  (Unbiasedness of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a> and <a href="FPSI.html#def:iid">2.4</a>,</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{\hat{\Delta^Y_{WW}}}&amp; = \Delta^Y_{TT}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 
-
 <div class="proof">
-<p> <span class="proof"><em>Proof. </em></span> In order to prove Lemma <a href="proofs.html#lem:unbiasww">A.1</a>, we are going to use a trick. We are going to compute the expectation of the <span class="math inline">\(WW\)</span> estimator conditional on a given treatment allocation. Because the resulting estimate is independent of treatment allocation, we will have our proof. This trick simplifies derivations a lot and is really natural: think first of all the samples with the same treatment allocation, then average your results over all possible treatment allocations.</p>
-<span class="math display">\[\begin{align*}
+<p> <span class="proof"><em>Proof. </em></span> In order to prove Lemma <a href="proofs.html#lem:unbiasww">A.1</a>, we are going to use a trick.
+We are going to compute the expectation of the <span class="math inline">\(WW\)</span> estimator conditional on a given treatment allocation.
+Because the resulting estimate is independent of treatment allocation, we will have our proof.
+This trick simplifies derivations a lot and is really natural: think first of all the samples with the same treatment allocation, then average your results over all possible treatment allocations.</p>
+<p><span class="math display">\[\begin{align*}
 \esp{\hat{\Delta^Y_{WW}}} &amp; = \esp{\esp{\hat{\Delta^Y_{WW}}|\mathbf{D}}}\\
                           &amp; = \esp{\esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
                           &amp; = \esp{\esp{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i|\mathbf{D}}-\esp{\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
@@ -292,23 +360,27 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
                           &amp; = \esp{\esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}}\\
                           &amp; = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0} \\
                           &amp; = \Delta^Y_{TT}.
-\end{align*}\]</span>
-The first equality uses the Law of Iterated Expectations (LIE). The second and fourth equalities use the linearity of conditional expectations. The third equality uses the fact that, conditional on <span class="math inline">\(\mathbf{D}\)</span>, the number of treated and untreated is a constant. The fifth equality uses Assumption <a href="FPSI.html#def:iid">2.4</a>. The sixth equality uses the fact that <span class="math inline">\(\esp{Y_iD_i|D_i}=D_i\esp{Y_i*1|D_i=1}+(1-D_i)\esp{Y_i*0|D_i=0}\)</span>. The seventh and ninth equalities use the fact that <span class="math inline">\(\esp{Y_i|D_i=1}\)</span> is a constant. The last equality uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.
+\end{align*}\]</span></p>
+The first equality uses the Law of Iterated Expectations (LIE).
+The second and fourth equalities use the linearity of conditional expectations.
+The third equality uses the fact that, conditional on <span class="math inline">\(\mathbf{D}\)</span>, the number of treated and untreated is a constant.
+The fifth equality uses Assumption <a href="FPSI.html#def:iid">2.4</a>.
+The sixth equality uses the fact that <span class="math inline">\(\esp{Y_iD_i|D_i}=D_i\esp{Y_i*1|D_i=1}+(1-D_i)\esp{Y_i*0|D_i=0}\)</span>.
+The seventh and ninth equalities use the fact that <span class="math inline">\(\esp{Y_i|D_i=1}\)</span> is a constant.
+The last equality uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.
 </div>
-
 <p>Let’s now compute the variance of the <span class="math inline">\(WW\)</span> estimator:</p>
 
 <div class="lemma">
 <p><span id="lem:varww" class="lemma"><strong>Lemma A.2  (Variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a> and <a href="FPSI.html#def:iid">2.4</a>,</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \var{{\hat{\Delta^Y_{WW}}}} &amp; = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
-
 
 <div class="proof">
 <p> <span class="proof"><em>Proof. </em></span> Same trick as before, but now using the Law of Total Variance (LTV):</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \var{{\hat{\Delta^Y_{WW}}}} &amp; = \esp{\var{\hat{\Delta^Y_{WW}}|\mathbf{D}}}+\var{\esp{\hat{\Delta^Y_{WW}}|\mathbf{D}}}\\
                             &amp; = \esp{\var{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
                             &amp; = \esp{\var{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i|\mathbf{D}}}+\esp{\var{\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}}\\
@@ -318,62 +390,66 @@ The first equality uses the Law of Iterated Expectations (LIE). The second and f
                             &amp; = \esp{\frac{1}{(\sum_{i=1}^N D_i)^2}\sum_{i=1}^ND_i\var{Y_i|D_i=1}}+\esp{\frac{1}{(\sum_{i=1}^N (1-D_i))^2}\sum_{i=1}^N(1-D_i)\var{Y_i|D_i=0}} \\
                             &amp; = \var{Y_i|D_i=1}\esp{\frac{1}{\sum_{i=1}^N D_i}}+\var{Y_i|D_i=0}\esp{\frac{1}{\sum_{i=1}^N (1-D_i)}} \\
                             &amp; = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
-\end{align*}\]</span>
-The first equality stems from the LTV. The second and third equalities stems from the definition of the <span class="math inline">\(WW\)</span> estimator and of the variance of a sum of random variables. The fourth equality stems from Assumption <a href="FPSI.html#def:iid">2.4</a>, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant. The fifth and sixth equalities stems from Assumption <a href="FPSI.html#def:iid">2.4</a> and from <span class="math inline">\(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\)</span>. The seventh equality stems from <span class="math inline">\(\var{Y_i|D_i=1}\)</span> and <span class="math inline">\(\var{Y_i|D_i=0}\)</span> being constant. The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case under Assumption <a href="FPSI.html#def:fullrank">2.3</a>.
+\end{align*}\]</span></p>
+The first equality stems from the LTV.
+The second and third equalities stems from the definition of the <span class="math inline">\(WW\)</span> estimator and of the variance of a sum of random variables.
+The fourth equality stems from Assumption <a href="FPSI.html#def:iid">2.4</a>, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
+The fifth and sixth equalities stems from Assumption <a href="FPSI.html#def:iid">2.4</a> and from <span class="math inline">\(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\)</span>.
+The seventh equality stems from <span class="math inline">\(\var{Y_i|D_i=1}\)</span> and <span class="math inline">\(\var{Y_i|D_i=0}\)</span> being constant.
+The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case under Assumption <a href="FPSI.html#def:fullrank">2.3</a>.
 </div>
-
 <p>Using Theorem <a href="FPSI.html#thm:cheb">2.2</a>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 2\epsilon &amp; \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{1-(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\right)}\\
           &amp; \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{(1-\Pr(D_i=1))}\right)},
-\end{align*}\]</span>
-<p>where the second equality stems from the fact that <span class="math inline">\(\frac{(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\geq0\)</span>. This proves the result.</p>
+\end{align*}\]</span></p>
+<p>where the second equality stems from the fact that <span class="math inline">\(\frac{(1-\Pr(D_i=1))^N}{\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{\Pr(D_i=1)^N}{(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}\geq0\)</span>.
+This proves the result.</p>
 </div>
-<div id="proofCLT" class="section level3">
+<div id="proofCLT" class="section level3" number="16.1.2">
 <h3><span class="header-section-number">A.1.2</span> Proof of Theorem <a href="FPSI.html#thm:asympnoiseWW">2.5</a></h3>
 <p>Before proving Theorem <a href="FPSI.html#thm:asympnoiseWW">2.5</a>, let me state a very useful result: <span class="math inline">\(\hat{WW}\)</span> can be computed using OLS:</p>
 
 <div class="lemma">
 <p><span id="lem:WWOLS" class="lemma"><strong>Lemma A.3  (WW is OLS)  </strong></span>Under Assumption <a href="FPSI.html#def:fullrank">2.3</a>, the OLS coefficient <span class="math inline">\(\beta\)</span> in the following regression:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
         Y_i &amp;  = \alpha +  \beta D_i + U_i
-    \end{align*}\]</span>
+    \end{align*}\]</span></p>
 <p>is the WW estimator:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \hat{\beta}_{OLS} &amp; = \frac{\frac{1}{N}\sum_{i=1}^N\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)^2} \\
                                 &amp; = \hat{\Delta^Y_{WW}}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
-
 
 <div class="proof">
 <p> <span class="proof"><em>Proof. </em></span> In matrix notation, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \underbrace{\left(\begin{array}{c}  Y_1 \\    \vdots \\   Y_N \end{array}\right)}_{Y} &amp; = 
   \underbrace{\left(\begin{array}{cc}   1 &amp; D_1\\   \vdots &amp; \vdots\\   1 &amp; D_N\end{array}\right)}_{X}
   \underbrace{\left(\begin{array}{c}    \alpha \\   \beta \end{array}\right)}_{\Theta}+
   \underbrace{\left(\begin{array}{c}    U_1 \\  \vdots \\   U_N \end{array}\right)}_{U}
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>The OLS estimator is:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
     \hat{\Theta}_{OLS} &amp;  = (X&#39;X)^{-1}X&#39;Y
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Under the Full Rank Assumption, <span class="math inline">\(X&#39;X\)</span> is invertible and we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 (X&#39;X)^{-1} &amp;  = \left(\begin{array}{cc} N &amp; \sum_{i=1}^ND_i \\ \sum_{i=1}^ND_i &amp; \sum_{i=1}^ND_i^2 \end{array}\right)^{-1} \\
                 &amp; = \frac{1}{N\sum_{i=1}^ND_i^2-\left(\sum_{i=1}^ND_i\right)^2}\left(\begin{array}{cc} \sum_{i=1}^ND_i^2 &amp; -\sum_{i=1}^ND_i \\ -\sum_{i=1}^ND_i &amp; N \end{array}\right)
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>For simplicity, I omit the summation index:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \hat{\Theta}_{OLS} &amp;  = \frac{1}{N\sum D_i^2-\left(\sum D_i\right)^2}
                           \left(\begin{array}{cc} \sum D_i^2 &amp; -\sum D_i \\ -\sum D_i &amp; N \end{array}\right)
                           \left(\begin{array}{c} \sum Y_i \\  \sum Y_iD_i \end{array}\right) \\
                     &amp; = \frac{1}{N\sum D_i^2-\left(\sum D_i\right)^2}
                         \left(\begin{array}{c} \sum D_i^2\sum Y_i-\sum D_i\sum_{i=1}^NY_iD_i \\
                                               -\sum D_i\sum Y_i+ N\sum Y_iD_i \end{array}\right) \\
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Using <span class="math inline">\(D_i^2=D_i\)</span>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \hat{\Theta}_{OLS} &amp;  =  \left(\begin{array}{c} 
           \frac{\left(\sum D_i\right)\left(\sum Y_i-\sum Y_iD_i\right)}{\left(\sum D_i\right)\left(N-\sum D_i\right)} \\
           \frac{N\sum Y_iD_i-\sum D_i\sum Y_i}{N\sum D_i-\left(\sum D_i\right)^2} 
@@ -390,9 +466,10 @@ The first equality stems from the LTV. The second and third equalities stems fro
           \frac{\sum Y_i(1-D_i)}{\sum(1-D_i)} \\
     \frac{\frac{1}{N}\sum\left(Y_i-\frac{1}{N}\sum Y_i\right)\left(D_i-\frac{1}{N}\sum D_i\right)}{\frac{1}{N}\sum \left(D_i-\frac{1}{N}\sum D_i\right)^2} 
                             \end{array}\right), 
-\end{align*}\]</span>
-<p>which proves the first part of the lemma. Now for the second part of the lemma:</p>
-<span class="math display">\[\begin{align*}
+\end{align*}\]</span></p>
+<p>which proves the first part of the lemma.
+Now for the second part of the lemma:</p>
+<p><span class="math display">\[\begin{align*}
   \hat{\beta}_{OLS} &amp;  = \frac{\sum Y_iD_i-\frac{1}{N}\sum D_i\sum Y_i}{\sum D_i\left(1-\frac{1}{N}\sum D_i\right)}
                        = \frac{\sum Y_iD_i-\frac{1}{N}\sum D_i\sum\left(Y_iD_i+(1-D_i)Y_i\right)}{\sum D_i\left(1-\frac{1}{N}\sum D_i\right)}\\
                     &amp;  = \frac{\sum Y_iD_i\left(1-\frac{1}{N}\sum D_i\right)-\frac{1}{N}\sum D_i\sum(1-D_i)Y_i}{\sum D_i\left(1-\frac{1}{N}\sum D_i\right)}\\
@@ -400,56 +477,55 @@ The first equality stems from the LTV. The second and third equalities stems fro
                     &amp;  = \frac{\sum Y_iD_i}{\sum D_i}-\frac{\frac{1}{N}\sum(1-D_i)Y_i}{\frac{1}{N}\sum\left(1-D_i\right)}\\
                      &amp;  = \frac{\sum Y_iD_i}{\sum D_i}-\frac{\sum(1-D_i)Y_i}{\sum\left(1-D_i\right)}\\
                      &amp; = \hat{\Delta^Y_{WW}},
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 which proves the result.
 </div>
-
 <p>Now, let me state the most important lemma behind the result in Theorem <a href="FPSI.html#thm:asympnoiseWW">2.5</a>:</p>
 
 <div class="lemma">
 <p><span id="lem:asympOLS" class="lemma"><strong>Lemma A.4  (Asymptotic Distribution of the OLS Estimator)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \sqrt{N}(\hat{\Theta}_{OLS}-\Theta) &amp;  \stackrel{d}{\rightarrow}
   \mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},
   \sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1}\right), 
-\end{align*}\]</span>
-with
+\end{align*}\]</span></p>
+<p>with
 <span class="math display">\[\begin{align*}
 \sigma_{XX}^{-1}&amp; = \left(\begin{array}{cc} \frac{\Pr(D_i=1)}{\Pr(D_i=1)(1-\Pr(D_i=1))} &amp; -\frac{\Pr(D_i=1)}{\Pr(D_i=1)(1-\Pr(D_i=1))}\\
                                           -\frac{\Pr(D_i=1)}{\Pr(D_i=1)(1-\Pr(D_i=1))} &amp; \frac{1}{\Pr(D_i=1)(1-\Pr(D_i=1))} 
                           \end{array}\right)\\
 \mathbf{V_{xu}}&amp;= \esp{U_i^2\left(\begin{array}{cc}  1 &amp; D_i\\  D_i &amp; D_i\end{array}\right)}                        
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 
-
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> 
+<p> <span class="proof"><em>Proof. </em></span> 
 <span class="math display">\[\begin{align*}
 \sqrt{N}(\hat{\Theta}_{OLS}-\Theta) &amp; = \sqrt{N}((X&#39;X)^{-1}X&#39;Y-\Theta) \\
                                     &amp; = \sqrt{N}((X&#39;X)^{-1}X&#39;(X\Theta+U)-\Theta) \\
                                     &amp; = \sqrt{N}((X&#39;X)^{-1}X&#39;X\Theta+(X&#39;X)^{-1}X&#39;U)-\Theta) \\
                                     &amp; = \sqrt{N}(X&#39;X)^{-1}X&#39;U \\
                                     &amp; = N(X&#39;X)^{-1}\frac{\sqrt{N}}{N}X&#39;U
-\end{align*}\]</span>
-<p>Using Slutsky’s Theorem, we can study both terms separately. Slutsky’s Theorem states that if <span class="math inline">\(Y_N\stackrel{d}{\rightarrow}y\)</span> and <span class="math inline">\(\text{plim}(X_N)=x\)</span>, then:</p>
+\end{align*}\]</span></p>
+<p>Using Slutsky’s Theorem, we can study both terms separately.
+Slutsky’s Theorem states that if <span class="math inline">\(Y_N\stackrel{d}{\rightarrow}y\)</span> and <span class="math inline">\(\text{plim}(X_N)=x\)</span>, then:</p>
 <ol style="list-style-type: decimal">
 <li><span class="math inline">\(X_N+Y_N\stackrel{d}{\rightarrow}x+y\)</span></li>
 <li><span class="math inline">\(X_NY_N\stackrel{d}{\rightarrow}xy\)</span></li>
 <li><span class="math inline">\(\frac{Y_N}{X_N}\stackrel{d}{\rightarrow}\frac{x}{y}\)</span> if <span class="math inline">\(x\neq0\)</span></li>
 </ol>
 <p>Using this theorem, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \sqrt{N}(\hat{\Theta}_{OLS}-\Theta) &amp; \stackrel{d}{\rightarrow} \sigma_{XX}^{-1}xu,
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Where <span class="math inline">\(\sigma_{XX}^{-1}\)</span> is a matrix of constants and <span class="math inline">\(xu\)</span> is a random variable.</p>
 <p>Let’s begin with <span class="math inline">\(\frac{\sqrt{N}}{N}X&#39;U\stackrel{d}{\rightarrow}xu\)</span>:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \frac{\sqrt{N}}{N}X&#39;U &amp; = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum^{i=1}_{N}U_i\\  \frac{1}{N}\sum^{i=1}_{N}D_iU_i\end{array}\right)
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>In order to determine the asymptotic distribution of <span class="math inline">\(\frac{\sqrt{N}}{N}X&#39;U\)</span>, we are going to use the vector version of the CLT:</p>
 <p>If <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span> are two i.i.d. random variables with finite first and second moments, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
     \sqrt{N}
   \left(
       \begin{array}{c}  
@@ -467,24 +543,24 @@ with
     \end{array},
   \mathbf{V}
   \right),
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>where <span class="math inline">\(\mathbf{V}\)</span> is the population covariance matrix of <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span>.</p>
 <p>We know that, under Assumption <a href="FPCI.html#def:noselb">1.7</a>, both random variables have mean zero:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{U_i}&amp; = \esp{U_i|D_i=1}\Pr(D_i=1)+\esp{U_i|D_i=0}\Pr(D_i=0)=0 \\
 \esp{U_iD_i}&amp; = \esp{U_i|D_i=1}\Pr(D_i=1)=0
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Their covariance matrix <span class="math inline">\(\mathbf{V_{xu}}\)</span> can be computed as follows:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \mathbf{V_{xu}} &amp; = \esp{\left(\begin{array}{c}  U_i\\  UiD_i\end{array}\right)\left(\begin{array}{cc}  U_i&amp;    UiD_i\end{array}\right)}
                   - \esp{\left(\begin{array}{c} U_i\\   UiD_i\end{array}\right)}\esp{\left(\begin{array}{cc}    U_i&amp;    UiD_i\end{array}\right)}\\
                 &amp; = \esp{\left(\begin{array}{cc}    U_i^2 &amp; U_i^2D_i\\  Ui^2D_i &amp; U_i^2D_i^2\end{array}\right)} 
                   = \esp{U_i^2\left(\begin{array}{cc}   1 &amp; D_i\\   D_i &amp; D_i^2\end{array}\right)} 
                   = \esp{U_i^2\left(\begin{array}{cc}   1 &amp; D_i\\   D_i &amp; D_i\end{array}\right)} 
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Using the Vector CLT, we have that <span class="math inline">\(\frac{\sqrt{N}}{N}X&#39;U\stackrel{d}{\rightarrow}\mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},\mathbf{V_{xu}}\right)\)</span>.</p>
 <p>Let’s show now that <span class="math inline">\(\plims N(X&#39;X)^{-1}=\sigma_{XX}^{-1}\)</span>:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 N(X&#39;X)^{-1} &amp; = \frac{N}{N\sum_{i=1}^ND_i-\left(\sum_{i=1}^ND_i\right)^2}
                 \left(\begin{array}{cc} \sum_{i=1}^ND_i &amp; -\sum_{i=1}^ND_i \\ -\sum_{i=1}^ND_i &amp; N \end{array}\right) \\
             &amp; = \frac{1}{N}\frac{1}{\frac{1}{N}\sum_{i=1}^ND_i-\left(\frac{1}{N}\sum_{i=1}^ND_i\right)^2}
@@ -496,17 +572,19 @@ N(X&#39;X)^{-1} &amp; = \frac{N}{N\sum_{i=1}^ND_i-\left(\sum_{i=1}^ND_i\right)^2
                   &amp; = \frac{1}{\Pr(D_i=1)-\Pr(D_i=1)^2}
                 \left(\begin{array}{cc} \Pr(D_i=1) &amp; -\Pr(D_i=1) \\ -\Pr(D_i=1) &amp; 1 \end{array}\right)\\
                  &amp; = \sigma_{XX}^{-1}
-\end{align*}\]</span>
-<p>The fourth equality uses Slutsky’s Theorem. The fifth equality uses the Law of Large Numbers (LLN): if <span class="math inline">\(Y_i\)</span> are i.i.d. variables with finite first and second moments, <span class="math inline">\(\plim{N}\frac{1}{N}\sum_{i=1}^NY_i = \esp{Y_i}\)</span>.</p>
-<p>In order to complete the proof, we have to use the Delta Method Theorem. This theorem states that:</p>
-<span class="math display">\[\begin{gather*}
+\end{align*}\]</span></p>
+<p>The fourth equality uses Slutsky’s Theorem.
+The fifth equality uses the Law of Large Numbers (LLN): if <span class="math inline">\(Y_i\)</span> are i.i.d. variables with finite first and second moments, <span class="math inline">\(\plim{N}\frac{1}{N}\sum_{i=1}^NY_i = \esp{Y_i}\)</span>.</p>
+<p>In order to complete the proof, we have to use the Delta Method Theorem.
+This theorem states that:</p>
+<p><span class="math display">\[\begin{gather*}
   \sqrt{N}(\begin{array}{c} \bar{X}_N-\esp{X_i}\\   \bar{Y}_N-\esp{Y_i}\end{array})  \stackrel{d}{\rightarrow}\mathcal{N}(\begin{array}{c}  0\\ 0\end{array},\mathbf{V}) \\
 \Rightarrow \sqrt{N}(g(\bar{X}_N,\bar{Y}_N)-g(\esp{X_i},\esp{Y_i})  \stackrel{d}{\rightarrow}\mathcal{N}(0,G&#39;\mathbf{V}G)
-\end{gather*}\]</span>
+\end{gather*}\]</span></p>
 <p>where <span class="math inline">\(G(u)=\partder{g(u)}{u}\)</span> and <span class="math inline">\(G=G(\esp{X_i},\esp{Y_i})\)</span>.</p>
-In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <span class="math inline">\(G(xu)=\sigma_{XX}^{-1}\)</span>. The results follows from that and from the symmetry of <span class="math inline">\(\sigma_{XX}^{-1}\)</span>.
+In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <span class="math inline">\(G(xu)=\sigma_{XX}^{-1}\)</span>.
+The results follows from that and from the symmetry of <span class="math inline">\(\sigma_{XX}^{-1}\)</span>.
 </div>
-
 <p>A last lemma uses the previous result to derive the asymptotic distribution of <span class="math inline">\(\hat{WW}\)</span>:</p>
 
 <div class="lemma">
@@ -517,10 +595,11 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
 \end{align*}\]</span>
 </div>
 
-
 <div class="proof">
-<p> <span class="proof"><em>Proof. </em></span> In order to derive the asymptotic distribution of WW, I use first Lemma <a href="proofs.html#lem:WWOLS">A.3</a> which implies that the asymptotic distribution of WW is the same as that of <span class="math inline">\(\hat{\beta}_{OLS}\)</span>. Now, from Lemma <a href="proofs.html#lem:asympOLS">A.4</a>, we know that <span class="math inline">\(\sqrt{N}(\hat{\beta}_{OLS}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})\)</span>, where <span class="math inline">\(\sigma^2_{\beta}\)</span> is the lower diagonal term of <span class="math inline">\(\sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1}\)</span>. Using the convention <span class="math inline">\(p=\Pr(D_i=1)\)</span>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p> <span class="proof"><em>Proof. </em></span> In order to derive the asymptotic distribution of WW, I use first Lemma <a href="proofs.html#lem:WWOLS">A.3</a> which implies that the asymptotic distribution of WW is the same as that of <span class="math inline">\(\hat{\beta}_{OLS}\)</span>.
+Now, from Lemma <a href="proofs.html#lem:asympOLS">A.4</a>, we know that <span class="math inline">\(\sqrt{N}(\hat{\beta}_{OLS}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})\)</span>, where <span class="math inline">\(\sigma^2_{\beta}\)</span> is the lower diagonal term of <span class="math inline">\(\sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1}\)</span>.
+Using the convention <span class="math inline">\(p=\Pr(D_i=1)\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
 \sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1} 
                   &amp; = \left(\begin{array}{cc}  
                                           \frac{p}{p(1-p)} &amp; -\frac{p}{p(1-p)}\\
@@ -545,14 +624,14 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
                                           p^2(\esp{U_i^2}-\esp{U_i^2D_i}) &amp; p^2(\esp{U_i^2D_i}-\esp{U_i^2})\\
                                           p^2(\esp{U_i^2D_i}-\esp{U_i^2}) &amp;  p^2\esp{U_i^2}+(1-2p)\esp{U_i^2D_i}
                           \end{array}\right)
- \end{align*}\]</span>
+ \end{align*}\]</span></p>
 <p>The final result comes from the fact that:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{U_i^2} &amp; = \esp{U_i^2|D_i=1}p + (1-p)\esp{U_i^2|D_i=0}\\
             &amp; = p\var{Y_i^1|D_i=1}+(1-p)\var{Y_i^0|D_i=0} \\
 \esp{U_i^2D_i}  &amp; = \esp{U_i^2|D_i=1}p  \\
                 &amp; = p\var{Y_i^1|D_i=1}.
- \end{align*}\]</span>
+ \end{align*}\]</span></p>
 <p>As a consequence:</p>
 <span class="math display">\[\begin{align*}
 \sigma^2_{\beta} &amp;= \frac{1}{(p(1-p))^2}\left(\var{Y_i^1|D_i=1}p(p^2-2p+1) + p^2(1-p)\var{Y_i^0|D_i=0}\right) \\
@@ -560,26 +639,25 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
                   &amp; = \frac{\var{Y_i^1|D_i=1}}{p}+\frac{\var{Y_i^0|D_i=0}}{1-p}.
  \end{align*}\]</span>
 </div>
-
 <p>Using the previous lemma, we can now approximate the confidence level of <span class="math inline">\(\hat{WW}\)</span>:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \Pr&amp;(|\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}|\leq\epsilon) = \Pr(-\epsilon\leq\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}\leq\epsilon) \\
 &amp; = \Pr\left(-\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\leq\frac{\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\leq\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)\\
 &amp; \approx \Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)-
 \Phi\left(-\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)\\
 &amp; = \Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)- 1 + \Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)\\
 &amp; = 2\Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)-1.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>As a consequence,</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \delta &amp; \approx 2\Phi\left(\frac{\epsilon}{\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}}}\right)-1.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Hence the result.</p>
 </div>
 </div>
-<div id="proofs-of-results-in-chapter-refrct" class="section level2">
+<div id="proofs-of-results-in-chapter-refrct" class="section level2" number="16.2">
 <h2><span class="header-section-number">A.2</span> Proofs of results in Chapter <a href="RCT.html#RCT">3</a></h2>
-<div id="proofIdentLATE" class="section level3">
+<div id="proofIdentLATE" class="section level3" number="16.2.1">
 <h3><span class="header-section-number">A.2.1</span> Proof of Theorem <a href="RCT.html#thm:IdentLATE">3.9</a></h3>
 <p>In order to prove the theorem, it is going to be very helpful to prove the following lemma:</p>
 
@@ -590,13 +668,13 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
 \end{align*}\]</span>
 </div>
 
-
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> Lemma 4.2 in <a href="https://www.jstor.org/stable/2984718">Dawid (1979)</a> shows that if <span class="math inline">\(X\Ind Y|Z\)</span> and <span class="math inline">\(U\)</span> is a function of <span class="math inline">\(X\)</span> then <span class="math inline">\(U\Ind Y|Z\)</span>. The fact that <span class="math inline">\(T_i\)</span> is a function of <span class="math inline">\((D_i^1,D^0_i)\)</span> proves the result.
+ <span class="proof"><em>Proof. </em></span> Lemma 4.2 in <a href="https://www.jstor.org/stable/2984718">Dawid (1979)</a> shows that if <span class="math inline">\(X\Ind Y|Z\)</span> and <span class="math inline">\(U\)</span> is a function of <span class="math inline">\(X\)</span> then <span class="math inline">\(U\Ind Y|Z\)</span>.
+The fact that <span class="math inline">\(T_i\)</span> is a function of <span class="math inline">\((D_i^1,D^0_i)\)</span> proves the result.
 </div>
-
-<p>The four sets defined by <span class="math inline">\(T_i\)</span> are a partition of the sample space. As a consequence, we have (ommitting the conditioning on <span class="math inline">\(E_i=1\)</span> all along for simplicity):</p>
-<span class="math display">\[\begin{align*}
+<p>The four sets defined by <span class="math inline">\(T_i\)</span> are a partition of the sample space.
+As a consequence, we have (ommitting the conditioning on <span class="math inline">\(E_i=1\)</span> all along for simplicity):</p>
+<p><span class="math display">\[\begin{align*}
 \esp{Y_i|R_i=1} &amp; = \esp{Y_i|T_i=a,R_i=1}\Pr(T_i=a|R_i=1)\\
                 &amp; \phantom{=}+ \esp{Y_i|T_i=c,R_i=1}\Pr(T_i=c|R_i=1) \\
                             &amp; \phantom{=} + \esp{Y_i|T_i=d,R_i=1}\Pr(T_i=d|R_i=1)\\
@@ -605,18 +683,18 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
                 &amp; \phantom{=} + \esp{Y_i|T_i=c,R_i=0}\Pr(T_i=c|R_i=0) \\
                             &amp; \phantom{=} + \esp{Y_i|T_i=d,R_i=0}\Pr(T_i=d|R_i=0)\\
                             &amp; \phantom{=}+ \esp{Y_i|T_i=n,R_i=0}\Pr(T_i=n|R_i=0).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Let’s look at all these terms in turn:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \esp{Y_i|T_i=a,R_i=1} &amp; =   \esp{Y_i^{1,1}D_iR_i+Y_i^{1,0}D_i(1-R_i)+Y_i^{0,1}(1-D_i)R_i+Y_i^{0,0}(1-D_i)(1-R_i)|T_i=a,R_i=1} \\
    &amp; =   \esp{Y_i^{1,1}(D^1_iR_i+D_i^0(1-R_i))R_i+Y_i^{0,1}(1-(D^1_iR_i+D_i^0(1-R_i)))R_i|T_i=a,R_i=1} \\
    &amp; =   \esp{Y_i^{1,1}D^1_iR_i^2+Y_i^{0,1}(1-D^1_iR_i)R_i|D_i^1=D_i^0=1,R_i=1} \\
    &amp; =   \esp{Y_i^{1,1}|T_i=a,R_i=1} \\
    &amp; =   \esp{Y_i^{1,1}|T_i=a}, \\
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>where the first equality uses Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a>, the second equality uses the fact that <span class="math inline">\(R_i=1\)</span> in the conditional expectation and Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a>, the third equality uses the fact that <span class="math inline">\(R_i=1\)</span>, the fourth equality uses the fact that <span class="math inline">\(T_i=a \Leftrightarrow D_i^1=D_i^0=1\)</span> and the last equality uses Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a>.</p>
 <p>Using a similar reasoning, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \esp{Y_i|T_i=c,R_i=1} &amp; = \esp{Y_i^{1,1}|T_i=c} \\
   \esp{Y_i|T_i=d,R_i=1} &amp; = \esp{Y_i^{0,1}|T_i=d} \\
   \esp{Y_i|T_i=n,R_i=1} &amp; = \esp{Y_i^{0,1}|T_i=n} \\
@@ -624,9 +702,10 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
   \esp{Y_i|T_i=c,R_i=0} &amp; = \esp{Y_i^{0,0}|T_i=c} \\
   \esp{Y_i|T_i=d,R_i=0} &amp; = \esp{Y_i^{1,0}|T_i=d} \\
   \esp{Y_i|T_i=n,R_i=0} &amp; = \esp{Y_i^{0,0}|T_i=n}.
-\end{align*}\]</span>
-<p>Also, Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a> implies that <span class="math inline">\(\Pr(T_i=a|R_i)=\Pr(T_i=a)\)</span>, and the same is true for all other types. As a consequence, we have:</p>
-<span class="math display">\[\begin{align*}
+\end{align*}\]</span></p>
+<p>Also, Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a> implies that <span class="math inline">\(\Pr(T_i=a|R_i)=\Pr(T_i=a)\)</span>, and the same is true for all other types.
+As a consequence, we have:</p>
+<p><span class="math display">\[\begin{align*}
 \esp{Y_i|R_i=1} &amp; = \esp{Y_i^{1,1}|T_i=a}\Pr(T_i=a)\\
                 &amp; \phantom{=} + \esp{Y_i^{1,1}|T_i=c}\Pr(T_i=c) \\
                             &amp; \phantom{=} + \esp{Y_i^{0,1}|T_i=d}\Pr(T_i=d)\\
@@ -635,30 +714,30 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
                 &amp; \phantom{=} + \esp{Y_i^{0,0}|T_i=c}\Pr(T_i=c) \\                      
                                 &amp; \phantom{=} + \esp{Y_i^{1,0}|T_i=d}\Pr(T_i=d)\\
                                 &amp; \phantom{=} + \esp{Y_i^{0,0}|T_i=n}\Pr(T_i=n).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>And thus:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &amp; = (\esp{Y_i^{1,1}|T_i=a}-\esp{Y_i^{1,0}|T_i=a})\Pr(T_i=a)\\
                                 &amp; \phantom{=}+ (\esp{Y_i^{1,1}|T_i=c}-\esp{Y_i^{0,0}|T_i=c})\Pr(T_i=c) \\
                                             &amp; \phantom{=} - (\esp{Y_i^{1,0}|T_i=d}-\esp{Y_i^{0,1}|T_i=d})\Pr(T_i=d)\\
                                             &amp; \phantom{=} + (\esp{Y_i^{0,1}|T_i=n}-\esp{Y_i^{0,0}|T_i=n})\Pr(T_i=n).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Using Assumption <a href="RCT.html#def:ExclRestr">3.11</a>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &amp; = (\esp{Y_i^{1}|T_i=a}-\esp{Y_i^{1}|T_i=a})\Pr(T_i=a)\\
                                 &amp; \phantom{=}+ (\esp{Y_i^{1}|T_i=c}-\esp{Y_i^{0}|T_i=c})\Pr(T_i=c) \\
                                             &amp; \phantom{=} - (\esp{Y_i^{1}|T_i=d}-\esp{Y_i^{0}|T_i=d})\Pr(T_i=d)\\
                                             &amp; \phantom{=} + (\esp{Y_i^{0}|T_i=n}-\esp{Y_i^{0}|T_i=n})\Pr(T_i=n)\\
                                             &amp; = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c) \\
                                             &amp; \phantom{=} - \esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Under Assumption <a href="RCT.html#def:Mono">3.13</a>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{Y_i|R_i=1}-\esp{Y_i|R_i=0} &amp;  = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)\\
                                  &amp; = \Delta^Y_{LATE}\Pr(T_i=c).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>We also have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \Pr(D_i=1|R_i=1) &amp; = \Pr(D^1_i=1|R_i=1)\\
                 &amp; =  \Pr(D^1_i=1\cap (D_i^0=1\cup D_i^0=0) |R_i=1)\\
                 &amp; =  \Pr(D^1_i=1\cap D_i^0=1\cup D^1_i=1\cap D_i^0=0 |R_i=1)\\
@@ -666,69 +745,76 @@ In our case, <span class="math inline">\(g(xu)=\sigma_{XX}^{-1}xu\)</span>, so <
                 &amp; =  \Pr(T_i=a\cup T_i=c |R_i=1)\\
                &amp; =  \Pr(T_i=a|R_i=1)+\Pr(T_i=c|R_i=1)\\
                &amp; =  \Pr(T_i=a)+\Pr(T_i=c),
-\end{align*}\]</span>
-<p>where the first equality follows from Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a> and the fact that <span class="math inline">\(D_i=R_iD_i^1+(1-R_i)D_i^0\)</span>, so that <span class="math inline">\(D_i|R_i=1=D_i^1\)</span>. The second equality follows from the fact that <span class="math inline">\(\left\{ D_i^0=1,D_i^0=0\right\}\)</span> is a partition of the sample space. The third equality follows from usual rules of logic and the fourth equality from the fact that <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D_i^0\)</span> can only take values zero and one. The fifth equality follows from the definition of <span class="math inline">\(T_i\)</span>. The sixth equaity follows from the rule of addition in probability and the fact that <span class="math inline">\(T_i=a\)</span> and <span class="math inline">\(T_i=c\)</span> are disjoint. The final equality follows from Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a>.</p>
+\end{align*}\]</span></p>
+<p>where the first equality follows from Assumption <a href="RCT.html#def:RandEncouragValid">3.9</a> and the fact that <span class="math inline">\(D_i=R_iD_i^1+(1-R_i)D_i^0\)</span>, so that <span class="math inline">\(D_i|R_i=1=D_i^1\)</span>.
+The second equality follows from the fact that <span class="math inline">\(\left\{ D_i^0=1,D_i^0=0\right\}\)</span> is a partition of the sample space.
+The third equality follows from usual rules of logic and the fourth equality from the fact that <span class="math inline">\(D_i^1\)</span> and <span class="math inline">\(D_i^0\)</span> can only take values zero and one.
+The fifth equality follows from the definition of <span class="math inline">\(T_i\)</span>.
+The sixth equaity follows from the rule of addition in probability and the fact that <span class="math inline">\(T_i=a\)</span> and <span class="math inline">\(T_i=c\)</span> are disjoint.
+The final equality follows from Lemma <a href="proofs.html#lem:UnconfTypes">A.6</a>.</p>
 <p>Using a similar reasoning, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \Pr(D_i=1|R_i=0) &amp; = \Pr(T_i=a)+ \Pr(T_i=d).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>As a consequence, under Assumption <a href="RCT.html#def:Mono">3.13</a>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \Pr(D_i=1|R_i=1)-\Pr(D_i=1|R_i=0) &amp; = \Pr(T_i=c).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Using Assumption <a href="RCT.html#def:Fstage">3.12</a> proves the result.</p>
 </div>
-<div id="proofWaldIV" class="section level3">
+<div id="proofWaldIV" class="section level3" number="16.2.2">
 <h3><span class="header-section-number">A.2.2</span> Proof of Theorem <a href="RCT.html#thm:WaldIV">3.15</a></h3>
 <p>In matrix notation, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \underbrace{\left(\begin{array}{c}  Y_1 \\    \vdots \\   Y_N \end{array}\right)}_{Y} &amp; =
   \underbrace{\left(\begin{array}{cc}   1 &amp; D_1\\   \vdots &amp; \vdots\\   1 &amp; D_N\end{array}\right)}_{X}
   \underbrace{\left(\begin{array}{c}    \alpha \\   \beta \end{array}\right)}_{\Theta}+
   \underbrace{\left(\begin{array}{c}    U_1 \\  \vdots \\   U_N \end{array}\right)}_{U}
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>and</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \left(\begin{array}{c}  D_1 \\    \vdots \\   D_N \end{array}\right) &amp; =
   \underbrace{\left(\begin{array}{cc}   1 &amp; R_1\\   \vdots &amp; \vdots\\   1 &amp; R_N\end{array}\right)}_{R}
   \left(\begin{array}{c}    \gamma \\   \tau \end{array}\right)+
   \left(\begin{array}{c}    V_1 \\  \vdots \\   V_N \end{array}\right)
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>The IV estimator is:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
     \hat{\Theta}_{IV} &amp;  = (R&#39;X)^{-1}R&#39;Y
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>If there is at least one observation with <span class="math inline">\(R_i=1\)</span> and <span class="math inline">\(D_i=1\)</span>, <span class="math inline">\(R&#39;X\)</span> is invertible (its determinant is non null) and we have (ommitting the summation index for simplicity):</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 (R&#39;X)^{-1} &amp;  = \left(\begin{array}{cc} N &amp; \sum D_i \\ \sum R_i &amp; \sum D_iR_i \end{array}\right)^{-1} \\
                 &amp; = \frac{1}{N\sum D_iR_i-\sum D_i\sum R_i}\left(\begin{array}{cc} \sum D_iR_i &amp; -\sum D_i \\ -\sum R_i &amp; N \end{array}\right)
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Since:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 R&#39;Y &amp;  = \left(\begin{array}{c} \sum Y_i \\ \sum Y_iR_i \end{array}\right),
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \hat{\Theta}_{IV} &amp;  =  \left(
                               \begin{array}{c}
                                 \frac{\sum Y_i\sum D_iR_i-\sum D_i\sum Y_iR_i}{N\sum D_iR_i -\sum D_iR_i}\\
                                 \frac{N\sum Y_iR_i-\sum R_i\sum Y_i}{N\sum D_iR_i-\sum D_iR_i}
                               \end{array}
                           \right)
-\end{align*}\]</span>
-<p>As a consequence, <span class="math inline">\(\hat{\beta}_{IV}\)</span> is equal to the ratio of two OLS estimators (<span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span> and a constant and <span class="math inline">\(D_i\)</span> on the same regressors) (see the proof of Lemma <a href="proofs.html#lem:WWOLS">A.3</a> in section <a href="proofs.html#proofCLT">A.1.2</a>, just after “Using <span class="math inline">\(D_i^2=D_i\)</span>”). We can use Lemma <a href="proofs.html#lem:WWOLS">A.3</a> stating that the OLS estimator is the WW estimator to prove the result.</p>
+\end{align*}\]</span></p>
+<p>As a consequence, <span class="math inline">\(\hat{\beta}_{IV}\)</span> is equal to the ratio of two OLS estimators (<span class="math inline">\(Y_i\)</span> on <span class="math inline">\(R_i\)</span> and a constant and <span class="math inline">\(D_i\)</span> on the same regressors) (see the proof of Lemma <a href="proofs.html#lem:WWOLS">A.3</a> in section <a href="proofs.html#proofCLT">A.1.2</a>, just after “Using <span class="math inline">\(D_i^2=D_i\)</span>”).
+We can use Lemma <a href="proofs.html#lem:WWOLS">A.3</a> stating that the OLS estimator is the WW estimator to prove the result.</p>
 </div>
-<div id="ProofAsymWald" class="section level3">
+<div id="ProofAsymWald" class="section level3" number="16.2.3">
 <h3><span class="header-section-number">A.2.3</span> Proof of Theorem <a href="RCT.html#thm:asymWald">3.16</a></h3>
-<p>In order to derive the asymptotic distribution of the Wald estimator, I first use Theorem <a href="RCT.html#thm:WaldIV">3.15</a> which implies that the asymptotic distribution of Wald is the same as that of <span class="math inline">\(\hat{\beta}_{IV}\)</span>. Now, I’m going to derive the asymptotic distribution of the IV estimator.</p>
+<p>In order to derive the asymptotic distribution of the Wald estimator, I first use Theorem <a href="RCT.html#thm:WaldIV">3.15</a> which implies that the asymptotic distribution of Wald is the same as that of <span class="math inline">\(\hat{\beta}_{IV}\)</span>.
+Now, I’m going to derive the asymptotic distribution of the IV estimator.</p>
 
 <div class="lemma">
 <p><span id="lem:asympIV" class="lemma"><strong>Lemma A.7  (Asymptotic Distribution of the IV Estimator)  </strong></span>Under Independence and Validity of the Instrument, Exclusion Restriction and Full Rank, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
   \sqrt{N}(\hat{\Theta}_{IV}-\Theta) &amp;  \stackrel{d}{\rightarrow}
   \mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},
   (\sigma_{RX}^{-1})&#39;\mathbf{V_{ru}}\sigma_{RX}^{-1}\right), 
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 with
 <span class="math display">\[\begin{align*}
 \sigma_{RX}^{-1}&amp; = \frac{\left(\begin{array}{cc}   \esp{D_iR_i} &amp; -\Pr(D_i=1)\\
@@ -739,53 +825,54 @@ with
 \end{align*}\]</span>
 </div>
 
-
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> 
-<span class="math display">\[\begin{align*}
+<p> <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
 \sqrt{N}(\hat{\Theta}_{IV}-\Theta) &amp; = \sqrt{N}((R&#39;X)^{-1}R&#39;Y-\Theta) \\
                                     &amp; = \sqrt{N}((R&#39;X)^{-1}R&#39;(X\Theta+U)-\Theta) \\
                                     &amp; = \sqrt{N}((R&#39;X)^{-1}R&#39;X\Theta+(X&#39;X)^{-1}X&#39;U)-\Theta) \\
                                     &amp; = \sqrt{N}(R&#39;X)^{-1}R&#39;U \\
                                     &amp; = N(R&#39;X)^{-1}\frac{\sqrt{N}}{N}R&#39;U
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Using Slutsky’s Theorem, we have:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \sqrt{N}(\hat{\Theta}_{IV}-\Theta) &amp; \stackrel{d}{\rightarrow} \sigma_{RX}^{-1}ru,
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>where <span class="math inline">\(\sigma_{RX}^{-1}\)</span> is a matrix of constants and <span class="math inline">\(ru\)</span> is a random variable.</p>
-<p>We know that <span class="math inline">\(\plims N(R&#39;X)^{-1}=\sigma_{RX}^{-1}\)</span>. So:</p>
-<span class="math display">\[\begin{align*}
+<p>We know that <span class="math inline">\(\plims N(R&#39;X)^{-1}=\sigma_{RX}^{-1}\)</span>.
+So:</p>
+<p><span class="math display">\[\begin{align*}
 N(R&#39;X)^{-1} &amp; = \frac{N}{N\sum D_iR_i-\sum D_i\sum R_i}\left(\begin{array}{cc} \sum D_iR_i &amp; -\sum D_i \\ -\sum R_i &amp; N \end{array}\right) \\
             &amp; = \frac{1}{\frac{\sum D_iR_i}{N}-\frac{\sum D_i}{N}\frac{\sum R_i}{N}} 
                   \left(\begin{array}{cc} 
                           \frac{\sum D_iR_i}{N} &amp; -\frac{\sum D_i}{N} \\ -\frac{\sum R_i}{N} &amp; 1 
                         \end{array}
                   \right) 
-\end{align*}\]</span>
-<p><span class="math inline">\(\frac{\sum D_iR_i}{N}-\frac{\sum D_i}{N}\frac{\sum R_i}{N}\)</span> is equal to the numerator of the OLS coefficient of a regression of <span class="math inline">\(D_i\)</span> on <span class="math inline">\(R_i\)</span> and a constant (Proof of Lemma 3 in Lecture 0). As a consequence of Lemma 3 in Lecture 0, it can be written as the With/Without estimator multiplied by the denominator of the OLS estimator, which is simply the variance of <span class="math inline">\(R_i\)</span>.</p>
+\end{align*}\]</span></p>
+<p><span class="math inline">\(\frac{\sum D_iR_i}{N}-\frac{\sum D_i}{N}\frac{\sum R_i}{N}\)</span> is equal to the numerator of the OLS coefficient of a regression of <span class="math inline">\(D_i\)</span> on <span class="math inline">\(R_i\)</span> and a constant (Proof of Lemma 3 in Lecture 0).
+As a consequence of Lemma 3 in Lecture 0, it can be written as the With/Without estimator multiplied by the denominator of the OLS estimator, which is simply the variance of <span class="math inline">\(R_i\)</span>.</p>
 <p>Let’s turn to <span class="math inline">\(\frac{\sqrt{N}}{N}R&#39;U\stackrel{d}{\rightarrow}xu\)</span>:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \frac{\sqrt{N}}{N}R&#39;U &amp; = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum^{i=1}_{N}U_i\\  \frac{1}{N}\sum^{i=1}_{N}R_iU_i\end{array}\right)
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>We know that, under Validity of Randomization, both random variables have mean zero:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{U_i}&amp; = \esp{U_i|R_i=1}\Pr(R_i=1)+\esp{U_i|R_i=0}\Pr(R_i=0)=0 \\
 \esp{U_iR_i}&amp; = \esp{U_i|R_i=1}\Pr(R_i=1)=0
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Their covariance matrix <span class="math inline">\(\mathbf{V_{ru}}\)</span> can be computed as follows:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \mathbf{V_{ru}} &amp; = \esp{\left(\begin{array}{c}  U_i\\  UiR_i\end{array}\right)\left(\begin{array}{cc}  U_i&amp;    UiR_i\end{array}\right)}
                   - \esp{\left(\begin{array}{c} U_i\\   UiR_i\end{array}\right)}\esp{\left(\begin{array}{cc}    U_i&amp;    UiR_i\end{array}\right)}\\
                 &amp; = \esp{\left(\begin{array}{cc}    U_i^2 &amp; U_i^2R_i\\  Ui^2R_i &amp; U_i^2R_i^2\end{array}\right)} 
                   = \esp{U_i^2\left(\begin{array}{cc}   1 &amp; R_i\\   R_i &amp; R_i^2\end{array}\right)} 
                   = \esp{U_i^2\left(\begin{array}{cc}   1 &amp; R_i\\   R_i &amp; R_i\end{array}\right)} 
-\end{align*}\]</span>
-Using the Vector CLT, we have that <span class="math inline">\(\frac{\sqrt{N}}{N}R&#39;U\stackrel{d}{\rightarrow}\mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},\mathbf{V_{ru}}\right)\)</span>. Using Slutsky’s theorem and the LLN gives the result.
+\end{align*}\]</span></p>
+Using the Vector CLT, we have that <span class="math inline">\(\frac{\sqrt{N}}{N}R&#39;U\stackrel{d}{\rightarrow}\mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},\mathbf{V_{ru}}\right)\)</span>.
+Using Slutsky’s theorem and the LLN gives the result.
 </div>
-
-<p>From Lemma <a href="proofs.html#lem:asympIV">A.7</a>, we know that <span class="math inline">\(\sqrt{N}(\hat{\beta}_{IV}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})\)</span>, where <span class="math inline">\(\sigma^2_{\beta}\)</span> is the lower diagonal term of <span class="math inline">\((\sigma_{RX}^{-1})&#39;\mathbf{V_{ru}}\sigma_{RX}^{-1}\)</span>. Using the convention <span class="math inline">\(p^R=\Pr(R_i=1)\)</span>, <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^D_1=\Pr(D_i=1|R_i=1)\)</span>, <span class="math inline">\(p^D_0=\Pr(D_i=1|R_i=0)\)</span> and <span class="math inline">\(p^{DR}=\esp{D_iR_i}\)</span>, we have:</p>
-<span class="math display">\[\begin{align*}
+<p>From Lemma <a href="proofs.html#lem:asympIV">A.7</a>, we know that <span class="math inline">\(\sqrt{N}(\hat{\beta}_{IV}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})\)</span>, where <span class="math inline">\(\sigma^2_{\beta}\)</span> is the lower diagonal term of <span class="math inline">\((\sigma_{RX}^{-1})&#39;\mathbf{V_{ru}}\sigma_{RX}^{-1}\)</span>.
+Using the convention <span class="math inline">\(p^R=\Pr(R_i=1)\)</span>, <span class="math inline">\(p^D=\Pr(D_i=1)\)</span>, <span class="math inline">\(p^D_1=\Pr(D_i=1|R_i=1)\)</span>, <span class="math inline">\(p^D_0=\Pr(D_i=1|R_i=0)\)</span> and <span class="math inline">\(p^{DR}=\esp{D_iR_i}\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
 (&amp;\sigma_{RX}^{-1})&#39;\mathbf{V_{ru}}\sigma_{RX}^{-1} \\
                    &amp; = \frac{1}{((p^D_1-p^D_0)p^R(1-p^R))^2}
                   \left(\begin{array}{cc}
@@ -812,23 +899,23 @@ Using the Vector CLT, we have that <span class="math inline">\(\frac{\sqrt{N}}{N
                           p^{DR}(\esp{U_i^2R_i}-p^D\esp{U_i^2})-p^R\esp{U_i^2R_i}(1-p^D)
                             &amp; \esp{U_i^2R_i}(1-p^D) - p^{D}(\esp{U_i^2R_i}-p^D\esp{U_i^2})
                           \end{array}\right)}{((p^D_1-p^D_0)p^R(1-p^R))^2}
- \end{align*}\]</span>
+ \end{align*}\]</span></p>
 <p>As a consequence:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \sigma^2_{\beta} &amp; = \frac{\esp{U_i^2R_i}(1-p^D) - p^{D}(\esp{U_i^2R_i}-p^D\esp{U_i^2})}{((p^D_1-p^D_0)p^R(1-p^R))^2} \\
                   &amp; = \frac{(p^D)^2\esp{U_i^2}+(1-2p^D)\esp{U_i^2R_i}}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
                   &amp; = \frac{(p^D)^2(\esp{U_i^2|R_i=1}p^R+\esp{U_i^2|R_i=0}(1-p^R))+(1-2p^D)\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
                   &amp; = \frac{(p^D)^2\esp{U_i^2|R_i=0}(1-p^R)+(1-2p^D+(p^D)^2)\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
                   &amp; = \frac{(p^D)^2\esp{U_i^2|R_i=0}(1-p^R)+(1-p^D)^2\esp{U_i^2|R_i=1}p^R}{((p^D_1-p^D_0)p^R(1-p^R))^2}\\
                   &amp; = \frac{1}{(p^D_1-p^D_0)^2}\left[\left(\frac{p^D}{p^R}\right)^2\frac{\esp{U_i^2|R_i=0}}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{\esp{U_i^2|R_i=1}}{p^R}\right].
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>Note that, under monotonicity, <span class="math inline">\(p^C=p^D_1-p^D_0\)</span> and:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \esp{U_i^2|R_i=1} &amp; = p^{AT}\var{Y_i^1|T_i=AT}+p^C\var{Y_i^1|T_i=C}+p^{NT}\var{Y_i^0|T_i=NT} \\
 \esp{U_i^2|R_i=0}  &amp; = p^{AT}\var{Y_i^1|T_i=AT}+p^C\var{Y_i^0|T_i=C}+p^{NT}\var{Y_i^0|T_i=NT}.
- \end{align*}\]</span>
+ \end{align*}\]</span></p>
 <p>The final result comes from the fact that:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \frac{1}{(p^C)^2} &amp;  \left[\left(\frac{p^D}{p^R}\right)^2\frac{1}{1-p^R}+\left(\frac{1-p^D}{1-p^R}\right)^2\frac{1}{p^R}\right]\\
   &amp; = \frac{(p^D)^2(1-p^R)+(1-p^D)^2p^R}{(p^Cp^R(1-p^R))^2} \\
   &amp; = \frac{(p^D)^2-(p^D)^2p^R+p^R-2p^Dp^R+(p^D)^2p^R}{(p^Cp^R(1-p^R))^2} \\
@@ -840,7 +927,7 @@ Using the Vector CLT, we have that <span class="math inline">\(\frac{\sqrt{N}}{N
   &amp; = \frac{(p^{AT}+(1-p^{AT}-p^{NT})p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
   &amp; = \frac{(p^{AT}+p^R-p^{AT}p^R-p^{NT}p^R-p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2} \\
   &amp; = \frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2},
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 <p>where the seventh equality uses the fact that <span class="math inline">\(p^C+p^{AT}+p^{NT}=1\)</span>.</p>
 
 </div>
@@ -851,17 +938,18 @@ Using the Vector CLT, we have that <span class="math inline">\(\frac{\sqrt{N}}{N
           </div>
         </div>
       </div>
-<a href="Bounds.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="mediation-analysis.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
 <script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
 <script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
@@ -869,12 +957,12 @@ gitbook.start({
 "github": false,
 "facebook": true,
 "twitter": true,
-"google": false,
 "linkedin": false,
 "weibo": false,
 "instapaper": false,
 "vk": false,
-"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
 "theme": "white",
@@ -889,7 +977,15 @@ gitbook.start({
 "link": null,
 "text": null
 },
+"view": {
+"link": null,
+"text": null
+},
 "download": ["STCI.pdf"],
+"search": {
+"engine": "fuse",
+"options": null
+},
 "toc": {
 "collapse": "subsection"
 },
@@ -903,10 +999,11 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    var src = "";
+    var src = "true";
     if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(src))
-      src = src.replace(/^https?:/, '');
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
     script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();

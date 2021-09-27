@@ -1,8 +1,3 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 # Natural Experiments {#NE}
 
 Natural Experiments are situations due to the natural course of events that approximate the conditions of a randomized controlled trial.
@@ -72,20 +67,24 @@ Let's see how we can generate a model without Monotonicity:
 ```
 
 \begin{align*}
-D_i & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
-Z_i & \sim\mathcal{N}(0,\sigma^2_{\mu}+\sigma^2_{U}) \\
-Z_i & \sim\mathcal{B}(p_Z) \\
-Z_i & \Ind (Y_i^0,Y_i^1,V_i) \\
+y_i^1 & = y_i^0+\bar{\alpha}+\theta\mu_i+\eta_i \\
+y_i^0 & = \mu_i+\delta+U_i^0 \\
+U_i^0 & = \rho U_i^B+\epsilon_i \\
+y_i^B & =\mu_i+U_i^B \\
+U_i^B & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+D_i   & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
 \kappa_i & = 
 \begin{cases}
 -\bar{\kappa} & \text{ if } \xi = 1 \\
 \underline{\kappa} & \text{ if } \xi = 0
 \end{cases} \\
 \xi & \sim\mathcal{B}(p_{\xi}) \\
-\xi & \Ind (Y_i^0,Y_i^1,V_i,Z_i)
+V_i   & = \gamma\mu_i + \omega_i \\
+(\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega}) \\
+Z_i   & \sim\mathcal{B}(p_Z) \\
+Z_i   & \Ind (y_i^0,y_i^1,y_i^B,V_i) \\
+\xi & \Ind (y_i^0,y_i^1,y_i^B,V_i,Z_i)
 \end{align*}
-
-**<span style="font-variant:small-caps;">Give the complete model ($Y_i$ as well). Explain that we use a fuzzy eligibility rule.</span>**
 
 The key component of the model that generates a failure of Monotonicity is the coefficient $\kappa_i$, that determines how individuals' participation into the program reacts to the instrument $Z_i$.
 $\kappa_i$ is a coefficient whose value varies accross the population.
@@ -121,6 +120,8 @@ When $\kappa_i=\underline{\kappa}<0$, we have three types defined by where $V_i$
 Let's visualize how this works in a plot.
 Before that, let's generate some data according to this process.
 For that, let's choose values for the new parameters.
+
+**<span style="font-variant:small-caps;">Generate the true model now.</span>**
 
 ```{r param.IV,eval=TRUE,echo=TRUE,results='hide'}
 param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,1,0.5,0.9)
@@ -249,13 +250,27 @@ ggplot(means.IV, aes(x=as.factor(Z), y=D)) +
 ```
 
 Figure \@ref(fig:IVFirstStage) shows that the proportion of treated when $Z_i=1$ in our sample is equal to `r round(mean(Ds[Z==1]),2)` while the proportion of treated when $Z_i=0$ is equal to  `r round(mean(Ds[Z==0]),2)`, in accordance with Assumption \@ref(def:FirstStage).
+In the population, the proportion of treated when $Z_i=1$ depends on the value of $\kappa_i$. 
+Let's derive its value:
 
-**<span style="font-variant:small-caps;">Give result in the population.</span>**
+\begin{align*}
+  \Pr(D_i=1|Z_i=1) & = \Pr(y_i^B+\kappa_i Z_i + V_i\leq\bar{y}|Z_i=1) \\
+                  & =  \Pr(y_i^B+\kappa_i Z_i + V_i\leq\bar{y}) \\
+                  & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa}|\xi=1)\Pr(\xi=1) + \Pr(y_i^B+V_i\leq\bar{y}-\underline{\kappa}|\xi=0)\Pr(\xi=0) \\
+                                    & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa})p_{\xi} + \Pr(y_i^B+ V_i\leq\bar{y}-\underline{\kappa})(1-p_{\xi}) \\
+                  & =  p_{\xi}\Phi\left(\frac{\bar{y}-+\bar{\kappa}-\bar{\mu}}{2(\sigma^2_{\mu}+\sigma^2_{U})}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{2(\sigma^2_{\mu}+\sigma^2_{U})}\right)
+\end{align*}
+
+where the second equality follows from $Z_i$ being indeoendnt 
+
+
+**<span style="font-variant:small-caps;">Correct the result in the population with the new model.</span>**
 
 ### Estimation
 
-
 ### Estimation of sampling noise
+
+
 
 ## Regression Discontinuity Designs
 
