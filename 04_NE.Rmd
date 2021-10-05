@@ -79,7 +79,7 @@ D_i   & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
 \underline{\kappa} & \text{ if } \xi = 0
 \end{cases} \\
 \xi & \sim\mathcal{B}(p_{\xi}) \\
-V_i   & = \gamma\mu_i + \omega_i \\
+V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega}) \\
 Z_i   & \sim\mathcal{B}(p_Z) \\
 Z_i   & \Ind (y_i^0,y_i^1,y_i^B,V_i) \\
@@ -109,7 +109,7 @@ It turns out that each of type can be defined by where $y_i^B+V_i$ lies with res
   This is because $y_i^B+V_i>\bar{y}+\bar{\kappa} \Rightarrow y_i^B+V_i>\bar{y}$, when $\bar{\kappa}>0$.
   * **Compliers** ($T_i=c$) are such that $D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0$, so that they actually are such that: $\bar{y}<y_i^B+V_i\leq\bar{y}+\bar{\kappa}$.
   
-When $\kappa_i=\underline{\kappa}<0$, we have three types defined by where $V_i$ lies with respect to a series of thresholds:
+When $\kappa_i=\underline{\kappa}>0$, we have three types defined by where $V_i$ lies with respect to a series of thresholds:
 
   * **Always takers** ($T_i=a$) are such that $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=1$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$, so that they actually are such that: $y_i^B+V_i\leq\bar{y}-\underline{\kappa}$.
   This is because $y_i^B+V_i\leq\bar{y}-\underline{\kappa} \Rightarrow y_i^B+V_i\leq\bar{y}$, when $\underline{\kappa}>0$.
@@ -124,12 +124,16 @@ For that, let's choose values for the new parameters.
 **<span style="font-variant:small-caps;">Generate the true model now.</span>**
 
 ```{r param.IV,eval=TRUE,echo=TRUE,results='hide'}
-param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,1,0.5,0.9)
-names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB","pZ","barkappa","underbarkappa","pxi")
+param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,1,0.5,0.9,0.28,0)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB","pZ","barkappa","underbarkappa","pxi","sigma2omega","rhoetaomega")
 ```
 
 ```{r simul.IV,eval=TRUE,echo=TRUE,results='hide'}
 set.seed(1234)
+N <-1000
+cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
+eta.omega <- as.data.frame(mvrnorm(N,c(0,0),cov.eta.omega))
+colnames(eta.omega) <- c('eta','omega')
 mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
 UB <- rnorm(N,0,sqrt(param["sigma2U"]))
 yB <- mu + UB 
@@ -138,13 +142,12 @@ Ds <- rep(0,N)
 Z <- rbinom(N,1,param["pZ"])
 xi <- rbinom(N,1,param["pxi"]) 
 kappa <- ifelse(xi==1,-param["barkappa"],param["underbarkappa"])
-V <- rnorm(N,0,sqrt(param["sigma2mu"]+param["sigma2U"]))
+V <- param["gamma"]*(mu-param["barmu"])+eta.omega$omega
 Ds[yB+kappa*Z+V<=log(param["barY"])] <- 1 
 epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
-eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
 U0 <- param["rho"]*UB + epsilon
 y0 <- mu +  U0 + param["delta"]
-alpha <- param["baralpha"]+  param["theta"]*mu + eta
+alpha <- param["baralpha"]+  param["theta"]*mu + eta.omega$eta
 y1 <- y0+alpha
 Y0 <- exp(y0)
 Y1 <- exp(y1)
@@ -166,7 +169,7 @@ Type <- ifelse(AT==1,'a',
                    ifelse(C==1,'c',
                           ifelse(D==1,'d',""))))
 
-data.non.mono <- data.frame(cbind(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta,epsilon,Ds,kappa,xi,Z,mu,UB))
+data.non.mono <- data.frame(cbind(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega$eta,epsilon,Ds,kappa,xi,Z,mu,UB))
 ```
 
 ```{r plottypes,eval=TRUE,echo=TRUE,fig.cap='Types',fig.subcap=c('$\\kappa=\\bar{\\kappa}$','$\\kappa=\\underline{\\kappa}$'),fig.align='center',out.width='50%',fig.pos='htbp'}
@@ -255,16 +258,31 @@ Let's derive its value:
 
 \begin{align*}
   \Pr(D_i=1|Z_i=1) & = \Pr(y_i^B+\kappa_i Z_i + V_i\leq\bar{y}|Z_i=1) \\
-                  & =  \Pr(y_i^B+\kappa_i Z_i + V_i\leq\bar{y}) \\
-                  & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa}|\xi=1)\Pr(\xi=1) + \Pr(y_i^B+V_i\leq\bar{y}-\underline{\kappa}|\xi=0)\Pr(\xi=0) \\
+                  & =  \Pr(y_i^B+\kappa_i + V_i\leq\bar{y}) \\
+                  & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa}|\xi_i=1)\Pr(\xi_i=1) + \Pr(y_i^B+V_i\leq\bar{y}-\underline{\kappa}|\xi_i=0)\Pr(\xi_i=0) \\
                                     & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa})p_{\xi} + \Pr(y_i^B+ V_i\leq\bar{y}-\underline{\kappa})(1-p_{\xi}) \\
-                  & =  p_{\xi}\Phi\left(\frac{\bar{y}-+\bar{\kappa}-\bar{\mu}}{2(\sigma^2_{\mu}+\sigma^2_{U})}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{2(\sigma^2_{\mu}+\sigma^2_{U})}\right)
+                  & =  p_{\xi}\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right)
 \end{align*}
 
-where the second equality follows from $Z_i$ being indeoendnt 
+where the second equality follows from $Z_i$ being independent of $(y_i^0,y_i^1,y_i^B,V_i)$, the third equality follows from $\xi_i$ being independent from  $(y_i^0,y_i^1,y_i^B,V_i,Z_i)$ and the last equality follows from the formula for the cumulative of a normal distribution. 
+The formula for $\Pr(D_i=1|Z_i=0)$ is the same except for $\bar{\kappa}$ and $\underline{\kappa}$ that are set to zero.
 
+Let's write two functions to compute these probabilities:
 
-**<span style="font-variant:small-caps;">Correct the result in the population with the new model.</span>**
+```{r prob.IV,eval=TRUE,echo=TRUE,results='hide'}
+prob.D.Z.1 <- function(param){
+  part.1 <- param['pxi']*pnorm((log(param["barY"])+param['barkappa']-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  part.2 <- (1-param['pxi'])*pnorm((log(param["barY"])-param['underbarkappa']-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  return(part.1+part.2)
+}
+prob.D.Z.0 <- function(param){
+  part.1 <- param['pxi']*pnorm((log(param["barY"])-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  part.2 <- (1-param['pxi'])*pnorm((log(param["barY"])-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  return(part.1+part.2)
+}
+```
+
+With these functions, we know that, in the population, $\Pr(D_i=1|Z_i=1)=$ `r round(prob.D.Z.1(param),2)` and $\Pr(D_i=1|Z_i=0)=$ `r round(prob.D.Z.0(param),2)`.
 
 ### Estimation
 

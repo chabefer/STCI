@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-09-27}
+\date{2021-10-05}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -6492,7 +6492,7 @@ D_i   & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
 \underline{\kappa} & \text{ if } \xi = 0
 \end{cases} \\
 \xi & \sim\mathcal{B}(p_{\xi}) \\
-V_i   & = \gamma\mu_i + \omega_i \\
+V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega}) \\
 Z_i   & \sim\mathcal{B}(p_Z) \\
 Z_i   & \Ind (y_i^0,y_i^1,y_i^B,V_i) \\
@@ -6535,7 +6535,7 @@ It turns out that each of type can be defined by where \(y_i^B+V_i\) lies with r
   \textbf{Compliers} (\(T_i=c\)) are such that \(D^1_i=\uns{y_i^B-\bar{\kappa} + V_i\leq\bar{y}}=1\) and \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=0\), so that they actually are such that: \(\bar{y}<y_i^B+V_i\leq\bar{y}+\bar{\kappa}\).
 \end{itemize}
 
-When \(\kappa_i=\underline{\kappa}<0\), we have three types defined by where \(V_i\) lies with respect to a series of thresholds:
+When \(\kappa_i=\underline{\kappa}>0\), we have three types defined by where \(V_i\) lies with respect to a series of thresholds:
 
 \begin{itemize}
 \tightlist
@@ -6557,14 +6557,18 @@ For that, let's choose values for the new parameters.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{param }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{7.98}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.9}\NormalTok{)}
-\FunctionTok{names}\NormalTok{(param) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"baryB"}\NormalTok{,}\StringTok{"pZ"}\NormalTok{,}\StringTok{"barkappa"}\NormalTok{,}\StringTok{"underbarkappa"}\NormalTok{,}\StringTok{"pxi"}\NormalTok{)}
+\NormalTok{param }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{7.98}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.28}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\FunctionTok{names}\NormalTok{(param) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"theta"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralpha"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"baryB"}\NormalTok{,}\StringTok{"pZ"}\NormalTok{,}\StringTok{"barkappa"}\NormalTok{,}\StringTok{"underbarkappa"}\NormalTok{,}\StringTok{"pxi"}\NormalTok{,}\StringTok{"sigma2omega"}\NormalTok{,}\StringTok{"rhoetaomega"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N }\OtherTok{\textless{}{-}}\DecValTok{1000}
+\NormalTok{cov.eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{],param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"sigma2omega"}\NormalTok{]),}\AttributeTok{ncol=}\DecValTok{2}\NormalTok{,}\AttributeTok{nrow=}\DecValTok{2}\NormalTok{)}
+\NormalTok{eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{mvrnorm}\NormalTok{(N,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{),cov.eta.omega))}
+\FunctionTok{colnames}\NormalTok{(eta.omega) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}eta\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}omega\textquotesingle{}}\NormalTok{)}
 \NormalTok{mu }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
 \NormalTok{UB }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
 \NormalTok{yB }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{ UB }
@@ -6573,13 +6577,12 @@ For that, let's choose values for the new parameters.
 \NormalTok{Z }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(N,}\DecValTok{1}\NormalTok{,param[}\StringTok{"pZ"}\NormalTok{])}
 \NormalTok{xi }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(N,}\DecValTok{1}\NormalTok{,param[}\StringTok{"pxi"}\NormalTok{]) }
 \NormalTok{kappa }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(xi}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{],param[}\StringTok{"underbarkappa"}\NormalTok{])}
-\NormalTok{V }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{V }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"gamma"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(mu}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{eta.omega}\SpecialCharTok{$}\NormalTok{omega}
 \NormalTok{Ds[yB}\SpecialCharTok{+}\NormalTok{kappa}\SpecialCharTok{*}\NormalTok{Z}\SpecialCharTok{+}\NormalTok{V}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] }\OtherTok{\textless{}{-}} \DecValTok{1} 
 \NormalTok{epsilon }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
-\NormalTok{eta}\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
 \NormalTok{U0 }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{UB }\SpecialCharTok{+}\NormalTok{ epsilon}
 \NormalTok{y0 }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{  U0 }\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"delta"}\NormalTok{]}
-\NormalTok{alpha }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralpha"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"theta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta}
+\NormalTok{alpha }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralpha"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"theta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta.omega}\SpecialCharTok{$}\NormalTok{eta}
 \NormalTok{y1 }\OtherTok{\textless{}{-}}\NormalTok{ y0}\SpecialCharTok{+}\NormalTok{alpha}
 \NormalTok{Y0 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0)}
 \NormalTok{Y1 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1)}
@@ -6603,7 +6606,7 @@ We can now define the types variable \(T_i\):
                    \FunctionTok{ifelse}\NormalTok{(C}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}c\textquotesingle{}}\NormalTok{,}
                           \FunctionTok{ifelse}\NormalTok{(D}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}d\textquotesingle{}}\NormalTok{,}\StringTok{""}\NormalTok{))))}
 
-\NormalTok{data.non.mono }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta,epsilon,Ds,kappa,xi,Z,mu,UB))}
+\NormalTok{data.non.mono }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega}\SpecialCharTok{$}\NormalTok{eta,epsilon,Ds,kappa,xi,Z,mu,UB))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -6708,21 +6711,39 @@ Let's first compute the average values of \(Y_i\) and \(D_i\) as a function of \
 \caption{Proportion of participants as a function of $Z_i$}\label{fig:IVFirstStage}
 \end{figure}
 
-Figure \ref{fig:IVFirstStage} shows that the proportion of treated when \(Z_i=1\) in our sample is equal to 0.55 while the proportion of treated when \(Z_i=0\) is equal to 0.33, in accordance with Assumption \ref{def:FirstStage}.
+Figure \ref{fig:IVFirstStage} shows that the proportion of treated when \(Z_i=1\) in our sample is equal to 0.53 while the proportion of treated when \(Z_i=0\) is equal to 0.28, in accordance with Assumption \ref{def:FirstStage}.
 In the population, the proportion of treated when \(Z_i=1\) depends on the value of \(\kappa_i\).
 Let's derive its value:
 
 \begin{align*}
   \Pr(D_i=1|Z_i=1) & = \Pr(y_i^B+\kappa_i Z_i + V_i\leq\bar{y}|Z_i=1) \\
-                  & =  \Pr(y_i^B+\kappa_i Z_i + V_i\leq\bar{y}) \\
-                  & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa}|\xi=1)\Pr(\xi=1) + \Pr(y_i^B+V_i\leq\bar{y}-\underline{\kappa}|\xi=0)\Pr(\xi=0) \\
+                  & =  \Pr(y_i^B+\kappa_i + V_i\leq\bar{y}) \\
+                  & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa}|\xi_i=1)\Pr(\xi_i=1) + \Pr(y_i^B+V_i\leq\bar{y}-\underline{\kappa}|\xi_i=0)\Pr(\xi_i=0) \\
                                     & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa})p_{\xi} + \Pr(y_i^B+ V_i\leq\bar{y}-\underline{\kappa})(1-p_{\xi}) \\
-                  & =  p_{\xi}\Phi\left(\frac{\bar{y}-+\bar{\kappa}-\bar{\mu}}{2(\sigma^2_{\mu}+\sigma^2_{U})}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{2(\sigma^2_{\mu}+\sigma^2_{U})}\right)
+                  & =  p_{\xi}\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right)
 \end{align*}
 
-where the second equality follows from \(Z_i\) being indeoendnt
+where the second equality follows from \(Z_i\) being independent of \((y_i^0,y_i^1,y_i^B,V_i)\), the third equality follows from \(\xi_i\) being independent from \((y_i^0,y_i^1,y_i^B,V_i,Z_i)\) and the last equality follows from the formula for the cumulative of a normal distribution.
+The formula for \(\Pr(D_i=1|Z_i=0)\) is the same except for \(\bar{\kappa}\) and \(\underline{\kappa}\) that are set to zero.
 
-\textbf{\textsc{Correct the result in the population with the new model.}}
+Let's write two functions to compute these probabilities:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{prob.D.Z}\FloatTok{.1} \OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(param)\{}
+\NormalTok{  part}\FloatTok{.1} \OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+\NormalTok{  part}\FloatTok{.2} \OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}underbarkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+  \FunctionTok{return}\NormalTok{(part}\FloatTok{.1}\SpecialCharTok{+}\NormalTok{part}\FloatTok{.2}\NormalTok{)}
+\NormalTok{\}}
+\NormalTok{prob.D.Z}\FloatTok{.0} \OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(param)\{}
+\NormalTok{  part}\FloatTok{.1} \OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+\NormalTok{  part}\FloatTok{.2} \OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+  \FunctionTok{return}\NormalTok{(part}\FloatTok{.1}\SpecialCharTok{+}\NormalTok{part}\FloatTok{.2}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+With these functions, we know that, in the population, \(\Pr(D_i=1|Z_i=1)=\) 0.57 and \(\Pr(D_i=1|Z_i=0)=\) 0.26.
 
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
