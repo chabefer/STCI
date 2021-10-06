@@ -45,9 +45,9 @@ As soon as distance to school becomes correlated with other determinants of scho
 Even if school placement is truly independent of potential education and earnings outcomes at first, parents, by choosing where to live, will sort themselves such as the parents that pay more attention to education end up located closer to school.
 As a consequence, the independence assumption might be violated again.
 
-Even when the instrumen is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest. 
+Even when the instrument is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest. 
 For example, receiving a low draft lottery number makes one more likely to be drafted. 
-In response, one might decide to increase his length of stay in college in order to use the waiver for the draft reserved for students.
+In response, one might decide to increase their length of stay in college in order to use the waiver for the draft reserved for students.
 If receiving a low draft lottery number increases the number of years of education, and in turn subsequent earnings, then the exclusion restriction assumption is violated.
 ```
 
@@ -75,15 +75,15 @@ U_i^B & \sim\mathcal{N}(0,\sigma^2_{U}) \\
 D_i   & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
 \kappa_i & = 
 \begin{cases}
--\bar{\kappa} & \text{ if } \xi = 1 \\
-\underline{\kappa} & \text{ if } \xi = 0
+-\bar{\kappa} & \text{ if } \xi_i = 1 \\
+\underline{\kappa} & \text{ if } \xi_i = 0
 \end{cases} \\
 \xi & \sim\mathcal{B}(p_{\xi}) \\
 V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega}) \\
 Z_i   & \sim\mathcal{B}(p_Z) \\
 Z_i   & \Ind (y_i^0,y_i^1,y_i^B,V_i) \\
-\xi & \Ind (y_i^0,y_i^1,y_i^B,V_i,Z_i)
+\xi_i & \Ind (y_i^0,y_i^1,y_i^B,V_i,Z_i)
 \end{align*}
 
 The key component of the model that generates a failure of Monotonicity is the coefficient $\kappa_i$, that determines how individuals' participation into the program reacts to the instrument $Z_i$.
@@ -120,8 +120,6 @@ When $\kappa_i=\underline{\kappa}>0$, we have three types defined by where $V_i$
 Let's visualize how this works in a plot.
 Before that, let's generate some data according to this process.
 For that, let's choose values for the new parameters.
-
-**<span style="font-variant:small-caps;">Generate the true model now.</span>**
 
 ```{r param.IV,eval=TRUE,echo=TRUE,results='hide'}
 param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.5,1,0.5,0.9,0.28,0)
@@ -224,8 +222,6 @@ We are going to explore two sets of assumption that secure the identification of
   * The Average Treatment Effect on the Treated ($TT$): identification will happen through the assumption of independence of treatment effects from potential treatment choice
   * The Local Average Treatment Effect ($LATE$)
 
-#### Assumptions
-
 ```{definition,FirstStage,name='First Stage Full Rank'}
 We assume that the instrument $Z_i$ has a direct effect on treatment participation:
 
@@ -282,7 +278,144 @@ prob.D.Z.0 <- function(param){
 }
 ```
 
-With these functions, we know that, in the population, $\Pr(D_i=1|Z_i=1)=$ `r round(prob.D.Z.1(param),2)` and $\Pr(D_i=1|Z_i=0)=$ `r round(prob.D.Z.0(param),2)`.
+With these functions, we know that, in the population, $\Pr(D_i=1|Z_i=1)=$ `r round(prob.D.Z.1(param),2)` and $\Pr(D_i=1|Z_i=0)=$ `r round(prob.D.Z.0(param),2)`, which is not far from what we have found in our sample.
+
+Our next set of assumptions imposes that the instrument has no direct effect on the outcome and that it is not correlated with all the potential outcomes.
+Let's start with the exclusion restriction:
+
+```{definition,ExclusionRestriction,name='Exclusion Restriction'}
+We assume that there is no direct effect of $Z_i$ on outcomes:
+
+\begin{align*}
+\forall d,z \in \left\{0,1\right\}\text{, } Y_i^{d,z} = Y_i^d.
+\end{align*}
+```
+
+```{example}
+In our example, this assumption is automatically satisfied.
+```
+Indeed, $y_i^{d,z}=y_i^0 + d(y_i^1-y_i^0)$ which is parameterized as $y_i^{d,z}=\mu_i+\delta+U_i^0+d(\bar{\alpha}+\theta\mu_i+\eta_i)$.
+Since $y_i^{d,z}$ does not depend on $z$, we have $y_i^{d,z} = y_i^d$, $\forall d,z \in \left\{0,1\right\}$.
+The assumption would not be satisfied if $Z_i$ entered the equations for $y_i^0$ or $y_i^1$.
+For example, if $Z_i$ is the Vietnam draft lottery number (high or low) used by Angrist to study the impact of army experience on earnings, the exclusion restriction would not work if $Z_i$ was directly influencing outcomes, independent of miitary experience, by example by generating a higher education level. 
+In that case, we could have $E_i=\alpha+\beta Z_i + v_i$, where $E_i$ is education, and, for example, $y_i^0=\mu_i+\delta+\lambda E_i+U_i^0$.
+We then have $y_i^{d,z}=\mu_i+\delta +\lambda(\alpha+\beta z + v_i) +U_i^0+d(\bar{\alpha}+\theta\mu_i+\eta_i)$ which depends on $z$ and thus the exclusion restriction does not hold any more. 
+
+Let us now state the independence assumption:
+
+```{definition,Independence,name='Independence'}
+We assume that $Z_i$ is independent from the other determinants of $Y_i$ and $D_i$:
+
+\begin{align*}
+(Y_i^1,Y_i^0,D_i^1,D_i^0)\Ind Z_i.
+\end{align*}
+```
+
+```{remark}
+Why do we say that independence from the potential outcomes is the same as independence from the other determinants of $Y_i$ and $D_i$?
+Because the only sources of variation that remain in $Y_i^d$ and $D_i^z$ are the other sources of variations (that is not the treatment $D_i=d$ nor the instrument variable $Z_i=z$).
+```
+
+```{example}
+In our example, this assumption is also satisfied.
+```
+If we assumed that unobserved determinants of earnings contained in $U^0_i$ are correlated with the instrument value, then we would have a problem.
+For example, if children that leave close to college have also rich parents, or parents that spend a lot of time with them, or parents with large networks, there probably is a correlation between distance to college and earnings in the absence of the program.
+For the draft lottery example, you might have that people with a high draft lottery number who have well-connected parents obtain discharges on special medical grounds. 
+Is that a violation of the independence assumption?
+Actually no.
+Indeed, these individuals are simply going to become never takers (they avoid the draft whatever their lottery number).
+But $Z_i$ is still independent from the level of connections of the parents.
+For the independence assumption to fail in the draft lottery number example, you would need that children of well-connected parents obtain lower lottery numbers because the lottery is rigged.
+In that case, since well-connected individuals would have had higher earnings even absent the lottery, there is a negative correlation between $y_i^0$ and having a high draft lottery number ($Z_i$).  
+
+The last assumption we need in order to identify the Local Average Treatment Effect is that of Monotonicity.
+We already know this assumption:
+
+```{definition,Monotonicity,name='Monotonicity'}
+We assume that the instrument moves everyone in the population in the same direction:
+
+\begin{align*}
+\forall i\text{, either } D^1_i\geq D_i^0 \text{ or } D^1_i\leq D_i^0.
+\end{align*}
+```
+
+Without loss of generality, we generally assume that $\forall i$, $D^1_i\geq D_i^0$.
+As a consequence, there are no defiers.
+
+```{example}
+In our example, this assumption is not satisfied.
+```
+There are defiers, as Figure \@ref(fig:plottypes) shows, when $\xi_i = 0$ and thus $\kappa_i=\underline{\kappa}$. 
+Indeed, in that case, for the individuals who are such that $\bar{y}-\underline{\kappa}<y_i^B+V_i\leq\bar{y}$, we have $D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0$ and $D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1$.
+This would happen for example if some people would go to college less if their house is located closer to the college, maybe for example because they have a preference not to stay at their parents' house. 
+
+```{remark}
+Why are defiers a problem for the instrumental variable strategy?
+Because the Intention to Treat Effect that measures the difference in expected outcomes at the two levels of the instrument is going to be characterized by two-way flows in and out of the program, as we have already seen with Theorem \@ref(thm:ITELATE).
+This means that some treatment effects will have negative weights in the ITE formula. 
+In that case, you might have a negative Intention to Treat Effect despite the treatment having positive effects for everyone, or you might under estimate the true effect of the treatment.
+This matters only when the treatment effects are heterogeneous. 
+```
+
+```{example}
+Let us detail how non-monotonicity and the existence defiers act on the ITE in our example, since we now have defiers.
+The first very important thing to understand is that all the problems we have happend because treatment effects are heterogeneous **AND** they are correlated with the type of individuals: defiers and compliers do not have the same distribution of treatment effects and, case in point, they do not have the same average treatment effects. 
+The average effects of the treatment on compliers and defiers are not the same. 
+Let us first look at the distribution of treatment effects among compliers and defiers in the sample and in the population.
+```
+
+In order to derive the distribution of $\alpha_i$ conditional on Type in the population, we need to derive the joint distribution of $\alpha_i$ and $y_i^B+V_i$ and use the **trmtvnorm** package to recover its density when it is truncated.
+This distribution is normal and fully characterized by its mean and covariance matrix.
+
+\begin{align*}
+  (\alpha_i,y_i^B+V_i) & \sim \mathcal{N}\left(\bar{\alpha}+\theta\bar{\mu},\bar{\mu},
+                                        \left(\begin{array}{cc}
+                                              \theta^2\sigma^2_{\mu}+\sigma^2_{\eta} & (\theta+\gamma)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega}\\
+                                              (\theta+\gamma)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} &  (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}\\
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}
+
+```{r AlphaTypesPopulation,eval=TRUE,echo=TRUE,results='hide'}
+mean.alpha.yBV <- c(param['baralpha']+param['theta']*param['barmu'],param['barmu'])
+cov.alpha.yBV <- matrix(c((param['theta']^2)*param['sigma2mu']+param['sigma2eta'],
+                          (param['theta']+param['gamma'])*param['sigma2mu']+param['rhoetaomega']*param['sigma2eta']*param['sigma2omega'],
+                            (param['theta']+param['gamma'])*param['sigma2mu']+param['rhoetaomega']*param['sigma2eta']*param['sigma2omega'],
+                            (1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega']),2,2,byrow=TRUE)
+# density of alpha for compliers
+lower.cut.comp <- c(-Inf,log(param['barY']))
+upper.cut.comp <- c(Inf,log(param['barY'])+param['barkappa'])
+d.alpha.compliers <- function(x){
+  return(dtmvnorm.marginal(xn=x,n=1,mean=mean.alpha.yBV,sigma=cov.alpha.yBV,lower=lower.cut.comp,upper=upper.cut.comp))
+}
+# density of alpha for defiers
+lower.cut.def <- c(-Inf,log(param['barY']-param['underbarkappa']))
+upper.cut.def <- c(Inf,log(param['barY']))
+d.alpha.defiers <- function(x){
+  return(dtmvnorm.marginal(xn=x,n=1,mean=mean.alpha.yBV,sigma=cov.alpha.yBV,lower=lower.cut.def,upper=upper.cut.def))
+}
+```
+
+
+
+```{r AlphaTypesPlot,eval=TRUE,echo=TRUE,fig.cap='Distribution of treatment effects by Type in the sample (dashed line) and in the population (full line)',fig.align='center',out.width='50%',fig.pos='htbp'}
+# building the data frame
+alpha.types <- as.data.frame(cbind(alpha,C,D,AT,NT)) %>%
+                mutate(
+                  Type = ifelse(AT==1,"Always Takers",
+                                ifelse(NT==1,"Never Takers",
+                                       ifelse(C==1,"Compliers","Defiers")))
+                ) %>%
+                mutate(Type = as.factor(Type))
+
+ggplot(filter(alpha.types,Type=="Compliers" | Type=="Defiers"), aes(x=alpha, colour=Type)) + 
+  geom_density(linetype="dashed") +
+  geom_function(fun = d.alpha.compliers, colour = "red") +
+  geom_function(fun = d.alpha.defiers, colour = "blue") +
+  theme_bw()
+```
 
 ### Estimation
 

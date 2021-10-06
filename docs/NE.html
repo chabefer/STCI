@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-10-05" />
+<meta name="date" content="2021-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -373,9 +373,9 @@ In the examples above, one could argue that schools or colleges might be built w
 As soon as distance to school becomes correlated with other determinants of schooling, such as parental income and education, the independence assumption is violated.</p>
 <p>Even if school placement is truly independent of potential education and earnings outcomes at first, parents, by choosing where to live, will sort themselves such as the parents that pay more attention to education end up located closer to school.
 As a consequence, the independence assumption might be violated again.</p>
-Even when the instrumen is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest.
+Even when the instrument is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest.
 For example, receiving a low draft lottery number makes one more likely to be drafted.
-In response, one might decide to increase his length of stay in college in order to use the waiver for the draft reserved for students.
+In response, one might decide to increase their length of stay in college in order to use the waiver for the draft reserved for students.
 If receiving a low draft lottery number increases the number of years of education, and in turn subsequent earnings, then the exclusion restriction assumption is violated.
 </div>
 <p>In this section, I’m going to denote <span class="math inline">\(Z_i\)</span> a binary instrument that can either take value <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>.
@@ -400,15 +400,15 @@ U_i^B &amp; \sim\mathcal{N}(0,\sigma^2_{U}) \\
 D_i   &amp; = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
 \kappa_i &amp; = 
 \begin{cases}
--\bar{\kappa} &amp; \text{ if } \xi = 1 \\
-\underline{\kappa} &amp; \text{ if } \xi = 0
+-\bar{\kappa} &amp; \text{ if } \xi_i = 1 \\
+\underline{\kappa} &amp; \text{ if } \xi_i = 0
 \end{cases} \\
 \xi &amp; \sim\mathcal{B}(p_{\xi}) \\
 V_i   &amp; = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_i,\omega_i) &amp; \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega}) \\
 Z_i   &amp; \sim\mathcal{B}(p_Z) \\
 Z_i   &amp; \Ind (y_i^0,y_i^1,y_i^B,V_i) \\
-\xi &amp; \Ind (y_i^0,y_i^1,y_i^B,V_i,Z_i)
+\xi_i &amp; \Ind (y_i^0,y_i^1,y_i^B,V_i,Z_i)
 \end{align*}\]</span></p>
 <p>The key component of the model that generates a failure of Monotonicity is the coefficient <span class="math inline">\(\kappa_i\)</span>, that determines how individuals’ participation into the program reacts to the instrument <span class="math inline">\(Z_i\)</span>.
 <span class="math inline">\(\kappa_i\)</span> is a coefficient whose value varies accross the population.
@@ -444,7 +444,6 @@ This is because <span class="math inline">\(y_i^B+V_i&gt;\bar{y} \Rightarrow y_i
 <p>Let’s visualize how this works in a plot.
 Before that, let’s generate some data according to this process.
 For that, let’s choose values for the new parameters.</p>
-<p><strong><span class="smallcaps">Generate the true model now.</span></strong></p>
 <div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="NE.html#cb127-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>,<span class="fl">0.9</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="fl">7.98</span>,<span class="fl">0.5</span>,<span class="dv">1</span>,<span class="fl">0.5</span>,<span class="fl">0.9</span>,<span class="fl">0.28</span>,<span class="dv">0</span>)</span>
 <span id="cb127-2"><a href="NE.html#cb127-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>,<span class="st">&quot;gamma&quot;</span>,<span class="st">&quot;baryB&quot;</span>,<span class="st">&quot;pZ&quot;</span>,<span class="st">&quot;barkappa&quot;</span>,<span class="st">&quot;underbarkappa&quot;</span>,<span class="st">&quot;pxi&quot;</span>,<span class="st">&quot;sigma2omega&quot;</span>,<span class="st">&quot;rhoetaomega&quot;</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="NE.html#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
@@ -537,8 +536,6 @@ We are going to explore two sets of assumption that secure the identification of
 <li>The Average Treatment Effect on the Treated (<span class="math inline">\(TT\)</span>): identification will happen through the assumption of independence of treatment effects from potential treatment choice</li>
 <li>The Local Average Treatment Effect (<span class="math inline">\(LATE\)</span>)</li>
 </ul>
-<div id="assumptions" class="section level4" number="4.1.2.1">
-<h4><span class="header-section-number">4.1.2.1</span> Assumptions</h4>
 
 <div class="definition">
 <p><span id="def:FirstStage" class="definition"><strong>Definition 4.1  (First Stage Full Rank)  </strong></span>We assume that the instrument <span class="math inline">\(Z_i\)</span> has a direct effect on treatment participation:</p>
@@ -583,7 +580,132 @@ The formula for <span class="math inline">\(\Pr(D_i=1|Z_i=0)\)</span> is the sam
 <span id="cb132-8"><a href="NE.html#cb132-8" aria-hidden="true" tabindex="-1"></a>  part<span class="fl">.2</span> <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">-</span>param[<span class="st">&#39;pxi&#39;</span>])<span class="sc">*</span><span class="fu">pnorm</span>((<span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="sc">-</span>param[<span class="st">&#39;barmu&#39;</span>])<span class="sc">/</span><span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&quot;sigma2U&quot;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>]))</span>
 <span id="cb132-9"><a href="NE.html#cb132-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(part<span class="fl">.1</span><span class="sc">+</span>part<span class="fl">.2</span>)</span>
 <span id="cb132-10"><a href="NE.html#cb132-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>With these functions, we know that, in the population, <span class="math inline">\(\Pr(D_i=1|Z_i=1)=\)</span> 0.57 and <span class="math inline">\(\Pr(D_i=1|Z_i=0)=\)</span> 0.26.</p>
+<p>With these functions, we know that, in the population, <span class="math inline">\(\Pr(D_i=1|Z_i=1)=\)</span> 0.57 and <span class="math inline">\(\Pr(D_i=1|Z_i=0)=\)</span> 0.26, which is not far from what we have found in our sample.</p>
+<p>Our next set of assumptions imposes that the instrument has no direct effect on the outcome and that it is not correlated with all the potential outcomes.
+Let’s start with the exclusion restriction:</p>
+
+<div class="definition">
+<p><span id="def:ExclusionRestriction" class="definition"><strong>Definition 4.2  (Exclusion Restriction)  </strong></span>We assume that there is no direct effect of <span class="math inline">\(Z_i\)</span> on outcomes:</p>
+<span class="math display">\[\begin{align*}
+\forall d,z \in \left\{0,1\right\}\text{, } Y_i^{d,z} = Y_i^d.
+\end{align*}\]</span>
+</div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-141" class="example"><strong>Example 4.3  </strong></span>In our example, this assumption is automatically satisfied.
+</div>
+<p>Indeed, <span class="math inline">\(y_i^{d,z}=y_i^0 + d(y_i^1-y_i^0)\)</span> which is parameterized as <span class="math inline">\(y_i^{d,z}=\mu_i+\delta+U_i^0+d(\bar{\alpha}+\theta\mu_i+\eta_i)\)</span>.
+Since <span class="math inline">\(y_i^{d,z}\)</span> does not depend on <span class="math inline">\(z\)</span>, we have <span class="math inline">\(y_i^{d,z} = y_i^d\)</span>, <span class="math inline">\(\forall d,z \in \left\{0,1\right\}\)</span>.
+The assumption would not be satisfied if <span class="math inline">\(Z_i\)</span> entered the equations for <span class="math inline">\(y_i^0\)</span> or <span class="math inline">\(y_i^1\)</span>.
+For example, if <span class="math inline">\(Z_i\)</span> is the Vietnam draft lottery number (high or low) used by Angrist to study the impact of army experience on earnings, the exclusion restriction would not work if <span class="math inline">\(Z_i\)</span> was directly influencing outcomes, independent of miitary experience, by example by generating a higher education level.
+In that case, we could have <span class="math inline">\(E_i=\alpha+\beta Z_i + v_i\)</span>, where <span class="math inline">\(E_i\)</span> is education, and, for example, <span class="math inline">\(y_i^0=\mu_i+\delta+\lambda E_i+U_i^0\)</span>.
+We then have <span class="math inline">\(y_i^{d,z}=\mu_i+\delta +\lambda(\alpha+\beta z + v_i) +U_i^0+d(\bar{\alpha}+\theta\mu_i+\eta_i)\)</span> which depends on <span class="math inline">\(z\)</span> and thus the exclusion restriction does not hold any more.</p>
+<p>Let us now state the independence assumption:</p>
+
+<div class="definition">
+<p><span id="def:Independence" class="definition"><strong>Definition 4.3  (Independence)  </strong></span>We assume that <span class="math inline">\(Z_i\)</span> is independent from the other determinants of <span class="math inline">\(Y_i\)</span> and <span class="math inline">\(D_i\)</span>:</p>
+<span class="math display">\[\begin{align*}
+(Y_i^1,Y_i^0,D_i^1,D_i^0)\Ind Z_i.
+\end{align*}\]</span>
+</div>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Why do we say that independence from the potential outcomes is the same as independence from the other determinants of <span class="math inline">\(Y_i\)</span> and <span class="math inline">\(D_i\)</span>?
+Because the only sources of variation that remain in <span class="math inline">\(Y_i^d\)</span> and <span class="math inline">\(D_i^z\)</span> are the other sources of variations (that is not the treatment <span class="math inline">\(D_i=d\)</span> nor the instrument variable <span class="math inline">\(Z_i=z\)</span>).
+</div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-143" class="example"><strong>Example 4.4  </strong></span>In our example, this assumption is also satisfied.
+</div>
+<p>If we assumed that unobserved determinants of earnings contained in <span class="math inline">\(U^0_i\)</span> are correlated with the instrument value, then we would have a problem.
+For example, if children that leave close to college have also rich parents, or parents that spend a lot of time with them, or parents with large networks, there probably is a correlation between distance to college and earnings in the absence of the program.
+For the draft lottery example, you might have that people with a high draft lottery number who have well-connected parents obtain discharges on special medical grounds.
+Is that a violation of the independence assumption?
+Actually no.
+Indeed, these individuals are simply going to become never takers (they avoid the draft whatever their lottery number).
+But <span class="math inline">\(Z_i\)</span> is still independent from the level of connections of the parents.
+For the independence assumption to fail in the draft lottery number example, you would need that children of well-connected parents obtain lower lottery numbers because the lottery is rigged.
+In that case, since well-connected individuals would have had higher earnings even absent the lottery, there is a negative correlation between <span class="math inline">\(y_i^0\)</span> and having a high draft lottery number (<span class="math inline">\(Z_i\)</span>).</p>
+<p>The last assumption we need in order to identify the Local Average Treatment Effect is that of Monotonicity.
+We already know this assumption:</p>
+
+<div class="definition">
+<p><span id="def:Monotonicity" class="definition"><strong>Definition 4.4  (Monotonicity)  </strong></span>We assume that the instrument moves everyone in the population in the same direction:</p>
+<span class="math display">\[\begin{align*}
+\forall i\text{, either } D^1_i\geq D_i^0 \text{ or } D^1_i\leq D_i^0.
+\end{align*}\]</span>
+</div>
+<p>Without loss of generality, we generally assume that <span class="math inline">\(\forall i\)</span>, <span class="math inline">\(D^1_i\geq D_i^0\)</span>.
+As a consequence, there are no defiers.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-144" class="example"><strong>Example 4.5  </strong></span>In our example, this assumption is not satisfied.
+</div>
+<p>There are defiers, as Figure <a href="NE.html#fig:plottypes">4.1</a> shows, when <span class="math inline">\(\xi_i = 0\)</span> and thus <span class="math inline">\(\kappa_i=\underline{\kappa}\)</span>.
+Indeed, in that case, for the individuals who are such that <span class="math inline">\(\bar{y}-\underline{\kappa}&lt;y_i^B+V_i\leq\bar{y}\)</span>, we have <span class="math inline">\(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0\)</span> and <span class="math inline">\(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\)</span>.
+This would happen for example if some people would go to college less if their house is located closer to the college, maybe for example because they have a preference not to stay at their parents’ house.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Why are defiers a problem for the instrumental variable strategy?
+Because the Intention to Treat Effect that measures the difference in expected outcomes at the two levels of the instrument is going to be characterized by two-way flows in and out of the program, as we have already seen with Theorem <a href="RCT.html#thm:ITELATE">3.10</a>.
+This means that some treatment effects will have negative weights in the ITE formula.
+In that case, you might have a negative Intention to Treat Effect despite the treatment having positive effects for everyone, or you might under estimate the true effect of the treatment.
+This matters only when the treatment effects are heterogeneous.
+</div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-146" class="example"><strong>Example 4.6  </strong></span>Let us detail how non-monotonicity and the existence defiers act on the ITE in our example, since we now have defiers.
+The first very important thing to understand is that all the problems we have happend because treatment effects are heterogeneous <strong>AND</strong> they are correlated with the type of individuals: defiers and compliers do not have the same distribution of treatment effects and, case in point, they do not have the same average treatment effects.
+The average effects of the treatment on compliers and defiers are not the same.
+Let us first look at the distribution of treatment effects among compliers and defiers in the sample and in the population.
+</div>
+<p>In order to derive the distribution of <span class="math inline">\(\alpha_i\)</span> conditional on Type in the population, we need to derive the joint distribution of <span class="math inline">\(\alpha_i\)</span> and <span class="math inline">\(y_i^B+V_i\)</span> and use the <strong>trmtvnorm</strong> package to recover its density when it is truncated.
+This distribution is normal and fully characterized by its mean and covariance matrix.</p>
+<p><span class="math display">\[\begin{align*}
+  (\alpha_i,y_i^B+V_i) &amp; \sim \mathcal{N}\left(\bar{\alpha}+\theta\bar{\mu},\bar{\mu},
+                                        \left(\begin{array}{cc}
+                                              \theta^2\sigma^2_{\mu}+\sigma^2_{\eta} &amp; (\theta+\gamma)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega}\\
+                                              (\theta+\gamma)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} &amp;  (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}\\
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}\]</span></p>
+<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb133-1"><a href="NE.html#cb133-1" aria-hidden="true" tabindex="-1"></a>mean.alpha.yBV <span class="ot">&lt;-</span> <span class="fu">c</span>(param[<span class="st">&#39;baralpha&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;barmu&#39;</span>],param[<span class="st">&#39;barmu&#39;</span>])</span>
+<span id="cb133-2"><a href="NE.html#cb133-2" aria-hidden="true" tabindex="-1"></a>cov.alpha.yBV <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>((param[<span class="st">&#39;theta&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2eta&#39;</span>],</span>
+<span id="cb133-3"><a href="NE.html#cb133-3" aria-hidden="true" tabindex="-1"></a>                          (param[<span class="st">&#39;theta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rhoetaomega&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2eta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2omega&#39;</span>],</span>
+<span id="cb133-4"><a href="NE.html#cb133-4" aria-hidden="true" tabindex="-1"></a>                            (param[<span class="st">&#39;theta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rhoetaomega&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2eta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2omega&#39;</span>],</span>
+<span id="cb133-5"><a href="NE.html#cb133-5" aria-hidden="true" tabindex="-1"></a>                            (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>]),<span class="dv">2</span>,<span class="dv">2</span>,<span class="at">byrow=</span><span class="cn">TRUE</span>)</span>
+<span id="cb133-6"><a href="NE.html#cb133-6" aria-hidden="true" tabindex="-1"></a><span class="co"># density of alpha for compliers</span></span>
+<span id="cb133-7"><a href="NE.html#cb133-7" aria-hidden="true" tabindex="-1"></a>lower.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb133-8"><a href="NE.html#cb133-8" aria-hidden="true" tabindex="-1"></a>upper.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
+<span id="cb133-9"><a href="NE.html#cb133-9" aria-hidden="true" tabindex="-1"></a>d.alpha.compliers <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb133-10"><a href="NE.html#cb133-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">dtmvnorm.marginal</span>(<span class="at">xn=</span>x,<span class="at">n=</span><span class="dv">1</span>,<span class="at">mean=</span>mean.alpha.yBV,<span class="at">sigma=</span>cov.alpha.yBV,<span class="at">lower=</span>lower.cut.comp,<span class="at">upper=</span>upper.cut.comp))</span>
+<span id="cb133-11"><a href="NE.html#cb133-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb133-12"><a href="NE.html#cb133-12" aria-hidden="true" tabindex="-1"></a><span class="co"># density of alpha for defiers</span></span>
+<span id="cb133-13"><a href="NE.html#cb133-13" aria-hidden="true" tabindex="-1"></a>lower.cut.def <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]<span class="sc">-</span>param[<span class="st">&#39;underbarkappa&#39;</span>]))</span>
+<span id="cb133-14"><a href="NE.html#cb133-14" aria-hidden="true" tabindex="-1"></a>upper.cut.def <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb133-15"><a href="NE.html#cb133-15" aria-hidden="true" tabindex="-1"></a>d.alpha.defiers <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb133-16"><a href="NE.html#cb133-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">dtmvnorm.marginal</span>(<span class="at">xn=</span>x,<span class="at">n=</span><span class="dv">1</span>,<span class="at">mean=</span>mean.alpha.yBV,<span class="at">sigma=</span>cov.alpha.yBV,<span class="at">lower=</span>lower.cut.def,<span class="at">upper=</span>upper.cut.def))</span>
+<span id="cb133-17"><a href="NE.html#cb133-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="NE.html#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="co"># building the data frame</span></span>
+<span id="cb134-2"><a href="NE.html#cb134-2" aria-hidden="true" tabindex="-1"></a>alpha.types <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(alpha,C,D,AT,NT)) <span class="sc">%&gt;%</span></span>
+<span id="cb134-3"><a href="NE.html#cb134-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">mutate</span>(</span>
+<span id="cb134-4"><a href="NE.html#cb134-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">Type =</span> <span class="fu">ifelse</span>(AT<span class="sc">==</span><span class="dv">1</span>,<span class="st">&quot;Always Takers&quot;</span>,</span>
+<span id="cb134-5"><a href="NE.html#cb134-5" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">ifelse</span>(NT<span class="sc">==</span><span class="dv">1</span>,<span class="st">&quot;Never Takers&quot;</span>,</span>
+<span id="cb134-6"><a href="NE.html#cb134-6" aria-hidden="true" tabindex="-1"></a>                                       <span class="fu">ifelse</span>(C<span class="sc">==</span><span class="dv">1</span>,<span class="st">&quot;Compliers&quot;</span>,<span class="st">&quot;Defiers&quot;</span>)))</span>
+<span id="cb134-7"><a href="NE.html#cb134-7" aria-hidden="true" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
+<span id="cb134-8"><a href="NE.html#cb134-8" aria-hidden="true" tabindex="-1"></a>                <span class="fu">mutate</span>(<span class="at">Type =</span> <span class="fu">as.factor</span>(Type))</span>
+<span id="cb134-9"><a href="NE.html#cb134-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb134-10"><a href="NE.html#cb134-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">filter</span>(alpha.types,Type<span class="sc">==</span><span class="st">&quot;Compliers&quot;</span> <span class="sc">|</span> Type<span class="sc">==</span><span class="st">&quot;Defiers&quot;</span>), <span class="fu">aes</span>(<span class="at">x=</span>alpha, <span class="at">colour=</span>Type)) <span class="sc">+</span> </span>
+<span id="cb134-11"><a href="NE.html#cb134-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">linetype=</span><span class="st">&quot;dashed&quot;</span>) <span class="sc">+</span></span>
+<span id="cb134-12"><a href="NE.html#cb134-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> d.alpha.compliers, <span class="at">colour =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
+<span id="cb134-13"><a href="NE.html#cb134-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> d.alpha.defiers, <span class="at">colour =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb134-14"><a href="NE.html#cb134-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:AlphaTypesPlot"></span>
+<img src="STCI_files/figure-html/AlphaTypesPlot-1.png" alt="Distribution of treatment effects by Type in the sample (dashed line) and in the population (full line)" width="50%" />
+<p class="caption">
+Figure 4.3: Distribution of treatment effects by Type in the sample (dashed line) and in the population (full line)
+</p>
 </div>
 </div>
 <div id="estimation" class="section level3" number="4.1.3">

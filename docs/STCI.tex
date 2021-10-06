@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-10-05}
+\date{2021-10-06}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -5888,7 +5888,7 @@ In our model, we indeed have:
 Since all errors terms are normally distributed in our model, we can compute the package \texttt{tmvtnorm} to compute both LATE and the proportion of compliers among eligibles.
 
 \begin{align*}
-  (\mu_i,y_i^B,D_i^{*0}) & = \mathcal{N}\left(\bar{\mu},\bar{\mu},\bar{\alpha}+(\theta-\gamma)\bar{\mu}-\bar{c},
+  (\mu_i,y_i^B,D_i^{*0}) & \sim \mathcal{N}\left(\bar{\mu},\bar{\mu},\bar{\alpha}+(\theta-\gamma)\bar{\mu}-\bar{c},
                                         \left(\begin{array}{ccc}
                                               \sigma^2_{\mu} & \sigma^2_{\mu} & -\gamma\sigma^2_{\mu} \\
                                               \sigma^2_{\mu} & \sigma^2_{\mu} + \sigma^2_{U} & -\gamma\sigma^2_{\mu} \\
@@ -6457,9 +6457,9 @@ As soon as distance to school becomes correlated with other determinants of scho
 Even if school placement is truly independent of potential education and earnings outcomes at first, parents, by choosing where to live, will sort themselves such as the parents that pay more attention to education end up located closer to school.
 As a consequence, the independence assumption might be violated again.
 
-Even when the instrumen is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest.
+Even when the instrument is truly random, such as a draft lottery number, and thus the independence assumption seems fine, the instrument may directly affect the outcomes by other ways than the treatment of interest.
 For example, receiving a low draft lottery number makes one more likely to be drafted.
-In response, one might decide to increase his length of stay in college in order to use the waiver for the draft reserved for students.
+In response, one might decide to increase their length of stay in college in order to use the waiver for the draft reserved for students.
 If receiving a low draft lottery number increases the number of years of education, and in turn subsequent earnings, then the exclusion restriction assumption is violated.
 \end{remark}
 
@@ -6488,15 +6488,15 @@ U_i^B & \sim\mathcal{N}(0,\sigma^2_{U}) \\
 D_i   & = \uns{y_i^B+\kappa_i Z_i + V_i\leq\bar{y}} \\
 \kappa_i & = 
 \begin{cases}
--\bar{\kappa} & \text{ if } \xi = 1 \\
-\underline{\kappa} & \text{ if } \xi = 0
+-\bar{\kappa} & \text{ if } \xi_i = 1 \\
+\underline{\kappa} & \text{ if } \xi_i = 0
 \end{cases} \\
 \xi & \sim\mathcal{B}(p_{\xi}) \\
 V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega}) \\
 Z_i   & \sim\mathcal{B}(p_Z) \\
 Z_i   & \Ind (y_i^0,y_i^1,y_i^B,V_i) \\
-\xi & \Ind (y_i^0,y_i^1,y_i^B,V_i,Z_i)
+\xi_i & \Ind (y_i^0,y_i^1,y_i^B,V_i,Z_i)
 \end{align*}
 
 The key component of the model that generates a failure of Monotonicity is the coefficient \(\kappa_i\), that determines how individuals' participation into the program reacts to the instrument \(Z_i\).
@@ -6552,8 +6552,6 @@ When \(\kappa_i=\underline{\kappa}>0\), we have three types defined by where \(V
 Let's visualize how this works in a plot.
 Before that, let's generate some data according to this process.
 For that, let's choose values for the new parameters.
-
-\textbf{\textsc{Generate the true model now.}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -6678,9 +6676,6 @@ We are going to explore two sets of assumption that secure the identification of
   The Local Average Treatment Effect (\(LATE\))
 \end{itemize}
 
-\hypertarget{assumptions}{%
-\subsubsection{Assumptions}\label{assumptions}}
-
 \begin{definition}[First Stage Full Rank]
 \protect\hypertarget{def:FirstStage}{}{\label{def:FirstStage} \iffalse (First Stage Full Rank) \fi{} }We assume that the instrument \(Z_i\) has a direct effect on treatment participation:
 
@@ -6743,7 +6738,155 @@ Let's write two functions to compute these probabilities:
 \end{Highlighting}
 \end{Shaded}
 
-With these functions, we know that, in the population, \(\Pr(D_i=1|Z_i=1)=\) 0.57 and \(\Pr(D_i=1|Z_i=0)=\) 0.26.
+With these functions, we know that, in the population, \(\Pr(D_i=1|Z_i=1)=\) 0.57 and \(\Pr(D_i=1|Z_i=0)=\) 0.26, which is not far from what we have found in our sample.
+
+Our next set of assumptions imposes that the instrument has no direct effect on the outcome and that it is not correlated with all the potential outcomes.
+Let's start with the exclusion restriction:
+
+\begin{definition}[Exclusion Restriction]
+\protect\hypertarget{def:ExclusionRestriction}{}{\label{def:ExclusionRestriction} \iffalse (Exclusion Restriction) \fi{} }We assume that there is no direct effect of \(Z_i\) on outcomes:
+
+\begin{align*}
+\forall d,z \in \left\{0,1\right\}\text{, } Y_i^{d,z} = Y_i^d.
+\end{align*}
+\end{definition}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141} }In our example, this assumption is automatically satisfied.
+\end{example}
+Indeed, \(y_i^{d,z}=y_i^0 + d(y_i^1-y_i^0)\) which is parameterized as \(y_i^{d,z}=\mu_i+\delta+U_i^0+d(\bar{\alpha}+\theta\mu_i+\eta_i)\).
+Since \(y_i^{d,z}\) does not depend on \(z\), we have \(y_i^{d,z} = y_i^d\), \(\forall d,z \in \left\{0,1\right\}\).
+The assumption would not be satisfied if \(Z_i\) entered the equations for \(y_i^0\) or \(y_i^1\).
+For example, if \(Z_i\) is the Vietnam draft lottery number (high or low) used by Angrist to study the impact of army experience on earnings, the exclusion restriction would not work if \(Z_i\) was directly influencing outcomes, independent of miitary experience, by example by generating a higher education level.
+In that case, we could have \(E_i=\alpha+\beta Z_i + v_i\), where \(E_i\) is education, and, for example, \(y_i^0=\mu_i+\delta+\lambda E_i+U_i^0\).
+We then have \(y_i^{d,z}=\mu_i+\delta +\lambda(\alpha+\beta z + v_i) +U_i^0+d(\bar{\alpha}+\theta\mu_i+\eta_i)\) which depends on \(z\) and thus the exclusion restriction does not hold any more.
+
+Let us now state the independence assumption:
+
+\begin{definition}[Independence]
+\protect\hypertarget{def:Independence}{}{\label{def:Independence} \iffalse (Independence) \fi{} }We assume that \(Z_i\) is independent from the other determinants of \(Y_i\) and \(D_i\):
+
+\begin{align*}
+(Y_i^1,Y_i^0,D_i^1,D_i^0)\Ind Z_i.
+\end{align*}
+\end{definition}
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Why do we say that independence from the potential outcomes is the same as independence from the other determinants of \(Y_i\) and \(D_i\)?
+Because the only sources of variation that remain in \(Y_i^d\) and \(D_i^z\) are the other sources of variations (that is not the treatment \(D_i=d\) nor the instrument variable \(Z_i=z\)).
+\end{remark}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-143}{}{\label{exm:unnamed-chunk-143} }In our example, this assumption is also satisfied.
+\end{example}
+If we assumed that unobserved determinants of earnings contained in \(U^0_i\) are correlated with the instrument value, then we would have a problem.
+For example, if children that leave close to college have also rich parents, or parents that spend a lot of time with them, or parents with large networks, there probably is a correlation between distance to college and earnings in the absence of the program.
+For the draft lottery example, you might have that people with a high draft lottery number who have well-connected parents obtain discharges on special medical grounds.
+Is that a violation of the independence assumption?
+Actually no.
+Indeed, these individuals are simply going to become never takers (they avoid the draft whatever their lottery number).
+But \(Z_i\) is still independent from the level of connections of the parents.
+For the independence assumption to fail in the draft lottery number example, you would need that children of well-connected parents obtain lower lottery numbers because the lottery is rigged.
+In that case, since well-connected individuals would have had higher earnings even absent the lottery, there is a negative correlation between \(y_i^0\) and having a high draft lottery number (\(Z_i\)).
+
+The last assumption we need in order to identify the Local Average Treatment Effect is that of Monotonicity.
+We already know this assumption:
+
+\begin{definition}[Monotonicity]
+\protect\hypertarget{def:Monotonicity}{}{\label{def:Monotonicity} \iffalse (Monotonicity) \fi{} }We assume that the instrument moves everyone in the population in the same direction:
+
+\begin{align*}
+\forall i\text{, either } D^1_i\geq D_i^0 \text{ or } D^1_i\leq D_i^0.
+\end{align*}
+\end{definition}
+
+Without loss of generality, we generally assume that \(\forall i\), \(D^1_i\geq D_i^0\).
+As a consequence, there are no defiers.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-144}{}{\label{exm:unnamed-chunk-144} }In our example, this assumption is not satisfied.
+\end{example}
+There are defiers, as Figure \ref{fig:plottypes} shows, when \(\xi_i = 0\) and thus \(\kappa_i=\underline{\kappa}\).
+Indeed, in that case, for the individuals who are such that \(\bar{y}-\underline{\kappa}<y_i^B+V_i\leq\bar{y}\), we have \(D^1_i=\uns{y_i^B+\underline{\kappa} + V_i\leq\bar{y}}=0\) and \(D^0_i=\uns{y_i^B + V_i\leq\bar{y}}=1\).
+This would happen for example if some people would go to college less if their house is located closer to the college, maybe for example because they have a preference not to stay at their parents' house.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Why are defiers a problem for the instrumental variable strategy?
+Because the Intention to Treat Effect that measures the difference in expected outcomes at the two levels of the instrument is going to be characterized by two-way flows in and out of the program, as we have already seen with Theorem \ref{thm:ITELATE}.
+This means that some treatment effects will have negative weights in the ITE formula.
+In that case, you might have a negative Intention to Treat Effect despite the treatment having positive effects for everyone, or you might under estimate the true effect of the treatment.
+This matters only when the treatment effects are heterogeneous.
+\end{remark}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-146}{}{\label{exm:unnamed-chunk-146} }Let us detail how non-monotonicity and the existence defiers act on the ITE in our example, since we now have defiers.
+The first very important thing to understand is that all the problems we have happend because treatment effects are heterogeneous \textbf{AND} they are correlated with the type of individuals: defiers and compliers do not have the same distribution of treatment effects and, case in point, they do not have the same average treatment effects.
+The average effects of the treatment on compliers and defiers are not the same.
+Let us first look at the distribution of treatment effects among compliers and defiers in the sample and in the population.
+\end{example}
+
+In order to derive the distribution of \(\alpha_i\) conditional on Type in the population, we need to derive the joint distribution of \(\alpha_i\) and \(y_i^B+V_i\) and use the \textbf{trmtvnorm} package to recover its density when it is truncated.
+This distribution is normal and fully characterized by its mean and covariance matrix.
+
+\begin{align*}
+  (\alpha_i,y_i^B+V_i) & \sim \mathcal{N}\left(\bar{\alpha}+\theta\bar{\mu},\bar{\mu},
+                                        \left(\begin{array}{cc}
+                                              \theta^2\sigma^2_{\mu}+\sigma^2_{\eta} & (\theta+\gamma)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega}\\
+                                              (\theta+\gamma)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} &  (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}\\
+                                              \end{array}
+                                        \right)
+                                      \right)
+\end{align*}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mean.alpha.yBV }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(param[}\StringTok{\textquotesingle{}baralpha\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{],param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}
+\NormalTok{cov.alpha.yBV }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{((param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rhoetaomega\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{],}
+\NormalTok{                            (param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rhoetaomega\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{],}
+\NormalTok{                            (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]),}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
+\CommentTok{\# density of alpha for compliers}
+\NormalTok{lower.cut.comp }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]))}
+\NormalTok{upper.cut.comp }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{])}
+\NormalTok{d.alpha.compliers }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x)\{}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{dtmvnorm.marginal}\NormalTok{(}\AttributeTok{xn=}\NormalTok{x,}\AttributeTok{n=}\DecValTok{1}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.alpha.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.comp,}\AttributeTok{upper=}\NormalTok{upper.cut.comp))}
+\NormalTok{\}}
+\CommentTok{\# density of alpha for defiers}
+\NormalTok{lower.cut.def }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}underbarkappa\textquotesingle{}}\NormalTok{]))}
+\NormalTok{upper.cut.def }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]))}
+\NormalTok{d.alpha.defiers }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x)\{}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{dtmvnorm.marginal}\NormalTok{(}\AttributeTok{xn=}\NormalTok{x,}\AttributeTok{n=}\DecValTok{1}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.alpha.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.def,}\AttributeTok{upper=}\NormalTok{upper.cut.def))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# building the data frame}
+\NormalTok{alpha.types }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(alpha,C,D,AT,NT)) }\SpecialCharTok{\%\textgreater{}\%}
+                \FunctionTok{mutate}\NormalTok{(}
+                  \AttributeTok{Type =} \FunctionTok{ifelse}\NormalTok{(AT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{"Always Takers"}\NormalTok{,}
+                                \FunctionTok{ifelse}\NormalTok{(NT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{"Never Takers"}\NormalTok{,}
+                                       \FunctionTok{ifelse}\NormalTok{(C}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{"Compliers"}\NormalTok{,}\StringTok{"Defiers"}\NormalTok{)))}
+\NormalTok{                ) }\SpecialCharTok{\%\textgreater{}\%}
+                \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Type =} \FunctionTok{as.factor}\NormalTok{(Type))}
+
+\FunctionTok{ggplot}\NormalTok{(}\FunctionTok{filter}\NormalTok{(alpha.types,Type}\SpecialCharTok{==}\StringTok{"Compliers"} \SpecialCharTok{|}\NormalTok{ Type}\SpecialCharTok{==}\StringTok{"Defiers"}\NormalTok{), }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{alpha, }\AttributeTok{colour=}\NormalTok{Type)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_density}\NormalTok{(}\AttributeTok{linetype=}\StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ d.alpha.compliers, }\AttributeTok{colour =} \StringTok{"red"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ d.alpha.defiers, }\AttributeTok{colour =} \StringTok{"blue"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/AlphaTypesPlot-1} 
+
+}
+
+\caption{Distribution of treatment effects by Type in the sample (dashed line) and in the population (full line)}\label{fig:AlphaTypesPlot}
+\end{figure}
 
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
@@ -6950,7 +7093,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-143}{}{\label{exm:unnamed-chunk-143} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -7211,7 +7354,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-155}{}{\label{exm:unnamed-chunk-155} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -7355,7 +7498,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-151}{}{\label{exm:unnamed-chunk-151} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -7478,7 +7621,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -7540,7 +7683,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-153}{}{\label{exm:unnamed-chunk-153} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -7581,7 +7724,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-156}{}{\label{exm:unnamed-chunk-156} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -7616,7 +7759,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-164}{}{\label{exm:unnamed-chunk-164} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -7731,7 +7874,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -7922,7 +8065,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -8019,7 +8162,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-167}{}{\label{exm:unnamed-chunk-167} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8139,7 +8282,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-163}{}{\label{exm:unnamed-chunk-163} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-169}{}{\label{exm:unnamed-chunk-169} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -8218,7 +8361,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-164}{}{\label{exm:unnamed-chunk-164} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -8361,7 +8504,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-171}{}{\label{exm:unnamed-chunk-171} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8465,7 +8608,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-172}{}{\label{exm:unnamed-chunk-172} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -8803,7 +8946,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-167}{}{\label{exm:unnamed-chunk-167} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8962,7 +9105,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-174}{}{\label{exm:unnamed-chunk-174} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -9252,7 +9395,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -9505,7 +9648,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-182}{}{\label{exm:unnamed-chunk-182} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
