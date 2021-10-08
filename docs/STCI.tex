@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-10-06}
+\date{2021-10-08}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -5620,7 +5620,7 @@ When outcomes are bounded (for example because they are between zero and one), w
 
 \begin{remark}
 \iffalse{} {Remark. } \fi{}If you see a connexion between the conditions for the Wald estimator to identify LATE and the assumptions behind an IV estimator, you're correct.
-The Wald estimator is actually an IV estimator (see Lemma \ref{lem:WaldIV} below).
+The Wald estimator is actually an IV estimator (see Theorem \ref{thm:WaldIV} below).
 \end{remark}
 
 \hypertarget{ITEEncourag}{%
@@ -6715,7 +6715,7 @@ Let's derive its value:
                   & =  \Pr(y_i^B+\kappa_i + V_i\leq\bar{y}) \\
                   & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa}|\xi_i=1)\Pr(\xi_i=1) + \Pr(y_i^B+V_i\leq\bar{y}-\underline{\kappa}|\xi_i=0)\Pr(\xi_i=0) \\
                                     & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa})p_{\xi} + \Pr(y_i^B+ V_i\leq\bar{y}-\underline{\kappa})(1-p_{\xi}) \\
-                  & =  p_{\xi}\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right)
+                  & =  p_{\xi}\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right)
 \end{align*}
 
 where the second equality follows from \(Z_i\) being independent of \((y_i^0,y_i^1,y_i^B,V_i)\), the third equality follows from \(\xi_i\) being independent from \((y_i^0,y_i^1,y_i^B,V_i,Z_i)\) and the last equality follows from the formula for the cumulative of a normal distribution.
@@ -6726,19 +6726,19 @@ Let's write two functions to compute these probabilities:
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{prob.D.Z}\FloatTok{.1} \OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(param)\{}
-\NormalTok{  part}\FloatTok{.1} \OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
-\NormalTok{  part}\FloatTok{.2} \OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}underbarkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+\NormalTok{  part}\FloatTok{.1} \OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+\NormalTok{  part}\FloatTok{.2} \OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}underbarkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
   \FunctionTok{return}\NormalTok{(part}\FloatTok{.1}\SpecialCharTok{+}\NormalTok{part}\FloatTok{.2}\NormalTok{)}
 \NormalTok{\}}
 \NormalTok{prob.D.Z}\FloatTok{.0} \OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(param)\{}
-\NormalTok{  part}\FloatTok{.1} \OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
-\NormalTok{  part}\FloatTok{.2} \OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+\NormalTok{  part}\FloatTok{.1} \OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
+\NormalTok{  part}\FloatTok{.2} \OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"sigma2U"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]))}
   \FunctionTok{return}\NormalTok{(part}\FloatTok{.1}\SpecialCharTok{+}\NormalTok{part}\FloatTok{.2}\NormalTok{)}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
 
-With these functions, we know that, in the population, \(\Pr(D_i=1|Z_i=1)=\) 0.57 and \(\Pr(D_i=1|Z_i=0)=\) 0.26, which is not far from what we have found in our sample.
+With these functions, we know that, in the population, \(\Pr(D_i=1|Z_i=1)=\) 0.57 and \(\Pr(D_i=1|Z_i=0)=\) 0.25, which is not far from what we have found in our sample.
 
 Our next set of assumptions imposes that the instrument has no direct effect on the outcome and that it is not correlated with all the potential outcomes.
 Let's start with the exclusion restriction:
@@ -6838,6 +6838,8 @@ This distribution is normal and fully characterized by its mean and covariance m
                                       \right)
 \end{align*}
 
+Let us write a function to generate them.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{mean.alpha.yBV }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(param[}\StringTok{\textquotesingle{}baralpha\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{],param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}
@@ -6860,6 +6862,8 @@ This distribution is normal and fully characterized by its mean and covariance m
 \end{Highlighting}
 \end{Shaded}
 
+Let us now plot the empirical and theoretical distributions of the treatment effects for compliers and defiers.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# building the data frame}
@@ -6875,6 +6879,7 @@ This distribution is normal and fully characterized by its mean and covariance m
   \FunctionTok{geom\_density}\NormalTok{(}\AttributeTok{linetype=}\StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ d.alpha.compliers, }\AttributeTok{colour =} \StringTok{"red"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_function}\NormalTok{(}\AttributeTok{fun =}\NormalTok{ d.alpha.defiers, }\AttributeTok{colour =} \StringTok{"blue"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{ylab}\NormalTok{(}\StringTok{\textquotesingle{}density\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{theme\_bw}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
@@ -6887,6 +6892,93 @@ This distribution is normal and fully characterized by its mean and covariance m
 
 \caption{Distribution of treatment effects by Type in the sample (dashed line) and in the population (full line)}\label{fig:AlphaTypesPlot}
 \end{figure}
+
+Figure \ref{fig:AlphaTypesPlot} shows that the two distributions are actually very similar in our example.
+The distribution for the compliers is slightly above that for the defiers, meaning that the defiers should have lower expected outcomes in the population.
+Let us check that by computing the average outcomes of compliers and defiers both in the sample and in the population.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# sample means}
+\NormalTok{mean.alpha.compliers.samp }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alpha[C}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]) }
+\NormalTok{mean.alpha.defiers.samp }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alpha[D}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]) }
+
+\CommentTok{\# population means}
+\NormalTok{mean.alpha.compliers.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.comp,}\AttributeTok{upper=}\NormalTok{upper.cut.comp,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]]}
+\NormalTok{mean.alpha.defiers.pop }\OtherTok{\textless{}{-}}  \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.def,}\AttributeTok{upper=}\NormalTok{upper.cut.def,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+In the population, the average treatment effect for compliers is equal to 0.17 and the average treatment effect for defiers is equal to 0.14.
+In the sample, the average treatment effect for compliers is equal to 0.2 and the average treatment effect for defiers is equal to 0.16.
+
+The difference between the treatment effect for compliers and defiers is a problem for the Wald estimator.
+Let's look at how the Wald estimator behaves in the population (in order to avoid considerations due to sampling noise).
+By Theorem \ref{thm:ITELATE}, the numerator of the Wald estimator is equal to the difference between the average treatment on compliers and the average treatment effect on defiers weighted by their respective proportions in the population.
+In order to be able to compute the Wald estimator, we need to compute the proportion of compliers and of defiers in the population.
+These proportions are equal to:
+
+\begin{align*}
+  \Pr(T_i=c) & = \Pr(\bar{y}< y_i^B+V_i\leq\bar{y}+\bar{\kappa}\cap\kappa_i=-\bar{\kappa}) \\
+              & = \Pr(\bar{y}< y_i^B+V_i\leq\bar{y}+\bar{\kappa})p_{\xi} \\
+  \Pr(T_i=d) & = \Pr(\bar{y}-\underline{\kappa}< y_i^B+V_i\leq\bar{y}\cap\kappa_i=\underline{\kappa}) \\
+              & = \Pr(\bar{y}-\underline{\kappa}< y_i^B+V_i\leq\bar{y})(1-p_{\xi}),
+\end{align*}
+
+where the second equality follows from the fact that \(\xi\) is independent from \(y_i^B+V_i\) and uses the fact that \(\Pr(A\cap B)=\Pr(A|B)\Pr(B)\).
+Since \(y_i^B+V_i\) is normally distributed and we know its mean and variance, these proportions can be computed as:
+
+\begin{align*}
+  \Pr(T_i=c) & = p_{\xi}\left(\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)
+                  -\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\right) \\
+  \Pr(T_i=d) & = (1-p_{\xi})\left(\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)
+                  -\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\right).
+\end{align*}
+
+Let's write functions to compute these objects:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# proportion compliers}
+\NormalTok{Prop.Comp }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(param)\{}
+\NormalTok{  first }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{])))}
+\NormalTok{  second }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{])))}
+  \FunctionTok{return}\NormalTok{(param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(first }\SpecialCharTok{{-}}\NormalTok{ second))  }
+\NormalTok{\}}
+
+\CommentTok{\# proportion defiers}
+\NormalTok{Prop.Def }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(param)\{}
+\NormalTok{  first }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{])))}
+\NormalTok{  second }\OtherTok{\textless{}{-}} \FunctionTok{pnorm}\NormalTok{((}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}underbarkappa\textquotesingle{}}\NormalTok{]}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{((}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{])))}
+  \FunctionTok{return}\NormalTok{((}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}pxi\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{(first }\SpecialCharTok{{-}}\NormalTok{ second))  }
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+In our example, the proportion of compliers is equal to 0.33 and the proportion of defiers is equal to 0.01.
+As a consequence, the population value of the numerator of the Wald estimator is equal to 0.05.
+In the Wald estimator, this quantity is divided by the difference between the proportion of participants when \(Z_i=1\) and when \(Z_i=0\).
+We have already computed this quantity earlier, but it is nice to try to compute it in a different way using the types.
+The difference in the proportion of participants when \(Z_i=1\) and when \(Z_i=0\) is indeed equal to the difference in the proportion of compliers and the proportion of defiers.
+The difference between the proportion of compliers and the proportion of defiers is equal to 0.32, while the difference between the proportion of participants when \(Z_i=1\) and when \(Z_i=0\) is equal to 0.32.
+It is reassuring that we find the same thing (actually, full disclosure, I did not find the same thing at first, and this help me spot a mistake in the formulas for the proportions of participants: mistakes are normal and natural and that is how we learn and grow).
+
+So we are now equipped to compute the value of the Wald estimator in the population in our model without monotonicity.
+It is equal to 0.172.
+In practice, the bias of the Wald estimator is rather small for the average treatment effect on the compliers (remember that it is equal to 0.171).
+In order to understand why, it is useful to see that the bias of the Wald estimator for the average treatment effect on the compliers is equal to:
+
+\begin{align*}
+  \esp{\Delta_i^Y|T_i=c}-\Delta^Y_{Wald} & = \esp{\Delta_i^Y|T_i=c} + (\esp{\Delta_i^Y|T_i=c}-\esp{\Delta_i^Y|T_i=d})\frac{\Pr(T_i=d)}{\Pr(T_i=c)-\Pr(T_i=d)},
+\end{align*}
+
+where the equality follows from Theorem \ref{thm:ITELATE} and some algebra.
+In the absence of Monotonicity, the existence of defiers biases the Wald estimator upward for the effect on the compliers (as it happens in our example).
+This is because the flow of defiers out of the treatment when \(Z_i=1\) does not increase mean outcomes enough because the effect on defiers is smaller than the effect on compliers.
+In a model in which the effect of the treatment is larger on defiers than on compliers, the Wald estimator is biased downwards for the effect on compliers because defiers make the outcome of the control group look much too good.
+In the extreme, when \(\esp{\Delta_i^Y|T_i=d}>\esp{\Delta_i^Y|T_i=c}(1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)})\), the Wald estimator can be negative whereas the effects on compliers and on defiers are both positive.
+This happens when the effect on defiers is \(1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)}\) times larger than the effect on compliers.
+In our case, that means that the effect on defiers should be 26 times larger than the effect on compliers for the Wald estimator to be negative, that is to say the effect on defiers should be equal to 4.41, really much much much larger than the effect on compliers.
 
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}

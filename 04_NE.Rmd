@@ -257,7 +257,7 @@ Let's derive its value:
                   & =  \Pr(y_i^B+\kappa_i + V_i\leq\bar{y}) \\
                   & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa}|\xi_i=1)\Pr(\xi_i=1) + \Pr(y_i^B+V_i\leq\bar{y}-\underline{\kappa}|\xi_i=0)\Pr(\xi_i=0) \\
                                     & =  \Pr(y_i^B+ V_i\leq\bar{y}+\bar{\kappa})p_{\xi} + \Pr(y_i^B+ V_i\leq\bar{y}-\underline{\kappa})(1-p_{\xi}) \\
-                  & =  p_{\xi}\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right)
+                  & =  p_{\xi}\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right) + (1-p_{\xi})\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_{U}+\sigma^2_{\omega}}}\right)
 \end{align*}
 
 where the second equality follows from $Z_i$ being independent of $(y_i^0,y_i^1,y_i^B,V_i)$, the third equality follows from $\xi_i$ being independent from  $(y_i^0,y_i^1,y_i^B,V_i,Z_i)$ and the last equality follows from the formula for the cumulative of a normal distribution. 
@@ -267,13 +267,13 @@ Let's write two functions to compute these probabilities:
 
 ```{r prob.IV,eval=TRUE,echo=TRUE,results='hide'}
 prob.D.Z.1 <- function(param){
-  part.1 <- param['pxi']*pnorm((log(param["barY"])+param['barkappa']-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
-  part.2 <- (1-param['pxi'])*pnorm((log(param["barY"])-param['underbarkappa']-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  part.1 <- param['pxi']*pnorm((log(param["barY"])+param['barkappa']-param['barmu'])/sqrt((1+param['gamma']^2)*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  part.2 <- (1-param['pxi'])*pnorm((log(param["barY"])-param['underbarkappa']-param['barmu'])/sqrt((1+param['gamma']^2)*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
   return(part.1+part.2)
 }
 prob.D.Z.0 <- function(param){
-  part.1 <- param['pxi']*pnorm((log(param["barY"])-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
-  part.2 <- (1-param['pxi'])*pnorm((log(param["barY"])-param['barmu'])/sqrt((1+param['gamma'])*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  part.1 <- param['pxi']*pnorm((log(param["barY"])-param['barmu'])/sqrt((1+param['gamma']^2)*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
+  part.2 <- (1-param['pxi'])*pnorm((log(param["barY"])-param['barmu'])/sqrt((1+param['gamma']^2)*param['sigma2mu']+param["sigma2U"]+param['sigma2omega']))
   return(part.1+part.2)
 }
 ```
@@ -378,6 +378,8 @@ This distribution is normal and fully characterized by its mean and covariance m
                                       \right)
 \end{align*}
 
+Let us write a function to generate them.
+
 ```{r AlphaTypesPopulation,eval=TRUE,echo=TRUE,results='hide'}
 mean.alpha.yBV <- c(param['baralpha']+param['theta']*param['barmu'],param['barmu'])
 cov.alpha.yBV <- matrix(c((param['theta']^2)*param['sigma2mu']+param['sigma2eta'],
@@ -398,7 +400,7 @@ d.alpha.defiers <- function(x){
 }
 ```
 
-
+Let us now plot the empirical and theoretical distributions of the treatment effects for compliers and defiers.
 
 ```{r AlphaTypesPlot,eval=TRUE,echo=TRUE,fig.cap='Distribution of treatment effects by Type in the sample (dashed line) and in the population (full line)',fig.align='center',out.width='50%',fig.pos='htbp'}
 # building the data frame
@@ -414,8 +416,94 @@ ggplot(filter(alpha.types,Type=="Compliers" | Type=="Defiers"), aes(x=alpha, col
   geom_density(linetype="dashed") +
   geom_function(fun = d.alpha.compliers, colour = "red") +
   geom_function(fun = d.alpha.defiers, colour = "blue") +
+  ylab('density') +
   theme_bw()
 ```
+
+Figure \@ref(fig:AlphaTypesPlot) shows that the two distributions are actually very similar in our example. 
+The distribution for the compliers is slightly above that for the defiers, meaning that the defiers should have lower expected outcomes in the population.
+Let us check that by computing the average outcomes of compliers and defiers both in the sample and in the population.
+
+```{r AlphaTypesMean,eval=TRUE,echo=TRUE,results='hide'}
+# sample means
+mean.alpha.compliers.samp <- mean(alpha[C==1]) 
+mean.alpha.defiers.samp <- mean(alpha[D==1]) 
+
+# population means
+mean.alpha.compliers.pop <- mtmvnorm(mean=mean.alpha.yBV,sigma=cov.alpha.yBV,lower=lower.cut.comp,upper=upper.cut.comp,doComputeVariance=FALSE)[[1]]
+mean.alpha.defiers.pop <-  mtmvnorm(mean=mean.alpha.yBV,sigma=cov.alpha.yBV,lower=lower.cut.def,upper=upper.cut.def,doComputeVariance=FALSE)[[1]]
+```
+
+In the population, the average treatment effect for compliers is equal to `r round(mean.alpha.compliers.pop[[1]],2)` and the average treatment effect for defiers is equal to `r round(mean.alpha.defiers.pop[[1]],2)`.
+In the sample, the average treatment effect for compliers is equal to `r round(mean.alpha.compliers.samp[[1]],2)` and the average treatment effect for defiers is equal to `r round(mean.alpha.defiers.samp[[1]],2)`.
+
+The difference between the treatment effect for compliers and defiers is a problem for the Wald estimator.
+Let's look at how the Wald estimator behaves in the population (in order to avoid considerations due to sampling noise).
+By Theorem \@ref(thm:ITELATE), the numerator of the Wald estimator is equal to the difference between the average treatment on compliers and the average treatment effect on defiers weighted by their respective proportions in the population. 
+In order to be able to compute the Wald estimator, we need to compute the proportion of compliers and of defiers in the population. 
+These proportions are equal to:
+
+\begin{align*}
+  \Pr(T_i=c) & = \Pr(\bar{y}< y_i^B+V_i\leq\bar{y}+\bar{\kappa}\cap\kappa_i=-\bar{\kappa}) \\
+              & = \Pr(\bar{y}< y_i^B+V_i\leq\bar{y}+\bar{\kappa})p_{\xi} \\
+  \Pr(T_i=d) & = \Pr(\bar{y}-\underline{\kappa}< y_i^B+V_i\leq\bar{y}\cap\kappa_i=\underline{\kappa}) \\
+              & = \Pr(\bar{y}-\underline{\kappa}< y_i^B+V_i\leq\bar{y})(1-p_{\xi}),
+\end{align*}
+
+where the second equality follows from the fact that $\xi$ is independent from $y_i^B+V_i$ and uses the fact that $\Pr(A\cap B)=\Pr(A|B)\Pr(B)$.
+Since $y_i^B+V_i$ is normally distributed and we know its mean and variance, these proportions can be computed as: 
+
+\begin{align*}
+  \Pr(T_i=c) & = p_{\xi}\left(\Phi\left(\frac{\bar{y}+\bar{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)
+                  -\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\right) \\
+  \Pr(T_i=d) & = (1-p_{\xi})\left(\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)
+                  -\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\right).
+\end{align*}
+
+Let's write functions to compute these objects:
+
+```{r PropCompDef,eval=TRUE,echo=TRUE,results='hide'}
+# proportion compliers
+Prop.Comp <- function(param){
+  first <- pnorm((log(param['barY'])+param['barkappa']-param['barmu'])/(sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])))
+  second <- pnorm((log(param['barY'])-param['barmu'])/(sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])))
+  return(param['pxi']*(first - second))  
+}
+
+# proportion defiers
+Prop.Def <- function(param){
+  first <- pnorm((log(param['barY'])-param['barmu'])/(sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])))
+  second <- pnorm((log(param['barY'])-param['underbarkappa']-param['barmu'])/(sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])))
+  return((1-param['pxi'])*(first - second))  
+}
+
+```
+
+In our example, the proportion of compliers is equal to `r round(Prop.Comp(param),2)` and the proportion of defiers is equal to `r round(Prop.Def(param),2)`.
+As a consequence, the population value of the numerator of the Wald estimator is equal to `r round(mean.alpha.compliers.pop[[1]]*Prop.Comp(param) - mean.alpha.defiers.pop[[1]]*Prop.Def(param),2)`.
+In the Wald estimator, this quantity is divided by the difference between the proportion of participants when $Z_i=1$ and when $Z_i=0$. 
+We have already computed this quantity earlier, but it is nice to try to compute it in a different way using the types.
+The difference in the proportion of participants when $Z_i=1$ and when $Z_i=0$ is indeed equal to the difference in the proportion of compliers and the proportion of defiers. 
+The difference between the proportion of compliers and the proportion of defiers is equal to `r round(Prop.Comp(param)-Prop.Def(param),2)`, while the difference between the proportion of participants when $Z_i=1$ and when $Z_i=0$ is equal to `r round(prob.D.Z.1(param)-prob.D.Z.0(param),2)`.
+It is reassuring that we find the same thing (actually, full disclosure, I did not find the same thing at first, and this help me spot a mistake in the formulas for the proportions of participants: mistakes are normal and natural and that is how we learn and grow).
+
+So we are now equipped to compute the value of the Wald estimator in the population in our model without monotonicity.
+It is equal to `r round((mean.alpha.compliers.pop[[1]]*Prop.Comp(param) - mean.alpha.defiers.pop[[1]]*Prop.Def(param))/(prob.D.Z.1(param)-prob.D.Z.0(param)),3)`.
+In practice, the bias of the Wald estimator is rather small for the average treatment effect on the compliers (remember that it is equal to `r round(mean.alpha.compliers.pop[[1]],3)`). 
+In order to understand why, it is useful to see that the bias of the Wald estimator for the average treatment effect on the compliers is equal to:
+
+\begin{align*}
+  \esp{\Delta_i^Y|T_i=c}-\Delta^Y_{Wald} & = \esp{\Delta_i^Y|T_i=c} + (\esp{\Delta_i^Y|T_i=c}-\esp{\Delta_i^Y|T_i=d})\frac{\Pr(T_i=d)}{\Pr(T_i=c)-\Pr(T_i=d)},
+\end{align*}
+
+where the equality follows from Theorem \@ref(thm:ITELATE) and some algebra.
+In the absence of Monotonicity, the existence of defiers biases the Wald estimator upward for the effect on the compliers (as it happens in our example).
+This is because the flow of defiers out of the treatment when $Z_i=1$ does not increase mean outcomes enough because the effect on defiers is smaller than the effect on compliers.
+In a model in which the effect of the treatment is larger on defiers than on compliers, the Wald estimator is biased downwards for the effect on compliers because defiers make the outcome of the control group look much too good.
+In the extreme, when $\esp{\Delta_i^Y|T_i=d}>\esp{\Delta_i^Y|T_i=c}(1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)})$, the Wald estimator can be negative whereas the effects on compliers and on defiers are both positive.
+This happens when the effect on defiers is $1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)}$ times larger than the effect on compliers. 
+In our case, that means that the effect on defiers should be `r round(1+(Prop.Comp(param)-Prop.Def(param))/Prop.Def(param),0)` times larger than the effect on compliers for the Wald estimator to be negative, that is to say the effect on defiers should be equal to `r round((1+(Prop.Comp(param)-Prop.Def(param))/Prop.Def(param))*mean.alpha.compliers.pop[[1]],2)`, really much much much larger than the effect on compliers.
+
 
 ### Estimation
 
