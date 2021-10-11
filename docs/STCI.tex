@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-10-08}
+\date{2021-10-11}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -6973,12 +6973,85 @@ In order to understand why, it is useful to see that the bias of the Wald estima
 \end{align*}
 
 where the equality follows from Theorem \ref{thm:ITELATE} and some algebra.
-In the absence of Monotonicity, the existence of defiers biases the Wald estimator upward for the effect on the compliers (as it happens in our example).
-This is because the flow of defiers out of the treatment when \(Z_i=1\) does not increase mean outcomes enough because the effect on defiers is smaller than the effect on compliers.
-In a model in which the effect of the treatment is larger on defiers than on compliers, the Wald estimator is biased downwards for the effect on compliers because defiers make the outcome of the control group look much too good.
+In the absence of Monotonicity, when the impact on defiers is smaller than the impact of compliers, the Wald estimator is baised upward for the effect on the compliers (as it happens in our example).
+In a model in which the effect of the treatment is larger on defiers than on compliers, the Wald estimator is biased downwards for the effect on compliers because defiers make the outcome of the control group seem too good.
 In the extreme, when \(\esp{\Delta_i^Y|T_i=d}>\esp{\Delta_i^Y|T_i=c}(1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)})\), the Wald estimator can be negative whereas the effects on compliers and on defiers are both positive.
 This happens when the effect on defiers is \(1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)}\) times larger than the effect on compliers.
 In our case, that means that the effect on defiers should be 26 times larger than the effect on compliers for the Wald estimator to be negative, that is to say the effect on defiers should be equal to 4.41, really much much much larger than the effect on compliers.
+
+From there, we are going to explore three strategies in order to identify some true effect of the treatment using the Wald estimator:
+
+\begin{itemize}
+\tightlist
+\item
+  The first strategy is the most recent \href{https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view}{de Chaisemartin, 2017}.
+  It is valid in a model without monotonicity.
+\item
+  The second strategy assumes that the heterogeneity in treatment effects is uncorrelated to the treatment.
+\item
+  The last strategy is due to Imbens and Angrist (1994) and assumes that Monotonicity holds.
+\end{itemize}
+
+Let's review these solutions in turn.
+
+\hypertarget{identification-without-monotonicity}{%
+\subsubsection{Identification without Monotonicity}\label{identification-without-monotonicity}}
+
+The approach delineated by \href{https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view}{de Chaisemartin, 2017} does not assume away non-monotonicity.
+Clement instead assumes that we can divide the population of compliers in two-subpopulations: the \textbf{compliers-defiers} (\(T_i=cd\)) and the \textbf{surviving-compliers} (\(T_i=sc\)).
+The main assumption in Clement's approach is that \emph{(i)} the compliers-defiers are in the same proportion as the defiers and \emph{(ii)} that the average effect of the treatment on the compliers defiers is equal as the average effect of the treatment on the defiers.
+These two assumptions can be formalized as follows:
+
+\begin{definition}[Compliers-defiers]
+\protect\hypertarget{def:CD}{}{\label{def:CD} \iffalse (Compliers-defiers) \fi{} }We assume that there exists as subpopulation of compliers that are in the same proportion as the defiers and for whom the average effect of the treatment is equal as the average effect of the treatment on the defiers:
+
+\begin{align*}
+(T_i=c) & = (T_i=cd)\cup (T_i=sc) \\
+\Pr(T_i=cd) & = \Pr(T_i=d) \\
+\esp{Y^1_i-Y^0_i|T_i=cd} & = \esp{Y^1_i-Y^0_i|T_i=d}.
+\end{align*}
+\end{definition}
+
+The first equation in Assumption \ref{def:CD} imposes that the compliers-defiers and the surviving-compliers are a partition of the population of compliers.
+From Assumption \ref{def:CD}, we can prove the following theorem:
+
+\begin{theorem}[Identification of the effect on the surviving-compliers]
+\protect\hypertarget{thm:deChaise}{}{\label{thm:deChaise} \iffalse (Identification of the effect on the surviving-compliers) \fi{} }Under Assumptions \ref{def:FirstStage}, \ref{def:ExclusionRestriction}, \ref{def:Independence} and \ref{def:CD}, the Wald estimator identifies the effect of the treatment on the surviving-compliers:
+
+\begin{align*}
+  \Delta^Y_{Wald} & = \Delta^Y_{sc},
+\end{align*}
+\end{theorem}
+
+with:
+
+\begin{align*}
+  \Delta^Y_{Wald} & = \frac{\esp{Y_i|Z_i=1} - \esp{Y_i|Z_i=0}}{\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)}\\
+  \Delta^Y_{sc} & = \esp{Y^1_i-Y^0_i|T_i=sc}.
+\end{align*}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}Under Assumptions \ref{def:ExclusionRestriction} and \ref{def:Independence}, Theorems \ref{thm:ITELATE} and \ref{thm:ITEEncourag} imply that the numerator of the Wald estimator is equal to \(\Delta^Y_{ITE}\) with:
+
+\begin{align*}
+  \Delta^Y_{ITE}  & = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
+\end{align*}
+
+Now, we have that the effect on compliers can be decomposed in the effect on surviving-compliers and the effect on compliers-defiers using the Law of Iterated Expectations and the fact that \(T_i=sc \Rightarrow T_i=c\) and \(T_i=cd \Rightarrow T_i=c\):
+
+\begin{align*}
+\Delta^Y_{c} & = \esp{Y_i^{1}-Y_i^{0}|T_i=sc}\Pr(T_i=sc|T_i=c)+\esp{Y_i^{1}-Y_i^{0}|T_i=cd}\Pr(T_i=cd|T_i=c),
+\end{align*}
+
+Now, using the fact that \(\Pr(T_i=sc|T_i=c)\Pr(T_i=c)=\Pr(T_i=sc)\) and \(\Pr(T_i=cd|T_i=c)\Pr(T_i=c)=\Pr(T_i=cd)\) (because \(\Pr(A|B)\Pr(B)=\Pr(A\cap B)\) and \(\Pr(A\cap B)=\Pr(A)\) if \(A \Rightarrow B\)), we have:
+
+\begin{align*}
+  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{0}|T_i=sc}\Pr(T_i=sc)\\
+                & \phantom{=}+\esp{Y_i^{1}-Y_i^{0}|T_i=cd}\Pr(T_i=cd)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
+\end{align*}
+
+The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption \ref{def:CD}.
+\end{proof}
 
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
@@ -7185,7 +7258,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-149}{}{\label{exm:unnamed-chunk-149} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-150}{}{\label{exm:unnamed-chunk-150} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -7446,7 +7519,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-155}{}{\label{exm:unnamed-chunk-155} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-156}{}{\label{exm:unnamed-chunk-156} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -7590,7 +7663,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -7713,7 +7786,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -7775,7 +7848,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -7816,7 +7889,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-163}{}{\label{exm:unnamed-chunk-163} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -7851,7 +7924,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-164}{}{\label{exm:unnamed-chunk-164} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -7966,7 +8039,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -8157,7 +8230,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-167}{}{\label{exm:unnamed-chunk-167} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -8254,7 +8327,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-167}{}{\label{exm:unnamed-chunk-167} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8374,7 +8447,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-169}{}{\label{exm:unnamed-chunk-169} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -8453,7 +8526,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-171}{}{\label{exm:unnamed-chunk-171} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -8596,7 +8669,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-171}{}{\label{exm:unnamed-chunk-171} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-172}{}{\label{exm:unnamed-chunk-172} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8700,7 +8773,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-172}{}{\label{exm:unnamed-chunk-172} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -9038,7 +9111,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-174}{}{\label{exm:unnamed-chunk-174} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9197,7 +9270,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-174}{}{\label{exm:unnamed-chunk-174} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -9487,7 +9560,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-182}{}{\label{exm:unnamed-chunk-182} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -9740,7 +9813,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-189}{}{\label{exm:unnamed-chunk-189} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}

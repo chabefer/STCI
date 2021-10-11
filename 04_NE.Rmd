@@ -497,14 +497,80 @@ In order to understand why, it is useful to see that the bias of the Wald estima
 \end{align*}
 
 where the equality follows from Theorem \@ref(thm:ITELATE) and some algebra.
-In the absence of Monotonicity, the existence of defiers biases the Wald estimator upward for the effect on the compliers (as it happens in our example).
-This is because the flow of defiers out of the treatment when $Z_i=1$ does not increase mean outcomes enough because the effect on defiers is smaller than the effect on compliers.
-In a model in which the effect of the treatment is larger on defiers than on compliers, the Wald estimator is biased downwards for the effect on compliers because defiers make the outcome of the control group look much too good.
+In the absence of Monotonicity, when the impact on defiers is smaller than the impact of compliers, the Wald estimator is baised upward for the effect on the compliers (as it happens in our example).
+In a model in which the effect of the treatment is larger on defiers than on compliers, the Wald estimator is biased downwards for the effect on compliers because defiers make the outcome of the control group seem too good.
 In the extreme, when $\esp{\Delta_i^Y|T_i=d}>\esp{\Delta_i^Y|T_i=c}(1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)})$, the Wald estimator can be negative whereas the effects on compliers and on defiers are both positive.
 This happens when the effect on defiers is $1+\frac{\Pr(T_i=c)-\Pr(T_i=d)}{\Pr(T_i=d)}$ times larger than the effect on compliers. 
 In our case, that means that the effect on defiers should be `r round(1+(Prop.Comp(param)-Prop.Def(param))/Prop.Def(param),0)` times larger than the effect on compliers for the Wald estimator to be negative, that is to say the effect on defiers should be equal to `r round((1+(Prop.Comp(param)-Prop.Def(param))/Prop.Def(param))*mean.alpha.compliers.pop[[1]],2)`, really much much much larger than the effect on compliers.
 
+From there, we are going to explore three strategies in order to identify some true effect of the treatment using the Wald estimator:
 
+  * The first strategy is the most recent [de Chaisemartin, 2017](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view). 
+  It is valid in a model without monotonicity.
+  * The second strategy assumes that the heterogeneity in treatment effects is uncorrelated to the treatment.
+  * The last strategy is due to Imbens and Angrist (1994) and assumes that Monotonicity holds.
+  
+Let's review these solutions in turn.
+
+#### Identification without Monotonicity
+
+The approach delineated by [de Chaisemartin, 2017](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view) does not assume away non-monotonicity.
+Clement instead assumes that we can divide the population of compliers in two-subpopulations: the **compliers-defiers** ($T_i=cd$) and the **surviving-compliers** ($T_i=sc$).
+The main assumption in Clement's approach is that *(i)* the compliers-defiers are in the same proportion as the defiers and *(ii)* that the average effect of the treatment on the compliers defiers is equal as the average effect of the treatment on the defiers.
+These two assumptions can be formalized as follows:
+
+```{definition,CD,name="Compliers-defiers"}
+We assume that there exists as subpopulation of compliers that are in the same proportion as the defiers and for whom the average effect of the treatment is equal as the average effect of the treatment on the defiers: 
+  
+\begin{align*}
+(T_i=c) & = (T_i=cd)\cup (T_i=sc) \\
+\Pr(T_i=cd) & = \Pr(T_i=d) \\
+\esp{Y^1_i-Y^0_i|T_i=cd} & = \esp{Y^1_i-Y^0_i|T_i=d}.
+\end{align*}
+```
+
+The first equation in Assumption \@ref(def:CD) imposes that the compliers-defiers and the surviving-compliers are a partition of the population of compliers.
+From Assumption \@ref(def:CD), we can prove the following theorem:
+
+```{theorem,deChaise,name="Identification of the effect on the surviving-compliers"}
+Under Assumptions \@ref(def:FirstStage), \@ref(def:ExclusionRestriction), \@ref(def:Independence) and \@ref(def:CD), the Wald estimator identifies the effect of the treatment on the surviving-compliers:
+  
+\begin{align*}
+  \Delta^Y_{Wald} & = \Delta^Y_{sc},
+\end{align*}
+```
+
+with:
+
+\begin{align*}
+  \Delta^Y_{Wald} & = \frac{\esp{Y_i|Z_i=1} - \esp{Y_i|Z_i=0}}{\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)}\\
+  \Delta^Y_{sc} & = \esp{Y^1_i-Y^0_i|T_i=sc}.
+\end{align*}
+
+```{proof}
+Under Assumptions \@ref(def:ExclusionRestriction) and \@ref(def:Independence), Theorems \@ref(thm:ITELATE) and \@ref(thm:ITEEncourag) imply that the numerator of the Wald estimator is equal to $\Delta^Y_{ITE}$ with:
+  
+\begin{align*}
+  \Delta^Y_{ITE}  & = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
+\end{align*}
+
+Now, we have that the effect on compliers can be decomposed in the effect on surviving-compliers and the effect on compliers-defiers using the Law of Iterated Expectations and the fact that $T_i=sc \Rightarrow T_i=c$ and $T_i=cd \Rightarrow T_i=c$:
+  
+\begin{align*}
+\Delta^Y_{c} & = \esp{Y_i^{1}-Y_i^{0}|T_i=sc}\Pr(T_i=sc|T_i=c)+\esp{Y_i^{1}-Y_i^{0}|T_i=cd}\Pr(T_i=cd|T_i=c),
+\end{align*}
+
+Now, using the fact that $\Pr(T_i=sc|T_i=c)\Pr(T_i=c)=\Pr(T_i=sc)$ and $\Pr(T_i=cd|T_i=c)\Pr(T_i=c)=\Pr(T_i=cd)$ (because $\Pr(A|B)\Pr(B)=\Pr(A\cap B)$ and $\Pr(A\cap B)=\Pr(A)$ if $A \Rightarrow B$), we have:
+  
+\begin{align*}
+  \Delta^Y_{ITE} & = \esp{Y_i^{1}-Y_i^{0}|T_i=sc}\Pr(T_i=sc)\\
+                & \phantom{=}+\esp{Y_i^{1}-Y_i^{0}|T_i=cd}\Pr(T_i=cd)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
+\end{align*}
+
+The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption \@ref(def:CD).
+```
+
+  
 ### Estimation
 
 ### Estimation of sampling noise
