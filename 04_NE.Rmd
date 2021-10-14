@@ -505,7 +505,7 @@ In our case, that means that the effect on defiers should be `r round(1+(Prop.Co
 
 From there, we are going to explore three strategies in order to identify some true effect of the treatment using the Wald estimator:
 
-  * The first strategy is the most recent [de Chaisemartin, 2017](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view). 
+  * The first strategy has been recently proposed by [de Chaisemartin (2017)](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view). 
   It is valid in a model without monotonicity.
   * The second strategy assumes that the heterogeneity in treatment effects is uncorrelated to the treatment.
   * The last strategy is due to Imbens and Angrist (1994) and assumes that Monotonicity holds.
@@ -514,7 +514,7 @@ Let's review these solutions in turn.
 
 #### Identification without Monotonicity
 
-The approach delineated by [de Chaisemartin, 2017](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view) does not assume away non-monotonicity.
+The approach delineated by [de Chaisemartin (2017)](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view) does not assume away non-monotonicity.
 Clement instead assumes that we can divide the population of compliers in two-subpopulations: the **compliers-defiers** ($T_i=cd$) and the **surviving-compliers** ($T_i=sc$).
 The main assumption in Clement's approach is that *(i)* the compliers-defiers are in the same proportion as the defiers and *(ii)* that the average effect of the treatment on the compliers defiers is equal as the average effect of the treatment on the defiers.
 These two assumptions can be formalized as follows:
@@ -568,9 +568,79 @@ Now, using the fact that $\Pr(T_i=sc|T_i=c)\Pr(T_i=c)=\Pr(T_i=sc)$ and $\Pr(T_i=
 \end{align*}
 
 The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption \@ref(def:CD).
+Now, under Assumptions \@ref(def:FirstStage), \@ref(def:ExclusionRestriction) and \@ref(def:Independence), we know, from the proof of Theorem \@ref(thm:IdentLATE), that $\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=c)-\Pr(T_i=d)$.
+Under Assumption \@ref(def:CD), we have $\Pr(T_i=c)=\Pr((T_i=cd)\cup(T_i=sc))=\Pr(T_i=cd)+\Pr(T_i=sc)$.
+Replacing $\Pr(T_i=c)$ gives $\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=sc)$.
+Dividing $\Delta^Y_{ITE}$ by $\Pr(T_i=sc)$ gives the result.
 ```
 
+```{remark}
+[de Chaisemartin (2017)](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view) shows in his Theorem 2.1 that the reciprocal of Theorem \@ref(thm:deChaise) is actually valid: if there exists surviving-compliers such that their effect is estimated by the Wald estimator and their proportion is equal to the denominator of the Wald estimator, then it has to be that there exists a sub-population of compliers-defiers that are in the same proportion as the defiers and have the same average treatment effect.
+```
   
+```{example}  
+Let us now see if the conditions in [de Chaisemartin (2017)](https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view) are verified in our numerical example.
+```
+I have bad news: they are not. 
+It is not super easy to see why, but an intuitive explanation is that the average effect on the defiers in our model is taken conditional on $y^B_i+V_i\in]\bar{y}-\underline{\kappa},\bar{y}]$ while the effect on compliers is taken conditional on $y^B_i+V_i\in]\bar{y},\bar{y}+\bar{\kappa}]$. 
+These two intervals do not overlap. 
+Since the expected value of the treatment effect conditional on $y^B_i+V_i=v$ is monotonous in $v$ (because both variables come from a bivariate normal distribution), then all the effects on the defiers interval are either smaller or larger than all the effects on the compliers interval, making it impossible to find a sub-population of compliers that have the same average effect of the treatment as the defiers.
+
+More formally, it is possible to prove this result by using the concept of Marginal Treatment Effect developed by [Heckman and Vytlacil (1999)](https://www.pnas.org/content/pnas/96/8/4730.full.pdf). I might devote a specific section of the book to the MTE and its derivations. 
+For now, I let it as a possibility.
+
+What can we do then?
+Probably the best that we can do is to find $\kappa^*$ such that $\Pr(\bar{y}<y_i^B+V\leq\bar{y}+\kappa^*)p_{\xi}=\Pr(T_i=d)$, that is the value such that the interval of values of $y_i^B+V$ that are for compliers and closest to the interval for defiers and that contains the same proportion of compliers as there are defiers.
+This value is going to produce an average effect for compliers-defiers as close as possible to the average effect on defiers. 
+It can be computed as follows:
+
+\begin{align*}
+  \kappa^* & = \bar{\mu}-\bar{y}+\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}
+                                  \Phi^{-1}\Bigg(\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\\
+           & \phantom{=}+\frac{1-p_{\xi}}{p_{\xi}}\left(\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)-\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\right)\Bigg)
+ \end{align*}
+
+Let's write functions to compute $\kappa^*$, the implied proportion of compliers-defiers and the average effect of the treatment on compliers-defiers and on surviving-compliers:
+
+```{r KappaStar,eval=TRUE,echo=TRUE,results='hide'}
+# kappa star
+KappaStar <- function(param){
+  prop.def <- Prop.Def(param)
+  prop.below.bary <- pnorm((log(param['barY'])-param['barmu'])/(sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])))
+  st.dev.yB.V <- sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])
+  return(param['barmu']-log(param['barY'])+st.dev.yB.V*qnorm(prop.below.bary+prop.def/param['pxi']))
+}
+
+# proportion of compliers-defiers
+Prop.Comp.Def <- function(param){
+  first <- pnorm((log(param['barY'])+KappaStar(param)-param['barmu'])/(sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])))
+  second <- pnorm((log(param['barY'])-param['barmu'])/(sqrt((1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega'])))
+  return(param['pxi']*(first - second))  
+}
+
+# mean impact on compliers-defiers
+lower.cut.comp.def <- c(-Inf,log(param['barY']))
+upper.cut.comp.def <- c(Inf,log(param['barY'])+KappaStar(param))
+mean.alpha.comp.def.pop <- mtmvnorm(mean=mean.alpha.yBV,sigma=cov.alpha.yBV,lower=lower.cut.comp.def,upper=upper.cut.comp.def,doComputeVariance=FALSE)[[1]]
+
+# mean impact on surviving compliers
+lower.cut.surv.comp <- c(-Inf,log(param['barY'])+KappaStar(param))
+upper.cut.surv.comp <- c(Inf,log(param['barY'])+param['barkappa'])
+
+mean.alpha.surv.comp.pop <- mtmvnorm(mean=mean.alpha.yBV,sigma=cov.alpha.yBV,lower=lower.cut.surv.comp,upper=upper.cut.surv.comp,doComputeVariance=FALSE)[[1]]
+
+```
+
+The first have that $\kappa^*=$ `r round(KappaStar(param),4)`. 
+For this value of $\kappa^*$, we have that $\Pr(T_i=cd)=$ `r round(Prop.Comp.Def(param),4)`.
+As expected, this is very close to the proportion of compliers in the population: $\Pr(T_i=d)=$ `r round(Prop.Def(param),4)`.
+Finally, the average treatment effect on the compliers-defiers is equal to: $\Delta^y_{cd}=$ `r round(mean.alpha.comp.def.pop[[1]],4)`.
+As expected, but luckily enough, since it was absolutely not sure, it is very close to the to the average treatment effect on the defiers: $\Delta^y_{d}=$ `r round(mean.alpha.defiers.pop[[1]],4)`.
+So, in our model, Assumption \@ref(def:CD) is almost satisfied, and so does Theorem \@ref(thm:deChaise).
+As a consequence, the Wald estimator is very close to the effect on the surviving-compliers.
+Indeed, the Wald estimator, in the population, is equal to $\Delta^y_{Wald}=$ `r round((mean.alpha.compliers.pop[[1]]*Prop.Comp(param) - mean.alpha.defiers.pop[[1]]*Prop.Def(param))/(prob.D.Z.1(param)-prob.D.Z.0(param)),6)`, while the average effect on surviving-compliers is equal to $\Delta^y_{sc}=$ `r round(mean.alpha.surv.comp.pop[[1]],6)`.
+
+
 ### Estimation
 
 ### Estimation of sampling noise

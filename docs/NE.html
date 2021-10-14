@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-10-11" />
+<meta name="date" content="2021-10-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -777,7 +777,7 @@ This happens when the effect on defiers is <span class="math inline">\(1+\frac{\
 In our case, that means that the effect on defiers should be 26 times larger than the effect on compliers for the Wald estimator to be negative, that is to say the effect on defiers should be equal to 4.41, really much much much larger than the effect on compliers.</p>
 <p>From there, we are going to explore three strategies in order to identify some true effect of the treatment using the Wald estimator:</p>
 <ul>
-<li>The first strategy is the most recent <a href="https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view">de Chaisemartin, 2017</a>.
+<li>The first strategy has been recently proposed by <a href="https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view">de Chaisemartin (2017)</a>.
 It is valid in a model without monotonicity.</li>
 <li>The second strategy assumes that the heterogeneity in treatment effects is uncorrelated to the treatment.</li>
 <li>The last strategy is due to Imbens and Angrist (1994) and assumes that Monotonicity holds.</li>
@@ -785,7 +785,7 @@ It is valid in a model without monotonicity.</li>
 <p>Let’s review these solutions in turn.</p>
 <div id="identification-without-monotonicity" class="section level4" number="4.1.2.1">
 <h4><span class="header-section-number">4.1.2.1</span> Identification without Monotonicity</h4>
-<p>The approach delineated by <a href="https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view">de Chaisemartin, 2017</a> does not assume away non-monotonicity.
+<p>The approach delineated by <a href="https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view">de Chaisemartin (2017)</a> does not assume away non-monotonicity.
 Clement instead assumes that we can divide the population of compliers in two-subpopulations: the <strong>compliers-defiers</strong> (<span class="math inline">\(T_i=cd\)</span>) and the <strong>surviving-compliers</strong> (<span class="math inline">\(T_i=sc\)</span>).
 The main assumption in Clement’s approach is that <em>(i)</em> the compliers-defiers are in the same proportion as the defiers and <em>(ii)</em> that the average effect of the treatment on the compliers defiers is equal as the average effect of the treatment on the defiers.
 These two assumptions can be formalized as follows:</p>
@@ -828,7 +828,68 @@ From Assumption <a href="NE.html#def:CD">4.5</a>, we can prove the following the
                 &amp; \phantom{=}+\esp{Y_i^{1}-Y_i^{0}|T_i=cd}\Pr(T_i=cd)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
 \end{align*}\]</span></p>
 The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption <a href="NE.html#def:CD">4.5</a>.
+Now, under Assumptions <a href="NE.html#def:FirstStage">4.1</a>, <a href="NE.html#def:ExclusionRestriction">4.2</a> and <a href="NE.html#def:Independence">4.3</a>, we know, from the proof of Theorem <a href="RCT.html#thm:IdentLATE">3.9</a>, that <span class="math inline">\(\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=c)-\Pr(T_i=d)\)</span>.
+Under Assumption <a href="NE.html#def:CD">4.5</a>, we have <span class="math inline">\(\Pr(T_i=c)=\Pr((T_i=cd)\cup(T_i=sc))=\Pr(T_i=cd)+\Pr(T_i=sc)\)</span>.
+Replacing <span class="math inline">\(\Pr(T_i=c)\)</span> gives <span class="math inline">\(\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=sc)\)</span>.
+Dividing <span class="math inline">\(\Delta^Y_{ITE}\)</span> by <span class="math inline">\(\Pr(T_i=sc)\)</span> gives the result.
 </div>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> <a href="https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view">de Chaisemartin (2017)</a> shows in his Theorem 2.1 that the reciprocal of Theorem <a href="NE.html#thm:deChaise">4.1</a> is actually valid: if there exists surviving-compliers such that their effect is estimated by the Wald estimator and their proportion is equal to the denominator of the Wald estimator, then it has to be that there exists a sub-population of compliers-defiers that are in the same proportion as the defiers and have the same average treatment effect.
+</div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-149" class="example"><strong>Example 4.7  </strong></span>Let us now see if the conditions in <a href="https://drive.google.com/file/d/16XWlDECIvreM7l_NHe-JkXgyuPhFT1QG/view">de Chaisemartin (2017)</a> are verified in our numerical example.
+</div>
+<p>I have bad news: they are not.
+It is not super easy to see why, but an intuitive explanation is that the average effect on the defiers in our model is taken conditional on <span class="math inline">\(y^B_i+V_i\in]\bar{y}-\underline{\kappa},\bar{y}]\)</span> while the effect on compliers is taken conditional on <span class="math inline">\(y^B_i+V_i\in]\bar{y},\bar{y}+\bar{\kappa}]\)</span>.
+These two intervals do not overlap.
+Since the expected value of the treatment effect conditional on <span class="math inline">\(y^B_i+V_i=v\)</span> is monotonous in <span class="math inline">\(v\)</span> (because both variables come from a bivariate normal distribution), then all the effects on the defiers interval are either smaller or larger than all the effects on the compliers interval, making it impossible to find a sub-population of compliers that have the same average effect of the treatment as the defiers.</p>
+<p>More formally, it is possible to prove this result by using the concept of Marginal Treatment Effect developed by <a href="https://www.pnas.org/content/pnas/96/8/4730.full.pdf">Heckman and Vytlacil (1999)</a>. I might devote a specific section of the book to the MTE and its derivations.
+For now, I let it as a possibility.</p>
+<p>What can we do then?
+Probably the best that we can do is to find <span class="math inline">\(\kappa^*\)</span> such that <span class="math inline">\(\Pr(\bar{y}&lt;y_i^B+V\leq\bar{y}+\kappa^*)p_{\xi}=\Pr(T_i=d)\)</span>, that is the value such that the interval of values of <span class="math inline">\(y_i^B+V\)</span> that are for compliers and closest to the interval for defiers and that contains the same proportion of compliers as there are defiers.
+This value is going to produce an average effect for compliers-defiers as close as possible to the average effect on defiers.
+It can be computed as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \kappa^* &amp; = \bar{\mu}-\bar{y}+\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}
+                                  \Phi^{-1}\Bigg(\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\\
+           &amp; \phantom{=}+\frac{1-p_{\xi}}{p_{\xi}}\left(\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)-\Phi\left(\frac{\bar{y}-\underline{\kappa}-\bar{\mu}}{\sqrt{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}}\right)\right)\Bigg)
+ \end{align*}\]</span></p>
+<p>Let’s write functions to compute <span class="math inline">\(\kappa^*\)</span>, the implied proportion of compliers-defiers and the average effect of the treatment on compliers-defiers and on surviving-compliers:</p>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb137-1"><a href="NE.html#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="co"># kappa star</span></span>
+<span id="cb137-2"><a href="NE.html#cb137-2" aria-hidden="true" tabindex="-1"></a>KappaStar <span class="ot">&lt;-</span> <span class="cf">function</span>(param){</span>
+<span id="cb137-3"><a href="NE.html#cb137-3" aria-hidden="true" tabindex="-1"></a>  prop.def <span class="ot">&lt;-</span> <span class="fu">Prop.Def</span>(param)</span>
+<span id="cb137-4"><a href="NE.html#cb137-4" aria-hidden="true" tabindex="-1"></a>  prop.below.bary <span class="ot">&lt;-</span> <span class="fu">pnorm</span>((<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">-</span>param[<span class="st">&#39;barmu&#39;</span>])<span class="sc">/</span>(<span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>])))</span>
+<span id="cb137-5"><a href="NE.html#cb137-5" aria-hidden="true" tabindex="-1"></a>  st.dev.yB.V <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>])</span>
+<span id="cb137-6"><a href="NE.html#cb137-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(param[<span class="st">&#39;barmu&#39;</span>]<span class="sc">-</span><span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>st.dev.yB.V<span class="sc">*</span><span class="fu">qnorm</span>(prop.below.bary<span class="sc">+</span>prop.def<span class="sc">/</span>param[<span class="st">&#39;pxi&#39;</span>]))</span>
+<span id="cb137-7"><a href="NE.html#cb137-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb137-8"><a href="NE.html#cb137-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-9"><a href="NE.html#cb137-9" aria-hidden="true" tabindex="-1"></a><span class="co"># proportion of compliers-defiers</span></span>
+<span id="cb137-10"><a href="NE.html#cb137-10" aria-hidden="true" tabindex="-1"></a>Prop.Comp.Def <span class="ot">&lt;-</span> <span class="cf">function</span>(param){</span>
+<span id="cb137-11"><a href="NE.html#cb137-11" aria-hidden="true" tabindex="-1"></a>  first <span class="ot">&lt;-</span> <span class="fu">pnorm</span>((<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span><span class="fu">KappaStar</span>(param)<span class="sc">-</span>param[<span class="st">&#39;barmu&#39;</span>])<span class="sc">/</span>(<span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>])))</span>
+<span id="cb137-12"><a href="NE.html#cb137-12" aria-hidden="true" tabindex="-1"></a>  second <span class="ot">&lt;-</span> <span class="fu">pnorm</span>((<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">-</span>param[<span class="st">&#39;barmu&#39;</span>])<span class="sc">/</span>(<span class="fu">sqrt</span>((<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>])))</span>
+<span id="cb137-13"><a href="NE.html#cb137-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(param[<span class="st">&#39;pxi&#39;</span>]<span class="sc">*</span>(first <span class="sc">-</span> second))  </span>
+<span id="cb137-14"><a href="NE.html#cb137-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb137-15"><a href="NE.html#cb137-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-16"><a href="NE.html#cb137-16" aria-hidden="true" tabindex="-1"></a><span class="co"># mean impact on compliers-defiers</span></span>
+<span id="cb137-17"><a href="NE.html#cb137-17" aria-hidden="true" tabindex="-1"></a>lower.cut.comp.def <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb137-18"><a href="NE.html#cb137-18" aria-hidden="true" tabindex="-1"></a>upper.cut.comp.def <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span><span class="fu">KappaStar</span>(param))</span>
+<span id="cb137-19"><a href="NE.html#cb137-19" aria-hidden="true" tabindex="-1"></a>mean.alpha.comp.def.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.alpha.yBV,<span class="at">sigma=</span>cov.alpha.yBV,<span class="at">lower=</span>lower.cut.comp.def,<span class="at">upper=</span>upper.cut.comp.def,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb137-20"><a href="NE.html#cb137-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-21"><a href="NE.html#cb137-21" aria-hidden="true" tabindex="-1"></a><span class="co"># mean impact on surviving compliers</span></span>
+<span id="cb137-22"><a href="NE.html#cb137-22" aria-hidden="true" tabindex="-1"></a>lower.cut.surv.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span><span class="fu">KappaStar</span>(param))</span>
+<span id="cb137-23"><a href="NE.html#cb137-23" aria-hidden="true" tabindex="-1"></a>upper.cut.surv.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
+<span id="cb137-24"><a href="NE.html#cb137-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-25"><a href="NE.html#cb137-25" aria-hidden="true" tabindex="-1"></a>mean.alpha.surv.comp.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.alpha.yBV,<span class="at">sigma=</span>cov.alpha.yBV,<span class="at">lower=</span>lower.cut.surv.comp,<span class="at">upper=</span>upper.cut.surv.comp,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>The first have that <span class="math inline">\(\kappa^*=\)</span> 0.0452.
+For this value of <span class="math inline">\(\kappa^*\)</span>, we have that <span class="math inline">\(\Pr(T_i=cd)=\)</span> 0.0128.
+As expected, this is very close to the proportion of compliers in the population: <span class="math inline">\(\Pr(T_i=d)=\)</span> 0.0128.
+Finally, the average treatment effect on the compliers-defiers is equal to: <span class="math inline">\(\Delta^y_{cd}=\)</span> 0.1457.
+As expected, but luckily enough, since it was absolutely not sure, it is very close to the to the average treatment effect on the defiers: <span class="math inline">\(\Delta^y_{d}=\)</span> 0.1445.
+So, in our model, Assumption <a href="NE.html#def:CD">4.5</a> is almost satisfied, and so does Theorem <a href="NE.html#thm:deChaise">4.1</a>.
+As a consequence, the Wald estimator is very close to the effect on the surviving-compliers.
+Indeed, the Wald estimator, in the population, is equal to <span class="math inline">\(\Delta^y_{Wald}=\)</span> 0.172, while the average effect on surviving-compliers is equal to <span class="math inline">\(\Delta^y_{sc}=\)</span> 0.172.</p>
 </div>
 </div>
 <div id="estimation" class="section level3" number="4.1.3">
