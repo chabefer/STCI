@@ -6676,13 +6676,13 @@ We are going to explore two sets of assumption that secure the identification of
   The Local Average Treatment Effect (\(LATE\))
 \end{itemize}
 
-\begin{definition}[First Stage Full Rank]
-\protect\hypertarget{def:FirstStage}{}{\label{def:FirstStage} \iffalse (First Stage Full Rank) \fi{} }We assume that the instrument \(Z_i\) has a direct effect on treatment participation:
+\begin{hypothesis}[First Stage Full Rank]
+\protect\hypertarget{hyp:FirstStage}{}{\label{hyp:FirstStage} \iffalse (First Stage Full Rank) \fi{} }We assume that the instrument \(Z_i\) has a direct effect on treatment participation:
 
 \begin{align*}
 \Pr(D_i=1|Z_i=1)\neq\Pr(D_i=1|Z_i=0).
 \end{align*}
-\end{definition}
+\end{hypothesis}
 
 \begin{example}
 \protect\hypertarget{exm:unnamed-chunk-140}{}{\label{exm:unnamed-chunk-140} }Let's see how this assumption works in our example.
@@ -6706,7 +6706,7 @@ Let's first compute the average values of \(Y_i\) and \(D_i\) as a function of \
 \caption{Proportion of participants as a function of $Z_i$}\label{fig:IVFirstStage}
 \end{figure}
 
-Figure \ref{fig:IVFirstStage} shows that the proportion of treated when \(Z_i=1\) in our sample is equal to 0.53 while the proportion of treated when \(Z_i=0\) is equal to 0.28, in accordance with Assumption \ref{def:FirstStage}.
+Figure \ref{fig:IVFirstStage} shows that the proportion of treated when \(Z_i=1\) in our sample is equal to 0.53 while the proportion of treated when \(Z_i=0\) is equal to 0.28, in accordance with Assumption \ref{hyp:FirstStage}.
 In the population, the proportion of treated when \(Z_i=1\) depends on the value of \(\kappa_i\).
 Let's derive its value:
 
@@ -6743,13 +6743,13 @@ With these functions, we know that, in the population, \(\Pr(D_i=1|Z_i=1)=\) 0.5
 Our next set of assumptions imposes that the instrument has no direct effect on the outcome and that it is not correlated with all the potential outcomes.
 Let's start with the exclusion restriction:
 
-\begin{definition}[Exclusion Restriction]
-\protect\hypertarget{def:ExclusionRestriction}{}{\label{def:ExclusionRestriction} \iffalse (Exclusion Restriction) \fi{} }We assume that there is no direct effect of \(Z_i\) on outcomes:
+\begin{hypothesis}[Exclusion Restriction]
+\protect\hypertarget{hyp:ExclusionRestriction}{}{\label{hyp:ExclusionRestriction} \iffalse (Exclusion Restriction) \fi{} }We assume that there is no direct effect of \(Z_i\) on outcomes:
 
 \begin{align*}
 \forall d,z \in \left\{0,1\right\}\text{, } Y_i^{d,z} = Y_i^d.
 \end{align*}
-\end{definition}
+\end{hypothesis}
 
 \begin{example}
 \protect\hypertarget{exm:unnamed-chunk-141}{}{\label{exm:unnamed-chunk-141} }In our example, this assumption is automatically satisfied.
@@ -6763,13 +6763,13 @@ We then have \(y_i^{d,z}=\mu_i+\delta +\lambda(\alpha+\beta z + v_i) +U_i^0+d(\b
 
 Let us now state the independence assumption:
 
-\begin{definition}[Independence]
-\protect\hypertarget{def:Independence}{}{\label{def:Independence} \iffalse (Independence) \fi{} }We assume that \(Z_i\) is independent from the other determinants of \(Y_i\) and \(D_i\):
+\begin{hypothesis}[Independence]
+\protect\hypertarget{hyp:Independence}{}{\label{hyp:Independence} \iffalse (Independence) \fi{} }We assume that \(Z_i\) is independent from the other determinants of \(Y_i\) and \(D_i\):
 
 \begin{align*}
 (Y_i^1,Y_i^0,D_i^1,D_i^0)\Ind Z_i.
 \end{align*}
-\end{definition}
+\end{hypothesis}
 
 \begin{remark}
 \iffalse{} {Remark. } \fi{}Why do we say that independence from the potential outcomes is the same as independence from the other determinants of \(Y_i\) and \(D_i\)?
@@ -6792,13 +6792,13 @@ In that case, since well-connected individuals would have had higher earnings ev
 The last assumption we need in order to identify the Local Average Treatment Effect is that of Monotonicity.
 We already know this assumption:
 
-\begin{definition}[Monotonicity]
-\protect\hypertarget{def:Monotonicity}{}{\label{def:Monotonicity} \iffalse (Monotonicity) \fi{} }We assume that the instrument moves everyone in the population in the same direction:
+\begin{hypothesis}[Monotonicity]
+\protect\hypertarget{hyp:Monotonicity}{}{\label{hyp:Monotonicity} \iffalse (Monotonicity) \fi{} }We assume that the instrument moves everyone in the population in the same direction:
 
 \begin{align*}
 \forall i\text{, either } D^1_i\geq D_i^0 \text{ or } D^1_i\leq D_i^0.
 \end{align*}
-\end{definition}
+\end{hypothesis}
 
 Without loss of generality, we generally assume that \(\forall i\), \(D^1_i\geq D_i^0\).
 As a consequence, there are no defiers.
@@ -7002,21 +7002,21 @@ Clement instead assumes that we can divide the population of compliers in two-su
 The main assumption in Clement's approach is that \emph{(i)} the compliers-defiers are in the same proportion as the defiers and \emph{(ii)} that the average effect of the treatment on the compliers defiers is equal as the average effect of the treatment on the defiers.
 These two assumptions can be formalized as follows:
 
-\begin{definition}[Compliers-defiers]
-\protect\hypertarget{def:CD}{}{\label{def:CD} \iffalse (Compliers-defiers) \fi{} }We assume that there exists as subpopulation of compliers that are in the same proportion as the defiers and for whom the average effect of the treatment is equal as the average effect of the treatment on the defiers:
+\begin{hypothesis}[Compliers-defiers]
+\protect\hypertarget{hyp:CD}{}{\label{hyp:CD} \iffalse (Compliers-defiers) \fi{} }We assume that there exists as subpopulation of compliers that are in the same proportion as the defiers and for whom the average effect of the treatment is equal as the average effect of the treatment on the defiers:
 
 \begin{align*}
 (T_i=c) & = (T_i=cd)\cup (T_i=sc) \\
 \Pr(T_i=cd) & = \Pr(T_i=d) \\
 \esp{Y^1_i-Y^0_i|T_i=cd} & = \esp{Y^1_i-Y^0_i|T_i=d}.
 \end{align*}
-\end{definition}
+\end{hypothesis}
 
-The first equation in Assumption \ref{def:CD} imposes that the compliers-defiers and the surviving-compliers are a partition of the population of compliers.
-From Assumption \ref{def:CD}, we can prove the following theorem:
+The first equation in Assumption \ref{hyp:CD} imposes that the compliers-defiers and the surviving-compliers are a partition of the population of compliers.
+From Assumption \ref{hyp:CD}, we can prove the following theorem:
 
 \begin{theorem}[Identification of the effect on the surviving-compliers]
-\protect\hypertarget{thm:deChaise}{}{\label{thm:deChaise} \iffalse (Identification of the effect on the surviving-compliers) \fi{} }Under Assumptions \ref{def:FirstStage}, \ref{def:ExclusionRestriction}, \ref{def:Independence} and \ref{def:CD}, the Wald estimator identifies the effect of the treatment on the surviving-compliers:
+\protect\hypertarget{thm:deChaise}{}{\label{thm:deChaise} \iffalse (Identification of the effect on the surviving-compliers) \fi{} }Under Assumptions \ref{hyp:FirstStage}, \ref{hyp:ExclusionRestriction}, \ref{hyp:Independence} and \ref{hyp:CD}, the Wald estimator identifies the effect of the treatment on the surviving-compliers:
 
 \begin{align*}
   \Delta^Y_{Wald} & = \Delta^Y_{sc},
@@ -7031,7 +7031,7 @@ with:
 \end{align*}
 
 \begin{proof}
-\iffalse{} {Proof. } \fi{}Under Assumptions \ref{def:ExclusionRestriction} and \ref{def:Independence}, Theorems \ref{thm:ITELATE} and \ref{thm:ITEEncourag} imply that the numerator of the Wald estimator is equal to \(\Delta^Y_{ITE}\) with:
+\iffalse{} {Proof. } \fi{}Under Assumptions \ref{hyp:ExclusionRestriction} and \ref{hyp:Independence}, Theorems \ref{thm:ITELATE} and \ref{thm:ITEEncourag} imply that the numerator of the Wald estimator is equal to \(\Delta^Y_{ITE}\) with:
 
 \begin{align*}
   \Delta^Y_{ITE}  & = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
@@ -7050,9 +7050,9 @@ Now, using the fact that \(\Pr(T_i=sc|T_i=c)\Pr(T_i=c)=\Pr(T_i=sc)\) and \(\Pr(T
                 & \phantom{=}+\esp{Y_i^{1}-Y_i^{0}|T_i=cd}\Pr(T_i=cd)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
 \end{align*}
 
-The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption \ref{def:CD}.
-Now, under Assumptions \ref{def:FirstStage}, \ref{def:ExclusionRestriction} and \ref{def:Independence}, we know, from the proof of Theorem \ref{thm:IdentLATE}, that \(\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=c)-\Pr(T_i=d)\).
-Under Assumption \ref{def:CD}, we have \(\Pr(T_i=c)=\Pr((T_i=cd)\cup(T_i=sc))=\Pr(T_i=cd)+\Pr(T_i=sc)\).
+The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption \ref{hyp:CD}.
+Now, under Assumptions \ref{hyp:FirstStage}, \ref{hyp:ExclusionRestriction} and \ref{hyp:Independence}, we know, from the proof of Theorem \ref{thm:IdentLATE}, that \(\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=c)-\Pr(T_i=d)\).
+Under Assumption \ref{hyp:CD}, we have \(\Pr(T_i=c)=\Pr((T_i=cd)\cup(T_i=sc))=\Pr(T_i=cd)+\Pr(T_i=sc)\).
 Replacing \(\Pr(T_i=c)\) gives \(\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=sc)\).
 Dividing \(\Delta^Y_{ITE}\) by \(\Pr(T_i=sc)\) gives the result.
 \end{proof}
@@ -7069,7 +7069,8 @@ It is not super easy to see why, but an intuitive explanation is that the averag
 These two intervals do not overlap.
 Since the expected value of the treatment effect conditional on \(y^B_i+V_i=v\) is monotonous in \(v\) (because both variables come from a bivariate normal distribution), then all the effects on the defiers interval are either smaller or larger than all the effects on the compliers interval, making it impossible to find a sub-population of compliers that have the same average effect of the treatment as the defiers.
 
-More formally, it is possible to prove this result by using the concept of Marginal Treatment Effect developed by \href{https://www.pnas.org/content/pnas/96/8/4730.full.pdf}{Heckman and Vytlacil (1999)}. I might devote a specific section of the book to the MTE and its derivations.
+More formally, it is possible to prove this result by using the concept of Marginal Treatment Effect developed by \href{https://www.pnas.org/content/pnas/96/8/4730.full.pdf}{Heckman and Vytlacil (1999)}.
+I might devote a specific section of the book to the MTE and its derivations.
 For now, I let it as a possibility.
 
 What can we do then?
@@ -7120,9 +7121,103 @@ For this value of \(\kappa^*\), we have that \(\Pr(T_i=cd)=\) 0.0128.
 As expected, this is very close to the proportion of compliers in the population: \(\Pr(T_i=d)=\) 0.0128.
 Finally, the average treatment effect on the compliers-defiers is equal to: \(\Delta^y_{cd}=\) 0.1457.
 As expected, but luckily enough, since it was absolutely not sure, it is very close to the to the average treatment effect on the defiers: \(\Delta^y_{d}=\) 0.1445.
-So, in our model, Assumption \ref{def:CD} is almost satisfied, and so does Theorem \ref{thm:deChaise}.
+So, in our model, Assumption \ref{hyp:CD} is almost satisfied, and so does Theorem \ref{thm:deChaise}.
 As a consequence, the Wald estimator is very close to the effect on the surviving-compliers.
-Indeed, the Wald estimator, in the population, is equal to \(\Delta^y_{Wald}=\) 0.172, while the average effect on surviving-compliers is equal to \(\Delta^y_{sc}=\) 0.172.
+Indeed, the Wald estimator, in the population, is equal to \(\Delta^y_{Wald}=\) 0.172156, while the average effect on surviving-compliers is equal to \(\Delta^y_{sc}=\) 0.172108.
+
+\hypertarget{identification-under-independence-of-treatment-effects}{%
+\subsubsection{Identification under Independence of treatment effects}\label{identification-under-independence-of-treatment-effects}}
+
+Another way to get around the issue of Non-Monotonicity is simply to assume away any meaningful role for treatment effect heterogeneity.
+One approach to that would simply be to assume that treatment effects are constant across individuals.
+I leave to the reader to prove that in that case, the Wald estimator would recover the treatment effect under only Independence and Exclusion Restriction.
+We are going to use a slightly more general approach here by assuming that treatment effect heterogeneity is unrelated to the reaction to the instrument:
+
+\begin{hypothesis}[Independent Treatment Effects]
+\protect\hypertarget{hyp:IndepTreatEffect}{}{\label{hyp:IndepTreatEffect} \iffalse (Independent Treatment Effects) \fi{} }We assume that the treatment effect is independent from potential reactions to the instrument:
+
+\begin{align*}
+\Delta^Y_i\Ind (D^1_i,D^0_i).
+\end{align*}
+\end{hypothesis}
+
+We can now prove that, under Assumption \ref{hyp:IndepTreatEffect}, the Wald estimator identifies the Average Treatment Effect (ATE), the average effect of the Treatment on the Treated (TT) and the average effect on compliers and on defiers.
+The first thing to know before we state the result is that, under Assumption \ref{hyp:IndepTreatEffect}, all these average treatment effects are equal to each other.
+This is a direct implication of the following lemma:
+
+\begin{lemma}[Independence of Treatment Effects from Types]
+\protect\hypertarget{lem:IndepTreatEffectType}{}{\label{lem:IndepTreatEffectType} \iffalse (Independence of Treatment Effects from Types) \fi{} }Under Assumption \ref{hyp:IndepTreatEffect}, the treatment effect is independent from types:
+
+\begin{align*}
+\Delta^Y_i\Ind T_i.
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}Lemma (4.2) in \href{https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1979.tb01052.x}{Dawid (1979)} states that if \(X \Ind Y|Z\) and \(U\) is a function of \(X\), then \(U \Ind Y|Z\).
+Since \(T_i\) is a function of \((D^1_i,D^0_i)\) under Assumption \ref{hyp:IndepTreatEffect}, Lemma \ref{lem:IndepTreatEffectType} follows.
+\end{proof}
+
+A direct corollary of Lemma \ref{lem:IndepTreatEffectType} is:
+
+\begin{corollary}[Independence of Treatment Effects and Average Effects]
+\protect\hypertarget{cor:IndepTreatEffectAve}{}{\label{cor:IndepTreatEffectAve} \iffalse (Independence of Treatment Effects and Average Effects) \fi{} }Under Assumption \ref{hyp:IndepTreatEffect}, the Average Treatment Effect (ATE), the average effect of the Treatment on the Treated (TT) and the average effect on compliers and on defiers are all equal:
+
+\begin{align*}
+\Delta^Y_{ATE} = \Delta^Y_{TT(1)} = \Delta^Y_{TT(0)} = \Delta^Y_{c} = \Delta^Y_{d}.
+\end{align*}
+\end{corollary}
+
+with:
+\begin{align*}
+\Delta^Y_{TT(z)} = \esp{Y_i^1-Y_i^0|D_i=1,Z_i=z}.
+\end{align*}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}Using Lemma \ref{lem:IndepTreatEffectType}, we have that:
+
+\begin{align*}
+  \Delta^Y_{c} = \Delta^Y_{d} = \Delta^Y_{at} =\Delta^Y_{nt}.
+\end{align*}
+
+Because \(T_i\) is a partition, we have \(\Delta^Y_{ATE}=\Delta^Y_{c}\Pr(T_i=c)+\Delta^Y_{d}\Pr(T_i=d)+\Delta^Y_{at}\Pr(T_i=at)+\Delta^Y_{nt}\Pr(T_i=nt)=\Delta^Y_{c}\) (since \(\Pr(T_i=c)+\Pr(T_i=d)+\Pr(T_i=at)+\Pr(T_i=nt)=1\)).
+Finally, we also have that \(\Delta^Y_{TT(1)}=\Delta^Y_{c}\Pr(T_i=c|D_i=1,Z_i=1)+\Delta^Y_{at}\Pr(T_i=at|D_i=1,Z_i=1)=\Delta^Y_{c}\) and \(\Delta^Y_{TT(0)}=\Delta^Y_{d}\Pr(T_i=d|D_i=1,Z_i=0)+\Delta^Y_{at}\Pr(T_i=at|D_i=1,Z_i=0)=\Delta^Y_{c}\), since \((D_i=1)\cap(Z_i=1)\Rightarrow (T_i=c)\cup(T_i=at)\) and \((D_i=1)\cap(Z_i=0)\Rightarrow (T_i=d)\cup(T_i=at)\).
+\end{proof}
+
+We are now equioped to state the final result of this section:
+
+\begin{theorem}[Identification under Independent Treatment Effect]
+\protect\hypertarget{thm:IdentIndepTreatEffect}{}{\label{thm:IdentIndepTreatEffect} \iffalse (Identification under Independent Treatment Effect) \fi{} }Under Assumptions \ref{hyp:FirstStage}, \ref{hyp:ExclusionRestriction}, \ref{hyp:Independence} and \ref{hyp:IndepTreatEffect}, the Wald estimator identifies the average effect of the Treatment on the Treated:
+
+\begin{align*}
+  \Delta^Y_{Wald} & = \Delta^Y_{TT}.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}Using the formula for the Wald estimator, we have, for the two components of its numerator:
+
+\begin{align*}
+\esp{Y_i|Z_i=1} & = \esp{Y_i^0+(Y_i^1-Y_i^0)D_i|Z_i=1} \\
+                & = \esp{Y_i^0|Z_i=1}+\esp{\Delta^Y_i|D_i=1,Z_i=1}\Pr(D_i=1|Z_i=1)\\
+                & = \esp{Y_i^0|Z_i=1}+\Delta^Y_{TT(1)}\Pr(D_i=1|Z_i=1)\\
+\esp{Y_i|Z_i=0} & = \esp{Y_i^0+(Y_i^1-Y_i^0)D_i|Z_i=0} \\
+                & = \esp{Y_i^0|Z_i=0}+\esp{\Delta^Y_i|D_i=0,Z_i=1}\Pr(D_i=1|Z_i=0)\\
+                & = \esp{Y_i^0|Z_i=0}+\Delta^Y_{TT(0)}\Pr(D_i=1|Z_i=0),\\
+\end{align*}
+
+where the first equalities use Assumption \ref{hyp:ExclusionRestriction}.
+Now, under Assumption \ref{hyp:IndepTreatEffect}, Corollary \ref{cor:IndepTreatEffectAve} implies that \(\Delta^Y_{TT(0)}=\Delta^Y_{TT(1)}=\Delta^Y_{TT}\).
+We thus have that the numerator of the Wald estimator is equal to:
+
+\begin{align*}
+\esp{Y_i|Z_i=1}-\esp{Y_i|Z_i=0} & = \Delta^Y_{TT}(\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0))\\
+                                & \phantom{=}+\esp{Y_i^0|Z_i=1}-\esp{Y_i^0|Z_i=0}.
+\end{align*}
+
+Assumption \ref{hyp:Independence} implies that \(\esp{Y_i^0|Z_i=1}=\esp{Y_i^0|Z_i=0}\).
+Using Assumption \ref{hyp:FirstStage} proves the result.
+\end{proof}
 
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
@@ -7329,7 +7424,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-152}{}{\label{exm:unnamed-chunk-152} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-155}{}{\label{exm:unnamed-chunk-155} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -7590,7 +7685,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -7734,7 +7829,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-163}{}{\label{exm:unnamed-chunk-163} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -7857,7 +7952,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-164}{}{\label{exm:unnamed-chunk-164} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -7919,7 +8014,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -7960,7 +8055,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -7995,7 +8090,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-167}{}{\label{exm:unnamed-chunk-167} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -8110,7 +8205,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-171}{}{\label{exm:unnamed-chunk-171} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -8301,7 +8396,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-169}{}{\label{exm:unnamed-chunk-169} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-172}{}{\label{exm:unnamed-chunk-172} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -8398,7 +8493,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8518,7 +8613,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-172}{}{\label{exm:unnamed-chunk-172} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -8597,7 +8692,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -8740,7 +8835,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-174}{}{\label{exm:unnamed-chunk-174} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8844,7 +8939,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -9182,7 +9277,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-179}{}{\label{exm:unnamed-chunk-179} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9341,7 +9436,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -9631,7 +9726,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-184}{}{\label{exm:unnamed-chunk-184} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -9884,7 +9979,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-191}{}{\label{exm:unnamed-chunk-191} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}

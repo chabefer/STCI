@@ -222,7 +222,7 @@ We are going to explore two sets of assumption that secure the identification of
   * The Average Treatment Effect on the Treated ($TT$): identification will happen through the assumption of independence of treatment effects from potential treatment choice
   * The Local Average Treatment Effect ($LATE$)
 
-```{definition,FirstStage,name='First Stage Full Rank'}
+```{hypothesis,FirstStage,name='First Stage Full Rank'}
 We assume that the instrument $Z_i$ has a direct effect on treatment participation:
 
 \begin{align*}
@@ -248,7 +248,7 @@ ggplot(means.IV, aes(x=as.factor(Z), y=D)) +
   ylab('Pr(D=1|Z)')
 ```
 
-Figure \@ref(fig:IVFirstStage) shows that the proportion of treated when $Z_i=1$ in our sample is equal to `r round(mean(Ds[Z==1]),2)` while the proportion of treated when $Z_i=0$ is equal to  `r round(mean(Ds[Z==0]),2)`, in accordance with Assumption \@ref(def:FirstStage).
+Figure \@ref(fig:IVFirstStage) shows that the proportion of treated when $Z_i=1$ in our sample is equal to `r round(mean(Ds[Z==1]),2)` while the proportion of treated when $Z_i=0$ is equal to  `r round(mean(Ds[Z==0]),2)`, in accordance with Assumption \@ref(hyp:FirstStage).
 In the population, the proportion of treated when $Z_i=1$ depends on the value of $\kappa_i$. 
 Let's derive its value:
 
@@ -283,7 +283,7 @@ With these functions, we know that, in the population, $\Pr(D_i=1|Z_i=1)=$ `r ro
 Our next set of assumptions imposes that the instrument has no direct effect on the outcome and that it is not correlated with all the potential outcomes.
 Let's start with the exclusion restriction:
 
-```{definition,ExclusionRestriction,name='Exclusion Restriction'}
+```{hypothesis,ExclusionRestriction,name='Exclusion Restriction'}
 We assume that there is no direct effect of $Z_i$ on outcomes:
 
 \begin{align*}
@@ -303,7 +303,7 @@ We then have $y_i^{d,z}=\mu_i+\delta +\lambda(\alpha+\beta z + v_i) +U_i^0+d(\ba
 
 Let us now state the independence assumption:
 
-```{definition,Independence,name='Independence'}
+```{hypothesis,Independence,name='Independence'}
 We assume that $Z_i$ is independent from the other determinants of $Y_i$ and $D_i$:
 
 \begin{align*}
@@ -332,7 +332,7 @@ In that case, since well-connected individuals would have had higher earnings ev
 The last assumption we need in order to identify the Local Average Treatment Effect is that of Monotonicity.
 We already know this assumption:
 
-```{definition,Monotonicity,name='Monotonicity'}
+```{hypothesis,Monotonicity,name='Monotonicity'}
 We assume that the instrument moves everyone in the population in the same direction:
 
 \begin{align*}
@@ -519,7 +519,7 @@ Clement instead assumes that we can divide the population of compliers in two-su
 The main assumption in Clement's approach is that *(i)* the compliers-defiers are in the same proportion as the defiers and *(ii)* that the average effect of the treatment on the compliers defiers is equal as the average effect of the treatment on the defiers.
 These two assumptions can be formalized as follows:
 
-```{definition,CD,name="Compliers-defiers"}
+```{hypothesis,CD,name="Compliers-defiers"}
 We assume that there exists as subpopulation of compliers that are in the same proportion as the defiers and for whom the average effect of the treatment is equal as the average effect of the treatment on the defiers: 
   
 \begin{align*}
@@ -529,11 +529,11 @@ We assume that there exists as subpopulation of compliers that are in the same p
 \end{align*}
 ```
 
-The first equation in Assumption \@ref(def:CD) imposes that the compliers-defiers and the surviving-compliers are a partition of the population of compliers.
-From Assumption \@ref(def:CD), we can prove the following theorem:
+The first equation in Assumption \@ref(hyp:CD) imposes that the compliers-defiers and the surviving-compliers are a partition of the population of compliers.
+From Assumption \@ref(hyp:CD), we can prove the following theorem:
 
 ```{theorem,deChaise,name="Identification of the effect on the surviving-compliers"}
-Under Assumptions \@ref(def:FirstStage), \@ref(def:ExclusionRestriction), \@ref(def:Independence) and \@ref(def:CD), the Wald estimator identifies the effect of the treatment on the surviving-compliers:
+Under Assumptions \@ref(hyp:FirstStage), \@ref(hyp:ExclusionRestriction), \@ref(hyp:Independence) and \@ref(hyp:CD), the Wald estimator identifies the effect of the treatment on the surviving-compliers:
   
 \begin{align*}
   \Delta^Y_{Wald} & = \Delta^Y_{sc},
@@ -548,7 +548,7 @@ with:
 \end{align*}
 
 ```{proof}
-Under Assumptions \@ref(def:ExclusionRestriction) and \@ref(def:Independence), Theorems \@ref(thm:ITELATE) and \@ref(thm:ITEEncourag) imply that the numerator of the Wald estimator is equal to $\Delta^Y_{ITE}$ with:
+Under Assumptions \@ref(hyp:ExclusionRestriction) and \@ref(hyp:Independence), Theorems \@ref(thm:ITELATE) and \@ref(thm:ITEEncourag) imply that the numerator of the Wald estimator is equal to $\Delta^Y_{ITE}$ with:
   
 \begin{align*}
   \Delta^Y_{ITE}  & = \esp{Y_i^{1}-Y_i^{0}|T_i=c}\Pr(T_i=c)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
@@ -567,9 +567,9 @@ Now, using the fact that $\Pr(T_i=sc|T_i=c)\Pr(T_i=c)=\Pr(T_i=sc)$ and $\Pr(T_i=
                 & \phantom{=}+\esp{Y_i^{1}-Y_i^{0}|T_i=cd}\Pr(T_i=cd)-\esp{Y_i^{1}-Y_i^{0}|T_i=d}\Pr(T_i=d).
 \end{align*}
 
-The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption \@ref(def:CD).
-Now, under Assumptions \@ref(def:FirstStage), \@ref(def:ExclusionRestriction) and \@ref(def:Independence), we know, from the proof of Theorem \@ref(thm:IdentLATE), that $\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=c)-\Pr(T_i=d)$.
-Under Assumption \@ref(def:CD), we have $\Pr(T_i=c)=\Pr((T_i=cd)\cup(T_i=sc))=\Pr(T_i=cd)+\Pr(T_i=sc)$.
+The second part of the right-hand side of the above equation is equal to zero by virtue of Assumption \@ref(hyp:CD).
+Now, under Assumptions \@ref(hyp:FirstStage), \@ref(hyp:ExclusionRestriction) and \@ref(hyp:Independence), we know, from the proof of Theorem \@ref(thm:IdentLATE), that $\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=c)-\Pr(T_i=d)$.
+Under Assumption \@ref(hyp:CD), we have $\Pr(T_i=c)=\Pr((T_i=cd)\cup(T_i=sc))=\Pr(T_i=cd)+\Pr(T_i=sc)$.
 Replacing $\Pr(T_i=c)$ gives $\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0)=\Pr(T_i=sc)$.
 Dividing $\Delta^Y_{ITE}$ by $\Pr(T_i=sc)$ gives the result.
 ```
@@ -586,7 +586,8 @@ It is not super easy to see why, but an intuitive explanation is that the averag
 These two intervals do not overlap. 
 Since the expected value of the treatment effect conditional on $y^B_i+V_i=v$ is monotonous in $v$ (because both variables come from a bivariate normal distribution), then all the effects on the defiers interval are either smaller or larger than all the effects on the compliers interval, making it impossible to find a sub-population of compliers that have the same average effect of the treatment as the defiers.
 
-More formally, it is possible to prove this result by using the concept of Marginal Treatment Effect developed by [Heckman and Vytlacil (1999)](https://www.pnas.org/content/pnas/96/8/4730.full.pdf). I might devote a specific section of the book to the MTE and its derivations. 
+More formally, it is possible to prove this result by using the concept of Marginal Treatment Effect developed by [Heckman and Vytlacil (1999)](https://www.pnas.org/content/pnas/96/8/4730.full.pdf). 
+I might devote a specific section of the book to the MTE and its derivations. 
 For now, I let it as a possibility.
 
 What can we do then?
@@ -636,10 +637,102 @@ For this value of $\kappa^*$, we have that $\Pr(T_i=cd)=$ `r round(Prop.Comp.Def
 As expected, this is very close to the proportion of compliers in the population: $\Pr(T_i=d)=$ `r round(Prop.Def(param),4)`.
 Finally, the average treatment effect on the compliers-defiers is equal to: $\Delta^y_{cd}=$ `r round(mean.alpha.comp.def.pop[[1]],4)`.
 As expected, but luckily enough, since it was absolutely not sure, it is very close to the to the average treatment effect on the defiers: $\Delta^y_{d}=$ `r round(mean.alpha.defiers.pop[[1]],4)`.
-So, in our model, Assumption \@ref(def:CD) is almost satisfied, and so does Theorem \@ref(thm:deChaise).
+So, in our model, Assumption \@ref(hyp:CD) is almost satisfied, and so does Theorem \@ref(thm:deChaise).
 As a consequence, the Wald estimator is very close to the effect on the surviving-compliers.
 Indeed, the Wald estimator, in the population, is equal to $\Delta^y_{Wald}=$ `r round((mean.alpha.compliers.pop[[1]]*Prop.Comp(param) - mean.alpha.defiers.pop[[1]]*Prop.Def(param))/(prob.D.Z.1(param)-prob.D.Z.0(param)),6)`, while the average effect on surviving-compliers is equal to $\Delta^y_{sc}=$ `r round(mean.alpha.surv.comp.pop[[1]],6)`.
 
+#### Identification under Independence of treatment effects
+
+Another way to get around the issue of Non-Monotonicity is simply to assume away any meaningful role for treatment effect heterogeneity.
+One approach to that would simply be to assume that treatment effects are constant across individuals.
+I leave to the reader to prove that in that case, the Wald estimator would recover the treatment effect under only Independence and Exclusion Restriction.
+We are going to use a slightly more general approach here by assuming that treatment effect heterogeneity is unrelated to the reaction to the instrument:
+
+```{hypothesis,IndepTreatEffect,name="Independent Treatment Effects"}
+We assume that the treatment effect is independent from potential reactions to the instrument:
+
+\begin{align*}
+\Delta^Y_i\Ind (D^1_i,D^0_i).
+\end{align*}
+```
+
+We can now prove that, under Assumption \@ref(hyp:IndepTreatEffect), the Wald estimator identifies the Average Treatment Effect (ATE), the average effect of the Treatment on the Treated (TT) and the average effect on compliers and on defiers.
+The first thing to know before we state the result is that, under Assumption \@ref(hyp:IndepTreatEffect), all these average treatment effects are equal to each other.
+This is a direct implication of the following lemma:
+
+```{lemma,IndepTreatEffectType,name="Independence of Treatment Effects from Types"}
+Under Assumption \@ref(hyp:IndepTreatEffect), the treatment effect is independent from types:
+  
+\begin{align*}
+\Delta^Y_i\Ind T_i.
+\end{align*}
+```
+
+```{proof}
+Lemma (4.2) in [Dawid (1979)](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1979.tb01052.x) states that if $X \Ind Y|Z$ and $U$ is a function of $X$, then $U \Ind Y|Z$.
+Since $T_i$ is a function of $(D^1_i,D^0_i)$ under Assumption \@ref(hyp:IndepTreatEffect), Lemma \@ref(lem:IndepTreatEffectType) follows. 
+```
+
+A direct corollary of Lemma \@ref(lem:IndepTreatEffectType) is:
+
+```{corollary,IndepTreatEffectAve,name="Independence of Treatment Effects and Average Effects"}
+Under Assumption \@ref(hyp:IndepTreatEffect), the Average Treatment Effect (ATE), the average effect of the Treatment on the Treated (TT) and the average effect on compliers and on defiers are all equal:
+  
+\begin{align*}
+\Delta^Y_{ATE} = \Delta^Y_{TT(1)} = \Delta^Y_{TT(0)} = \Delta^Y_{c} = \Delta^Y_{d}.
+\end{align*}
+```
+
+with:
+\begin{align*}
+\Delta^Y_{TT(z)} = \esp{Y_i^1-Y_i^0|D_i=1,Z_i=z}.
+\end{align*}
+
+```{proof}
+Using Lemma \@ref(lem:IndepTreatEffectType), we have that:
+
+\begin{align*}
+  \Delta^Y_{c} = \Delta^Y_{d} = \Delta^Y_{at} =\Delta^Y_{nt}.
+\end{align*}
+
+Because $T_i$ is a partition, we have $\Delta^Y_{ATE}=\Delta^Y_{c}\Pr(T_i=c)+\Delta^Y_{d}\Pr(T_i=d)+\Delta^Y_{at}\Pr(T_i=at)+\Delta^Y_{nt}\Pr(T_i=nt)=\Delta^Y_{c}$ (since $\Pr(T_i=c)+\Pr(T_i=d)+\Pr(T_i=at)+\Pr(T_i=nt)=1$).
+Finally, we also have that $\Delta^Y_{TT(1)}=\Delta^Y_{c}\Pr(T_i=c|D_i=1,Z_i=1)+\Delta^Y_{at}\Pr(T_i=at|D_i=1,Z_i=1)=\Delta^Y_{c}$ and $\Delta^Y_{TT(0)}=\Delta^Y_{d}\Pr(T_i=d|D_i=1,Z_i=0)+\Delta^Y_{at}\Pr(T_i=at|D_i=1,Z_i=0)=\Delta^Y_{c}$, since $(D_i=1)\cap(Z_i=1)\Rightarrow (T_i=c)\cup(T_i=at)$ and $(D_i=1)\cap(Z_i=0)\Rightarrow (T_i=d)\cup(T_i=at)$.
+```
+
+We are now equioped to state the final result of this section:
+
+```{theorem,IdentIndepTreatEffect,name="Identification under Independent Treatment Effect"}
+Under Assumptions \@ref(hyp:FirstStage), \@ref(hyp:ExclusionRestriction), \@ref(hyp:Independence) and \@ref(hyp:IndepTreatEffect), the Wald estimator identifies the average effect of the Treatment on the Treated:
+  
+\begin{align*}
+  \Delta^Y_{Wald} & = \Delta^Y_{TT}.
+\end{align*}
+```
+
+```{proof}
+Using the formula for the Wald estimator, we have, for the two components of its numerator:
+
+\begin{align*}
+\esp{Y_i|Z_i=1} & = \esp{Y_i^0+(Y_i^1-Y_i^0)D_i|Z_i=1} \\
+                & = \esp{Y_i^0|Z_i=1}+\esp{\Delta^Y_i|D_i=1,Z_i=1}\Pr(D_i=1|Z_i=1)\\
+                & = \esp{Y_i^0|Z_i=1}+\Delta^Y_{TT(1)}\Pr(D_i=1|Z_i=1)\\
+\esp{Y_i|Z_i=0} & = \esp{Y_i^0+(Y_i^1-Y_i^0)D_i|Z_i=0} \\
+                & = \esp{Y_i^0|Z_i=0}+\esp{\Delta^Y_i|D_i=0,Z_i=1}\Pr(D_i=1|Z_i=0)\\
+                & = \esp{Y_i^0|Z_i=0}+\Delta^Y_{TT(0)}\Pr(D_i=1|Z_i=0),\\
+\end{align*}
+
+where the first equalities use Assumption \@ref(hyp:ExclusionRestriction).
+Now, under Assumption \@ref(hyp:IndepTreatEffect), Corollary \@ref(cor:IndepTreatEffectAve) implies that $\Delta^Y_{TT(0)}=\Delta^Y_{TT(1)}=\Delta^Y_{TT}$.
+We thus have that the numerator of the Wald estimator is equal to:
+
+\begin{align*}
+\esp{Y_i|Z_i=1}-\esp{Y_i|Z_i=0} & = \Delta^Y_{TT}(\Pr(D_i=1|Z_i=1)-\Pr(D_i=1|Z_i=0))\\
+                                & \phantom{=}+\esp{Y_i^0|Z_i=1}-\esp{Y_i^0|Z_i=0}.
+\end{align*}
+
+Assumption \@ref(hyp:Independence) implies that $\esp{Y_i^0|Z_i=1}=\esp{Y_i^0|Z_i=0}$.
+Using Assumption \@ref(hyp:FirstStage) proves the result.
+```
 
 ### Estimation
 

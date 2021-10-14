@@ -369,7 +369,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: <span class="math inline">\(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\)</span>, with <span class="math inline">\(\hat{\theta}_k\)</span> the estimated effect size, <span class="math inline">\(\hat{\sigma}_k\)</span> its estimated standard error, and <span class="math inline">\(N\)</span> the number of included studies.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-152" class="example"><strong>Example 13.1  </strong></span>Let’s see how such a dataset would look like?
+<span id="exm:unnamed-chunk-155" class="example"><strong>Example 13.1  </strong></span>Let’s see how such a dataset would look like?
 Let’s build one from our simulations.
 </div>
 <div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb138-1"><a href="sec:meta.html#cb138-1" aria-hidden="true" tabindex="-1"></a>N.sample <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">100</span>,<span class="dv">1000</span>,<span class="dv">10000</span>,<span class="dv">100000</span>)</span>
@@ -584,7 +584,7 @@ In order to obtain an estimator <span class="math inline">\(\hat{\sigma}^2\)</sp
 <span id="cb140-3"><a href="sec:meta.html#cb140-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-158" class="example"><strong>Example 13.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
+<span id="exm:unnamed-chunk-161" class="example"><strong>Example 13.2  </strong></span>Let’s use our meta-analytic estimator to estimate the effect size of our treatment.
 </div>
 <p>The estimated treatment effect size with our sample is 0.19 <span class="math inline">\(\pm\)</span> 0.02.
 A very simple way to implement such an estimator in R is to use the <code>rma</code> command of the <code>metafor</code> package.</p>
@@ -685,7 +685,7 @@ Hedges’ estimator of the overall variance in effect sizes is:</p>
 </div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-160" class="example"><strong>Example 13.3  </strong></span>Let’s compute Hedges’ esimator for <span class="math inline">\(\tau^2\)</span> in our numerical example.
+<span id="exm:unnamed-chunk-163" class="example"><strong>Example 13.3  </strong></span>Let’s compute Hedges’ esimator for <span class="math inline">\(\tau^2\)</span> in our numerical example.
 </div>
 <p>Let’s first define a few functions to compute each part:</p>
 <div class="sourceCode" id="cb144"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb144-1"><a href="sec:meta.html#cb144-1" aria-hidden="true" tabindex="-1"></a>tau<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(theta,vartheta){</span>
@@ -767,7 +767,7 @@ An estimator for <span class="math inline">\(S^2\)</span> is:</p>
 <p><span class="math inline">\(ICC\)</span> and <span class="math inline">\(I^2\)</span> are related by the following very simple relation: <span class="math inline">\(I^2=ICC*100\)</span>.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-161" class="example"><strong>Example 13.4  </strong></span>Let’s see how these three estimators look like in our example.
+<span id="exm:unnamed-chunk-164" class="example"><strong>Example 13.4  </strong></span>Let’s see how these three estimators look like in our example.
 The cool thing is that <code>rma</code> computes these estimators by default, so that a simple call to <code>summary()</code> is going to show them.
 The default random effects estimator is <code>REML</code>, which is deemed to be the best of them all according to simulations <a href="https://journals.sagepub.com/doi/abs/10.3102/10769986030003261">(Viechtbauer, 2002)</a>.
 </div>
@@ -817,7 +817,7 @@ One statistics that does that is the <span class="math inline">\(Q\)</span> stat
 <p>What is great with the <span class="math inline">\(Q\)</span> statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(N-1\)</span> degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-162" class="example"><strong>Example 13.5  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package.
+<span id="exm:unnamed-chunk-165" class="example"><strong>Example 13.5  </strong></span>In our example, we have already computed the <span class="math inline">\(Q\)</span> statistic when we have used the <code>rma</code> function in the <code>metafor</code> package.
 In order to access it, we just need to extract it using <code>meta.example.FE$QE</code> for the <span class="math inline">\(Q\)</span> statistic and <code>meta.example.FE$QEp</code> for its p-value.
 </div>
 <p>The <span class="math inline">\(Q\)</span> statistic in our example has value 12.71, with associated p-value 0.85.
@@ -852,7 +852,7 @@ If it is much larger, homogeneity is probably not guaranteed.
 <span id="cb150-5"><a href="sec:meta.html#cb150-5" aria-hidden="true" tabindex="-1"></a>ES.H.theta<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">Hwmae</span>(data.meta<span class="sc">$</span>theta<span class="fl">.2</span>,data.meta<span class="sc">$</span>se.ES<span class="sc">^</span><span class="dv">2</span>,tau.<span class="fl">2.</span>theta<span class="fl">.2</span>)</span></code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-165" class="example"><strong>Example 13.6  </strong></span>Let’s see how Hedges estimator performs in our example.
+<span id="exm:unnamed-chunk-168" class="example"><strong>Example 13.6  </strong></span>Let’s see how Hedges estimator performs in our example.
 </div>
 <p>Hedges’ estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges’ estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.</p>
@@ -877,7 +877,7 @@ Besides Hedges’ (denoted ‘HE’ in R), the other estimators are named:
 <p><strong><span class="smallcaps">Detail other estimators of tau.</span></strong></p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-167" class="example"><strong>Example 13.7  </strong></span>For the moment, let’s see how they perform in our numerical example.
+<span id="exm:unnamed-chunk-170" class="example"><strong>Example 13.7  </strong></span>For the moment, let’s see how they perform in our numerical example.
 </div>
 <div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="sec:meta.html#cb151-1" aria-hidden="true" tabindex="-1"></a>estimators <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;DL&quot;</span>, <span class="st">&quot;REML&quot;</span>, <span class="st">&quot;HE&quot;</span>, <span class="st">&quot;HS&quot;</span>, <span class="st">&quot;SJ&quot;</span>, <span class="st">&quot;ML&quot;</span>, <span class="st">&quot;EB&quot;</span>)</span>
 <span id="cb151-2"><a href="sec:meta.html#cb151-2" aria-hidden="true" tabindex="-1"></a>meta.example.RE.theta.<span class="fl">1.</span>tau2 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(estimators,<span class="cf">function</span>(method){<span class="fu">return</span>(<span class="fu">rma</span>(<span class="at">yi =</span> data.meta<span class="sc">$</span>theta<span class="fl">.1</span>,<span class="at">vi=</span>data.meta<span class="sc">$</span>var.ES,<span class="at">method=</span>method)<span class="sc">$</span>tau2)})</span>
@@ -949,7 +949,7 @@ The random effects estimator corrects for that by estimating <span class="math i
 </ol>
 
 <div class="example">
-<span id="exm:unnamed-chunk-168" class="example"><strong>Example 13.8  </strong></span>Let’s see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+<span id="exm:unnamed-chunk-171" class="example"><strong>Example 13.8  </strong></span>Let’s see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 </div>
 <p>Let’s plot the two forest plots for the example with <span class="math inline">\(\tau=\)</span> 0.25.</p>
 <div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="sec:meta.html#cb155-1" aria-hidden="true" tabindex="-1"></a><span class="fu">forest</span>(meta.example.FE.theta<span class="fl">.1</span>,<span class="at">slab =</span> <span class="fu">paste</span>(<span class="st">&#39;Study&#39;</span>,data.meta<span class="sc">$</span>id,<span class="at">sep=</span><span class="st">&#39; &#39;</span>),<span class="at">xlab=</span><span class="st">&#39;Estimated Meta-analytic Parameter&#39;</span>)</span>
@@ -1088,7 +1088,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}\]</span></p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-169" class="example"><strong>Example 13.9  </strong></span>Let’s see how all of these estimators work in our example.
+<span id="exm:unnamed-chunk-172" class="example"><strong>Example 13.9  </strong></span>Let’s see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I’m going to use the exact value of the noise that I’ve added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let’s see how this works.
@@ -1166,7 +1166,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-170" class="example"><strong>Example 13.10  </strong></span>Figure <a href="sec:meta.html#fig:cumWMAE">13.11</a> shows how constantly updated meta-analysis works in our example.
+<span id="exm:unnamed-chunk-173" class="example"><strong>Example 13.10  </strong></span>Figure <a href="sec:meta.html#fig:cumWMAE">13.11</a> shows how constantly updated meta-analysis works in our example.
 </div>
 <div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="sec:meta.html#cb159-1" aria-hidden="true" tabindex="-1"></a>cum.wmae<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(k,theta,sigma2){</span>
 <span id="cb159-2"><a href="sec:meta.html#cb159-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">c</span>(<span class="fu">weighted.mean</span>(theta[<span class="dv">1</span><span class="sc">:</span>k],(<span class="dv">1</span><span class="sc">/</span>sigma2[<span class="dv">1</span><span class="sc">:</span>k])<span class="sc">/</span>(<span class="fu">sum</span>(<span class="dv">1</span><span class="sc">/</span>sigma2[<span class="dv">1</span><span class="sc">:</span>k]))),<span class="dv">1</span><span class="sc">/</span><span class="fu">sum</span>(<span class="dv">1</span><span class="sc">/</span>sigma2[<span class="dv">1</span><span class="sc">:</span>k])))</span>
@@ -1259,7 +1259,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-172" class="example"><strong>Example 13.11  </strong></span>What does publication bias look like in our example?
+<span id="exm:unnamed-chunk-175" class="example"><strong>Example 13.11  </strong></span>What does publication bias look like in our example?
 Let’s assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let’s build Figure <a href="sec:meta.html#fig:confintervalESCLT">13.1</a> with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -1322,7 +1322,7 @@ The effect estimated using only the statistically significant studies is equal t
 <p>With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-173" class="example"><strong>Example 13.12  </strong></span>Here is how that impacts the truth in our example:
+<span id="exm:unnamed-chunk-176" class="example"><strong>Example 13.12  </strong></span>Here is how that impacts the truth in our example:
 </div>
 <div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="sec:meta.html#cb162-1" aria-hidden="true" tabindex="-1"></a>meta.example.RE <span class="ot">&lt;-</span> <span class="fu">rma</span>(<span class="at">yi =</span> data.meta<span class="sc">$</span>theta<span class="fl">.1</span>,<span class="at">vi=</span>data.meta<span class="sc">$</span>var.ES,<span class="at">method=</span><span class="st">&quot;REML&quot;</span>)</span>
 <span id="cb162-2"><a href="sec:meta.html#cb162-2" aria-hidden="true" tabindex="-1"></a>meta.example.RE.pubbias <span class="ot">&lt;-</span> <span class="fu">rma</span>(<span class="at">yi =</span> data.meta<span class="sc">$</span>theta<span class="fl">.1</span>[<span class="fu">abs</span>(data.meta<span class="sc">$</span>theta<span class="fl">.1</span><span class="sc">/</span><span class="fu">sqrt</span>(data.meta<span class="sc">$</span>var.ES))<span class="sc">&gt;=</span><span class="fu">qnorm</span>((<span class="dv">1</span><span class="sc">+</span>delta<span class="fl">.2</span>)<span class="sc">/</span><span class="dv">2</span>)],<span class="at">vi=</span>data.meta<span class="sc">$</span>var.ES[<span class="fu">abs</span>(data.meta<span class="sc">$</span>theta<span class="fl">.1</span><span class="sc">/</span><span class="fu">sqrt</span>(data.meta<span class="sc">$</span>var.ES))<span class="sc">&gt;</span><span class="fu">qnorm</span>((<span class="dv">1</span><span class="sc">+</span>delta<span class="fl">.2</span>)<span class="sc">/</span><span class="dv">2</span>)],<span class="at">method=</span><span class="st">&quot;REML&quot;</span>)</span>
@@ -1434,7 +1434,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-174" class="example"><strong>Example 13.13  </strong></span>Let’s see how the funnel plot works in our example.
+<span id="exm:unnamed-chunk-177" class="example"><strong>Example 13.13  </strong></span>Let’s see how the funnel plot works in our example.
 </div>
 <div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb163-1"><a href="sec:meta.html#cb163-1" aria-hidden="true" tabindex="-1"></a><span class="fu">funnel</span>(meta.example.FE.interm,<span class="at">xlab=</span><span class="st">&#39;Effect size (without publication bias)&#39;</span>,<span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="fl">0.382</span>,<span class="dv">0</span>),<span class="at">refline=</span><span class="dv">0</span>)</span>
 <span id="cb163-2"><a href="sec:meta.html#cb163-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v=</span><span class="fu">ES</span>(param),<span class="at">col=</span><span class="st">&quot;red&quot;</span>)</span>
@@ -1504,7 +1504,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using <span class="math inline">\(\hat{\beta}_1\)</span>.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-175" class="example"><strong>Example 13.14  </strong></span>Let’s see in practice how FAT, PET and PEESE work in our example.
+<span id="exm:unnamed-chunk-178" class="example"><strong>Example 13.14  </strong></span>Let’s see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 </div>
 <p>I’m focusing on the case with only small and intermediate precision estimates, as in the funnel plots in Figure <a href="sec:meta.html#fig:FunnelPlotFE">13.15</a>.</p>
@@ -1767,7 +1767,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.</p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-176" class="example"><strong>Example 13.15  </strong></span>Let’s see how the funnel plot works in our example.
+<span id="exm:unnamed-chunk-179" class="example"><strong>Example 13.15  </strong></span>Let’s see how the funnel plot works in our example.
 </div>
 <div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb181-1"><a href="sec:meta.html#cb181-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">filter</span>(data.meta,id<span class="sc">&lt;=</span><span class="dv">17</span>,<span class="fu">abs</span>(data.meta<span class="sc">$</span>ES<span class="sc">/</span><span class="fu">sqrt</span>(data.meta<span class="sc">$</span>var.ES))<span class="sc">&gt;=</span><span class="fu">qnorm</span>((<span class="dv">1</span><span class="sc">+</span>delta<span class="fl">.2</span>)<span class="sc">/</span><span class="dv">2</span>))<span class="sc">$</span>ES <span class="sc">~</span> <span class="fu">sqrt</span>(<span class="fu">filter</span>(data.meta,id<span class="sc">&lt;=</span><span class="dv">17</span>,<span class="fu">abs</span>(data.meta<span class="sc">$</span>ES<span class="sc">/</span><span class="fu">sqrt</span>(data.meta<span class="sc">$</span>var.ES))<span class="sc">&gt;=</span><span class="fu">qnorm</span>((<span class="dv">1</span><span class="sc">+</span>delta<span class="fl">.2</span>)<span class="sc">/</span><span class="dv">2</span>))<span class="sc">$</span>var.ES),<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.382</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>,<span class="dv">1</span>),<span class="at">xlab=</span><span class="st">&#39;Standard error&#39;</span>, <span class="at">ylab =</span><span class="st">&#39;Effect size&#39;</span>, <span class="at">main=</span><span class="st">&#39;Homogeneous effects&#39;</span>)</span>
 <span id="cb181-2"><a href="sec:meta.html#cb181-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="fu">ES</span>(param),<span class="at">col=</span><span class="st">&quot;red&quot;</span>)</span>
@@ -1890,7 +1890,7 @@ It uses non-central distributions to compute the pp-values.</p>
 <p><strong><span class="smallcaps">Code the additional pp-value test.</span></strong></p>
 
 <div class="example">
-<span id="exm:unnamed-chunk-177" class="example"><strong>Example 13.16  </strong></span>Let’s see how these tests work in our example.
+<span id="exm:unnamed-chunk-180" class="example"><strong>Example 13.16  </strong></span>Let’s see how these tests work in our example.
 </div>
 <p>We first have to compute the p-values for each statistically significant effect.
 Then, we can implement our tests.</p>
@@ -2134,7 +2134,7 @@ The objective function proposed by the authors minimizes this distance.</p>
 <span id="cb188-27"><a href="sec:meta.html#cb188-27" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-184" class="example"><strong>Example 13.17  </strong></span>Let’s see how this approach works in our example.
+<span id="exm:unnamed-chunk-187" class="example"><strong>Example 13.17  </strong></span>Let’s see how this approach works in our example.
 </div>
 <p>Let’s start with the homogeneous treatment effect case</p>
 <div class="sourceCode" id="cb189"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb189-1"><a href="sec:meta.html#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="co"># I&#39;m keeping only significant and positive estimates</span></span>
@@ -2330,7 +2330,7 @@ What is nice with these procedures is that they do not require computing the fir
 <span id="cb191-10"><a href="sec:meta.html#cb191-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 
 <div class="example">
-<span id="exm:unnamed-chunk-191" class="example"><strong>Example 13.18  </strong></span>Let’s see how this works in our example.
+<span id="exm:unnamed-chunk-194" class="example"><strong>Example 13.18  </strong></span>Let’s see how this works in our example.
 Let’s first prepare the sample.
 We are going to simulate two procedures of censoring: one with <span class="math inline">\(p_1=0.5\)</span> and one with <span class="math inline">\(p_1=0\)</span>.
 </div>
