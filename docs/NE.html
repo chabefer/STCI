@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-10-14" />
+<meta name="date" content="2021-10-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -630,7 +630,7 @@ In that case, since well-connected individuals would have had higher earnings ev
 We already know this assumption:</p>
 
 <div class="hypothesis">
-<p><span id="hyp:Monotonicity" class="hypothesis"><strong>Hypothesis 4.4  (Monotonicity)  </strong></span>We assume that the instrument moves everyone in the population in the same direction:</p>
+<p><span id="hyp:MonotonicityIV" class="hypothesis"><strong>Hypothesis 4.4  (Monotonicity)  </strong></span>We assume that the instrument moves everyone in the population in the same direction:</p>
 <span class="math display">\[\begin{align*}
 \forall i\text{, either } D^1_i\geq D_i^0 \text{ or } D^1_i\leq D_i^0.
 \end{align*}\]</span>
@@ -970,6 +970,142 @@ We thus have that the numerator of the Wald estimator is equal to:</p>
 Assumption <a href="NE.html#hyp:Independence">4.3</a> implies that <span class="math inline">\(\esp{Y_i^0|Z_i=1}=\esp{Y_i^0|Z_i=0}\)</span>.
 Using Assumption <a href="NE.html#hyp:FirstStage">4.1</a> proves the result.
 </div>
+</div>
+<div id="identification-under-monotonicity" class="section level4" number="4.1.2.3">
+<h4><span class="header-section-number">4.1.2.3</span> Identification under Monotonicity</h4>
+<p>The classical approach to identification using instrumental variables is due to <a href="https://www.jstor.org/stable/2951620">Imbens and Angrist (1994)</a> and <a href="https://www.jstor.org/stable/2291629">Angrist, Imbens and Rubin (1996)</a>.
+It rests on Assumption <a href="NE.html#hyp:MonotonicityIV">4.4</a> or Monotonicity that we are now familiar with, that requires that the effect of the instrument on treatment participation moves everyone in the same direction.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> For the rest of the section, we will assume that <span class="math inline">\(\forall i\)</span>, <span class="math inline">\(D^1_i\geq D_i^0\)</span>.
+It is without loss of generality, since if the initial treatment does not comply with this requirement, you can simply redefine a new treatment equal to <span class="math inline">\(-D_i\)</span>.
+</div>
+<p>Under Monotonicity, there are no defiers.
+This is what the following lemma shows:</p>
+
+<div class="lemma">
+<p><span id="lem:NoDefiers" class="lemma"><strong>Lemma 4.2  </strong></span>Under Assumption <a href="NE.html#hyp:MonotonicityIV">4.4</a>, there are no defiers a.s.:</p>
+<span class="math display">\[\begin{align*}
+  \Pr(T_i=c) &amp; = 0.
+\end{align*}\]</span>
+</div>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> Under Assumption <a href="NE.html#hyp:MonotonicityIV">4.4</a>, <span class="math inline">\(\forall i\)</span>, <span class="math inline">\(D^1_i\geq D_i^0\)</span>.
+As a consequence, <span class="math inline">\(\Pr(D^1_i &lt; D_i^0)=0\)</span>.
+Since defiers are defined as <span class="math inline">\(D^1_i &lt; D_i^0\)</span>, the result follows.
+</div>
+<p>In the absence of defiers, the Wald estimator identifies the average effect of the treatment on the compliers, also called the Local Average Treatment Effect:</p>
+
+<div class="theorem">
+<p><span id="thm:IdentLATEIV" class="theorem"><strong>Theorem 4.3  </strong></span>Under Assumptions <a href="NE.html#hyp:FirstStage">4.1</a>, <a href="NE.html#hyp:ExclusionRestriction">4.2</a>, <a href="NE.html#hyp:Independence">4.3</a> and <a href="NE.html#hyp:MonotonicityIV">4.4</a>, the Wald estimator identifies the average effect of the treatment on the compliers, also called the Local Average Treatment Effect:</p>
+<span class="math display">\[\begin{align*}
+  \Delta^Y_{Wald}&amp; = \Delta^Y_{LATE}.
+\end{align*}\]</span>
+</div>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> Using Theorem @ref{thm:IdentLATE} directly proves the result.
+</div>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The magic of the instrumental variables setting applies again.
+By moving the instrument, we are able to learn something about the causal effect of the treatment.
+This is under very strong assumption though, that are very rarely met in practice.
+</div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-157" class="example"><strong>Example 4.8  </strong></span>Let’s see how monotonicity works in our example.
+</div>
+<p>First, we have to generate a model in which monotonicity holds.
+For that, we need to shut down heterogeneous reactions to the instrument.
+In practice, we are going to replace the participation equation in our model, which was characterized by a random coefficient, by the following one, which has a constant coefficient:</p>
+<p><span class="math display">\[\begin{align*}
+  D_i &amp; = \uns{y_i^B+\bar{\kappa} Z_i + V_i\leq\bar{y}} 
+\end{align*}\]</span></p>
+<p>As a consequence, we have no more defiers and monotonicity holds.
+Let us now generate the data from the model with monotonicity:</p>
+<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb138-1"><a href="NE.html#cb138-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb138-2"><a href="NE.html#cb138-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span><span class="dv">1000</span></span>
+<span id="cb138-3"><a href="NE.html#cb138-3" aria-hidden="true" tabindex="-1"></a>cov.eta.omega <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(param[<span class="st">&quot;sigma2eta&quot;</span>],param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;sigma2omega&quot;</span>]),<span class="at">ncol=</span><span class="dv">2</span>,<span class="at">nrow=</span><span class="dv">2</span>)</span>
+<span id="cb138-4"><a href="NE.html#cb138-4" aria-hidden="true" tabindex="-1"></a>eta.omega <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">mvrnorm</span>(N,<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),cov.eta.omega))</span>
+<span id="cb138-5"><a href="NE.html#cb138-5" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(eta.omega) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;eta&#39;</span>,<span class="st">&#39;omega&#39;</span>)</span>
+<span id="cb138-6"><a href="NE.html#cb138-6" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))</span>
+<span id="cb138-7"><a href="NE.html#cb138-7" aria-hidden="true" tabindex="-1"></a>UB <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))</span>
+<span id="cb138-8"><a href="NE.html#cb138-8" aria-hidden="true" tabindex="-1"></a>yB <span class="ot">&lt;-</span> mu <span class="sc">+</span> UB </span>
+<span id="cb138-9"><a href="NE.html#cb138-9" aria-hidden="true" tabindex="-1"></a>YB <span class="ot">&lt;-</span> <span class="fu">exp</span>(yB)</span>
+<span id="cb138-10"><a href="NE.html#cb138-10" aria-hidden="true" tabindex="-1"></a>Ds <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,N)</span>
+<span id="cb138-11"><a href="NE.html#cb138-11" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N,<span class="dv">1</span>,param[<span class="st">&quot;pZ&quot;</span>])</span>
+<span id="cb138-12"><a href="NE.html#cb138-12" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> param[<span class="st">&quot;gamma&quot;</span>]<span class="sc">*</span>(mu<span class="sc">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="sc">+</span>eta.omega<span class="sc">$</span>omega</span>
+<span id="cb138-13"><a href="NE.html#cb138-13" aria-hidden="true" tabindex="-1"></a>Ds[yB<span class="sc">-</span>param[<span class="st">&quot;barkappa&quot;</span>]<span class="sc">*</span>Z<span class="sc">+</span>V<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>])] <span class="ot">&lt;-</span> <span class="dv">1</span> </span>
+<span id="cb138-14"><a href="NE.html#cb138-14" aria-hidden="true" tabindex="-1"></a>epsilon <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))</span>
+<span id="cb138-15"><a href="NE.html#cb138-15" aria-hidden="true" tabindex="-1"></a>U0 <span class="ot">&lt;-</span> param[<span class="st">&quot;rho&quot;</span>]<span class="sc">*</span>UB <span class="sc">+</span> epsilon</span>
+<span id="cb138-16"><a href="NE.html#cb138-16" aria-hidden="true" tabindex="-1"></a>y0 <span class="ot">&lt;-</span> mu <span class="sc">+</span>  U0 <span class="sc">+</span> param[<span class="st">&quot;delta&quot;</span>]</span>
+<span id="cb138-17"><a href="NE.html#cb138-17" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> param[<span class="st">&quot;baralpha&quot;</span>]<span class="sc">+</span>  param[<span class="st">&quot;theta&quot;</span>]<span class="sc">*</span>mu <span class="sc">+</span> eta.omega<span class="sc">$</span>eta</span>
+<span id="cb138-18"><a href="NE.html#cb138-18" aria-hidden="true" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> y0<span class="sc">+</span>alpha</span>
+<span id="cb138-19"><a href="NE.html#cb138-19" aria-hidden="true" tabindex="-1"></a>Y0 <span class="ot">&lt;-</span> <span class="fu">exp</span>(y0)</span>
+<span id="cb138-20"><a href="NE.html#cb138-20" aria-hidden="true" tabindex="-1"></a>Y1 <span class="ot">&lt;-</span> <span class="fu">exp</span>(y1)</span>
+<span id="cb138-21"><a href="NE.html#cb138-21" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> y1<span class="sc">*</span>Ds<span class="sc">+</span>y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span>
+<span id="cb138-22"><a href="NE.html#cb138-22" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> Y1<span class="sc">*</span>Ds<span class="sc">+</span>Y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span></code></pre></div>
+<p>We can now define the types variable <span class="math inline">\(T_i\)</span>:</p>
+<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="NE.html#cb139-1" aria-hidden="true" tabindex="-1"></a>D1 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(yB<span class="sc">-</span>param[<span class="st">&quot;barkappa&quot;</span>]<span class="sc">+</span>V<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb139-2"><a href="NE.html#cb139-2" aria-hidden="true" tabindex="-1"></a>D0 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(yB<span class="sc">+</span>V<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb139-3"><a href="NE.html#cb139-3" aria-hidden="true" tabindex="-1"></a>AT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(D1<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> D0<span class="sc">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb139-4"><a href="NE.html#cb139-4" aria-hidden="true" tabindex="-1"></a>NT <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(D1<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> D0<span class="sc">==</span><span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb139-5"><a href="NE.html#cb139-5" aria-hidden="true" tabindex="-1"></a>C <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(D1<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> D0<span class="sc">==</span><span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb139-6"><a href="NE.html#cb139-6" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(D1<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> D0<span class="sc">==</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb139-7"><a href="NE.html#cb139-7" aria-hidden="true" tabindex="-1"></a>Type <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(AT<span class="sc">==</span><span class="dv">1</span>,<span class="st">&#39;a&#39;</span>,</span>
+<span id="cb139-8"><a href="NE.html#cb139-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">ifelse</span>(NT<span class="sc">==</span><span class="dv">1</span>,<span class="st">&#39;n&#39;</span>,</span>
+<span id="cb139-9"><a href="NE.html#cb139-9" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">ifelse</span>(C<span class="sc">==</span><span class="dv">1</span>,<span class="st">&#39;c&#39;</span>,</span>
+<span id="cb139-10"><a href="NE.html#cb139-10" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">ifelse</span>(D<span class="sc">==</span><span class="dv">1</span>,<span class="st">&#39;d&#39;</span>,<span class="st">&quot;&quot;</span>))))</span>
+<span id="cb139-11"><a href="NE.html#cb139-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb139-12"><a href="NE.html#cb139-12" aria-hidden="true" tabindex="-1"></a>data.mono <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">cbind</span>(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega<span class="sc">$</span>eta,epsilon,Ds,xi,Z,mu,UB))</span></code></pre></div>
+<p>The first thing we can check is that there are no defiers.
+For that, let’s count the number of individuals who have <span class="math inline">\(T_i=1\)</span>.
+It is equal to 0.</p>
+<p>One thing that helped me understand how the IV approach under monotonicity works is the following graph:</p>
+<div class="sourceCode" id="cb140"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb140-1"><a href="NE.html#cb140-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yB[AT<span class="sc">==</span><span class="dv">1</span>]<span class="sc">+</span>V[AT<span class="sc">==</span><span class="dv">1</span>],y[AT<span class="sc">==</span><span class="dv">1</span>],<span class="at">pch=</span><span class="dv">1</span>,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">11</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">11</span>),<span class="at">xlab=</span><span class="st">&quot;yB+V&quot;</span>,<span class="at">ylab=</span><span class="st">&quot;Outcomes&quot;</span>)</span>
+<span id="cb140-2"><a href="NE.html#cb140-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(yB[NT<span class="sc">==</span><span class="dv">1</span>]<span class="sc">+</span>V[NT<span class="sc">==</span><span class="dv">1</span>],y[NT<span class="sc">==</span><span class="dv">1</span>],<span class="at">pch=</span><span class="dv">1</span>,<span class="at">col=</span><span class="st">&#39;blue&#39;</span>)</span>
+<span id="cb140-3"><a href="NE.html#cb140-3" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(yB[C<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> Ds<span class="sc">==</span><span class="dv">1</span>]<span class="sc">+</span>V[C<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> Ds<span class="sc">==</span><span class="dv">1</span>],y[C<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> Ds<span class="sc">==</span><span class="dv">1</span>],<span class="at">pch=</span><span class="dv">1</span>,<span class="at">col=</span><span class="st">&#39;red&#39;</span>)</span>
+<span id="cb140-4"><a href="NE.html#cb140-4" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(yB[C<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> Ds<span class="sc">==</span><span class="dv">0</span>]<span class="sc">+</span>V[C<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> Ds<span class="sc">==</span><span class="dv">0</span>],y[C<span class="sc">==</span><span class="dv">1</span> <span class="sc">&amp;</span> Ds<span class="sc">==</span><span class="dv">0</span>],<span class="at">pch=</span><span class="dv">1</span>,<span class="at">col=</span><span class="st">&#39;green&#39;</span>)</span>
+<span id="cb140-5"><a href="NE.html#cb140-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="at">col=</span><span class="st">&quot;red&quot;</span>)</span>
+<span id="cb140-6"><a href="NE.html#cb140-6" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>],<span class="at">col=</span><span class="st">&quot;red&quot;</span>)</span>
+<span id="cb140-7"><a href="NE.html#cb140-7" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>]),<span class="at">y=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>),<span class="at">labels=</span><span class="fu">c</span>(<span class="fu">expression</span>(<span class="fu">bar</span>(<span class="st">&#39;y&#39;</span>)),<span class="fu">expression</span>(<span class="fu">bar</span>(<span class="st">&#39;y&#39;</span>)<span class="sc">+</span><span class="fu">bar</span>(kappa))),<span class="at">pos=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>),<span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;red&quot;</span>,<span class="st">&quot;red&quot;</span>))</span>
+<span id="cb140-8"><a href="NE.html#cb140-8" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="dv">5</span>,<span class="fl">10.5</span>,<span class="fu">c</span>(<span class="st">&#39;AT&#39;</span>,<span class="st">&#39;NT&#39;</span>,<span class="st">&#39;C|D=1&#39;</span>,<span class="st">&#39;C|D=0&#39;</span>),<span class="at">pch=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>),<span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;black&quot;</span>,<span class="st">&#39;blue&#39;</span>,<span class="st">&quot;red&quot;</span>,<span class="st">&#39;green&#39;</span>),<span class="at">ncol=</span><span class="dv">1</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:plottypesMono"></span>
+<img src="STCI_files/figure-html/plottypesMono-1.png" alt="Types under Monotonicity" width="50%" />
+<p class="caption">
+Figure 4.4: Types under Monotonicity
+</p>
+</div>
+<p>What <a href="NE.html#fig:plottypesMono">4.4</a> shows is that the IV acts as a randomized controlled trial among compliers.
+Within the population of compliers, whether one receives the treatment or not is as good as random.
+If we actually knew who the compliers were, we could directly estimate the effect of the treatment by comparing the outcomes of the treated compliers to the outcomes of the untreated compliers.
+Actually, this approach, applied in our sample, yields an estimated treatment effect on the compliers of 0.07, whereas the simple comparison of participants and non participants would give an estimate of -0.97.
+In our sample, the average effect of the treatment on compliers is actually equal to 0.19.</p>
+<p>Let us finally check that Theorem <a href="NE.html#thm:IdentLATEIV">4.3</a> works in the population in our new model.
+We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
+The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem @ref{thm:IdentLATEIV}.
+These two means cancel out, leaving only the differences in the means of the compliers in and out of the treatment, weighted by their proportion in the population.
+The denominator of the Wald estimator simply provides an estimate of the proportion of compliers.
+In order to illustrate these intuitions in our example, I am going to use the formula for a truncated multivariate normal variable and the package <code>tmvtnorm</code>.
+The most important thing to notice here is that <span class="math inline">\((y^0_i,y^1_i,y_i^B+V_i) \sim \mathcal{N}\left(\bar{\mu}+\delta,\bar{\mu}(1+\theta)+\delta+\bar{\alpha},\bar{\mu},\mathbf{C}\right)\)</span> with:</p>
+<p><span class="math display">\[\begin{align*}
+  \mathbf{C} &amp;=                    \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu}+\rho^2\sigma^2_{U} +\sigma^2_{\epsilon} &amp;
+                                              (1+\theta)\sigma^2_{\mu}+\rho^2\sigma^2_U + \sigma^2_{\epsilon} &amp;
+                                              (1+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U \\
+                                              (1+\theta)\sigma^2_{\mu}+\rho^2\sigma^2_U + \sigma^2_{\epsilon} &amp;
+                                              (1+\theta^2)\sigma^2_{\mu}+\rho^2\sigma^2_{U} +\sigma^2_{\epsilon} + \sigma^2_{\eta} &amp;
+                                              (1+\theta+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} \\
+                                              (1+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U &amp;
+                                              (1+\theta+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} &amp;
+                                              (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega} \\
+                                              \end{array}
+                                        \right)
+\end{align*}\]</span></p>
+<p>We now simply have to derive the mean outcomes and proportions of each type in the population in order to form the Wald estimator.</p>
+<p><strong>Do it</strong></p>
 </div>
 </div>
 <div id="estimation" class="section level3" number="4.1.3">

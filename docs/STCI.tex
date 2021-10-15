@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-10-14}
+\date{2021-10-15}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -6793,7 +6793,7 @@ The last assumption we need in order to identify the Local Average Treatment Eff
 We already know this assumption:
 
 \begin{hypothesis}[Monotonicity]
-\protect\hypertarget{hyp:Monotonicity}{}{\label{hyp:Monotonicity} \iffalse (Monotonicity) \fi{} }We assume that the instrument moves everyone in the population in the same direction:
+\protect\hypertarget{hyp:MonotonicityIV}{}{\label{hyp:MonotonicityIV} \iffalse (Monotonicity) \fi{} }We assume that the instrument moves everyone in the population in the same direction:
 
 \begin{align*}
 \forall i\text{, either } D^1_i\geq D_i^0 \text{ or } D^1_i\leq D_i^0.
@@ -7219,6 +7219,176 @@ Assumption \ref{hyp:Independence} implies that \(\esp{Y_i^0|Z_i=1}=\esp{Y_i^0|Z_
 Using Assumption \ref{hyp:FirstStage} proves the result.
 \end{proof}
 
+\hypertarget{identification-under-monotonicity}{%
+\subsubsection{Identification under Monotonicity}\label{identification-under-monotonicity}}
+
+The classical approach to identification using instrumental variables is due to \href{https://www.jstor.org/stable/2951620}{Imbens and Angrist (1994)} and \href{https://www.jstor.org/stable/2291629}{Angrist, Imbens and Rubin (1996)}.
+It rests on Assumption \ref{hyp:MonotonicityIV} or Monotonicity that we are now familiar with, that requires that the effect of the instrument on treatment participation moves everyone in the same direction.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}For the rest of the section, we will assume that \(\forall i\), \(D^1_i\geq D_i^0\).
+It is without loss of generality, since if the initial treatment does not comply with this requirement, you can simply redefine a new treatment equal to \(-D_i\).
+\end{remark}
+
+Under Monotonicity, there are no defiers.
+This is what the following lemma shows:
+
+\begin{lemma}
+\protect\hypertarget{lem:NoDefiers}{}{\label{lem:NoDefiers} }Under Assumption \ref{hyp:MonotonicityIV}, there are no defiers a.s.:
+
+\begin{align*}
+  \Pr(T_i=c) & = 0.
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}Under Assumption \ref{hyp:MonotonicityIV}, \(\forall i\), \(D^1_i\geq D_i^0\).
+As a consequence, \(\Pr(D^1_i < D_i^0)=0\).
+Since defiers are defined as \(D^1_i < D_i^0\), the result follows.
+\end{proof}
+
+In the absence of defiers, the Wald estimator identifies the average effect of the treatment on the compliers, also called the Local Average Treatment Effect:
+
+\begin{theorem}
+\protect\hypertarget{thm:IdentLATEIV}{}{\label{thm:IdentLATEIV} }Under Assumptions \ref{hyp:FirstStage}, \ref{hyp:ExclusionRestriction}, \ref{hyp:Independence} and \ref{hyp:MonotonicityIV}, the Wald estimator identifies the average effect of the treatment on the compliers, also called the Local Average Treatment Effect:
+
+\begin{align*}
+  \Delta^Y_{Wald}& = \Delta^Y_{LATE}.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}Using Theorem @ref\{thm:IdentLATE\} directly proves the result.
+\end{proof}
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}The magic of the instrumental variables setting applies again.
+By moving the instrument, we are able to learn something about the causal effect of the treatment.
+This is under very strong assumption though, that are very rarely met in practice.
+\end{remark}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-157}{}{\label{exm:unnamed-chunk-157} }Let's see how monotonicity works in our example.
+\end{example}
+
+First, we have to generate a model in which monotonicity holds.
+For that, we need to shut down heterogeneous reactions to the instrument.
+In practice, we are going to replace the participation equation in our model, which was characterized by a random coefficient, by the following one, which has a constant coefficient:
+
+\begin{align*}
+  D_i & = \uns{y_i^B+\bar{\kappa} Z_i + V_i\leq\bar{y}} 
+\end{align*}
+
+As a consequence, we have no more defiers and monotonicity holds.
+Let us now generate the data from the model with monotonicity:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N }\OtherTok{\textless{}{-}}\DecValTok{1000}
+\NormalTok{cov.eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{],param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"sigma2omega"}\NormalTok{]),}\AttributeTok{ncol=}\DecValTok{2}\NormalTok{,}\AttributeTok{nrow=}\DecValTok{2}\NormalTok{)}
+\NormalTok{eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{mvrnorm}\NormalTok{(N,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{),cov.eta.omega))}
+\FunctionTok{colnames}\NormalTok{(eta.omega) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}eta\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}omega\textquotesingle{}}\NormalTok{)}
+\NormalTok{mu }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{yB }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{ UB }
+\NormalTok{YB }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(yB)}
+\NormalTok{Ds }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{Z }\OtherTok{\textless{}{-}} \FunctionTok{rbinom}\NormalTok{(N,}\DecValTok{1}\NormalTok{,param[}\StringTok{"pZ"}\NormalTok{])}
+\NormalTok{V }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"gamma"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(mu}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{eta.omega}\SpecialCharTok{$}\NormalTok{omega}
+\NormalTok{Ds[yB}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{Z}\SpecialCharTok{+}\NormalTok{V}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] }\OtherTok{\textless{}{-}} \DecValTok{1} 
+\NormalTok{epsilon }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{U0 }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{UB }\SpecialCharTok{+}\NormalTok{ epsilon}
+\NormalTok{y0 }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{  U0 }\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alpha }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralpha"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"theta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta.omega}\SpecialCharTok{$}\NormalTok{eta}
+\NormalTok{y1 }\OtherTok{\textless{}{-}}\NormalTok{ y0}\SpecialCharTok{+}\NormalTok{alpha}
+\NormalTok{Y0 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0)}
+\NormalTok{Y1 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1)}
+\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ y1}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+\NormalTok{Y }\OtherTok{\textless{}{-}}\NormalTok{ Y1}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{Y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+\end{Highlighting}
+\end{Shaded}
+
+We can now define the types variable \(T_i\):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{D1 }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(yB}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barkappa"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{V}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{D0 }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(yB}\SpecialCharTok{+}\NormalTok{V}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{AT }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(D1}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ D0}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{NT }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(D1}\SpecialCharTok{==}\DecValTok{0} \SpecialCharTok{\&}\NormalTok{ D0}\SpecialCharTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{C }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(D1}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ D0}\SpecialCharTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{D }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(D1}\SpecialCharTok{==}\DecValTok{0} \SpecialCharTok{\&}\NormalTok{ D0}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{Type }\OtherTok{\textless{}{-}} \FunctionTok{ifelse}\NormalTok{(AT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}a\textquotesingle{}}\NormalTok{,}
+            \FunctionTok{ifelse}\NormalTok{(NT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}n\textquotesingle{}}\NormalTok{,}
+                   \FunctionTok{ifelse}\NormalTok{(C}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}c\textquotesingle{}}\NormalTok{,}
+                          \FunctionTok{ifelse}\NormalTok{(D}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}d\textquotesingle{}}\NormalTok{,}\StringTok{""}\NormalTok{))))}
+
+\NormalTok{data.mono }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega}\SpecialCharTok{$}\NormalTok{eta,epsilon,Ds,xi,Z,mu,UB))}
+\end{Highlighting}
+\end{Shaded}
+
+The first thing we can check is that there are no defiers.
+For that, let's count the number of individuals who have \(T_i=1\).
+It is equal to 0.
+
+One thing that helped me understand how the IV approach under monotonicity works is the following graph:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(yB[AT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]}\SpecialCharTok{+}\NormalTok{V[AT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{],y[AT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{],}\AttributeTok{pch=}\DecValTok{1}\NormalTok{,}\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{11}\NormalTok{),}\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{11}\NormalTok{),}\AttributeTok{xlab=}\StringTok{"yB+V"}\NormalTok{,}\AttributeTok{ylab=}\StringTok{"Outcomes"}\NormalTok{)}
+\FunctionTok{points}\NormalTok{(yB[NT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]}\SpecialCharTok{+}\NormalTok{V[NT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{],y[NT}\SpecialCharTok{==}\DecValTok{1}\NormalTok{],}\AttributeTok{pch=}\DecValTok{1}\NormalTok{,}\AttributeTok{col=}\StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{)}
+\FunctionTok{points}\NormalTok{(yB[C}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]}\SpecialCharTok{+}\NormalTok{V[C}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{],y[C}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{],}\AttributeTok{pch=}\DecValTok{1}\NormalTok{,}\AttributeTok{col=}\StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{)}
+\FunctionTok{points}\NormalTok{(yB[C}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]}\SpecialCharTok{+}\NormalTok{V[C}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{],y[C}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{],}\AttributeTok{pch=}\DecValTok{1}\NormalTok{,}\AttributeTok{col=}\StringTok{\textquotesingle{}green\textquotesingle{}}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\AttributeTok{col=}\StringTok{"red"}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{],}\AttributeTok{col=}\StringTok{"red"}\NormalTok{)}
+\FunctionTok{text}\NormalTok{(}\AttributeTok{x=}\FunctionTok{c}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{]),}\AttributeTok{y=}\FunctionTok{c}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{5}\NormalTok{),}\AttributeTok{labels=}\FunctionTok{c}\NormalTok{(}\FunctionTok{expression}\NormalTok{(}\FunctionTok{bar}\NormalTok{(}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{)),}\FunctionTok{expression}\NormalTok{(}\FunctionTok{bar}\NormalTok{(}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{)}\SpecialCharTok{+}\FunctionTok{bar}\NormalTok{(kappa))),}\AttributeTok{pos=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{4}\NormalTok{),}\AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{,}\StringTok{"red"}\NormalTok{))}
+\FunctionTok{legend}\NormalTok{(}\DecValTok{5}\NormalTok{,}\FloatTok{10.5}\NormalTok{,}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}AT\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}NT\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}C|D=1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}C|D=0\textquotesingle{}}\NormalTok{),}\AttributeTok{pch=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{),}\AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{,}\StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{,}\StringTok{"red"}\NormalTok{,}\StringTok{\textquotesingle{}green\textquotesingle{}}\NormalTok{),}\AttributeTok{ncol=}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/plottypesMono-1} 
+
+}
+
+\caption{Types under Monotonicity}\label{fig:plottypesMono}
+\end{figure}
+
+What \ref{fig:plottypesMono} shows is that the IV acts as a randomized controlled trial among compliers.
+Within the population of compliers, whether one receives the treatment or not is as good as random.
+If we actually knew who the compliers were, we could directly estimate the effect of the treatment by comparing the outcomes of the treated compliers to the outcomes of the untreated compliers.
+Actually, this approach, applied in our sample, yields an estimated treatment effect on the compliers of 0.07, whereas the simple comparison of participants and non participants would give an estimate of -0.97.
+In our sample, the average effect of the treatment on compliers is actually equal to 0.19.
+
+Let us finally check that Theorem \ref{thm:IdentLATEIV} works in the population in our new model.
+We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
+The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem @ref\{thm:IdentLATEIV\}.
+These two means cancel out, leaving only the differences in the means of the compliers in and out of the treatment, weighted by their proportion in the population.
+The denominator of the Wald estimator simply provides an estimate of the proportion of compliers.
+In order to illustrate these intuitions in our example, I am going to use the formula for a truncated multivariate normal variable and the package \texttt{tmvtnorm}.
+The most important thing to notice here is that \((y^0_i,y^1_i,y_i^B+V_i) \sim \mathcal{N}\left(\bar{\mu}+\delta,\bar{\mu}(1+\theta)+\delta+\bar{\alpha},\bar{\mu},\mathbf{C}\right)\) with:
+
+\begin{align*}
+  \mathbf{C} &=                    \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu}+\rho^2\sigma^2_{U} +\sigma^2_{\epsilon} &
+                                              (1+\theta)\sigma^2_{\mu}+\rho^2\sigma^2_U + \sigma^2_{\epsilon} &
+                                              (1+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U \\
+                                              (1+\theta)\sigma^2_{\mu}+\rho^2\sigma^2_U + \sigma^2_{\epsilon} &
+                                              (1+\theta^2)\sigma^2_{\mu}+\rho^2\sigma^2_{U} +\sigma^2_{\epsilon} + \sigma^2_{\eta} &
+                                              (1+\theta+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} \\
+                                              (1+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U &
+                                              (1+\theta+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} &
+                                              (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega} \\
+                                              \end{array}
+                                        \right)
+\end{align*}
+
+We now simply have to derive the mean outcomes and proportions of each type in the population in order to form the Wald estimator.
+
+\textbf{Do it}
+
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
 
@@ -7424,7 +7594,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-155}{}{\label{exm:unnamed-chunk-155} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -7685,7 +7855,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-161}{}{\label{exm:unnamed-chunk-161} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -7829,7 +7999,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-163}{}{\label{exm:unnamed-chunk-163} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -7952,7 +8122,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-164}{}{\label{exm:unnamed-chunk-164} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-169}{}{\label{exm:unnamed-chunk-169} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -8014,7 +8184,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -8055,7 +8225,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -8090,7 +8260,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -8205,7 +8375,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-171}{}{\label{exm:unnamed-chunk-171} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -8396,7 +8566,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-172}{}{\label{exm:unnamed-chunk-172} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -8493,7 +8663,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8613,7 +8783,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -8692,7 +8862,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -8835,7 +9005,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-182}{}{\label{exm:unnamed-chunk-182} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8939,7 +9109,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-183}{}{\label{exm:unnamed-chunk-183} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -9277,7 +9447,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-179}{}{\label{exm:unnamed-chunk-179} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-184}{}{\label{exm:unnamed-chunk-184} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9436,7 +9606,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-185}{}{\label{exm:unnamed-chunk-185} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -9726,7 +9896,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-192}{}{\label{exm:unnamed-chunk-192} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -9979,7 +10149,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-199}{}{\label{exm:unnamed-chunk-199} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}

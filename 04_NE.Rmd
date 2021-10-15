@@ -332,7 +332,7 @@ In that case, since well-connected individuals would have had higher earnings ev
 The last assumption we need in order to identify the Local Average Treatment Effect is that of Monotonicity.
 We already know this assumption:
 
-```{hypothesis,Monotonicity,name='Monotonicity'}
+```{hypothesis,MonotonicityIV,name='Monotonicity'}
 We assume that the instrument moves everyone in the population in the same direction:
 
 \begin{align*}
@@ -733,6 +733,160 @@ We thus have that the numerator of the Wald estimator is equal to:
 Assumption \@ref(hyp:Independence) implies that $\esp{Y_i^0|Z_i=1}=\esp{Y_i^0|Z_i=0}$.
 Using Assumption \@ref(hyp:FirstStage) proves the result.
 ```
+
+#### Identification under Monotonicity
+
+The classical approach to identification using instrumental variables is due to [Imbens and Angrist (1994)](https://www.jstor.org/stable/2951620) and [Angrist, Imbens and Rubin (1996)](https://www.jstor.org/stable/2291629). 
+It rests on Assumption \@ref(hyp:MonotonicityIV) or Monotonicity that we are now familiar with, that requires that the effect of the instrument on treatment participation moves everyone in the same direction.
+
+```{remark}
+For the rest of the section, we will assume  that $\forall i$, $D^1_i\geq D_i^0$.
+It is without loss of generality, since if the initial treatment does not comply with this requirement, you can simply redefine a new treatment equal to $-D_i$.
+```
+
+Under Monotonicity, there are no defiers.
+This is what the following lemma shows:
+
+```{lemma,NoDefiers,Name="No Defiers"}
+Under Assumption \@ref(hyp:MonotonicityIV), there are no defiers a.s.: 
+  
+\begin{align*}
+  \Pr(T_i=c) & = 0.
+\end{align*}
+```
+
+```{proof}
+Under Assumption \@ref(hyp:MonotonicityIV), $\forall i$, $D^1_i\geq D_i^0$.
+As a consequence, $\Pr(D^1_i < D_i^0)=0$.
+Since defiers are defined as $D^1_i < D_i^0$, the result follows.
+```
+
+In the absence of defiers, the Wald estimator identifies the average effect of the treatment on the compliers, also called the Local Average Treatment Effect:
+
+```{theorem,IdentLATEIV,Name="Identification of the Local Average Treatment Effect with Instrumental Variables"}
+Under Assumptions  \@ref(hyp:FirstStage), \@ref(hyp:ExclusionRestriction), \@ref(hyp:Independence) and \@ref(hyp:MonotonicityIV), the Wald estimator identifies the average effect of the treatment on the compliers, also called the Local Average Treatment Effect: 
+  
+\begin{align*}
+  \Delta^Y_{Wald}& = \Delta^Y_{LATE}.
+\end{align*}
+```
+
+```{proof}
+Using Theorem \@ref{thm:IdentLATE} directly proves the result.
+```
+
+```{remark}
+The magic of the instrumental variables setting applies again.
+By moving the instrument, we are able to learn something about the causal effect of the treatment. 
+This is under very strong assumption though, that are very rarely met in practice.
+```
+
+```{example}
+Let's see how monotonicity works in our example.
+```
+
+First, we have to generate a model in which monotonicity holds.
+For that, we need to shut down heterogeneous reactions to the instrument.
+In practice, we are going to replace the participation equation in our model, which was characterized by a random coefficient, by the following one, which has a constant coefficient:
+
+\begin{align*}
+  D_i & = \uns{y_i^B+\bar{\kappa} Z_i + V_i\leq\bar{y}} 
+\end{align*}
+
+As a consequence, we have no more defiers and monotonicity holds.
+Let us now generate the data from the model with monotonicity:
+
+```{r simulIVMono,eval=TRUE,echo=TRUE,results='hide'}
+set.seed(1234)
+N <-1000
+cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
+eta.omega <- as.data.frame(mvrnorm(N,c(0,0),cov.eta.omega))
+colnames(eta.omega) <- c('eta','omega')
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+Z <- rbinom(N,1,param["pZ"])
+V <- param["gamma"]*(mu-param["barmu"])+eta.omega$omega
+Ds[yB-param["barkappa"]*Z+V<=log(param["barY"])] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta.omega$eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+We can now define the types variable $T_i$:
+
+```{r typesillustrationMono,eval=TRUE,echo=TRUE,results='hide'}
+D1 <- ifelse(yB-param["barkappa"]+V<=log(param["barY"]),1,0)
+D0 <- ifelse(yB+V<=log(param["barY"]),1,0)
+AT <- ifelse(D1==1 & D0==1,1,0)
+NT <- ifelse(D1==0 & D0==0,1,0)
+C <- ifelse(D1==1 & D0==0,1,0)
+D <- ifelse(D1==0 & D0==1,1,0)
+Type <- ifelse(AT==1,'a',
+            ifelse(NT==1,'n',
+                   ifelse(C==1,'c',
+                          ifelse(D==1,'d',""))))
+
+data.mono <- data.frame(cbind(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega$eta,epsilon,Ds,xi,Z,mu,UB))
+```
+
+The first thing we can check is that there are no defiers. 
+For that, let's count the number of individuals who have $T_i=1$.
+It is equal to `r sum(Type=="d")`.
+
+One thing that helped me understand how the IV approach under monotonicity works is the following graph:
+
+```{r plottypesMono,eval=TRUE,echo=TRUE,fig.cap='Types under Monotonicity',fig.align='center',out.width='50%',fig.pos='htbp'}
+plot(yB[AT==1]+V[AT==1],y[AT==1],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB+V",ylab="Outcomes")
+points(yB[NT==1]+V[NT==1],y[NT==1],pch=1,col='blue')
+points(yB[C==1 & Ds==1]+V[C==1 & Ds==1],y[C==1 & Ds==1],pch=1,col='red')
+points(yB[C==1 & Ds==0]+V[C==1 & Ds==0],y[C==1 & Ds==0],pch=1,col='green')
+abline(v=log(param["barY"]),col="red")
+abline(v=log(param["barY"])+param['barkappa'],col="red")
+text(x=c(log(param["barY"]),log(param["barY"])+param['barkappa']),y=c(5,5),labels=c(expression(bar('y')),expression(bar('y')+bar(kappa))),pos=c(2,4),col=c("red","red"))
+legend(5,10.5,c('AT','NT','C|D=1','C|D=0'),pch=c(1,1,1,1),col=c("black",'blue',"red",'green'),ncol=1)
+```
+
+What \@ref(fig:plottypesMono) shows is that the IV acts as a randomized controlled trial among compliers.
+Within the population of compliers, whether one receives the treatment or not is as good as random.
+If we actually knew who the compliers were, we could directly estimate the effect of the treatment by comparing the outcomes of the treated compliers to the outcomes of the untreated compliers. 
+Actually, this approach, applied in our sample, yields an estimated treatment effect on the compliers of `r round(mean(y[C==1 & Ds==1])-mean(y[C==1 & Ds==0]),2)`, whereas the simple comparison of participants and non participants would give an estimate of  `r round(mean(y[Ds==1])-mean(y[Ds==0]),2)`.
+In our sample, the average effect of the treatment on compliers is actually equal to  `r round(mean(alpha[C==1]),2)`.
+
+Let us finally check that Theorem \@ref(thm:IdentLATEIV) works in the population in our new model.
+We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
+The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem \@ref{thm:IdentLATEIV}.
+These two means cancel out, leaving only the differences in the means of the compliers in and out of the treatment, weighted by their proportion in the population.
+The denominator of the Wald estimator simply provides an estimate of the proportion of compliers. 
+In order to illustrate these intuitions in our example, I am going to use the formula for a truncated multivariate normal variable and the package `tmvtnorm`.
+The most important thing to notice here is that $(y^0_i,y^1_i,y_i^B+V_i) \sim \mathcal{N}\left(\bar{\mu}+\delta,\bar{\mu}(1+\theta)+\delta+\bar{\alpha},\bar{\mu},\mathbf{C}\right)$ with:
+
+\begin{align*}
+  \mathbf{C} &=                    \left(\begin{array}{ccc}
+                                              \sigma^2_{\mu}+\rho^2\sigma^2_{U} +\sigma^2_{\epsilon} &
+                                              (1+\theta)\sigma^2_{\mu}+\rho^2\sigma^2_U + \sigma^2_{\epsilon} &
+                                              (1+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U \\
+                                              (1+\theta)\sigma^2_{\mu}+\rho^2\sigma^2_U + \sigma^2_{\epsilon} &
+                                              (1+\theta^2)\sigma^2_{\mu}+\rho^2\sigma^2_{U} +\sigma^2_{\epsilon} + \sigma^2_{\eta} &
+                                              (1+\theta+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} \\
+                                              (1+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U &
+                                              (1+\theta+\gamma)\sigma^2_{\mu}+\rho\sigma^2_U+\rho_{\eta,\omega}\sigma^2_{\eta}\sigma^2_{\omega} &
+                                              (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega} \\
+                                              \end{array}
+                                        \right)
+\end{align*}
+
+We now simply have to derive the mean outcomes and proportions of each type in the population in order to form the Wald estimator.
+
+**Do it**
 
 ### Estimation
 
