@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-10-15}
+\date{2021-10-19}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -7258,13 +7258,15 @@ In the absence of defiers, the Wald estimator identifies the average effect of t
 \end{theorem}
 
 \begin{proof}
-\iffalse{} {Proof. } \fi{}Using Theorem @ref\{thm:IdentLATE\} directly proves the result.
+\iffalse{} {Proof. } \fi{}Using Theorem \ref{thm:IdentLATE} directly proves the result.
 \end{proof}
 
 \begin{remark}
 \iffalse{} {Remark. } \fi{}The magic of the instrumental variables setting applies again.
 By moving the instrument, we are able to learn something about the causal effect of the treatment.
-This is under very strong assumption though, that are very rarely met in practice.
+Monotonicity is a very strong assumption though, as are Independence and Exclusion Restriction.
+They are very rarely met in practice.
+Even the case of RCTs with encouragement design, where Independence holds by design, might be affected by failures of Exclusion Restriction and/or Monotonicity.
 \end{remark}
 
 \begin{example}
@@ -7364,7 +7366,7 @@ In our sample, the average effect of the treatment on compliers is actually equa
 
 Let us finally check that Theorem \ref{thm:IdentLATEIV} works in the population in our new model.
 We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
-The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem @ref\{thm:IdentLATEIV\}.
+The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem \ref{thm:IdentLATEIV}.
 These two means cancel out, leaving only the differences in the means of the compliers in and out of the treatment, weighted by their proportion in the population.
 The denominator of the Wald estimator simply provides an estimate of the proportion of compliers.
 In order to illustrate these intuitions in our example, I am going to use the formula for a truncated multivariate normal variable and the package \texttt{tmvtnorm}.
@@ -7386,8 +7388,63 @@ The most important thing to notice here is that \((y^0_i,y^1_i,y_i^B+V_i) \sim \
 \end{align*}
 
 We now simply have to derive the mean outcomes and proportions of each type in the population in order to form the Wald estimator.
+Let me first derive the joint distribution of the portential outcomes and the means and proportions of each type in the population.
 
-\textbf{Do it}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mean.y0.y1.yBV }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}delta\textquotesingle{}}\NormalTok{],param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}delta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}baralpha\textquotesingle{}}\NormalTok{],param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}
+\NormalTok{cov.y0.y1.yBV }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2epsilon\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2epsilon\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2epsilon\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2epsilon\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rhoetaomega\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rhoetaomega\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{],}
+\NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]),}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
+
+
+
+\CommentTok{\# cuts}
+\CommentTok{\#always takers}
+\NormalTok{lower.cut.at }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{)}
+\NormalTok{upper.cut.at }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]))}
+\CommentTok{\# compliers}
+\NormalTok{lower.cut.comp }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]))}
+\NormalTok{upper.cut.comp }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{])}
+\CommentTok{\# never takers}
+\NormalTok{lower.cut.nt }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{])}
+\NormalTok{upper.cut.nt }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{)}
+
+\CommentTok{\# means by types}
+\CommentTok{\#always takers}
+\NormalTok{mean.y1.at.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.at,}\AttributeTok{upper=}\NormalTok{upper.cut.at,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{mean.y0.at.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.at,}\AttributeTok{upper=}\NormalTok{upper.cut.at,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{1}\NormalTok{]]}
+\CommentTok{\# never takers}
+\NormalTok{mean.y1.nt.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.nt,}\AttributeTok{upper=}\NormalTok{upper.cut.nt,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{mean.y0.nt.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.nt,}\AttributeTok{upper=}\NormalTok{upper.cut.nt,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{1}\NormalTok{]]}
+\CommentTok{\#compliers}
+\NormalTok{mean.y1.comp.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.comp,}\AttributeTok{upper=}\NormalTok{upper.cut.comp,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{mean.y0.comp.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.comp,}\AttributeTok{upper=}\NormalTok{upper.cut.comp,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{1}\NormalTok{]]}
+
+\CommentTok{\# Proportion of each types}
+\CommentTok{\# always takers}
+\NormalTok{prop.at.pop }\OtherTok{\textless{}{-}} \FunctionTok{ptmvnorm.marginal}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]),}\AttributeTok{n=}\DecValTok{3}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV)[[}\DecValTok{1}\NormalTok{]]}
+\CommentTok{\# never takers}
+\NormalTok{prop.nt.pop }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{ptmvnorm.marginal}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{],}\AttributeTok{n=}\DecValTok{3}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV)[[}\DecValTok{1}\NormalTok{]]}
+\CommentTok{\# compliers}
+\NormalTok{prop.comp.pop }\OtherTok{\textless{}{-}} \FunctionTok{ptmvnorm.marginal}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{],}\AttributeTok{n=}\DecValTok{3}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV)[[}\DecValTok{1}\NormalTok{]]}\SpecialCharTok{{-}}\FunctionTok{ptmvnorm.marginal}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]),}\AttributeTok{n=}\DecValTok{3}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV)[[}\DecValTok{1}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+We are now equipped to compute the Wald estimator in the population.
+Before that, let us compute the LATE.
+We have \(\Delta^Y_{LATE} =\) 0.179.
+The Wald estimator is equal to \(\Delta^Y_{Wald} =\) 0.179.
+They are obviously equal.
+This is because the numerator of the Wald is equal to the product of the LATE multiplied by the proportion of compliers (which is equal to 0.066).
+This is because the outcomes of never takers and always takers cancel out on each separate term of the numerator of the Wald estimator.
+Indeed, we have that the numerator of the Wald estimator is equal to: 0.066.
 
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}

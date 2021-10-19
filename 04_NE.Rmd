@@ -772,13 +772,15 @@ Under Assumptions  \@ref(hyp:FirstStage), \@ref(hyp:ExclusionRestriction), \@ref
 ```
 
 ```{proof}
-Using Theorem \@ref{thm:IdentLATE} directly proves the result.
+Using Theorem \@ref(thm:IdentLATE) directly proves the result.
 ```
 
 ```{remark}
 The magic of the instrumental variables setting applies again.
 By moving the instrument, we are able to learn something about the causal effect of the treatment. 
-This is under very strong assumption though, that are very rarely met in practice.
+Monotonicity is a very strong assumption though, as are Independence and Exclusion Restriction. 
+They are very rarely met in practice.
+Even the case of RCTs with encouragement design, where Independence holds by design, might be affected by failures of Exclusion Restriction and/or Monotonicity.
 ```
 
 ```{example}
@@ -863,7 +865,7 @@ In our sample, the average effect of the treatment on compliers is actually equa
 
 Let us finally check that Theorem \@ref(thm:IdentLATEIV) works in the population in our new model.
 We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
-The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem \@ref{thm:IdentLATEIV}.
+The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem \@ref(thm:IdentLATEIV).
 These two means cancel out, leaving only the differences in the means of the compliers in and out of the treatment, weighted by their proportion in the population.
 The denominator of the Wald estimator simply provides an estimate of the proportion of compliers. 
 In order to illustrate these intuitions in our example, I am going to use the formula for a truncated multivariate normal variable and the package `tmvtnorm`.
@@ -885,8 +887,61 @@ The most important thing to notice here is that $(y^0_i,y^1_i,y_i^B+V_i) \sim \m
 \end{align*}
 
 We now simply have to derive the mean outcomes and proportions of each type in the population in order to form the Wald estimator.
+Let me first derive the joint distribution of the portential outcomes and the means and proportions of each type in the population.
 
-**Do it**
+```{r OutcomesTypesPopulation,eval=TRUE,echo=TRUE,results='hide'}
+mean.y0.y1.yBV <- c(param['barmu']+param['delta'],param['barmu']*(1+param['theta'])+param['delta']+param['baralpha'],param['barmu'])
+cov.y0.y1.yBV <- matrix(c(param['sigma2mu']+param['rho']^2*param['sigma2U']+param['sigma2epsilon'],
+                          (1+param['theta'])*param['sigma2mu']+param['rho']^2*param['sigma2U']+param['sigma2epsilon'],
+                          (1+param['gamma'])*param['sigma2mu']+param['rho']*param['sigma2U'],
+                          (1+param['theta'])*param['sigma2mu']+param['rho']^2*param['sigma2U']+param['sigma2epsilon'],
+                          (1+param['theta']^2)*param['sigma2mu']+param['rho']^2*param['sigma2U']+param['sigma2epsilon']+param['sigma2eta'],
+                          (1+param['theta']+param['gamma'])*param['sigma2mu']+param['rho']*param['sigma2U']+param['rhoetaomega']*param['sigma2eta']*param['sigma2omega'],
+                          (1+param['gamma'])*param['sigma2mu']+param['rho']*param['sigma2U'],
+                          (1+param['theta']+param['gamma'])*param['sigma2mu']+param['rho']*param['sigma2U']+param['rhoetaomega']*param['sigma2eta']*param['sigma2omega'],
+                          (1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega']),3,3,byrow=TRUE)
+
+
+
+# cuts
+#always takers
+lower.cut.at <- c(-Inf,-Inf,-Inf)
+upper.cut.at <- c(Inf,Inf,log(param['barY']))
+# compliers
+lower.cut.comp <- c(-Inf,-Inf,log(param['barY']))
+upper.cut.comp <- c(Inf,Inf,log(param['barY'])+param['barkappa'])
+# never takers
+lower.cut.nt <- c(-Inf,-Inf,log(param['barY'])+param['barkappa'])
+upper.cut.nt <- c(Inf,Inf,Inf)
+
+# means by types
+#always takers
+mean.y1.at.pop <- mtmvnorm(mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV,lower=lower.cut.at,upper=upper.cut.at,doComputeVariance=FALSE)[[1]][[2]]
+mean.y0.at.pop <- mtmvnorm(mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV,lower=lower.cut.at,upper=upper.cut.at,doComputeVariance=FALSE)[[1]][[1]]
+# never takers
+mean.y1.nt.pop <- mtmvnorm(mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV,lower=lower.cut.nt,upper=upper.cut.nt,doComputeVariance=FALSE)[[1]][[2]]
+mean.y0.nt.pop <- mtmvnorm(mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV,lower=lower.cut.nt,upper=upper.cut.nt,doComputeVariance=FALSE)[[1]][[1]]
+#compliers
+mean.y1.comp.pop <- mtmvnorm(mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV,lower=lower.cut.comp,upper=upper.cut.comp,doComputeVariance=FALSE)[[1]][[2]]
+mean.y0.comp.pop <- mtmvnorm(mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV,lower=lower.cut.comp,upper=upper.cut.comp,doComputeVariance=FALSE)[[1]][[1]]
+
+# Proportion of each types
+# always takers
+prop.at.pop <- ptmvnorm.marginal(log(param['barY']),n=3,mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV)[[1]]
+# never takers
+prop.nt.pop <- 1-ptmvnorm.marginal(log(param['barY'])+param['barkappa'],n=3,mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV)[[1]]
+# compliers
+prop.comp.pop <- ptmvnorm.marginal(log(param['barY'])+param['barkappa'],n=3,mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV)[[1]]-ptmvnorm.marginal(log(param['barY']),n=3,mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV)[[1]]
+```
+
+We are now equipped to compute the Wald estimator in the population.
+Before that, let us compute the LATE.
+We have $\Delta^Y_{LATE} =$ `r round(mean.y1.comp.pop-mean.y0.comp.pop,3)`.
+The Wald estimator is equal to $\Delta^Y_{Wald} =$ `r round((mean.y1.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop-(mean.y0.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop))/(prop.at.pop+prop.comp.pop-prop.at.pop),3)`.
+They are obviously equal.
+This is because the numerator of the Wald is equal to the product of the LATE multiplied by the proportion of compliers (which is equal to `r round((mean.y1.comp.pop-mean.y0.comp.pop)*prop.comp.pop,3)`).
+This is because the outcomes of never takers and always takers cancel out on each separate term of the numerator of the Wald estimator.
+Indeed, we have that the numerator of the Wald estimator is equal to: `r round((mean.y1.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop-(mean.y0.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop)),3)`.
 
 ### Estimation
 

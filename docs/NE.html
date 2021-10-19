@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-10-15" />
+<meta name="date" content="2021-10-19" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1005,13 +1005,15 @@ Since defiers are defined as <span class="math inline">\(D^1_i &lt; D_i^0\)</spa
 </div>
 
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> Using Theorem @ref{thm:IdentLATE} directly proves the result.
+ <span class="proof"><em>Proof. </em></span> Using Theorem <a href="RCT.html#thm:IdentLATE">3.9</a> directly proves the result.
 </div>
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> The magic of the instrumental variables setting applies again.
 By moving the instrument, we are able to learn something about the causal effect of the treatment.
-This is under very strong assumption though, that are very rarely met in practice.
+Monotonicity is a very strong assumption though, as are Independence and Exclusion Restriction.
+They are very rarely met in practice.
+Even the case of RCTs with encouragement design, where Independence holds by design, might be affected by failures of Exclusion Restriction and/or Monotonicity.
 </div>
 
 <div class="example">
@@ -1085,7 +1087,7 @@ Actually, this approach, applied in our sample, yields an estimated treatment ef
 In our sample, the average effect of the treatment on compliers is actually equal to 0.19.</p>
 <p>Let us finally check that Theorem <a href="NE.html#thm:IdentLATEIV">4.3</a> works in the population in our new model.
 We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
-The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem @ref{thm:IdentLATEIV}.
+The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem <a href="NE.html#thm:IdentLATEIV">4.3</a>.
 These two means cancel out, leaving only the differences in the means of the compliers in and out of the treatment, weighted by their proportion in the population.
 The denominator of the Wald estimator simply provides an estimate of the proportion of compliers.
 In order to illustrate these intuitions in our example, I am going to use the formula for a truncated multivariate normal variable and the package <code>tmvtnorm</code>.
@@ -1104,8 +1106,58 @@ The most important thing to notice here is that <span class="math inline">\((y^0
                                               \end{array}
                                         \right)
 \end{align*}\]</span></p>
-<p>We now simply have to derive the mean outcomes and proportions of each type in the population in order to form the Wald estimator.</p>
-<p><strong>Do it</strong></p>
+<p>We now simply have to derive the mean outcomes and proportions of each type in the population in order to form the Wald estimator.
+Let me first derive the joint distribution of the portential outcomes and the means and proportions of each type in the population.</p>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb141-1"><a href="NE.html#cb141-1" aria-hidden="true" tabindex="-1"></a>mean.y0.y1.yBV <span class="ot">&lt;-</span> <span class="fu">c</span>(param[<span class="st">&#39;barmu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;delta&#39;</span>],param[<span class="st">&#39;barmu&#39;</span>]<span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;delta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;baralpha&#39;</span>],param[<span class="st">&#39;barmu&#39;</span>])</span>
+<span id="cb141-2"><a href="NE.html#cb141-2" aria-hidden="true" tabindex="-1"></a>cov.y0.y1.yBV <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2epsilon&#39;</span>],</span>
+<span id="cb141-3"><a href="NE.html#cb141-3" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2epsilon&#39;</span>],</span>
+<span id="cb141-4"><a href="NE.html#cb141-4" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>],</span>
+<span id="cb141-5"><a href="NE.html#cb141-5" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2epsilon&#39;</span>],</span>
+<span id="cb141-6"><a href="NE.html#cb141-6" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2epsilon&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2eta&#39;</span>],</span>
+<span id="cb141-7"><a href="NE.html#cb141-7" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rhoetaomega&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2eta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2omega&#39;</span>],</span>
+<span id="cb141-8"><a href="NE.html#cb141-8" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>],</span>
+<span id="cb141-9"><a href="NE.html#cb141-9" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rhoetaomega&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2eta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2omega&#39;</span>],</span>
+<span id="cb141-10"><a href="NE.html#cb141-10" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>]),<span class="dv">3</span>,<span class="dv">3</span>,<span class="at">byrow=</span><span class="cn">TRUE</span>)</span>
+<span id="cb141-11"><a href="NE.html#cb141-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-12"><a href="NE.html#cb141-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-13"><a href="NE.html#cb141-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-14"><a href="NE.html#cb141-14" aria-hidden="true" tabindex="-1"></a><span class="co"># cuts</span></span>
+<span id="cb141-15"><a href="NE.html#cb141-15" aria-hidden="true" tabindex="-1"></a><span class="co">#always takers</span></span>
+<span id="cb141-16"><a href="NE.html#cb141-16" aria-hidden="true" tabindex="-1"></a>lower.cut.at <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>)</span>
+<span id="cb141-17"><a href="NE.html#cb141-17" aria-hidden="true" tabindex="-1"></a>upper.cut.at <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb141-18"><a href="NE.html#cb141-18" aria-hidden="true" tabindex="-1"></a><span class="co"># compliers</span></span>
+<span id="cb141-19"><a href="NE.html#cb141-19" aria-hidden="true" tabindex="-1"></a>lower.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb141-20"><a href="NE.html#cb141-20" aria-hidden="true" tabindex="-1"></a>upper.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
+<span id="cb141-21"><a href="NE.html#cb141-21" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
+<span id="cb141-22"><a href="NE.html#cb141-22" aria-hidden="true" tabindex="-1"></a>lower.cut.nt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
+<span id="cb141-23"><a href="NE.html#cb141-23" aria-hidden="true" tabindex="-1"></a>upper.cut.nt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="cn">Inf</span>)</span>
+<span id="cb141-24"><a href="NE.html#cb141-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-25"><a href="NE.html#cb141-25" aria-hidden="true" tabindex="-1"></a><span class="co"># means by types</span></span>
+<span id="cb141-26"><a href="NE.html#cb141-26" aria-hidden="true" tabindex="-1"></a><span class="co">#always takers</span></span>
+<span id="cb141-27"><a href="NE.html#cb141-27" aria-hidden="true" tabindex="-1"></a>mean.y1.at.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.at,<span class="at">upper=</span>upper.cut.at,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb141-28"><a href="NE.html#cb141-28" aria-hidden="true" tabindex="-1"></a>mean.y0.at.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.at,<span class="at">upper=</span>upper.cut.at,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb141-29"><a href="NE.html#cb141-29" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
+<span id="cb141-30"><a href="NE.html#cb141-30" aria-hidden="true" tabindex="-1"></a>mean.y1.nt.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.nt,<span class="at">upper=</span>upper.cut.nt,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb141-31"><a href="NE.html#cb141-31" aria-hidden="true" tabindex="-1"></a>mean.y0.nt.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.nt,<span class="at">upper=</span>upper.cut.nt,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb141-32"><a href="NE.html#cb141-32" aria-hidden="true" tabindex="-1"></a><span class="co">#compliers</span></span>
+<span id="cb141-33"><a href="NE.html#cb141-33" aria-hidden="true" tabindex="-1"></a>mean.y1.comp.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.comp,<span class="at">upper=</span>upper.cut.comp,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb141-34"><a href="NE.html#cb141-34" aria-hidden="true" tabindex="-1"></a>mean.y0.comp.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.comp,<span class="at">upper=</span>upper.cut.comp,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb141-35"><a href="NE.html#cb141-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-36"><a href="NE.html#cb141-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Proportion of each types</span></span>
+<span id="cb141-37"><a href="NE.html#cb141-37" aria-hidden="true" tabindex="-1"></a><span class="co"># always takers</span></span>
+<span id="cb141-38"><a href="NE.html#cb141-38" aria-hidden="true" tabindex="-1"></a>prop.at.pop <span class="ot">&lt;-</span> <span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span>
+<span id="cb141-39"><a href="NE.html#cb141-39" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
+<span id="cb141-40"><a href="NE.html#cb141-40" aria-hidden="true" tabindex="-1"></a>prop.nt.pop <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">-</span><span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>],<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span>
+<span id="cb141-41"><a href="NE.html#cb141-41" aria-hidden="true" tabindex="-1"></a><span class="co"># compliers</span></span>
+<span id="cb141-42"><a href="NE.html#cb141-42" aria-hidden="true" tabindex="-1"></a>prop.comp.pop <span class="ot">&lt;-</span> <span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>],<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]<span class="sc">-</span><span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>We are now equipped to compute the Wald estimator in the population.
+Before that, let us compute the LATE.
+We have <span class="math inline">\(\Delta^Y_{LATE} =\)</span> 0.179.
+The Wald estimator is equal to <span class="math inline">\(\Delta^Y_{Wald} =\)</span> 0.179.
+They are obviously equal.
+This is because the numerator of the Wald is equal to the product of the LATE multiplied by the proportion of compliers (which is equal to 0.066).
+This is because the outcomes of never takers and always takers cancel out on each separate term of the numerator of the Wald estimator.
+Indeed, we have that the numerator of the Wald estimator is equal to: 0.066.</p>
 </div>
 </div>
 <div id="estimation" class="section level3" number="4.1.3">
