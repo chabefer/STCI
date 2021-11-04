@@ -792,14 +792,14 @@ For that, we need to shut down heterogeneous reactions to the instrument.
 In practice, we are going to replace the participation equation in our model, which was characterized by a random coefficient, by the following one, which has a constant coefficient:
 
 \begin{align*}
-  D_i & = \uns{y_i^B+\bar{\kappa} Z_i + V_i\leq\bar{y}} 
+  D_i & = \uns{y_i^B-\bar{\kappa} Z_i + V_i\leq\bar{y}} 
 \end{align*}
 
 As a consequence, we have no more defiers and monotonicity holds.
 Let us now generate the data from the model with monotonicity:
 
 ```{r simulIVMono,eval=TRUE,echo=TRUE,results='hide'}
-set.seed(1234)
+set.seed(12345)
 N <-1000
 cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
 eta.omega <- as.data.frame(mvrnorm(N,c(0,0),cov.eta.omega))
@@ -837,7 +837,7 @@ Type <- ifelse(AT==1,'a',
                    ifelse(C==1,'c',
                           ifelse(D==1,'d',""))))
 
-data.mono <- data.frame(cbind(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega$eta,epsilon,Ds,xi,Z,mu,UB))
+data.mono <- data.frame(cbind(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega$eta,epsilon,Ds,Z,mu,UB))
 ```
 
 The first thing we can check is that there are no defiers. 
@@ -901,8 +901,6 @@ cov.y0.y1.yBV <- matrix(c(param['sigma2mu']+param['rho']^2*param['sigma2U']+para
                           (1+param['theta']+param['gamma'])*param['sigma2mu']+param['rho']*param['sigma2U']+param['rhoetaomega']*param['sigma2eta']*param['sigma2omega'],
                           (1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega']),3,3,byrow=TRUE)
 
-
-
 # cuts
 #always takers
 lower.cut.at <- c(-Inf,-Inf,-Inf)
@@ -932,25 +930,241 @@ prop.at.pop <- ptmvnorm.marginal(log(param['barY']),n=3,mean=mean.y0.y1.yBV,sigm
 prop.nt.pop <- 1-ptmvnorm.marginal(log(param['barY'])+param['barkappa'],n=3,mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV)[[1]]
 # compliers
 prop.comp.pop <- ptmvnorm.marginal(log(param['barY'])+param['barkappa'],n=3,mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV)[[1]]-ptmvnorm.marginal(log(param['barY']),n=3,mean=mean.y0.y1.yBV,sigma=cov.y0.y1.yBV)[[1]]
+
+# LATE
+late.pop <- mean.y1.comp.pop-mean.y0.comp.pop
+late.prop.comp.pop <- late.pop*prop.comp.pop
+# Wald
+num.Wald.pop <- (mean.y1.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop-(mean.y0.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop))
+denom.Wald.pop <- (prop.at.pop+prop.comp.pop-prop.at.pop)
+Wald.pop <- num.Wald.pop/denom.Wald.pop
 ```
 
 We are now equipped to compute the Wald estimator in the population.
 Before that, let us compute the LATE.
-We have $\Delta^Y_{LATE} =$ `r round(mean.y1.comp.pop-mean.y0.comp.pop,3)`.
-The Wald estimator is equal to $\Delta^Y_{Wald} =$ `r round((mean.y1.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop-(mean.y0.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop))/(prop.at.pop+prop.comp.pop-prop.at.pop),3)`.
+We have $\Delta^Y_{LATE} =$ `r round(late.pop,3)`.
+The Wald estimator is equal to $\Delta^Y_{Wald} =$ `r round(Wald.pop,3)`.
 They are obviously equal.
-This is because the numerator of the Wald is equal to the product of the LATE multiplied by the proportion of compliers (which is equal to `r round((mean.y1.comp.pop-mean.y0.comp.pop)*prop.comp.pop,3)`).
+This is because the numerator of the Wald is equal to the product of the LATE multiplied by the proportion of compliers (which is equal to `r round(late.prop.comp.pop,3)`).
 This is because the outcomes of never takers and always takers cancel out on each separate term of the numerator of the Wald estimator.
-Indeed, we have that the numerator of the Wald estimator is equal to: `r round((mean.y1.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop-(mean.y0.comp.pop*prop.comp.pop+mean.y1.at.pop*prop.at.pop+mean.y0.nt.pop*prop.nt.pop)),3)`.
+Indeed, we have that the numerator of the Wald estimator is equal to: `r round(num.Wald.pop,3)`.
 
 ### Estimation
+
+Estimation of the LATE under the IV assumptions closely follows the same steps that we have delineated in Section \@ref(IVRCT):
+
+  1. **First stage** regression of $D_i$ on $Z_i$: this estimates the impact of the instrument on participation into the program and estimates the proportion of compliers.
+  2. **Reduced form** regression of $Y_i$ on $Z_i$: this estimates the impact of the instrument on outcomes, *a.k.a* the ITE.
+  3. **Structural** regression of $Y_i$ on $D_i$ using $Z_i$ as an instrument, which estimates the LATE.
+
+Let's take these three steps in turn.
+
+#### First stage regression
+
+The first stage regression regresses $D_i$ on $Z_i$ and thus estimates the impact of the instrument on treatment participation, which is equal to the proportion of compliers.
+It can be run using the With/Without estimator or OLS (both are numerically equivalent as Lemma \@ref(lem:WWOLS) shows) or OLS conditioning on observed covariates.
+
+```{example}
+Let's see how these three approaches fare in our example.
+```
+
+```{r FirstStageIV,eval=TRUE,echo=TRUE,results='hide'}
+# WW first stage
+WW.First.Stage.IV <- mean(Ds[Z==1])-mean(Ds[Z==0])
+# Simple OLS
+OLS.D.Z.IV <- lm(Ds~Z)
+OLS.First.Stage.IV <- coef(OLS.D.Z.IV)[[2]]
+# OLS conditioning on yB
+OLS.D.Z.yB.IV <- lm(Ds~Z+yB)
+OLSX.First.Stage.IV <- coef(OLS.D.Z.yB.IV)[[2]]
+```
+
+The WW estimator of the first stage impact of $Z_i$ on $D_i$ is equal to `r round(WW.First.Stage.IV,3)`.
+The OLS estimator of the first stage impact of $Z_i$ on $D_i$ is equal to `r round(OLS.First.Stage.IV,3)`.
+The OLS estimator of the first stage impact of $Z_i$ on $D_i$ conditioning on $y^B_i$ is equal to `r round(OLSX.First.Stage.IV,3)`.
+Remember that the true proportion of compliers in the population in our model is equal to `r round(prop.comp.pop,3)`.
+
+#### Reduced form regression
+
+The reduced form regression regresses $Y_i$ on $Z_i$ and thus estimates the impact of the instrument on outcomes, which is equal to the ITE.
+It can be run using the With/Without estimator or OLS (both are numerically equivalent as Lemma \@ref(lem:WWOLS) shows) or OLS conditioning on observed covariates.
+
+```{example}
+Let's see how these three approaches fare in our example.
+```
+
+```{r ReducedFormIV,eval=TRUE,echo=TRUE,results='hide'}
+# WW reduced form
+WW.Reduced.Form.IV <- mean(y[Z==1])-mean(y[Z==0])
+# Simple OLS
+OLS.y.Z.IV <- lm(y~Z)
+OLS.Reduced.Form.IV <- coef(OLS.y.Z.IV)[[2]]
+# OLS conditioning on yB
+OLS.y.Z.yB.IV <- lm(y~Z+yB)
+OLSX.Reduced.Form.IV <- coef(OLS.y.Z.yB.IV)[[2]]
+```
+
+The WW estimator of the reduced form impact of $Z_i$ on $y_i$ is equal to `r round(WW.Reduced.Form.IV,3)`.
+The OLS estimator of the reduced form impact of $Z_i$ on $y_i$ is equal to `r round(OLS.Reduced.Form.IV,3)`.
+The OLS estimator of the reduced form impact of $Z_i$ on $y_i$ conditioning on $y^B_i$ is equal to `r round(OLSX.Reduced.Form.IV,3)`.
+Remember that the true ITE in the population in our model is equal to `r round(late.prop.comp.pop,3)`.
+
+#### Structural regression
+
+The final step of the analysis is to estimate the impact of $D_i$ on $Y_i$ using $Z_i$ as an instrument.
+This can be done either by directly using the Wald estimator, by dividing the estimate of the reduced form by the result of the first stage, or by directly using the IV estimator (which is equivalent to the Wald estimator as Theorem \@ref(thm:WaldIV) shows) or the IV estimator conditional on covariates.
+
+```{example}
+Let's see how these four approaches fare in our example.
+```
+
+```{r StructuralFormIV,eval=TRUE,echo=TRUE,results='hide'}
+# Wald structural form
+Wald.Structural.Form.IV <- (mean(y[Z==1])-mean(y[Z==0]))/(mean(Ds[Z==1])-mean(Ds[Z==0]))
+# Simple IV
+TSLS.y.D.Z.IV <- ivreg(y~Ds|Z)
+TSLS.Structural.Form.IV <- coef(TSLS.y.D.Z.IV)[[2]]
+# IV conditioning on yB
+TSLS.y.D.Z.yB.IV <- ivreg(y~Ds+yB|Z+yB)
+TSLSX.Structural.Form.IV <- coef(TSLS.y.D.Z.yB.IV)[[2]]
+```
+
+The Wald estimator of the LATE is equal to $\hat{\Delta}_{Wald}^{y}=$ `r round(Wald.Structural.Form.IV,3)`.
+The IV estimator of the LATE is equal to $\hat{\Delta}_{IV}^{y}=$ `r round(TSLS.Structural.Form.IV,3)`, and is numerically identical to the Wald estimator, as expected.
+The IV estimator of the LATE conditioning on $y_i^B$ is equal to `r round(TSLSX.Structural.Form.IV,3)`.
+Remember that the true LATE in the population in our model is equal to `r round(late.pop,3)`.
+
+```{remark}
+The last thing we might want to check is what the sampling noise of the IV estimator looks like and whether it is reduced by conditioning on observed covariates.
+```
+
+```{example}
+Let's see how sampling noise moves in our example.
+```
+
+**Do it**
+
 
 ### Estimation of sampling noise
 
 
+
+```{remark}
+The framework we have seen here as been extended to multivalued instruments or treatments by several papers.
+[Imbens and Angrist (1994)](https://www.jstor.org/stable/2951620) extend the framework to an ordered instrument.
+They show that the 2SLS estimator is a weighted average of LATEs for each values of the instrument, with positive weights summing to one.
+[Angrist and Imbens (1995)](https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476535) extend the framework to he case where the treatment is an ordered discrete variable and there are multiple dichotomous instruments.
+They again show that the 2SLS estimator is a weighted average of LATEs with positive weights summing to one. 
+[Heckman and Vytlacil (1999)](https://www.pnas.org/content/96/8/4730) extend the framework to a case with a continuous instrument and show that one can the define a Marginal Treatment Effect (or MTE) that is equal to the effect of the treatment on individuals that have the same unobserved propensity to take the treatment.
+They show that the MTE can be identified by a limiting form of Wald estimator that they call a Local Instrumental Variable estimator.
+They also show that average treatment effect parameters such as TT, ATE and LATE are all weighted averages of the MTE, with positive weights summing to one. 
+Under strong support conditions on the side of the instrument, one can thus in principle recover all treatment effect parameters with a continuous instrument.
+```
+
+```{remark}
+One important concern with the first stage regression is that of weak instruments. 
+When Assumption \@ref(hyp:FirstStage) does not hold and the impact on the instrument on take up is actually zero in the population, the Wald estimator is not well-defined.
+```
+
+**Expand**
 
 ## Regression Discontinuity Designs
 
 
 
 ## Difference In Differences
+
+In Difference In Differences (a.k.a. DID), the difference between treated and untreated before the treatment is used to approximate selection bias.
+As a consequence, DID works by correcting the With/Without comparison after treatment by the With/Without comparison before treatment and hopes that it is enough to recover the TT.
+Hence the name Difference in Differences (DID), since the estimator, in its simplest form, is a difference between two differences.
+In this section, we are going to look at identification using DID, estimation and estimation of sampling noise.
+At first, we are going to assume that we have only access to two time periods.
+In that case, estimation and inference are pretty straightforward. 
+We will then examine the case of several time periods, but we will first allow for only one treatment date.
+In that case, we will introduce the standard tools used by applied researchers to analyze these types of designs: the event study graph and the Two-Way Fixed Effects estimator (a.k.a. TWFE).
+We will determine which effect is estimated by the TWFE estimator and what are the goals of the event study graph.
+We will finally look at the most complex case: the staggered design, where we have several time periods (strictly more than two) and the date of treatment differs across units.
+In the staggered design, troubles start appearing for the TWFE estimator.
+We will survey these problems and the proposed solutions to address them.
+Let's get to it.
+
+### Difference In Differences with two time periods
+
+Before getting into the rigorous derivations, let's start with a very simple illustration using our workhorse example.
+
+```{example}
+How does DID perform and what does it look like in our example model?
+```
+Let's first generate a dataset with selection bias.
+
+\begin{align*}
+y_i^1 & = y_i^0+\bar{\alpha}+\theta\mu_i+\eta_i \\
+y_i^0 & = \mu_i+\delta+U_i^0 \\
+U_i^0 & = \rho U_i^B+\epsilon_i \\
+y_i^B & =\mu_i+U_i^B \\
+U_i^B & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+D_i   & = \uns{y_i^B+ V_i\leq\bar{y}} \\
+V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
+(\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})
+\end{align*}
+
+```{r SimulDID,eval=TRUE,echo=FALSE,results='hide'}
+set.seed(1234)
+N <-1000
+cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
+eta.omega <- as.data.frame(mvrnorm(N,c(0,0),cov.eta.omega))
+colnames(eta.omega) <- c('eta','omega')
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+V <- param["gamma"]*(mu-param["barmu"])+eta.omega$omega
+Ds[yB+V<=log(param["barY"])] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta.omega$eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+Let's see how DID works on this data.
+
+```{r PlotDID,eval=TRUE,fig.cap='Evolution of average outcomes in the treated and control group',fig.align='center',out.width='.65\\textwidth',echo=FALSE,results='hide',fig.pos='htbp'}
+x <- c("Before","After")
+y1.observed <- c(mean(yB[Ds==1]),mean(y[Ds==1]))
+y1.counterfactual <- c(mean(yB[Ds==1]),mean(y0[Ds==1]))
+y0.observed <- c(mean(yB[Ds==0]),mean(y0[Ds==0]))
+y1.DID <- c(mean(yB[Ds==1]),mean(y0[Ds==0])+mean(yB[Ds==1])-mean(yB[Ds==0]))
+data.DID.plot <- as.data.frame(c(y1.observed,y1.counterfactual,y0.observed,y1.DID))
+colnames(data.DID.plot) <- c("Outcome") 
+data.DID.plot$Period <- factor(rep(x,4),levels=c("Before","After"))
+data.DID.plot$Group <- factor(c("Treated","Treated","Treated counterfactual","Treated counterfactual","Untreated","Untreated","Treated DID","Treated DID"),levels=c("Untreated","Treated","Treated counterfactual","Treated DID"))
+data.DID.plot$Observed <- factor(c("Observed","Observed","Unobserved","Unobserved","Observed","Observed","Observed","Observed"),levels=c("Observed","Unobserved"))
+
+ggplot(data.DID.plot,aes(x=Period,y=Outcome,group=Group,color=Group,shape=Group,linetype=Observed))+
+    geom_line() +
+    geom_point()+
+    theme_bw()
+```
+
+
+
+
+
+#### Identification 
+
+#### Estimation
+
+#### Inference
+
+### Differences In Differences with more than two-time periods but only one treatment date
+
+### Differences In Differences with a staggered design
+
+## Difference In Differences with Instrumental Variables
+

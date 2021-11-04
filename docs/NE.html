@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-10-19" />
+<meta name="date" content="2021-11-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -214,7 +214,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.4" data-path="RCT.html"><a href="RCT.html#sec:design4"><i class="fa fa-check"></i><b>3.4</b> Encouragement Design</a>
 <ul>
 <li class="chapter" data-level="3.4.1" data-path="RCT.html"><a href="RCT.html#identification-3"><i class="fa fa-check"></i><b>3.4.1</b> Identification</a></li>
-<li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect"><i class="fa fa-check"></i><b>3.4.2</b> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</a></li>
+<li class="chapter" data-level="3.4.2" data-path="RCT.html"><a href="RCT.html#IVRCT"><i class="fa fa-check"></i><b>3.4.2</b> Estimating the Local Average Treatment Effect and the Intention to Treat Effect</a></li>
 <li class="chapter" data-level="3.4.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise-3"><i class="fa fa-check"></i><b>3.4.3</b> Estimating sampling noise</a></li>
 </ul></li>
 </ul></li>
@@ -228,7 +228,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.1.4" data-path="NE.html"><a href="NE.html#estimation-of-sampling-noise"><i class="fa fa-check"></i><b>4.1.4</b> Estimation of sampling noise</a></li>
 </ul></li>
 <li class="chapter" data-level="4.2" data-path="NE.html"><a href="NE.html#regression-discontinuity-designs"><i class="fa fa-check"></i><b>4.2</b> Regression Discontinuity Designs</a></li>
-<li class="chapter" data-level="4.3" data-path="NE.html"><a href="NE.html#difference-in-differences"><i class="fa fa-check"></i><b>4.3</b> Difference In Differences</a></li>
+<li class="chapter" data-level="4.3" data-path="NE.html"><a href="NE.html#difference-in-differences"><i class="fa fa-check"></i><b>4.3</b> Difference In Differences</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="NE.html"><a href="NE.html#difference-in-differences-with-two-time-periods"><i class="fa fa-check"></i><b>4.3.1</b> Difference In Differences with two time periods</a></li>
+<li class="chapter" data-level="4.3.2" data-path="NE.html"><a href="NE.html#differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date"><i class="fa fa-check"></i><b>4.3.2</b> Differences In Differences with more than two-time periods but only one treatment date</a></li>
+<li class="chapter" data-level="4.3.3" data-path="NE.html"><a href="NE.html#differences-in-differences-with-a-staggered-design"><i class="fa fa-check"></i><b>4.3.3</b> Differences In Differences with a staggered design</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="NE.html"><a href="NE.html#difference-in-differences-with-instrumental-variables"><i class="fa fa-check"></i><b>4.4</b> Difference In Differences with Instrumental Variables</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="sec:OM.html"><a href="sec:OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a></li>
 <li class="chapter" data-level="6" data-path="sec:threats.html"><a href="sec:threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a>
@@ -1023,11 +1029,11 @@ Even the case of RCTs with encouragement design, where Independence holds by des
 For that, we need to shut down heterogeneous reactions to the instrument.
 In practice, we are going to replace the participation equation in our model, which was characterized by a random coefficient, by the following one, which has a constant coefficient:</p>
 <p><span class="math display">\[\begin{align*}
-  D_i &amp; = \uns{y_i^B+\bar{\kappa} Z_i + V_i\leq\bar{y}} 
+  D_i &amp; = \uns{y_i^B-\bar{\kappa} Z_i + V_i\leq\bar{y}} 
 \end{align*}\]</span></p>
 <p>As a consequence, we have no more defiers and monotonicity holds.
 Let us now generate the data from the model with monotonicity:</p>
-<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb138-1"><a href="NE.html#cb138-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb138-1"><a href="NE.html#cb138-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
 <span id="cb138-2"><a href="NE.html#cb138-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span><span class="dv">1000</span></span>
 <span id="cb138-3"><a href="NE.html#cb138-3" aria-hidden="true" tabindex="-1"></a>cov.eta.omega <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(param[<span class="st">&quot;sigma2eta&quot;</span>],param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;sigma2omega&quot;</span>]),<span class="at">ncol=</span><span class="dv">2</span>,<span class="at">nrow=</span><span class="dv">2</span>)</span>
 <span id="cb138-4"><a href="NE.html#cb138-4" aria-hidden="true" tabindex="-1"></a>eta.omega <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">mvrnorm</span>(N,<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),cov.eta.omega))</span>
@@ -1061,7 +1067,7 @@ Let us now generate the data from the model with monotonicity:</p>
 <span id="cb139-9"><a href="NE.html#cb139-9" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">ifelse</span>(C<span class="sc">==</span><span class="dv">1</span>,<span class="st">&#39;c&#39;</span>,</span>
 <span id="cb139-10"><a href="NE.html#cb139-10" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">ifelse</span>(D<span class="sc">==</span><span class="dv">1</span>,<span class="st">&#39;d&#39;</span>,<span class="st">&quot;&quot;</span>))))</span>
 <span id="cb139-11"><a href="NE.html#cb139-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb139-12"><a href="NE.html#cb139-12" aria-hidden="true" tabindex="-1"></a>data.mono <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">cbind</span>(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega<span class="sc">$</span>eta,epsilon,Ds,xi,Z,mu,UB))</span></code></pre></div>
+<span id="cb139-12"><a href="NE.html#cb139-12" aria-hidden="true" tabindex="-1"></a>data.mono <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">cbind</span>(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega<span class="sc">$</span>eta,epsilon,Ds,Z,mu,UB))</span></code></pre></div>
 <p>The first thing we can check is that there are no defiers.
 For that, let’s count the number of individuals who have <span class="math inline">\(T_i=1\)</span>.
 It is equal to 0.</p>
@@ -1083,8 +1089,8 @@ Figure 4.4: Types under Monotonicity
 <p>What <a href="NE.html#fig:plottypesMono">4.4</a> shows is that the IV acts as a randomized controlled trial among compliers.
 Within the population of compliers, whether one receives the treatment or not is as good as random.
 If we actually knew who the compliers were, we could directly estimate the effect of the treatment by comparing the outcomes of the treated compliers to the outcomes of the untreated compliers.
-Actually, this approach, applied in our sample, yields an estimated treatment effect on the compliers of 0.07, whereas the simple comparison of participants and non participants would give an estimate of -0.97.
-In our sample, the average effect of the treatment on compliers is actually equal to 0.19.</p>
+Actually, this approach, applied in our sample, yields an estimated treatment effect on the compliers of 0.14, whereas the simple comparison of participants and non participants would give an estimate of -0.93.
+In our sample, the average effect of the treatment on compliers is actually equal to 0.18.</p>
 <p>Let us finally check that Theorem <a href="NE.html#thm:IdentLATEIV">4.3</a> works in the population in our new model.
 We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
 The key to understand the Wald estimator is to see that its numerator is composed of the difference between two means, with both means containing the average outcomes of always takers and never takers weighted by their respective proportions in the population, as shown in the proof of Theorem <a href="NE.html#thm:IdentLATEIV">4.3</a>.
@@ -1119,37 +1125,43 @@ Let me first derive the joint distribution of the portential outcomes and the me
 <span id="cb141-9"><a href="NE.html#cb141-9" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;theta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rho&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rhoetaomega&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2eta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2omega&#39;</span>],</span>
 <span id="cb141-10"><a href="NE.html#cb141-10" aria-hidden="true" tabindex="-1"></a>                          (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>]),<span class="dv">3</span>,<span class="dv">3</span>,<span class="at">byrow=</span><span class="cn">TRUE</span>)</span>
 <span id="cb141-11"><a href="NE.html#cb141-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb141-12"><a href="NE.html#cb141-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb141-13"><a href="NE.html#cb141-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb141-14"><a href="NE.html#cb141-14" aria-hidden="true" tabindex="-1"></a><span class="co"># cuts</span></span>
-<span id="cb141-15"><a href="NE.html#cb141-15" aria-hidden="true" tabindex="-1"></a><span class="co">#always takers</span></span>
-<span id="cb141-16"><a href="NE.html#cb141-16" aria-hidden="true" tabindex="-1"></a>lower.cut.at <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>)</span>
-<span id="cb141-17"><a href="NE.html#cb141-17" aria-hidden="true" tabindex="-1"></a>upper.cut.at <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
-<span id="cb141-18"><a href="NE.html#cb141-18" aria-hidden="true" tabindex="-1"></a><span class="co"># compliers</span></span>
-<span id="cb141-19"><a href="NE.html#cb141-19" aria-hidden="true" tabindex="-1"></a>lower.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
-<span id="cb141-20"><a href="NE.html#cb141-20" aria-hidden="true" tabindex="-1"></a>upper.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
-<span id="cb141-21"><a href="NE.html#cb141-21" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
-<span id="cb141-22"><a href="NE.html#cb141-22" aria-hidden="true" tabindex="-1"></a>lower.cut.nt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
-<span id="cb141-23"><a href="NE.html#cb141-23" aria-hidden="true" tabindex="-1"></a>upper.cut.nt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="cn">Inf</span>)</span>
-<span id="cb141-24"><a href="NE.html#cb141-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb141-25"><a href="NE.html#cb141-25" aria-hidden="true" tabindex="-1"></a><span class="co"># means by types</span></span>
-<span id="cb141-26"><a href="NE.html#cb141-26" aria-hidden="true" tabindex="-1"></a><span class="co">#always takers</span></span>
-<span id="cb141-27"><a href="NE.html#cb141-27" aria-hidden="true" tabindex="-1"></a>mean.y1.at.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.at,<span class="at">upper=</span>upper.cut.at,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
-<span id="cb141-28"><a href="NE.html#cb141-28" aria-hidden="true" tabindex="-1"></a>mean.y0.at.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.at,<span class="at">upper=</span>upper.cut.at,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
-<span id="cb141-29"><a href="NE.html#cb141-29" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
-<span id="cb141-30"><a href="NE.html#cb141-30" aria-hidden="true" tabindex="-1"></a>mean.y1.nt.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.nt,<span class="at">upper=</span>upper.cut.nt,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
-<span id="cb141-31"><a href="NE.html#cb141-31" aria-hidden="true" tabindex="-1"></a>mean.y0.nt.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.nt,<span class="at">upper=</span>upper.cut.nt,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
-<span id="cb141-32"><a href="NE.html#cb141-32" aria-hidden="true" tabindex="-1"></a><span class="co">#compliers</span></span>
-<span id="cb141-33"><a href="NE.html#cb141-33" aria-hidden="true" tabindex="-1"></a>mean.y1.comp.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.comp,<span class="at">upper=</span>upper.cut.comp,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
-<span id="cb141-34"><a href="NE.html#cb141-34" aria-hidden="true" tabindex="-1"></a>mean.y0.comp.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.comp,<span class="at">upper=</span>upper.cut.comp,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
-<span id="cb141-35"><a href="NE.html#cb141-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb141-36"><a href="NE.html#cb141-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Proportion of each types</span></span>
-<span id="cb141-37"><a href="NE.html#cb141-37" aria-hidden="true" tabindex="-1"></a><span class="co"># always takers</span></span>
-<span id="cb141-38"><a href="NE.html#cb141-38" aria-hidden="true" tabindex="-1"></a>prop.at.pop <span class="ot">&lt;-</span> <span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span>
-<span id="cb141-39"><a href="NE.html#cb141-39" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
-<span id="cb141-40"><a href="NE.html#cb141-40" aria-hidden="true" tabindex="-1"></a>prop.nt.pop <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">-</span><span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>],<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span>
-<span id="cb141-41"><a href="NE.html#cb141-41" aria-hidden="true" tabindex="-1"></a><span class="co"># compliers</span></span>
-<span id="cb141-42"><a href="NE.html#cb141-42" aria-hidden="true" tabindex="-1"></a>prop.comp.pop <span class="ot">&lt;-</span> <span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>],<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]<span class="sc">-</span><span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span></code></pre></div>
+<span id="cb141-12"><a href="NE.html#cb141-12" aria-hidden="true" tabindex="-1"></a><span class="co"># cuts</span></span>
+<span id="cb141-13"><a href="NE.html#cb141-13" aria-hidden="true" tabindex="-1"></a><span class="co">#always takers</span></span>
+<span id="cb141-14"><a href="NE.html#cb141-14" aria-hidden="true" tabindex="-1"></a>lower.cut.at <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>)</span>
+<span id="cb141-15"><a href="NE.html#cb141-15" aria-hidden="true" tabindex="-1"></a>upper.cut.at <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb141-16"><a href="NE.html#cb141-16" aria-hidden="true" tabindex="-1"></a><span class="co"># compliers</span></span>
+<span id="cb141-17"><a href="NE.html#cb141-17" aria-hidden="true" tabindex="-1"></a>lower.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb141-18"><a href="NE.html#cb141-18" aria-hidden="true" tabindex="-1"></a>upper.cut.comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
+<span id="cb141-19"><a href="NE.html#cb141-19" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
+<span id="cb141-20"><a href="NE.html#cb141-20" aria-hidden="true" tabindex="-1"></a>lower.cut.nt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>])</span>
+<span id="cb141-21"><a href="NE.html#cb141-21" aria-hidden="true" tabindex="-1"></a>upper.cut.nt <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="cn">Inf</span>)</span>
+<span id="cb141-22"><a href="NE.html#cb141-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-23"><a href="NE.html#cb141-23" aria-hidden="true" tabindex="-1"></a><span class="co"># means by types</span></span>
+<span id="cb141-24"><a href="NE.html#cb141-24" aria-hidden="true" tabindex="-1"></a><span class="co">#always takers</span></span>
+<span id="cb141-25"><a href="NE.html#cb141-25" aria-hidden="true" tabindex="-1"></a>mean.y1.at.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.at,<span class="at">upper=</span>upper.cut.at,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb141-26"><a href="NE.html#cb141-26" aria-hidden="true" tabindex="-1"></a>mean.y0.at.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.at,<span class="at">upper=</span>upper.cut.at,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb141-27"><a href="NE.html#cb141-27" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
+<span id="cb141-28"><a href="NE.html#cb141-28" aria-hidden="true" tabindex="-1"></a>mean.y1.nt.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.nt,<span class="at">upper=</span>upper.cut.nt,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb141-29"><a href="NE.html#cb141-29" aria-hidden="true" tabindex="-1"></a>mean.y0.nt.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.nt,<span class="at">upper=</span>upper.cut.nt,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb141-30"><a href="NE.html#cb141-30" aria-hidden="true" tabindex="-1"></a><span class="co">#compliers</span></span>
+<span id="cb141-31"><a href="NE.html#cb141-31" aria-hidden="true" tabindex="-1"></a>mean.y1.comp.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.comp,<span class="at">upper=</span>upper.cut.comp,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb141-32"><a href="NE.html#cb141-32" aria-hidden="true" tabindex="-1"></a>mean.y0.comp.pop <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV,<span class="at">lower=</span>lower.cut.comp,<span class="at">upper=</span>upper.cut.comp,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb141-33"><a href="NE.html#cb141-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-34"><a href="NE.html#cb141-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Proportion of each types</span></span>
+<span id="cb141-35"><a href="NE.html#cb141-35" aria-hidden="true" tabindex="-1"></a><span class="co"># always takers</span></span>
+<span id="cb141-36"><a href="NE.html#cb141-36" aria-hidden="true" tabindex="-1"></a>prop.at.pop <span class="ot">&lt;-</span> <span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span>
+<span id="cb141-37"><a href="NE.html#cb141-37" aria-hidden="true" tabindex="-1"></a><span class="co"># never takers</span></span>
+<span id="cb141-38"><a href="NE.html#cb141-38" aria-hidden="true" tabindex="-1"></a>prop.nt.pop <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">-</span><span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>],<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span>
+<span id="cb141-39"><a href="NE.html#cb141-39" aria-hidden="true" tabindex="-1"></a><span class="co"># compliers</span></span>
+<span id="cb141-40"><a href="NE.html#cb141-40" aria-hidden="true" tabindex="-1"></a>prop.comp.pop <span class="ot">&lt;-</span> <span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>])<span class="sc">+</span>param[<span class="st">&#39;barkappa&#39;</span>],<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]<span class="sc">-</span><span class="fu">ptmvnorm.marginal</span>(<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]),<span class="at">n=</span><span class="dv">3</span>,<span class="at">mean=</span>mean.y0.y1.yBV,<span class="at">sigma=</span>cov.y0.y1.yBV)[[<span class="dv">1</span>]]</span>
+<span id="cb141-41"><a href="NE.html#cb141-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-42"><a href="NE.html#cb141-42" aria-hidden="true" tabindex="-1"></a><span class="co"># LATE</span></span>
+<span id="cb141-43"><a href="NE.html#cb141-43" aria-hidden="true" tabindex="-1"></a>late.pop <span class="ot">&lt;-</span> mean.y1.comp.pop<span class="sc">-</span>mean.y0.comp.pop</span>
+<span id="cb141-44"><a href="NE.html#cb141-44" aria-hidden="true" tabindex="-1"></a>late.prop.comp.pop <span class="ot">&lt;-</span> late.pop<span class="sc">*</span>prop.comp.pop</span>
+<span id="cb141-45"><a href="NE.html#cb141-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Wald</span></span>
+<span id="cb141-46"><a href="NE.html#cb141-46" aria-hidden="true" tabindex="-1"></a>num.Wald.pop <span class="ot">&lt;-</span> (mean.y1.comp.pop<span class="sc">*</span>prop.comp.pop<span class="sc">+</span>mean.y1.at.pop<span class="sc">*</span>prop.at.pop<span class="sc">+</span>mean.y0.nt.pop<span class="sc">*</span>prop.nt.pop<span class="sc">-</span>(mean.y0.comp.pop<span class="sc">*</span>prop.comp.pop<span class="sc">+</span>mean.y1.at.pop<span class="sc">*</span>prop.at.pop<span class="sc">+</span>mean.y0.nt.pop<span class="sc">*</span>prop.nt.pop))</span>
+<span id="cb141-47"><a href="NE.html#cb141-47" aria-hidden="true" tabindex="-1"></a>denom.Wald.pop <span class="ot">&lt;-</span> (prop.at.pop<span class="sc">+</span>prop.comp.pop<span class="sc">-</span>prop.at.pop)</span>
+<span id="cb141-48"><a href="NE.html#cb141-48" aria-hidden="true" tabindex="-1"></a>Wald.pop <span class="ot">&lt;-</span> num.Wald.pop<span class="sc">/</span>denom.Wald.pop</span></code></pre></div>
 <p>We are now equipped to compute the Wald estimator in the population.
 Before that, let us compute the LATE.
 We have <span class="math inline">\(\Delta^Y_{LATE} =\)</span> 0.179.
@@ -1162,9 +1174,106 @@ Indeed, we have that the numerator of the Wald estimator is equal to: 0.066.</p>
 </div>
 <div id="estimation" class="section level3" number="4.1.3">
 <h3><span class="header-section-number">4.1.3</span> Estimation</h3>
+<p>Estimation of the LATE under the IV assumptions closely follows the same steps that we have delineated in Section <a href="RCT.html#IVRCT">3.4.2</a>:</p>
+<ol style="list-style-type: decimal">
+<li><strong>First stage</strong> regression of <span class="math inline">\(D_i\)</span> on <span class="math inline">\(Z_i\)</span>: this estimates the impact of the instrument on participation into the program and estimates the proportion of compliers.</li>
+<li><strong>Reduced form</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(Z_i\)</span>: this estimates the impact of the instrument on outcomes, <em>a.k.a</em> the ITE.</li>
+<li><strong>Structural</strong> regression of <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(D_i\)</span> using <span class="math inline">\(Z_i\)</span> as an instrument, which estimates the LATE.</li>
+</ol>
+<p>Let’s take these three steps in turn.</p>
+<div id="first-stage-regression" class="section level4" number="4.1.3.1">
+<h4><span class="header-section-number">4.1.3.1</span> First stage regression</h4>
+<p>The first stage regression regresses <span class="math inline">\(D_i\)</span> on <span class="math inline">\(Z_i\)</span> and thus estimates the impact of the instrument on treatment participation, which is equal to the proportion of compliers.
+It can be run using the With/Without estimator or OLS (both are numerically equivalent as Lemma <a href="proofs.html#lem:WWOLS">A.3</a> shows) or OLS conditioning on observed covariates.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-158" class="example"><strong>Example 4.9  </strong></span>Let’s see how these three approaches fare in our example.
+</div>
+<div class="sourceCode" id="cb142"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb142-1"><a href="NE.html#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="co"># WW first stage</span></span>
+<span id="cb142-2"><a href="NE.html#cb142-2" aria-hidden="true" tabindex="-1"></a>WW.First.Stage.IV <span class="ot">&lt;-</span> <span class="fu">mean</span>(Ds[Z<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(Ds[Z<span class="sc">==</span><span class="dv">0</span>])</span>
+<span id="cb142-3"><a href="NE.html#cb142-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple OLS</span></span>
+<span id="cb142-4"><a href="NE.html#cb142-4" aria-hidden="true" tabindex="-1"></a>OLS.D.Z.IV <span class="ot">&lt;-</span> <span class="fu">lm</span>(Ds<span class="sc">~</span>Z)</span>
+<span id="cb142-5"><a href="NE.html#cb142-5" aria-hidden="true" tabindex="-1"></a>OLS.First.Stage.IV <span class="ot">&lt;-</span> <span class="fu">coef</span>(OLS.D.Z.IV)[[<span class="dv">2</span>]]</span>
+<span id="cb142-6"><a href="NE.html#cb142-6" aria-hidden="true" tabindex="-1"></a><span class="co"># OLS conditioning on yB</span></span>
+<span id="cb142-7"><a href="NE.html#cb142-7" aria-hidden="true" tabindex="-1"></a>OLS.D.Z.yB.IV <span class="ot">&lt;-</span> <span class="fu">lm</span>(Ds<span class="sc">~</span>Z<span class="sc">+</span>yB)</span>
+<span id="cb142-8"><a href="NE.html#cb142-8" aria-hidden="true" tabindex="-1"></a>OLSX.First.Stage.IV <span class="ot">&lt;-</span> <span class="fu">coef</span>(OLS.D.Z.yB.IV)[[<span class="dv">2</span>]]</span></code></pre></div>
+<p>The WW estimator of the first stage impact of <span class="math inline">\(Z_i\)</span> on <span class="math inline">\(D_i\)</span> is equal to 0.374.
+The OLS estimator of the first stage impact of <span class="math inline">\(Z_i\)</span> on <span class="math inline">\(D_i\)</span> is equal to 0.374.
+The OLS estimator of the first stage impact of <span class="math inline">\(Z_i\)</span> on <span class="math inline">\(D_i\)</span> conditioning on <span class="math inline">\(y^B_i\)</span> is equal to 0.339.
+Remember that the true proportion of compliers in the population in our model is equal to 0.366.</p>
+</div>
+<div id="reduced-form-regression-1" class="section level4" number="4.1.3.2">
+<h4><span class="header-section-number">4.1.3.2</span> Reduced form regression</h4>
+<p>The reduced form regression regresses <span class="math inline">\(Y_i\)</span> on <span class="math inline">\(Z_i\)</span> and thus estimates the impact of the instrument on outcomes, which is equal to the ITE.
+It can be run using the With/Without estimator or OLS (both are numerically equivalent as Lemma <a href="proofs.html#lem:WWOLS">A.3</a> shows) or OLS conditioning on observed covariates.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-159" class="example"><strong>Example 4.10  </strong></span>Let’s see how these three approaches fare in our example.
+</div>
+<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb143-1"><a href="NE.html#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="co"># WW reduced form</span></span>
+<span id="cb143-2"><a href="NE.html#cb143-2" aria-hidden="true" tabindex="-1"></a>WW.Reduced.Form.IV <span class="ot">&lt;-</span> <span class="fu">mean</span>(y[Z<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(y[Z<span class="sc">==</span><span class="dv">0</span>])</span>
+<span id="cb143-3"><a href="NE.html#cb143-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple OLS</span></span>
+<span id="cb143-4"><a href="NE.html#cb143-4" aria-hidden="true" tabindex="-1"></a>OLS.y.Z.IV <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>Z)</span>
+<span id="cb143-5"><a href="NE.html#cb143-5" aria-hidden="true" tabindex="-1"></a>OLS.Reduced.Form.IV <span class="ot">&lt;-</span> <span class="fu">coef</span>(OLS.y.Z.IV)[[<span class="dv">2</span>]]</span>
+<span id="cb143-6"><a href="NE.html#cb143-6" aria-hidden="true" tabindex="-1"></a><span class="co"># OLS conditioning on yB</span></span>
+<span id="cb143-7"><a href="NE.html#cb143-7" aria-hidden="true" tabindex="-1"></a>OLS.y.Z.yB.IV <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~</span>Z<span class="sc">+</span>yB)</span>
+<span id="cb143-8"><a href="NE.html#cb143-8" aria-hidden="true" tabindex="-1"></a>OLSX.Reduced.Form.IV <span class="ot">&lt;-</span> <span class="fu">coef</span>(OLS.y.Z.yB.IV)[[<span class="dv">2</span>]]</span></code></pre></div>
+<p>The WW estimator of the reduced form impact of <span class="math inline">\(Z_i\)</span> on <span class="math inline">\(y_i\)</span> is equal to -0.029.
+The OLS estimator of the reduced form impact of <span class="math inline">\(Z_i\)</span> on <span class="math inline">\(y_i\)</span> is equal to -0.029.
+The OLS estimator of the reduced form impact of <span class="math inline">\(Z_i\)</span> on <span class="math inline">\(y_i\)</span> conditioning on <span class="math inline">\(y^B_i\)</span> is equal to 0.058.
+Remember that the true ITE in the population in our model is equal to 0.066.</p>
+</div>
+<div id="structural-regression-1" class="section level4" number="4.1.3.3">
+<h4><span class="header-section-number">4.1.3.3</span> Structural regression</h4>
+<p>The final step of the analysis is to estimate the impact of <span class="math inline">\(D_i\)</span> on <span class="math inline">\(Y_i\)</span> using <span class="math inline">\(Z_i\)</span> as an instrument.
+This can be done either by directly using the Wald estimator, by dividing the estimate of the reduced form by the result of the first stage, or by directly using the IV estimator (which is equivalent to the Wald estimator as Theorem <a href="RCT.html#thm:WaldIV">3.15</a> shows) or the IV estimator conditional on covariates.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-160" class="example"><strong>Example 4.11  </strong></span>Let’s see how these four approaches fare in our example.
+</div>
+<div class="sourceCode" id="cb144"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb144-1"><a href="NE.html#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wald structural form</span></span>
+<span id="cb144-2"><a href="NE.html#cb144-2" aria-hidden="true" tabindex="-1"></a>Wald.Structural.Form.IV <span class="ot">&lt;-</span> (<span class="fu">mean</span>(y[Z<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(y[Z<span class="sc">==</span><span class="dv">0</span>]))<span class="sc">/</span>(<span class="fu">mean</span>(Ds[Z<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(Ds[Z<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb144-3"><a href="NE.html#cb144-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Simple IV</span></span>
+<span id="cb144-4"><a href="NE.html#cb144-4" aria-hidden="true" tabindex="-1"></a>TSLS.y.D.Z.IV <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(y<span class="sc">~</span>Ds<span class="sc">|</span>Z)</span>
+<span id="cb144-5"><a href="NE.html#cb144-5" aria-hidden="true" tabindex="-1"></a>TSLS.Structural.Form.IV <span class="ot">&lt;-</span> <span class="fu">coef</span>(TSLS.y.D.Z.IV)[[<span class="dv">2</span>]]</span>
+<span id="cb144-6"><a href="NE.html#cb144-6" aria-hidden="true" tabindex="-1"></a><span class="co"># IV conditioning on yB</span></span>
+<span id="cb144-7"><a href="NE.html#cb144-7" aria-hidden="true" tabindex="-1"></a>TSLS.y.D.Z.yB.IV <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(y<span class="sc">~</span>Ds<span class="sc">+</span>yB<span class="sc">|</span>Z<span class="sc">+</span>yB)</span>
+<span id="cb144-8"><a href="NE.html#cb144-8" aria-hidden="true" tabindex="-1"></a>TSLSX.Structural.Form.IV <span class="ot">&lt;-</span> <span class="fu">coef</span>(TSLS.y.D.Z.yB.IV)[[<span class="dv">2</span>]]</span></code></pre></div>
+<p>The Wald estimator of the LATE is equal to <span class="math inline">\(\hat{\Delta}_{Wald}^{y}=\)</span> -0.078.
+The IV estimator of the LATE is equal to <span class="math inline">\(\hat{\Delta}_{IV}^{y}=\)</span> -0.078, and is numerically identical to the Wald estimator, as expected.
+The IV estimator of the LATE conditioning on <span class="math inline">\(y_i^B\)</span> is equal to 0.172.
+Remember that the true LATE in the population in our model is equal to 0.179.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The last thing we might want to check is what the sampling noise of the IV estimator looks like and whether it is reduced by conditioning on observed covariates.
+</div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-162" class="example"><strong>Example 4.12  </strong></span>Let’s see how sampling noise moves in our example.
+</div>
+<p><strong>Do it</strong></p>
+</div>
 </div>
 <div id="estimation-of-sampling-noise" class="section level3" number="4.1.4">
 <h3><span class="header-section-number">4.1.4</span> Estimation of sampling noise</h3>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The framework we have seen here as been extended to multivalued instruments or treatments by several papers.
+<a href="https://www.jstor.org/stable/2951620">Imbens and Angrist (1994)</a> extend the framework to an ordered instrument.
+They show that the 2SLS estimator is a weighted average of LATEs for each values of the instrument, with positive weights summing to one.
+<a href="https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476535">Angrist and Imbens (1995)</a> extend the framework to he case where the treatment is an ordered discrete variable and there are multiple dichotomous instruments.
+They again show that the 2SLS estimator is a weighted average of LATEs with positive weights summing to one.
+<a href="https://www.pnas.org/content/96/8/4730">Heckman and Vytlacil (1999)</a> extend the framework to a case with a continuous instrument and show that one can the define a Marginal Treatment Effect (or MTE) that is equal to the effect of the treatment on individuals that have the same unobserved propensity to take the treatment.
+They show that the MTE can be identified by a limiting form of Wald estimator that they call a Local Instrumental Variable estimator.
+They also show that average treatment effect parameters such as TT, ATE and LATE are all weighted averages of the MTE, with positive weights summing to one.
+Under strong support conditions on the side of the instrument, one can thus in principle recover all treatment effect parameters with a continuous instrument.
+</div>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> One important concern with the first stage regression is that of weak instruments.
+When Assumption <a href="NE.html#hyp:FirstStage">4.1</a> does not hold and the impact on the instrument on take up is actually zero in the population, the Wald estimator is not well-defined.
+</div>
+<p><strong>Expand</strong></p>
 </div>
 </div>
 <div id="regression-discontinuity-designs" class="section level2" number="4.2">
@@ -1172,6 +1281,63 @@ Indeed, we have that the numerator of the Wald estimator is equal to: 0.066.</p>
 </div>
 <div id="difference-in-differences" class="section level2" number="4.3">
 <h2><span class="header-section-number">4.3</span> Difference In Differences</h2>
+<p>In Difference In Differences (a.k.a. DID), the difference between treated and untreated before the treatment is used to approximate selection bias.
+As a consequence, DID works by correcting the With/Without comparison after treatment by the With/Without comparison before treatment and hopes that it is enough to recover the TT.
+Hence the name Difference in Differences (DID), since the estimator, in its simplest form, is a difference between two differences.
+In this section, we are going to look at identification using DID, estimation and estimation of sampling noise.
+At first, we are going to assume that we have only access to two time periods.
+In that case, estimation and inference are pretty straightforward.
+We will then examine the case of several time periods, but we will first allow for only one treatment date.
+In that case, we will introduce the standard tools used by applied researchers to analyze these types of designs: the event study graph and the Two-Way Fixed Effects estimator (a.k.a. TWFE).
+We will determine which effect is estimated by the TWFE estimator and what are the goals of the event study graph.
+We will finally look at the most complex case: the staggered design, where we have several time periods (strictly more than two) and the date of treatment differs across units.
+In the staggered design, troubles start appearing for the TWFE estimator.
+We will survey these problems and the proposed solutions to address them.
+Let’s get to it.</p>
+<div id="difference-in-differences-with-two-time-periods" class="section level3" number="4.3.1">
+<h3><span class="header-section-number">4.3.1</span> Difference In Differences with two time periods</h3>
+<p>Before getting into the rigorous derivations, let’s start with a very simple illustration using our workhorse example.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-165" class="example"><strong>Example 4.13  </strong></span>How does DID perform and what does it look like in our example model?
+</div>
+<p>Let’s first generate a dataset with selection bias.</p>
+<p><span class="math display">\[\begin{align*}
+y_i^1 &amp; = y_i^0+\bar{\alpha}+\theta\mu_i+\eta_i \\
+y_i^0 &amp; = \mu_i+\delta+U_i^0 \\
+U_i^0 &amp; = \rho U_i^B+\epsilon_i \\
+y_i^B &amp; =\mu_i+U_i^B \\
+U_i^B &amp; \sim\mathcal{N}(0,\sigma^2_{U}) \\
+D_i   &amp; = \uns{y_i^B+ V_i\leq\bar{y}} \\
+V_i   &amp; = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
+(\eta_i,\omega_i) &amp; \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})
+\end{align*}\]</span></p>
+<p>Let’s see how DID works on this data.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDID"></span>
+<img src="STCI_files/figure-html/PlotDID-1.png" alt="Evolution of average outcomes in the treated and control group" width=".65\textwidth" />
+<p class="caption">
+Figure 4.5: Evolution of average outcomes in the treated and control group
+</p>
+</div>
+<div id="identification-5" class="section level4" number="4.3.1.1">
+<h4><span class="header-section-number">4.3.1.1</span> Identification</h4>
+</div>
+<div id="estimation-1" class="section level4" number="4.3.1.2">
+<h4><span class="header-section-number">4.3.1.2</span> Estimation</h4>
+</div>
+<div id="inference" class="section level4" number="4.3.1.3">
+<h4><span class="header-section-number">4.3.1.3</span> Inference</h4>
+</div>
+</div>
+<div id="differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date" class="section level3" number="4.3.2">
+<h3><span class="header-section-number">4.3.2</span> Differences In Differences with more than two-time periods but only one treatment date</h3>
+</div>
+<div id="differences-in-differences-with-a-staggered-design" class="section level3" number="4.3.3">
+<h3><span class="header-section-number">4.3.3</span> Differences In Differences with a staggered design</h3>
+</div>
+</div>
+<div id="difference-in-differences-with-instrumental-variables" class="section level2" number="4.4">
+<h2><span class="header-section-number">4.4</span> Difference In Differences with Instrumental Variables</h2>
 
 </div>
 </div>

@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-10-19}
+\date{2021-11-04}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -5978,8 +5978,8 @@ Sample size decreases fast in an encouragement design.
 The sample LATE is equal to 0.14.
 The sample ITE is equal to 0.044.
 
-\hypertarget{estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect}{%
-\subsection{Estimating the Local Average Treatment Effect and the Intention to Treat Effect}\label{estimating-the-local-average-treatment-effect-and-the-intention-to-treat-effect}}
+\hypertarget{IVRCT}{%
+\subsection{Estimating the Local Average Treatment Effect and the Intention to Treat Effect}\label{IVRCT}}
 
 Classically, we present the results of an Encouragement design in three stages:
 
@@ -6319,6 +6319,8 @@ Let's see what happens over sampling repetitions.
 
 \caption{Distribution of the $Wald$ and $Wald(X)$ estimator in an encouragement design over replications of samples of different sizes}\label{fig:MonteCarloHistEncourage}
 \end{figure}
+
+\textbf{Comment on the results}
 
 \hypertarget{estimating-sampling-noise-3}{%
 \subsection{Estimating sampling noise}\label{estimating-sampling-noise-3}}
@@ -7278,7 +7280,7 @@ For that, we need to shut down heterogeneous reactions to the instrument.
 In practice, we are going to replace the participation equation in our model, which was characterized by a random coefficient, by the following one, which has a constant coefficient:
 
 \begin{align*}
-  D_i & = \uns{y_i^B+\bar{\kappa} Z_i + V_i\leq\bar{y}} 
+  D_i & = \uns{y_i^B-\bar{\kappa} Z_i + V_i\leq\bar{y}} 
 \end{align*}
 
 As a consequence, we have no more defiers and monotonicity holds.
@@ -7286,7 +7288,7 @@ Let us now generate the data from the model with monotonicity:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{12345}\NormalTok{)}
 \NormalTok{N }\OtherTok{\textless{}{-}}\DecValTok{1000}
 \NormalTok{cov.eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{],param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"sigma2omega"}\NormalTok{]),}\AttributeTok{ncol=}\DecValTok{2}\NormalTok{,}\AttributeTok{nrow=}\DecValTok{2}\NormalTok{)}
 \NormalTok{eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{mvrnorm}\NormalTok{(N,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{),cov.eta.omega))}
@@ -7326,7 +7328,7 @@ We can now define the types variable \(T_i\):
                    \FunctionTok{ifelse}\NormalTok{(C}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}c\textquotesingle{}}\NormalTok{,}
                           \FunctionTok{ifelse}\NormalTok{(D}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,}\StringTok{\textquotesingle{}d\textquotesingle{}}\NormalTok{,}\StringTok{""}\NormalTok{))))}
 
-\NormalTok{data.mono }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega}\SpecialCharTok{$}\NormalTok{eta,epsilon,Ds,xi,Z,mu,UB))}
+\NormalTok{data.mono }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Type,C,NT,AT,D1,D0,Y,y,Y1,Y0,y0,y1,yB,alpha,U0,eta.omega}\SpecialCharTok{$}\NormalTok{eta,epsilon,Ds,Z,mu,UB))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -7361,8 +7363,8 @@ One thing that helped me understand how the IV approach under monotonicity works
 What \ref{fig:plottypesMono} shows is that the IV acts as a randomized controlled trial among compliers.
 Within the population of compliers, whether one receives the treatment or not is as good as random.
 If we actually knew who the compliers were, we could directly estimate the effect of the treatment by comparing the outcomes of the treated compliers to the outcomes of the untreated compliers.
-Actually, this approach, applied in our sample, yields an estimated treatment effect on the compliers of 0.07, whereas the simple comparison of participants and non participants would give an estimate of -0.97.
-In our sample, the average effect of the treatment on compliers is actually equal to 0.19.
+Actually, this approach, applied in our sample, yields an estimated treatment effect on the compliers of 0.14, whereas the simple comparison of participants and non participants would give an estimate of -0.93.
+In our sample, the average effect of the treatment on compliers is actually equal to 0.18.
 
 Let us finally check that Theorem \ref{thm:IdentLATEIV} works in the population in our new model.
 We need to compute the various parts of the Wald estimator and the average effect of the treatment on the compliers.
@@ -7403,8 +7405,6 @@ Let me first derive the joint distribution of the portential outcomes and the me
 \NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rhoetaomega\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{],}
 \NormalTok{                          (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]),}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
 
-
-
 \CommentTok{\# cuts}
 \CommentTok{\#always takers}
 \NormalTok{lower.cut.at }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{)}
@@ -7434,6 +7434,14 @@ Let me first derive the joint distribution of the portential outcomes and the me
 \NormalTok{prop.nt.pop }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{ptmvnorm.marginal}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{],}\AttributeTok{n=}\DecValTok{3}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV)[[}\DecValTok{1}\NormalTok{]]}
 \CommentTok{\# compliers}
 \NormalTok{prop.comp.pop }\OtherTok{\textless{}{-}} \FunctionTok{ptmvnorm.marginal}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{])}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barkappa\textquotesingle{}}\NormalTok{],}\AttributeTok{n=}\DecValTok{3}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV)[[}\DecValTok{1}\NormalTok{]]}\SpecialCharTok{{-}}\FunctionTok{ptmvnorm.marginal}\NormalTok{(}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]),}\AttributeTok{n=}\DecValTok{3}\NormalTok{,}\AttributeTok{mean=}\NormalTok{mean.y0.y1.yBV,}\AttributeTok{sigma=}\NormalTok{cov.y0.y1.yBV)[[}\DecValTok{1}\NormalTok{]]}
+
+\CommentTok{\# LATE}
+\NormalTok{late.pop }\OtherTok{\textless{}{-}}\NormalTok{ mean.y1.comp.pop}\SpecialCharTok{{-}}\NormalTok{mean.y0.comp.pop}
+\NormalTok{late.prop.comp.pop }\OtherTok{\textless{}{-}}\NormalTok{ late.pop}\SpecialCharTok{*}\NormalTok{prop.comp.pop}
+\CommentTok{\# Wald}
+\NormalTok{num.Wald.pop }\OtherTok{\textless{}{-}}\NormalTok{ (mean.y1.comp.pop}\SpecialCharTok{*}\NormalTok{prop.comp.pop}\SpecialCharTok{+}\NormalTok{mean.y1.at.pop}\SpecialCharTok{*}\NormalTok{prop.at.pop}\SpecialCharTok{+}\NormalTok{mean.y0.nt.pop}\SpecialCharTok{*}\NormalTok{prop.nt.pop}\SpecialCharTok{{-}}\NormalTok{(mean.y0.comp.pop}\SpecialCharTok{*}\NormalTok{prop.comp.pop}\SpecialCharTok{+}\NormalTok{mean.y1.at.pop}\SpecialCharTok{*}\NormalTok{prop.at.pop}\SpecialCharTok{+}\NormalTok{mean.y0.nt.pop}\SpecialCharTok{*}\NormalTok{prop.nt.pop))}
+\NormalTok{denom.Wald.pop }\OtherTok{\textless{}{-}}\NormalTok{ (prop.at.pop}\SpecialCharTok{+}\NormalTok{prop.comp.pop}\SpecialCharTok{{-}}\NormalTok{prop.at.pop)}
+\NormalTok{Wald.pop }\OtherTok{\textless{}{-}}\NormalTok{ num.Wald.pop}\SpecialCharTok{/}\NormalTok{denom.Wald.pop}
 \end{Highlighting}
 \end{Shaded}
 
@@ -7449,14 +7457,206 @@ Indeed, we have that the numerator of the Wald estimator is equal to: 0.066.
 \hypertarget{estimation}{%
 \subsection{Estimation}\label{estimation}}
 
+Estimation of the LATE under the IV assumptions closely follows the same steps that we have delineated in Section \ref{IVRCT}:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{First stage} regression of \(D_i\) on \(Z_i\): this estimates the impact of the instrument on participation into the program and estimates the proportion of compliers.
+\item
+  \textbf{Reduced form} regression of \(Y_i\) on \(Z_i\): this estimates the impact of the instrument on outcomes, \emph{a.k.a} the ITE.
+\item
+  \textbf{Structural} regression of \(Y_i\) on \(D_i\) using \(Z_i\) as an instrument, which estimates the LATE.
+\end{enumerate}
+
+Let's take these three steps in turn.
+
+\hypertarget{first-stage-regression}{%
+\subsubsection{First stage regression}\label{first-stage-regression}}
+
+The first stage regression regresses \(D_i\) on \(Z_i\) and thus estimates the impact of the instrument on treatment participation, which is equal to the proportion of compliers.
+It can be run using the With/Without estimator or OLS (both are numerically equivalent as Lemma \ref{lem:WWOLS} shows) or OLS conditioning on observed covariates.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-158}{}{\label{exm:unnamed-chunk-158} }Let's see how these three approaches fare in our example.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# WW first stage}
+\NormalTok{WW.First.Stage.IV }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(Ds[Z}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(Ds[Z}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\CommentTok{\# Simple OLS}
+\NormalTok{OLS.D.Z.IV }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Ds}\SpecialCharTok{\textasciitilde{}}\NormalTok{Z)}
+\NormalTok{OLS.First.Stage.IV }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(OLS.D.Z.IV)[[}\DecValTok{2}\NormalTok{]]}
+\CommentTok{\# OLS conditioning on yB}
+\NormalTok{OLS.D.Z.yB.IV }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(Ds}\SpecialCharTok{\textasciitilde{}}\NormalTok{Z}\SpecialCharTok{+}\NormalTok{yB)}
+\NormalTok{OLSX.First.Stage.IV }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(OLS.D.Z.yB.IV)[[}\DecValTok{2}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+The WW estimator of the first stage impact of \(Z_i\) on \(D_i\) is equal to 0.374.
+The OLS estimator of the first stage impact of \(Z_i\) on \(D_i\) is equal to 0.374.
+The OLS estimator of the first stage impact of \(Z_i\) on \(D_i\) conditioning on \(y^B_i\) is equal to 0.339.
+Remember that the true proportion of compliers in the population in our model is equal to 0.366.
+
+\hypertarget{reduced-form-regression-1}{%
+\subsubsection{Reduced form regression}\label{reduced-form-regression-1}}
+
+The reduced form regression regresses \(Y_i\) on \(Z_i\) and thus estimates the impact of the instrument on outcomes, which is equal to the ITE.
+It can be run using the With/Without estimator or OLS (both are numerically equivalent as Lemma \ref{lem:WWOLS} shows) or OLS conditioning on observed covariates.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-159}{}{\label{exm:unnamed-chunk-159} }Let's see how these three approaches fare in our example.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# WW reduced form}
+\NormalTok{WW.Reduced.Form.IV }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(y[Z}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(y[Z}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\CommentTok{\# Simple OLS}
+\NormalTok{OLS.y.Z.IV }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{Z)}
+\NormalTok{OLS.Reduced.Form.IV }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(OLS.y.Z.IV)[[}\DecValTok{2}\NormalTok{]]}
+\CommentTok{\# OLS conditioning on yB}
+\NormalTok{OLS.y.Z.yB.IV }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{Z}\SpecialCharTok{+}\NormalTok{yB)}
+\NormalTok{OLSX.Reduced.Form.IV }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(OLS.y.Z.yB.IV)[[}\DecValTok{2}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+The WW estimator of the reduced form impact of \(Z_i\) on \(y_i\) is equal to -0.029.
+The OLS estimator of the reduced form impact of \(Z_i\) on \(y_i\) is equal to -0.029.
+The OLS estimator of the reduced form impact of \(Z_i\) on \(y_i\) conditioning on \(y^B_i\) is equal to 0.058.
+Remember that the true ITE in the population in our model is equal to 0.066.
+
+\hypertarget{structural-regression-1}{%
+\subsubsection{Structural regression}\label{structural-regression-1}}
+
+The final step of the analysis is to estimate the impact of \(D_i\) on \(Y_i\) using \(Z_i\) as an instrument.
+This can be done either by directly using the Wald estimator, by dividing the estimate of the reduced form by the result of the first stage, or by directly using the IV estimator (which is equivalent to the Wald estimator as Theorem \ref{thm:WaldIV} shows) or the IV estimator conditional on covariates.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160} }Let's see how these four approaches fare in our example.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Wald structural form}
+\NormalTok{Wald.Structural.Form.IV }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(y[Z}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(y[Z}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{mean}\NormalTok{(Ds[Z}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(Ds[Z}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\CommentTok{\# Simple IV}
+\NormalTok{TSLS.y.D.Z.IV }\OtherTok{\textless{}{-}} \FunctionTok{ivreg}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{Ds}\SpecialCharTok{|}\NormalTok{Z)}
+\NormalTok{TSLS.Structural.Form.IV }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(TSLS.y.D.Z.IV)[[}\DecValTok{2}\NormalTok{]]}
+\CommentTok{\# IV conditioning on yB}
+\NormalTok{TSLS.y.D.Z.yB.IV }\OtherTok{\textless{}{-}} \FunctionTok{ivreg}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{yB}\SpecialCharTok{|}\NormalTok{Z}\SpecialCharTok{+}\NormalTok{yB)}
+\NormalTok{TSLSX.Structural.Form.IV }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(TSLS.y.D.Z.yB.IV)[[}\DecValTok{2}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+The Wald estimator of the LATE is equal to \(\hat{\Delta}_{Wald}^{y}=\) -0.078.
+The IV estimator of the LATE is equal to \(\hat{\Delta}_{IV}^{y}=\) -0.078, and is numerically identical to the Wald estimator, as expected.
+The IV estimator of the LATE conditioning on \(y_i^B\) is equal to 0.172.
+Remember that the true LATE in the population in our model is equal to 0.179.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}The last thing we might want to check is what the sampling noise of the IV estimator looks like and whether it is reduced by conditioning on observed covariates.
+\end{remark}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-162}{}{\label{exm:unnamed-chunk-162} }Let's see how sampling noise moves in our example.
+\end{example}
+
+\textbf{Do it}
+
 \hypertarget{estimation-of-sampling-noise}{%
 \subsection{Estimation of sampling noise}\label{estimation-of-sampling-noise}}
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}The framework we have seen here as been extended to multivalued instruments or treatments by several papers.
+\href{https://www.jstor.org/stable/2951620}{Imbens and Angrist (1994)} extend the framework to an ordered instrument.
+They show that the 2SLS estimator is a weighted average of LATEs for each values of the instrument, with positive weights summing to one.
+\href{https://www.tandfonline.com/doi/abs/10.1080/01621459.1995.10476535}{Angrist and Imbens (1995)} extend the framework to he case where the treatment is an ordered discrete variable and there are multiple dichotomous instruments.
+They again show that the 2SLS estimator is a weighted average of LATEs with positive weights summing to one.
+\href{https://www.pnas.org/content/96/8/4730}{Heckman and Vytlacil (1999)} extend the framework to a case with a continuous instrument and show that one can the define a Marginal Treatment Effect (or MTE) that is equal to the effect of the treatment on individuals that have the same unobserved propensity to take the treatment.
+They show that the MTE can be identified by a limiting form of Wald estimator that they call a Local Instrumental Variable estimator.
+They also show that average treatment effect parameters such as TT, ATE and LATE are all weighted averages of the MTE, with positive weights summing to one.
+Under strong support conditions on the side of the instrument, one can thus in principle recover all treatment effect parameters with a continuous instrument.
+\end{remark}
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}One important concern with the first stage regression is that of weak instruments.
+When Assumption \ref{hyp:FirstStage} does not hold and the impact on the instrument on take up is actually zero in the population, the Wald estimator is not well-defined.
+\end{remark}
+
+\textbf{Expand}
 
 \hypertarget{regression-discontinuity-designs}{%
 \section{Regression Discontinuity Designs}\label{regression-discontinuity-designs}}
 
 \hypertarget{difference-in-differences}{%
 \section{Difference In Differences}\label{difference-in-differences}}
+
+In Difference In Differences (a.k.a. DID), the difference between treated and untreated before the treatment is used to approximate selection bias.
+As a consequence, DID works by correcting the With/Without comparison after treatment by the With/Without comparison before treatment and hopes that it is enough to recover the TT.
+Hence the name Difference in Differences (DID), since the estimator, in its simplest form, is a difference between two differences.
+In this section, we are going to look at identification using DID, estimation and estimation of sampling noise.
+At first, we are going to assume that we have only access to two time periods.
+In that case, estimation and inference are pretty straightforward.
+We will then examine the case of several time periods, but we will first allow for only one treatment date.
+In that case, we will introduce the standard tools used by applied researchers to analyze these types of designs: the event study graph and the Two-Way Fixed Effects estimator (a.k.a. TWFE).
+We will determine which effect is estimated by the TWFE estimator and what are the goals of the event study graph.
+We will finally look at the most complex case: the staggered design, where we have several time periods (strictly more than two) and the date of treatment differs across units.
+In the staggered design, troubles start appearing for the TWFE estimator.
+We will survey these problems and the proposed solutions to address them.
+Let's get to it.
+
+\hypertarget{difference-in-differences-with-two-time-periods}{%
+\subsection{Difference In Differences with two time periods}\label{difference-in-differences-with-two-time-periods}}
+
+Before getting into the rigorous derivations, let's start with a very simple illustration using our workhorse example.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-165}{}{\label{exm:unnamed-chunk-165} }How does DID perform and what does it look like in our example model?
+\end{example}
+Let's first generate a dataset with selection bias.
+
+\begin{align*}
+y_i^1 & = y_i^0+\bar{\alpha}+\theta\mu_i+\eta_i \\
+y_i^0 & = \mu_i+\delta+U_i^0 \\
+U_i^0 & = \rho U_i^B+\epsilon_i \\
+y_i^B & =\mu_i+U_i^B \\
+U_i^B & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+D_i   & = \uns{y_i^B+ V_i\leq\bar{y}} \\
+V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
+(\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})
+\end{align*}
+
+Let's see how DID works on this data.
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=.65\textwidth]{STCI_files/figure-latex/PlotDID-1} 
+
+}
+
+\caption{Evolution of average outcomes in the treated and control group}\label{fig:PlotDID}
+\end{figure}
+
+\hypertarget{identification-5}{%
+\subsubsection{Identification}\label{identification-5}}
+
+\hypertarget{estimation-1}{%
+\subsubsection{Estimation}\label{estimation-1}}
+
+\hypertarget{inference}{%
+\subsubsection{Inference}\label{inference}}
+
+\hypertarget{differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date}{%
+\subsection{Differences In Differences with more than two-time periods but only one treatment date}\label{differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date}}
+
+\hypertarget{differences-in-differences-with-a-staggered-design}{%
+\subsection{Differences In Differences with a staggered design}\label{differences-in-differences-with-a-staggered-design}}
+
+\hypertarget{difference-in-differences-with-instrumental-variables}{%
+\section{Difference In Differences with Instrumental Variables}\label{difference-in-differences-with-instrumental-variables}}
 
 \hypertarget{sec:OM}{%
 \chapter{Observational Methods}\label{sec:OM}}
@@ -7651,7 +7851,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-160}{}{\label{exm:unnamed-chunk-160} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -7912,7 +8112,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-166}{}{\label{exm:unnamed-chunk-166} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-174}{}{\label{exm:unnamed-chunk-174} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -8056,7 +8256,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -8179,7 +8379,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-169}{}{\label{exm:unnamed-chunk-169} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -8241,7 +8441,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -8282,7 +8482,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-173}{}{\label{exm:unnamed-chunk-173} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -8317,7 +8517,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-175}{}{\label{exm:unnamed-chunk-175} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-183}{}{\label{exm:unnamed-chunk-183} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -8432,7 +8632,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-184}{}{\label{exm:unnamed-chunk-184} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -8623,7 +8823,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-185}{}{\label{exm:unnamed-chunk-185} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -8720,7 +8920,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-186}{}{\label{exm:unnamed-chunk-186} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -8840,7 +9040,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -8919,7 +9119,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-189}{}{\label{exm:unnamed-chunk-189} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -9062,7 +9262,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-182}{}{\label{exm:unnamed-chunk-182} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-190}{}{\label{exm:unnamed-chunk-190} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9166,7 +9366,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-183}{}{\label{exm:unnamed-chunk-183} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-191}{}{\label{exm:unnamed-chunk-191} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -9504,7 +9704,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-184}{}{\label{exm:unnamed-chunk-184} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-192}{}{\label{exm:unnamed-chunk-192} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9663,7 +9863,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-185}{}{\label{exm:unnamed-chunk-185} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -9953,7 +10153,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-192}{}{\label{exm:unnamed-chunk-192} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-200}{}{\label{exm:unnamed-chunk-200} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -10206,7 +10406,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-199}{}{\label{exm:unnamed-chunk-199} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-207}{}{\label{exm:unnamed-chunk-207} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
