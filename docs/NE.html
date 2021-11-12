@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-11-05" />
+<meta name="date" content="2021-11-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1335,7 +1335,7 @@ One way to understand the DID estimator is to see it as recreating the counterfa
 This estimated counterfactual trajectory is shown as the purple continuous line at the bottom of Figure <a href="NE.html#fig:PlotDID">4.5</a>.
 In our example, the true counterfactual trajectory (the discontinuous line) and the estimated counterfactual trajectory almost coincide, making the estimated counterfactual outcome of the participants very close to their true counterfactual outcome (7.046 vs 7.087).
 The difference between these two quantities measures the bias of the DID estimator, and we can see that it is very low in our example.
-The fact that the Before/After difference in outcomes for the non participants aproximates well the counterfactual Before/After difference in outcomes for the participants is <strong>THE</strong> crucial assumption of the DID estimator.
+The fact that the Before/After difference in outcomes for the non participants approximates well the counterfactual Before/After difference in outcomes for the participants is <strong>THE</strong> crucial assumption of the DID estimator.
 It is called the parallel trends assumption.</p>
 <div id="identification-5" class="section level4" number="4.3.1.1">
 <h4><span class="header-section-number">4.3.1.1</span> Identification</h4>
@@ -1410,6 +1410,91 @@ Under Assumption <a href="NE.html#hyp:ParallelTrends">4.9</a>, we have:</p>
                 &amp; = \Delta^{Y_A}_{TT}.
 \end{align*}\]</span>
 </div>
+
+<div class="example">
+<span id="exm:unnamed-chunk-168" class="example"><strong>Example 4.14  </strong></span>How does the DID estimator behave in our example?
+</div>
+<p>The Before/After comparison among the participants is equal to <span class="math inline">\(\hat{\Delta}^{y}_{BA|D=1}=\)</span> 0.252.
+The Before/After comparison among the non-participants is equal to <span class="math inline">\(\hat{\Delta}^{y}_{BA|D=0}=\)</span> 0.046.
+The DID estimator is thus equal to <span class="math inline">\(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{BA|D=1}-\hat{\Delta}^{y}_{BA|D=0}=\)</span> 0.252 <span class="math inline">\(-\)</span> 0.046 <span class="math inline">\(=\)</span> 0.206.
+It is also equal to the difference between the before and after With/Without estimators.
+The Before With/Without estimator is equal to <span class="math inline">\(\hat{\Delta}^{y^B}_{WW}=\)</span> -1.361.
+The After With/Without estimator is equal to <span class="math inline">\(\hat{\Delta}^{y}_{WW}=\)</span> -1.154.
+The DID estimator is thus equal to <span class="math inline">\(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=\)</span> -1.154 <span class="math inline">\(-(\)</span> -1.361 <span class="math inline">\()=\)</span> 0.206.
+This is not too far from the true effect of the treatment in the sample which is equal to <span class="math inline">\(\hat{\Delta}^{y}_{TT}=\)</span> 0.165.</p>
+<p>Now, another very important question is whether the DID estimator is consistent, that is whether it is equal to <span class="math inline">\(\Delta^{y}_{TT}\)</span> in our model.
+A necessary and sufficient condition for that is for the Parallel Trends Assumption <a href="NE.html#hyp:ParallelTrends">4.9</a> to hold.
+Indeed, it can be shown that the bias of the DID estimator is <span class="math inline">\(\Delta^{y}_{B(DID)}=\Delta^{y}_{DID}-\Delta^{y}_{TT}=\)</span> <span class="math inline">\(\esp{y^0_{i}|D_i=1} - \esp{y^B_{i}|D_i=1}-(\esp{y^0_{i}|D_i=0} - \esp{y^B_{i}|D_i=0})\)</span>.
+Let us derive <span class="math inline">\(\Delta^{y}_{B(DID)}\)</span> in our example.
+Let us compute the trend in potential outcomes among the treated:</p>
+<p><span class="math display">\[\begin{align*}
+  \esp{y^0_{i,A}|D_i=1} &amp; - \esp{y^0_{i,B}|D_i=1} \\
+  &amp; = \esp{y^0_{i}|D_i=1} - \esp{y^B_{i}|D_i=1} \\
+  &amp; = \esp{\mu_i+\delta+U_i^0|D_i=1}-\esp{\mu_i+U_i^B|D_i=1} \\
+  &amp; = \esp{\mu_i|D_i=1}+\delta+\esp{U_i^0|D_i=1}\\
+  &amp; \phantom{=}-\esp{\mu_i|D_i=1}-\esp{U_i^B|D_i=1} \\
+  &amp; = \delta + \esp{\rho U_i^B+\epsilon_i|D_i=1}-\esp{U_i^B|D_i=1}\\
+  &amp; = \delta -(1-\rho)\esp{U_i^B|D_i=1}.
+\end{align*}\]</span></p>
+<p>Following the same line of reasoning, the trend in potential outcomes among the untreated is:</p>
+<p><span class="math display">\[\begin{align*}
+\esp{y^0_{i}|D_i=0} - \esp{y^B_{i}|D_i=0} &amp; = \delta -(1-\rho)\esp{U_i^B|D_i=0}.
+\end{align*}\]</span></p>
+<p>As a consequence, the bias of the DID estimator in our model is:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta^{y}_{B(DID)} &amp; = -(1-\rho)(\esp{U_i^B|D_i=1}-\esp{U_i^B|D_i=0}) \\
+  &amp; = -(1-\rho)(\esp{U_i^B|\mu_i+U_i^B+V_i\leq\bar{y}}-\esp{U_i^B|\mu_i+U_i^B+V_i&gt;\bar{y}})
+\end{align*}\]</span></p>
+<p>Is this zero?
+The answer actually is that it is not.
+In order to see why, notice intuitively that the conditional expectation of <span class="math inline">\(U_i^B\)</span> is taken conditional on something correlated with <span class="math inline">\(U_i^B\)</span> being above or below some threshold.
+As a consequence, the two values whose difference is taken in the parenthesis cannot be equal.
+More formally, let us derive the formula for the bias of the DID estimator in our model, using the formula for the expectation of a truncated bivariate normal distribution:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta^{y}_{B(DID)}  &amp; = -(1-\rho)(\esp{U_i^B|\mu_i+U_i^B+V_i\leq\bar{y}}-\esp{U_i^B|\mu_i+U_i^B+V_i&gt;\bar{y}}) \\
+                        &amp; = (1-\rho)\left(\frac{\sigma^2_U}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)
+                                         \left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            {\Phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            +\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            {1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                      \right)
+\end{align*}\]</span></p>
+<p>In order to compute the value of this parameter, and of the average treatment effect, we are going to use the package <code>tmtvnorm</code> which provides the moments from a truncated multivariate normal variable.
+Here, we use the distribution of <span class="math inline">\((\alpha_i,U_i^B,\mu_i+U_i^B+V_i)\)</span> which is normal with mean <span class="math inline">\((\bar{\alpha}+\theta\bar{\mu},0,\bar{\mu})\)</span> and covariance matrix <span class="math inline">\(\mathbf{D}\)</span> with:</p>
+<p><span class="math display">\[\begin{align*}
+  \mathbf{D} &amp;=  \left(\begin{array}{ccc}
+                      \theta^2\sigma^2_{\mu}+ \sigma^2_{\eta} &amp; 0 &amp; (\theta+\gamma\theta)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma_{\eta}\sigma_{\omega}\\
+                      0 &amp; \sigma^2_U &amp; \sigma^2_U \\
+                      (\theta+\gamma\theta)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma_{\eta}\sigma_{\omega}&amp; \sigma^2_U &amp; (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}
+                      \end{array}\right)
+\end{align*}\]</span></p>
+<div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb145-1"><a href="NE.html#cb145-1" aria-hidden="true" tabindex="-1"></a>mean.alpha.UB.yBV <span class="ot">&lt;-</span> <span class="fu">c</span>(param[<span class="st">&#39;baralpha&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;barmu&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;theta&#39;</span>],<span class="dv">0</span>,param[<span class="st">&#39;barmu&#39;</span>])</span>
+<span id="cb145-2"><a href="NE.html#cb145-2" aria-hidden="true" tabindex="-1"></a>cov.alpha.UB.yBV <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(param[<span class="st">&#39;theta&#39;</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2eta&#39;</span>],</span>
+<span id="cb145-3"><a href="NE.html#cb145-3" aria-hidden="true" tabindex="-1"></a>                             <span class="dv">0</span>,</span>
+<span id="cb145-4"><a href="NE.html#cb145-4" aria-hidden="true" tabindex="-1"></a>                             (param[<span class="st">&#39;theta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;theta&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rhoetaomega&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2eta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2omega&#39;</span>],</span>
+<span id="cb145-5"><a href="NE.html#cb145-5" aria-hidden="true" tabindex="-1"></a>                             <span class="dv">0</span>, </span>
+<span id="cb145-6"><a href="NE.html#cb145-6" aria-hidden="true" tabindex="-1"></a>                             param[<span class="st">&#39;sigma2U&#39;</span>],</span>
+<span id="cb145-7"><a href="NE.html#cb145-7" aria-hidden="true" tabindex="-1"></a>                             param[<span class="st">&#39;sigma2U&#39;</span>],</span>
+<span id="cb145-8"><a href="NE.html#cb145-8" aria-hidden="true" tabindex="-1"></a>                             (param[<span class="st">&#39;theta&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;theta&#39;</span>])<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;rhoetaomega&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2eta&#39;</span>]<span class="sc">*</span>param[<span class="st">&#39;sigma2omega&#39;</span>],</span>
+<span id="cb145-9"><a href="NE.html#cb145-9" aria-hidden="true" tabindex="-1"></a>                             param[<span class="st">&#39;sigma2U&#39;</span>],</span>
+<span id="cb145-10"><a href="NE.html#cb145-10" aria-hidden="true" tabindex="-1"></a>                            (<span class="dv">1</span><span class="sc">+</span>param[<span class="st">&#39;gamma&#39;</span>]<span class="sc">^</span><span class="dv">2</span>)<span class="sc">*</span>param[<span class="st">&#39;sigma2mu&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2U&#39;</span>]<span class="sc">+</span>param[<span class="st">&#39;sigma2omega&#39;</span>]),<span class="dv">3</span>,<span class="dv">3</span>,<span class="at">byrow=</span><span class="cn">TRUE</span>)</span>
+<span id="cb145-11"><a href="NE.html#cb145-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb145-12"><a href="NE.html#cb145-12" aria-hidden="true" tabindex="-1"></a><span class="co"># cuts</span></span>
+<span id="cb145-13"><a href="NE.html#cb145-13" aria-hidden="true" tabindex="-1"></a><span class="co">#non participants</span></span>
+<span id="cb145-14"><a href="NE.html#cb145-14" aria-hidden="true" tabindex="-1"></a>lower.cut.D0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb145-15"><a href="NE.html#cb145-15" aria-hidden="true" tabindex="-1"></a>upper.cut.D0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="cn">Inf</span>)</span>
+<span id="cb145-16"><a href="NE.html#cb145-16" aria-hidden="true" tabindex="-1"></a><span class="co"># participants</span></span>
+<span id="cb145-17"><a href="NE.html#cb145-17" aria-hidden="true" tabindex="-1"></a>lower.cut.D1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="cn">Inf</span>)</span>
+<span id="cb145-18"><a href="NE.html#cb145-18" aria-hidden="true" tabindex="-1"></a>upper.cut.D1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">Inf</span>,<span class="cn">Inf</span>,<span class="fu">log</span>(param[<span class="st">&#39;barY&#39;</span>]))</span>
+<span id="cb145-19"><a href="NE.html#cb145-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb145-20"><a href="NE.html#cb145-20" aria-hidden="true" tabindex="-1"></a><span class="co"># means </span></span>
+<span id="cb145-21"><a href="NE.html#cb145-21" aria-hidden="true" tabindex="-1"></a>TT <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.alpha.UB.yBV,<span class="at">sigma=</span>cov.alpha.UB.yBV,<span class="at">lower=</span>lower.cut.D1,<span class="at">upper=</span>upper.cut.D1,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">1</span>]]</span>
+<span id="cb145-22"><a href="NE.html#cb145-22" aria-hidden="true" tabindex="-1"></a>mean.UB.D0 <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.alpha.UB.yBV,<span class="at">sigma=</span>cov.alpha.UB.yBV,<span class="at">lower=</span>lower.cut.D0,<span class="at">upper=</span>upper.cut.D0,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb145-23"><a href="NE.html#cb145-23" aria-hidden="true" tabindex="-1"></a>mean.UB.D1 <span class="ot">&lt;-</span> <span class="fu">mtmvnorm</span>(<span class="at">mean=</span>mean.alpha.UB.yBV,<span class="at">sigma=</span>cov.alpha.UB.yBV,<span class="at">lower=</span>lower.cut.D1,<span class="at">upper=</span>upper.cut.D1,<span class="at">doComputeVariance=</span><span class="cn">FALSE</span>)[[<span class="dv">1</span>]][[<span class="dv">2</span>]]</span>
+<span id="cb145-24"><a href="NE.html#cb145-24" aria-hidden="true" tabindex="-1"></a>B.DID <span class="ot">&lt;-</span> <span class="sc">-</span>(<span class="dv">1</span><span class="sc">-</span>param[<span class="st">&#39;rho&#39;</span>])<span class="sc">*</span>(mean.UB.D1<span class="sc">-</span>mean.UB.D0)</span></code></pre></div>
+<p>In our example, the population <span class="math inline">\(TT\)</span> is equal to <span class="math inline">\(\Delta^y_{TT}=\)</span> 0.173.
+The DID estimator is equal to <span class="math inline">\(\Delta^y_{DID}=\)</span> 0.219.
+As a consequence, the bias of the DID estimator is equal to <span class="math inline">\(\Delta^y_{B(DID)}=\)</span> 0.046.</p>
 </div>
 <div id="estimation-1" class="section level4" number="4.3.1.2">
 <h4><span class="header-section-number">4.3.1.2</span> Estimation</h4>

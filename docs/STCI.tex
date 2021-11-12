@@ -131,7 +131,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-11-05}
+\date{2021-11-12}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -7657,7 +7657,7 @@ One way to understand the DID estimator is to see it as recreating the counterfa
 This estimated counterfactual trajectory is shown as the purple continuous line at the bottom of Figure \ref{fig:PlotDID}.
 In our example, the true counterfactual trajectory (the discontinuous line) and the estimated counterfactual trajectory almost coincide, making the estimated counterfactual outcome of the participants very close to their true counterfactual outcome (7.046 vs 7.087).
 The difference between these two quantities measures the bias of the DID estimator, and we can see that it is very low in our example.
-The fact that the Before/After difference in outcomes for the non participants aproximates well the counterfactual Before/After difference in outcomes for the participants is \textbf{THE} crucial assumption of the DID estimator.
+The fact that the Before/After difference in outcomes for the non participants approximates well the counterfactual Before/After difference in outcomes for the participants is \textbf{THE} crucial assumption of the DID estimator.
 It is called the parallel trends assumption.
 
 \hypertarget{identification-5}{%
@@ -7749,6 +7749,107 @@ As a consequence, we have:
                 & = \Delta^{Y_A}_{TT}.
 \end{align*}
 \end{proof}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-168}{}{\label{exm:unnamed-chunk-168} }How does the DID estimator behave in our example?
+\end{example}
+The Before/After comparison among the participants is equal to \(\hat{\Delta}^{y}_{BA|D=1}=\) 0.252.
+The Before/After comparison among the non-participants is equal to \(\hat{\Delta}^{y}_{BA|D=0}=\) 0.046.
+The DID estimator is thus equal to \(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{BA|D=1}-\hat{\Delta}^{y}_{BA|D=0}=\) 0.252 \(-\) 0.046 \(=\) 0.206.
+It is also equal to the difference between the before and after With/Without estimators.
+The Before With/Without estimator is equal to \(\hat{\Delta}^{y^B}_{WW}=\) -1.361.
+The After With/Without estimator is equal to \(\hat{\Delta}^{y}_{WW}=\) -1.154.
+The DID estimator is thus equal to \(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=\) -1.154 \(-(\) -1.361 \()=\) 0.206.
+This is not too far from the true effect of the treatment in the sample which is equal to \(\hat{\Delta}^{y}_{TT}=\) 0.165.
+
+Now, another very important question is whether the DID estimator is consistent, that is whether it is equal to \(\Delta^{y}_{TT}\) in our model.
+A necessary and sufficient condition for that is for the Parallel Trends Assumption \ref{hyp:ParallelTrends} to hold.
+Indeed, it can be shown that the bias of the DID estimator is \(\Delta^{y}_{B(DID)}=\Delta^{y}_{DID}-\Delta^{y}_{TT}=\) \(\esp{y^0_{i}|D_i=1} - \esp{y^B_{i}|D_i=1}-(\esp{y^0_{i}|D_i=0} - \esp{y^B_{i}|D_i=0})\).
+Let us derive \(\Delta^{y}_{B(DID)}\) in our example.
+Let us compute the trend in potential outcomes among the treated:
+
+\begin{align*}
+  \esp{y^0_{i,A}|D_i=1} & - \esp{y^0_{i,B}|D_i=1} \\
+  & = \esp{y^0_{i}|D_i=1} - \esp{y^B_{i}|D_i=1} \\
+  & = \esp{\mu_i+\delta+U_i^0|D_i=1}-\esp{\mu_i+U_i^B|D_i=1} \\
+  & = \esp{\mu_i|D_i=1}+\delta+\esp{U_i^0|D_i=1}\\
+  & \phantom{=}-\esp{\mu_i|D_i=1}-\esp{U_i^B|D_i=1} \\
+  & = \delta + \esp{\rho U_i^B+\epsilon_i|D_i=1}-\esp{U_i^B|D_i=1}\\
+  & = \delta -(1-\rho)\esp{U_i^B|D_i=1}.
+\end{align*}
+
+Following the same line of reasoning, the trend in potential outcomes among the untreated is:
+
+\begin{align*}
+\esp{y^0_{i}|D_i=0} - \esp{y^B_{i}|D_i=0} & = \delta -(1-\rho)\esp{U_i^B|D_i=0}.
+\end{align*}
+
+As a consequence, the bias of the DID estimator in our model is:
+
+\begin{align*}
+  \Delta^{y}_{B(DID)} & = -(1-\rho)(\esp{U_i^B|D_i=1}-\esp{U_i^B|D_i=0}) \\
+  & = -(1-\rho)(\esp{U_i^B|\mu_i+U_i^B+V_i\leq\bar{y}}-\esp{U_i^B|\mu_i+U_i^B+V_i>\bar{y}})
+\end{align*}
+
+Is this zero?
+The answer actually is that it is not.
+In order to see why, notice intuitively that the conditional expectation of \(U_i^B\) is taken conditional on something correlated with \(U_i^B\) being above or below some threshold.
+As a consequence, the two values whose difference is taken in the parenthesis cannot be equal.
+More formally, let us derive the formula for the bias of the DID estimator in our model, using the formula for the expectation of a truncated bivariate normal distribution:
+
+\begin{align*}
+  \Delta^{y}_{B(DID)}  & = -(1-\rho)(\esp{U_i^B|\mu_i+U_i^B+V_i\leq\bar{y}}-\esp{U_i^B|\mu_i+U_i^B+V_i>\bar{y}}) \\
+                        & = (1-\rho)\left(\frac{\sigma^2_U}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)
+                                         \left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            {\Phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            +\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            {1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                      \right)
+\end{align*}
+
+In order to compute the value of this parameter, and of the average treatment effect, we are going to use the package \texttt{tmtvnorm} which provides the moments from a truncated multivariate normal variable.
+Here, we use the distribution of \((\alpha_i,U_i^B,\mu_i+U_i^B+V_i)\) which is normal with mean \((\bar{\alpha}+\theta\bar{\mu},0,\bar{\mu})\) and covariance matrix \(\mathbf{D}\) with:
+
+\begin{align*}
+  \mathbf{D} &=  \left(\begin{array}{ccc}
+                      \theta^2\sigma^2_{\mu}+ \sigma^2_{\eta} & 0 & (\theta+\gamma\theta)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma_{\eta}\sigma_{\omega}\\
+                      0 & \sigma^2_U & \sigma^2_U \\
+                      (\theta+\gamma\theta)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma_{\eta}\sigma_{\omega}& \sigma^2_U & (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}
+                      \end{array}\right)
+\end{align*}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mean.alpha.UB.yBV }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(param[}\StringTok{\textquotesingle{}baralpha\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{],}\DecValTok{0}\NormalTok{,param[}\StringTok{\textquotesingle{}barmu\textquotesingle{}}\NormalTok{])}
+\NormalTok{cov.alpha.UB.yBV }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{],}
+                             \DecValTok{0}\NormalTok{,}
+\NormalTok{                             (param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rhoetaomega\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{],}
+                             \DecValTok{0}\NormalTok{, }
+\NormalTok{                             param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{],}
+\NormalTok{                             param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{],}
+\NormalTok{                             (param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}theta\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}rhoetaomega\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2eta\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{],}
+\NormalTok{                             param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{],}
+\NormalTok{                            (}\DecValTok{1}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}gamma\textquotesingle{}}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2mu\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2U\textquotesingle{}}\NormalTok{]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{\textquotesingle{}sigma2omega\textquotesingle{}}\NormalTok{]),}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
+
+\CommentTok{\# cuts}
+\CommentTok{\#non participants}
+\NormalTok{lower.cut.D0 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]))}
+\NormalTok{upper.cut.D0 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{)}
+\CommentTok{\# participants}
+\NormalTok{lower.cut.D1 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{,}\SpecialCharTok{{-}}\ConstantTok{Inf}\NormalTok{)}
+\NormalTok{upper.cut.D1 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]))}
+
+\CommentTok{\# means }
+\NormalTok{TT }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.UB.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.UB.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.D1,}\AttributeTok{upper=}\NormalTok{upper.cut.D1,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{1}\NormalTok{]]}
+\NormalTok{mean.UB.D0 }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.UB.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.UB.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.D0,}\AttributeTok{upper=}\NormalTok{upper.cut.D0,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{mean.UB.D1 }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.UB.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.UB.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.D1,}\AttributeTok{upper=}\NormalTok{upper.cut.D1,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{B.DID }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{(mean.UB.D1}\SpecialCharTok{{-}}\NormalTok{mean.UB.D0)}
+\end{Highlighting}
+\end{Shaded}
+
+In our example, the population \(TT\) is equal to \(\Delta^y_{TT}=\) 0.173.
+The DID estimator is equal to \(\Delta^y_{DID}=\) 0.219.
+As a consequence, the bias of the DID estimator is equal to \(\Delta^y_{B(DID)}=\) 0.046.
 
 \hypertarget{estimation-1}{%
 \subsubsection{Estimation}\label{estimation-1}}
@@ -7958,7 +8059,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-170}{}{\label{exm:unnamed-chunk-170} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-171}{}{\label{exm:unnamed-chunk-171} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -8219,7 +8320,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -8363,7 +8464,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-179}{}{\label{exm:unnamed-chunk-179} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -8486,7 +8587,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-179}{}{\label{exm:unnamed-chunk-179} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -8548,7 +8649,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -8589,7 +8690,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-183}{}{\label{exm:unnamed-chunk-183} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-184}{}{\label{exm:unnamed-chunk-184} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -8624,7 +8725,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-185}{}{\label{exm:unnamed-chunk-185} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-186}{}{\label{exm:unnamed-chunk-186} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -8739,7 +8840,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-186}{}{\label{exm:unnamed-chunk-186} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -8930,7 +9031,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -9027,7 +9128,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-189}{}{\label{exm:unnamed-chunk-189} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9147,7 +9248,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-190}{}{\label{exm:unnamed-chunk-190} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-191}{}{\label{exm:unnamed-chunk-191} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -9226,7 +9327,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-191}{}{\label{exm:unnamed-chunk-191} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-192}{}{\label{exm:unnamed-chunk-192} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -9369,7 +9470,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-192}{}{\label{exm:unnamed-chunk-192} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9473,7 +9574,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -9811,7 +9912,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9970,7 +10071,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-196}{}{\label{exm:unnamed-chunk-196} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -10260,7 +10361,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-202}{}{\label{exm:unnamed-chunk-202} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-203}{}{\label{exm:unnamed-chunk-203} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -10513,7 +10614,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-209}{}{\label{exm:unnamed-chunk-209} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}

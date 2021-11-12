@@ -1178,7 +1178,7 @@ One way to understand the DID estimator is to see it as recreating the counterfa
 This estimated counterfactual trajectory is shown as the purple continuous line at the bottom of Figure \@ref(fig:PlotDID).
 In our example, the true counterfactual trajectory (the discontinuous line) and the estimated counterfactual trajectory almost coincide, making the estimated counterfactual outcome of the participants very close to their true counterfactual outcome (`r round(Counterfactual.after,3)` vs `r round(mean(y0[Ds==1]),3)`).
 The difference between these two quantities measures the bias of the DID estimator, and we can see that it is very low in our example.
-The fact that the Before/After difference in outcomes for the non participants aproximates well the counterfactual Before/After difference in outcomes for the participants is **THE** crucial assumption of the DID estimator. 
+The fact that the Before/After difference in outcomes for the non participants approximates well the counterfactual Before/After difference in outcomes for the participants is **THE** crucial assumption of the DID estimator. 
 It is called the parallel trends assumption.
 
 #### Identification 
@@ -1271,7 +1271,104 @@ As a consequence, we have:
 \end{align*}
 ```
 
+```{example}
+How does the DID estimator behave in our example?
+```
+The Before/After comparison among the participants is equal to $\hat{\Delta}^{y}_{BA|D=1}=$ `r round(BA.treated,3)`.
+The Before/After comparison among the non-participants is equal to $\hat{\Delta}^{y}_{BA|D=0}=$ `r round(BA.untreated,3)`.
+The DID estimator is thus equal to $\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{BA|D=1}-\hat{\Delta}^{y}_{BA|D=0}=$ `r round(BA.treated,3)` $-$ `r round(BA.untreated,3)` $=$ `r round(DID,3)`.
+It is also equal to the difference between the before and after With/Without estimators.
+The Before With/Without estimator is equal to $\hat{\Delta}^{y^B}_{WW}=$ `r round(WW.before,3)`.
+The After With/Without estimator is equal to $\hat{\Delta}^{y}_{WW}=$ `r round(WW.after,3)`.
+The DID estimator is thus equal to $\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=$ `r round(WW.after,3)` $-($ `r round(WW.before,3)` $)=$ `r round(DID,3)`.
+This is not too far from the true effect of the treatment in the sample which is equal to $\hat{\Delta}^{y}_{TT}=$ `r round(TT,3)`.
 
+Now, another very important question is whether the DID estimator is consistent, that is whether it is equal to $\Delta^{y}_{TT}$ in our model.
+A necessary and sufficient condition for that is for the Parallel Trends Assumption \@ref(hyp:ParallelTrends) to hold. 
+Indeed, it can be shown that the bias of the DID estimator is $\Delta^{y}_{B(DID)}=\Delta^{y}_{DID}-\Delta^{y}_{TT}=$ $\esp{y^0_{i}|D_i=1}  - \esp{y^B_{i}|D_i=1}-(\esp{y^0_{i}|D_i=0} - \esp{y^B_{i}|D_i=0})$.
+Let us derive $\Delta^{y}_{B(DID)}$ in our example. 
+Let us compute the trend in potential outcomes among the treated: 
+
+\begin{align*}
+  \esp{y^0_{i,A}|D_i=1} & - \esp{y^0_{i,B}|D_i=1} \\
+  & = \esp{y^0_{i}|D_i=1} - \esp{y^B_{i}|D_i=1} \\
+  & = \esp{\mu_i+\delta+U_i^0|D_i=1}-\esp{\mu_i+U_i^B|D_i=1} \\
+  & = \esp{\mu_i|D_i=1}+\delta+\esp{U_i^0|D_i=1}\\
+  & \phantom{=}-\esp{\mu_i|D_i=1}-\esp{U_i^B|D_i=1} \\
+  & = \delta + \esp{\rho U_i^B+\epsilon_i|D_i=1}-\esp{U_i^B|D_i=1}\\
+  & = \delta -(1-\rho)\esp{U_i^B|D_i=1}.
+\end{align*}
+
+Following the same line of reasoning, the trend in potential outcomes among the untreated is:
+
+\begin{align*}
+\esp{y^0_{i}|D_i=0} - \esp{y^B_{i}|D_i=0} & = \delta -(1-\rho)\esp{U_i^B|D_i=0}.
+\end{align*}
+
+As a consequence, the bias of the DID estimator in our model is:
+
+\begin{align*}
+  \Delta^{y}_{B(DID)} & = -(1-\rho)(\esp{U_i^B|D_i=1}-\esp{U_i^B|D_i=0}) \\
+  & = -(1-\rho)(\esp{U_i^B|\mu_i+U_i^B+V_i\leq\bar{y}}-\esp{U_i^B|\mu_i+U_i^B+V_i>\bar{y}})
+\end{align*}
+
+Is this zero?
+The answer actually is that it is not.
+In order to see why, notice intuitively that the conditional expectation of $U_i^B$ is taken conditional on something correlated with $U_i^B$ being above or below some threshold.
+As a consequence, the two values whose difference is taken in the parenthesis cannot be equal.
+More formally, let us derive the formula for the bias of the DID estimator in our model, using the formula for the expectation of a truncated bivariate normal distribution:
+
+\begin{align*}
+  \Delta^{y}_{B(DID)}  & = -(1-\rho)(\esp{U_i^B|\mu_i+U_i^B+V_i\leq\bar{y}}-\esp{U_i^B|\mu_i+U_i^B+V_i>\bar{y}}) \\
+                        & = (1-\rho)\left(\frac{\sigma^2_U}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)
+                                         \left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            {\Phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            +\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                            {1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{(1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}}\right)}
+                                      \right)
+\end{align*}
+
+In order to compute the value of this parameter, and of the average treatment effect, we are going to use the package `tmtvnorm` which provides the moments from a truncated multivariate normal variable.
+Here, we use the distribution of $(\alpha_i,U_i^B,\mu_i+U_i^B+V_i)$ which is normal with mean $(\bar{\alpha}+\theta\bar{\mu},0,\bar{\mu})$ and covariance matrix $\mathbf{D}$ with:
+
+\begin{align*}
+  \mathbf{D} &=  \left(\begin{array}{ccc}
+                      \theta^2\sigma^2_{\mu}+ \sigma^2_{\eta} & 0 & (\theta+\gamma\theta)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma_{\eta}\sigma_{\omega}\\
+                      0 & \sigma^2_U & \sigma^2_U \\
+                      (\theta+\gamma\theta)\sigma^2_{\mu}+\rho_{\eta,\omega}\sigma_{\eta}\sigma_{\omega}& \sigma^2_U & (1+\gamma^2)\sigma^2_{\mu}+\sigma^2_U+\sigma^2_{\omega}
+                      \end{array}\right)
+\end{align*}
+
+```{r BiasDIDPopulation,eval=TRUE,echo=TRUE,results='hide'}
+mean.alpha.UB.yBV <- c(param['baralpha']+param['barmu']*param['theta'],0,param['barmu'])
+cov.alpha.UB.yBV <- matrix(c(param['theta']^2*param['sigma2mu']+param['sigma2eta'],
+                             0,
+                             (param['theta']+param['gamma']*param['theta'])*param['sigma2mu']+param['rhoetaomega']*param['sigma2eta']*param['sigma2omega'],
+                             0, 
+                             param['sigma2U'],
+                             param['sigma2U'],
+                             (param['theta']+param['gamma']*param['theta'])*param['sigma2mu']+param['rhoetaomega']*param['sigma2eta']*param['sigma2omega'],
+                             param['sigma2U'],
+                            (1+param['gamma']^2)*param['sigma2mu']+param['sigma2U']+param['sigma2omega']),3,3,byrow=TRUE)
+
+# cuts
+#non participants
+lower.cut.D0 <- c(-Inf,-Inf,log(param['barY']))
+upper.cut.D0 <- c(Inf,Inf,Inf)
+# participants
+lower.cut.D1 <- c(-Inf,-Inf,-Inf)
+upper.cut.D1 <- c(Inf,Inf,log(param['barY']))
+
+# means 
+TT <- mtmvnorm(mean=mean.alpha.UB.yBV,sigma=cov.alpha.UB.yBV,lower=lower.cut.D1,upper=upper.cut.D1,doComputeVariance=FALSE)[[1]][[1]]
+mean.UB.D0 <- mtmvnorm(mean=mean.alpha.UB.yBV,sigma=cov.alpha.UB.yBV,lower=lower.cut.D0,upper=upper.cut.D0,doComputeVariance=FALSE)[[1]][[2]]
+mean.UB.D1 <- mtmvnorm(mean=mean.alpha.UB.yBV,sigma=cov.alpha.UB.yBV,lower=lower.cut.D1,upper=upper.cut.D1,doComputeVariance=FALSE)[[1]][[2]]
+B.DID <- -(1-param['rho'])*(mean.UB.D1-mean.UB.D0)
+```
+
+In our example, the population $TT$ is equal to $\Delta^y_{TT}=$ `r round(TT,3)`.
+The DID estimator is equal to $\Delta^y_{DID}=$ `r round(TT+B.DID,3)`.
+As a consequence, the bias of the DID estimator is equal to $\Delta^y_{B(DID)}=$ `r round(B.DID,3)`.
 
 #### Estimation
 
