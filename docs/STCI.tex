@@ -116,6 +116,7 @@
 \newcommand{\uns}[1]{\mathds{1}[ #1 ]}
 \usepackage{subfig}
 \newcommand{\esp}[1]{\mathbb{E}[ #1 ]}
+\newcommand{\hatesp}[1]{\hat{\mathbb{E}}[ #1 ]}
 \newcommand\Ind{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\setbox0\hbox{$#1#2$}\copy0\kern-\wd0\mkern4mu\box0}}
 \newcommand{\var}[1]{\mathbb{V}[ #1 ]}
@@ -131,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-11-12}
+\date{2021-11-16}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -7851,11 +7852,84 @@ In our example, the population \(TT\) is equal to \(\Delta^y_{TT}=\) 0.173.
 The DID estimator is equal to \(\Delta^y_{DID}=\) 0.219.
 As a consequence, the bias of the DID estimator is equal to \(\Delta^y_{B(DID)}=\) 0.046.
 
+In order to make the DID estimator consistent for the \(TT\) parameter, we need to impose that \(\rho=1\).
+When shocks are permanent, their bias remains constant over time and thus DID can estimate it without error.
+Let us generate new data that are compatible with that assumption.
+
+Let's see how DID works on this data.
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDPT-1} 
+
+}
+
+\caption{Evolution of average outcomes in the treated and control group when the Parallel Trends Assumption holds}\label{fig:PlotDIDPT}
+\end{figure}
+
+Now, the counterfactual change in outcome for the treated and its approximation using the trend experienced by the untreated are extremely close, as the curves \emph{Treated counterfactual} and \emph{Treated DID} show on Figure \ref{fig:PlotDIDPT}.
+
 \hypertarget{estimation-1}{%
 \subsubsection{Estimation}\label{estimation-1}}
 
+Estimation of \(TT\) under the \(DID\) assumptions can be performed in a variety of ways: using directly the DID formula, using OLS with group fixed effects, using OLS with individual and time dummy variables, using first differences and using the within transformation (also known as the Two-Way Fixed Effects or TWFE estimator).
+With only two periods of data and a fully balanced panel, all of these estimators are actually numerically equivalent.
+Let's examine them in turn.
+
+\hypertarget{using-the-did-formula}{%
+\paragraph{Using the DID formula}\label{using-the-did-formula}}
+
+One could go directly and use the DID formula of Theorem \ref{thm:IdentDID}.
+The sample DID estimator is thus equal to:
+
+\begin{align*} 
+  \hat{\Delta}^Y_{DID} & = \frac{\sum_{i=1}^NY_{i,A}D_i}{\sum_{i=1}^ND_i} -\frac{\sum_{i=1}^NY_{i,B}D_i}{\sum_{i=1}^ND_i} - \left(\frac{\sum_{i=1}^NY_{i,A}(1-D_i)}{\sum_{i=1}^N(1-D_i)} -\frac{\sum_{i=1}^NY_{i,B}(1-D_i)}{\sum_{i=1}^N(1-D_i)}\right).
+\end{align*}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-169}{}{\label{exm:unnamed-chunk-169} }In our example, let's see how this estimator works.
+\end{example}
+The Before/After comparison among the participants is equal to \(\hat{\Delta}^{y}_{BA|D=1}=\) 0.218.
+The Before/After comparison among the non-participants is equal to \(\hat{\Delta}^{y}_{BA|D=0}=\) 0.057.
+The DID estimator is thus equal to \(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{BA|D=1}-\hat{\Delta}^{y}_{BA|D=0}=\) 0.218 \(-\) 0.057 \(=\) 0.161.
+It is also equal to the difference between the before and after With/Without estimators.
+The Before With/Without estimator is equal to \(\hat{\Delta}^{y^B}_{WW}=\) -1.361.
+The After With/Without estimator is equal to \(\hat{\Delta}^{y}_{WW}=\) -1.2.
+The DID estimator is thus equal to \(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=\) -1.2 \(-(\) -1.361 \()=\) 0.161.
+This is not too far from the true effect of the treatment in the sample which is equal to \(\hat{\Delta}^{y}_{TT}=\) 0.165.
+In the population, the \(TT\) parameter has not changed, since its computation does not involve \(\rho\).
+We still have \(\Delta^y_{TT}=\) 0.165.
+
+\hypertarget{using-the-least-squares-did-estimator}{%
+\paragraph{Using the Least Squares DID estimator}\label{using-the-least-squares-did-estimator}}
+
+The most basic regression-based way.
+Does not require panel data.
+
+\hypertarget{using-the-least-squares-dummy-variables-estimator}{%
+\paragraph{Using the Least Squares Dummy Variables estimator}\label{using-the-least-squares-dummy-variables-estimator}}
+
+One very computer-intensive way to estimate \(TT\) in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.
+
+\hypertarget{using-first-differences}{%
+\paragraph{Using First Differences}\label{using-first-differences}}
+
+A much simpler approach is simply to first-difference the data and regress the obtained differenced outcome on the treatment dummy.
+
+\hypertarget{using-the-two-way-fixed-effects-estimator}{%
+\paragraph{Using the Two-Way Fixed Effects estimator}\label{using-the-two-way-fixed-effects-estimator}}
+
+Finally, a more universal approach is to rely on the Two-Way Fixed Effects estimator.
+There are multiple ways to implement it.
+\texttt{R} proposes the wonderful \texttt{fixest} package by Laurent Bergé, which works even with a very large number of fixed effects.
+It does not work by differencing the the data with respect to the grouped-means, as the traditional within estimator does (see \texttt{plm} for an implementation of that approach).
+\texttt{fixest} uses the concentrated likelihood in order to estimate the treatment effect.
+The algorithm works by first estimating the fixed effects and then by running the likelihood on the differenced out data. (?)
+
 \hypertarget{inference}{%
 \subsubsection{Inference}\label{inference}}
+
+Inference from the OLS with group fixed effects will be too wide.
 
 \hypertarget{differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date}{%
 \subsection{Differences In Differences with more than two-time periods but only one treatment date}\label{differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date}}
@@ -8059,7 +8133,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-171}{}{\label{exm:unnamed-chunk-171} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-172}{}{\label{exm:unnamed-chunk-172} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -8320,7 +8394,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -8464,7 +8538,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-179}{}{\label{exm:unnamed-chunk-179} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -8587,7 +8661,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -8649,7 +8723,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-182}{}{\label{exm:unnamed-chunk-182} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -8690,7 +8764,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-184}{}{\label{exm:unnamed-chunk-184} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-185}{}{\label{exm:unnamed-chunk-185} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -8725,7 +8799,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-186}{}{\label{exm:unnamed-chunk-186} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -8840,7 +8914,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -9031,7 +9105,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-189}{}{\label{exm:unnamed-chunk-189} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -9128,7 +9202,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-189}{}{\label{exm:unnamed-chunk-189} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-190}{}{\label{exm:unnamed-chunk-190} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9248,7 +9322,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-191}{}{\label{exm:unnamed-chunk-191} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-192}{}{\label{exm:unnamed-chunk-192} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -9317,17 +9391,17 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 \begin{itemize}
 \tightlist
 \item
-  148 \%, or 0.3 of a standard deviation, with studies with a small sample size,
+  156 \%, or 0.31 of a standard deviation, with studies with a small sample size,
 \item
-  40 \%, or 0.08 of a standard deviation, with studies with a small or intermediate sample size,
+  45 \%, or 0.09 of a standard deviation, with studies with a small or intermediate sample size,
 \item
-  4 \%, or 0.01 of a standard deviation, with all studies.
+  1 \%, or 0 of a standard deviation, with all studies.
 \end{itemize}
 
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-192}{}{\label{exm:unnamed-chunk-192} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -9394,11 +9468,11 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 \begin{itemize}
 \tightlist
 \item
-  212 \%, or 0.43 of a standard deviation, with studies with a small sample size,
+  223 \%, or 0.44 of a standard deviation, with studies with a small sample size,
 \item
-  25 \%, or 0.05 of a standard deviation, with studies with a small or intermediate sample size,
+  30 \%, or 0.06 of a standard deviation, with studies with a small or intermediate sample size,
 \item
-  7 \%, or 0.01 of a standard deviation, with all studies.
+  11 \%, or 0.02 of a standard deviation, with all studies.
 \end{itemize}
 
 \hypertarget{site-selection-bias-1}{%
@@ -9470,7 +9544,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9574,7 +9648,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -9912,7 +9986,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-196}{}{\label{exm:unnamed-chunk-196} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10071,7 +10145,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-196}{}{\label{exm:unnamed-chunk-196} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-197}{}{\label{exm:unnamed-chunk-197} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -10361,7 +10435,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-203}{}{\label{exm:unnamed-chunk-203} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-204}{}{\label{exm:unnamed-chunk-204} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -10614,7 +10688,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-211}{}{\label{exm:unnamed-chunk-211} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}

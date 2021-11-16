@@ -1370,11 +1370,124 @@ In our example, the population $TT$ is equal to $\Delta^y_{TT}=$ `r round(TT,3)`
 The DID estimator is equal to $\Delta^y_{DID}=$ `r round(TT+B.DID,3)`.
 As a consequence, the bias of the DID estimator is equal to $\Delta^y_{B(DID)}=$ `r round(B.DID,3)`.
 
+In order to make the DID estimator consistent for the $TT$ parameter, we need to impose that $\rho=1$.
+When shocks are permanent, their bias remains constant over time and thus DID can estimate it without error. 
+Let us generate new data that are compatible with that assumption.
+
+```{r SimulDIDPT,eval=TRUE,echo=FALSE,results='hide'}
+set.seed(1234)
+N <-1000
+param["rho"] <- 1
+cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
+eta.omega <- as.data.frame(mvrnorm(N,c(0,0),cov.eta.omega))
+colnames(eta.omega) <- c('eta','omega')
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+V <- param["gamma"]*(mu-param["barmu"])+eta.omega$omega
+Ds[yB+V<=log(param["barY"])] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta.omega$eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+Let's see how DID works on this data.
+
+```{r PlotDIDPT,eval=TRUE,fig.cap='Evolution of average outcomes in the treated and control group when the Parallel Trends Assumption holds',fig.align='center',out.width='50%',echo=FALSE,results='hide',fig.pos='htbp'}
+x <- c("Before","After")
+y1.observed <- c(mean(yB[Ds==1]),mean(y[Ds==1]))
+y1.counterfactual <- c(mean(yB[Ds==1]),mean(y0[Ds==1]))
+y0.observed <- c(mean(yB[Ds==0]),mean(y0[Ds==0]))
+y1.DID <- c(mean(yB[Ds==1]),mean(y0[Ds==0])+mean(yB[Ds==1])-mean(yB[Ds==0]))
+data.DID.plot <- as.data.frame(c(y1.observed,y1.counterfactual,y0.observed,y1.DID))
+colnames(data.DID.plot) <- c("Outcome") 
+data.DID.plot$Period <- factor(rep(x,4),levels=c("Before","After"))
+data.DID.plot$Group <- factor(c("Treated","Treated","Treated counterfactual","Treated counterfactual","Untreated","Untreated","Treated DID","Treated DID"),levels=c("Untreated","Treated","Treated counterfactual","Treated DID"))
+data.DID.plot$Observed <- factor(c("Observed","Observed","Unobserved","Unobserved","Observed","Observed","Observed","Observed"),levels=c("Observed","Unobserved"))
+
+WW.before <- mean(yB[Ds==1])-mean(yB[Ds==0])
+WW.after <- mean(y[Ds==1])-mean(y[Ds==0])
+BA.treated <- mean(y[Ds==1])-mean(yB[Ds==1])
+BA.untreated <- mean(y[Ds==0])-mean(yB[Ds==0])
+Counterfactual.after <- mean(yB[Ds==1])+BA.untreated
+DID <- WW.after - WW.before 
+TT <- mean(alpha[Ds==1])
+
+ggplot(data.DID.plot,aes(x=Period,y=Outcome,group=Group,color=Group,shape=Group,linetype=Observed))+
+    geom_line() +
+    geom_point()+
+    scale_linetype_discrete(guide='none') +
+    theme_bw()
+```
+
+Now, the counterfactual change in outcome for the treated and its approximation using the trend experienced by the untreated are extremely close, as the curves *Treated counterfactual* and *Treated DID* show on Figure \@ref(fig:PlotDIDPT).
+
 #### Estimation
+
+Estimation of $TT$ under the $DID$ assumptions can be performed in a variety of ways: using directly the DID formula, using OLS with group fixed effects, using OLS with individual and time dummy variables, using first differences and using the within transformation (also known as the Two-Way Fixed Effects or TWFE estimator).
+With only two periods of data and a fully balanced panel, all of these estimators are actually numerically equivalent. 
+Let's examine them in turn.
+
+##### Using the DID formula
+
+One could go directly and use the DID formula of Theorem \@ref(thm:IdentDID).
+The sample DID estimator is thus equal to:
+
+\begin{align*} 
+  \hat{\Delta}^Y_{DID} & = \frac{\sum_{i=1}^NY_{i,A}D_i}{\sum_{i=1}^ND_i} -\frac{\sum_{i=1}^NY_{i,B}D_i}{\sum_{i=1}^ND_i} - \left(\frac{\sum_{i=1}^NY_{i,A}(1-D_i)}{\sum_{i=1}^N(1-D_i)} -\frac{\sum_{i=1}^NY_{i,B}(1-D_i)}{\sum_{i=1}^N(1-D_i)}\right).
+\end{align*}
+
+```{example}
+In our example, let's see how this estimator works.
+```
+The Before/After comparison among the participants is equal to $\hat{\Delta}^{y}_{BA|D=1}=$ `r round(BA.treated,3)`.
+The Before/After comparison among the non-participants is equal to $\hat{\Delta}^{y}_{BA|D=0}=$ `r round(BA.untreated,3)`.
+The DID estimator is thus equal to $\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{BA|D=1}-\hat{\Delta}^{y}_{BA|D=0}=$ `r round(BA.treated,3)` $-$ `r round(BA.untreated,3)` $=$ `r round(DID,3)`.
+It is also equal to the difference between the before and after With/Without estimators.
+The Before With/Without estimator is equal to $\hat{\Delta}^{y^B}_{WW}=$ `r round(WW.before,3)`.
+The After With/Without estimator is equal to $\hat{\Delta}^{y}_{WW}=$ `r round(WW.after,3)`.
+The DID estimator is thus equal to $\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=$ `r round(WW.after,3)` $-($ `r round(WW.before,3)` $)=$ `r round(DID,3)`.
+This is not too far from the true effect of the treatment in the sample which is equal to $\hat{\Delta}^{y}_{TT}=$ `r round(TT,3)`.
+In the population, the $TT$ parameter has not changed, since its computation does not involve $\rho$.
+We still have $\Delta^y_{TT}=$ `r round(TT,3)`.
+
+##### Using the Least Squares DID estimator
+
+The most basic regression-based way.
+Does not require panel data.
+
+##### Using the Least Squares Dummy Variables estimator
+
+One very computer-intensive way to estimate $TT$ in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.
+
+##### Using First Differences
+
+A much simpler approach is simply to first-difference the data and regress the obtained differenced outcome on the treatment dummy.
+
+##### Using the Two-Way Fixed Effects estimator
+
+Finally, a more universal approach is to rely on the Two-Way Fixed Effects estimator.
+There are multiple ways to implement it.
+`R` proposes the wonderful `fixest` package by Laurent Bergé, which works even with a very large number of fixed effects.
+It does not work by differencing the the data with respect to the grouped-means, as the traditional within estimator does (see `plm` for an implementation of that approach).
+`fixest` uses the concentrated likelihood in order to estimate the treatment effect.
+The algorithm works by first estimating the fixed effects and then by running the likelihood on the differenced out data. (?)
 
 #### Inference
 
+Inference from the OLS with group fixed effects will be too wide.
+
 ### Differences In Differences with more than two-time periods but only one treatment date
+
+
 
 ### Differences In Differences with a staggered design
 

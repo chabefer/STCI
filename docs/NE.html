@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-11-12" />
+<meta name="date" content="2021-11-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -56,6 +56,7 @@
 $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
+\newcommand{\hatesp}[1]{\hat{\mathbf{E}}[ #1 ]}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
 \newcommand{\var}[1]{\mathbf{V}[ #1 ]}
 \newcommand{\cov}[1]{\mathbf{C}[ #1 ]}
@@ -1495,12 +1496,71 @@ Here, we use the distribution of <span class="math inline">\((\alpha_i,U_i^B,\mu
 <p>In our example, the population <span class="math inline">\(TT\)</span> is equal to <span class="math inline">\(\Delta^y_{TT}=\)</span> 0.173.
 The DID estimator is equal to <span class="math inline">\(\Delta^y_{DID}=\)</span> 0.219.
 As a consequence, the bias of the DID estimator is equal to <span class="math inline">\(\Delta^y_{B(DID)}=\)</span> 0.046.</p>
+<p>In order to make the DID estimator consistent for the <span class="math inline">\(TT\)</span> parameter, we need to impose that <span class="math inline">\(\rho=1\)</span>.
+When shocks are permanent, their bias remains constant over time and thus DID can estimate it without error.
+Let us generate new data that are compatible with that assumption.</p>
+<p>Let’s see how DID works on this data.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDPT"></span>
+<img src="STCI_files/figure-html/PlotDIDPT-1.png" alt="Evolution of average outcomes in the treated and control group when the Parallel Trends Assumption holds" width="50%" />
+<p class="caption">
+Figure 4.6: Evolution of average outcomes in the treated and control group when the Parallel Trends Assumption holds
+</p>
+</div>
+<p>Now, the counterfactual change in outcome for the treated and its approximation using the trend experienced by the untreated are extremely close, as the curves <em>Treated counterfactual</em> and <em>Treated DID</em> show on Figure <a href="NE.html#fig:PlotDIDPT">4.6</a>.</p>
 </div>
 <div id="estimation-1" class="section level4" number="4.3.1.2">
 <h4><span class="header-section-number">4.3.1.2</span> Estimation</h4>
+<p>Estimation of <span class="math inline">\(TT\)</span> under the <span class="math inline">\(DID\)</span> assumptions can be performed in a variety of ways: using directly the DID formula, using OLS with group fixed effects, using OLS with individual and time dummy variables, using first differences and using the within transformation (also known as the Two-Way Fixed Effects or TWFE estimator).
+With only two periods of data and a fully balanced panel, all of these estimators are actually numerically equivalent.
+Let’s examine them in turn.</p>
+<div id="using-the-did-formula" class="section level5" number="4.3.1.2.1">
+<h5><span class="header-section-number">4.3.1.2.1</span> Using the DID formula</h5>
+<p>One could go directly and use the DID formula of Theorem <a href="NE.html#thm:IdentDID">4.4</a>.
+The sample DID estimator is thus equal to:</p>
+<p><span class="math display">\[\begin{align*} 
+  \hat{\Delta}^Y_{DID} &amp; = \frac{\sum_{i=1}^NY_{i,A}D_i}{\sum_{i=1}^ND_i} -\frac{\sum_{i=1}^NY_{i,B}D_i}{\sum_{i=1}^ND_i} - \left(\frac{\sum_{i=1}^NY_{i,A}(1-D_i)}{\sum_{i=1}^N(1-D_i)} -\frac{\sum_{i=1}^NY_{i,B}(1-D_i)}{\sum_{i=1}^N(1-D_i)}\right).
+\end{align*}\]</span></p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-169" class="example"><strong>Example 4.15  </strong></span>In our example, let’s see how this estimator works.
+</div>
+<p>The Before/After comparison among the participants is equal to <span class="math inline">\(\hat{\Delta}^{y}_{BA|D=1}=\)</span> 0.218.
+The Before/After comparison among the non-participants is equal to <span class="math inline">\(\hat{\Delta}^{y}_{BA|D=0}=\)</span> 0.057.
+The DID estimator is thus equal to <span class="math inline">\(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{BA|D=1}-\hat{\Delta}^{y}_{BA|D=0}=\)</span> 0.218 <span class="math inline">\(-\)</span> 0.057 <span class="math inline">\(=\)</span> 0.161.
+It is also equal to the difference between the before and after With/Without estimators.
+The Before With/Without estimator is equal to <span class="math inline">\(\hat{\Delta}^{y^B}_{WW}=\)</span> -1.361.
+The After With/Without estimator is equal to <span class="math inline">\(\hat{\Delta}^{y}_{WW}=\)</span> -1.2.
+The DID estimator is thus equal to <span class="math inline">\(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=\)</span> -1.2 <span class="math inline">\(-(\)</span> -1.361 <span class="math inline">\()=\)</span> 0.161.
+This is not too far from the true effect of the treatment in the sample which is equal to <span class="math inline">\(\hat{\Delta}^{y}_{TT}=\)</span> 0.165.
+In the population, the <span class="math inline">\(TT\)</span> parameter has not changed, since its computation does not involve <span class="math inline">\(\rho\)</span>.
+We still have <span class="math inline">\(\Delta^y_{TT}=\)</span> 0.165.</p>
+</div>
+<div id="using-the-least-squares-did-estimator" class="section level5" number="4.3.1.2.2">
+<h5><span class="header-section-number">4.3.1.2.2</span> Using the Least Squares DID estimator</h5>
+<p>The most basic regression-based way.
+Does not require panel data.</p>
+</div>
+<div id="using-the-least-squares-dummy-variables-estimator" class="section level5" number="4.3.1.2.3">
+<h5><span class="header-section-number">4.3.1.2.3</span> Using the Least Squares Dummy Variables estimator</h5>
+<p>One very computer-intensive way to estimate <span class="math inline">\(TT\)</span> in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.</p>
+</div>
+<div id="using-first-differences" class="section level5" number="4.3.1.2.4">
+<h5><span class="header-section-number">4.3.1.2.4</span> Using First Differences</h5>
+<p>A much simpler approach is simply to first-difference the data and regress the obtained differenced outcome on the treatment dummy.</p>
+</div>
+<div id="using-the-two-way-fixed-effects-estimator" class="section level5" number="4.3.1.2.5">
+<h5><span class="header-section-number">4.3.1.2.5</span> Using the Two-Way Fixed Effects estimator</h5>
+<p>Finally, a more universal approach is to rely on the Two-Way Fixed Effects estimator.
+There are multiple ways to implement it.
+<code>R</code> proposes the wonderful <code>fixest</code> package by Laurent Bergé, which works even with a very large number of fixed effects.
+It does not work by differencing the the data with respect to the grouped-means, as the traditional within estimator does (see <code>plm</code> for an implementation of that approach).
+<code>fixest</code> uses the concentrated likelihood in order to estimate the treatment effect.
+The algorithm works by first estimating the fixed effects and then by running the likelihood on the differenced out data. (?)</p>
+</div>
 </div>
 <div id="inference" class="section level4" number="4.3.1.3">
 <h4><span class="header-section-number">4.3.1.3</span> Inference</h4>
+<p>Inference from the OLS with group fixed effects will be too wide.</p>
 </div>
 </div>
 <div id="differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date" class="section level3" number="4.3.2">
