@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Chapter 12 Distributional effects | Statistical Tools for Causal Inference</title>
+  <title>Chapter 6 Threats to the validity of Causal Inference | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book." />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Chapter 12 Distributional effects | Statistical Tools for Causal Inference" />
+  <meta property="og:title" content="Chapter 6 Threats to the validity of Causal Inference | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   <meta name="github-repo" content="chabefer/STCI" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 12 Distributional effects | Statistical Tools for Causal Inference" />
+  <meta name="twitter:title" content="Chapter 6 Threats to the validity of Causal Inference | Statistical Tools for Causal Inference" />
   
   <meta name="twitter:description" content="This is an open source collaborative book." />
   
@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Diffusion.html"/>
-<link rel="next" href="meta.html"/>
+<link rel="prev" href="OM.html"/>
+<link rel="next" href="Power.html"/>
 <script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
@@ -334,17 +334,114 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="Distribution" class="section level1" number="12">
-<h1><span class="header-section-number">Chapter 12</span> Distributional effects</h1>
+<div id="threats" class="section level1" number="6">
+<h1><span class="header-section-number">Chapter 6</span> Threats to the validity of Causal Inference</h1>
+<p>In this final section, I want to discuss more generally about the possible threats to the validity of methods of causaliInference.
+Most of these threast stem from the fact that, much as particles do when physicists try to measure their position and velocity, human beings react to our experimental devices in sometimes unexpected ways.
+It is classical to make a disctinction between two threat and one specific set of problems:</p>
+<ol style="list-style-type: decimal">
+<li>Threats to internal validity: these are the threats that vitiate the result of the experiment in the sample at hand, even when only looking at the Intention to Treat Effect.
+They also include threats to the exclusion restriction assumption.</li>
+<li>Threats to the measurement of precision</li>
+<li>Threats to external validity: these are the threats that make the extension of the results from one experiment to the same population at another period of to another population dubious.</li>
+<li>Ethical and political issues</li>
+</ol>
+<div id="threats-to-internal-validity" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Threats to internal validity</h2>
+<p>Threats to internal validity are the problems that might make the results of the experiment not measure the effect of the treatment of interest in the ongoing sample.
+Let’s examine the most important ones in turn.</p>
+<div id="survey-bias" class="section level3" number="6.1.1">
+<h3><span class="header-section-number">6.1.1</span> Survey bias</h3>
+<p>There is survey bias if the mere fact of having to answer to a survey alters the outcomes of the surveyed individuals.
+For example, administering a health survey might make you pay more attention to your health and as a consequence improve it.
+Survey bias alters the measured impact of the treatment since it alters the behavior of the control group.
+As a result, the estimated effect of the treatment might be biased.</p>
+
+<div class="remark">
+<p> <span class="remark"><em>Remark. </em></span> Note that survey bias might affect all the estimators presented in this book, including natural experimental and observational estimators.
+All estimators rely on measuring something and thus might be affected by survey bias.</p>
+Actually, RCTs might be able to avoid survey bias whereas other methods generally cannot.
+Indeed, survey bias generally occurs with repeated sampling: surveying at baseline might trigger a response by individuals, and thus bias the measurement at the end of the experiment.
+RCTs can avoid this issue by bypassing the baseline survey, or at least collecting baseline information on a subsample of the experimental sample.
+Other estimators that might be able to avoid this problem are DID, where the repeated cross section estimator eschews survey bias, and RDD and IV, which generally use only cross sectional information.
+Matching in general requires observations for the same individual over time, so that avoiding possible survey bias is impossible.
+</div>
+
+<div class="remark">
+<p> <span class="remark"><em>Remark. </em></span> Do we have evidence of the existence and extent of survey bias?
+A paper by <a href="https://www.pnas.org/content/108/5/1821.short">Zwane et al (2010)</a> shows that there is extensive survey bias in 2 out of 5 experiments.</p>
+<p>In the first example, the authors show that being surveyed more frequently (every two weeks <em>vs</em> every six months) for the extent of diarrhea prevalence and use of chlorine decontamination increases the use of chlorine, decreases diarrhea prevalence and decreases the effect of a spring protection program, to the extent that it becomes null in the frequent survey sample, whereas it is large and positive in the infrequent survey sample.
+The authors speculate that the frequent surveys act as a reminder for chlorinating water, which is a substitute for well protection.</p>
+<p>In a second experiment, the authors randomly run a baseline survey on 80% of the households tha would be later included in a RCT where health insurance would be offered at randomly selected prices.
+The baseline survey includes questions about health and health insurance, but does not mention the particular product that will be offered later.
+The authors find a small imprecise increase in insurance take up in the group having undergone the baseline survey (5% <span class="math inline">\(\pm\)</span> 6.8), non significant at usual levels of confidence.
+They also find no evidence of impact of the baseline survey on the response of households to the price incentive.</p>
+<p>In a third experiment, the authors report on the effect of being surveyed with a survey continaing questions on health status and health insurance on the subsequent adoption of health insurance.
+They find evidence that the baseline survey has increased the adoption of health insurance by 6.7% <span class="math inline">\(\pm\)</span> 6.6, from a mean of 26.4% in the control group.
+The effect dissipates over time though and becomes much smaller 15 to 18 months after the treatment.</p>
+<p>In a fourth experiment, the authors randomly selected 60% of targeted households to be included in a baseline survey including wuestions on household finances and borrowing opportunities.<br />
+The sample was then prospected by a micro-credit firm.
+The aurhors do not find higher micro-credit take-up among households surveyed at baseline (-0.009 <span class="math inline">\(\pm\)</span> 0.048, with a baseline take up rate of 0.166).
+Note that the estimates are imprecise though.</p>
+<p>In a fifth experiment, the authors randomly assigned the order in which households had to be contacted for a baseline survey, along with a fixed number of households to be sruveyed by village.
+The survey contained questions about finance and microfinancne use.
+Also, the survey explicitely mentioned that househods were interviewed because they were patrons of a micro-finance provider.
+Sunbsequently, households had to decide whether or not to renew their loans from the micro-finance provider.
+The authors do not evidence of an effect of being surveyed on the subsequent decision to renew the loan (-0.005 <span class="math inline">\(\pm\)</span> 0.026 from a baseline rate of 0.769).</p>
+</div>
+</div>
+<div id="experimenter-bias" class="section level3" number="6.1.2">
+<h3><span class="header-section-number">6.1.2</span> Experimenter bias</h3>
+</div>
+<div id="substitution-bias" class="section level3" number="6.1.3">
+<h3><span class="header-section-number">6.1.3</span> Substitution bias</h3>
+</div>
+<div id="diffusion-bias" class="section level3" number="6.1.4">
+<h3><span class="header-section-number">6.1.4</span> Diffusion bias</h3>
+</div>
+</div>
+<div id="threats-to-the-measurement-of-precision" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Threats to the measurement of precision</h2>
+<div id="insufficient-precision" class="section level3" number="6.2.1">
+<h3><span class="header-section-number">6.2.1</span> Insufficient precision</h3>
+</div>
+<div id="clustering" class="section level3" number="6.2.2">
+<h3><span class="header-section-number">6.2.2</span> Clustering</h3>
+</div>
+</div>
+<div id="threats-to-external-validity" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Threats to external validity</h2>
+<div id="randomization-bias" class="section level3" number="6.3.1">
+<h3><span class="header-section-number">6.3.1</span> Randomization bias</h3>
+</div>
+<div id="equilibrium-effects" class="section level3" number="6.3.2">
+<h3><span class="header-section-number">6.3.2</span> Equilibrium effects</h3>
+</div>
+<div id="context-effects" class="section level3" number="6.3.3">
+<h3><span class="header-section-number">6.3.3</span> Context effects</h3>
+</div>
+<div id="site-selection-bias" class="section level3" number="6.3.4">
+<h3><span class="header-section-number">6.3.4</span> Site selection bias</h3>
+</div>
+<div id="publication-bias" class="section level3" number="6.3.5">
+<h3><span class="header-section-number">6.3.5</span> Publication bias</h3>
+</div>
+<div id="ethical-and-political-issues" class="section level3" number="6.3.6">
+<h3><span class="header-section-number">6.3.6</span> Ethical and political issues</h3>
 
 </div>
+</div>
+</div>
+
+
+
             </section>
 
           </div>
         </div>
       </div>
-<a href="Diffusion.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="meta.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="OM.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Power.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -375,7 +472,7 @@ gitbook.start({
 "size": 2
 },
 "edit": {
-"link": "https://github.com/chabefer/STCI/blob/master/11_Distribution.Rmd",
+"link": "https://github.com/chabefer/STCI/blob/master/05a_Threats.Rmd",
 "text": "Edit"
 },
 "history": {
