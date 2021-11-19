@@ -1374,7 +1374,7 @@ In order to make the DID estimator consistent for the $TT$ parameter, we need to
 When shocks are permanent, their bias remains constant over time and thus DID can estimate it without error. 
 Let us generate new data that are compatible with that assumption.
 
-```{r SimulDIDPT,eval=TRUE,echo=FALSE,results='hide'}
+```{r SimulDIDPT,eval=TRUE,echo=TRUE,results='hide'}
 set.seed(1234)
 N <-1000
 param["rho"] <- 1
@@ -1474,7 +1474,7 @@ Let's see how this works in our example.
 ```
 Before estimating the model, we need to build a data frame with all the necessary variables.
 
-```{r RegDID,eval=TRUE,echo=FALSE,results='hide'}
+```{r RegDID,eval=TRUE,echo=TRUE,results='hide'}
 # building a data frame
 data.DID <- as.data.frame(cbind(c(y,yB),c(Ds,Ds),c(rep(1,N),rep(0,N))))
 colnames(data.DID) <- c('y','D','T')
@@ -1525,7 +1525,7 @@ Let's see how this works in our example.
 Before running the model, we need to generate first the differenced estimates.
 One very simple way to do that is simply to take the difference between the before and the after outcome vectors.
 
-```{r RegFD,eval=TRUE,echo=FALSE,results='hide'}
+```{r RegFD,eval=TRUE,echo=TRUE,results='hide'}
 # building a data frame
 data.FD <- as.data.frame(cbind(y-yB,Ds))
 colnames(data.FD) <- c('BAy','D')
@@ -1551,14 +1551,35 @@ In practice, the estimator is based on the following regression:
 \begin{align*}
   	Y_{i,t} &  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_i.
 \end{align*}
-This estimator is generally simplified as follows:
+The notation is generally simplified as follows:
 \begin{align*}
   	Y_{i,t} &  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_i,
 \end{align*}
-and called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, $\mu_i$, and time fixed effects $\delta_t$).
-I will write it using this second, more compact, formulation, but I thinkt he first formulation encapsulates better how the Least-Squares Dummy Variables estimator works.
-In what follows, we will 
 
+The estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, $\mu_i$, and time fixed effects $\delta_t$).
+I will write it using this second, more compact, formulation, but I think the first formulation encapsulates better how the Least-Squares Dummy Variables estimator works.
+In what follows, we will see other ways of estimating the Two-Way Fixed Effects model, but for now, let us focus on the Least-Squares Dummy Variables estimator. 
+The way it works is simply by throwing a bunch of dummy variables in the regression.
+
+```{example}
+Let's see how the Least Squares Dummy Variable works in our example.
+For that, we need to generate one dummy variable for each individual $i$ in our sample.
+This is made simple by the `factor` function in `R`. 
+We are also going to run the model without a constant, so that all the fixed effects are identified.
+```
+
+```{r RegLSDV,eval=TRUE,echo=TRUE,results='hide'}
+# adding one column to the DID data frame with the individual index for each observation of the same $i$
+data.DID$indiv <- as.factor(c(1:N,1:N))
+# generating Dit (time varying)
+data.DID$Dit <- data.DID$D*data.DID$T
+# running the LSDV estimator
+reg.LSDV <- lm(y~-1 + Dit + as.factor(T) + indiv,data=data.DID)
+# result
+DID.est.LSDV <- coef(reg.LSDV)[[1]]
+```
+
+The Least-Squares Dummy Variables estimate of $TT$ is equal to: $\hat{\beta}^{TWFE}=$ `r round(DID.est.LSDV,3)`.
 
 ```{remark}
 The term *fixed effect* is specific to the panel data literature in econoemtrics. 
@@ -1567,6 +1588,56 @@ This is in contrast to the *random effects model* where $\mu_i$ and $\delta_t$ a
 ```
 
 ##### Using the Within estimator
+
+You might have noticed that the Least-Squares Dummy Variables estimator took some time to compute on your computer. 
+This is because it requires the inversion of a very large matrix, as large as the number of fixed effects plus one. 
+The size of this computation increases as the number of observation and time periods increases, meaning that this computation might become practically unfeasible in very large datasets. 
+Several tricks have been developed to decrease the computational burden of the estimation of the Two-Way Fixed Effects model. 
+One approach is to use the First Difference estimator.
+Another approach is the Within estimator. 
+The way the Within estimator works is by taking the difference between each observation and its mean over time or over individuals. 
+More precisely, the Within estimator estimates the following model by OLS:
+\begin{align*}
+  	Y_{i,t}-\frac{1}{2}\sum_{t=0}^1Y_{i,t} &  = \delta^{W}_t + \beta^{W}(D_{i,t}-\frac{1}{2}\sum_{t=0}^1) + \epsilon^{W}_i.
+\end{align*}
+
+The reason why this trick works is because of the shape of the Two-Way Fixed Effects model.
+Indeed, taking the average of the Two-Way Fixed Effects model over time gives:
+\begin{align*}
+  	\frac{1}{2}\sum_{t=0}^1Y_{i,t} &  = \mu_i + \frac{1}{2}\sum_{t=0}^1\delta_t + \beta^{TWFE}\frac{1}{2}\sum_{t=0}^1D_{i,t} + \frac{1}{2}\sum_{t=0}^1\epsilon^{TWFE}_i.
+\end{align*}
+Taking the difference between the Two-Way Fixed Effects model and its time-averaged version gives the Within estimator.
+The key is that the differencing gets rid of the individual fixed effects parameter $\mu_i$ and thus makes it unnecessary to estimate it.
+The set of parameters to estimate is thus much smaller than in the Least-Squares Dummy Variables estimator.
+
+```{example}
+Let's see how the Within estimator works in our example.
+For that, we need to compute the average over time of the outcome and of the treatment for each observation in our dataset. 
+This is made simple by the `summarize` function of the `dplyr` package.
+```
+
+```{r RegW,eval=TRUE,echo=TRUE,results='hide'}
+# generating the time means of Y and Dit
+TimeMeansYDit <- data.DID %>%
+                  group_by(indiv) %>%
+                  summarize(
+                    TimeMeanY = mean(y),
+                    TimeMeanDit = mean(Dit)
+                  )
+# doubling the observations to be able to take the difference in both periods
+TimeMeansYDit <- rbind(TimeMeansYDit,TimeMeansYDit)                  
+# taking the difference in both periods
+data.DID$W.y <- data.DID$y-TimeMeansYDit$TimeMeanY
+data.DID$W.Dit <- data.DID$Dit-TimeMeansYDit$TimeMeanDit
+# running the within estimator
+reg.W <- lm(W.y~-1 + W.Dit + as.factor(T),data=data.DID)
+# result
+DID.est.W <- coef(reg.W)[[1]]
+```
+
+The Within estimate of $TT$ is equal to: $\hat{\beta}^{W}=$ `r round(DID.est.W,3)`.
+
+
 
 
 ##### Using the Two-Way Fixed Effects estimator
