@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-11-19" />
+<meta name="date" content="2021-12-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -312,6 +312,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofIdentLATE"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Theorem @ref(thm:IdentLATE)</a></li>
 <li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Theorem @ref(thm:WaldIV)</a></li>
 <li class="chapter" data-level="A.2.3" data-path="proofs.html"><a href="proofs.html#ProofAsymWald"><i class="fa fa-check"></i><b>A.2.3</b> Proof of Theorem @ref(thm:asymWald)</a></li>
+</ul></li>
+<li class="chapter" data-level="A.3" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refne"><i class="fa fa-check"></i><b>A.3</b> Proofs of results in Chapter @ref(NE)</a>
+<ul>
+<li class="chapter" data-level="A.3.1" data-path="proofs.html"><a href="proofs.html#proofEstimDID"><i class="fa fa-check"></i><b>A.3.1</b> Proof of Theorem @ref(thm:EstimDID)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -936,6 +940,77 @@ Using the convention <span class="math inline">\(p^R=\Pr(R_i=1)\)</span>, <span 
   &amp; = \frac{(p^{AT}(1-p^R)-p^{NT}p^R)^2+p^R(1-p^R)}{(p^Cp^R(1-p^R))^2},
 \end{align*}\]</span></p>
 <p>where the seventh equality uses the fact that <span class="math inline">\(p^C+p^{AT}+p^{NT}=1\)</span>.</p>
+</div>
+</div>
+<div id="proofs-of-results-in-chapter-refne" class="section level2" number="16.3">
+<h2><span class="header-section-number">A.3</span> Proofs of results in Chapter <a href="NE.html#NE">4</a></h2>
+<div id="proofEstimDID" class="section level3" number="16.3.1">
+<h3><span class="header-section-number">A.3.1</span> Proof of Theorem <a href="NE.html#thm:EstimDID">4.5</a></h3>
+<p>Let us start with the proof that <span class="math inline">\(\hat{\beta}^{FD}=\hat{\Delta}^Y_{DID}\)</span>.
+Using Lemma <a href="proofs.html#lem:WWOLS">A.3</a>, we have that <span class="math inline">\(\hat{\beta}^{FD}=\hat{\Delta}^{Y_A-Y_B}_{WW}\)</span>.
+From there, since <span class="math inline">\(\sum_{i=1}^N(Y_{i,A}-Y_{i,B})D_i= \sum_{i=1}^NY_{i,A}D_i- \sum_{i=1}^NY_{i,B}D_i\)</span>, we have <span class="math inline">\(\hat{\beta}^{FD}=\hat{\Delta}^Y_{DID}\)</span>.</p>
+<p>In order to prove the other results, it is going tobe very convenient to use <a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">Frish-Waugh-Lovell Theorem</a>.
+It can be stated as follows:</p>
+
+<div class="theorem">
+<p><span id="thm:FWL" class="theorem"><strong>Theorem A.1  (Frish-Waugh-Lovell)  </strong></span>The coefficients on a set of variables <span class="math inline">\(X_2\)</span> estimated by OLS in a linear regression with another set of control variables <span class="math inline">\(X_1\)</span> is equal to the coefficients on the same set of variables estimated by OLS in a linear model where the outcome variable is the residual of regressing <span class="math inline">\(Y\)</span> on <span class="math inline">\(X_1\)</span> by OLS and the explanatory variables are the residuals of regressing <span class="math inline">\(X_2\)</span> on <span class="math inline">\(X_1\)</span>. More formally: <span class="math inline">\(\hat{\beta}_2^{OLS}=\hat{\beta}_2^{OLS(MX_1))}\)</span> where:</p>
+<span class="math display">\[\begin{align*}
+  Y &amp; = X_1\beta_1 + X_2\beta_2 + \epsilon \\
+  M_1Y &amp; = M_1X_2\beta_2 + \epsilon^* \\
+  M_1 &amp; = I - X_1(X_1&#39;X_1)^{-1}X_1&#39;.
+\end{align*}\]</span>
+</div>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See Section 8.2.2 <a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">here</a>.
+</div>
+<p><span class="math inline">\(M_1\)</span> is called the <strong>prediction</strong> or the <strong>residualizing</strong> matrix.</p>
+<p>Let us now start applying Theorem <a href="proofs.html#thm:FWL">A.1</a> to the OLS DID estimator.
+In matrix form, the model can be written as follows (where we rank all the observations from the first period in the first lines of each matrix and vector):</p>
+<p><span class="math display">\[\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B} \\    \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)}_{Y} &amp; =
+    \underbrace{\left(\begin{array}{cccc}   1 &amp; D_1 &amp; T_{1,B} &amp; D_1T_{1,B}\\    \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\ 1 &amp; D_N &amp; T_{N,B} &amp; D_NT_{N,B} \\
+                                        1 &amp; D_1 &amp; T_{1,A} &amp; D_1T_{1,A}\\    \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\ 1 &amp; D_N &amp; T_{N,A} &amp; D_NT_{N,A}\end{array}\right)}_{X}
+  \underbrace{\left(\begin{array}{c}    \alpha \\ \mu \\ \delta \\  \beta \end{array}\right)}_{\Theta} +
+  \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N,B} \\ \epsilon_{1,A} \\ \vdots \\   \epsilon_{N,A} \end{array}\right)}_{\epsilon}
+\end{align*}\]</span></p>
+<p>Let us start by projecting outcomes and remaining regressors on the first regressor (the constant), using the projection matrix <span class="math inline">\(M_1\)</span> and denoting <span class="math inline">\(X_1\)</span> the first column of hte <span class="math inline">\(X\)</span> matrix.
+The residualized outcome is equal to:</p>
+<p><span class="math display">\[\begin{align*}
+    M_1Y &amp;  = Y-X_1(X_1&#39;X_1)^{-1}X_1&#39;Y \\
+         &amp; = Y-\left(\begin{array}{c} 1 \\  \vdots \\   1 \\1 \\    \vdots \\   1 \end{array}\right)
+         \left(
+         \left(\begin{array}{cccccc} 1 &amp; \hdots &amp;   1 &amp; 1 &amp; \hdots &amp;    1 \end{array}\right)
+         \left(\begin{array}{c} 1 \\    \vdots \\   1 \\1 \\    \vdots \\   1 \end{array}\right)
+         \right)^{-1}
+         \left(\begin{array}{cccccc} 1 &amp; \hdots &amp;   1 &amp; 1 &amp; \hdots &amp;    1 \end{array}\right)
+         Y \\
+         &amp; = Y- \frac{1}{2N}\left(\begin{array}{cccccc}
+                        1 &amp; \hdots &amp;    1 &amp; 1 &amp; \hdots &amp;    1 \\
+                        \vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \vdots \\
+                        1 &amp; \hdots &amp;    1 &amp; 1 &amp; \hdots &amp;    1 \\
+                        \vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \vdots \\
+                        1 &amp; \hdots &amp;    1 &amp; 1 &amp; \hdots &amp;    1
+                      \end{array}\right) Y \\
+         &amp; = \left(\begin{array}{c}  Y_{1,B}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\   \vdots \\
+                                     Y_{N,B}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\
+                                     Y_{1,A}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\   \vdots \\
+                                     Y_{N,A}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \end{array}\right),
+\end{align*}\]</span></p>
+<p>which simply is the deviation of each individual outcome from the sample mean.</p>
+<p>Using the same approach, we have:</p>
+<p><span class="math display">\[\begin{align*}
+    M_1D &amp; = \left(\begin{array}{c}  D_{1}-\frac{1}{N}\sum_{i=1}^ND_{i} \\  \vdots \\
+                                     D_{N}-\frac{1}{N}\sum_{i=1}^ND_{i} \\
+                                     D_{1}-\frac{1}{N}\sum_{i=1}^ND_{i} \\  \vdots \\
+                                     D_{N}-\frac{1}{N}\sum_{i=1}^ND_{i} \end{array}\right),
+\end{align*}\]</span></p>
+<p><span class="math display">\[\begin{align*}
+    M_1T &amp; = \left(\begin{array}{c}  -\frac{1}{2} \\    \vdots \\
+                                     -\frac{1}{2} \\
+                                     \frac{1}{2} \\ \vdots \\
+                                     \frac{1}{2} \end{array}\right),
+\end{align*}\]</span></p>
 
 </div>
 </div>

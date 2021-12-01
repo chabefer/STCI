@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-11-19" />
+<meta name="date" content="2021-12-01" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -312,6 +312,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A.2.1" data-path="proofs.html"><a href="proofs.html#proofIdentLATE"><i class="fa fa-check"></i><b>A.2.1</b> Proof of Theorem @ref(thm:IdentLATE)</a></li>
 <li class="chapter" data-level="A.2.2" data-path="proofs.html"><a href="proofs.html#proofWaldIV"><i class="fa fa-check"></i><b>A.2.2</b> Proof of Theorem @ref(thm:WaldIV)</a></li>
 <li class="chapter" data-level="A.2.3" data-path="proofs.html"><a href="proofs.html#ProofAsymWald"><i class="fa fa-check"></i><b>A.2.3</b> Proof of Theorem @ref(thm:asymWald)</a></li>
+</ul></li>
+<li class="chapter" data-level="A.3" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refne"><i class="fa fa-check"></i><b>A.3</b> Proofs of results in Chapter @ref(NE)</a>
+<ul>
+<li class="chapter" data-level="A.3.1" data-path="proofs.html"><a href="proofs.html#proofEstimDID"><i class="fa fa-check"></i><b>A.3.1</b> Proof of Theorem @ref(thm:EstimDID)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -1557,13 +1561,13 @@ This is not too far from the true effect of the treatment in the sample which is
 In the population, the <span class="math inline">\(TT\)</span> parameter has not changed, since its computation does not involve <span class="math inline">\(\rho\)</span>.
 We still have <span class="math inline">\(\Delta^y_{TT}=\)</span> 0.165.</p>
 </div>
-<div id="using-the-least-squares-did-estimator" class="section level5" number="4.3.1.2.2">
-<h5><span class="header-section-number">4.3.1.2.2</span> Using the Least Squares DID estimator</h5>
+<div id="using-the-least-squares-pooling-did-estimator" class="section level5" number="4.3.1.2.2">
+<h5><span class="header-section-number">4.3.1.2.2</span> Using the Least Squares pooling DID estimator</h5>
 <p>The most basic regression-based way to implement DID is to run a linear regression of outcomes on a treatment group dummy, a time dummy and their interaction.
 The interaction captures the effect of the treatment estimated using DID.
-The way it works is as follows: estimate the following equation using OLS and use <span class="math inline">\(\hat{\delta}_{OLS}\)</span> as your DID estimate: <span class="math inline">\(\hat{\delta}_{OLS}=\hat{\Delta}^{Y}_{DID}\)</span>.
+The way it works is as follows: estimate the following equation using OLS and use <span class="math inline">\(\hat{\beta}_{OLS}\)</span> as your DID estimate: <span class="math inline">\(\hat{\beta}_{OLS}=\hat{\Delta}^{Y}_{DID}\)</span>.
 <span class="math display">\[\begin{align*}
-    Y_i &amp;  = \alpha +  \beta D_i + \gamma T_i + \delta D_iT_i + \epsilon_i.
+    Y_i &amp;  = \alpha +  \mu D_i + \delta T_i + \beta D_iT_i + \epsilon_i.
 \end{align*}\]</span>
 <span class="math inline">\(D_i\)</span> is our usual treatment indicator while <span class="math inline">\(T_i\)</span> takes value one when observation <span class="math inline">\(i\)</span> is observed in the <em>After</em> and zero otherwise.</p>
 
@@ -1586,14 +1590,14 @@ The way it works is as follows: estimate the following equation using OLS and us
 <span id="cb147-13"><a href="NE.html#cb147-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb147-14"><a href="NE.html#cb147-14" aria-hidden="true" tabindex="-1"></a><span class="co"># comparisons</span></span>
 <span id="cb147-15"><a href="NE.html#cb147-15" aria-hidden="true" tabindex="-1"></a>yB.D0.sample <span class="ot">&lt;-</span> <span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>])</span></code></pre></div>
-<p>The estimate of <span class="math inline">\(\hat{\delta}_{OLS}\)</span> in our sample is equal to 0.161.
+<p>The estimate of <span class="math inline">\(\hat{\beta}_{OLS}\)</span> in our sample is equal to 0.161.
 It is exactly equal to <span class="math inline">\(\hat{\Delta}^{y}_{DID}\)</span> as estimated just above.
 What is interesting with the regression-based DID approach is that the other coefficients in the regression have a direct interpretation.
 For example, the constant <span class="math inline">\(\alpha\)</span> estimates the mean outcome in the untreated group before the treatment.
 In our case, we have <span class="math inline">\(\hat{\alpha}_OLS=\)</span> 8.36.
 Remember that in our sample, the average outcomes of the untreated before the treatment is equal to <span class="math inline">\(\hatesp{y_i^B|D_i=0}=\)</span> 8.36.
-<span class="math inline">\(\beta\)</span>, the coefficient in front of the <span class="math inline">\(D_i\)</span> dummy, estimates the With/Without estimator before the treatment.
-In our case, we have <span class="math inline">\(\hat{\beta}_{OLS}=\)</span> -1.361.
+<span class="math inline">\(\mu\)</span>, the coefficient in front of the <span class="math inline">\(D_i\)</span> dummy, estimates the With/Without estimator before the treatment.
+In our case, we have <span class="math inline">\(\hat{\mu}_{OLS}=\)</span> -1.361.
 Remember that in our sample, the With/Without estimator before the treatment is equal to <span class="math inline">\(\hat{\Delta}^{y^B}_{WW}=\)</span> -1.361.
 <span class="math inline">\(\delta\)</span>, the coefficient in front of the <span class="math inline">\(T_i\)</span> dummy, estimates the Before/After change in outcomes among the untreated.
 In our case, we have <span class="math inline">\(\hat{\delta}_{OLS}=\)</span> 0.057.
@@ -1639,11 +1643,11 @@ Remember that in our sample, the Before/After estimator among the untreated is e
 <p>One very computer-intensive way to estimate <span class="math inline">\(TT\)</span> in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.
 In practice, the estimator is based on the following regression:
 <span class="math display">\[\begin{align*}
-    Y_{i,t} &amp;  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_i.
+    Y_{i,t} &amp;  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t}.
 \end{align*}\]</span>
 The notation is generally simplified as follows:
 <span class="math display">\[\begin{align*}
-    Y_{i,t} &amp;  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_i,
+    Y_{i,t} &amp;  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t},
 \end{align*}\]</span></p>
 <p>The estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, <span class="math inline">\(\mu_i\)</span>, and time fixed effects <span class="math inline">\(\delta_t\)</span>).
 I will write it using this second, more compact, formulation, but I think the first formulation encapsulates better how the Least-Squares Dummy Variables estimator works.
@@ -1667,7 +1671,7 @@ We are also going to run the model without a constant, so that all the fixed eff
 <p>The Least-Squares Dummy Variables estimate of <span class="math inline">\(TT\)</span> is equal to: <span class="math inline">\(\hat{\beta}^{TWFE}=\)</span> 0.161.</p>
 
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> The term <em>fixed effect</em> is specific to the panel data literature in econoemtrics.
+ <span class="remark"><em>Remark. </em></span> The term <em>fixed effect</em> is specific to the panel data literature in econometrics.
 It refers to the fact that both <span class="math inline">\(\mu_i\)</span> and <span class="math inline">\(\delta_t\)</span> are allowed to be correlated with <span class="math inline">\(D_{i,t}\)</span> in this model.
 This is in contrast to the <em>random effects model</em> where <span class="math inline">\(\mu_i\)</span> and <span class="math inline">\(\delta_t\)</span> are assumed to be independent of the regressors of interest.
 </div>
@@ -1683,12 +1687,12 @@ Another approach is the Within estimator.
 The way the Within estimator works is by taking the difference between each observation and its mean over time or over individuals.
 More precisely, the Within estimator estimates the following model by OLS:
 <span class="math display">\[\begin{align*}
-    Y_{i,t}-\frac{1}{2}\sum_{t=0}^1Y_{i,t} &amp;  = \delta^{W}_t + \beta^{W}(D_{i,t}-\frac{1}{2}\sum_{t=0}^1) + \epsilon^{W}_i.
+    Y_{i,t}-\frac{1}{2}\sum_{t=0}^1Y_{i,t} &amp;  = \delta^{W}_t + \beta^{W}(D_{i,t}-\frac{1}{2}\sum_{t=0}^1D_{i,t}) + \epsilon^{W}_{i,t}.
 \end{align*}\]</span></p>
 <p>The reason why this trick works is because of the shape of the Two-Way Fixed Effects model.
 Indeed, taking the average of the Two-Way Fixed Effects model over time gives:
 <span class="math display">\[\begin{align*}
-    \frac{1}{2}\sum_{t=0}^1Y_{i,t} &amp;  = \mu_i + \frac{1}{2}\sum_{t=0}^1\delta_t + \beta^{TWFE}\frac{1}{2}\sum_{t=0}^1D_{i,t} + \frac{1}{2}\sum_{t=0}^1\epsilon^{TWFE}_i.
+    \frac{1}{2}\sum_{t=0}^1Y_{i,t} &amp;  = \mu_i + \frac{1}{2}\sum_{t=0}^1\delta_t + \beta^{TWFE}\frac{1}{2}\sum_{t=0}^1D_{i,t} + \frac{1}{2}\sum_{t=0}^1\epsilon^{TWFE}_{i,t}.
 \end{align*}\]</span>
 Taking the difference between the Two-Way Fixed Effects model and its time-averaged version gives the Within estimator.
 The key is that the differencing gets rid of the individual fixed effects parameter <span class="math inline">\(\mu_i\)</span> and thus makes it unnecessary to estimate it.
@@ -1716,24 +1720,104 @@ This is made simple by the <code>summarize</code> function of the <code>dplyr</c
 <span id="cb150-15"><a href="NE.html#cb150-15" aria-hidden="true" tabindex="-1"></a><span class="co"># result</span></span>
 <span id="cb150-16"><a href="NE.html#cb150-16" aria-hidden="true" tabindex="-1"></a>DID.est.W <span class="ot">&lt;-</span> <span class="fu">coef</span>(reg.W)[[<span class="dv">1</span>]]</span></code></pre></div>
 <p>The Within estimate of <span class="math inline">\(TT\)</span> is equal to: <span class="math inline">\(\hat{\beta}^{W}=\)</span> 0.161.</p>
+<p>The <code>plm</code> package directly implements the Within transformation.
+The same package also estimates the First Difference model and the Least Squares pooling DID estimator.
+Let’s see how this works.</p>
+<div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="NE.html#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="co"># running the within estimator</span></span>
+<span id="cb151-2"><a href="NE.html#cb151-2" aria-hidden="true" tabindex="-1"></a>reg.W.plm <span class="ot">&lt;-</span> <span class="fu">plm</span>(y <span class="sc">~</span>  Dit <span class="sc">+</span> <span class="fu">as.factor</span>(T) , <span class="at">data =</span> data.DID, <span class="at">index=</span> <span class="fu">c</span>(<span class="st">&quot;indiv&quot;</span>, <span class="st">&quot;T&quot;</span>), <span class="at">model =</span> <span class="st">&quot;within&quot;</span>)</span>
+<span id="cb151-3"><a href="NE.html#cb151-3" aria-hidden="true" tabindex="-1"></a><span class="co"># result</span></span>
+<span id="cb151-4"><a href="NE.html#cb151-4" aria-hidden="true" tabindex="-1"></a>DID.est.W.plm <span class="ot">&lt;-</span> <span class="fu">coef</span>(reg.W.plm)[[<span class="dv">1</span>]]</span>
+<span id="cb151-5"><a href="NE.html#cb151-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb151-6"><a href="NE.html#cb151-6" aria-hidden="true" tabindex="-1"></a><span class="co"># running the first difference estimator</span></span>
+<span id="cb151-7"><a href="NE.html#cb151-7" aria-hidden="true" tabindex="-1"></a>reg.FD.plm <span class="ot">&lt;-</span> <span class="fu">plm</span>(y <span class="sc">~</span>  Dit <span class="sc">+</span> <span class="fu">as.factor</span>(T) , <span class="at">data =</span> data.DID, <span class="at">index=</span> <span class="fu">c</span>(<span class="st">&quot;indiv&quot;</span>, <span class="st">&quot;T&quot;</span>), <span class="at">model =</span> <span class="st">&quot;fd&quot;</span>)</span>
+<span id="cb151-8"><a href="NE.html#cb151-8" aria-hidden="true" tabindex="-1"></a><span class="co"># result</span></span>
+<span id="cb151-9"><a href="NE.html#cb151-9" aria-hidden="true" tabindex="-1"></a>DID.est.FD.plm <span class="ot">&lt;-</span> <span class="fu">coef</span>(reg.FD.plm)[[<span class="dv">2</span>]]</span>
+<span id="cb151-10"><a href="NE.html#cb151-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb151-11"><a href="NE.html#cb151-11" aria-hidden="true" tabindex="-1"></a><span class="co"># running the OLS pooling DID estimator</span></span>
+<span id="cb151-12"><a href="NE.html#cb151-12" aria-hidden="true" tabindex="-1"></a>reg.OLS.plm <span class="ot">&lt;-</span> <span class="fu">plm</span>(y <span class="sc">~</span> <span class="fu">as.factor</span>(T) <span class="sc">+</span> D <span class="sc">+</span> Dit , <span class="at">data =</span> data.DID, <span class="at">index=</span> <span class="fu">c</span>(<span class="st">&quot;indiv&quot;</span>, <span class="st">&quot;T&quot;</span>), <span class="at">model =</span> <span class="st">&quot;pooling&quot;</span>)</span>
+<span id="cb151-13"><a href="NE.html#cb151-13" aria-hidden="true" tabindex="-1"></a><span class="co"># result</span></span>
+<span id="cb151-14"><a href="NE.html#cb151-14" aria-hidden="true" tabindex="-1"></a>DID.est.OLS.plm <span class="ot">&lt;-</span> <span class="fu">coef</span>(reg.OLS.plm)[[<span class="dv">4</span>]]</span></code></pre></div>
+<p>As expected, <code>plm</code> gives the following estimates for <span class="math inline">\(TT\)</span>: <span class="math inline">\(\hat{\beta}^{W}=\)</span> 0.161, <span class="math inline">\(\hat{\beta}^{FD}=\)</span> 0.161 and <span class="math inline">\(\hat{\beta}^{OLS}=\)</span> 0.161.</p>
 </div>
-<div id="using-the-two-way-fixed-effects-estimator" class="section level5" number="4.3.1.2.6">
-<h5><span class="header-section-number">4.3.1.2.6</span> Using the Two-Way Fixed Effects estimator</h5>
-<p>Finally, a more universal approach is to rely on the Two-Way Fixed Effects estimator.
-There are multiple ways to implement it.
-<code>R</code> proposes the wonderful <code>fixest</code> package by Laurent Bergé, which works even with a very large number of fixed effects.
-It does not work by differencing the the data with respect to the grouped-means, as the traditional within estimator does (see <code>plm</code> for an implementation of that approach).
-<code>fixest</code> uses the concentrated likelihood in order to estimate the treatment effect.
-The algorithm works by first estimating the fixed effects and then by running the likelihood on the differenced out data. (?)</p>
+<div id="using-fast-estimators-of-the-two-way-fixed-effects-model" class="section level5" number="4.3.1.2.6">
+<h5><span class="header-section-number">4.3.1.2.6</span> Using fast estimators of the Two-Way Fixed Effects model</h5>
+<p>All the estimators of the TWFE model that we have seen so far have issues.
+The OLS pooling DID estimator does not account for the panel structure of the data when it exists.
+It does not alter the precision of the estimator but it makes it mode difficult to account for more dimensions of fixed effects than two.
+The First Difference estimator, similarly, cannot easily account for more than two sets of fixed effects.
+The Least Squares Dummy variable is slow because of the very large matrix inversion problem.
+Therefore, applied econometricians tend to prefer using the Within estimator in practice.
+The Within estimtor of the Two-Way Fixed Effects model is not without problems as well.
+As the sample size grows large, or the number of fixed effects increases, it becomes more and more difficult to compute the within transformation.
+As a consequence, recent packages have proposed to optimize the computation of the TWFE model using various computational tricks.
+Let’s examine two in turn.</p>
+<div id="the-alternating-projections-method" class="section level6" number="4.3.1.2.6.1">
+<h6><span class="header-section-number">4.3.1.2.6.1</span> The Alternating Projections method</h6>
+<p>The <code>lfe</code> package in <code>R</code> implements an alternating projections method to estimate the <span class="math inline">\(N\)</span>-Way Fixed effects model.
+It is based on an algorithm proposed by <a href="https://doi.org/10.1016/j.csda.2013.03.024">Gaure (2013)</a>.
+The basic idea of <a href="https://www.econstor.eu/bitstream/10419/47280/1/637363027.pdf">Gaure (2013)</a> is to repeat centering on the means of the fixed effects (the within operation) in an alternating manner between the various fixed effects dimensions until convergence.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-176" class="example"><strong>Example 4.20  </strong></span>Let’s see how the <code>lfe</code> estimator works in our example.
+</div>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb152-1"><a href="NE.html#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="co"># running the within estimator</span></span>
+<span id="cb152-2"><a href="NE.html#cb152-2" aria-hidden="true" tabindex="-1"></a>reg.W.lfe <span class="ot">&lt;-</span> <span class="fu">felm</span>(y <span class="sc">~</span>  Dit <span class="sc">+</span> <span class="fu">as.factor</span>(T) <span class="sc">|</span> indiv , <span class="at">data =</span> data.DID)</span>
+<span id="cb152-3"><a href="NE.html#cb152-3" aria-hidden="true" tabindex="-1"></a><span class="co"># result</span></span>
+<span id="cb152-4"><a href="NE.html#cb152-4" aria-hidden="true" tabindex="-1"></a>DID.est.W.lfe <span class="ot">&lt;-</span> <span class="fu">coef</span>(reg.W.lfe)[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>As expected, <code>lfe</code> gives the following estimate for <span class="math inline">\(TT\)</span>: <span class="math inline">\(\hat{\beta}^{AP}=\)</span> 0.161.</p>
+</div>
+<div id="the-likelihood-concentration-method" class="section level6" number="4.3.1.2.6.2">
+<h6><span class="header-section-number">4.3.1.2.6.2</span> The Likelihood Concentration method</h6>
+<p>One problem with the <code>lfe</code> package is that it works only for linear models.
+The <a href="https://cran.r-project.org/web/packages/fixest/vignettes/fixest_walkthrough.html"><code>fixest</code></a> package in <code>R</code> proposes a solution for estimating fixed effects models in non-linear cases as well.
+The solution is based on the concentrated likelihood as explained in <a href="https://wwwen.uni.lu/content/download/110162/1299525/file/2018_13">Berge (2018)</a>.
+The intuition is as follows.
+We first postulate a value for the treatment effect and the coefficient on the time dummies and we estimate each of the individual fixed effects using maximum likelihood.
+We then use maximum likelihood to find the treatment effect using the values of the fixed effects estimated in the previous step.
+This seems complicated but the key idea is to separate the estimation of the fixed effects from the estimation of the parameters of interest.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-177" class="example"><strong>Example 4.21  </strong></span>Let’s see how the <code>fixest</code> estimator works in our example.
+</div>
+<div class="sourceCode" id="cb153"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb153-1"><a href="NE.html#cb153-1" aria-hidden="true" tabindex="-1"></a><span class="co"># running the within estimator</span></span>
+<span id="cb153-2"><a href="NE.html#cb153-2" aria-hidden="true" tabindex="-1"></a>reg.W.fixest <span class="ot">&lt;-</span> <span class="fu">feols</span>(y <span class="sc">~</span>  Dit <span class="sc">+</span> <span class="fu">as.factor</span>(T) <span class="sc">|</span> indiv , <span class="at">data =</span> data.DID)</span>
+<span id="cb153-3"><a href="NE.html#cb153-3" aria-hidden="true" tabindex="-1"></a><span class="co"># result</span></span>
+<span id="cb153-4"><a href="NE.html#cb153-4" aria-hidden="true" tabindex="-1"></a>DID.est.W.fixest <span class="ot">&lt;-</span> <span class="fu">coef</span>(reg.W.fixest)[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>As expected, <code>fixest</code> gives the following estimate for <span class="math inline">\(TT\)</span>: <span class="math inline">\(\hat{\beta}^{LC}=\)</span> 0.161.</p>
+</div>
+</div>
+<div id="equivalence-between-the-various-did-methods-with-two-time-periods" class="section level5" number="4.3.1.2.7">
+<h5><span class="header-section-number">4.3.1.2.7</span> Equivalence between the various DID methods with two time periods</h5>
+<p>The above results suggest that all DID estimators are equivalent when working with two time periods.
+The following theorem actually states this result rigorously:</p>
+
+<div class="theorem">
+<span id="thm:EstimDID" class="theorem"><strong>Theorem 4.5  (All DID estimators are numerically equivalent with two time periods)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentFirst">4.7</a>, <a href="NE.html#hyp:NoAnticipationEffects">4.8</a> and <a href="NE.html#hyp:ParallelTrends">4.9</a>, in a panel with only two periods of data, all the DID estimators are numerically equivalent: <span class="math inline">\(\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}\)</span>.
+</div>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See Section <a href="proofs.html#proofEstimDID">A.3.1</a>.
+</div>
+<p>Finally, let’s see how our estimator varies across sampling replications.
+A key difference is whether we have access to panel data or not.
+Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affecteed by sampling noise stemming from the fixed effects.
+This is not going to be the case with panel data, since all the estimators based on the TWFE estimator differentiate out the individual fixed effects.</p>
+<p><strong>Do the simulations</strong></p>
 </div>
 </div>
 <div id="inference" class="section level4" number="4.3.1.3">
 <h4><span class="header-section-number">4.3.1.3</span> Inference</h4>
-<p>Inference from the OLS with group fixed effects will be too wide.</p>
+<p><strong>Derive the distribution of the estimators with repeated cross sections and panels</strong></p>
 </div>
 </div>
 <div id="differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date" class="section level3" number="4.3.2">
 <h3><span class="header-section-number">4.3.2</span> Differences In Differences with more than two-time periods but only one treatment date</h3>
+<p>In real life, we generally have access to several time periods before and after the treatment date.
+What happens to DID in that case?
+The first thing is that, with several periods after the treatment date, we now have a time-varying <span class="math inline">\(TT\)</span>: <span class="math inline">\(\Delta^{TT}_{Y_t}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=1}\)</span>.</p>
+<p><strong>Event Study graph and period specific treatment effects</strong></p>
+<p><strong>What are the weights for the TWFE estimator?</strong>
+<em>Should be derived from the staggered case</em></p>
 </div>
 <div id="differences-in-differences-with-a-staggered-design" class="section level3" number="4.3.3">
 <h3><span class="header-section-number">4.3.3</span> Differences In Differences with a staggered design</h3>

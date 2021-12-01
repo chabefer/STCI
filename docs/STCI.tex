@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-11-19}
+\date{2021-12-01}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -7927,14 +7927,14 @@ This is not too far from the true effect of the treatment in the sample which is
 In the population, the \(TT\) parameter has not changed, since its computation does not involve \(\rho\).
 We still have \(\Delta^y_{TT}=\) 0.165.
 
-\hypertarget{using-the-least-squares-did-estimator}{%
-\paragraph{Using the Least Squares DID estimator}\label{using-the-least-squares-did-estimator}}
+\hypertarget{using-the-least-squares-pooling-did-estimator}{%
+\paragraph{Using the Least Squares pooling DID estimator}\label{using-the-least-squares-pooling-did-estimator}}
 
 The most basic regression-based way to implement DID is to run a linear regression of outcomes on a treatment group dummy, a time dummy and their interaction.
 The interaction captures the effect of the treatment estimated using DID.
-The way it works is as follows: estimate the following equation using OLS and use \(\hat{\delta}_{OLS}\) as your DID estimate: \(\hat{\delta}_{OLS}=\hat{\Delta}^{Y}_{DID}\).
+The way it works is as follows: estimate the following equation using OLS and use \(\hat{\beta}_{OLS}\) as your DID estimate: \(\hat{\beta}_{OLS}=\hat{\Delta}^{Y}_{DID}\).
 \begin{align*}
-    Y_i &  = \alpha +  \beta D_i + \gamma T_i + \delta D_iT_i + \epsilon_i.
+    Y_i &  = \alpha +  \mu D_i + \delta T_i + \beta D_iT_i + \epsilon_i.
 \end{align*}
 \(D_i\) is our usual treatment indicator while \(T_i\) takes value one when observation \(i\) is observed in the \emph{After} and zero otherwise.
 
@@ -7963,14 +7963,14 @@ Before estimating the model, we need to build a data frame with all the necessar
 \end{Highlighting}
 \end{Shaded}
 
-The estimate of \(\hat{\delta}_{OLS}\) in our sample is equal to 0.161.
+The estimate of \(\hat{\beta}_{OLS}\) in our sample is equal to 0.161.
 It is exactly equal to \(\hat{\Delta}^{y}_{DID}\) as estimated just above.
 What is interesting with the regression-based DID approach is that the other coefficients in the regression have a direct interpretation.
 For example, the constant \(\alpha\) estimates the mean outcome in the untreated group before the treatment.
 In our case, we have \(\hat{\alpha}_OLS=\) 8.36.
 Remember that in our sample, the average outcomes of the untreated before the treatment is equal to \(\hatesp{y_i^B|D_i=0}=\) 8.36.
-\(\beta\), the coefficient in front of the \(D_i\) dummy, estimates the With/Without estimator before the treatment.
-In our case, we have \(\hat{\beta}_{OLS}=\) -1.361.
+\(\mu\), the coefficient in front of the \(D_i\) dummy, estimates the With/Without estimator before the treatment.
+In our case, we have \(\hat{\mu}_{OLS}=\) -1.361.
 Remember that in our sample, the With/Without estimator before the treatment is equal to \(\hat{\Delta}^{y^B}_{WW}=\) -1.361.
 \(\delta\), the coefficient in front of the \(T_i\) dummy, estimates the Before/After change in outcomes among the untreated.
 In our case, we have \(\hat{\delta}_{OLS}=\) 0.057.
@@ -8024,11 +8024,11 @@ Remember that in our sample, the Before/After estimator among the untreated is e
 One very computer-intensive way to estimate \(TT\) in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.
 In practice, the estimator is based on the following regression:
 \begin{align*}
-    Y_{i,t} &  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_i.
+    Y_{i,t} &  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t}.
 \end{align*}
 The notation is generally simplified as follows:
 \begin{align*}
-    Y_{i,t} &  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_i,
+    Y_{i,t} &  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t},
 \end{align*}
 
 The estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, \(\mu_i\), and time fixed effects \(\delta_t\)).
@@ -8059,7 +8059,7 @@ We are also going to run the model without a constant, so that all the fixed eff
 The Least-Squares Dummy Variables estimate of \(TT\) is equal to: \(\hat{\beta}^{TWFE}=\) 0.161.
 
 \begin{remark}
-\iffalse{} {Remark. } \fi{}The term \emph{fixed effect} is specific to the panel data literature in econoemtrics.
+\iffalse{} {Remark. } \fi{}The term \emph{fixed effect} is specific to the panel data literature in econometrics.
 It refers to the fact that both \(\mu_i\) and \(\delta_t\) are allowed to be correlated with \(D_{i,t}\) in this model.
 This is in contrast to the \emph{random effects model} where \(\mu_i\) and \(\delta_t\) are assumed to be independent of the regressors of interest.
 \end{remark}
@@ -8076,13 +8076,13 @@ Another approach is the Within estimator.
 The way the Within estimator works is by taking the difference between each observation and its mean over time or over individuals.
 More precisely, the Within estimator estimates the following model by OLS:
 \begin{align*}
-    Y_{i,t}-\frac{1}{2}\sum_{t=0}^1Y_{i,t} &  = \delta^{W}_t + \beta^{W}(D_{i,t}-\frac{1}{2}\sum_{t=0}^1) + \epsilon^{W}_i.
+    Y_{i,t}-\frac{1}{2}\sum_{t=0}^1Y_{i,t} &  = \delta^{W}_t + \beta^{W}(D_{i,t}-\frac{1}{2}\sum_{t=0}^1D_{i,t}) + \epsilon^{W}_{i,t}.
 \end{align*}
 
 The reason why this trick works is because of the shape of the Two-Way Fixed Effects model.
 Indeed, taking the average of the Two-Way Fixed Effects model over time gives:
 \begin{align*}
-    \frac{1}{2}\sum_{t=0}^1Y_{i,t} &  = \mu_i + \frac{1}{2}\sum_{t=0}^1\delta_t + \beta^{TWFE}\frac{1}{2}\sum_{t=0}^1D_{i,t} + \frac{1}{2}\sum_{t=0}^1\epsilon^{TWFE}_i.
+    \frac{1}{2}\sum_{t=0}^1Y_{i,t} &  = \mu_i + \frac{1}{2}\sum_{t=0}^1\delta_t + \beta^{TWFE}\frac{1}{2}\sum_{t=0}^1D_{i,t} + \frac{1}{2}\sum_{t=0}^1\epsilon^{TWFE}_{i,t}.
 \end{align*}
 Taking the difference between the Two-Way Fixed Effects model and its time-averaged version gives the Within estimator.
 The key is that the differencing gets rid of the individual fixed effects parameter \(\mu_i\) and thus makes it unnecessary to estimate it.
@@ -8117,23 +8117,130 @@ This is made simple by the \texttt{summarize} function of the \texttt{dplyr} pac
 
 The Within estimate of \(TT\) is equal to: \(\hat{\beta}^{W}=\) 0.161.
 
-\hypertarget{using-the-two-way-fixed-effects-estimator}{%
-\paragraph{Using the Two-Way Fixed Effects estimator}\label{using-the-two-way-fixed-effects-estimator}}
+The \texttt{plm} package directly implements the Within transformation.
+The same package also estimates the First Difference model and the Least Squares pooling DID estimator.
+Let's see how this works.
 
-Finally, a more universal approach is to rely on the Two-Way Fixed Effects estimator.
-There are multiple ways to implement it.
-\texttt{R} proposes the wonderful \texttt{fixest} package by Laurent Bergé, which works even with a very large number of fixed effects.
-It does not work by differencing the the data with respect to the grouped-means, as the traditional within estimator does (see \texttt{plm} for an implementation of that approach).
-\texttt{fixest} uses the concentrated likelihood in order to estimate the treatment effect.
-The algorithm works by first estimating the fixed effects and then by running the likelihood on the differenced out data. (?)
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# running the within estimator}
+\NormalTok{reg.W.plm }\OtherTok{\textless{}{-}} \FunctionTok{plm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{  Dit }\SpecialCharTok{+} \FunctionTok{as.factor}\NormalTok{(T) , }\AttributeTok{data =}\NormalTok{ data.DID, }\AttributeTok{index=} \FunctionTok{c}\NormalTok{(}\StringTok{"indiv"}\NormalTok{, }\StringTok{"T"}\NormalTok{), }\AttributeTok{model =} \StringTok{"within"}\NormalTok{)}
+\CommentTok{\# result}
+\NormalTok{DID.est.W.plm }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(reg.W.plm)[[}\DecValTok{1}\NormalTok{]]}
+
+\CommentTok{\# running the first difference estimator}
+\NormalTok{reg.FD.plm }\OtherTok{\textless{}{-}} \FunctionTok{plm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{  Dit }\SpecialCharTok{+} \FunctionTok{as.factor}\NormalTok{(T) , }\AttributeTok{data =}\NormalTok{ data.DID, }\AttributeTok{index=} \FunctionTok{c}\NormalTok{(}\StringTok{"indiv"}\NormalTok{, }\StringTok{"T"}\NormalTok{), }\AttributeTok{model =} \StringTok{"fd"}\NormalTok{)}
+\CommentTok{\# result}
+\NormalTok{DID.est.FD.plm }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(reg.FD.plm)[[}\DecValTok{2}\NormalTok{]]}
+
+\CommentTok{\# running the OLS pooling DID estimator}
+\NormalTok{reg.OLS.plm }\OtherTok{\textless{}{-}} \FunctionTok{plm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}} \FunctionTok{as.factor}\NormalTok{(T) }\SpecialCharTok{+}\NormalTok{ D }\SpecialCharTok{+}\NormalTok{ Dit , }\AttributeTok{data =}\NormalTok{ data.DID, }\AttributeTok{index=} \FunctionTok{c}\NormalTok{(}\StringTok{"indiv"}\NormalTok{, }\StringTok{"T"}\NormalTok{), }\AttributeTok{model =} \StringTok{"pooling"}\NormalTok{)}
+\CommentTok{\# result}
+\NormalTok{DID.est.OLS.plm }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(reg.OLS.plm)[[}\DecValTok{4}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+As expected, \texttt{plm} gives the following estimates for \(TT\): \(\hat{\beta}^{W}=\) 0.161, \(\hat{\beta}^{FD}=\) 0.161 and \(\hat{\beta}^{OLS}=\) 0.161.
+
+\hypertarget{using-fast-estimators-of-the-two-way-fixed-effects-model}{%
+\paragraph{Using fast estimators of the Two-Way Fixed Effects model}\label{using-fast-estimators-of-the-two-way-fixed-effects-model}}
+
+All the estimators of the TWFE model that we have seen so far have issues.
+The OLS pooling DID estimator does not account for the panel structure of the data when it exists.
+It does not alter the precision of the estimator but it makes it mode difficult to account for more dimensions of fixed effects than two.
+The First Difference estimator, similarly, cannot easily account for more than two sets of fixed effects.
+The Least Squares Dummy variable is slow because of the very large matrix inversion problem.
+Therefore, applied econometricians tend to prefer using the Within estimator in practice.
+The Within estimtor of the Two-Way Fixed Effects model is not without problems as well.
+As the sample size grows large, or the number of fixed effects increases, it becomes more and more difficult to compute the within transformation.
+As a consequence, recent packages have proposed to optimize the computation of the TWFE model using various computational tricks.
+Let's examine two in turn.
+
+\hypertarget{the-alternating-projections-method}{%
+\subparagraph{The Alternating Projections method}\label{the-alternating-projections-method}}
+
+The \texttt{lfe} package in \texttt{R} implements an alternating projections method to estimate the \(N\)-Way Fixed effects model.
+It is based on an algorithm proposed by \href{https://doi.org/10.1016/j.csda.2013.03.024}{Gaure (2013)}.
+The basic idea of \href{https://www.econstor.eu/bitstream/10419/47280/1/637363027.pdf}{Gaure (2013)} is to repeat centering on the means of the fixed effects (the within operation) in an alternating manner between the various fixed effects dimensions until convergence.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-176}{}{\label{exm:unnamed-chunk-176} }Let's see how the \texttt{lfe} estimator works in our example.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# running the within estimator}
+\NormalTok{reg.W.lfe }\OtherTok{\textless{}{-}} \FunctionTok{felm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{  Dit }\SpecialCharTok{+} \FunctionTok{as.factor}\NormalTok{(T) }\SpecialCharTok{|}\NormalTok{ indiv , }\AttributeTok{data =}\NormalTok{ data.DID)}
+\CommentTok{\# result}
+\NormalTok{DID.est.W.lfe }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(reg.W.lfe)[[}\DecValTok{1}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+As expected, \texttt{lfe} gives the following estimate for \(TT\): \(\hat{\beta}^{AP}=\) 0.161.
+
+\hypertarget{the-likelihood-concentration-method}{%
+\subparagraph{The Likelihood Concentration method}\label{the-likelihood-concentration-method}}
+
+One problem with the \texttt{lfe} package is that it works only for linear models.
+The \href{https://cran.r-project.org/web/packages/fixest/vignettes/fixest_walkthrough.html}{\texttt{fixest}} package in \texttt{R} proposes a solution for estimating fixed effects models in non-linear cases as well.
+The solution is based on the concentrated likelihood as explained in \href{https://wwwen.uni.lu/content/download/110162/1299525/file/2018_13}{Berge (2018)}.
+The intuition is as follows.
+We first postulate a value for the treatment effect and the coefficient on the time dummies and we estimate each of the individual fixed effects using maximum likelihood.
+We then use maximum likelihood to find the treatment effect using the values of the fixed effects estimated in the previous step.
+This seems complicated but the key idea is to separate the estimation of the fixed effects from the estimation of the parameters of interest.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-177}{}{\label{exm:unnamed-chunk-177} }Let's see how the \texttt{fixest} estimator works in our example.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# running the within estimator}
+\NormalTok{reg.W.fixest }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{  Dit }\SpecialCharTok{+} \FunctionTok{as.factor}\NormalTok{(T) }\SpecialCharTok{|}\NormalTok{ indiv , }\AttributeTok{data =}\NormalTok{ data.DID)}
+\CommentTok{\# result}
+\NormalTok{DID.est.W.fixest }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(reg.W.fixest)[[}\DecValTok{1}\NormalTok{]]}
+\end{Highlighting}
+\end{Shaded}
+
+As expected, \texttt{fixest} gives the following estimate for \(TT\): \(\hat{\beta}^{LC}=\) 0.161.
+
+\hypertarget{equivalence-between-the-various-did-methods-with-two-time-periods}{%
+\paragraph{Equivalence between the various DID methods with two time periods}\label{equivalence-between-the-various-did-methods-with-two-time-periods}}
+
+The above results suggest that all DID estimators are equivalent when working with two time periods.
+The following theorem actually states this result rigorously:
+
+\begin{theorem}[All DID estimators are numerically equivalent with two time periods]
+\protect\hypertarget{thm:EstimDID}{}{\label{thm:EstimDID} \iffalse (All DID estimators are numerically equivalent with two time periods) \fi{} }Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects} and \ref{hyp:ParallelTrends}, in a panel with only two periods of data, all the DID estimators are numerically equivalent: \(\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}\).
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}See Section \ref{proofEstimDID}.
+\end{proof}
+
+Finally, let's see how our estimator varies across sampling replications.
+A key difference is whether we have access to panel data or not.
+Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affecteed by sampling noise stemming from the fixed effects.
+This is not going to be the case with panel data, since all the estimators based on the TWFE estimator differentiate out the individual fixed effects.
+
+\textbf{Do the simulations}
 
 \hypertarget{inference}{%
 \subsubsection{Inference}\label{inference}}
 
-Inference from the OLS with group fixed effects will be too wide.
+\textbf{Derive the distribution of the estimators with repeated cross sections and panels}
 
 \hypertarget{differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date}{%
 \subsection{Differences In Differences with more than two-time periods but only one treatment date}\label{differences-in-differences-with-more-than-two-time-periods-but-only-one-treatment-date}}
+
+In real life, we generally have access to several time periods before and after the treatment date.
+What happens to DID in that case?
+The first thing is that, with several periods after the treatment date, we now have a time-varying \(TT\): \(\Delta^{TT}_{Y_t}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=1}\).
+
+\textbf{Event Study graph and period specific treatment effects}
+
+\textbf{What are the weights for the TWFE estimator?}
+\emph{Should be derived from the staggered case}
 
 \hypertarget{differences-in-differences-with-a-staggered-design}{%
 \subsection{Differences In Differences with a staggered design}\label{differences-in-differences-with-a-staggered-design}}
@@ -8334,7 +8441,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-178}{}{\label{exm:unnamed-chunk-178} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-181}{}{\label{exm:unnamed-chunk-181} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -8595,7 +8702,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-184}{}{\label{exm:unnamed-chunk-184} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -8739,7 +8846,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-186}{}{\label{exm:unnamed-chunk-186} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-189}{}{\label{exm:unnamed-chunk-189} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -8862,7 +8969,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-187}{}{\label{exm:unnamed-chunk-187} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-190}{}{\label{exm:unnamed-chunk-190} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -8924,7 +9031,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-188}{}{\label{exm:unnamed-chunk-188} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-191}{}{\label{exm:unnamed-chunk-191} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -8965,7 +9072,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-191}{}{\label{exm:unnamed-chunk-191} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is 0.2.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -9000,7 +9107,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-196}{}{\label{exm:unnamed-chunk-196} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -9115,7 +9222,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-194}{}{\label{exm:unnamed-chunk-194} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-197}{}{\label{exm:unnamed-chunk-197} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -9306,7 +9413,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-198}{}{\label{exm:unnamed-chunk-198} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -9403,7 +9510,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-196}{}{\label{exm:unnamed-chunk-196} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-199}{}{\label{exm:unnamed-chunk-199} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9523,7 +9630,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-198}{}{\label{exm:unnamed-chunk-198} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-201}{}{\label{exm:unnamed-chunk-201} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -9602,7 +9709,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-199}{}{\label{exm:unnamed-chunk-199} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-202}{}{\label{exm:unnamed-chunk-202} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -9745,7 +9852,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-200}{}{\label{exm:unnamed-chunk-200} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-203}{}{\label{exm:unnamed-chunk-203} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -9849,7 +9956,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-201}{}{\label{exm:unnamed-chunk-201} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-204}{}{\label{exm:unnamed-chunk-204} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -10187,7 +10294,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-202}{}{\label{exm:unnamed-chunk-202} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-205}{}{\label{exm:unnamed-chunk-205} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10346,7 +10453,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-203}{}{\label{exm:unnamed-chunk-203} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-206}{}{\label{exm:unnamed-chunk-206} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -10636,7 +10743,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-213}{}{\label{exm:unnamed-chunk-213} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -10889,7 +10996,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
@@ -11764,5 +11871,88 @@ The final result comes from the fact that:
 \end{align*}
 
 where the seventh equality uses the fact that \(p^C+p^{AT}+p^{NT}=1\).
+
+\hypertarget{proofs-of-results-in-chapter-refne}{%
+\section{Proofs of results in Chapter \ref{NE}}\label{proofs-of-results-in-chapter-refne}}
+
+\hypertarget{proofEstimDID}{%
+\subsection{Proof of Theorem \ref{thm:EstimDID}}\label{proofEstimDID}}
+
+Let us start with the proof that \(\hat{\beta}^{FD}=\hat{\Delta}^Y_{DID}\).
+Using Lemma \ref{lem:WWOLS}, we have that \(\hat{\beta}^{FD}=\hat{\Delta}^{Y_A-Y_B}_{WW}\).
+From there, since \(\sum_{i=1}^N(Y_{i,A}-Y_{i,B})D_i= \sum_{i=1}^NY_{i,A}D_i- \sum_{i=1}^NY_{i,B}D_i\), we have \(\hat{\beta}^{FD}=\hat{\Delta}^Y_{DID}\).
+
+In order to prove the other results, it is going tobe very convenient to use \href{https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html}{Frish-Waugh-Lovell Theorem}.
+It can be stated as follows:
+
+\begin{theorem}[Frish-Waugh-Lovell]
+\protect\hypertarget{thm:FWL}{}{\label{thm:FWL} \iffalse (Frish-Waugh-Lovell) \fi{} }The coefficients on a set of variables \(X_2\) estimated by OLS in a linear regression with another set of control variables \(X_1\) is equal to the coefficients on the same set of variables estimated by OLS in a linear model where the outcome variable is the residual of regressing \(Y\) on \(X_1\) by OLS and the explanatory variables are the residuals of regressing \(X_2\) on \(X_1\). More formally: \(\hat{\beta}_2^{OLS}=\hat{\beta}_2^{OLS(MX_1))}\) where:
+
+\begin{align*}
+  Y & = X_1\beta_1 + X_2\beta_2 + \epsilon \\
+  M_1Y & = M_1X_2\beta_2 + \epsilon^* \\
+  M_1 & = I - X_1(X_1'X_1)^{-1}X_1'.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}See Section 8.2.2 \href{https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html}{here}.
+\end{proof}
+
+\(M_1\) is called the \textbf{prediction} or the \textbf{residualizing} matrix.
+
+Let us now start applying Theorem \ref{thm:FWL} to the OLS DID estimator.
+In matrix form, the model can be written as follows (where we rank all the observations from the first period in the first lines of each matrix and vector):
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B} \\    \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)}_{Y} & =
+    \underbrace{\left(\begin{array}{cccc}   1 & D_1 & T_{1,B} & D_1T_{1,B}\\    \vdots & \vdots & \vdots & \vdots\\ 1 & D_N & T_{N,B} & D_NT_{N,B} \\
+                                        1 & D_1 & T_{1,A} & D_1T_{1,A}\\    \vdots & \vdots & \vdots & \vdots\\ 1 & D_N & T_{N,A} & D_NT_{N,A}\end{array}\right)}_{X}
+  \underbrace{\left(\begin{array}{c}    \alpha \\ \mu \\ \delta \\  \beta \end{array}\right)}_{\Theta} +
+  \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N,B} \\ \epsilon_{1,A} \\ \vdots \\   \epsilon_{N,A} \end{array}\right)}_{\epsilon}
+\end{align*}
+
+Let us start by projecting outcomes and remaining regressors on the first regressor (the constant), using the projection matrix \(M_1\) and denoting \(X_1\) the first column of hte \(X\) matrix.
+The residualized outcome is equal to:
+
+\begin{align*}
+    M_1Y &  = Y-X_1(X_1'X_1)^{-1}X_1'Y \\
+         & = Y-\left(\begin{array}{c} 1 \\  \vdots \\   1 \\1 \\    \vdots \\   1 \end{array}\right)
+         \left(
+         \left(\begin{array}{cccccc} 1 & \hdots &   1 & 1 & \hdots &    1 \end{array}\right)
+         \left(\begin{array}{c} 1 \\    \vdots \\   1 \\1 \\    \vdots \\   1 \end{array}\right)
+         \right)^{-1}
+         \left(\begin{array}{cccccc} 1 & \hdots &   1 & 1 & \hdots &    1 \end{array}\right)
+         Y \\
+         & = Y- \frac{1}{2N}\left(\begin{array}{cccccc}
+                        1 & \hdots &    1 & 1 & \hdots &    1 \\
+                        \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
+                        1 & \hdots &    1 & 1 & \hdots &    1 \\
+                        \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
+                        1 & \hdots &    1 & 1 & \hdots &    1
+                      \end{array}\right) Y \\
+         & = \left(\begin{array}{c}  Y_{1,B}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\   \vdots \\
+                                     Y_{N,B}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\
+                                     Y_{1,A}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\   \vdots \\
+                                     Y_{N,A}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \end{array}\right),
+\end{align*}
+
+which simply is the deviation of each individual outcome from the sample mean.
+
+Using the same approach, we have:
+
+\begin{align*}
+    M_1D & = \left(\begin{array}{c}  D_{1}-\frac{1}{N}\sum_{i=1}^ND_{i} \\  \vdots \\
+                                     D_{N}-\frac{1}{N}\sum_{i=1}^ND_{i} \\
+                                     D_{1}-\frac{1}{N}\sum_{i=1}^ND_{i} \\  \vdots \\
+                                     D_{N}-\frac{1}{N}\sum_{i=1}^ND_{i} \end{array}\right),
+\end{align*}
+
+\begin{align*}
+    M_1T & = \left(\begin{array}{c}  -\frac{1}{2} \\    \vdots \\
+                                     -\frac{1}{2} \\
+                                     \frac{1}{2} \\ \vdots \\
+                                     \frac{1}{2} \end{array}\right),
+\end{align*}
 
 \end{document}
