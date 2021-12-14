@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-12-01}
+\date{2021-12-14}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -11886,7 +11886,7 @@ In order to prove the other results, it is going tobe very convenient to use \hr
 It can be stated as follows:
 
 \begin{theorem}[Frish-Waugh-Lovell]
-\protect\hypertarget{thm:FWL}{}{\label{thm:FWL} \iffalse (Frish-Waugh-Lovell) \fi{} }The coefficients on a set of variables \(X_2\) estimated by OLS in a linear regression with another set of control variables \(X_1\) is equal to the coefficients on the same set of variables estimated by OLS in a linear model where the outcome variable is the residual of regressing \(Y\) on \(X_1\) by OLS and the explanatory variables are the residuals of regressing \(X_2\) on \(X_1\). More formally: \(\hat{\beta}_2^{OLS}=\hat{\beta}_2^{OLS(MX_1))}\) where:
+\protect\hypertarget{thm:FWL}{}{\label{thm:FWL} \iffalse (Frish-Waugh-Lovell) \fi{} }The coefficients on a set of variables \(X_2\) estimated by OLS in a linear regression with another set of control variables \(X_1\) is equal to the coefficients on the same set of variables estimated by OLS in a linear model where the outcome variable is the residual of regressing \(Y\) on \(X_1\) by OLS and the explanatory variables are the residuals of regressing \(X_2\) on \(X_1\). More formally: \(\hat{\beta}_2^{OLS}=\hat{\beta}_2^{OLS(MX_1)}\) where:
 
 \begin{align*}
   Y & = X_1\beta_1 + X_2\beta_2 + \epsilon \\
@@ -11912,47 +11912,112 @@ In matrix form, the model can be written as follows (where we rank all the obser
   \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N,B} \\ \epsilon_{1,A} \\ \vdots \\   \epsilon_{N,A} \end{array}\right)}_{\epsilon}
 \end{align*}
 
-Let us start by projecting outcomes and remaining regressors on the first regressor (the constant), using the projection matrix \(M_1\) and denoting \(X_1\) the first column of hte \(X\) matrix.
-The residualized outcome is equal to:
+We are first going to project outcomes and regressors onto the time vector \(T\), where \(T_{i,B}=0\), \(\forall i\) and \(T_{i,A}=A\), \(\forall i\).
+Let's denote the corresponding projection matrix \(M_T\).
+It is straightforward to show that \((T'T)^{-1}=\frac{1}{N}\).
+Indeed:
 
 \begin{align*}
-    M_1Y &  = Y-X_1(X_1'X_1)^{-1}X_1'Y \\
-         & = Y-\left(\begin{array}{c} 1 \\  \vdots \\   1 \\1 \\    \vdots \\   1 \end{array}\right)
-         \left(
-         \left(\begin{array}{cccccc} 1 & \hdots &   1 & 1 & \hdots &    1 \end{array}\right)
-         \left(\begin{array}{c} 1 \\    \vdots \\   1 \\1 \\    \vdots \\   1 \end{array}\right)
-         \right)^{-1}
-         \left(\begin{array}{cccccc} 1 & \hdots &   1 & 1 & \hdots &    1 \end{array}\right)
-         Y \\
-         & = Y- \frac{1}{2N}\left(\begin{array}{cccccc}
-                        1 & \hdots &    1 & 1 & \hdots &    1 \\
-                        \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
-                        1 & \hdots &    1 & 1 & \hdots &    1 \\
-                        \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
-                        1 & \hdots &    1 & 1 & \hdots &    1
-                      \end{array}\right) Y \\
-         & = \left(\begin{array}{c}  Y_{1,B}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\   \vdots \\
-                                     Y_{N,B}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\
-                                     Y_{1,A}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \\   \vdots \\
-                                     Y_{N,A}-\frac{1}{2}\left(\frac{1}{N}\sum_{i=1}^NY_{i,B}+\frac{1}{N}\sum_{i=1}^NY_{i,A}\right) \end{array}\right),
+    T'T &  = \left(\begin{array}{cccccc} 0 & \dots & 0 & 1 &    \dots & 1 \end{array}\right)
+         \left(\begin{array}{c} 0 \\    \vdots \\   0 \\1 \\    \vdots \\   1 \end{array}\right) \\
+         & = N.
 \end{align*}
 
-which simply is the deviation of each individual outcome from the sample mean.
-
-Using the same approach, we have:
+Now, we also have
 
 \begin{align*}
-    M_1D & = \left(\begin{array}{c}  D_{1}-\frac{1}{N}\sum_{i=1}^ND_{i} \\  \vdots \\
-                                     D_{N}-\frac{1}{N}\sum_{i=1}^ND_{i} \\
-                                     D_{1}-\frac{1}{N}\sum_{i=1}^ND_{i} \\  \vdots \\
-                                     D_{N}-\frac{1}{N}\sum_{i=1}^ND_{i} \end{array}\right),
+    T'Y &  = \left(\begin{array}{cccccc} 0 & \dots & 0 & 1 &    \dots & 1 \end{array}\right)
+         \left(\begin{array}{c} Y_{1,B} \\  \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)\\
+         & = \sum_{i=1}^NY_{i,A}.
 \end{align*}
 
+As a consequence, \((T'T)^{-1}T'Y=\frac{1}{N}\sum_{i=1}^NY_{i,A}=\bar{Y}_A\).
+And thus:
+
 \begin{align*}
-    M_1T & = \left(\begin{array}{c}  -\frac{1}{2} \\    \vdots \\
-                                     -\frac{1}{2} \\
-                                     \frac{1}{2} \\ \vdots \\
-                                     \frac{1}{2} \end{array}\right),
+  M_TY & = Y-T(T'T)^{-1}T'Y \\
+        & = \left(\begin{array}{c} Y_{1,B} \\   \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)-  \bar{Y}_A\left(\begin{array}{c} 0 \\   \vdots \\   0 \\1 \\    \vdots \\   1 \end{array}\right) \\
+      & = \left(\begin{array}{c}  Y_{1,B} \\    \vdots \\
+                                     Y_{N,B}\\
+                                     Y_{1,A}-\bar{Y}_A \\   \vdots \\
+                                     Y_{N,A}-\bar{Y}_A \end{array}\right).
+\end{align*}
+
+By a similar reasoning, we have:
+
+\begin{align*}
+  M_TD & = \left(\begin{array}{c}  D_{1} \\ \vdots \\
+                                     D_{N}\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D} \end{array}\right), 
+\end{align*}
+
+where \(\bar{D}=\frac{1}{N}\sum_{i=1}^ND_{i}\) and
+
+\begin{align*}
+  M_TDT & = \left(\begin{array}{c} 0 \\ \vdots \\
+                                     0\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D} \end{array}\right).
+\end{align*}
+
+Finally, we have:
+
+\begin{align*}
+  M_T1 & = 1-T(T'T)^{-1}T'1 \\
+      & = 1-T \\
+      & = \left(\begin{array}{c} 1 \\   \vdots \\
+                                     1\\
+                                     0 \\   \vdots \\
+                                     0 \end{array}\right).
+\end{align*}
+
+Now, we can residualize \(M_TD\) in the regression of \(M_TY\) on \(M_T1\), \(M_TD\) and \(M_TDT\).
+First:
+
+\begin{align*}
+  M_TD'M_TD & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &   \dots &  D_{N}-\bar{D} \end{array}\right)
+                \left(\begin{array}{c}  D_{1} \\    \vdots \\
+                                     D_{N}\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D} \end{array}\right)  \\
+      & = \sum_{i=1}^ND^2_{i}+\sum_{i=1}^N(D_{i}-\bar{D})^2\\
+      & = \sum_{i=1}^ND_{i} + \sum_{i=1}^N(D^2_{i}-2D_{i}\bar{D}+\bar{D}^2) \\
+      & = 2N\bar{D}-2N\bar{D}^2+N\bar{D}^2 \\
+      & = N\bar{D}(2-\bar{D}),
+\end{align*}
+
+where we use the fact that \(D^2_i=D_i\) (since \(D_i\) takes only values zero and one) and \(N\bar{D}=\sum_{i=1}^ND_{i}\).
+
+Now:
+
+\begin{align*}
+  M_TD'M_TY & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &   \dots &  D_{N}-\bar{D} \end{array}\right)
+                \left(\begin{array}{c}  Y_{1,B} \\  \vdots \\
+                                     Y_{N,B}\\
+                                     Y_{1,A}-\bar{Y}_A \\   \vdots \\
+                                     Y_{N,A}-\bar{Y}_A \end{array}\right) \\
+      & = \sum_{i=1}^ND_{i}Y_{i,B}+\sum_{i=1}^N(D_{i}-\bar{D})(Y_{i,A}-\bar{Y}_A)\\
+      & = N\bar{D}\bar{Y}^1_B+N\bar{D}\bar{Y}^1_A-N\bar{D}\bar{Y}_A+N\bar{D}\bar{Y}_A-N\bar{D}\bar{Y}_A \\
+      & = N\bar{D}(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A),
+\end{align*}
+
+where \(\bar{Y}^1_t=\frac{\sum_{i=1}^ND_{i}Y_{i,t}}{\sum_{i=1}^ND_{i}}\).
+As a consequence, \((M_TD'M_TD)^{-1}M_TD'M_TY=\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}\).
+And thus:
+
+\begin{align*}
+  M_{TD}Y & = M_TY-M_TD(M_TD'M_TD)^{-1}M_TD'M_TY \\
+        & = \left(\begin{array}{c}  Y_{1,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_1 \\   \vdots \\
+                                     Y_{N,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_N\\
+                                     Y_{1,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{1}-\bar{D}) \\    \vdots \\
+                                     Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})\end{array}\right) 
+\end{align*}
+
+Also:
+
+\begin{align*}
+  M_{TD}DT & = 
 \end{align*}
 
 \end{document}
