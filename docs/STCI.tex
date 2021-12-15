@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-12-14}
+\date{2021-12-15}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -11912,7 +11912,7 @@ In matrix form, the model can be written as follows (where we rank all the obser
   \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N,B} \\ \epsilon_{1,A} \\ \vdots \\   \epsilon_{N,A} \end{array}\right)}_{\epsilon}
 \end{align*}
 
-We are first going to project outcomes and regressors onto the time vector \(T\), where \(T_{i,B}=0\), \(\forall i\) and \(T_{i,A}=A\), \(\forall i\).
+We are first going to project outcomes and regressors onto the time vector \(T\), where \(T_{i,B}=0\), \(\forall i\) and \(T_{i,A}=1\), \(\forall i\).
 Let's denote the corresponding projection matrix \(M_T\).
 It is straightforward to show that \((T'T)^{-1}=\frac{1}{N}\).
 Indeed:
@@ -12014,10 +12014,104 @@ And thus:
                                      Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})\end{array}\right) 
 \end{align*}
 
-Also:
+Also \(M_TD'M_TDT=N\bar{D}(1-\bar{D})\).
+Indeed:
 
 \begin{align*}
-  M_{TD}DT & = 
+  M_TD'M_TDT & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &  \dots &  D_{N}-\bar{D} \end{array}\right)
+               \left(\begin{array}{c} 0 \\  \vdots \\
+                                     0\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D} \end{array}\right) \\
+      & = \sum_{i=1}^N(D_{i}-\bar{D})^2\\
+      & = \sum_{i=1}^ND^2_{i}-2\bar{D}\sum_{i=1}^ND_{i}+ N\bar{D}^2\\
+      & = N\bar{D}-2N\bar{D}^2+ N\bar{D}^2\\
+      & = N\bar{D}-N\bar{D}^2\\
+      & = N\bar{D}(1-\bar{D})
+\end{align*}
+
+As a consequence, \((M_TD'M_TD)^{-1}M_TD'M_TDT=\frac{1-\bar{D}}{2-\bar{D}}\) and:
+
+\begin{align*}
+  M_{TD}DT & =  M_TDT-M_TD(M_TD'M_TD)^{-1}M_TD'M_TDT \\
+           & =  \left(\begin{array}{c} 0 \\ \vdots \\
+                                     0\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D}
+                \end{array}\right) - \frac{1-\bar{D}}{2-\bar{D}}
+                \left(\begin{array}{c}  D_{1} \\   \vdots \\
+                                     D_{N}\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D}
+                \end{array}\right) \\
+           & = \frac{1-\bar{D}}{2-\bar{D}}
+                      \left(\begin{array}{c}  -D_{1} \\    \vdots \\ - D_{N}\\
+                                     \frac{D_{1}-\bar{D}}{1-\bar{D}} \\ \vdots \\\frac{D_{N}-\bar{D}}{1-\bar{D}}
+           \end{array}\right),
+\end{align*}
+
+since \(1-\frac{1-\bar{D}}{2-\bar{D}}= \frac{2-\bar{D}-1+\bar{D}}{2-\bar{D}} = \frac{1}{2-\bar{D}}\).
+
+Finally, \(M_TD'M_T1=N\bar{D}\).
+Indeed:
+
+\begin{align*}
+  M_TD'M_T1 & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &   \dots &  D_{N}-\bar{D} \end{array}\right)
+               \left(\begin{array}{c} 1 \\  \vdots \\
+                                     1\\
+                                     0 \\   \vdots \\
+                                     0 \end{array}\right) \\
+      & = \sum_{i=1}^ND_{i}\\
+      & = N\bar{D}.
+\end{align*}
+
+As a consequence, \((M_TD'M_TD)^{-1}M_TD'M_T1=\frac{1}{2-\bar{D}}\) and:
+
+\begin{align*}
+  M_{TD}1 & =  M_T1-M_TD(M_TD'M_TD)^{-1}M_TD'M_T1 \\
+           & =  \left(\begin{array}{c} 1 \\ \vdots \\
+                                     1\\
+                                     0 \\   \vdots \\
+                                     0
+                 \end{array}\right) - \frac{1}{2-\bar{D}}
+                                     \left(\begin{array}{c}  D_{1} \\   \vdots \\
+                                     D_{N}\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D}
+                                     \end{array}\right) \\
+           & = \left(\begin{array}{c}
+                      1-\frac{D_{1}}{2-\bar{D}} \\  \vdots \\ 1-\frac{D_{N}}{2-\bar{D}}\\
+                      -\frac{D_{1}-\bar{D}}{2-\bar{D}} \\   \vdots \\-\frac{D_{N}-\bar{D}}{2-\bar{D}}
+           \end{array}\right).
+\end{align*}
+
+For the penultimate step, we residualize \(M_{TD}1\) in the regression of \(M_{TD}Y\) on \(M_{TD}1\) and \(M_{TD}DT\).
+First, we have \(M_{TD}1'M_{TD}1=N\frac{1-\bar{D}}{2-\bar{D}}\frac{4-\bar{D}}{2-\bar{D}}\).
+Indeed:
+
+\begin{align*}
+  M_{TD}1'M_{TD}1 & = \left(\begin{array}{cccccc}
+                            1-\frac{D_{1}}{2-\bar{D}}  & \dots & 1-\frac{D_{N}}{2-\bar{D}}  & -\frac{D_{1}-\bar{D}}{2-\bar{D}} &    \dots &  -\frac{D_{N}-\bar{D}}{2-\bar{D}}
+                      \end{array}\right)
+                      \left(\begin{array}{c}  1-\frac{D_{1}}{2-\bar{D}} \\  \vdots \\ 1-\frac{D_{N}}{2-\bar{D}}\\
+                                     -\frac{D_{1}-\bar{D}}{2-\bar{D}} \\    \vdots \\-\frac{D_{N}-\bar{D}}{2-\bar{D}}
+                        \end{array}\right) \\
+      & = \sum_{i=1}^N(1-\frac{D_{i}}{2-\bar{D}})^2+\sum_{i=1}^N\left(\frac{D_{i}-\bar{D}}{2-\bar{D}}\right)^2\\
+      & = \sum_{i=1}^N(1-2\frac{D_{i}}{2-\bar{D}}+(\frac{D_{i}}{2-\bar{D}})^2 + \sum_{i=1}^N\left(\frac{D^2_{i}-2D_{i}\bar{D}+\bar{D}^2}{2-\bar{D}}\right)^2\\
+      & = N - \frac{2}{2-\bar{D}}N\bar{D}+\frac{1}{2-\bar{D}}N\bar{D} + \frac{1}{(2-\bar{D})^2}\left(N\bar{D}-2N\bar{D}^2+N\bar{D}^2\right)\\
+      & = N -\frac{N\bar{D}}{2-\bar{D}} + \frac{N\bar{D}-N\bar{D}^2}{(2-\bar{D})^2} \\
+      & = \frac{2N-2N\bar{D}}{2-\bar{D}} + N\bar{D}\frac{1-\bar{D}}{(2-\bar{D})^2} \\
+      & = 2N\frac{1-\bar{D}}{2-\bar{D}} + N\bar{D}\frac{1-\bar{D}}{(2-\bar{D})^2} \\
+      & = N\frac{1-\bar{D}}{2-\bar{D}}\left(2 + \frac{\bar{D}}{2-\bar{D}}\right) \\
+      & = N\frac{1-\bar{D}}{2-\bar{D}}\frac{4-\bar{D}}{2-\bar{D}}
+\end{align*}
+
+\begin{align*}
+  M_{TD}1'M_{TD}Y & = \left(\begin{array}{cccccc} 1-\frac{D_{1}}{2-\bar{D}}  & \dots & 1-\frac{D_{N}}{2-\bar{D}}  & -\frac{D_{1}-\bar{D}}{2-\bar{D}} &  \dots &  -\frac{D_{N}-\bar{D}}{2-\bar{D}} \end{array}\right)
+\left(\begin{array}{c}  Y_{1,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_1 \\   \vdots \\
+                                     Y_{N,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_N\\
+                                     Y_{1,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{1}-\bar{D}) \\    \vdots \\
+                                     Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})\end{array}\right)
 \end{align*}
 
 \end{document}

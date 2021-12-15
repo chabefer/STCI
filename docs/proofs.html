@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2021-12-14" />
+<meta name="date" content="2021-12-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -974,7 +974,7 @@ In matrix form, the model can be written as follows (where we rank all the obser
   \underbrace{\left(\begin{array}{c}    \alpha \\ \mu \\ \delta \\  \beta \end{array}\right)}_{\Theta} +
   \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N,B} \\ \epsilon_{1,A} \\ \vdots \\   \epsilon_{N,A} \end{array}\right)}_{\epsilon}
 \end{align*}\]</span></p>
-<p>We are first going to project outcomes and regressors onto the time vector <span class="math inline">\(T\)</span>, where <span class="math inline">\(T_{i,B}=0\)</span>, <span class="math inline">\(\forall i\)</span> and <span class="math inline">\(T_{i,A}=A\)</span>, <span class="math inline">\(\forall i\)</span>.
+<p>We are first going to project outcomes and regressors onto the time vector <span class="math inline">\(T\)</span>, where <span class="math inline">\(T_{i,B}=0\)</span>, <span class="math inline">\(\forall i\)</span> and <span class="math inline">\(T_{i,A}=1\)</span>, <span class="math inline">\(\forall i\)</span>.
 Let’s denote the corresponding projection matrix <span class="math inline">\(M_T\)</span>.
 It is straightforward to show that <span class="math inline">\((T&#39;T)^{-1}=\frac{1}{N}\)</span>.
 Indeed:</p>
@@ -1057,9 +1057,93 @@ And thus:</p>
                                      Y_{1,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{1}-\bar{D}) \\    \vdots \\
                                      Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})\end{array}\right) 
 \end{align*}\]</span></p>
-<p>Also:</p>
+<p>Also <span class="math inline">\(M_TD&#39;M_TDT=N\bar{D}(1-\bar{D})\)</span>.
+Indeed:</p>
 <p><span class="math display">\[\begin{align*}
-  M_{TD}DT &amp; = 
+  M_TD&#39;M_TDT &amp; = \left(\begin{array}{cccccc} D_{1}  &amp; \dots &amp; D_{N}  &amp; D_{1}-\bar{D} &amp;  \dots &amp;  D_{N}-\bar{D} \end{array}\right)
+               \left(\begin{array}{c} 0 \\  \vdots \\
+                                     0\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D} \end{array}\right) \\
+      &amp; = \sum_{i=1}^N(D_{i}-\bar{D})^2\\
+      &amp; = \sum_{i=1}^ND^2_{i}-2\bar{D}\sum_{i=1}^ND_{i}+ N\bar{D}^2\\
+      &amp; = N\bar{D}-2N\bar{D}^2+ N\bar{D}^2\\
+      &amp; = N\bar{D}-N\bar{D}^2\\
+      &amp; = N\bar{D}(1-\bar{D})
+\end{align*}\]</span></p>
+<p>As a consequence, <span class="math inline">\((M_TD&#39;M_TD)^{-1}M_TD&#39;M_TDT=\frac{1-\bar{D}}{2-\bar{D}}\)</span> and:</p>
+<p><span class="math display">\[\begin{align*}
+  M_{TD}DT &amp; =  M_TDT-M_TD(M_TD&#39;M_TD)^{-1}M_TD&#39;M_TDT \\
+           &amp; =  \left(\begin{array}{c} 0 \\ \vdots \\
+                                     0\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D}
+                \end{array}\right) - \frac{1-\bar{D}}{2-\bar{D}}
+                \left(\begin{array}{c}  D_{1} \\   \vdots \\
+                                     D_{N}\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D}
+                \end{array}\right) \\
+           &amp; = \frac{1-\bar{D}}{2-\bar{D}}
+                      \left(\begin{array}{c}  -D_{1} \\    \vdots \\ - D_{N}\\
+                                     \frac{D_{1}-\bar{D}}{1-\bar{D}} \\ \vdots \\\frac{D_{N}-\bar{D}}{1-\bar{D}}
+           \end{array}\right),
+\end{align*}\]</span></p>
+<p>since <span class="math inline">\(1-\frac{1-\bar{D}}{2-\bar{D}}= \frac{2-\bar{D}-1+\bar{D}}{2-\bar{D}} = \frac{1}{2-\bar{D}}\)</span>.</p>
+<p>Finally, <span class="math inline">\(M_TD&#39;M_T1=N\bar{D}\)</span>.
+Indeed:</p>
+<p><span class="math display">\[\begin{align*}
+  M_TD&#39;M_T1 &amp; = \left(\begin{array}{cccccc} D_{1}  &amp; \dots &amp; D_{N}  &amp; D_{1}-\bar{D} &amp;   \dots &amp;  D_{N}-\bar{D} \end{array}\right)
+               \left(\begin{array}{c} 1 \\  \vdots \\
+                                     1\\
+                                     0 \\   \vdots \\
+                                     0 \end{array}\right) \\
+      &amp; = \sum_{i=1}^ND_{i}\\
+      &amp; = N\bar{D}.
+\end{align*}\]</span></p>
+<p>As a consequence, <span class="math inline">\((M_TD&#39;M_TD)^{-1}M_TD&#39;M_T1=\frac{1}{2-\bar{D}}\)</span> and:</p>
+<p><span class="math display">\[\begin{align*}
+  M_{TD}1 &amp; =  M_T1-M_TD(M_TD&#39;M_TD)^{-1}M_TD&#39;M_T1 \\
+           &amp; =  \left(\begin{array}{c} 1 \\ \vdots \\
+                                     1\\
+                                     0 \\   \vdots \\
+                                     0
+                 \end{array}\right) - \frac{1}{2-\bar{D}}
+                                     \left(\begin{array}{c}  D_{1} \\   \vdots \\
+                                     D_{N}\\
+                                     D_{1}-\bar{D} \\   \vdots \\
+                                     D_{N}-\bar{D}
+                                     \end{array}\right) \\
+           &amp; = \left(\begin{array}{c}
+                      1-\frac{D_{1}}{2-\bar{D}} \\  \vdots \\ 1-\frac{D_{N}}{2-\bar{D}}\\
+                      -\frac{D_{1}-\bar{D}}{2-\bar{D}} \\   \vdots \\-\frac{D_{N}-\bar{D}}{2-\bar{D}}
+           \end{array}\right).
+\end{align*}\]</span></p>
+<p>For the penultimate step, we residualize <span class="math inline">\(M_{TD}1\)</span> in the regression of <span class="math inline">\(M_{TD}Y\)</span> on <span class="math inline">\(M_{TD}1\)</span> and <span class="math inline">\(M_{TD}DT\)</span>.
+First, we have <span class="math inline">\(M_{TD}1&#39;M_{TD}1=N\frac{1-\bar{D}}{2-\bar{D}}\frac{4-\bar{D}}{2-\bar{D}}\)</span>.
+Indeed:</p>
+<p><span class="math display">\[\begin{align*}
+  M_{TD}1&#39;M_{TD}1 &amp; = \left(\begin{array}{cccccc}
+                            1-\frac{D_{1}}{2-\bar{D}}  &amp; \dots &amp; 1-\frac{D_{N}}{2-\bar{D}}  &amp; -\frac{D_{1}-\bar{D}}{2-\bar{D}} &amp;    \dots &amp;  -\frac{D_{N}-\bar{D}}{2-\bar{D}}
+                      \end{array}\right)
+                      \left(\begin{array}{c}  1-\frac{D_{1}}{2-\bar{D}} \\  \vdots \\ 1-\frac{D_{N}}{2-\bar{D}}\\
+                                     -\frac{D_{1}-\bar{D}}{2-\bar{D}} \\    \vdots \\-\frac{D_{N}-\bar{D}}{2-\bar{D}}
+                        \end{array}\right) \\
+      &amp; = \sum_{i=1}^N(1-\frac{D_{i}}{2-\bar{D}})^2+\sum_{i=1}^N\left(\frac{D_{i}-\bar{D}}{2-\bar{D}}\right)^2\\
+      &amp; = \sum_{i=1}^N(1-2\frac{D_{i}}{2-\bar{D}}+(\frac{D_{i}}{2-\bar{D}})^2 + \sum_{i=1}^N\left(\frac{D^2_{i}-2D_{i}\bar{D}+\bar{D}^2}{2-\bar{D}}\right)^2\\
+      &amp; = N - \frac{2}{2-\bar{D}}N\bar{D}+\frac{1}{2-\bar{D}}N\bar{D} + \frac{1}{(2-\bar{D})^2}\left(N\bar{D}-2N\bar{D}^2+N\bar{D}^2\right)\\
+      &amp; = N -\frac{N\bar{D}}{2-\bar{D}} + \frac{N\bar{D}-N\bar{D}^2}{(2-\bar{D})^2} \\
+      &amp; = \frac{2N-2N\bar{D}}{2-\bar{D}} + N\bar{D}\frac{1-\bar{D}}{(2-\bar{D})^2} \\
+      &amp; = 2N\frac{1-\bar{D}}{2-\bar{D}} + N\bar{D}\frac{1-\bar{D}}{(2-\bar{D})^2} \\
+      &amp; = N\frac{1-\bar{D}}{2-\bar{D}}\left(2 + \frac{\bar{D}}{2-\bar{D}}\right) \\
+      &amp; = N\frac{1-\bar{D}}{2-\bar{D}}\frac{4-\bar{D}}{2-\bar{D}}
+\end{align*}\]</span></p>
+<p><span class="math display">\[\begin{align*}
+  M_{TD}1&#39;M_{TD}Y &amp; = \left(\begin{array}{cccccc} 1-\frac{D_{1}}{2-\bar{D}}  &amp; \dots &amp; 1-\frac{D_{N}}{2-\bar{D}}  &amp; -\frac{D_{1}-\bar{D}}{2-\bar{D}} &amp;  \dots &amp;  -\frac{D_{N}-\bar{D}}{2-\bar{D}} \end{array}\right)
+\left(\begin{array}{c}  Y_{1,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_1 \\   \vdots \\
+                                     Y_{N,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_N\\
+                                     Y_{1,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{1}-\bar{D}) \\    \vdots \\
+                                     Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})\end{array}\right)
 \end{align*}\]</span></p>
 
 </div>
