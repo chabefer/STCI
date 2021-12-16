@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-12-15}
+\date{2021-12-16}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -12106,12 +12106,32 @@ Indeed:
       & = N\frac{1-\bar{D}}{2-\bar{D}}\frac{4-\bar{D}}{2-\bar{D}}
 \end{align*}
 
+Also:
+
 \begin{align*}
-  M_{TD}1'M_{TD}Y & = \left(\begin{array}{cccccc} 1-\frac{D_{1}}{2-\bar{D}}  & \dots & 1-\frac{D_{N}}{2-\bar{D}}  & -\frac{D_{1}-\bar{D}}{2-\bar{D}} &  \dots &  -\frac{D_{N}-\bar{D}}{2-\bar{D}} \end{array}\right)
-\left(\begin{array}{c}  Y_{1,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_1 \\   \vdots \\
+  M_{TD}1'M_{TD}Y & = \left(\begin{array}{cccccc} 1-\frac{D_{1}}{2-\bar{D}}  & \dots & 1-\frac{D_{N}}{2-\bar{D}}  & -\frac{D_{1}-\bar{D}}{2-\bar{D}} &  \dots &  -\frac{D_{N}-\bar{D}}{2-\bar{D}} \end{array}\right) \\
+  & \phantom{=\left(\begin{array}{c} 1-\frac{D_{1}}{2-\bar{D}}\end{array}\right)}
+                                \left(\begin{array}{c}
+                                   Y_{1,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_1 \\    \vdots \\
                                      Y_{N,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_N\\
                                      Y_{1,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{1}-\bar{D}) \\    \vdots \\
-                                     Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})\end{array}\right)
+                                     Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})
+                                  \end{array}\right)\\
+ & = \underbrace{\sum_{i=1}^N\left(1-\frac{D_{i}}{2-\bar{D}}\right)\left(Y_{i,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_i\right)}_{\mathbf{A}} \\
+ & \phantom{=} -\underbrace{\sum_{i=1}^N\left(\frac{D_{i}-\bar{D}}{2-\bar{D}}\right)\left(Y_{i,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_i-\bar{D})\right)}_{\mathbf{B}} \\
+\end{align*}
+
+Let us look at both terms in turn:
+
+\begin{align*}
+  \mathbf{A} & =\sum_{i=1}^N\left(1-\frac{D_{i}}{2-\bar{D}}\right)\left(Y_{i,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_i\right) \\
+             & = \sum_{i=1}^NY_{i,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}\sum_{i=1}^ND_{i}-\frac{1}{2-\bar{D}}\sum_{i=1}^ND_{i}Y_{i,B}+\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{(2-\bar{D})^2}\sum_{i=1}^ND^2_{i} \\
+             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)-\frac{N\bar{D}}{2-\bar{D}}\bar{Y}^1_B+\frac{N\bar{D}}{(2-\bar{D})^2}(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)\\
+             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}\left(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A+\bar{Y}^1_B-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}\right)\\
+             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}\left(\frac{4\bar{Y}^1_B+2\bar{Y}^1_A-2\bar{Y}_A-(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)-\bar{D}(2\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)}{2-\bar{D}}\right) \\
+             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}\left(\frac{3\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A-\bar{D}(2\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)}{2-\bar{D}}\right) \\
+  \mathbf{B} & =\sum_{i=1}^N\left(\frac{D_{i}-\bar{D}}{2-\bar{D}}\right)\left(Y_{i,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_i-\bar{D})\right) \\
+             & = \frac{1}{2-\bar{D}}\sum_{i=1}^N\left(D_{i}-\bar{D}\right)\left(Y_{i,A}-\bar{Y}_A\right)-\frac{1}{(2-\bar{D})^2}\sum_{i=1}^N\left(D_{i}-\bar{D}\right)^2(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A) \\
 \end{align*}
 
 \end{document}
