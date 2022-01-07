@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2021-12-16}
+\date{2022-01-07}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -11882,27 +11882,7 @@ Let us start with the proof that \(\hat{\beta}^{FD}=\hat{\Delta}^Y_{DID}\).
 Using Lemma \ref{lem:WWOLS}, we have that \(\hat{\beta}^{FD}=\hat{\Delta}^{Y_A-Y_B}_{WW}\).
 From there, since \(\sum_{i=1}^N(Y_{i,A}-Y_{i,B})D_i= \sum_{i=1}^NY_{i,A}D_i- \sum_{i=1}^NY_{i,B}D_i\), we have \(\hat{\beta}^{FD}=\hat{\Delta}^Y_{DID}\).
 
-In order to prove the other results, it is going tobe very convenient to use \href{https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html}{Frish-Waugh-Lovell Theorem}.
-It can be stated as follows:
-
-\begin{theorem}[Frish-Waugh-Lovell]
-\protect\hypertarget{thm:FWL}{}{\label{thm:FWL} \iffalse (Frish-Waugh-Lovell) \fi{} }The coefficients on a set of variables \(X_2\) estimated by OLS in a linear regression with another set of control variables \(X_1\) is equal to the coefficients on the same set of variables estimated by OLS in a linear model where the outcome variable is the residual of regressing \(Y\) on \(X_1\) by OLS and the explanatory variables are the residuals of regressing \(X_2\) on \(X_1\). More formally: \(\hat{\beta}_2^{OLS}=\hat{\beta}_2^{OLS(MX_1)}\) where:
-
-\begin{align*}
-  Y & = X_1\beta_1 + X_2\beta_2 + \epsilon \\
-  M_1Y & = M_1X_2\beta_2 + \epsilon^* \\
-  M_1 & = I - X_1(X_1'X_1)^{-1}X_1'.
-\end{align*}
-\end{theorem}
-
-\begin{proof}
-\iffalse{} {Proof. } \fi{}See Section 8.2.2 \href{https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html}{here}.
-\end{proof}
-
-\(M_1\) is called the \textbf{prediction} or the \textbf{residualizing} matrix.
-
-Let us now start applying Theorem \ref{thm:FWL} to the OLS DID estimator.
-In matrix form, the model can be written as follows (where we rank all the observations from the first period in the first lines of each matrix and vector):
+In order to prove the result for the OLS DID estimator, it is convenient to write the model in matrix form (where we rank all the observations from the first period in the first lines of each matrix and vector):
 
 \begin{align*}
   \underbrace{\left(\begin{array}{c}  Y_{1,B} \\    \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)}_{Y} & =
@@ -11912,226 +11892,144 @@ In matrix form, the model can be written as follows (where we rank all the obser
   \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N,B} \\ \epsilon_{1,A} \\ \vdots \\   \epsilon_{N,A} \end{array}\right)}_{\epsilon}
 \end{align*}
 
-We are first going to project outcomes and regressors onto the time vector \(T\), where \(T_{i,B}=0\), \(\forall i\) and \(T_{i,A}=1\), \(\forall i\).
-Let's denote the corresponding projection matrix \(M_T\).
-It is straightforward to show that \((T'T)^{-1}=\frac{1}{N}\).
-Indeed:
+Now, using the fact that \(T_{i,B}=0\) and \(T_{i,A}=1\), \(\forall i\), we can write matrix \(X\) as follows:
 
 \begin{align*}
-    T'T &  = \left(\begin{array}{cccccc} 0 & \dots & 0 & 1 &    \dots & 1 \end{array}\right)
-         \left(\begin{array}{c} 0 \\    \vdots \\   0 \\1 \\    \vdots \\   1 \end{array}\right) \\
-         & = N.
+  X & = \left(\begin{array}{cccc}   1 & D_1 & 0 & 0\\   \vdots & \vdots & \vdots & \vdots\\ 1 & D_N & 0 & 0 \\
+                                        1 & D_1 & 1 & D_1\\ \vdots & \vdots & \vdots & \vdots\\ 1 & D_N & 1 & D_N\end{array}\right)
 \end{align*}
 
-Now, we also have
+Doing some matrix multiplication and factoring \(N\), we have:
 
 \begin{align*}
-    T'Y &  = \left(\begin{array}{cccccc} 0 & \dots & 0 & 1 &    \dots & 1 \end{array}\right)
-         \left(\begin{array}{c} Y_{1,B} \\  \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)\\
-         & = \sum_{i=1}^NY_{i,A}.
+  X'X & = N\underbrace{\left(\begin{array}{cccc}
+                    2 & 2\bar{D} & 1 & \bar{D}\\
+                    2\bar{D} & 2\bar{D} & \bar{D} & \bar{D} \\
+                    1 & \bar{D} & 1 & \bar{D}\\
+                    \bar{D} & \bar{D} & \bar{D} & \bar{D}
+            \end{array}\right)}_{x'x}
 \end{align*}
 
-As a consequence, \((T'T)^{-1}T'Y=\frac{1}{N}\sum_{i=1}^NY_{i,A}=\bar{Y}_A\).
-And thus:
+with \(\bar{D}=\frac{1}{N}\sum_{i=1}^ND_i\), and using the fact that \(D_i^2=D_i\) since \(D_i\in\left\{0,1\right\}\).
+Using results on the inverse of a 4 by 4 matrix presented \href{https://semath.info/src/inverse-cofactor-ex4.html}{here} and collecting terms patiently, we find that the determinant of \(xx\) is equal to:
 
 \begin{align*}
-  M_TY & = Y-T(T'T)^{-1}T'Y \\
-        & = \left(\begin{array}{c} Y_{1,B} \\   \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)-  \bar{Y}_A\left(\begin{array}{c} 0 \\   \vdots \\   0 \\1 \\    \vdots \\   1 \end{array}\right) \\
-      & = \left(\begin{array}{c}  Y_{1,B} \\    \vdots \\
-                                     Y_{N,B}\\
-                                     Y_{1,A}-\bar{Y}_A \\   \vdots \\
-                                     Y_{N,A}-\bar{Y}_A \end{array}\right).
+  \det(x'x) & = \bar{D}^2(1-\bar{D})^2
 \end{align*}
 
-By a similar reasoning, we have:
+and its adjugate is equal to:
 
 \begin{align*}
-  M_TD & = \left(\begin{array}{c}  D_{1} \\ \vdots \\
-                                     D_{N}\\
-                                     D_{1}-\bar{D} \\   \vdots \\
-                                     D_{N}-\bar{D} \end{array}\right), 
+  \tilde{x'x} & = \bar{D}(1-\bar{D})
+                  \left(\begin{array}{cccc}
+                    \bar{D} & -\bar{D} & -\bar{D} & \bar{D}\\
+                    -\bar{D} & 1 & \bar{D} & -1 \\
+                    -\bar{D} & \bar{D} & 2\bar{D} & -2\bar{D}\\
+                    \bar{D} & -1 & -2\bar{D} & 2
+            \end{array}\right)
 \end{align*}
 
-where \(\bar{D}=\frac{1}{N}\sum_{i=1}^ND_{i}\) and
+We also have that:
 
 \begin{align*}
-  M_TDT & = \left(\begin{array}{c} 0 \\ \vdots \\
-                                     0\\
-                                     D_{1}-\bar{D} \\   \vdots \\
-                                     D_{N}-\bar{D} \end{array}\right).
+  X'Y & = N\left(\begin{array}{c}
+              \bar{Y}_B+\bar{Y}_A \\
+              \bar{D}(\bar{Y}^1_B+\bar{Y}^1_A)\\
+              \bar{Y}_A \\
+              \bar{D}\bar{Y}^1_A
+            \end{array}\right)
 \end{align*}
 
-Finally, we have:
+with \(\bar{Y}_t=\frac{1}{N}\sum_{i=1}^NY_{i,t}\) and \(\bar{Y}^1_t=\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_iY_{i,t}\) and \(\bar{Y}^0_t=\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^N(1-D_i)Y_{i,t}\) and using the fact that \(\sum_{i=1}^ND_iY_{i,t}=N\bar{D}\bar{Y}^1_t\).
+Using the fact that \(Y_{i,t}=D_iY_{i,t}+(1-D_i)Y_{i,t}\), we have:
 
 \begin{align*}
-  M_T1 & = 1-T(T'T)^{-1}T'1 \\
-      & = 1-T \\
-      & = \left(\begin{array}{c} 1 \\   \vdots \\
-                                     1\\
-                                     0 \\   \vdots \\
-                                     0 \end{array}\right).
-\end{align*}
+  \bar{Y}_t & = \frac{\sum_{i=1}^ND_i}{N}\frac{\sum_{i=1}^ND_iY_{i,t}}{\sum_{i=1}^ND_i}+\frac{\sum_{i=1}^N(1-D_i)}{N}\frac{\sum_{i=1}^N(1-D_i)Y_{i,t}}{\sum_{i=1}^N(1-D_i)} \\
+            & = \bar{D}\bar{Y}^1_t+(1-\bar{D})\bar{Y}^0_t.
+ \end{align*}
 
-Now, we can residualize \(M_TD\) in the regression of \(M_TY\) on \(M_T1\), \(M_TD\) and \(M_TDT\).
-First:
+We thus have:
 
 \begin{align*}
-  M_TD'M_TD & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &   \dots &  D_{N}-\bar{D} \end{array}\right)
-                \left(\begin{array}{c}  D_{1} \\    \vdots \\
-                                     D_{N}\\
-                                     D_{1}-\bar{D} \\   \vdots \\
-                                     D_{N}-\bar{D} \end{array}\right)  \\
-      & = \sum_{i=1}^ND^2_{i}+\sum_{i=1}^N(D_{i}-\bar{D})^2\\
-      & = \sum_{i=1}^ND_{i} + \sum_{i=1}^N(D^2_{i}-2D_{i}\bar{D}+\bar{D}^2) \\
-      & = 2N\bar{D}-2N\bar{D}^2+N\bar{D}^2 \\
-      & = N\bar{D}(2-\bar{D}),
+  X'Y & = N\left(\begin{array}{c}
+              \underbrace{\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}(\bar{Y}^1_B-\bar{Y}^0_B+\bar{Y}^1_A-\bar{Y}^0_A)}_{\mathbf{A}} \\
+              \underbrace{\bar{D}(\bar{Y}^1_B+\bar{Y}^1_A)}_{\mathbf{B}}\\
+              \underbrace{\bar{Y}^0_A+\bar{D}(\bar{Y}^1_A-\bar{Y}^0_A)}_{\mathbf{C}} \\
+              \underbrace{\bar{D}\bar{Y}^1_A}_{\mathbf{D}}
+            \end{array}\right)
 \end{align*}
 
-where we use the fact that \(D^2_i=D_i\) (since \(D_i\) takes only values zero and one) and \(N\bar{D}=\sum_{i=1}^ND_{i}\).
-
-Now:
+Using the fact that \((X'X)^{-1}=(Nx'x)^{-1}=\frac{1}{N}(x'x)^{-1}=\frac{1}{N}\frac{\tilde{x'x}}{\det(x'x)}\), we have:
 
 \begin{align*}
-  M_TD'M_TY & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &   \dots &  D_{N}-\bar{D} \end{array}\right)
-                \left(\begin{array}{c}  Y_{1,B} \\  \vdots \\
-                                     Y_{N,B}\\
-                                     Y_{1,A}-\bar{Y}_A \\   \vdots \\
-                                     Y_{N,A}-\bar{Y}_A \end{array}\right) \\
-      & = \sum_{i=1}^ND_{i}Y_{i,B}+\sum_{i=1}^N(D_{i}-\bar{D})(Y_{i,A}-\bar{Y}_A)\\
-      & = N\bar{D}\bar{Y}^1_B+N\bar{D}\bar{Y}^1_A-N\bar{D}\bar{Y}_A+N\bar{D}\bar{Y}_A-N\bar{D}\bar{Y}_A \\
-      & = N\bar{D}(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A),
+  \hat{\Theta}^{OLS} & = (X'X)^{-1}X'Y \\
+         & = \frac{1}{\bar{D}(1-\bar{D})}
+            \left(\begin{array}{c}
+              \bar{D}(\mathbf{A}-\mathbf{B}-\mathbf{C}+\mathbf{D}) \\
+              -\bar{D}\mathbf{A}+\mathbf{B}+\bar{D}\mathbf{C}-\mathbf{D} \\
+              \bar{D}(-\mathbf{A}+\mathbf{B}+2\mathbf{C}-2\mathbf{D})\\
+              \bar{D}\mathbf{A}-\mathbf{B}-2\bar{D}\mathbf{C}+2\mathbf{D}
+            \end{array}\right)
 \end{align*}
 
-where \(\bar{Y}^1_t=\frac{\sum_{i=1}^ND_{i}Y_{i,t}}{\sum_{i=1}^ND_{i}}\).
-As a consequence, \((M_TD'M_TD)^{-1}M_TD'M_TY=\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}\).
-And thus:
+Let's take each term in turn:
 
 \begin{align*}
-  M_{TD}Y & = M_TY-M_TD(M_TD'M_TD)^{-1}M_TD'M_TY \\
-        & = \left(\begin{array}{c}  Y_{1,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_1 \\   \vdots \\
-                                     Y_{N,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_N\\
-                                     Y_{1,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{1}-\bar{D}) \\    \vdots \\
-                                     Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})\end{array}\right) 
+  \hat{\alpha}^{OLS} & = \frac{1}{1-\bar{D}}
+            \left(\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}(\bar{Y}^1_B-\bar{Y}^0_B+\bar{Y}^1_A-\bar{Y}^0_A)
+            -\bar{D}(\bar{Y}^1_B+\bar{Y}^1_A)
+            -(\bar{Y}^0_A+\bar{D}(\bar{Y}^1_A-\bar{Y}^0_A))
+            +\bar{D}\bar{Y}^1_A\right)\\
+        & = \frac{1}{1-\bar{D}}
+              \left(\bar{Y}^0_B(1-\bar{D})
+                    +\bar{Y}^0_A(1-\bar{D}-1+\bar{D})
+                    +\bar{Y}^1_B(\bar{D}-\bar{D})
+                    +\bar{Y}^1_A(\bar{D}-\bar{D}-\bar{D}+\bar{D})\right)\\
+        & = \bar{Y}^0_B
 \end{align*}
-
-Also \(M_TD'M_TDT=N\bar{D}(1-\bar{D})\).
-Indeed:
 
 \begin{align*}
-  M_TD'M_TDT & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &  \dots &  D_{N}-\bar{D} \end{array}\right)
-               \left(\begin{array}{c} 0 \\  \vdots \\
-                                     0\\
-                                     D_{1}-\bar{D} \\   \vdots \\
-                                     D_{N}-\bar{D} \end{array}\right) \\
-      & = \sum_{i=1}^N(D_{i}-\bar{D})^2\\
-      & = \sum_{i=1}^ND^2_{i}-2\bar{D}\sum_{i=1}^ND_{i}+ N\bar{D}^2\\
-      & = N\bar{D}-2N\bar{D}^2+ N\bar{D}^2\\
-      & = N\bar{D}-N\bar{D}^2\\
-      & = N\bar{D}(1-\bar{D})
-\end{align*}
-
-As a consequence, \((M_TD'M_TD)^{-1}M_TD'M_TDT=\frac{1-\bar{D}}{2-\bar{D}}\) and:
-
-\begin{align*}
-  M_{TD}DT & =  M_TDT-M_TD(M_TD'M_TD)^{-1}M_TD'M_TDT \\
-           & =  \left(\begin{array}{c} 0 \\ \vdots \\
-                                     0\\
-                                     D_{1}-\bar{D} \\   \vdots \\
-                                     D_{N}-\bar{D}
-                \end{array}\right) - \frac{1-\bar{D}}{2-\bar{D}}
-                \left(\begin{array}{c}  D_{1} \\   \vdots \\
-                                     D_{N}\\
-                                     D_{1}-\bar{D} \\   \vdots \\
-                                     D_{N}-\bar{D}
-                \end{array}\right) \\
-           & = \frac{1-\bar{D}}{2-\bar{D}}
-                      \left(\begin{array}{c}  -D_{1} \\    \vdots \\ - D_{N}\\
-                                     \frac{D_{1}-\bar{D}}{1-\bar{D}} \\ \vdots \\\frac{D_{N}-\bar{D}}{1-\bar{D}}
-           \end{array}\right),
-\end{align*}
-
-since \(1-\frac{1-\bar{D}}{2-\bar{D}}= \frac{2-\bar{D}-1+\bar{D}}{2-\bar{D}} = \frac{1}{2-\bar{D}}\).
-
-Finally, \(M_TD'M_T1=N\bar{D}\).
-Indeed:
+  \hat{\mu}^{OLS} & = \frac{1}{\bar{D}(1-\bar{D})}\left(
+            -\bar{D}(\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}(\bar{Y}^1_B-\bar{Y}^0_B+\bar{Y}^1_A-\bar{Y}^0_A))
+            +\bar{D}(\bar{Y}^1_B+\bar{Y}^1_A)
+            +\bar{D}(\bar{Y}^0_A+\bar{D}(\bar{Y}^1_A-\bar{Y}^0_A))
+            -\bar{D}\bar{Y}^1_A\right)\\
+      & =  \frac{1}{1-\bar{D}}\left(
+            -\bar{Y}^0_B(1-\bar{D})
+            +\bar{Y}^0_A(-1+\bar{D}+1-\bar{D})
+            +\bar{Y}^1_B(1-\bar{D})
+            +\bar{Y}^1_A(-\bar{D}+1+\bar{D}-1)\right) \\
+      & = \bar{Y}^1_B-\bar{Y}^0_B
+ \end{align*}
 
 \begin{align*}
-  M_TD'M_T1 & = \left(\begin{array}{cccccc} D_{1}  & \dots & D_{N}  & D_{1}-\bar{D} &   \dots &  D_{N}-\bar{D} \end{array}\right)
-               \left(\begin{array}{c} 1 \\  \vdots \\
-                                     1\\
-                                     0 \\   \vdots \\
-                                     0 \end{array}\right) \\
-      & = \sum_{i=1}^ND_{i}\\
-      & = N\bar{D}.
-\end{align*}
-
-As a consequence, \((M_TD'M_TD)^{-1}M_TD'M_T1=\frac{1}{2-\bar{D}}\) and:
-
-\begin{align*}
-  M_{TD}1 & =  M_T1-M_TD(M_TD'M_TD)^{-1}M_TD'M_T1 \\
-           & =  \left(\begin{array}{c} 1 \\ \vdots \\
-                                     1\\
-                                     0 \\   \vdots \\
-                                     0
-                 \end{array}\right) - \frac{1}{2-\bar{D}}
-                                     \left(\begin{array}{c}  D_{1} \\   \vdots \\
-                                     D_{N}\\
-                                     D_{1}-\bar{D} \\   \vdots \\
-                                     D_{N}-\bar{D}
-                                     \end{array}\right) \\
-           & = \left(\begin{array}{c}
-                      1-\frac{D_{1}}{2-\bar{D}} \\  \vdots \\ 1-\frac{D_{N}}{2-\bar{D}}\\
-                      -\frac{D_{1}-\bar{D}}{2-\bar{D}} \\   \vdots \\-\frac{D_{N}-\bar{D}}{2-\bar{D}}
-           \end{array}\right).
-\end{align*}
-
-For the penultimate step, we residualize \(M_{TD}1\) in the regression of \(M_{TD}Y\) on \(M_{TD}1\) and \(M_{TD}DT\).
-First, we have \(M_{TD}1'M_{TD}1=N\frac{1-\bar{D}}{2-\bar{D}}\frac{4-\bar{D}}{2-\bar{D}}\).
-Indeed:
+  \hat{\delta}^{OLS} & =\frac{1}{1-\bar{D}}\left(
+            -(\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}(\bar{Y}^1_B-\bar{Y}^0_B+\bar{Y}^1_A-\bar{Y}^0_A))
+            +(\bar{Y}^1_B+\bar{Y}^1_A)
+            +2(\bar{Y}^0_A+\bar{D}(\bar{Y}^1_A-\bar{Y}^0_A))
+            -2\bar{D}\bar{Y}^1_A\right)\\
+      & =  \frac{1}{1-\bar{D}}\left(
+            -\bar{Y}^0_B(1-\bar{D})
+            +\bar{Y}^0_A(2(1-\bar{D})-(1-\bar{D}))
+            +\bar{Y}^1_B(\bar{D}-\bar{D})
+            +\bar{Y}^1_A(\bar{D}-\bar{D}+2\bar{D}-2\bar{D})\right) \\
+      & = \bar{Y}^0_A-\bar{Y}^0_B
+ \end{align*}
 
 \begin{align*}
-  M_{TD}1'M_{TD}1 & = \left(\begin{array}{cccccc}
-                            1-\frac{D_{1}}{2-\bar{D}}  & \dots & 1-\frac{D_{N}}{2-\bar{D}}  & -\frac{D_{1}-\bar{D}}{2-\bar{D}} &    \dots &  -\frac{D_{N}-\bar{D}}{2-\bar{D}}
-                      \end{array}\right)
-                      \left(\begin{array}{c}  1-\frac{D_{1}}{2-\bar{D}} \\  \vdots \\ 1-\frac{D_{N}}{2-\bar{D}}\\
-                                     -\frac{D_{1}-\bar{D}}{2-\bar{D}} \\    \vdots \\-\frac{D_{N}-\bar{D}}{2-\bar{D}}
-                        \end{array}\right) \\
-      & = \sum_{i=1}^N(1-\frac{D_{i}}{2-\bar{D}})^2+\sum_{i=1}^N\left(\frac{D_{i}-\bar{D}}{2-\bar{D}}\right)^2\\
-      & = \sum_{i=1}^N(1-2\frac{D_{i}}{2-\bar{D}}+(\frac{D_{i}}{2-\bar{D}})^2 + \sum_{i=1}^N\left(\frac{D^2_{i}-2D_{i}\bar{D}+\bar{D}^2}{2-\bar{D}}\right)^2\\
-      & = N - \frac{2}{2-\bar{D}}N\bar{D}+\frac{1}{2-\bar{D}}N\bar{D} + \frac{1}{(2-\bar{D})^2}\left(N\bar{D}-2N\bar{D}^2+N\bar{D}^2\right)\\
-      & = N -\frac{N\bar{D}}{2-\bar{D}} + \frac{N\bar{D}-N\bar{D}^2}{(2-\bar{D})^2} \\
-      & = \frac{2N-2N\bar{D}}{2-\bar{D}} + N\bar{D}\frac{1-\bar{D}}{(2-\bar{D})^2} \\
-      & = 2N\frac{1-\bar{D}}{2-\bar{D}} + N\bar{D}\frac{1-\bar{D}}{(2-\bar{D})^2} \\
-      & = N\frac{1-\bar{D}}{2-\bar{D}}\left(2 + \frac{\bar{D}}{2-\bar{D}}\right) \\
-      & = N\frac{1-\bar{D}}{2-\bar{D}}\frac{4-\bar{D}}{2-\bar{D}}
-\end{align*}
+  \hat{\beta}^{OLS} & =\frac{1}{\bar{D}(1-\bar{D})}\left(
+            \bar{D}(\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}(\bar{Y}^1_B-\bar{Y}^0_B+\bar{Y}^1_A-\bar{Y}^0_A))
+            -\bar{D}(\bar{Y}^1_B+\bar{Y}^1_A)
+            -2 \bar{D}(\bar{Y}^0_A+\bar{D}(\bar{Y}^1_A-\bar{Y}^0_A))
+            +2\bar{D}\bar{Y}^1_A\right)\\
+      & =  \frac{1}{1-\bar{D}}\left(
+            \bar{Y}^0_B(1-\bar{D})
+            +\bar{Y}^0_A((1-\bar{D})-2(1-\bar{D}))
+            +\bar{Y}^1_B(\bar{D}-1)
+            +\bar{Y}^1_A(\bar{D}-1-2\bar{D}+2)\right) \\
+      & = \bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B)
+ \end{align*}
 
-Also:
-
-\begin{align*}
-  M_{TD}1'M_{TD}Y & = \left(\begin{array}{cccccc} 1-\frac{D_{1}}{2-\bar{D}}  & \dots & 1-\frac{D_{N}}{2-\bar{D}}  & -\frac{D_{1}-\bar{D}}{2-\bar{D}} &  \dots &  -\frac{D_{N}-\bar{D}}{2-\bar{D}} \end{array}\right) \\
-  & \phantom{=\left(\begin{array}{c} 1-\frac{D_{1}}{2-\bar{D}}\end{array}\right)}
-                                \left(\begin{array}{c}
-                                   Y_{1,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_1 \\    \vdots \\
-                                     Y_{N,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_N\\
-                                     Y_{1,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{1}-\bar{D}) \\    \vdots \\
-                                     Y_{N,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_{N}-\bar{D})
-                                  \end{array}\right)\\
- & = \underbrace{\sum_{i=1}^N\left(1-\frac{D_{i}}{2-\bar{D}}\right)\left(Y_{i,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_i\right)}_{\mathbf{A}} \\
- & \phantom{=} -\underbrace{\sum_{i=1}^N\left(\frac{D_{i}-\bar{D}}{2-\bar{D}}\right)\left(Y_{i,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_i-\bar{D})\right)}_{\mathbf{B}} \\
-\end{align*}
-
-Let us look at both terms in turn:
-
-\begin{align*}
-  \mathbf{A} & =\sum_{i=1}^N\left(1-\frac{D_{i}}{2-\bar{D}}\right)\left(Y_{i,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}D_i\right) \\
-             & = \sum_{i=1}^NY_{i,B}-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}\sum_{i=1}^ND_{i}-\frac{1}{2-\bar{D}}\sum_{i=1}^ND_{i}Y_{i,B}+\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{(2-\bar{D})^2}\sum_{i=1}^ND^2_{i} \\
-             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)-\frac{N\bar{D}}{2-\bar{D}}\bar{Y}^1_B+\frac{N\bar{D}}{(2-\bar{D})^2}(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)\\
-             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}\left(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A+\bar{Y}^1_B-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}\right)\\
-             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}\left(\frac{4\bar{Y}^1_B+2\bar{Y}^1_A-2\bar{Y}_A-(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)-\bar{D}(2\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)}{2-\bar{D}}\right) \\
-             & = N\bar{Y}_B-\frac{N\bar{D}}{2-\bar{D}}\left(\frac{3\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A-\bar{D}(2\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A)}{2-\bar{D}}\right) \\
-  \mathbf{B} & =\sum_{i=1}^N\left(\frac{D_{i}-\bar{D}}{2-\bar{D}}\right)\left(Y_{i,A}-\bar{Y}_A-\frac{\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A}{2-\bar{D}}(D_i-\bar{D})\right) \\
-             & = \frac{1}{2-\bar{D}}\sum_{i=1}^N\left(D_{i}-\bar{D}\right)\left(Y_{i,A}-\bar{Y}_A\right)-\frac{1}{(2-\bar{D})^2}\sum_{i=1}^N\left(D_{i}-\bar{D}\right)^2(\bar{Y}^1_B+\bar{Y}^1_A-\bar{Y}_A) \\
-\end{align*}
+This last results proves that \(\hat{\beta}^{OLS}=\Delta^Y{DID}\).
 
 \end{document}
