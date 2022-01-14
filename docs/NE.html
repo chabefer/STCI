@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-01-07" />
+<meta name="date" content="2022-01-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1640,16 +1640,16 @@ Remember that in our sample, the Before/After estimator among the untreated is e
 </div>
 <div id="using-the-least-squares-dummy-variables-estimator" class="section level5" number="4.3.1.2.4">
 <h5><span class="header-section-number">4.3.1.2.4</span> Using the Least Squares Dummy Variables estimator</h5>
-<p>One very computer-intensive way to estimate <span class="math inline">\(TT\)</span> in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.
+<p>One very computer-intensive way to estimate <span class="math inline">\(TT\)</span> in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period, also called the Least-Squares Dummy Variables estimator.
 In practice, the estimator is based on the following regression:
 <span class="math display">\[\begin{align*}
-    Y_{i,t} &amp;  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t}.
+    Y_{i,t} &amp;  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{LSDV} D_{i,t} + \epsilon^{LSDV}_{i,t}.
 \end{align*}\]</span>
 The notation is generally simplified as follows:
 <span class="math display">\[\begin{align*}
     Y_{i,t} &amp;  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t},
 \end{align*}\]</span></p>
-<p>The estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, <span class="math inline">\(\mu_i\)</span>, and time fixed effects <span class="math inline">\(\delta_t\)</span>).
+<p>This last estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, <span class="math inline">\(\mu_i\)</span>, and time fixed effects <span class="math inline">\(\delta_t\)</span>).
 I will write it using this second, more compact, formulation, but I think the first formulation encapsulates better how the Least-Squares Dummy Variables estimator works.
 In what follows, we will see other ways of estimating the Two-Way Fixed Effects model, but for now, let us focus on the Least-Squares Dummy Variables estimator.
 The way it works is simply by throwing a bunch of dummy variables in the regression.</p>
@@ -1668,7 +1668,7 @@ We are also going to run the model without a constant, so that all the fixed eff
 <span id="cb149-6"><a href="NE.html#cb149-6" aria-hidden="true" tabindex="-1"></a>reg.LSDV <span class="ot">&lt;-</span> <span class="fu">lm</span>(y<span class="sc">~-</span><span class="dv">1</span> <span class="sc">+</span> Dit <span class="sc">+</span> <span class="fu">as.factor</span>(T) <span class="sc">+</span> indiv,<span class="at">data=</span>data.DID)</span>
 <span id="cb149-7"><a href="NE.html#cb149-7" aria-hidden="true" tabindex="-1"></a><span class="co"># result</span></span>
 <span id="cb149-8"><a href="NE.html#cb149-8" aria-hidden="true" tabindex="-1"></a>DID.est.LSDV <span class="ot">&lt;-</span> <span class="fu">coef</span>(reg.LSDV)[[<span class="dv">1</span>]]</span></code></pre></div>
-<p>The Least-Squares Dummy Variables estimate of <span class="math inline">\(TT\)</span> is equal to: <span class="math inline">\(\hat{\beta}^{TWFE}=\)</span> 0.161.</p>
+<p>The Least-Squares Dummy Variables estimate of <span class="math inline">\(TT\)</span> is equal to: <span class="math inline">\(\hat{\beta}^{LSDV}=\)</span> 0.161.</p>
 
 <div class="remark">
  <span class="remark"><em>Remark. </em></span> The term <em>fixed effect</em> is specific to the panel data literature in econometrics.
@@ -1792,7 +1792,7 @@ This seems complicated but the key idea is to separate the estimation of the fix
 The following theorem actually states this result rigorously:</p>
 
 <div class="theorem">
-<span id="thm:EstimDID" class="theorem"><strong>Theorem 4.5  (All DID estimators are numerically equivalent with two time periods)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentFirst">4.7</a>, <a href="NE.html#hyp:NoAnticipationEffects">4.8</a> and <a href="NE.html#hyp:ParallelTrends">4.9</a>, in a panel with only two periods of data, all the DID estimators are numerically equivalent: <span class="math inline">\(\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}\)</span>.
+<span id="thm:EstimDID" class="theorem"><strong>Theorem 4.5  (All DID estimators are numerically equivalent with two time periods)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentFirst">4.7</a>, <a href="NE.html#hyp:NoAnticipationEffects">4.8</a> and <a href="NE.html#hyp:ParallelTrends">4.9</a>, in a panel with only two periods of data, all the DID estimators are numerically equivalent: <span class="math inline">\(\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{LSDV}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}\)</span>.
 </div>
 
 <div class="proof">
@@ -1800,7 +1800,7 @@ The following theorem actually states this result rigorously:</p>
 </div>
 <p>Finally, let’s see how our estimator varies across sampling replications.
 A key difference is whether we have access to panel data or not.
-Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affecteed by sampling noise stemming from the fixed effects.
+Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affected by sampling noise stemming from the fixed effects.
 This is not going to be the case with panel data, since all the estimators based on the TWFE estimator differentiate out the individual fixed effects.</p>
 <p><strong>Do the simulations</strong></p>
 </div>

@@ -885,4 +885,128 @@ Let's take each term in turn:
       & = \bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B)
  \end{align*}
 
-This last results proves that $\hat{\beta}^{OLS}=\Delta^Y{DID}$.
+This last results proves that $\hat{\beta}^{OLS}=\hat{\Delta}^Y_{DID}$.
+
+For the within estimator, it can be written in matrix form as follows:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B}-\bar{Y}_1 \\	\vdots \\	Y_{N,B}-\bar{Y}_N \\Y_{1,A}-\bar{Y}_1 \\	\vdots \\	Y_{N,A}-\bar{Y}_N \end{array}\right)}_{Y^W} & =
+    \underbrace{\left(\begin{array}{ccc}	1  & 0 & -\bar{D}_1\\	\vdots & \vdots & \vdots \\	1 & 0 & -\bar{D}_N \\
+                                        1 & 1 & D_1-\bar{D}_1\\	\vdots & \vdots & \vdots \\	1 & 1 & D_N-\bar{D}_N\end{array}\right)}_{X^W}
+  \underbrace{\left(\begin{array}{c}	\alpha^W \\ \delta^W \\	\beta^W \end{array}\right)}_{\Theta^{W}} +
+  \underbrace{\left(\begin{array}{c}	\epsilon^W_{1,B} \\	\vdots \\	\epsilon^W_{N,B} \\ \epsilon^W_{1,A} \\	\vdots \\	\epsilon^W_{N,A} \end{array}\right)}_{\epsilon^W}
+\end{align*}
+
+We have:
+
+\begin{align*}
+  {X^W}'X^W & = N\underbrace{\left(\begin{array}{ccc}
+                    2 &  1 & 0\\
+                    1 & 1  & \frac{\bar{D}}{2} \\
+                    0 & \frac{\bar{D}}{2} & \frac{\bar{D}}{2}
+            \end{array}\right)}_{{x^W}'x^W}
+\end{align*}
+
+This is because:
+
+\begin{align*}
+  {X^W}'X^W & = \left(\begin{array}{ccc}
+                    2N & N & -\sum_{i=1}^N\bar{D}_i+\sum_{i=1}^N(D_i-\bar{D}_i)\\
+                    N & N  & \sum_{i=1}^N(D_i-\bar{D}_i) \\
+                    -\sum_{i=1}^N\bar{D}_i+\sum_{i=1}^N(D_i-\bar{D}_i) & \sum_{i=1}^N(D_i-\bar{D}_i) & \sum_{i=1}^N\bar{D}_i^2+\sum_{i=1}^N(D_i-\bar{D}_i)^2
+            \end{array}\right)
+\end{align*}
+
+and:
+
+\begin{align*}
+  \sum_{i=1}^N\bar{D}_i & = \frac{1}{2}\sum_{i=1}^N(D_{i,B}+D_{i,A}) \\
+                        & = \frac{1}{2}\sum_{i=1}^ND_{i} \\
+                        & = \frac{1}{2}N\bar{D}\\
+  \sum_{i=1}^N(D_i-\bar{D}_i) & = N\bar{D}-\frac{1}{2}N\bar{D} \\
+                            & = \frac{1}{2}N\bar{D}\\
+  \sum_{i=1}^N\bar{D}^2_i & = \frac{1}{4}\sum_{i=1}^N(D_{i,B}+D_{i,A})^2\\
+                          & = \frac{1}{4}\sum_{i=1}^ND^2_{i} \\
+                          & = \frac{1}{4}N\bar{D} \\
+  \sum_{i=1}^N(D_i-\bar{D}_i)^2 & = \sum_{i=1}^N(D_{i}-\frac{1}{2}D_{i})^2\\
+                                & = \frac{1}{4}N\bar{D}
+\end{align*}
+
+Now we can use the results [here](https://study.com/academy/lesson/finding-the-inverse-of-a-3x3-matrix.html) and [here](https://metric.ma.ic.ac.uk/metric_public/matrices/inverses/inverses2.html) to compute the inverse of the ${x^W}'x^W$ matrix.
+Let us first compute the determinant:
+
+\begin{align*}
+  \det({x^W}'x^W) & = 2(\frac{\bar{D}}{2}-\frac{\bar{D}^2}{4}) - \frac{\bar{D}}{2}\\
+                  & = \frac{1}{2}\bar{D}(1-\bar{D}).
+\end{align*}
+
+And then the adjugate:
+
+\begin{align*}
+  \tilde{{x^W}'x^W} & = \left(\begin{array}{ccc}
+                    \frac{\bar{D}}{2}(1-\frac{\bar{D}}{2}) & -\frac{\bar{D}}{2} & \frac{\bar{D}}{2}\\
+                    -\frac{\bar{D}}{2} & \bar{D}  & -\bar{D}\\
+                    \frac{\bar{D}}{2} & -\bar{D} & 1
+            \end{array}\right)
+\end{align*}
+
+Let us now examine ${X^W}'Y^W$:
+
+\begin{align*}
+  {X^W}'Y^W & = \left(\begin{array}{c}
+                \sum_{i=1}^N(Y_{i,B}-\bar{Y}_i)+\sum_{i=1}^N(Y_{i,A}-\bar{Y}_i)\\
+                \sum_{i=1}^N(Y_{i,A}-\bar{Y}_i) \\
+                -\sum_{i=1}^N\bar{D}_i(Y_{i,B}-\bar{Y}_i)+\sum_{i=1}^N(D_i-\bar{D}_i)(Y_{i,A}-\bar{Y}_i)
+            \end{array}\right)
+\end{align*}
+
+We have:
+
+\begin{align*}
+  \sum_{i=1}^N(Y_{i,B}-\bar{Y}_i) & = N\bar{Y}_B-\frac{1}{2}N(\bar{Y}_B+\bar{Y}_A)\\
+                                  & = \frac{1}{2}N(\bar{Y}_B-\bar{Y}_A)\\
+  \sum_{i=1}^N(Y_{i,A}-\bar{Y}_i) & = \frac{1}{2}N(\bar{Y}_A-\bar{Y}_B)\\
+  \sum_{i=1}^N\bar{D}_i(Y_{i,B}-\bar{Y}_i) & = \sum_{i=1}^N\frac{1}{2}D_i(Y_{i,B}-\frac{1}{2}\sum_{i=1}^N(Y_{i,B}+Y_{i,A}))\\
+                                    & = \sum_{i=1}^N\frac{1}{2}D_i\frac{1}{2}(Y_{i,B}-Y_{i,A})\\
+                                    & = \frac{1}{4}\sum_{i=1}^ND_i(Y_{i,B}-Y_{i,A})\\
+                                    & = \frac{1}{4}N\bar{D}(\bar{Y}^1_B-\bar{Y}^1_A)\\
+  \sum_{i=1}^N(D_i-\bar{D}_i)(Y_{i,A}-\bar{Y}_i) & = \sum_{i=1}^N(D_i-\frac{1}{2}D_i)(Y_{i,A}-\frac{1}{2}\sum_{i=1}^N(Y_{i,B}+Y_{i,A}))\\
+                                                & = \frac{1}{4}\sum_{i=1}^ND_i(Y_{i,A}-Y_{i,B})\\
+                                                & = \frac{1}{4}N\bar{D}(\bar{Y}^1_A-\bar{Y}^1_B).
+\end{align*}
+
+So, we have:
+
+\begin{align*}
+  ({X^W}'X^W)^{-1}{X^W}'Y^W  & = \frac{2}{N\bar{D}(1-\bar{D})}
+            \left(\begin{array}{ccc}
+                    \frac{\bar{D}}{2}(1-\frac{\bar{D}}{2}) & -\frac{\bar{D}}{2} & \frac{\bar{D}}{2}\\
+                    -\frac{\bar{D}}{2} & \bar{D}  & -\bar{D}\\
+                    \frac{\bar{D}}{2} & -\bar{D} & 1
+            \end{array}\right)
+            \left(\begin{array}{c}
+                0\\
+                \frac{N}{2}(\bar{Y}_A-\bar{Y}_B)\\
+                \frac{N}{2}\bar{D}(\bar{Y}^1_A-\bar{Y}^1_B)
+            \end{array}\right)
+\end{align*}
+
+We thus have:
+
+\begin{align*}
+  \hat{\beta}^W & = \frac{2}{N\bar{D}(1-\bar{D})}\left(-\bar{D}\frac{N}{2}(\bar{Y}_A-\bar{Y}_B)+\frac{N}{2}\bar{D}(\bar{Y}^1_A-\bar{Y}^1_B)\right)\\
+                & = \frac{1}{1-\bar{D}}\left(\bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}_A-\bar{Y}_B)\right)\\
+\end{align*}
+
+Using the fact that $\bar{Y}_t=\bar{D}\bar{Y}_t^1+(1-\bar{D})\bar{Y}^0_t$, we have $\bar{Y}_A-\bar{Y}_B=(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)+\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)$.
+
+As a consequence:
+
+\begin{align*}
+  \hat{\beta}^W & = \frac{1-\bar{D}}{1-\bar{D}}\left(\bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B)\right)\\
+                & =  \bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B),
+\end{align*}
+
+which proves that $\hat{\beta}^{W}=\hat{\Delta}^Y_{DID}$.
+
+Now for $\hat{\beta}^{LSDV}$, the estimator can be written as 

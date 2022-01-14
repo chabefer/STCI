@@ -1546,17 +1546,17 @@ Remember that in our sample, the Before/After estimator among the untreated is e
 
 ##### Using the Least Squares Dummy Variables estimator
 
-One very computer-intensive way to estimate $TT$ in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.
+One very computer-intensive way to estimate $TT$ in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period, also called the Least-Squares Dummy Variables estimator.
 In practice, the estimator is based on the following regression:
 \begin{align*}
-  	Y_{i,t} &  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t}.
+  	Y_{i,t} &  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{LSDV} D_{i,t} + \epsilon^{LSDV}_{i,t}.
 \end{align*}
 The notation is generally simplified as follows:
 \begin{align*}
   	Y_{i,t} &  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t},
 \end{align*}
 
-The estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, $\mu_i$, and time fixed effects $\delta_t$).
+This last estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, $\mu_i$, and time fixed effects $\delta_t$).
 I will write it using this second, more compact, formulation, but I think the first formulation encapsulates better how the Least-Squares Dummy Variables estimator works.
 In what follows, we will see other ways of estimating the Two-Way Fixed Effects model, but for now, let us focus on the Least-Squares Dummy Variables estimator. 
 The way it works is simply by throwing a bunch of dummy variables in the regression.
@@ -1579,7 +1579,7 @@ reg.LSDV <- lm(y~-1 + Dit + as.factor(T) + indiv,data=data.DID)
 DID.est.LSDV <- coef(reg.LSDV)[[1]]
 ```
 
-The Least-Squares Dummy Variables estimate of $TT$ is equal to: $\hat{\beta}^{TWFE}=$ `r round(DID.est.LSDV,3)`.
+The Least-Squares Dummy Variables estimate of $TT$ is equal to: $\hat{\beta}^{LSDV}=$ `r round(DID.est.LSDV,3)`.
 
 ```{remark}
 The term *fixed effect* is specific to the panel data literature in econometrics. 
@@ -1721,7 +1721,7 @@ The above results suggest that all DID estimators are equivalent when working wi
 The following theorem actually states this result rigorously:
 
 ```{theorem,EstimDID,name="All DID estimators are numerically equivalent with two time periods"}
-Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects) and \@ref(hyp:ParallelTrends), in a panel with only two periods of data, all the DID estimators are numerically equivalent: $\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}$. 
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects) and \@ref(hyp:ParallelTrends), in a panel with only two periods of data, all the DID estimators are numerically equivalent: $\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{LSDV}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}$. 
 ```
 
 ```{proof}
@@ -1730,7 +1730,7 @@ See Section \@ref(proofEstimDID).
 
 Finally, let's see how our estimator varies across sampling replications.
 A key difference is whether we have access to panel data or not. 
-Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affecteed by sampling noise stemming from the fixed effects. 
+Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affected by sampling noise stemming from the fixed effects. 
 This is not going to be the case with panel data, since all the estimators based on the TWFE estimator differentiate out the individual fixed effects.
 
 **Do the simulations**

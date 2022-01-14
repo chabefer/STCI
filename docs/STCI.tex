@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-01-07}
+\date{2022-01-14}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -8021,17 +8021,17 @@ Remember that in our sample, the Before/After estimator among the untreated is e
 \hypertarget{using-the-least-squares-dummy-variables-estimator}{%
 \paragraph{Using the Least Squares Dummy Variables estimator}\label{using-the-least-squares-dummy-variables-estimator}}
 
-One very computer-intensive way to estimate \(TT\) in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period.
+One very computer-intensive way to estimate \(TT\) in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period, also called the Least-Squares Dummy Variables estimator.
 In practice, the estimator is based on the following regression:
 \begin{align*}
-    Y_{i,t} &  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t}.
+    Y_{i,t} &  = \sum_{j=1}^N\mu_j\uns{j=i} + \sum_{l=0}^1\delta_l\uns{l=t} + \beta^{LSDV} D_{i,t} + \epsilon^{LSDV}_{i,t}.
 \end{align*}
 The notation is generally simplified as follows:
 \begin{align*}
     Y_{i,t} &  = \mu_i + \delta_t + \beta^{TWFE} D_{i,t} + \epsilon^{TWFE}_{i,t},
 \end{align*}
 
-The estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, \(\mu_i\), and time fixed effects \(\delta_t\)).
+This last estimator is generally called the Two-Way Fixed Effects estimator, since it has two-sets of so-called fixed effects (individual fixed effects, \(\mu_i\), and time fixed effects \(\delta_t\)).
 I will write it using this second, more compact, formulation, but I think the first formulation encapsulates better how the Least-Squares Dummy Variables estimator works.
 In what follows, we will see other ways of estimating the Two-Way Fixed Effects model, but for now, let us focus on the Least-Squares Dummy Variables estimator.
 The way it works is simply by throwing a bunch of dummy variables in the regression.
@@ -8056,7 +8056,7 @@ We are also going to run the model without a constant, so that all the fixed eff
 \end{Highlighting}
 \end{Shaded}
 
-The Least-Squares Dummy Variables estimate of \(TT\) is equal to: \(\hat{\beta}^{TWFE}=\) 0.161.
+The Least-Squares Dummy Variables estimate of \(TT\) is equal to: \(\hat{\beta}^{LSDV}=\) 0.161.
 
 \begin{remark}
 \iffalse{} {Remark. } \fi{}The term \emph{fixed effect} is specific to the panel data literature in econometrics.
@@ -8211,7 +8211,7 @@ The above results suggest that all DID estimators are equivalent when working wi
 The following theorem actually states this result rigorously:
 
 \begin{theorem}[All DID estimators are numerically equivalent with two time periods]
-\protect\hypertarget{thm:EstimDID}{}{\label{thm:EstimDID} \iffalse (All DID estimators are numerically equivalent with two time periods) \fi{} }Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects} and \ref{hyp:ParallelTrends}, in a panel with only two periods of data, all the DID estimators are numerically equivalent: \(\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}\).
+\protect\hypertarget{thm:EstimDID}{}{\label{thm:EstimDID} \iffalse (All DID estimators are numerically equivalent with two time periods) \fi{} }Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects} and \ref{hyp:ParallelTrends}, in a panel with only two periods of data, all the DID estimators are numerically equivalent: \(\hat{\beta}^{OLS}=\hat{\beta}^{FD}=\hat{\beta}^{W}=\hat{\beta}^{LSDV}=\hat{\beta}^{AP}=\hat{\beta}^{LC}=\hat{\Delta}^Y_{DID}\).
 \end{theorem}
 
 \begin{proof}
@@ -8220,7 +8220,7 @@ The following theorem actually states this result rigorously:
 
 Finally, let's see how our estimator varies across sampling replications.
 A key difference is whether we have access to panel data or not.
-Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affecteed by sampling noise stemming from the fixed effects.
+Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affected by sampling noise stemming from the fixed effects.
 This is not going to be the case with panel data, since all the estimators based on the TWFE estimator differentiate out the individual fixed effects.
 
 \textbf{Do the simulations}
@@ -12030,6 +12030,130 @@ Let's take each term in turn:
       & = \bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B)
  \end{align*}
 
-This last results proves that \(\hat{\beta}^{OLS}=\Delta^Y{DID}\).
+This last results proves that \(\hat{\beta}^{OLS}=\hat{\Delta}^Y_{DID}\).
+
+For the within estimator, it can be written in matrix form as follows:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B}-\bar{Y}_1 \\  \vdots \\   Y_{N,B}-\bar{Y}_N \\Y_{1,A}-\bar{Y}_1 \\    \vdots \\   Y_{N,A}-\bar{Y}_N \end{array}\right)}_{Y^W} & =
+    \underbrace{\left(\begin{array}{ccc}    1  & 0 & -\bar{D}_1\\   \vdots & \vdots & \vdots \\ 1 & 0 & -\bar{D}_N \\
+                                        1 & 1 & D_1-\bar{D}_1\\ \vdots & \vdots & \vdots \\ 1 & 1 & D_N-\bar{D}_N\end{array}\right)}_{X^W}
+  \underbrace{\left(\begin{array}{c}    \alpha^W \\ \delta^W \\ \beta^W \end{array}\right)}_{\Theta^{W}} +
+  \underbrace{\left(\begin{array}{c}    \epsilon^W_{1,B} \\ \vdots \\   \epsilon^W_{N,B} \\ \epsilon^W_{1,A} \\ \vdots \\   \epsilon^W_{N,A} \end{array}\right)}_{\epsilon^W}
+\end{align*}
+
+We have:
+
+\begin{align*}
+  {X^W}'X^W & = N\underbrace{\left(\begin{array}{ccc}
+                    2 &  1 & 0\\
+                    1 & 1  & \frac{\bar{D}}{2} \\
+                    0 & \frac{\bar{D}}{2} & \frac{\bar{D}}{2}
+            \end{array}\right)}_{{x^W}'x^W}
+\end{align*}
+
+This is because:
+
+\begin{align*}
+  {X^W}'X^W & = \left(\begin{array}{ccc}
+                    2N & N & -\sum_{i=1}^N\bar{D}_i+\sum_{i=1}^N(D_i-\bar{D}_i)\\
+                    N & N  & \sum_{i=1}^N(D_i-\bar{D}_i) \\
+                    -\sum_{i=1}^N\bar{D}_i+\sum_{i=1}^N(D_i-\bar{D}_i) & \sum_{i=1}^N(D_i-\bar{D}_i) & \sum_{i=1}^N\bar{D}_i^2+\sum_{i=1}^N(D_i-\bar{D}_i)^2
+            \end{array}\right)
+\end{align*}
+
+and:
+
+\begin{align*}
+  \sum_{i=1}^N\bar{D}_i & = \frac{1}{2}\sum_{i=1}^N(D_{i,B}+D_{i,A}) \\
+                        & = \frac{1}{2}\sum_{i=1}^ND_{i} \\
+                        & = \frac{1}{2}N\bar{D}\\
+  \sum_{i=1}^N(D_i-\bar{D}_i) & = N\bar{D}-\frac{1}{2}N\bar{D} \\
+                            & = \frac{1}{2}N\bar{D}\\
+  \sum_{i=1}^N\bar{D}^2_i & = \frac{1}{4}\sum_{i=1}^N(D_{i,B}+D_{i,A})^2\\
+                          & = \frac{1}{4}\sum_{i=1}^ND^2_{i} \\
+                          & = \frac{1}{4}N\bar{D} \\
+  \sum_{i=1}^N(D_i-\bar{D}_i)^2 & = \sum_{i=1}^N(D_{i}-\frac{1}{2}D_{i})^2\\
+                                & = \frac{1}{4}N\bar{D}
+\end{align*}
+
+Now we can use the results \href{https://study.com/academy/lesson/finding-the-inverse-of-a-3x3-matrix.html}{here} and \href{https://metric.ma.ic.ac.uk/metric_public/matrices/inverses/inverses2.html}{here} to compute the inverse of the \({x^W}'x^W\) matrix.
+Let us first compute the determinant:
+
+\begin{align*}
+  \det({x^W}'x^W) & = 2(\frac{\bar{D}}{2}-\frac{\bar{D}^2}{4}) - \frac{\bar{D}}{2}\\
+                  & = \frac{1}{2}\bar{D}(1-\bar{D}).
+\end{align*}
+
+And then the adjugate:
+
+\begin{align*}
+  \tilde{{x^W}'x^W} & = \left(\begin{array}{ccc}
+                    \frac{\bar{D}}{2}(1-\frac{\bar{D}}{2}) & -\frac{\bar{D}}{2} & \frac{\bar{D}}{2}\\
+                    -\frac{\bar{D}}{2} & \bar{D}  & -\bar{D}\\
+                    \frac{\bar{D}}{2} & -\bar{D} & 1
+            \end{array}\right)
+\end{align*}
+
+Let us now examine \({X^W}'Y^W\):
+
+\begin{align*}
+  {X^W}'Y^W & = \left(\begin{array}{c}
+                \sum_{i=1}^N(Y_{i,B}-\bar{Y}_i)+\sum_{i=1}^N(Y_{i,A}-\bar{Y}_i)\\
+                \sum_{i=1}^N(Y_{i,A}-\bar{Y}_i) \\
+                -\sum_{i=1}^N\bar{D}_i(Y_{i,B}-\bar{Y}_i)+\sum_{i=1}^N(D_i-\bar{D}_i)(Y_{i,A}-\bar{Y}_i)
+            \end{array}\right)
+\end{align*}
+
+We have:
+
+\begin{align*}
+  \sum_{i=1}^N(Y_{i,B}-\bar{Y}_i) & = N\bar{Y}_B-\frac{1}{2}N(\bar{Y}_B+\bar{Y}_A)\\
+                                  & = \frac{1}{2}N(\bar{Y}_B-\bar{Y}_A)\\
+  \sum_{i=1}^N(Y_{i,A}-\bar{Y}_i) & = \frac{1}{2}N(\bar{Y}_A-\bar{Y}_B)\\
+  \sum_{i=1}^N\bar{D}_i(Y_{i,B}-\bar{Y}_i) & = \sum_{i=1}^N\frac{1}{2}D_i(Y_{i,B}-\frac{1}{2}\sum_{i=1}^N(Y_{i,B}+Y_{i,A}))\\
+                                    & = \sum_{i=1}^N\frac{1}{2}D_i\frac{1}{2}(Y_{i,B}-Y_{i,A})\\
+                                    & = \frac{1}{4}\sum_{i=1}^ND_i(Y_{i,B}-Y_{i,A})\\
+                                    & = \frac{1}{4}N\bar{D}(\bar{Y}^1_B-\bar{Y}^1_A)\\
+  \sum_{i=1}^N(D_i-\bar{D}_i)(Y_{i,A}-\bar{Y}_i) & = \sum_{i=1}^N(D_i-\frac{1}{2}D_i)(Y_{i,A}-\frac{1}{2}\sum_{i=1}^N(Y_{i,B}+Y_{i,A}))\\
+                                                & = \frac{1}{4}\sum_{i=1}^ND_i(Y_{i,A}-Y_{i,B})\\
+                                                & = \frac{1}{4}N\bar{D}(\bar{Y}^1_A-\bar{Y}^1_B).
+\end{align*}
+
+So, we have:
+
+\begin{align*}
+  ({X^W}'X^W)^{-1}{X^W}'Y^W  & = \frac{2}{N\bar{D}(1-\bar{D})}
+            \left(\begin{array}{ccc}
+                    \frac{\bar{D}}{2}(1-\frac{\bar{D}}{2}) & -\frac{\bar{D}}{2} & \frac{\bar{D}}{2}\\
+                    -\frac{\bar{D}}{2} & \bar{D}  & -\bar{D}\\
+                    \frac{\bar{D}}{2} & -\bar{D} & 1
+            \end{array}\right)
+            \left(\begin{array}{c}
+                0\\
+                \frac{N}{2}(\bar{Y}_A-\bar{Y}_B)\\
+                \frac{N}{2}\bar{D}(\bar{Y}^1_A-\bar{Y}^1_B)
+            \end{array}\right)
+\end{align*}
+
+We thus have:
+
+\begin{align*}
+  \hat{\beta}^W & = \frac{2}{N\bar{D}(1-\bar{D})}\left(-\bar{D}\frac{N}{2}(\bar{Y}_A-\bar{Y}_B)+\frac{N}{2}\bar{D}(\bar{Y}^1_A-\bar{Y}^1_B)\right)\\
+                & = \frac{1}{1-\bar{D}}\left(\bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}_A-\bar{Y}_B)\right)\\
+\end{align*}
+
+Using the fact that \(\bar{Y}_t=\bar{D}\bar{Y}_t^1+(1-\bar{D})\bar{Y}^0_t\), we have \(\bar{Y}_A-\bar{Y}_B=(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)+\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)\).
+
+As a consequence:
+
+\begin{align*}
+  \hat{\beta}^W & = \frac{1-\bar{D}}{1-\bar{D}}\left(\bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B)\right)\\
+                & =  \bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B),
+\end{align*}
+
+which proves that \(\hat{\beta}^{W}=\hat{\Delta}^Y_{DID}\).
+
+Now for \(\hat{\beta}^{LSDV}\), the estimator can be written as
 
 \end{document}
