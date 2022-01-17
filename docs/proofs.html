@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-01-14" />
+<meta name="date" content="2022-01-17" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1173,7 +1173,82 @@ Let us first compute the determinant:</p>
                 &amp; =  \bar{Y}^1_A-\bar{Y}^1_B-(\bar{Y}^0_A-\bar{Y}^0_B),
 \end{align*}\]</span></p>
 <p>which proves that <span class="math inline">\(\hat{\beta}^{W}=\hat{\Delta}^Y_{DID}\)</span>.</p>
-<p>Now for <span class="math inline">\(\hat{\beta}^{LSDV}\)</span>, the estimator can be written as</p>
+<p>Now for <span class="math inline">\(\hat{\beta}^{LSDV}\)</span>, the estimator can be written in matrix form as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B} \\    \vdots \\   Y_{N,B} \\Y_{1,A} \\    \vdots \\   Y_{N,A} \end{array}\right)}_{Y} &amp; =
+    \underbrace{\left(\begin{array}{ccccccc}
+    1 &amp; 0 &amp; \dots &amp; 0 &amp; 1 &amp; 0 &amp; D_{1,B}\\
+    0 &amp; 1 &amp; \dots &amp; 0 &amp; 1 &amp; 0 &amp; D_{2,B}\\
+    \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \vdots  \\
+    0 &amp; 0 &amp; \dots &amp; 1 &amp; 1 &amp; 0 &amp; D_{N,B}\\
+    1 &amp; 0 &amp; \dots &amp; 0 &amp; 0 &amp; 1 &amp; D_{1,A}\\
+    0 &amp; 1 &amp; \dots &amp; 0 &amp; 0 &amp; 1 &amp; D_{2,A}\\
+    \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \vdots  \\
+    0 &amp; 0 &amp; \dots &amp; 1 &amp; 0 &amp; 1 &amp; D_{N,A}\\
+    \end{array}\right)}_{X^{LSDV}}
+  \underbrace{\left(\begin{array}{c}  \mu^{LSDV}_1\\ \vdots \\ \mu^{LSDV}_N \\ \delta^{LSDV}_B \\ \delta^{LSDV}_A \\    \beta^{LSDV} \end{array}\right)}_{\Theta^{LSDV}} +
+  \underbrace{\left(\begin{array}{c}    \epsilon^{LSDV}_{1,B} \\    \vdots \\   \epsilon^{LSDV}_{N,B} \\ \epsilon^{LSDV}_{1,A} \\   \vdots \\   \epsilon^{LSDV}_{N,A} \end{array}\right).}_{\epsilon}
+\end{align*}\]</span></p>
+<p>In order to prove the result, it is going to be very convenient to use <a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">Frish-Waugh-Lovell Theorem</a>.
+It can be stated as follows:</p>
+
+<div class="theorem">
+<span id="thm:FWL" class="theorem"><strong>Theorem A.1  (Frish-Waugh-Lovell)  </strong></span>The coefficients on a set of variables <span class="math inline">\(X_2\)</span> estimated by OLS in a linear regression with another set of control variables <span class="math inline">\(X_1\)</span> is equal to the coefficients on the same set of variables estimated by OLS in a linear model where the outcome variable is the residual of regressing <span class="math inline">\(Y\)</span> on <span class="math inline">\(X_1\)</span> by OLS and the explanatory variables are the residuals of regressing <span class="math inline">\(X_2\)</span> on <span class="math inline">\(X_1\)</span>. More formally: <span class="math inline">\(\hat{\beta}_2^{OLS}=\hat{\beta}_2^{OLS(MX_1)}\)</span> where:
+<span class="math display">\[\begin{align*}
+  Y &amp; = X_1\beta_1 + X_2\beta_2 + \epsilon \\
+  M_1Y &amp; = M_1X_2\beta_2 + \epsilon^* \\
+  M_1 &amp; = I - X_1(X_1&#39;X_1)^{-1}X_1&#39;.
+\end{align*}\]</span>
+</div>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See Section 8.2.2 %<a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">here</a>.
+</div>
+<p><span class="math inline">\(M_1\)</span> is called the <strong>prediction</strong> or the <strong>residualizing</strong> matrix.</p>
+<p>In our case, let us call <span class="math inline">\(X^{LSDV}_{\mu}\)</span> the first <span class="math inline">\(N\)</span> columns of <span class="math inline">\(X^{LSDV}\)</span>.
+<span class="math inline">\(X^{LSDV}_{\mu}\)</span> is going to play the role of <span class="math inline">\(X_1\)</span> in Theorem <a href="proofs.html#thm:FWL">A.1</a>.
+Let us call <span class="math inline">\(X^{LSDV}_{\delta,D}\)</span> the matrix made of the last three columns of <span class="math inline">\(X^{LSDV}\)</span>.
+<span class="math inline">\(X^{LSDV}_{\delta,D}\)</span> is going to play the role of <span class="math inline">\(X_2\)</span> in Theorem <a href="proofs.html#thm:FWL">A.1</a>.</p>
+<p>Let us first note that <span class="math inline">\({X^{LSDV}_{\mu}}&#39;X^{LSDV}_{\mu}=2I_{N}\)</span>, where <span class="math inline">\(I_{N}\)</span> is the identity matrix of dimension <span class="math inline">\(N\)</span>.
+As a consequence, <span class="math inline">\(({X^{LSDV}_{\mu}}&#39;X^{LSDV}_{\mu})^{-1}=\frac{1}{2}I_N\)</span>.
+Now, let us compute <span class="math inline">\({X^{LSDV}_{\mu}}&#39;Y\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+ {X^{LSDV}_{\mu}}&#39;Y  &amp; = \left(\begin{array}{c}
+                            Y_{1,B}+Y_{1,A} \\
+                            \vdots \\
+                            Y_{N,B}+Y_{N,A}
+                          \end{array}\right).
+\end{align*}\]</span></p>
+<p>As a consequence, we have:</p>
+<p><span class="math display">\[\begin{align*}
+ M^{LSDV}_{\mu}Y  &amp; = Y - X^{LSDV}_{\mu}({X^{LSDV}_{\mu}}&#39;X^{LSDV}_{\mu})^{-1}{X^{LSDV}_{\mu}}&#39;Y \\
+                  &amp; = Y-\frac{1}{2} X^{LSDV}_{\mu}I_N
+                  \left(\begin{array}{c}
+                            Y_{1,B}+Y_{1,A} \\
+                            \vdots \\
+                            Y_{N,B}+Y_{N,A}
+                          \end{array}\right) \\
+                  &amp; = \left(\begin{array}{c}
+                           Y_{1,B} - \frac{1}{2}(Y_{1,B}+Y_{1,A}) \\
+                            \vdots \\
+                            Y_{N,B} - \frac{1}{2}(Y_{N,B}+Y_{N,A})\\
+                           Y_{1,A} - \frac{1}{2}(Y_{1,B}+Y_{1,A}) \\
+                            \vdots \\
+                            Y_{N,A} - \frac{1}{2}(Y_{N,B}+Y_{N,A})
+                          \end{array}\right).
+\end{align*}\]</span></p>
+<p>And finally:</p>
+<p><span class="math display">\[\begin{align*}
+ M^{LSDV}_{\mu}X^{LSDV}_{\delta,D}  &amp; = X^{LSDV}_{\delta,D} - X^{LSDV}_{\mu}({X^{LSDV}_{\mu}}&#39;X^{LSDV}_{\mu})^{-1}{X^{LSDV}_{\mu}}&#39;X^{LSDV}_{\delta,D} \\
+                  &amp; = \left(\begin{array}{ccc}
+                          \frac{1}{2} &amp; -\frac{1}{2} &amp;  D_{1,B}-\frac{1}{2}(D_{1,B}+D_{1,A}) \\
+                          \vdots &amp; \vdots &amp;  \vdots \\
+                          \frac{1}{2} &amp; -\frac{1}{2} &amp;  D_{N,B}-\frac{1}{2}(D_{1,B}+D_{1,A}) \\
+                          -\frac{1}{2} &amp; \frac{1}{2} &amp;  D_{1,A}-\frac{1}{2}(D_{1,B}+D_{1,A}) \\
+                          \vdots &amp; \vdots &amp;  \vdots \\
+                          -\frac{1}{2} &amp; \frac{1}{2} &amp;  D_{N,A}-\frac{1}{2}(D_{1,B}+D_{1,A}) \\
+                          \end{array}\right).
+\end{align*}\]</span></p>
 
 </div>
 </div>
