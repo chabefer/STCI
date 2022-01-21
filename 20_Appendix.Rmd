@@ -1024,7 +1024,7 @@ Now for $\hat{\beta}^{LSDV}$, the estimator can be written in matrix form as fol
     0 & 0 & \dots & 1 & 0 & 1 & D_{N,A}\\
     \end{array}\right)}_{X^{LSDV}}
   \underbrace{\left(\begin{array}{c}  \mu^{LSDV}_1\\ \vdots \\ \mu^{LSDV}_N \\ \delta^{LSDV}_B \\ \delta^{LSDV}_A \\	\beta^{LSDV} \end{array}\right)}_{\Theta^{LSDV}} +
-  \underbrace{\left(\begin{array}{c}	\epsilon^{LSDV}_{1,B} \\	\vdots \\	\epsilon^{LSDV}_{N,B} \\ \epsilon^{LSDV}_{1,A} \\	\vdots \\	\epsilon^{LSDV}_{N,A} \end{array}\right).}_{\epsilon}
+  \underbrace{\left(\begin{array}{c}	\epsilon^{LSDV}_{1,B} \\	\vdots \\	\epsilon^{LSDV}_{N,B} \\ \epsilon^{LSDV}_{1,A} \\	\vdots \\	\epsilon^{LSDV}_{N,A} \end{array}\right).}_{\epsilon^{LSDV}}
 \end{align*}
 
 In order to prove the result, it is going to be very convenient to use [Frish-Waugh-Lovell Theorem](https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html).
@@ -1040,7 +1040,7 @@ The coefficients on a set of variables $X_2$ estimated by OLS in a linear regres
 ```
 
 ```{proof}
-See Section 8.2.2 %[here](https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html).
+See Section 8.2.2 [here](https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html).
 ```
 
 $M_1$ is called the **prediction** or the **residualizing** matrix.
@@ -1096,4 +1096,99 @@ And finally:
                           \end{array}\right).
 \end{align*}
 
+Using Theorem \@ref(thm:FWL), we can rewrite the LSDV version of the TWFE model as follows:
 
+\begin{align*}
+  	 M^{LSDV}_{\mu}Y & =  M^{LSDV}_{\mu}X^{LSDV}_{\delta,D}
+  	                        \left(\begin{array}{c}
+  	                        \delta^{LSDV}_B \\ \delta^{LSDV}_A \\	\beta^{LSDV}
+  	                        \end{array}\right) + M^{LSDV}_{\mu}\epsilon^{LSDV}
+\end{align*}
+
+In a more compact notation, we have, $\forall i\in\left[1,N\right]$ and $\forall t\in\left\{B,A\right\}$:
+
+\begin{align*}
+  	Y_{i,t} - \bar{Y}_i  &  = \frac{1}{2}(\delta^{LSDV}_A-\delta^{LSDV}_B)(\uns{t=A}-\uns{t=B}) + \beta^{LSDV}(D_{i,t}-\bar{D}_{i}) + \epsilon^{LSDV}_{i,t}-\bar{\epsilon}^{LSDV}_{i},
+\end{align*}
+
+which we can rewrite, for simplicity, as:
+
+\begin{align*}
+  	Y_{i,t} - \bar{Y}_i  &  = \tilde{\delta}^{LSDV}_t + \beta^{LSDV}(D_{i,t}-\bar{D}_{i}) + \epsilon^{LSDV}_{i,t}-\bar{\epsilon}^{LSDV}_{i},
+\end{align*}
+
+with $\tilde{\delta}^{LSDV}_A=-\tilde{\delta}_B^{LSDV}=\bar{\delta}^{LSDV}$ and $\bar{\delta}^{LSDV}=\frac{1}{2}(\delta^{LSDV}_A-\delta^{LSDV}_B)$.
+
+In matrix form, we can thus rewrite the LSDV model transformed by the application of the Frich-Waugh theorem as follows:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B}-\bar{Y}_1 \\	\vdots \\	Y_{N,B}-\bar{Y}_N \\Y_{1,A}-\bar{Y}_1 \\	\vdots \\	Y_{N,A}-\bar{Y}_N \end{array}\right)}_{Y^{LSDV}_r} & =
+    \underbrace{\left(\begin{array}{ccc}
+      1  & 0 & -\bar{D}_1\\
+      \vdots & \vdots & \vdots \\
+      1 & 0 & -\bar{D}_N \\
+      0 & 1 & D_1-\bar{D}_1\\
+      \vdots & \vdots & \vdots \\
+      0 & 1 & D_N-\bar{D}_N
+    \end{array}\right)}_{X^{LSDV}_r}
+  \underbrace{\left(\begin{array}{c}	\tilde{\delta}^{LSDV}_B \\ \tilde{\delta}^{LSDV}_A \\	\beta^{LSDV} \end{array}\right)}_{\Theta^{LSDV}_r} +
+  \underbrace{\left(\begin{array}{c}	\epsilon^{LSDV}_{1,B}-\bar{\epsilon}^{LSDV}_{1} \\	\vdots \\	\epsilon^{LSDV}_{N,B}-\bar{\epsilon}^{LSDV}_{N} \\ \epsilon^{LSDV}_{1,A}-\bar{\epsilon}^{LSDV}_{1} \\	\vdots \\	\epsilon^{LSDV}_{N,A}-\bar{\epsilon}^{LSDV}_{N} \end{array}\right)}_{\epsilon^{LSDV}_r}
+\end{align*}
+
+This is very close to the formula for the Within estimator we have seen above.
+The only difference is that we have two time fixed effects instead of a constant and the **After** time fixed effect.
+We are going to solve for the estimator in a very similar way.
+First:
+
+\begin{align*}
+  {X^{LSDV}_r}'X^{LSDV}_r & = N\underbrace{\left(\begin{array}{ccc}
+                    1 &  0 & -\frac{\bar{D}}{2}\\
+                    0 & 1  & \frac{\bar{D}}{2} \\
+                    -\frac{\bar{D}}{2} & \frac{\bar{D}}{2} & \frac{\bar{D}}{2}
+            \end{array}\right)}_{{x^{LSDV}_r}'x^{LSDV}_r}
+\end{align*}
+
+The determinant of ${x^{LSDV}_r}'x^{LSDV}_r$ is:
+
+\begin{align*}
+  \det({x^{LSDV}_r}'x^{LSDV}_r) & = \frac{1}{2}\bar{D}(1-\bar{D})
+\end{align*}
+
+and its adjoint matrix is:
+
+\begin{align*}
+  \tilde{{x^{LSDV}_r}'x^{LSDV}_r} & = \left(\begin{array}{ccc}
+                    \frac{1}{2}\bar{D}(1-\frac{1}{2}\bar{D}) & - \frac{1}{4}\bar{D}^2 & \frac{1}{2}\bar{D}\\
+                    - \frac{1}{4}\bar{D}^2 & \frac{1}{2}\bar{D}(1-\frac{1}{2}\bar{D})  & -\frac{1}{2}\bar{D} \\
+                    \frac{1}{2}\bar{D} & -\frac{1}{2}\bar{D} & 1
+            \end{array}\right).
+\end{align*}
+
+Finally, we have:
+
+\begin{align*}
+  {X^{LSDV}_r}'Y^{LSDV}_r & = \left(\begin{array}{c}
+                \sum_{i=1}^N(Y_{i,B}-\bar{Y}_i)\\
+                \sum_{i=1}^N(Y_{i,A}-\bar{Y}_i) \\
+                -\sum_{i=1}^N\bar{D}_i(Y_{i,B}-\bar{Y}_i)+\sum_{i=1}^N(D_i-\bar{D}_i)(Y_{i,A}-\bar{Y}_i)
+            \end{array}\right) \\
+                          & = \left(\begin{array}{c}
+               -\frac{1}{2}N(\bar{Y}_A-\bar{Y}_B)\\
+               \frac{1}{2}N(\bar{Y}_A-\bar{Y}_B)\\
+               \frac{1}{2}N\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)
+            \end{array}\right)
+\end{align*}
+
+Using the fact that $\hat{\Theta}^{LSDV}_r=({X^{LSDV}_r}'X^{LSDV}_r)^{-1}{X^{LSDV}_r}'Y^{LSDV}_r$, we have:
+
+\begin{align*}
+  \hat{\beta}^{LSDV} & = \frac{2}{N\bar{D}(1-\bar{D})}\left[-\frac{\bar{D}N}{2}(\bar{Y}_A-\bar{Y}_B)+\frac{\bar{D}N}{2}(\bar{Y}_A^1-\bar{Y}_B^1)\right] \\
+                    & =\frac{1}{1-\bar{D}}\left[\bar{Y}_A^1-\bar{Y}_B^1-(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)-\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)\right]\\
+                    & =\frac{1}{1-\bar{D}}\left[(1-\bar{D})(\bar{Y}_A^1-\bar{Y}_B^1)-(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)\right]\\
+                    & =\bar{Y}_A^1-\bar{Y}_B^1-(\bar{Y}^0_A-\bar{Y}^0_B).
+\end{align*}
+
+The second equality uses the fact that $\bar{Y}_A-\bar{Y}_B=(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)+\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)$.
+This proves the result.
+
+**To Do: the AP and LC estimators**

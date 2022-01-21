@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-01-17" />
+<meta name="date" content="2022-01-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1187,7 +1187,7 @@ Let us first compute the determinant:</p>
     0 &amp; 0 &amp; \dots &amp; 1 &amp; 0 &amp; 1 &amp; D_{N,A}\\
     \end{array}\right)}_{X^{LSDV}}
   \underbrace{\left(\begin{array}{c}  \mu^{LSDV}_1\\ \vdots \\ \mu^{LSDV}_N \\ \delta^{LSDV}_B \\ \delta^{LSDV}_A \\    \beta^{LSDV} \end{array}\right)}_{\Theta^{LSDV}} +
-  \underbrace{\left(\begin{array}{c}    \epsilon^{LSDV}_{1,B} \\    \vdots \\   \epsilon^{LSDV}_{N,B} \\ \epsilon^{LSDV}_{1,A} \\   \vdots \\   \epsilon^{LSDV}_{N,A} \end{array}\right).}_{\epsilon}
+  \underbrace{\left(\begin{array}{c}    \epsilon^{LSDV}_{1,B} \\    \vdots \\   \epsilon^{LSDV}_{N,B} \\ \epsilon^{LSDV}_{1,A} \\   \vdots \\   \epsilon^{LSDV}_{N,A} \end{array}\right).}_{\epsilon^{LSDV}}
 \end{align*}\]</span></p>
 <p>In order to prove the result, it is going to be very convenient to use <a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">Frish-Waugh-Lovell Theorem</a>.
 It can be stated as follows:</p>
@@ -1202,7 +1202,7 @@ It can be stated as follows:</p>
 </div>
 
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> See Section 8.2.2 %<a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">here</a>.
+ <span class="proof"><em>Proof. </em></span> See Section 8.2.2 <a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">here</a>.
 </div>
 <p><span class="math inline">\(M_1\)</span> is called the <strong>prediction</strong> or the <strong>residualizing</strong> matrix.</p>
 <p>In our case, let us call <span class="math inline">\(X^{LSDV}_{\mu}\)</span> the first <span class="math inline">\(N\)</span> columns of <span class="math inline">\(X^{LSDV}\)</span>.
@@ -1249,6 +1249,82 @@ Now, let us compute <span class="math inline">\({X^{LSDV}_{\mu}}&#39;Y\)</span>:
                           -\frac{1}{2} &amp; \frac{1}{2} &amp;  D_{N,A}-\frac{1}{2}(D_{1,B}+D_{1,A}) \\
                           \end{array}\right).
 \end{align*}\]</span></p>
+<p>Using Theorem <a href="proofs.html#thm:FWL">A.1</a>, we can rewrite the LSDV version of the TWFE model as follows:</p>
+<p><span class="math display">\[\begin{align*}
+     M^{LSDV}_{\mu}Y &amp; =  M^{LSDV}_{\mu}X^{LSDV}_{\delta,D}
+                            \left(\begin{array}{c}
+                            \delta^{LSDV}_B \\ \delta^{LSDV}_A \\   \beta^{LSDV}
+                            \end{array}\right) + M^{LSDV}_{\mu}\epsilon^{LSDV}
+\end{align*}\]</span></p>
+<p>In a more compact notation, we have, <span class="math inline">\(\forall i\in\left[1,N\right]\)</span> and <span class="math inline">\(\forall t\in\left\{B,A\right\}\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+    Y_{i,t} - \bar{Y}_i  &amp;  = \frac{1}{2}(\delta^{LSDV}_A-\delta^{LSDV}_B)(\uns{t=A}-\uns{t=B}) + \beta^{LSDV}(D_{i,t}-\bar{D}_{i}) + \epsilon^{LSDV}_{i,t}-\bar{\epsilon}^{LSDV}_{i},
+\end{align*}\]</span></p>
+<p>which we can rewrite, for simplicity, as:</p>
+<p><span class="math display">\[\begin{align*}
+    Y_{i,t} - \bar{Y}_i  &amp;  = \tilde{\delta}^{LSDV}_t + \beta^{LSDV}(D_{i,t}-\bar{D}_{i}) + \epsilon^{LSDV}_{i,t}-\bar{\epsilon}^{LSDV}_{i},
+\end{align*}\]</span></p>
+<p>with <span class="math inline">\(\tilde{\delta}^{LSDV}_A=-\tilde{\delta}_B^{LSDV}=\bar{\delta}^{LSDV}\)</span> and <span class="math inline">\(\bar{\delta}^{LSDV}=\frac{1}{2}(\delta^{LSDV}_A-\delta^{LSDV}_B)\)</span>.</p>
+<p>In matrix form, we can thus rewrite the LSDV model transformed by the application of the Frich-Waugh theorem as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B}-\bar{Y}_1 \\  \vdots \\   Y_{N,B}-\bar{Y}_N \\Y_{1,A}-\bar{Y}_1 \\    \vdots \\   Y_{N,A}-\bar{Y}_N \end{array}\right)}_{Y^{LSDV}_r} &amp; =
+    \underbrace{\left(\begin{array}{ccc}
+      1  &amp; 0 &amp; -\bar{D}_1\\
+      \vdots &amp; \vdots &amp; \vdots \\
+      1 &amp; 0 &amp; -\bar{D}_N \\
+      0 &amp; 1 &amp; D_1-\bar{D}_1\\
+      \vdots &amp; \vdots &amp; \vdots \\
+      0 &amp; 1 &amp; D_N-\bar{D}_N
+    \end{array}\right)}_{X^{LSDV}_r}
+  \underbrace{\left(\begin{array}{c}    \tilde{\delta}^{LSDV}_B \\ \tilde{\delta}^{LSDV}_A \\   \beta^{LSDV} \end{array}\right)}_{\Theta^{LSDV}_r} +
+  \underbrace{\left(\begin{array}{c}    \epsilon^{LSDV}_{1,B}-\bar{\epsilon}^{LSDV}_{1} \\  \vdots \\   \epsilon^{LSDV}_{N,B}-\bar{\epsilon}^{LSDV}_{N} \\ \epsilon^{LSDV}_{1,A}-\bar{\epsilon}^{LSDV}_{1} \\   \vdots \\   \epsilon^{LSDV}_{N,A}-\bar{\epsilon}^{LSDV}_{N} \end{array}\right)}_{\epsilon^{LSDV}_r}
+\end{align*}\]</span></p>
+<p>This is very close to the formula for the Within estimator we have seen above.
+The only difference is that we have two time fixed effects instead of a constant and the <strong>After</strong> time fixed effect.
+We are going to solve for the estimator in a very similar way.
+First:</p>
+<p><span class="math display">\[\begin{align*}
+  {X^{LSDV}_r}&#39;X^{LSDV}_r &amp; = N\underbrace{\left(\begin{array}{ccc}
+                    1 &amp;  0 &amp; -\frac{\bar{D}}{2}\\
+                    0 &amp; 1  &amp; \frac{\bar{D}}{2} \\
+                    -\frac{\bar{D}}{2} &amp; \frac{\bar{D}}{2} &amp; \frac{\bar{D}}{2}
+            \end{array}\right)}_{{x^{LSDV}_r}&#39;x^{LSDV}_r}
+\end{align*}\]</span></p>
+<p>The determinant of <span class="math inline">\({x^{LSDV}_r}&#39;x^{LSDV}_r\)</span> is:</p>
+<p><span class="math display">\[\begin{align*}
+  \det({x^{LSDV}_r}&#39;x^{LSDV}_r) &amp; = \frac{1}{2}\bar{D}(1-\bar{D})
+\end{align*}\]</span></p>
+<p>and its adjoint matrix is:</p>
+<p><span class="math display">\[\begin{align*}
+  \tilde{{x^{LSDV}_r}&#39;x^{LSDV}_r} &amp; = \left(\begin{array}{ccc}
+                    \frac{1}{2}\bar{D}(1-\frac{1}{2}\bar{D}) &amp; - \frac{1}{4}\bar{D}^2 &amp; \frac{1}{2}\bar{D}\\
+                    - \frac{1}{4}\bar{D}^2 &amp; \frac{1}{2}\bar{D}(1-\frac{1}{2}\bar{D})  &amp; -\frac{1}{2}\bar{D} \\
+                    \frac{1}{2}\bar{D} &amp; -\frac{1}{2}\bar{D} &amp; 1
+            \end{array}\right).
+\end{align*}\]</span></p>
+<p>Finally, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  {X^{LSDV}_r}&#39;Y^{LSDV}_r &amp; = \left(\begin{array}{c}
+                \sum_{i=1}^N(Y_{i,B}-\bar{Y}_i)\\
+                \sum_{i=1}^N(Y_{i,A}-\bar{Y}_i) \\
+                -\sum_{i=1}^N\bar{D}_i(Y_{i,B}-\bar{Y}_i)+\sum_{i=1}^N(D_i-\bar{D}_i)(Y_{i,A}-\bar{Y}_i)
+            \end{array}\right) \\
+                          &amp; = \left(\begin{array}{c}
+               -\frac{1}{2}N(\bar{Y}_A-\bar{Y}_B)\\
+               \frac{1}{2}N(\bar{Y}_A-\bar{Y}_B)\\
+               \frac{1}{2}N\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)
+            \end{array}\right)
+\end{align*}\]</span></p>
+<p>Using the fact that <span class="math inline">\(\hat{\Theta}^{LSDV}_r=({X^{LSDV}_r}&#39;X^{LSDV}_r)^{-1}{X^{LSDV}_r}&#39;Y^{LSDV}_r\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\beta}^{LSDV} &amp; = \frac{2}{N\bar{D}(1-\bar{D})}\left[-\frac{\bar{D}N}{2}(\bar{Y}_A-\bar{Y}_B)+\frac{\bar{D}N}{2}(\bar{Y}_A^1-\bar{Y}_B^1)\right] \\
+                    &amp; =\frac{1}{1-\bar{D}}\left[\bar{Y}_A^1-\bar{Y}_B^1-(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)-\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)\right]\\
+                    &amp; =\frac{1}{1-\bar{D}}\left[(1-\bar{D})(\bar{Y}_A^1-\bar{Y}_B^1)-(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)\right]\\
+                    &amp; =\bar{Y}_A^1-\bar{Y}_B^1-(\bar{Y}^0_A-\bar{Y}^0_B).
+\end{align*}\]</span></p>
+<p>The second equality uses the fact that <span class="math inline">\(\bar{Y}_A-\bar{Y}_B=(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)+\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)\)</span>.
+This proves the result.</p>
+<p><strong>To Do: the AP and LC estimators</strong></p>
 
 </div>
 </div>
