@@ -1767,7 +1767,7 @@ We are going to look at two such designs.
 In the first type, some units are exposed to the treatment in the first period and the rest of the units enter the treatment in the second period.
 In the second type of reverse DID design, all units receive the treatment in the first period and some units exit the treatment in the second period.
 
-#### Reverse DID designs when everyone enters the treatment at the second period
+#### Reverse DID designs where everyone enters the treatment at the second period
 
 Compared to the setting in the previous section, the main change is to Assumption \@ref(hyp:NoTreatmentFirst):
 
@@ -2233,12 +2233,12 @@ The reasons why are left as an exercise.
 
 ```{example}
 Let us finally explore the last condition in Lemma \@ref(lem:BiasDIDr) that makes $DID^r$ unbiased for $\Delta^{Y_A}_{TUT}$, the effect of the treatment on *switchers* in the second period.
-We are going to switch off the change in treatment effects that occurs over time in both groups: we are going to set $\bar{\alpha}_{A}=\bar{\alpha}_{B}=0$.
+We are going to switch off the change in treatment effects that occurs over time in both groups: we are going to set $\bar{\alpha}_{A}=\bar{\alpha}_{B}=0.1$.
 ```
 
 ```{r param.DID.reverse.second.baralphaAB,eval=TRUE,echo=TRUE,results='hide'}
-param["baralphaA"] <- 0
-param["baralphaB"] <- 0
+param["baralphaA"] <- 0.1
+param["baralphaB"] <- 0.1
 ```
 
 Let's now simulate a dataset according to these new equations.
@@ -2341,28 +2341,117 @@ We assume that, after exiting the treatment, agents experience the same outcomes
 
 A consequence of Assumptions \@ref(hyp:AllTreatmentFirst) and \@ref(hyp:NoEffectsAfterExit) is that we can write observed outcomes as a function of treatment and potential outcomes using the usual switching equation.
 
+```{remark}
+Note that Assumption \@ref(hyp:NoEffectsAfterExit) is extremely restrictive: units return immediately to their outcomes in the absence of the treatment right after exiting the treatment state.
+We are going to relax that assumption later.
+```
 
+The following theorem shows that $DID$ identifies a fully-fledged treatment effect under (arguably strong) assumptions:
+
+```{theorem,DIDExit,name="DID identifies TUT in the second period"}
+Under Assumptions \@ref(hyp:AllTreatmentFirst), \@ref(hyp:NoEffectsAfterExit) and \@ref(hyp:ParallelTrendsy1), the $DID$ estimator identifies the effect of the treatment on the *switchers* in the second period:
+
+\begin{align*}
+    \Delta_{DID}^{Y} & =  \Delta^{Y_A}_{TUT},
+\end{align*}
+```
+
+```{proof}
+\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}|D_i=1}-\esp{Y_{i,B}|D_i=1}-(\esp{Y_{i,A}|D_i=0}-\esp{Y_{i,B}|D_i=0}) \\
+                & = \esp{Y^1_{i,A}|D_i=1}-\esp{Y^1_{i,B}|D_i=1}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^1_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^1_{i,A}-Y^0_{i,A}|D_i=0}
+\end{align*}
+
+where the second equality follows from Assumptions \@ref(hyp:AllTreatmentFirst) and \@ref(hyp:NoEffectsAfterExit) and the switching equation, and the third equality follows from Assumption \@ref(hyp:ParallelTrendsy1).
+
+```
+
+Invoking another (even stronger) assumption, DID identifies the effect of the treatment on *switchers* in the first period:
+
+```{theorem,DIDExitFirst,name="DID identifies TUT in the first period"}
+Under Assumptions \@ref(hyp:AllTreatmentFirst), \@ref(hyp:NoEffectsAfterExit) and \@ref(hyp:ParallelTrendsy1y0), the $DID$ estimator identifies the effect of the treatment on the *switchers* in the first period:
+
+\begin{align*}
+    \Delta_{DID}^{Y} & =  \Delta^{Y_B}_{TUT},
+\end{align*}
+```
+
+```{proof}
+\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}|D_i=1}-\esp{Y_{i,B}|D_i=1}-(\esp{Y_{i,A}|D_i=0}-\esp{Y_{i,B}|D_i=0}) \\
+                & = \esp{Y^1_{i,A}|D_i=1}-\esp{Y^1_{i,B}|D_i=1}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^0_{i,A}|D_i=0}-\esp{Y^0_{i,B}|D_i=0}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^1_{i,B}-Y^0_{i,B}|D_i=0}
+\end{align*}
+
+where the second equality follows from Assumptions \@ref(hyp:AllTreatmentFirst) and \@ref(hyp:NoEffectsAfterExit) and the switching equation, and the third equality follows from Assumption \@ref(hyp:ParallelTrendsy1y0).
+
+```
+
+We can also study the bias of the DID estimator under the classical parallel trends assumption (Assumption \@ref(hyp:ParallelTrends)):
+
+```{lemma,BiasDID,name="Bias of the DID estimator"}
+Under Assumptions \@ref(hyp:AllTreatmentFirst), \@ref(hyp:NoEffectsAfterExit) and \@ref(hyp:ParallelTrends), the $DID$ estimator is biased for the average effect of the Treatment on the switchers before and after the treatment:
+
+\begin{align*}
+    \Delta_{DID}^{Y} & =  \Delta^{Y_B}_{TUT}+B^{Y_B}_{DID} \\
+    \Delta_{DID}^{Y} & =  \Delta^{Y_A}_{TUT}+B^{Y_A}_{DID} 
+\end{align*}
+```
+
+with:
+
+\begin{align*}
+    B^{Y_B}_{DID} & = \Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}\\
+    B^{Y_A}_{DID} & = \Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}-(\Delta^{Y_A}_{TUT}-\Delta^{Y_B}_{TUT}). 
+\end{align*}
+
+```{proof}
+\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}-Y_{i,B}|D_i=1}-\esp{Y_{i,A}-Y_{i,B}|D_i=0} \\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=1}+\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0} \\
+                & = \esp{Y^1_{i,B}-Y^0_{i,B}|D_i=0}+ \esp{Y^1_{i,A}-Y^1_{i,B}-(Y^0_{i,A}-Y^0_{i,B})|D_i=1}
+                & = \Delta^{Y_B}_{TUT}+\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT},
+\end{align*}
+
+where the second equality follows from Assumptions \@ref(hyp:AllTreatmentFirst), \@ref(hyp:NoEffectsAfterExit) and the switching equation, and the third equality follows from Assumption \@ref(hyp:ParallelTrends).
+
+\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}-Y_{i,B}|D_i=1}-\esp{Y_{i,A}-Y_{i,B}|D_i=0} \\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0}+\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & = \esp{Y^1_{i,A}-Y^0_{i,A}|D_i=0}+\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0} \\
+                & = \Delta^{Y_A}_{TUT}+\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & \phantom{=} -\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=1}+\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0} \\
+                & = \Delta^{Y_A}_{TUT}+\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}-(\Delta^{Y_A}_{TUT}-\Delta^{Y_B}_{TUT}),
+\end{align*}
+
+where the second equality follows from Assumptions \@ref(hyp:AllTreatmentFirst), \@ref(hyp:NoEffectsAfterExit) and the switching equation, and the fifth equality follows from Assumption \@ref(hyp:ParallelTrends).
+
+```
 
 ```{example}
-Let us generate data in our example model that complies with Assumption \@ref(hyp:AllTreatmentFirst).
+Let us generate data in our example model that complies with Assumptions \@ref(hyp:AllTreatmentFirst) and \@ref(hyp:NoEffectsAfterExit).
 ```
 
 \begin{align*}
-y_{i,A}^1 & = y_{i,A}^0+\bar{\alpha}_A+\theta_A\mu_i+\eta_{i,A} \\
+y_{i,A}^1 & = y_{i,A}^0+\bar{\alpha}_A+\bar{\alpha}_{AT}D_{i,A}+\theta_A\mu_i+\eta_{i,A} \\
 y_{i,A}^0 & = \mu_i+\delta+U_{i,A}^0 \\
 U_{i,A}^0 & = \rho U_{i,B}+\epsilon_{i,A} \\
 y^1_{i,B} & =y^0_{i,B} + \bar{\alpha}_B+\theta_B\mu_i+\eta_{i,B} \\
 y^0_{i,B} & =\mu_i+U_{i,B} \\
 U_{i,B} & \sim\mathcal{N}(0,\sigma^2_{U}) \\
-D_{i,A}   & = \uns{y^0_{i,A}-\delta+ V_i\leq\bar{y}} \\
+D_{i,A}   & = \uns{y^0_{i,B}+ V_i\leq\bar{y}} \\
 V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_{i,A},\eta_{i,B},\omega_i) & \sim\mathcal{N}(0,0,0,\sigma^2_{\eta},\sigma^2_{\eta},\sigma^2_{\omega},0,\rho_{\eta,\omega})
 \end{align*}
 
-
 ```{r param.DID.reverse,eval=TRUE,echo=TRUE,results='hide'}
-param <- c(8,.5,.28,1500,0.9,0.01,0.01,0.05,0.05,0.05,0.5,0.1,0.1,0.28,0)
-names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","thetaA","thetaB","sigma2epsilon","sigma2eta","delta","baralphaA","baralphaB","gamma","sigma2omega","rhoetaomega")
+param <- c(8,.5,.28,1500,0.9,0.01,0.01,0.05,0.05,0.05,0.2,0.1,0.3,0.1,0.28,0)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","thetaA","thetaB","sigma2epsilon","sigma2eta","delta","baralphaA","baralphaB","baralphaAT","gamma","sigma2omega","rhoetaomega")
 ```
 
 ```{r SimulDIDRev,eval=TRUE,echo=TRUE,results='hide'}
@@ -2377,19 +2466,19 @@ mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
 UB <- rnorm(N,0,sqrt(param["sigma2U"]))
 y0B <- mu + UB 
 Y0B <- exp(y0B)
+Ds <- rep(0,N)
+V <- param["gamma"]*(mu-param["barmu"])+eta.omega$omega
+Ds[y0B+V<=log(param["barY"])] <- 1 
 alphaB <- param["baralphaB"]+  param["thetaB"]*mu + eta.omega$etaB
 y1B <- y0B+alphaB
 Y1B <- exp(y1B)
 epsilonA <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
 U0A <- param["rho"]*UB + epsilonA
 y0A <- mu +  U0A + param["delta"]
-alphaA <- param["baralphaA"]+  param["thetaA"]*mu + eta.omega$etaA
+alphaA <- param["baralphaA"]+ param["baralphaAT"]*Ds+ param["thetaA"]*mu + eta.omega$etaA
 y1A <- y0A+alphaA
 Y0A <- exp(y0A)
 Y1A <- exp(y1A)
-Ds <- rep(0,N)
-V <- param["gamma"]*(mu-param["barmu"])+eta.omega$omega
-Ds[y0A-param["delta"]+V<=log(param["barY"])] <- 1 
 yA <- y1A*Ds+y0A*(1-Ds)
 YA <- Y1A*Ds+Y0A*(1-Ds)
 yB <- y1B
@@ -2398,26 +2487,31 @@ YB <- Y1B
 
 Let's see how DID works on this data.
 
-```{r PlotDIDRev,eval=TRUE,fig.cap='Evolution of average outcomes in the always treated and switchers group in the reverse DID design',fig.align='center',out.width='50%',echo=TRUE,results='hide',fig.pos='htbp'}
+```{r PlotDIDRev,eval=TRUE,fig.cap='Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period',fig.align='center',out.width='50%',echo=TRUE,results='hide',fig.pos='htbp'}
 x <- c("Before","After")
 y.AT <- c(mean(yB[Ds==1]),mean(yA[Ds==1]))
+y.AT.counterfactual <- c(mean(y0B[Ds==1]),mean(y0A[Ds==1]))
 y.Switchers <- c(mean(yB[Ds==0]),mean(yA[Ds==0]))
-y.Switchers.counterfactual <- c(mean(y1B[Ds==0]),mean(y1A[Ds==0]))
+y.Switchers.counterfactual <- c(mean(y0B[Ds==0]),mean(y0A[Ds==0]))
+y.Switchers.counterfactual.1 <- c(mean(y1B[Ds==0]),mean(y1A[Ds==0]))
 y.Switchers.DID <- c(mean(yB[Ds==0]),mean(yB[Ds==0])+mean(yA[Ds==1])-mean(yB[Ds==1]))
-data.DID.plot <- as.data.frame(c(y.AT,y.Switchers,y.Switchers.counterfactual,y.Switchers.DID))
+y.Switchers.DID.1 <- c(mean(yA[Ds==0])-(mean(yA[Ds==1])-mean(yB[Ds==1])),mean(yA[Ds==0]))
+data.DID.plot <- as.data.frame(c(y.AT,y.AT.counterfactual,y.Switchers,y.Switchers.counterfactual,y.Switchers.counterfactual.1,y.Switchers.DID,y.Switchers.DID.1))
 colnames(data.DID.plot) <- c("Outcome") 
-data.DID.plot$Period <- factor(rep(x,4),levels=c("Before","After"))
-data.DID.plot$Group <- factor(c("Always Treated","Always Treated","Switchers","Switchers","Switchers counterfactual","Switchers counterfactual","Switchers DID","Switchers DID"),levels=c("Switchers counterfactual","Switchers DID","Switchers","Always Treated"))
-data.DID.plot$Observed <- factor(c("Observed","Observed","Observed","Observed","Unobserved","Unobserved","Observed","Observed"),levels=c("Observed","Unobserved"))
+data.DID.plot$Period <- factor(rep(x,7),levels=c("Before","After"))
+data.DID.plot$Group <- factor(c("Always Treated","Always Treated","Always Treated counterfactual y0","Always Treated counterfactual y0","Switchers","Switchers","Switchers counterfactual y0","Switchers counterfactual y0","Switchers counterfactual y1","Switchers counterfactual y1","Switchers DIDr","Switchers DIDr","Switchers DIDr1","Switchers DIDr1"),levels=c("Switchers","Switchers counterfactual y1","Switchers counterfactual y0","Switchers DIDr","Switchers DIDr1","Always Treated","Always Treated counterfactual y0"))
+data.DID.plot$Observed <- factor(c("Observed","Observed","Unobserved","Unobserved","Observed","Observed","Unobserved","Unobserved","Unobserved","Unobserved","Generated","Generated","Generated","Generated"),levels=c("Observed","Unobserved","Generated"))
 
 WW.before <- (mean(yB[Ds==1])-mean(yB[Ds==0]))
 WW.after <- (mean(yA[Ds==1])-mean(yA[Ds==0]))
 BA.AT <- mean(yA[Ds==1])-mean(yB[Ds==1])
 BA.Switchers <- mean(yA[Ds==0])-mean(yB[Ds==0])
 Counterfactual.after <- mean(yB[Ds==0])+BA.AT
-DID <- WW.after - WW.before 
-TTA <- mean(alphaA[Ds==0])
-TTB <- mean(alphaB[Ds==0])
+DID <- BA.AT  - BA.Switchers
+TTASwitchers <- mean(alphaA[Ds==0])
+TTBSwitchers <- mean(alphaB[Ds==0])
+TTAAT <- mean(alphaA[Ds==1])
+TTBAT <- mean(alphaB[Ds==1])
 
 ggplot(data.DID.plot,aes(x=Period,y=Outcome,group=Group,color=Group,shape=Group,linetype=Observed))+
     geom_line() +
@@ -2426,7 +2520,107 @@ ggplot(data.DID.plot,aes(x=Period,y=Outcome,group=Group,color=Group,shape=Group,
     theme_bw()
 ```
 
+In Figure \@ref(fig:PlotDIDRev), the effect of the treatment on the *switchers* is equal to $\hat\Delta^{y_A}_{TUT}=$ `r round(TTASwitchers,2)` in the second period and to $\hat\Delta^{y_B}_{TUT}=$ `r round(TTBSwitchers,2)` in the first period.
+The $DID$ estimator is equal to $\hat\Delta^{y}_{DID}=$ `r round(DIDr,2)` which is of the correct sign but much too big for both treatment effects.
+The problem is that the change in the outcomes of the *always treated* (`r round(BA.AT,2)`) overestimates the change in outcomes the *switchers* would have experienced had they stayed in the treatment  (`r round(mean(y1A[Ds==0])-mean(y1B[Ds==0]),2)`).
+As a consequence, Assumption \@ref(hyp:ParallelTrendsy1) is not vald and the DID estimator is biased.
+Following Lemma \@ref(lem:BiasDID), the bias of the DID estimator for the effect on the *switchers* in the second period is equal to the difference in the change of treatment effect over time between *always treated* ($\hat\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}=$ `r round(TTAAT,2)` $-$ `r round(TTBAT,2)` $=$ `r round(TTAAT - TTBAT,2)`) and *switchers* ($\hat\Delta^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=$ `r round(TTASwitchers,2)` $-$ `r round(TTBSwitchers,2)` $=$ `r round(TTASwitchers - TTBSwitchers,2)`).
+The bias of the DID estimator for the effect of the treatment on the *switchers* in the first period is even larger ($\hat B^{y_B}_{DID}=$ `r round(DID-TTBSwitchers,2)`).
+Following Lemma \@ref(lem:BiasDID), it is equal to the change in treatment effect over time among the *switchers* ($\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=$ `r round(TTAAT,2)` $-$ `r round(TTBAT,2)` $=$ `r round(TTAAT - TTBAT,2)`).
 
+```{example}
+What happens if we enforce the fact that treatment effects vary in the same way among *always takers* and *switchers*.
+Let's find out.
+```
+
+```{r param.shut.down.ATD,eval=TRUE,echo=TRUE,results='hide'}
+param["baralphaAT"] <- 0
+```
+
+Let's simulate the new data:
+
+```{r SimulDIDRevShutDown,eval=TRUE,echo=TRUE,results='hide'}
+set.seed(1234)
+N <- 1000
+cov.eta.omega <- matrix(c(param["sigma2eta"],0,param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),
+                          0,param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),
+                          param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=3,nrow=3,byrow=T)
+eta.omega <- as.data.frame(mvrnorm(N,c(0,0,0),cov.eta.omega))
+colnames(eta.omega) <- c('etaA','etaB','omega')
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+y0B <- mu + UB 
+Y0B <- exp(y0B)
+Ds <- rep(0,N)
+V <- param["gamma"]*(mu-param["barmu"])+eta.omega$omega
+Ds[y0B+V<=log(param["barY"])] <- 1 
+alphaB <- param["baralphaB"]+  param["thetaB"]*mu + eta.omega$etaB
+y1B <- y0B+alphaB
+Y1B <- exp(y1B)
+epsilonA <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+U0A <- param["rho"]*UB + epsilonA
+y0A <- mu +  U0A + param["delta"]
+alphaA <- param["baralphaA"]+ param["baralphaAT"]*Ds+ param["thetaA"]*mu + eta.omega$etaA
+y1A <- y0A+alphaA
+Y0A <- exp(y0A)
+Y1A <- exp(y1A)
+yA <- y1A*Ds+y0A*(1-Ds)
+YA <- Y1A*Ds+Y0A*(1-Ds)
+yB <- y1B
+YB <- Y1B
+```
+
+Let's see how DID works on this data.
+
+```{r PlotDIDRevShutDown,eval=TRUE,fig.cap='Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period and treatment effects that vary in the same way among switchers and always takers',fig.align='center',out.width='50%',echo=TRUE,results='hide',fig.pos='htbp'}
+x <- c("Before","After")
+y.AT <- c(mean(yB[Ds==1]),mean(yA[Ds==1]))
+y.AT.counterfactual <- c(mean(y0B[Ds==1]),mean(y0A[Ds==1]))
+y.Switchers <- c(mean(yB[Ds==0]),mean(yA[Ds==0]))
+y.Switchers.counterfactual <- c(mean(y0B[Ds==0]),mean(y0A[Ds==0]))
+y.Switchers.counterfactual.1 <- c(mean(y1B[Ds==0]),mean(y1A[Ds==0]))
+y.Switchers.DID <- c(mean(yB[Ds==0]),mean(yB[Ds==0])+mean(yA[Ds==1])-mean(yB[Ds==1]))
+y.Switchers.DID.1 <- c(mean(yA[Ds==0])-(mean(yA[Ds==1])-mean(yB[Ds==1])),mean(yA[Ds==0]))
+data.DID.plot <- as.data.frame(c(y.AT,y.AT.counterfactual,y.Switchers,y.Switchers.counterfactual,y.Switchers.counterfactual.1,y.Switchers.DID,y.Switchers.DID.1))
+colnames(data.DID.plot) <- c("Outcome") 
+data.DID.plot$Period <- factor(rep(x,7),levels=c("Before","After"))
+data.DID.plot$Group <- factor(c("Always Treated","Always Treated","Always Treated counterfactual y0","Always Treated counterfactual y0","Switchers","Switchers","Switchers counterfactual y0","Switchers counterfactual y0","Switchers counterfactual y1","Switchers counterfactual y1","Switchers DIDr","Switchers DIDr","Switchers DIDr1","Switchers DIDr1"),levels=c("Switchers","Switchers counterfactual y1","Switchers counterfactual y0","Switchers DIDr","Switchers DIDr1","Always Treated","Always Treated counterfactual y0"))
+data.DID.plot$Observed <- factor(c("Observed","Observed","Unobserved","Unobserved","Observed","Observed","Unobserved","Unobserved","Unobserved","Unobserved","Generated","Generated","Generated","Generated"),levels=c("Observed","Unobserved","Generated"))
+
+WW.before <- (mean(yB[Ds==1])-mean(yB[Ds==0]))
+WW.after <- (mean(yA[Ds==1])-mean(yA[Ds==0]))
+BA.AT <- mean(yA[Ds==1])-mean(yB[Ds==1])
+BA.Switchers <- mean(yA[Ds==0])-mean(yB[Ds==0])
+Counterfactual.after <- mean(yB[Ds==0])+BA.AT
+DID <- BA.AT  - BA.Switchers
+TTASwitchers <- mean(alphaA[Ds==0])
+TTBSwitchers <- mean(alphaB[Ds==0])
+TTAAT <- mean(alphaA[Ds==1])
+TTBAT <- mean(alphaB[Ds==1])
+
+ggplot(data.DID.plot,aes(x=Period,y=Outcome,group=Group,color=Group,shape=Group,linetype=Observed))+
+    geom_line() +
+    geom_point()+
+    scale_linetype_discrete(guide='none') +
+    theme_bw()
+```
+As expected from Theorem \@ref(thm:DIDExit), Figure \@ref(fig:PlotDIDRevShutDown) shows that DID almost estimates the effect of the treatment on the *switchers* in the second period.
+This makes sense, since the change in outcomes for the *switchers* in the presence of the treatment (`r round(mean(y1A[Ds==0])-mean(y1B[Ds==0]),2)`) is well approximated by the observed change in outcomes for the *always treated* (`r round(BA.AT,2)`).
+According to Lemma \@ref(lem:BiasDID), this is because the change in treatment effect over time for the *always treated* ($\hat\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}=$ `r round(TTAAT,2)` $-$  `r round(TTBAT,2)` $=$ `r round(TTAAT - TTBAT,2)`) is close to the change in treatment effect over time for the *switchers* ($\hat\Delta^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=$ `r round(TTASwitchers,2)` $-$ `r round(TTBSwitchers,2)` $=$ `r round(TTASwitchers - TTBSwitchers,2)`).
+Note that the DID estimator is still biased for the effect of the treatment on the *switchers* in the first period, because the treatment effect on the *always takers* changes over time (Lemma \@ref(lem:BiasDID)).
+
+```{remark}
+Note that in this model, DID does not identify $\Delta^{Y_A}_{TUT}$.
+The reasons why are left as an exercise.
+```
+
+```{remark}
+We can relax Assumption \@ref(hyp:NoEffectsAfterExit) by redefining the potential outcomes observed after the *switchers* exit from the treatment as the potential outcomes observed when the treatment stops after having been experienced.
+One way to parameterize this potential outcome is to make it a function of the time elapsed since exiting the treatment: $Y^0_{i,t}(\tau)$, where $\tau$ denotes the number of periods after exiting the treatment. 
+For the *switchers*, in period $A$, $\tau=1$, for example.
+One can then show that the DID estimator identifies the effect of the treatment relative to exiting the treatment: $\Delta^Y_{DID}=\esp{Y^1_{i,A}-Y^0_{i,A}(1)|D_i=0}$ under Assumptions \@ref(hyp:AllTreatmentFirst) and \@ref(hyp:ParallelTrendsy1).
+The proof is left as an exercise.
+```
 
 ### Staggered Difference In Differences
 

@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-01-31}
+\date{2022-02-01}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -8261,8 +8261,8 @@ We are going to look at two such designs.
 In the first type, some units are exposed to the treatment in the first period and the rest of the units enter the treatment in the second period.
 In the second type of reverse DID design, all units receive the treatment in the first period and some units exit the treatment in the second period.
 
-\hypertarget{reverse-did-designs-when-everyone-enters-the-treatment-at-the-second-period}{%
-\subsubsection{Reverse DID designs when everyone enters the treatment at the second period}\label{reverse-did-designs-when-everyone-enters-the-treatment-at-the-second-period}}
+\hypertarget{reverse-did-designs-where-everyone-enters-the-treatment-at-the-second-period}{%
+\subsubsection{Reverse DID designs where everyone enters the treatment at the second period}\label{reverse-did-designs-where-everyone-enters-the-treatment-at-the-second-period}}
 
 Compared to the setting in the previous section, the main change is to Assumption \ref{hyp:NoTreatmentFirst}:
 
@@ -8751,13 +8751,13 @@ The reasons why are left as an exercise.
 
 \begin{example}
 \protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let us finally explore the last condition in Lemma \ref{lem:BiasDIDr} that makes \(DID^r\) unbiased for \(\Delta^{Y_A}_{TUT}\), the effect of the treatment on \emph{switchers} in the second period.
-We are going to switch off the change in treatment effects that occurs over time in both groups: we are going to set \(\bar{\alpha}_{A}=\bar{\alpha}_{B}=0\).
+We are going to switch off the change in treatment effects that occurs over time in both groups: we are going to set \(\bar{\alpha}_{A}=\bar{\alpha}_{B}=0.1\).
 \end{example}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{param[}\StringTok{"baralphaA"}\NormalTok{] }\OtherTok{\textless{}{-}} \DecValTok{0}
-\NormalTok{param[}\StringTok{"baralphaB"}\NormalTok{] }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{param[}\StringTok{"baralphaA"}\NormalTok{] }\OtherTok{\textless{}{-}} \FloatTok{0.1}
+\NormalTok{param[}\StringTok{"baralphaB"}\NormalTok{] }\OtherTok{\textless{}{-}} \FloatTok{0.1}
 \end{Highlighting}
 \end{Shaded}
 
@@ -8843,22 +8843,22 @@ Let's see how DID works on this data.
 \end{figure}
 
 Figure \ref{fig:PlotDIDRev2ndbaralphaAB0} shows that the \(DID^r\) estimator is almost OK in our setting.
-The \(DID^r\) estimator is equal to 0.09 while the treatment effect on the \emph{switchers} is equal to \(\hat\Delta^{Y_A}_{TUT}=\) 0.1 in the second period and \(\hat\Delta^{Y_B}_{TUT}=\) 0.07 in the first period.
+The \(DID^r\) estimator is equal to 0.19 while the treatment effect on the \emph{switchers} is equal to \(\hat\Delta^{Y_A}_{TUT}=\) 0.2 in the second period and \(\hat\Delta^{Y_B}_{TUT}=\) 0.17 in the first period.
 There still is a difference between the estimator and the treatment effect of interest, but the difference is small enough that it might be attributed to sampling noise.
 Remember that the condition for \(DID^r\) to identify \(\Delta^{Y_A}_{TUT}\) is Assumption \ref{hyp:ParallelTrendsy1y0} that the trends in potential outcomes in the absence of the treatment among \emph{switchers} is the same as the trend in potential outcomes in the presence of the treatment among \emph{always takers}.
 This is almost what we see, since the change in potential outcomes absent the treatment among switchers is equal to 0.03 while the change in potential outcomes under the treatment regime among \emph{always takers} is equal to 0.04.
 The fact that these two quantities differ slightly is what biases the \(DID^r\) estimator in the sample that we have generated.
 Note finally that Assumption \ref{hyp:ParallelTrendsy1y0} together with Assumption \ref{hyp:ParallelTrends} implies that the effect of the treatment is constant over time among \emph{always takers}, as Lemma \ref{lem:ParallelTrendsCstTreatmentEffects} shows.
 This is also the condition for the \(DID^r\) estimator to identify \(\Delta^{Y_A}_{TUT}\) under Assumption \ref{hyp:ParallelTrends}, as Lemma \ref{lem:ParallelTrendsCstTreatmentEffects} shows.
-Here, the effect of the treatment among always takers is equal to 0.07 in the first period and to 0.04 in the second period.
+Here, the effect of the treatment among always takers is equal to 0.17 in the first period and to 0.14 in the second period.
 
 \begin{remark}
 \iffalse{} {Remark. } \fi{}Actually, the conditions for \(DID^r\) to indentify any treatment effect are not fulfilled in our model.
 That reasons why are left as an exercise.
 \end{remark}
 
-\hypertarget{reverse-did-designs-where-everyone-is-in-the-treatment-at-the-first-period}{%
-\subsubsection{Reverse DID designs where everyone is in the treatment at the first period}\label{reverse-did-designs-where-everyone-is-in-the-treatment-at-the-first-period}}
+\hypertarget{did-designs-where-everyone-is-in-the-treatment-at-the-first-period}{%
+\subsubsection{DID designs where everyone is in the treatment at the first period}\label{did-designs-where-everyone-is-in-the-treatment-at-the-first-period}}
 
 Compared to the setting in the previous section, the main change is to Assumption \ref{hyp:NoTreatmentFirst}:
 
@@ -8867,28 +8867,123 @@ Compared to the setting in the previous section, the main change is to Assumptio
 \end{hypothesis}
 
 Under Assumption \ref{hyp:AllTreatmentFirst}, and without loss of generality, we can still write \(D_i=D_{i,A}\).
-A consequence of Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:NoAnticipationEffects} is that we can write observed outcomes as a function of treatment and potential outcomes using the usual switching equation (\ref{eqn:switchDID}).
+In order for the \(DID\) estimator to identify a fully-fledged treatment effect, we are going to need a pretty stark assumption:
+
+\begin{hypothesis}[No Effect After Exiting the Treatment]
+\protect\hypertarget{hyp:NoEffectsAfterExit}{}{\label{hyp:NoEffectsAfterExit} \iffalse (No Effect After Exiting the Treatment) \fi{} }We assume that, after exiting the treatment, agents experience the same outcomes as if they had never entered the treatment: \(Y_{i,A}=Y^0_{i,A}\), \(\forall i\) such that \(D_{i,A}=0\).
+\end{hypothesis}
+
+A consequence of Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:NoEffectsAfterExit} is that we can write observed outcomes as a function of treatment and potential outcomes using the usual switching equation.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Note that Assumption \ref{hyp:NoEffectsAfterExit} is extremely restrictive: units return immediately to their outcomes in the absence of the treatment right after exiting the treatment state.
+We are going to relax that assumption later.
+\end{remark}
+
+The following theorem shows that \(DID\) identifies a fully-fledged treatment effect under (arguably strong) assumptions:
+
+\begin{theorem}[DID identifies TUT in the second period]
+\protect\hypertarget{thm:DIDExit}{}{\label{thm:DIDExit} \iffalse (DID identifies TUT in the second period) \fi{} }Under Assumptions \ref{hyp:AllTreatmentFirst}, \ref{hyp:NoEffectsAfterExit} and \ref{hyp:ParallelTrendsy1}, the \(DID\) estimator identifies the effect of the treatment on the \emph{switchers} in the second period:
+
+\begin{align*}
+    \Delta_{DID}^{Y} & =  \Delta^{Y_A}_{TUT},
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}|D_i=1}-\esp{Y_{i,B}|D_i=1}-(\esp{Y_{i,A}|D_i=0}-\esp{Y_{i,B}|D_i=0}) \\
+                & = \esp{Y^1_{i,A}|D_i=1}-\esp{Y^1_{i,B}|D_i=1}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^1_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^1_{i,A}-Y^0_{i,A}|D_i=0}
+\end{align*}
+
+where the second equality follows from Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:NoEffectsAfterExit} and the switching equation, and the third equality follows from Assumption \ref{hyp:ParallelTrendsy1}.
+\end{proof}
+
+Invoking another (even stronger) assumption, DID identifies the effect of the treatment on \emph{switchers} in the first period:
+
+\begin{theorem}[DID identifies TUT in the first period]
+\protect\hypertarget{thm:DIDExitFirst}{}{\label{thm:DIDExitFirst} \iffalse (DID identifies TUT in the first period) \fi{} }Under Assumptions \ref{hyp:AllTreatmentFirst}, \ref{hyp:NoEffectsAfterExit} and \ref{hyp:ParallelTrendsy1y0}, the \(DID\) estimator identifies the effect of the treatment on the \emph{switchers} in the first period:
+
+\begin{align*}
+    \Delta_{DID}^{Y} & =  \Delta^{Y_B}_{TUT},
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}|D_i=1}-\esp{Y_{i,B}|D_i=1}-(\esp{Y_{i,A}|D_i=0}-\esp{Y_{i,B}|D_i=0}) \\
+                & = \esp{Y^1_{i,A}|D_i=1}-\esp{Y^1_{i,B}|D_i=1}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^0_{i,A}|D_i=0}-\esp{Y^0_{i,B}|D_i=0}-(\esp{Y^0_{i,A}|D_i=0}-\esp{Y^1_{i,B}|D_i=0})\\
+                & = \esp{Y^1_{i,B}-Y^0_{i,B}|D_i=0}
+\end{align*}
+
+where the second equality follows from Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:NoEffectsAfterExit} and the switching equation, and the third equality follows from Assumption \ref{hyp:ParallelTrendsy1y0}.
+\end{proof}
+
+We can also study the bias of the DID estimator under the classical parallel trends assumption (Assumption \ref{hyp:ParallelTrends}):
+
+\begin{lemma}[Bias of the DID estimator]
+\protect\hypertarget{lem:BiasDID}{}{\label{lem:BiasDID} \iffalse (Bias of the DID estimator) \fi{} }Under Assumptions \ref{hyp:AllTreatmentFirst}, \ref{hyp:NoEffectsAfterExit} and \ref{hyp:ParallelTrends}, the \(DID\) estimator is biased for the average effect of the Treatment on the switchers before and after the treatment:
+
+\begin{align*}
+    \Delta_{DID}^{Y} & =  \Delta^{Y_B}_{TUT}+B^{Y_B}_{DID} \\
+    \Delta_{DID}^{Y} & =  \Delta^{Y_A}_{TUT}+B^{Y_A}_{DID} 
+\end{align*}
+\end{lemma}
+
+with:
+
+\begin{align*}
+    B^{Y_B}_{DID} & = \Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}\\
+    B^{Y_A}_{DID} & = \Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}-(\Delta^{Y_A}_{TUT}-\Delta^{Y_B}_{TUT}). 
+\end{align*}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}-Y_{i,B}|D_i=1}-\esp{Y_{i,A}-Y_{i,B}|D_i=0} \\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=1}+\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0} \\
+                & = \esp{Y^1_{i,B}-Y^0_{i,B}|D_i=0}+ \esp{Y^1_{i,A}-Y^1_{i,B}-(Y^0_{i,A}-Y^0_{i,B})|D_i=1}
+                & = \Delta^{Y_B}_{TUT}+\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT},
+\end{align*}
+
+where the second equality follows from Assumptions \ref{hyp:AllTreatmentFirst}, \ref{hyp:NoEffectsAfterExit} and the switching equation, and the third equality follows from Assumption \ref{hyp:ParallelTrends}.
+
+\begin{align*}
+  \Delta^Y_{DID} & = \esp{Y_{i,A}-Y_{i,B}|D_i=1}-\esp{Y_{i,A}-Y_{i,B}|D_i=0} \\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & = \esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0}+\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0}-\esp{Y^0_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & = \esp{Y^1_{i,A}-Y^0_{i,A}|D_i=0}+\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0} \\
+                & = \Delta^{Y_A}_{TUT}+\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=1}-\esp{Y^1_{i,A}-Y^1_{i,B}|D_i=0}\\
+                & \phantom{=} -\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=1}+\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0} \\
+                & = \Delta^{Y_A}_{TUT}+\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}-(\Delta^{Y_A}_{TUT}-\Delta^{Y_B}_{TUT}),
+\end{align*}
+
+where the second equality follows from Assumptions \ref{hyp:AllTreatmentFirst}, \ref{hyp:NoEffectsAfterExit} and the switching equation, and the fifth equality follows from Assumption \ref{hyp:ParallelTrends}.
+\end{proof}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-197}{}{\label{exm:unnamed-chunk-197} }Let us generate data in our example model that complies with Assumption \ref{hyp:AllTreatmentFirst}.
+\protect\hypertarget{exm:unnamed-chunk-201}{}{\label{exm:unnamed-chunk-201} }Let us generate data in our example model that complies with Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:NoEffectsAfterExit}.
 \end{example}
 
 \begin{align*}
-y_{i,A}^1 & = y_{i,A}^0+\bar{\alpha}_A+\theta_A\mu_i+\eta_{i,A} \\
+y_{i,A}^1 & = y_{i,A}^0+\bar{\alpha}_A+\bar{\alpha}_{AT}D_{i,A}+\theta_A\mu_i+\eta_{i,A} \\
 y_{i,A}^0 & = \mu_i+\delta+U_{i,A}^0 \\
 U_{i,A}^0 & = \rho U_{i,B}+\epsilon_{i,A} \\
 y^1_{i,B} & =y^0_{i,B} + \bar{\alpha}_B+\theta_B\mu_i+\eta_{i,B} \\
 y^0_{i,B} & =\mu_i+U_{i,B} \\
 U_{i,B} & \sim\mathcal{N}(0,\sigma^2_{U}) \\
-D_{i,A}   & = \uns{y^0_{i,A}-\delta+ V_i\leq\bar{y}} \\
+D_{i,A}   & = \uns{y^0_{i,B}+ V_i\leq\bar{y}} \\
 V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_{i,A},\eta_{i,B},\omega_i) & \sim\mathcal{N}(0,0,0,\sigma^2_{\eta},\sigma^2_{\eta},\sigma^2_{\omega},0,\rho_{\eta,\omega})
 \end{align*}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{param }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.28}\NormalTok{,}\DecValTok{0}\NormalTok{)}
-\FunctionTok{names}\NormalTok{(param) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"thetaA"}\NormalTok{,}\StringTok{"thetaB"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralphaA"}\NormalTok{,}\StringTok{"baralphaB"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"sigma2omega"}\NormalTok{,}\StringTok{"rhoetaomega"}\NormalTok{)}
+\NormalTok{param }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.2}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.3}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.28}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\FunctionTok{names}\NormalTok{(param) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}\StringTok{"thetaA"}\NormalTok{,}\StringTok{"thetaB"}\NormalTok{,}\StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}\StringTok{"delta"}\NormalTok{,}\StringTok{"baralphaA"}\NormalTok{,}\StringTok{"baralphaB"}\NormalTok{,}\StringTok{"baralphaAT"}\NormalTok{,}\StringTok{"gamma"}\NormalTok{,}\StringTok{"sigma2omega"}\NormalTok{,}\StringTok{"rhoetaomega"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -8905,19 +9000,19 @@ V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 \NormalTok{UB }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
 \NormalTok{y0B }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{ UB }
 \NormalTok{Y0B }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0B)}
+\NormalTok{Ds }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{V }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"gamma"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(mu}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{eta.omega}\SpecialCharTok{$}\NormalTok{omega}
+\NormalTok{Ds[y0B}\SpecialCharTok{+}\NormalTok{V}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] }\OtherTok{\textless{}{-}} \DecValTok{1} 
 \NormalTok{alphaB }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralphaB"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"thetaB"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta.omega}\SpecialCharTok{$}\NormalTok{etaB}
 \NormalTok{y1B }\OtherTok{\textless{}{-}}\NormalTok{ y0B}\SpecialCharTok{+}\NormalTok{alphaB}
 \NormalTok{Y1B }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1B)}
 \NormalTok{epsilonA }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
 \NormalTok{U0A }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{UB }\SpecialCharTok{+}\NormalTok{ epsilonA}
 \NormalTok{y0A }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{  U0A }\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"delta"}\NormalTok{]}
-\NormalTok{alphaA }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralphaA"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"thetaA"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta.omega}\SpecialCharTok{$}\NormalTok{etaA}
+\NormalTok{alphaA }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralphaA"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"baralphaAT"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"thetaA"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta.omega}\SpecialCharTok{$}\NormalTok{etaA}
 \NormalTok{y1A }\OtherTok{\textless{}{-}}\NormalTok{ y0A}\SpecialCharTok{+}\NormalTok{alphaA}
 \NormalTok{Y0A }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0A)}
 \NormalTok{Y1A }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1A)}
-\NormalTok{Ds }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
-\NormalTok{V }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"gamma"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(mu}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{eta.omega}\SpecialCharTok{$}\NormalTok{omega}
-\NormalTok{Ds[y0A}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"delta"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{V}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] }\OtherTok{\textless{}{-}} \DecValTok{1} 
 \NormalTok{yA }\OtherTok{\textless{}{-}}\NormalTok{ y1A}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{y0A}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
 \NormalTok{YA }\OtherTok{\textless{}{-}}\NormalTok{ Y1A}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{Y0A}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
 \NormalTok{yB }\OtherTok{\textless{}{-}}\NormalTok{ y1B}
@@ -8931,23 +9026,28 @@ Let's see how DID works on this data.
 \begin{Highlighting}[]
 \NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Before"}\NormalTok{,}\StringTok{"After"}\NormalTok{)}
 \NormalTok{y.AT }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]))}
+\NormalTok{y.AT.counterfactual }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(y0B[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(y0A[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]))}
 \NormalTok{y.Switchers }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
-\NormalTok{y.Switchers.counterfactual }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(y1B[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(y1A[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{y.Switchers.counterfactual }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(y0B[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(y0A[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{y.Switchers.counterfactual}\FloatTok{.1} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(y1B[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(y1A[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
 \NormalTok{y.Switchers.DID }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{+}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]))}
-\NormalTok{data.DID.plot }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{c}\NormalTok{(y.AT,y.Switchers,y.Switchers.counterfactual,y.Switchers.DID))}
+\NormalTok{y.Switchers.DID}\FloatTok{.1} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])),}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{data.DID.plot }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{c}\NormalTok{(y.AT,y.AT.counterfactual,y.Switchers,y.Switchers.counterfactual,y.Switchers.counterfactual}\FloatTok{.1}\NormalTok{,y.Switchers.DID,y.Switchers.DID}\FloatTok{.1}\NormalTok{))}
 \FunctionTok{colnames}\NormalTok{(data.DID.plot) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Outcome"}\NormalTok{) }
-\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Period }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(x,}\DecValTok{4}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Before"}\NormalTok{,}\StringTok{"After"}\NormalTok{))}
-\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Group }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers counterfactual"}\NormalTok{,}\StringTok{"Switchers counterfactual"}\NormalTok{,}\StringTok{"Switchers DID"}\NormalTok{,}\StringTok{"Switchers DID"}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Switchers counterfactual"}\NormalTok{,}\StringTok{"Switchers DID"}\NormalTok{,}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Always Treated"}\NormalTok{))}
-\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Observed }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{))}
+\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Period }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(x,}\DecValTok{7}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Before"}\NormalTok{,}\StringTok{"After"}\NormalTok{))}
+\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Group }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Always Treated counterfactual y0"}\NormalTok{,}\StringTok{"Always Treated counterfactual y0"}\NormalTok{,}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers counterfactual y0"}\NormalTok{,}\StringTok{"Switchers counterfactual y0"}\NormalTok{,}\StringTok{"Switchers counterfactual y1"}\NormalTok{,}\StringTok{"Switchers counterfactual y1"}\NormalTok{,}\StringTok{"Switchers DIDr"}\NormalTok{,}\StringTok{"Switchers DIDr"}\NormalTok{,}\StringTok{"Switchers DIDr1"}\NormalTok{,}\StringTok{"Switchers DIDr1"}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers counterfactual y1"}\NormalTok{,}\StringTok{"Switchers counterfactual y0"}\NormalTok{,}\StringTok{"Switchers DIDr"}\NormalTok{,}\StringTok{"Switchers DIDr1"}\NormalTok{,}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Always Treated counterfactual y0"}\NormalTok{))}
+\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Observed }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{))}
 
 \NormalTok{WW.before }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
 \NormalTok{WW.after }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
 \NormalTok{BA.AT }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}
 \NormalTok{BA.Switchers }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
 \NormalTok{Counterfactual.after }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{+}\NormalTok{BA.AT}
-\NormalTok{DID }\OtherTok{\textless{}{-}}\NormalTok{ WW.after }\SpecialCharTok{{-}}\NormalTok{ WW.before }
-\NormalTok{TTA }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
-\NormalTok{TTB }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{DID }\OtherTok{\textless{}{-}}\NormalTok{ BA.AT  }\SpecialCharTok{{-}}\NormalTok{ BA.Switchers}
+\NormalTok{TTASwitchers }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{TTBSwitchers }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{TTAAT }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{TTBAT }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}
 
 \FunctionTok{ggplot}\NormalTok{(data.DID.plot,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{Period,}\AttributeTok{y=}\NormalTok{Outcome,}\AttributeTok{group=}\NormalTok{Group,}\AttributeTok{color=}\NormalTok{Group,}\AttributeTok{shape=}\NormalTok{Group,}\AttributeTok{linetype=}\NormalTok{Observed))}\SpecialCharTok{+}
     \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
@@ -8957,14 +9057,152 @@ Let's see how DID works on this data.
 \end{Highlighting}
 \end{Shaded}
 
+\begin{verbatim}
+## Warning: The shape palette can deal with a maximum of 6 discrete values because
+## more than 6 becomes difficult to discriminate; you have 7. Consider
+## specifying shapes manually if you must have them.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 2 rows containing missing values (geom_point).
+\end{verbatim}
+
 \begin{figure}[htbp]
 
 {\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDRev-1} 
 
 }
 
-\caption{Evolution of average outcomes in the always treated and switchers group in the reverse DID design}\label{fig:PlotDIDRev}
+\caption{Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period}\label{fig:PlotDIDRev}
 \end{figure}
+
+In Figure \ref{fig:PlotDIDRev}, the effect of the treatment on the \emph{switchers} is equal to \(\hat\Delta^{y_A}_{TUT}=\) 0.3 in the second period and to \(\hat\Delta^{y_B}_{TUT}=\) 0.17 in the first period.
+The \(DID\) estimator is equal to \(\hat\Delta^{y}_{DID}=\) 0.19 which is of the correct sign but much too big for both treatment effects.
+The problem is that the change in the outcomes of the \emph{always treated} (0.44) overestimates the change in outcomes the \emph{switchers} would have experienced had they stayed in the treatment (0.16).
+As a consequence, Assumption \ref{hyp:ParallelTrendsy1} is not vald and the DID estimator is biased.
+Following Lemma \ref{lem:BiasDID}, the bias of the DID estimator for the effect on the \emph{switchers} in the second period is equal to the difference in the change of treatment effect over time between \emph{always treated} (\(\hat\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}=\) 0.54 \(-\) 0.17 \(=\) 0.37) and \emph{switchers} (\(\hat\Delta^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=\) 0.3 \(-\) 0.17 \(=\) 0.12).
+The bias of the DID estimator for the effect of the treatment on the \emph{switchers} in the first period is even larger (\(\hat B^{y_B}_{DID}=\) 0.41).
+Following Lemma \ref{lem:BiasDID}, it is equal to the change in treatment effect over time among the \emph{switchers} (\(\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\) 0.54 \(-\) 0.17 \(=\) 0.37).
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-202}{}{\label{exm:unnamed-chunk-202} }What happens if we enforce the fact that treatment effects vary in the same way among \emph{always takers} and \emph{switchers}.
+Let's find out.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param[}\StringTok{"baralphaAT"}\NormalTok{] }\OtherTok{\textless{}{-}} \DecValTok{0}
+\end{Highlighting}
+\end{Shaded}
+
+Let's simulate the new data:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{cov.eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{],}\DecValTok{0}\NormalTok{,param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),}
+                          \DecValTok{0}\NormalTok{,param[}\StringTok{"sigma2eta"}\NormalTok{],param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),}
+\NormalTok{                          param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"sigma2omega"}\NormalTok{]),}\AttributeTok{ncol=}\DecValTok{3}\NormalTok{,}\AttributeTok{nrow=}\DecValTok{3}\NormalTok{,}\AttributeTok{byrow=}\NormalTok{T)}
+\NormalTok{eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{mvrnorm}\NormalTok{(N,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{),cov.eta.omega))}
+\FunctionTok{colnames}\NormalTok{(eta.omega) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}etaA\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}etaB\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}omega\textquotesingle{}}\NormalTok{)}
+\NormalTok{mu }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{UB }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{y0B }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{ UB }
+\NormalTok{Y0B }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0B)}
+\NormalTok{Ds }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{V }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"gamma"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(mu}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{eta.omega}\SpecialCharTok{$}\NormalTok{omega}
+\NormalTok{Ds[y0B}\SpecialCharTok{+}\NormalTok{V}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{])] }\OtherTok{\textless{}{-}} \DecValTok{1} 
+\NormalTok{alphaB }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralphaB"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"thetaB"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta.omega}\SpecialCharTok{$}\NormalTok{etaB}
+\NormalTok{y1B }\OtherTok{\textless{}{-}}\NormalTok{ y0B}\SpecialCharTok{+}\NormalTok{alphaB}
+\NormalTok{Y1B }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1B)}
+\NormalTok{epsilonA }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{U0A }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{UB }\SpecialCharTok{+}\NormalTok{ epsilonA}
+\NormalTok{y0A }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{  U0A }\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{alphaA }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralphaA"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"baralphaAT"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"thetaA"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta.omega}\SpecialCharTok{$}\NormalTok{etaA}
+\NormalTok{y1A }\OtherTok{\textless{}{-}}\NormalTok{ y0A}\SpecialCharTok{+}\NormalTok{alphaA}
+\NormalTok{Y0A }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0A)}
+\NormalTok{Y1A }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1A)}
+\NormalTok{yA }\OtherTok{\textless{}{-}}\NormalTok{ y1A}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{y0A}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+\NormalTok{YA }\OtherTok{\textless{}{-}}\NormalTok{ Y1A}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{Y0A}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+\NormalTok{yB }\OtherTok{\textless{}{-}}\NormalTok{ y1B}
+\NormalTok{YB }\OtherTok{\textless{}{-}}\NormalTok{ Y1B}
+\end{Highlighting}
+\end{Shaded}
+
+Let's see how DID works on this data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Before"}\NormalTok{,}\StringTok{"After"}\NormalTok{)}
+\NormalTok{y.AT }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]))}
+\NormalTok{y.AT.counterfactual }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(y0B[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(y0A[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]))}
+\NormalTok{y.Switchers }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{y.Switchers.counterfactual }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(y0B[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(y0A[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{y.Switchers.counterfactual}\FloatTok{.1} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(y1B[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(y1A[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{y.Switchers.DID }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]),}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{+}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{]))}
+\NormalTok{y.Switchers.DID}\FloatTok{.1} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])),}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{data.DID.plot }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{c}\NormalTok{(y.AT,y.AT.counterfactual,y.Switchers,y.Switchers.counterfactual,y.Switchers.counterfactual}\FloatTok{.1}\NormalTok{,y.Switchers.DID,y.Switchers.DID}\FloatTok{.1}\NormalTok{))}
+\FunctionTok{colnames}\NormalTok{(data.DID.plot) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Outcome"}\NormalTok{) }
+\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Period }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(x,}\DecValTok{7}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Before"}\NormalTok{,}\StringTok{"After"}\NormalTok{))}
+\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Group }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Always Treated counterfactual y0"}\NormalTok{,}\StringTok{"Always Treated counterfactual y0"}\NormalTok{,}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers counterfactual y0"}\NormalTok{,}\StringTok{"Switchers counterfactual y0"}\NormalTok{,}\StringTok{"Switchers counterfactual y1"}\NormalTok{,}\StringTok{"Switchers counterfactual y1"}\NormalTok{,}\StringTok{"Switchers DIDr"}\NormalTok{,}\StringTok{"Switchers DIDr"}\NormalTok{,}\StringTok{"Switchers DIDr1"}\NormalTok{,}\StringTok{"Switchers DIDr1"}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Switchers"}\NormalTok{,}\StringTok{"Switchers counterfactual y1"}\NormalTok{,}\StringTok{"Switchers counterfactual y0"}\NormalTok{,}\StringTok{"Switchers DIDr"}\NormalTok{,}\StringTok{"Switchers DIDr1"}\NormalTok{,}\StringTok{"Always Treated"}\NormalTok{,}\StringTok{"Always Treated counterfactual y0"}\NormalTok{))}
+\NormalTok{data.DID.plot}\SpecialCharTok{$}\NormalTok{Observed }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Observed"}\NormalTok{,}\StringTok{"Unobserved"}\NormalTok{,}\StringTok{"Generated"}\NormalTok{))}
+
+\NormalTok{WW.before }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{WW.after }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+\NormalTok{BA.AT }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{BA.Switchers }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(yA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{Counterfactual.after }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{+}\NormalTok{BA.AT}
+\NormalTok{DID }\OtherTok{\textless{}{-}}\NormalTok{ BA.AT  }\SpecialCharTok{{-}}\NormalTok{ BA.Switchers}
+\NormalTok{TTASwitchers }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaA[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{TTBSwitchers }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}
+\NormalTok{TTAAT }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaA[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}
+\NormalTok{TTBAT }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(alphaB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}
+
+\FunctionTok{ggplot}\NormalTok{(data.DID.plot,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{Period,}\AttributeTok{y=}\NormalTok{Outcome,}\AttributeTok{group=}\NormalTok{Group,}\AttributeTok{color=}\NormalTok{Group,}\AttributeTok{shape=}\NormalTok{Group,}\AttributeTok{linetype=}\NormalTok{Observed))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{guide=}\StringTok{\textquotesingle{}none\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: The shape palette can deal with a maximum of 6 discrete values because
+## more than 6 becomes difficult to discriminate; you have 7. Consider
+## specifying shapes manually if you must have them.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 2 rows containing missing values (geom_point).
+\end{verbatim}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDRevShutDown-1} 
+
+}
+
+\caption{Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period and treatment effects that vary in the same way among switchers and always takers}\label{fig:PlotDIDRevShutDown}
+\end{figure}
+
+As expected from Theorem \ref{thm:DIDExit}, Figure \ref{fig:PlotDIDRevShutDown} shows that DID almost estimates the effect of the treatment on the \emph{switchers} in the second period.
+This makes sense, since the change in outcomes for the \emph{switchers} in the presence of the treatment (0.16) is well approximated by the observed change in outcomes for the \emph{always treated} (0.14).
+According to Lemma \ref{lem:BiasDID}, this is because the change in treatment effect over time for the \emph{always treated} (\(\hat\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}=\) 0.24 \(-\) 0.17 \(=\) 0.07) is close to the change in treatment effect over time for the \emph{switchers} (\(\hat\Delta^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=\) 0.3 \(-\) 0.17 \(=\) 0.12).
+Note that the DID estimator is still biased for the effect of the treatment on the \emph{switchers} in the first period, because the treatment effect on the \emph{always takers} changes over time (Lemma \ref{lem:BiasDID}).
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Note that in this model, DID does not identify \(\Delta^{Y_A}_{TUT}\).
+The reasons why are left as an exercise.
+\end{remark}
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}We can relax Assumption \ref{hyp:NoEffectsAfterExit} by redefining the potential outcomes observed after the \emph{switchers} exit from the treatment as the potential outcomes observed when the treatment stops after having been experienced.
+One way to parameterize this potential outcome is to make it a function of the time elapsed since exiting the treatment: \(Y^0_{i,t}(\tau)\), where \(\tau\) denotes the number of periods after exiting the treatment.
+For the \emph{switchers}, in period \(A\), \(\tau=1\), for example.
+One can then show that the DID estimator identifies the effect of the treatment relative to exiting the treatment: \(\Delta^Y_{DID}=\esp{Y^1_{i,A}-Y^0_{i,A}(1)|D_i=0}\) under Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:ParallelTrendsy1}.
+The proof is left as an exercise.
+\end{remark}
 
 \hypertarget{staggered-difference-in-differences}{%
 \subsection{Staggered Difference In Differences}\label{staggered-difference-in-differences}}
@@ -9190,7 +9428,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-200}{}{\label{exm:unnamed-chunk-200} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-207}{}{\label{exm:unnamed-chunk-207} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -9451,7 +9689,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-206}{}{\label{exm:unnamed-chunk-206} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-213}{}{\label{exm:unnamed-chunk-213} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -9595,7 +9833,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-208}{}{\label{exm:unnamed-chunk-208} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-215}{}{\label{exm:unnamed-chunk-215} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -9718,7 +9956,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-209}{}{\label{exm:unnamed-chunk-209} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -9780,7 +10018,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -9821,7 +10059,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-213}{}{\label{exm:unnamed-chunk-213} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is NA.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -9856,7 +10094,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-215}{}{\label{exm:unnamed-chunk-215} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -9971,7 +10209,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -10162,7 +10400,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -10259,7 +10497,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-218}{}{\label{exm:unnamed-chunk-218} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-225}{}{\label{exm:unnamed-chunk-225} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10379,7 +10617,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-227}{}{\label{exm:unnamed-chunk-227} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -10458,7 +10696,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-221}{}{\label{exm:unnamed-chunk-221} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -10601,7 +10839,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-229}{}{\label{exm:unnamed-chunk-229} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10705,7 +10943,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -11043,7 +11281,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11202,7 +11440,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-225}{}{\label{exm:unnamed-chunk-225} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -11492,7 +11730,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-239}{}{\label{exm:unnamed-chunk-239} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -11745,7 +11983,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-239}{}{\label{exm:unnamed-chunk-239} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-246}{}{\label{exm:unnamed-chunk-246} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
