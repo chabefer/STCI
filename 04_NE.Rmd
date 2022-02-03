@@ -2243,7 +2243,7 @@ param["baralphaB"] <- 0.1
 
 Let's now simulate a dataset according to these new equations.
 
-```{r SimulDIDRev2ndbaralphaAB0,eval=TRUE,echo=TRUE,results='hide'}
+```{r SimulDIDRev2ndbaralphaAB0,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,results='hide'}
 set.seed(1234)
 N <- 1000
 cov.eta.omega <- matrix(c(param["sigma2eta"],0,param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),
@@ -2449,12 +2449,12 @@ V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_{i,A},\eta_{i,B},\omega_i) & \sim\mathcal{N}(0,0,0,\sigma^2_{\eta},\sigma^2_{\eta},\sigma^2_{\omega},0,\rho_{\eta,\omega})
 \end{align*}
 
-```{r param.DID.reverse,eval=TRUE,echo=TRUE,results='hide'}
+```{r param.DID.reverse,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,results='hide'}
 param <- c(8,.5,.28,1500,0.9,0.01,0.01,0.05,0.05,0.05,0.2,0.1,0.3,0.1,0.28,0)
 names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","thetaA","thetaB","sigma2epsilon","sigma2eta","delta","baralphaA","baralphaB","baralphaAT","gamma","sigma2omega","rhoetaomega")
 ```
 
-```{r SimulDIDRev,eval=TRUE,echo=TRUE,results='hide'}
+```{r SimulDIDRev,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,results='hide'}
 set.seed(1234)
 N <- 1000
 cov.eta.omega <- matrix(c(param["sigma2eta"],0,param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),
@@ -2487,7 +2487,7 @@ YB <- Y1B
 
 Let's see how DID works on this data.
 
-```{r PlotDIDRev,eval=TRUE,fig.cap='Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period',fig.align='center',out.width='50%',echo=TRUE,results='hide',fig.pos='htbp'}
+```{r PlotDIDRev,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap='Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period',fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
 x <- c("Before","After")
 y.AT <- c(mean(yB[Ds==1]),mean(yA[Ds==1]))
 y.AT.counterfactual <- c(mean(y0B[Ds==1]),mean(y0A[Ds==1]))
@@ -2521,12 +2521,12 @@ ggplot(data.DID.plot,aes(x=Period,y=Outcome,group=Group,color=Group,shape=Group,
 ```
 
 In Figure \@ref(fig:PlotDIDRev), the effect of the treatment on the *switchers* is equal to $\hat\Delta^{y_A}_{TUT}=$ `r round(TTASwitchers,2)` in the second period and to $\hat\Delta^{y_B}_{TUT}=$ `r round(TTBSwitchers,2)` in the first period.
-The $DID$ estimator is equal to $\hat\Delta^{y}_{DID}=$ `r round(DIDr,2)` which is of the correct sign but much too big for both treatment effects.
+The $DID$ estimator is equal to $\hat\Delta^{y}_{DID}=$ `r round(DID,2)` which is of the correct sign but much too big for both treatment effects.
 The problem is that the change in the outcomes of the *always treated* (`r round(BA.AT,2)`) overestimates the change in outcomes the *switchers* would have experienced had they stayed in the treatment  (`r round(mean(y1A[Ds==0])-mean(y1B[Ds==0]),2)`).
-As a consequence, Assumption \@ref(hyp:ParallelTrendsy1) is not vald and the DID estimator is biased.
+As a consequence, Assumption \@ref(hyp:ParallelTrendsy1) is not valid and the DID estimator is biased.
 Following Lemma \@ref(lem:BiasDID), the bias of the DID estimator for the effect on the *switchers* in the second period is equal to the difference in the change of treatment effect over time between *always treated* ($\hat\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}=$ `r round(TTAAT,2)` $-$ `r round(TTBAT,2)` $=$ `r round(TTAAT - TTBAT,2)`) and *switchers* ($\hat\Delta^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=$ `r round(TTASwitchers,2)` $-$ `r round(TTBSwitchers,2)` $=$ `r round(TTASwitchers - TTBSwitchers,2)`).
 The bias of the DID estimator for the effect of the treatment on the *switchers* in the first period is even larger ($\hat B^{y_B}_{DID}=$ `r round(DID-TTBSwitchers,2)`).
-Following Lemma \@ref(lem:BiasDID), it is equal to the change in treatment effect over time among the *switchers* ($\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=$ `r round(TTAAT,2)` $-$ `r round(TTBAT,2)` $=$ `r round(TTAAT - TTBAT,2)`).
+Following Lemma \@ref(lem:BiasDID), it is close to the change in treatment effect over time among the *switchers* ($\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=$ `r round(TTAAT,2)` $-$ `r round(TTBAT,2)` $=$ `r round(TTAAT - TTBAT,2)`).
 
 ```{example}
 What happens if we enforce the fact that treatment effects vary in the same way among *always takers* and *switchers*.
@@ -2539,7 +2539,7 @@ param["baralphaAT"] <- 0
 
 Let's simulate the new data:
 
-```{r SimulDIDRevShutDown,eval=TRUE,echo=TRUE,results='hide'}
+```{r SimulDIDRevShutDown,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,results='hide'}
 set.seed(1234)
 N <- 1000
 cov.eta.omega <- matrix(c(param["sigma2eta"],0,param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),
@@ -2572,7 +2572,7 @@ YB <- Y1B
 
 Let's see how DID works on this data.
 
-```{r PlotDIDRevShutDown,eval=TRUE,fig.cap='Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period and treatment effects that vary in the same way among switchers and always takers',fig.align='center',out.width='50%',echo=TRUE,results='hide',fig.pos='htbp'}
+```{r PlotDIDRevShutDown,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap='Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period and treatment effects that vary in the same way among switchers and always takers',fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
 x <- c("Before","After")
 y.AT <- c(mean(yB[Ds==1]),mean(yA[Ds==1]))
 y.AT.counterfactual <- c(mean(y0B[Ds==1]),mean(y0A[Ds==1]))
@@ -2622,36 +2622,125 @@ One can then show that the DID estimator identifies the effect of the treatment 
 The proof is left as an exercise.
 ```
 
-### Staggered Difference In Differences
+### Difference In Differences with multiple time periods
 
 In real life, we generally have access to several time periods before and after the treatment date.
 What happens to DID in that case?
-In this section, we are looking at what happens 
+Well, several things actually happen:
 
-**Build a new dataset with several time periods.**
+  1. We now have several pre-treatment observations for each unit.
+  Which one should we choose to form our DID estimator?
+  If we use all of them, should we combine them?
+  If yes, how?
+  2. We also have several post-treatment observations.
+  Which one should we choose to form our DID estimator?
+  If we use all of them, should we combine them?
+  If yes, how?
+  3. We also have some units that will be treated for several periods in a row.
+  Should we use them to form a $DID^r$ estimator?
+  If yes, should we combine them with the DID estimates?
+  If yes, how?
+  4. We also might have some units that exit the treatment after some time.
+  Should we use them to form a DID estimator?
+  Should we combine this estimate with the others?
+  If yes, how?
+  
+There is a lot of questions. 
+In order to be able to answer them, I am for the moment going to abstract from the last one.
+I am going to assume that once a unit has entered the treatment, it cannot exit it.
+DID designs such as these are called *staggered designs*.
+This is obviously a very strong assumption, but we will relax it at some point.
+Let's go now.
 
 #### Identification
 
-The first thing is that, with several periods after the treatment date, we now have a time-varying $TT_t$: $\Delta^{TT}_{Y_t}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=1}$.
-A key question is whether some or all of the estimators we have listed above continue to estimate an interesting combination of the $\Delta^{TT}_{Y_t}$ parameters and under which assumptions.
-Another key question is whether alternative estimators are needed, which ones we can build and how they behave under which types of assumptions.
-We are going to first describe the setting and the main assumptions in this more general case before stating our first result, which is going to be negative: under fairly general assumptions, the Two-Way Fixed-Effects estimator does not recover an interesting weighted average of the $TT_t$.
-We will examine the reasons for this failure and then list the possible alternatives to this estimator that have been proposed in the literature so far.
+In this section, we are going to define rigorously the setting that we have in front of us and the several treatment effects that we might want to estimate.
+This will be the most important part of the identification exercise.
+Once the definitions are in place, identification will be mostly straightforward.
 
-##### Setting
+In a DID design with multiple time periods, time flows from $t=1$ to $t=T$.
+$D_{i,t}$ takes value one when unit $i$ is treated at period $t$ and zero otherwise. 
+In a staggered design, once treated, a unit is treated forever (the treatment is said to be an absorbing state).
+As a consequence, we can characterize units by the date at which they start to be treated.
+We are going to call this variable $D_{i}$ and it takes values in the set $\left\{1,2,\dots,T,\infty\right\}$.
+Units treated at period $1$ (or even before, we cannot say for sure) are *always treated* in a staggered design.
+Then, units enter at successive periods until the last one.
+Finally, some units may never receive the treatment (*never takers*).
+By convention, we denote them with $D_{i}=\infty$.
 
+We can define a separate treatment effect for each of the treatment groups and for each time period: $\Delta^{Y_t}_{TT_d}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=d}$, for $t,d\in\left\{1,2,\dots,T\right\}$.
+We can also define a treatment on the untreated $\Delta^{Y_t}_{TUT}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=\infty}$.
 
+We can also form a very large bunch of DID estimators: 
 
-The setting 
+\begin{align*}
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'},
+\end{align*}
 
+where $\tau,\tau'>0$ and $d'>d+\tau$. 
+$\Delta^{Y}_{DID}(d,d',\tau,\tau')$ tries to estimate the effect of the treatment on units that first entered the treatment at period $t=d$ (the treated group here) using the units that received the treatment at period $d'>d$ as a benchmark.
+$\Delta^{Y}_{DID}(d,d',\tau,\tau')$ compares how outcomes have changed between $\tau$ periods after the treatment and $\tau'$ periods before the treatment.
 
+Imposing $d'>d+\tau$ ensures that $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ is a proper DID estimator.
+If $d-\tau'<d'<d+\tau$, $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ is not a proper DID estimator since $d'$ receives also receives the treatment between the two dates at which outcomes are measured.
+When $d'<d-\tau'$, $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ compares the change in outcomes in the group entering the treatment at date $d$ with the changes in outcomes occurring in a group that has already entered the treatment at a date $d'$ that is prior the starting date of the DID.
+Since this estimator is a $DID^r$ estimator, I am going to note it as such in the future.
+$\Delta^{Y}_{DID^r}(d,d',\tau,\tau')$ is well-defined only when $d'<d-\tau'$.
 
+Before stating our first identification result, let us make some assumptions that will mirror the simpler ones we made in the previous section.
+First, we are going to assume that at least some units are untreated at some period:
 
-**Event Study graph and period specific treatment effects**
+```{hypothesis,NoTreatmentTime,name="Some Units are Not Treated"}
+We assume that not all units in the population are treated in the first period: $\Pr(D_i=1)<1$.
+```
 
-**What are the weights for the TWFE estimator?**
-*Should be derived from the staggered case*
+Next, we assume that agents cannot anticipate the treatment:
 
+```{hypothesis,NoAnticipationEffectsTime,name="No Anticipation Effects over Time"}
+We assume that agents cannot anticipate that the program will happen and that they do not change their behavior as a consequence: $Y_{i,t}=Y^0_{i,t}$, $\forall i\in \left\{i:D_i=d\right\}$, $\forall t<d$.
+```
+
+As a consequence of Assumptions \@ref(hyp:NoTreatmentTime) and \@ref(hyp:NoAnticipationEffectsTime), we can write observed outcomes as a function of treatment and potential outcomes using the usual switching equation.
+
+The final very important assumption that we can make is to assume that the trends in the potential outcomes in the absence the treatment are the same for the treated and the untreated units:
+
+```{hypothesis,ParallelTrendsTime,name="Parallel Trends for All Groups"}
+We assume that the trends in the potential outcomes in the absence the treatment are the same for all the treatment groups:
+
+\begin{align*}
+    \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} & =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
+\end{align*}
+$\forall d\in\left\{1,2,\dots,T\right\}$ and $\forall t,t'\in\left\{1,2,\dots,T\right\}$
+```
+
+We are now ready to state our main identification result:
+
+```{theorem,IdentDIDTime,name="DID identifies TT at Each Point in Time"}
+Under Assumptions \@ref(hyp:NoTreatmentTime), \@ref(hyp:NoAnticipationEffectsTime) and \@ref(hyp:ParallelTrendsTime), the DID estimator identifies the average effect of the Treatment on the Treated after the treatment in each time period:
+
+\begin{align*}
+    \Delta^{Y}_{DID}(d,d',\tau,\tau') & =  \Delta^{Y_{d+\tau}}_{TT_d},
+\end{align*}
+where $\tau,\tau'>0$ and $d'>d+\tau$. 
+```
+
+```{proof}
+\begin{align*}
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}\\
+                                    & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}
+\end{align*}
+
+where the second equality follows from Assumptions \@ref(hyp:NoTreatmentTime) and \@ref(hyp:NoAnticipationEffectsTime) and the fact that $d'>d+\tau$.
+The third equality follows from Assumption \@ref(hyp:ParallelTrendsTime).
+This proves the result.
+
+```
+
+#### Estimation
+
+**Build a new dataset with several time periods.**
 
 
 ### Difference In Differences with Instrumental Variables

@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-02-01}
+\date{2022-02-03}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -9057,16 +9057,6 @@ Let's see how DID works on this data.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## Warning: The shape palette can deal with a maximum of 6 discrete values because
-## more than 6 becomes difficult to discriminate; you have 7. Consider
-## specifying shapes manually if you must have them.
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 rows containing missing values (geom_point).
-\end{verbatim}
-
 \begin{figure}[htbp]
 
 {\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDRev-1} 
@@ -9077,12 +9067,12 @@ Let's see how DID works on this data.
 \end{figure}
 
 In Figure \ref{fig:PlotDIDRev}, the effect of the treatment on the \emph{switchers} is equal to \(\hat\Delta^{y_A}_{TUT}=\) 0.3 in the second period and to \(\hat\Delta^{y_B}_{TUT}=\) 0.17 in the first period.
-The \(DID\) estimator is equal to \(\hat\Delta^{y}_{DID}=\) 0.19 which is of the correct sign but much too big for both treatment effects.
+The \(DID\) estimator is equal to \(\hat\Delta^{y}_{DID}=\) 0.58 which is of the correct sign but much too big for both treatment effects.
 The problem is that the change in the outcomes of the \emph{always treated} (0.44) overestimates the change in outcomes the \emph{switchers} would have experienced had they stayed in the treatment (0.16).
-As a consequence, Assumption \ref{hyp:ParallelTrendsy1} is not vald and the DID estimator is biased.
+As a consequence, Assumption \ref{hyp:ParallelTrendsy1} is not valid and the DID estimator is biased.
 Following Lemma \ref{lem:BiasDID}, the bias of the DID estimator for the effect on the \emph{switchers} in the second period is equal to the difference in the change of treatment effect over time between \emph{always treated} (\(\hat\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}=\) 0.54 \(-\) 0.17 \(=\) 0.37) and \emph{switchers} (\(\hat\Delta^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=\) 0.3 \(-\) 0.17 \(=\) 0.12).
 The bias of the DID estimator for the effect of the treatment on the \emph{switchers} in the first period is even larger (\(\hat B^{y_B}_{DID}=\) 0.41).
-Following Lemma \ref{lem:BiasDID}, it is equal to the change in treatment effect over time among the \emph{switchers} (\(\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\) 0.54 \(-\) 0.17 \(=\) 0.37).
+Following Lemma \ref{lem:BiasDID}, it is close to the change in treatment effect over time among the \emph{switchers} (\(\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\) 0.54 \(-\) 0.17 \(=\) 0.37).
 
 \begin{example}
 \protect\hypertarget{exm:unnamed-chunk-202}{}{\label{exm:unnamed-chunk-202} }What happens if we enforce the fact that treatment effects vary in the same way among \emph{always takers} and \emph{switchers}.
@@ -9167,16 +9157,6 @@ Let's see how DID works on this data.
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## Warning: The shape palette can deal with a maximum of 6 discrete values because
-## more than 6 becomes difficult to discriminate; you have 7. Consider
-## specifying shapes manually if you must have them.
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: Removed 2 rows containing missing values (geom_point).
-\end{verbatim}
-
 \begin{figure}[htbp]
 
 {\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDRevShutDown-1} 
@@ -9204,33 +9184,135 @@ One can then show that the DID estimator identifies the effect of the treatment 
 The proof is left as an exercise.
 \end{remark}
 
-\hypertarget{staggered-difference-in-differences}{%
-\subsection{Staggered Difference In Differences}\label{staggered-difference-in-differences}}
+\hypertarget{difference-in-differences-with-multiple-time-periods}{%
+\subsection{Difference In Differences with multiple time periods}\label{difference-in-differences-with-multiple-time-periods}}
 
 In real life, we generally have access to several time periods before and after the treatment date.
 What happens to DID in that case?
-In this section, we are looking at what happens
+Well, several things actually happen:
 
-\textbf{Build a new dataset with several time periods.}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  We now have several pre-treatment observations for each unit.
+  Which one should we choose to form our DID estimator?
+  If we use all of them, should we combine them?
+  If yes, how?
+\item
+  We also have several post-treatment observations.
+  Which one should we choose to form our DID estimator?
+  If we use all of them, should we combine them?
+  If yes, how?
+\item
+  We also have some units that will be treated for several periods in a row.
+  Should we use them to form a \(DID^r\) estimator?
+  If yes, should we combine them with the DID estimates?
+  If yes, how?
+\item
+  We also might have some units that exit the treatment after some time.
+  Should we use them to form a DID estimator?
+  Should we combine this estimate with the others?
+  If yes, how?
+\end{enumerate}
+
+There is a lot of questions.
+In order to be able to answer them, I am for the moment going to abstract from the last one.
+I am going to assume that once a unit has entered the treatment, it cannot exit it.
+DID designs such as these are called \emph{staggered designs}.
+This is obviously a very strong assumption, but we will relax it at some point.
+Let's go now.
 
 \hypertarget{identification-6}{%
 \subsubsection{Identification}\label{identification-6}}
 
-The first thing is that, with several periods after the treatment date, we now have a time-varying \(TT_t\): \(\Delta^{TT}_{Y_t}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=1}\).
-A key question is whether some or all of the estimators we have listed above continue to estimate an interesting combination of the \(\Delta^{TT}_{Y_t}\) parameters and under which assumptions.
-Another key question is whether alternative estimators are needed, which ones we can build and how they behave under which types of assumptions.
-We are going to first describe the setting and the main assumptions in this more general case before stating our first result, which is going to be negative: under fairly general assumptions, the Two-Way Fixed-Effects estimator does not recover an interesting weighted average of the \(TT_t\).
-We will examine the reasons for this failure and then list the possible alternatives to this estimator that have been proposed in the literature so far.
+In this section, we are going to define rigorously the setting that we have in front of us and the several treatment effects that we might want to estimate.
+This will be the most important part of the identification exercise.
+Once the definitions are in place, identification will be mostly straightforward.
 
-\hypertarget{setting}{%
-\paragraph{Setting}\label{setting}}
+In a DID design with multiple time periods, time flows from \(t=1\) to \(t=T\).
+\(D_{i,t}\) takes value one when unit \(i\) is treated at period \(t\) and zero otherwise.
+In a staggered design, once treated, a unit is treated forever (the treatment is said to be an absorbing state).
+As a consequence, we can characterize units by the date at which they start to be treated.
+We are going to call this variable \(D_{i}\) and it takes values in the set \(\left\{1,2,\dots,T,\infty\right\}\).
+Units treated at period \(1\) (or even before, we cannot say for sure) are \emph{always treated} in a staggered design.
+Then, units enter at successive periods until the last one.
+Finally, some units may never receive the treatment (\emph{never takers}).
+By convention, we denote them with \(D_{i}=\infty\).
 
-The setting
+We can define a separate treatment effect for each of the treatment groups and for each time period: \(\Delta^{Y_t}_{TT_d}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=d}\), for \(t,d\in\left\{1,2,\dots,T\right\}\).
+We can also define a treatment on the untreated \(\Delta^{Y_t}_{TUT}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=\infty}\).
 
-\textbf{Event Study graph and period specific treatment effects}
+We can also form a very large bunch of DID estimators:
 
-\textbf{What are the weights for the TWFE estimator?}
-\emph{Should be derived from the staggered case}
+\begin{align*}
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'},
+\end{align*}
+
+where \(\tau,\tau'>0\) and \(d'>d+\tau\).
+\(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) tries to estimate the effect of the treatment on units that first entered the treatment at period \(t=d\) (the treated group here) using the units that received the treatment at period \(d'>d\) as a benchmark.
+\(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) compares how outcomes have changed between \(\tau\) periods after the treatment and \(\tau'\) periods before the treatment.
+
+Imposing \(d'>d+\tau\) ensures that \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) is a proper DID estimator.
+If \(d-\tau'<d'<d+\tau\), \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) is not a proper DID estimator since \(d'\) receives also receives the treatment between the two dates at which outcomes are measured.
+When \(d'<d-\tau'\), \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) compares the change in outcomes in the group entering the treatment at date \(d\) with the changes in outcomes occurring in a group that has already entered the treatment at a date \(d'\) that is prior the starting date of the DID.
+Since this estimator is a \(DID^r\) estimator, I am going to note it as such in the future.
+\(\Delta^{Y}_{DID^r}(d,d',\tau,\tau')\) is well-defined only when \(d'<d-\tau'\).
+
+Before stating our first identification result, let us make some assumptions that will mirror the simpler ones we made in the previous section.
+First, we are going to assume that at least some units are untreated at some period:
+
+\begin{hypothesis}[Some Units are Not Treated]
+\protect\hypertarget{hyp:NoTreatmentTime}{}{\label{hyp:NoTreatmentTime} \iffalse (Some Units are Not Treated) \fi{} }We assume that not all units in the population are treated in the first period: \(\Pr(D_i=1)<1\).
+\end{hypothesis}
+
+Next, we assume that agents cannot anticipate the treatment:
+
+\begin{hypothesis}[No Anticipation Effects over Time]
+\protect\hypertarget{hyp:NoAnticipationEffectsTime}{}{\label{hyp:NoAnticipationEffectsTime} \iffalse (No Anticipation Effects over Time) \fi{} }We assume that agents cannot anticipate that the program will happen and that they do not change their behavior as a consequence: \(Y_{i,t}=Y^0_{i,t}\), \(\forall i\in \left\{i:D_i=d\right\}\), \(\forall t<d\).
+\end{hypothesis}
+
+As a consequence of Assumptions \ref{hyp:NoTreatmentTime} and \ref{hyp:NoAnticipationEffectsTime}, we can write observed outcomes as a function of treatment and potential outcomes using the usual switching equation.
+
+The final very important assumption that we can make is to assume that the trends in the potential outcomes in the absence the treatment are the same for the treated and the untreated units:
+
+\begin{hypothesis}[Parallel Trends for All Groups]
+\protect\hypertarget{hyp:ParallelTrendsTime}{}{\label{hyp:ParallelTrendsTime} \iffalse (Parallel Trends for All Groups) \fi{} }We assume that the trends in the potential outcomes in the absence the treatment are the same for all the treatment groups:
+
+\begin{align*}
+    \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} & =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
+\end{align*}
+\(\forall d\in\left\{1,2,\dots,T\right\}\) and \(\forall t,t'\in\left\{1,2,\dots,T\right\}\)
+\end{hypothesis}
+
+We are now ready to state our main identification result:
+
+\begin{theorem}[DID identifies TT at Each Point in Time]
+\protect\hypertarget{thm:IdentDIDTime}{}{\label{thm:IdentDIDTime} \iffalse (DID identifies TT at Each Point in Time) \fi{} }Under Assumptions \ref{hyp:NoTreatmentTime}, \ref{hyp:NoAnticipationEffectsTime} and \ref{hyp:ParallelTrendsTime}, the DID estimator identifies the average effect of the Treatment on the Treated after the treatment in each time period:
+
+\begin{align*}
+    \Delta^{Y}_{DID}(d,d',\tau,\tau') & =  \Delta^{Y_{d+\tau}}_{TT_d},
+\end{align*}
+where \(\tau,\tau'>0\) and \(d'>d+\tau\).
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}\begin{align*}
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}\\
+                                    & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}
+\end{align*}
+
+where the second equality follows from Assumptions \ref{hyp:NoTreatmentTime} and \ref{hyp:NoAnticipationEffectsTime} and the fact that \(d'>d+\tau\).
+The third equality follows from Assumption \ref{hyp:ParallelTrendsTime}.
+This proves the result.
+\end{proof}
+
+\hypertarget{estimation-2}{%
+\subsubsection{Estimation}\label{estimation-2}}
+
+\textbf{Build a new dataset with several time periods.}
 
 \hypertarget{difference-in-differences-with-instrumental-variables}{%
 \subsection{Difference In Differences with Instrumental Variables}\label{difference-in-differences-with-instrumental-variables}}
@@ -9428,7 +9510,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-207}{}{\label{exm:unnamed-chunk-207} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-208}{}{\label{exm:unnamed-chunk-208} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -9689,7 +9771,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-213}{}{\label{exm:unnamed-chunk-213} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-214}{}{\label{exm:unnamed-chunk-214} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -9833,7 +9915,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-215}{}{\label{exm:unnamed-chunk-215} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -9956,7 +10038,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -10018,7 +10100,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-218}{}{\label{exm:unnamed-chunk-218} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -10059,7 +10141,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-221}{}{\label{exm:unnamed-chunk-221} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is NA.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -10094,7 +10176,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -10209,7 +10291,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -10400,7 +10482,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-225}{}{\label{exm:unnamed-chunk-225} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -10497,7 +10579,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-225}{}{\label{exm:unnamed-chunk-225} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-226}{}{\label{exm:unnamed-chunk-226} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10617,7 +10699,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-227}{}{\label{exm:unnamed-chunk-227} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -10696,7 +10778,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-229}{}{\label{exm:unnamed-chunk-229} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -10839,7 +10921,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-229}{}{\label{exm:unnamed-chunk-229} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10943,7 +11025,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -11281,7 +11363,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11440,7 +11522,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-233}{}{\label{exm:unnamed-chunk-233} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -11730,7 +11812,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-239}{}{\label{exm:unnamed-chunk-239} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-240}{}{\label{exm:unnamed-chunk-240} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -11983,7 +12065,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-246}{}{\label{exm:unnamed-chunk-246} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-247}{}{\label{exm:unnamed-chunk-247} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}

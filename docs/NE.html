@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-02-01" />
+<meta name="date" content="2022-02-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -233,7 +233,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="4.3.1" data-path="NE.html"><a href="NE.html#difference-in-differences-with-two-time-periods"><i class="fa fa-check"></i><b>4.3.1</b> Difference In Differences with two time periods</a></li>
 <li class="chapter" data-level="4.3.2" data-path="NE.html"><a href="NE.html#reverse-difference-in-differences-designs-with-two-time-periods"><i class="fa fa-check"></i><b>4.3.2</b> Reverse Difference In Differences designs with two time periods</a></li>
-<li class="chapter" data-level="4.3.3" data-path="NE.html"><a href="NE.html#staggered-difference-in-differences"><i class="fa fa-check"></i><b>4.3.3</b> Staggered Difference In Differences</a></li>
+<li class="chapter" data-level="4.3.3" data-path="NE.html"><a href="NE.html#difference-in-differences-with-multiple-time-periods"><i class="fa fa-check"></i><b>4.3.3</b> Difference In Differences with multiple time periods</a></li>
 <li class="chapter" data-level="4.3.4" data-path="NE.html"><a href="NE.html#difference-in-differences-with-instrumental-variables"><i class="fa fa-check"></i><b>4.3.4</b> Difference In Differences with Instrumental Variables</a></li>
 </ul></li>
 </ul></li>
@@ -2490,10 +2490,6 @@ V_i   &amp; = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 <span id="cb165-28"><a href="NE.html#cb165-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()<span class="sc">+</span></span>
 <span id="cb165-29"><a href="NE.html#cb165-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">guide=</span><span class="st">&#39;none&#39;</span>) <span class="sc">+</span></span>
 <span id="cb165-30"><a href="NE.html#cb165-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
-<pre><code>## Warning: The shape palette can deal with a maximum of 6 discrete values because
-## more than 6 becomes difficult to discriminate; you have 7. Consider
-## specifying shapes manually if you must have them.</code></pre>
-<pre><code>## Warning: Removed 2 rows containing missing values (geom_point).</code></pre>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDRev"></span>
 <img src="STCI_files/figure-html/PlotDIDRev-1.png" alt="Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period" width="50%" />
 <p class="caption">
@@ -2501,82 +2497,78 @@ Figure 4.10: Evolution of average outcomes in the always treated and switchers g
 </p>
 </div>
 <p>In Figure <a href="NE.html#fig:PlotDIDRev">4.10</a>, the effect of the treatment on the <em>switchers</em> is equal to <span class="math inline">\(\hat\Delta^{y_A}_{TUT}=\)</span> 0.3 in the second period and to <span class="math inline">\(\hat\Delta^{y_B}_{TUT}=\)</span> 0.17 in the first period.
-The <span class="math inline">\(DID\)</span> estimator is equal to <span class="math inline">\(\hat\Delta^{y}_{DID}=\)</span> 0.19 which is of the correct sign but much too big for both treatment effects.
+The <span class="math inline">\(DID\)</span> estimator is equal to <span class="math inline">\(\hat\Delta^{y}_{DID}=\)</span> 0.58 which is of the correct sign but much too big for both treatment effects.
 The problem is that the change in the outcomes of the <em>always treated</em> (0.44) overestimates the change in outcomes the <em>switchers</em> would have experienced had they stayed in the treatment (0.16).
-As a consequence, Assumption <a href="NE.html#hyp:ParallelTrendsy1">4.11</a> is not vald and the DID estimator is biased.
+As a consequence, Assumption <a href="NE.html#hyp:ParallelTrendsy1">4.11</a> is not valid and the DID estimator is biased.
 Following Lemma <a href="NE.html#lem:BiasDID">4.7</a>, the bias of the DID estimator for the effect on the <em>switchers</em> in the second period is equal to the difference in the change of treatment effect over time between <em>always treated</em> (<span class="math inline">\(\hat\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}=\)</span> 0.54 <span class="math inline">\(-\)</span> 0.17 <span class="math inline">\(=\)</span> 0.37) and <em>switchers</em> (<span class="math inline">\(\hat\Delta^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=\)</span> 0.3 <span class="math inline">\(-\)</span> 0.17 <span class="math inline">\(=\)</span> 0.12).
 The bias of the DID estimator for the effect of the treatment on the <em>switchers</em> in the first period is even larger (<span class="math inline">\(\hat B^{y_B}_{DID}=\)</span> 0.41).
-Following Lemma <a href="NE.html#lem:BiasDID">4.7</a>, it is equal to the change in treatment effect over time among the <em>switchers</em> (<span class="math inline">\(\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\)</span> 0.54 <span class="math inline">\(-\)</span> 0.17 <span class="math inline">\(=\)</span> 0.37).</p>
+Following Lemma <a href="NE.html#lem:BiasDID">4.7</a>, it is close to the change in treatment effect over time among the <em>switchers</em> (<span class="math inline">\(\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\)</span> 0.54 <span class="math inline">\(-\)</span> 0.17 <span class="math inline">\(=\)</span> 0.37).</p>
 
 <div class="example">
 <span id="exm:unnamed-chunk-202" class="example"><strong>Example 4.26  </strong></span>What happens if we enforce the fact that treatment effects vary in the same way among <em>always takers</em> and <em>switchers</em>.
 Let’s find out.
 </div>
-<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb168-1"><a href="NE.html#cb168-1" aria-hidden="true" tabindex="-1"></a>param[<span class="st">&quot;baralphaAT&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code></pre></div>
+<div class="sourceCode" id="cb166"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb166-1"><a href="NE.html#cb166-1" aria-hidden="true" tabindex="-1"></a>param[<span class="st">&quot;baralphaAT&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code></pre></div>
 <p>Let’s simulate the new data:</p>
-<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="NE.html#cb169-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
-<span id="cb169-2"><a href="NE.html#cb169-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb169-3"><a href="NE.html#cb169-3" aria-hidden="true" tabindex="-1"></a>cov.eta.omega <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(param[<span class="st">&quot;sigma2eta&quot;</span>],<span class="dv">0</span>,param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),</span>
-<span id="cb169-4"><a href="NE.html#cb169-4" aria-hidden="true" tabindex="-1"></a>                          <span class="dv">0</span>,param[<span class="st">&quot;sigma2eta&quot;</span>],param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),</span>
-<span id="cb169-5"><a href="NE.html#cb169-5" aria-hidden="true" tabindex="-1"></a>                          param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;sigma2omega&quot;</span>]),<span class="at">ncol=</span><span class="dv">3</span>,<span class="at">nrow=</span><span class="dv">3</span>,<span class="at">byrow=</span>T)</span>
-<span id="cb169-6"><a href="NE.html#cb169-6" aria-hidden="true" tabindex="-1"></a>eta.omega <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">mvrnorm</span>(N,<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>),cov.eta.omega))</span>
-<span id="cb169-7"><a href="NE.html#cb169-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(eta.omega) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;etaA&#39;</span>,<span class="st">&#39;etaB&#39;</span>,<span class="st">&#39;omega&#39;</span>)</span>
-<span id="cb169-8"><a href="NE.html#cb169-8" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))</span>
-<span id="cb169-9"><a href="NE.html#cb169-9" aria-hidden="true" tabindex="-1"></a>UB <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))</span>
-<span id="cb169-10"><a href="NE.html#cb169-10" aria-hidden="true" tabindex="-1"></a>y0B <span class="ot">&lt;-</span> mu <span class="sc">+</span> UB </span>
-<span id="cb169-11"><a href="NE.html#cb169-11" aria-hidden="true" tabindex="-1"></a>Y0B <span class="ot">&lt;-</span> <span class="fu">exp</span>(y0B)</span>
-<span id="cb169-12"><a href="NE.html#cb169-12" aria-hidden="true" tabindex="-1"></a>Ds <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,N)</span>
-<span id="cb169-13"><a href="NE.html#cb169-13" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> param[<span class="st">&quot;gamma&quot;</span>]<span class="sc">*</span>(mu<span class="sc">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="sc">+</span>eta.omega<span class="sc">$</span>omega</span>
-<span id="cb169-14"><a href="NE.html#cb169-14" aria-hidden="true" tabindex="-1"></a>Ds[y0B<span class="sc">+</span>V<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>])] <span class="ot">&lt;-</span> <span class="dv">1</span> </span>
-<span id="cb169-15"><a href="NE.html#cb169-15" aria-hidden="true" tabindex="-1"></a>alphaB <span class="ot">&lt;-</span> param[<span class="st">&quot;baralphaB&quot;</span>]<span class="sc">+</span>  param[<span class="st">&quot;thetaB&quot;</span>]<span class="sc">*</span>mu <span class="sc">+</span> eta.omega<span class="sc">$</span>etaB</span>
-<span id="cb169-16"><a href="NE.html#cb169-16" aria-hidden="true" tabindex="-1"></a>y1B <span class="ot">&lt;-</span> y0B<span class="sc">+</span>alphaB</span>
-<span id="cb169-17"><a href="NE.html#cb169-17" aria-hidden="true" tabindex="-1"></a>Y1B <span class="ot">&lt;-</span> <span class="fu">exp</span>(y1B)</span>
-<span id="cb169-18"><a href="NE.html#cb169-18" aria-hidden="true" tabindex="-1"></a>epsilonA <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))</span>
-<span id="cb169-19"><a href="NE.html#cb169-19" aria-hidden="true" tabindex="-1"></a>U0A <span class="ot">&lt;-</span> param[<span class="st">&quot;rho&quot;</span>]<span class="sc">*</span>UB <span class="sc">+</span> epsilonA</span>
-<span id="cb169-20"><a href="NE.html#cb169-20" aria-hidden="true" tabindex="-1"></a>y0A <span class="ot">&lt;-</span> mu <span class="sc">+</span>  U0A <span class="sc">+</span> param[<span class="st">&quot;delta&quot;</span>]</span>
-<span id="cb169-21"><a href="NE.html#cb169-21" aria-hidden="true" tabindex="-1"></a>alphaA <span class="ot">&lt;-</span> param[<span class="st">&quot;baralphaA&quot;</span>]<span class="sc">+</span> param[<span class="st">&quot;baralphaAT&quot;</span>]<span class="sc">*</span>Ds<span class="sc">+</span> param[<span class="st">&quot;thetaA&quot;</span>]<span class="sc">*</span>mu <span class="sc">+</span> eta.omega<span class="sc">$</span>etaA</span>
-<span id="cb169-22"><a href="NE.html#cb169-22" aria-hidden="true" tabindex="-1"></a>y1A <span class="ot">&lt;-</span> y0A<span class="sc">+</span>alphaA</span>
-<span id="cb169-23"><a href="NE.html#cb169-23" aria-hidden="true" tabindex="-1"></a>Y0A <span class="ot">&lt;-</span> <span class="fu">exp</span>(y0A)</span>
-<span id="cb169-24"><a href="NE.html#cb169-24" aria-hidden="true" tabindex="-1"></a>Y1A <span class="ot">&lt;-</span> <span class="fu">exp</span>(y1A)</span>
-<span id="cb169-25"><a href="NE.html#cb169-25" aria-hidden="true" tabindex="-1"></a>yA <span class="ot">&lt;-</span> y1A<span class="sc">*</span>Ds<span class="sc">+</span>y0A<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span>
-<span id="cb169-26"><a href="NE.html#cb169-26" aria-hidden="true" tabindex="-1"></a>YA <span class="ot">&lt;-</span> Y1A<span class="sc">*</span>Ds<span class="sc">+</span>Y0A<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span>
-<span id="cb169-27"><a href="NE.html#cb169-27" aria-hidden="true" tabindex="-1"></a>yB <span class="ot">&lt;-</span> y1B</span>
-<span id="cb169-28"><a href="NE.html#cb169-28" aria-hidden="true" tabindex="-1"></a>YB <span class="ot">&lt;-</span> Y1B</span></code></pre></div>
+<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb167-1"><a href="NE.html#cb167-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb167-2"><a href="NE.html#cb167-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb167-3"><a href="NE.html#cb167-3" aria-hidden="true" tabindex="-1"></a>cov.eta.omega <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(param[<span class="st">&quot;sigma2eta&quot;</span>],<span class="dv">0</span>,param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),</span>
+<span id="cb167-4"><a href="NE.html#cb167-4" aria-hidden="true" tabindex="-1"></a>                          <span class="dv">0</span>,param[<span class="st">&quot;sigma2eta&quot;</span>],param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),</span>
+<span id="cb167-5"><a href="NE.html#cb167-5" aria-hidden="true" tabindex="-1"></a>                          param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;sigma2omega&quot;</span>]),<span class="at">ncol=</span><span class="dv">3</span>,<span class="at">nrow=</span><span class="dv">3</span>,<span class="at">byrow=</span>T)</span>
+<span id="cb167-6"><a href="NE.html#cb167-6" aria-hidden="true" tabindex="-1"></a>eta.omega <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">mvrnorm</span>(N,<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>),cov.eta.omega))</span>
+<span id="cb167-7"><a href="NE.html#cb167-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(eta.omega) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;etaA&#39;</span>,<span class="st">&#39;etaB&#39;</span>,<span class="st">&#39;omega&#39;</span>)</span>
+<span id="cb167-8"><a href="NE.html#cb167-8" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>]))</span>
+<span id="cb167-9"><a href="NE.html#cb167-9" aria-hidden="true" tabindex="-1"></a>UB <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))</span>
+<span id="cb167-10"><a href="NE.html#cb167-10" aria-hidden="true" tabindex="-1"></a>y0B <span class="ot">&lt;-</span> mu <span class="sc">+</span> UB </span>
+<span id="cb167-11"><a href="NE.html#cb167-11" aria-hidden="true" tabindex="-1"></a>Y0B <span class="ot">&lt;-</span> <span class="fu">exp</span>(y0B)</span>
+<span id="cb167-12"><a href="NE.html#cb167-12" aria-hidden="true" tabindex="-1"></a>Ds <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,N)</span>
+<span id="cb167-13"><a href="NE.html#cb167-13" aria-hidden="true" tabindex="-1"></a>V <span class="ot">&lt;-</span> param[<span class="st">&quot;gamma&quot;</span>]<span class="sc">*</span>(mu<span class="sc">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="sc">+</span>eta.omega<span class="sc">$</span>omega</span>
+<span id="cb167-14"><a href="NE.html#cb167-14" aria-hidden="true" tabindex="-1"></a>Ds[y0B<span class="sc">+</span>V<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>])] <span class="ot">&lt;-</span> <span class="dv">1</span> </span>
+<span id="cb167-15"><a href="NE.html#cb167-15" aria-hidden="true" tabindex="-1"></a>alphaB <span class="ot">&lt;-</span> param[<span class="st">&quot;baralphaB&quot;</span>]<span class="sc">+</span>  param[<span class="st">&quot;thetaB&quot;</span>]<span class="sc">*</span>mu <span class="sc">+</span> eta.omega<span class="sc">$</span>etaB</span>
+<span id="cb167-16"><a href="NE.html#cb167-16" aria-hidden="true" tabindex="-1"></a>y1B <span class="ot">&lt;-</span> y0B<span class="sc">+</span>alphaB</span>
+<span id="cb167-17"><a href="NE.html#cb167-17" aria-hidden="true" tabindex="-1"></a>Y1B <span class="ot">&lt;-</span> <span class="fu">exp</span>(y1B)</span>
+<span id="cb167-18"><a href="NE.html#cb167-18" aria-hidden="true" tabindex="-1"></a>epsilonA <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))</span>
+<span id="cb167-19"><a href="NE.html#cb167-19" aria-hidden="true" tabindex="-1"></a>U0A <span class="ot">&lt;-</span> param[<span class="st">&quot;rho&quot;</span>]<span class="sc">*</span>UB <span class="sc">+</span> epsilonA</span>
+<span id="cb167-20"><a href="NE.html#cb167-20" aria-hidden="true" tabindex="-1"></a>y0A <span class="ot">&lt;-</span> mu <span class="sc">+</span>  U0A <span class="sc">+</span> param[<span class="st">&quot;delta&quot;</span>]</span>
+<span id="cb167-21"><a href="NE.html#cb167-21" aria-hidden="true" tabindex="-1"></a>alphaA <span class="ot">&lt;-</span> param[<span class="st">&quot;baralphaA&quot;</span>]<span class="sc">+</span> param[<span class="st">&quot;baralphaAT&quot;</span>]<span class="sc">*</span>Ds<span class="sc">+</span> param[<span class="st">&quot;thetaA&quot;</span>]<span class="sc">*</span>mu <span class="sc">+</span> eta.omega<span class="sc">$</span>etaA</span>
+<span id="cb167-22"><a href="NE.html#cb167-22" aria-hidden="true" tabindex="-1"></a>y1A <span class="ot">&lt;-</span> y0A<span class="sc">+</span>alphaA</span>
+<span id="cb167-23"><a href="NE.html#cb167-23" aria-hidden="true" tabindex="-1"></a>Y0A <span class="ot">&lt;-</span> <span class="fu">exp</span>(y0A)</span>
+<span id="cb167-24"><a href="NE.html#cb167-24" aria-hidden="true" tabindex="-1"></a>Y1A <span class="ot">&lt;-</span> <span class="fu">exp</span>(y1A)</span>
+<span id="cb167-25"><a href="NE.html#cb167-25" aria-hidden="true" tabindex="-1"></a>yA <span class="ot">&lt;-</span> y1A<span class="sc">*</span>Ds<span class="sc">+</span>y0A<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span>
+<span id="cb167-26"><a href="NE.html#cb167-26" aria-hidden="true" tabindex="-1"></a>YA <span class="ot">&lt;-</span> Y1A<span class="sc">*</span>Ds<span class="sc">+</span>Y0A<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span>
+<span id="cb167-27"><a href="NE.html#cb167-27" aria-hidden="true" tabindex="-1"></a>yB <span class="ot">&lt;-</span> y1B</span>
+<span id="cb167-28"><a href="NE.html#cb167-28" aria-hidden="true" tabindex="-1"></a>YB <span class="ot">&lt;-</span> Y1B</span></code></pre></div>
 <p>Let’s see how DID works on this data.</p>
-<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="NE.html#cb170-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Before&quot;</span>,<span class="st">&quot;After&quot;</span>)</span>
-<span id="cb170-2"><a href="NE.html#cb170-2" aria-hidden="true" tabindex="-1"></a>y.AT <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>]),<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>]))</span>
-<span id="cb170-3"><a href="NE.html#cb170-3" aria-hidden="true" tabindex="-1"></a>y.AT.counterfactual <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(y0B[Ds<span class="sc">==</span><span class="dv">1</span>]),<span class="fu">mean</span>(y0A[Ds<span class="sc">==</span><span class="dv">1</span>]))</span>
-<span id="cb170-4"><a href="NE.html#cb170-4" aria-hidden="true" tabindex="-1"></a>y.Switchers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
-<span id="cb170-5"><a href="NE.html#cb170-5" aria-hidden="true" tabindex="-1"></a>y.Switchers.counterfactual <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(y0B[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(y0A[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
-<span id="cb170-6"><a href="NE.html#cb170-6" aria-hidden="true" tabindex="-1"></a>y.Switchers.counterfactual<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(y1B[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(y1A[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
-<span id="cb170-7"><a href="NE.html#cb170-7" aria-hidden="true" tabindex="-1"></a>y.Switchers.DID <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">+</span><span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>]))</span>
-<span id="cb170-8"><a href="NE.html#cb170-8" aria-hidden="true" tabindex="-1"></a>y.Switchers.DID<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">-</span>(<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>])),<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
-<span id="cb170-9"><a href="NE.html#cb170-9" aria-hidden="true" tabindex="-1"></a>data.DID.plot <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">c</span>(y.AT,y.AT.counterfactual,y.Switchers,y.Switchers.counterfactual,y.Switchers.counterfactual<span class="fl">.1</span>,y.Switchers.DID,y.Switchers.DID<span class="fl">.1</span>))</span>
-<span id="cb170-10"><a href="NE.html#cb170-10" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data.DID.plot) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Outcome&quot;</span>) </span>
-<span id="cb170-11"><a href="NE.html#cb170-11" aria-hidden="true" tabindex="-1"></a>data.DID.plot<span class="sc">$</span>Period <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(x,<span class="dv">7</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;Before&quot;</span>,<span class="st">&quot;After&quot;</span>))</span>
-<span id="cb170-12"><a href="NE.html#cb170-12" aria-hidden="true" tabindex="-1"></a>data.DID.plot<span class="sc">$</span>Group <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;Always Treated&quot;</span>,<span class="st">&quot;Always Treated&quot;</span>,<span class="st">&quot;Always Treated counterfactual y0&quot;</span>,<span class="st">&quot;Always Treated counterfactual y0&quot;</span>,<span class="st">&quot;Switchers&quot;</span>,<span class="st">&quot;Switchers&quot;</span>,<span class="st">&quot;Switchers counterfactual y0&quot;</span>,<span class="st">&quot;Switchers counterfactual y0&quot;</span>,<span class="st">&quot;Switchers counterfactual y1&quot;</span>,<span class="st">&quot;Switchers counterfactual y1&quot;</span>,<span class="st">&quot;Switchers DIDr&quot;</span>,<span class="st">&quot;Switchers DIDr&quot;</span>,<span class="st">&quot;Switchers DIDr1&quot;</span>,<span class="st">&quot;Switchers DIDr1&quot;</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;Switchers&quot;</span>,<span class="st">&quot;Switchers counterfactual y1&quot;</span>,<span class="st">&quot;Switchers counterfactual y0&quot;</span>,<span class="st">&quot;Switchers DIDr&quot;</span>,<span class="st">&quot;Switchers DIDr1&quot;</span>,<span class="st">&quot;Always Treated&quot;</span>,<span class="st">&quot;Always Treated counterfactual y0&quot;</span>))</span>
-<span id="cb170-13"><a href="NE.html#cb170-13" aria-hidden="true" tabindex="-1"></a>data.DID.plot<span class="sc">$</span>Observed <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Generated&quot;</span>,<span class="st">&quot;Generated&quot;</span>,<span class="st">&quot;Generated&quot;</span>,<span class="st">&quot;Generated&quot;</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Generated&quot;</span>))</span>
-<span id="cb170-14"><a href="NE.html#cb170-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb170-15"><a href="NE.html#cb170-15" aria-hidden="true" tabindex="-1"></a>WW.before <span class="ot">&lt;-</span> (<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
-<span id="cb170-16"><a href="NE.html#cb170-16" aria-hidden="true" tabindex="-1"></a>WW.after <span class="ot">&lt;-</span> (<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
-<span id="cb170-17"><a href="NE.html#cb170-17" aria-hidden="true" tabindex="-1"></a>BA.AT <span class="ot">&lt;-</span> <span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>])</span>
-<span id="cb170-18"><a href="NE.html#cb170-18" aria-hidden="true" tabindex="-1"></a>BA.Switchers <span class="ot">&lt;-</span> <span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>])</span>
-<span id="cb170-19"><a href="NE.html#cb170-19" aria-hidden="true" tabindex="-1"></a>Counterfactual.after <span class="ot">&lt;-</span> <span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">+</span>BA.AT</span>
-<span id="cb170-20"><a href="NE.html#cb170-20" aria-hidden="true" tabindex="-1"></a>DID <span class="ot">&lt;-</span> BA.AT  <span class="sc">-</span> BA.Switchers</span>
-<span id="cb170-21"><a href="NE.html#cb170-21" aria-hidden="true" tabindex="-1"></a>TTASwitchers <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaA[Ds<span class="sc">==</span><span class="dv">0</span>])</span>
-<span id="cb170-22"><a href="NE.html#cb170-22" aria-hidden="true" tabindex="-1"></a>TTBSwitchers <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaB[Ds<span class="sc">==</span><span class="dv">0</span>])</span>
-<span id="cb170-23"><a href="NE.html#cb170-23" aria-hidden="true" tabindex="-1"></a>TTAAT <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaA[Ds<span class="sc">==</span><span class="dv">1</span>])</span>
-<span id="cb170-24"><a href="NE.html#cb170-24" aria-hidden="true" tabindex="-1"></a>TTBAT <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaB[Ds<span class="sc">==</span><span class="dv">1</span>])</span>
-<span id="cb170-25"><a href="NE.html#cb170-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb170-26"><a href="NE.html#cb170-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data.DID.plot,<span class="fu">aes</span>(<span class="at">x=</span>Period,<span class="at">y=</span>Outcome,<span class="at">group=</span>Group,<span class="at">color=</span>Group,<span class="at">shape=</span>Group,<span class="at">linetype=</span>Observed))<span class="sc">+</span></span>
-<span id="cb170-27"><a href="NE.html#cb170-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb170-28"><a href="NE.html#cb170-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb170-29"><a href="NE.html#cb170-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">guide=</span><span class="st">&#39;none&#39;</span>) <span class="sc">+</span></span>
-<span id="cb170-30"><a href="NE.html#cb170-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
-<pre><code>## Warning: The shape palette can deal with a maximum of 6 discrete values because
-## more than 6 becomes difficult to discriminate; you have 7. Consider
-## specifying shapes manually if you must have them.</code></pre>
-<pre><code>## Warning: Removed 2 rows containing missing values (geom_point).</code></pre>
+<div class="sourceCode" id="cb168"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb168-1"><a href="NE.html#cb168-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Before&quot;</span>,<span class="st">&quot;After&quot;</span>)</span>
+<span id="cb168-2"><a href="NE.html#cb168-2" aria-hidden="true" tabindex="-1"></a>y.AT <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>]),<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>]))</span>
+<span id="cb168-3"><a href="NE.html#cb168-3" aria-hidden="true" tabindex="-1"></a>y.AT.counterfactual <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(y0B[Ds<span class="sc">==</span><span class="dv">1</span>]),<span class="fu">mean</span>(y0A[Ds<span class="sc">==</span><span class="dv">1</span>]))</span>
+<span id="cb168-4"><a href="NE.html#cb168-4" aria-hidden="true" tabindex="-1"></a>y.Switchers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb168-5"><a href="NE.html#cb168-5" aria-hidden="true" tabindex="-1"></a>y.Switchers.counterfactual <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(y0B[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(y0A[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb168-6"><a href="NE.html#cb168-6" aria-hidden="true" tabindex="-1"></a>y.Switchers.counterfactual<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(y1B[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(y1A[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb168-7"><a href="NE.html#cb168-7" aria-hidden="true" tabindex="-1"></a>y.Switchers.DID <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>]),<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">+</span><span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>]))</span>
+<span id="cb168-8"><a href="NE.html#cb168-8" aria-hidden="true" tabindex="-1"></a>y.Switchers.DID<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">-</span>(<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>])),<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb168-9"><a href="NE.html#cb168-9" aria-hidden="true" tabindex="-1"></a>data.DID.plot <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">c</span>(y.AT,y.AT.counterfactual,y.Switchers,y.Switchers.counterfactual,y.Switchers.counterfactual<span class="fl">.1</span>,y.Switchers.DID,y.Switchers.DID<span class="fl">.1</span>))</span>
+<span id="cb168-10"><a href="NE.html#cb168-10" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data.DID.plot) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Outcome&quot;</span>) </span>
+<span id="cb168-11"><a href="NE.html#cb168-11" aria-hidden="true" tabindex="-1"></a>data.DID.plot<span class="sc">$</span>Period <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(x,<span class="dv">7</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;Before&quot;</span>,<span class="st">&quot;After&quot;</span>))</span>
+<span id="cb168-12"><a href="NE.html#cb168-12" aria-hidden="true" tabindex="-1"></a>data.DID.plot<span class="sc">$</span>Group <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;Always Treated&quot;</span>,<span class="st">&quot;Always Treated&quot;</span>,<span class="st">&quot;Always Treated counterfactual y0&quot;</span>,<span class="st">&quot;Always Treated counterfactual y0&quot;</span>,<span class="st">&quot;Switchers&quot;</span>,<span class="st">&quot;Switchers&quot;</span>,<span class="st">&quot;Switchers counterfactual y0&quot;</span>,<span class="st">&quot;Switchers counterfactual y0&quot;</span>,<span class="st">&quot;Switchers counterfactual y1&quot;</span>,<span class="st">&quot;Switchers counterfactual y1&quot;</span>,<span class="st">&quot;Switchers DIDr&quot;</span>,<span class="st">&quot;Switchers DIDr&quot;</span>,<span class="st">&quot;Switchers DIDr1&quot;</span>,<span class="st">&quot;Switchers DIDr1&quot;</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;Switchers&quot;</span>,<span class="st">&quot;Switchers counterfactual y1&quot;</span>,<span class="st">&quot;Switchers counterfactual y0&quot;</span>,<span class="st">&quot;Switchers DIDr&quot;</span>,<span class="st">&quot;Switchers DIDr1&quot;</span>,<span class="st">&quot;Always Treated&quot;</span>,<span class="st">&quot;Always Treated counterfactual y0&quot;</span>))</span>
+<span id="cb168-13"><a href="NE.html#cb168-13" aria-hidden="true" tabindex="-1"></a>data.DID.plot<span class="sc">$</span>Observed <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Generated&quot;</span>,<span class="st">&quot;Generated&quot;</span>,<span class="st">&quot;Generated&quot;</span>,<span class="st">&quot;Generated&quot;</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;Observed&quot;</span>,<span class="st">&quot;Unobserved&quot;</span>,<span class="st">&quot;Generated&quot;</span>))</span>
+<span id="cb168-14"><a href="NE.html#cb168-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb168-15"><a href="NE.html#cb168-15" aria-hidden="true" tabindex="-1"></a>WW.before <span class="ot">&lt;-</span> (<span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb168-16"><a href="NE.html#cb168-16" aria-hidden="true" tabindex="-1"></a>WW.after <span class="ot">&lt;-</span> (<span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>]))</span>
+<span id="cb168-17"><a href="NE.html#cb168-17" aria-hidden="true" tabindex="-1"></a>BA.AT <span class="ot">&lt;-</span> <span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">1</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>])</span>
+<span id="cb168-18"><a href="NE.html#cb168-18" aria-hidden="true" tabindex="-1"></a>BA.Switchers <span class="ot">&lt;-</span> <span class="fu">mean</span>(yA[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">-</span><span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>])</span>
+<span id="cb168-19"><a href="NE.html#cb168-19" aria-hidden="true" tabindex="-1"></a>Counterfactual.after <span class="ot">&lt;-</span> <span class="fu">mean</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>])<span class="sc">+</span>BA.AT</span>
+<span id="cb168-20"><a href="NE.html#cb168-20" aria-hidden="true" tabindex="-1"></a>DID <span class="ot">&lt;-</span> BA.AT  <span class="sc">-</span> BA.Switchers</span>
+<span id="cb168-21"><a href="NE.html#cb168-21" aria-hidden="true" tabindex="-1"></a>TTASwitchers <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaA[Ds<span class="sc">==</span><span class="dv">0</span>])</span>
+<span id="cb168-22"><a href="NE.html#cb168-22" aria-hidden="true" tabindex="-1"></a>TTBSwitchers <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaB[Ds<span class="sc">==</span><span class="dv">0</span>])</span>
+<span id="cb168-23"><a href="NE.html#cb168-23" aria-hidden="true" tabindex="-1"></a>TTAAT <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaA[Ds<span class="sc">==</span><span class="dv">1</span>])</span>
+<span id="cb168-24"><a href="NE.html#cb168-24" aria-hidden="true" tabindex="-1"></a>TTBAT <span class="ot">&lt;-</span> <span class="fu">mean</span>(alphaB[Ds<span class="sc">==</span><span class="dv">1</span>])</span>
+<span id="cb168-25"><a href="NE.html#cb168-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb168-26"><a href="NE.html#cb168-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data.DID.plot,<span class="fu">aes</span>(<span class="at">x=</span>Period,<span class="at">y=</span>Outcome,<span class="at">group=</span>Group,<span class="at">color=</span>Group,<span class="at">shape=</span>Group,<span class="at">linetype=</span>Observed))<span class="sc">+</span></span>
+<span id="cb168-27"><a href="NE.html#cb168-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb168-28"><a href="NE.html#cb168-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb168-29"><a href="NE.html#cb168-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">guide=</span><span class="st">&#39;none&#39;</span>) <span class="sc">+</span></span>
+<span id="cb168-30"><a href="NE.html#cb168-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDRevShutDown"></span>
 <img src="STCI_files/figure-html/PlotDIDRevShutDown-1.png" alt="Evolution of average outcomes in the always treated and switchers group in the reverse DID design where everyone is treated in the first period and treatment effects that vary in the same way among switchers and always takers" width="50%" />
 <p class="caption">
@@ -2602,26 +2594,109 @@ The proof is left as an exercise.
 </div>
 </div>
 </div>
-<div id="staggered-difference-in-differences" class="section level3" number="4.3.3">
-<h3><span class="header-section-number">4.3.3</span> Staggered Difference In Differences</h3>
+<div id="difference-in-differences-with-multiple-time-periods" class="section level3" number="4.3.3">
+<h3><span class="header-section-number">4.3.3</span> Difference In Differences with multiple time periods</h3>
 <p>In real life, we generally have access to several time periods before and after the treatment date.
 What happens to DID in that case?
-In this section, we are looking at what happens</p>
-<p><strong>Build a new dataset with several time periods.</strong></p>
+Well, several things actually happen:</p>
+<ol style="list-style-type: decimal">
+<li>We now have several pre-treatment observations for each unit.
+Which one should we choose to form our DID estimator?
+If we use all of them, should we combine them?
+If yes, how?</li>
+<li>We also have several post-treatment observations.
+Which one should we choose to form our DID estimator?
+If we use all of them, should we combine them?
+If yes, how?</li>
+<li>We also have some units that will be treated for several periods in a row.
+Should we use them to form a <span class="math inline">\(DID^r\)</span> estimator?
+If yes, should we combine them with the DID estimates?
+If yes, how?</li>
+<li>We also might have some units that exit the treatment after some time.
+Should we use them to form a DID estimator?
+Should we combine this estimate with the others?
+If yes, how?</li>
+</ol>
+<p>There is a lot of questions.
+In order to be able to answer them, I am for the moment going to abstract from the last one.
+I am going to assume that once a unit has entered the treatment, it cannot exit it.
+DID designs such as these are called <em>staggered designs</em>.
+This is obviously a very strong assumption, but we will relax it at some point.
+Let’s go now.</p>
 <div id="identification-6" class="section level4" number="4.3.3.1">
 <h4><span class="header-section-number">4.3.3.1</span> Identification</h4>
-<p>The first thing is that, with several periods after the treatment date, we now have a time-varying <span class="math inline">\(TT_t\)</span>: <span class="math inline">\(\Delta^{TT}_{Y_t}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=1}\)</span>.
-A key question is whether some or all of the estimators we have listed above continue to estimate an interesting combination of the <span class="math inline">\(\Delta^{TT}_{Y_t}\)</span> parameters and under which assumptions.
-Another key question is whether alternative estimators are needed, which ones we can build and how they behave under which types of assumptions.
-We are going to first describe the setting and the main assumptions in this more general case before stating our first result, which is going to be negative: under fairly general assumptions, the Two-Way Fixed-Effects estimator does not recover an interesting weighted average of the <span class="math inline">\(TT_t\)</span>.
-We will examine the reasons for this failure and then list the possible alternatives to this estimator that have been proposed in the literature so far.</p>
-<div id="setting" class="section level5" number="4.3.3.1.1">
-<h5><span class="header-section-number">4.3.3.1.1</span> Setting</h5>
-<p>The setting</p>
-<p><strong>Event Study graph and period specific treatment effects</strong></p>
-<p><strong>What are the weights for the TWFE estimator?</strong>
-<em>Should be derived from the staggered case</em></p>
+<p>In this section, we are going to define rigorously the setting that we have in front of us and the several treatment effects that we might want to estimate.
+This will be the most important part of the identification exercise.
+Once the definitions are in place, identification will be mostly straightforward.</p>
+<p>In a DID design with multiple time periods, time flows from <span class="math inline">\(t=1\)</span> to <span class="math inline">\(t=T\)</span>.
+<span class="math inline">\(D_{i,t}\)</span> takes value one when unit <span class="math inline">\(i\)</span> is treated at period <span class="math inline">\(t\)</span> and zero otherwise.
+In a staggered design, once treated, a unit is treated forever (the treatment is said to be an absorbing state).
+As a consequence, we can characterize units by the date at which they start to be treated.
+We are going to call this variable <span class="math inline">\(D_{i}\)</span> and it takes values in the set <span class="math inline">\(\left\{1,2,\dots,T,\infty\right\}\)</span>.
+Units treated at period <span class="math inline">\(1\)</span> (or even before, we cannot say for sure) are <em>always treated</em> in a staggered design.
+Then, units enter at successive periods until the last one.
+Finally, some units may never receive the treatment (<em>never takers</em>).
+By convention, we denote them with <span class="math inline">\(D_{i}=\infty\)</span>.</p>
+<p>We can define a separate treatment effect for each of the treatment groups and for each time period: <span class="math inline">\(\Delta^{Y_t}_{TT_d}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=d}\)</span>, for <span class="math inline">\(t,d\in\left\{1,2,\dots,T\right\}\)</span>.
+We can also define a treatment on the untreated <span class="math inline">\(\Delta^{Y_t}_{TUT}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=\infty}\)</span>.</p>
+<p>We can also form a very large bunch of DID estimators:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau&#39;}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau&#39;}|D_i=d&#39;},
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(\tau,\tau&#39;&gt;0\)</span> and <span class="math inline">\(d&#39;&gt;d+\tau\)</span>.
+<span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> tries to estimate the effect of the treatment on units that first entered the treatment at period <span class="math inline">\(t=d\)</span> (the treated group here) using the units that received the treatment at period <span class="math inline">\(d&#39;&gt;d\)</span> as a benchmark.
+<span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> compares how outcomes have changed between <span class="math inline">\(\tau\)</span> periods after the treatment and <span class="math inline">\(\tau&#39;\)</span> periods before the treatment.</p>
+<p>Imposing <span class="math inline">\(d&#39;&gt;d+\tau\)</span> ensures that <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> is a proper DID estimator.
+If <span class="math inline">\(d-\tau&#39;&lt;d&#39;&lt;d+\tau\)</span>, <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> is not a proper DID estimator since <span class="math inline">\(d&#39;\)</span> receives also receives the treatment between the two dates at which outcomes are measured.
+When <span class="math inline">\(d&#39;&lt;d-\tau&#39;\)</span>, <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> compares the change in outcomes in the group entering the treatment at date <span class="math inline">\(d\)</span> with the changes in outcomes occurring in a group that has already entered the treatment at a date <span class="math inline">\(d&#39;\)</span> that is prior the starting date of the DID.
+Since this estimator is a <span class="math inline">\(DID^r\)</span> estimator, I am going to note it as such in the future.
+<span class="math inline">\(\Delta^{Y}_{DID^r}(d,d&#39;,\tau,\tau&#39;)\)</span> is well-defined only when <span class="math inline">\(d&#39;&lt;d-\tau&#39;\)</span>.</p>
+<p>Before stating our first identification result, let us make some assumptions that will mirror the simpler ones we made in the previous section.
+First, we are going to assume that at least some units are untreated at some period:</p>
+
+<div class="hypothesis">
+<span id="hyp:NoTreatmentTime" class="hypothesis"><strong>Hypothesis 4.15  (Some Units are Not Treated)  </strong></span>We assume that not all units in the population are treated in the first period: <span class="math inline">\(\Pr(D_i=1)&lt;1\)</span>.
 </div>
+<p>Next, we assume that agents cannot anticipate the treatment:</p>
+
+<div class="hypothesis">
+<span id="hyp:NoAnticipationEffectsTime" class="hypothesis"><strong>Hypothesis 4.16  (No Anticipation Effects over Time)  </strong></span>We assume that agents cannot anticipate that the program will happen and that they do not change their behavior as a consequence: <span class="math inline">\(Y_{i,t}=Y^0_{i,t}\)</span>, <span class="math inline">\(\forall i\in \left\{i:D_i=d\right\}\)</span>, <span class="math inline">\(\forall t&lt;d\)</span>.
+</div>
+<p>As a consequence of Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a> and <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a>, we can write observed outcomes as a function of treatment and potential outcomes using the usual switching equation.</p>
+<p>The final very important assumption that we can make is to assume that the trends in the potential outcomes in the absence the treatment are the same for the treated and the untreated units:</p>
+
+<div class="hypothesis">
+<p><span id="hyp:ParallelTrendsTime" class="hypothesis"><strong>Hypothesis 4.17  (Parallel Trends for All Groups)  </strong></span>We assume that the trends in the potential outcomes in the absence the treatment are the same for all the treatment groups:</p>
+<span class="math display">\[\begin{align*}
+    \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t&#39;}|D_i=d} &amp; =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t&#39;}|D_i=\infty}.
+\end{align*}\]</span>
+<span class="math inline">\(\forall d\in\left\{1,2,\dots,T\right\}\)</span> and <span class="math inline">\(\forall t,t&#39;\in\left\{1,2,\dots,T\right\}\)</span>
+</div>
+<p>We are now ready to state our main identification result:</p>
+
+<div class="theorem">
+<p><span id="thm:IdentDIDTime" class="theorem"><strong>Theorem 4.10  (DID identifies TT at Each Point in Time)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a>, <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a> and <a href="NE.html#hyp:ParallelTrendsTime">4.17</a>, the DID estimator identifies the average effect of the Treatment on the Treated after the treatment in each time period:</p>
+<span class="math display">\[\begin{align*}
+    \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; =  \Delta^{Y_{d+\tau}}_{TT_d},
+\end{align*}\]</span>
+where <span class="math inline">\(\tau,\tau&#39;&gt;0\)</span> and <span class="math inline">\(d&#39;&gt;d+\tau\)</span>.
+</div>
+
+<div class="proof">
+<p> <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
+  \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau&#39;}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau&#39;}|D_i=d&#39;}\\
+                                    &amp; = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau&#39;}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d&#39;}\\
+                                    &amp; = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau&#39;}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d}\\
+                                    &amp; = \esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}
+\end{align*}\]</span></p>
+<p>where the second equality follows from Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a> and <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a> and the fact that <span class="math inline">\(d&#39;&gt;d+\tau\)</span>.
+The third equality follows from Assumption <a href="NE.html#hyp:ParallelTrendsTime">4.17</a>.
+This proves the result.</p>
+</div>
+</div>
+<div id="estimation-2" class="section level4" number="4.3.3.2">
+<h4><span class="header-section-number">4.3.3.2</span> Estimation</h4>
+<p><strong>Build a new dataset with several time periods.</strong></p>
 </div>
 </div>
 <div id="difference-in-differences-with-instrumental-variables" class="section level3" number="4.3.4">
