@@ -1089,7 +1089,7 @@ We will survey these problems and the proposed solutions to address them.
 Finally, we will look at the combination of DID with instrumental variables (the DID-IV estimator) and see which specific types of problems happen there as well.
 Let's get to it.
 
-### Difference In Differences with two time periods
+### Difference In Differences with two time periods {#DIDbasic}
 
 Before getting into the rigorous derivations, let's start with a very simple illustration using our workhorse example.
 
@@ -2668,13 +2668,12 @@ Then, units enter at successive periods until the last one.
 Finally, some units may never receive the treatment (*never takers*).
 By convention, we denote them with $D_{i}=\infty$.
 
-We can define a separate treatment effect for each of the treatment groups and for each time period: $\Delta^{Y_t}_{TT_d}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=d}$, for $t,d\in\left\{1,2,\dots,T\right\}$.
-We can also define a treatment on the untreated $\Delta^{Y_t}_{TUT}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=\infty}$.
+We can define a separate treatment effect for each of the treatment groups and for each time period: $\Delta^{Y_{\tau}}_{TT_d}=\esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}$, for $\tau,d\in\left\{1,2,\dots,T\right\}$.
 
 We can also form a very large bunch of DID estimators: 
 
 \begin{align*}
-  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'},
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-(\esp{Y_{i,d+\tau}|D_i=d'}-\esp{Y_{i,d-\tau'}|D_i=d'}),
 \end{align*}
 
 where $\tau,\tau'>0$ and $d'>d+\tau$. 
@@ -2682,9 +2681,9 @@ $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ tries to estimate the effect of the treatmen
 $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ compares how outcomes have changed between $\tau$ periods after the treatment and $\tau'$ periods before the treatment.
 
 Imposing $d'>d+\tau$ ensures that $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ is a proper DID estimator.
-If $d-\tau'<d'<d+\tau$, $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ is not a proper DID estimator since $d'$ receives also receives the treatment between the two dates at which outcomes are measured.
+If $d-\tau'<d'<d+\tau$, $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ is not a proper DID estimator since units in group $d'$ also receive the treatment between the two dates at which outcomes are measured.
 When $d'<d-\tau'$, $\Delta^{Y}_{DID}(d,d',\tau,\tau')$ compares the change in outcomes in the group entering the treatment at date $d$ with the changes in outcomes occurring in a group that has already entered the treatment at a date $d'$ that is prior the starting date of the DID.
-Since this estimator is a $DID^r$ estimator, I am going to note it as such in the future.
+Since this estimator is a $DID^r$ estimator, I am going to denote it as such in the future.
 $\Delta^{Y}_{DID^r}(d,d',\tau,\tau')$ is well-defined only when $d'<d-\tau'$.
 
 Before stating our first identification result, let us make some assumptions that will mirror the simpler ones we made in the previous section.
@@ -2708,27 +2707,26 @@ The final very important assumption that we can make is to assume that the trend
 We assume that the trends in the potential outcomes in the absence the treatment are the same for all the treatment groups:
 
 \begin{align*}
-    \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} & =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
+   \forall d,t,t'\in\left\{1,2,\dots,T\right\} & = \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
 \end{align*}
-$\forall d\in\left\{1,2,\dots,T\right\}$ and $\forall t,t'\in\left\{1,2,\dots,T\right\}$
 ```
 
 We are now ready to state our main identification result:
 
 ```{theorem,IdentDIDTime,name="DID identifies TT at Each Point in Time"}
-Under Assumptions \@ref(hyp:NoTreatmentTime), \@ref(hyp:NoAnticipationEffectsTime) and \@ref(hyp:ParallelTrendsTime), the DID estimator identifies the average effect of the Treatment on the Treated after the treatment in each time period:
+Under Assumptions \@ref(hyp:NoTreatmentTime), \@ref(hyp:NoAnticipationEffectsTime) and \@ref(hyp:ParallelTrendsTime), the DID estimator identifies the average effect of the Treatment on the Treated in each time period:
 
 \begin{align*}
-    \Delta^{Y}_{DID}(d,d',\tau,\tau') & =  \Delta^{Y_{d+\tau}}_{TT_d},
+    \Delta^{Y}_{DID}(d,d',\tau,\tau') & =  \Delta^{Y_{\tau}}_{TT_d},
 \end{align*}
 where $\tau,\tau'>0$ and $d'>d+\tau$. 
 ```
 
 ```{proof}
 \begin{align*}
-  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'}\\
-                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d'}\\
-                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}\\
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}\\
                                     & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}
 \end{align*}
 
@@ -2738,9 +2736,285 @@ This proves the result.
 
 ```
 
+Theorem \@ref(thm:IdentDIDTime) shows that the basic mechanics of the DID estimator extends to multiple periods. 
+The problem with Theorem \@ref(thm:IdentDIDTime) is that we now have multiple ATT estimates for various groups and time periods, using various time periods and groups as reference.
+How do we reconcile all of these estimates in a unique parameter, or at least a vector of parameters that makes some sense?
+Let's define sets of positive weights $w^k(d,d',\tau,\tau')$ that sum to one. 
+We can then define a set of DID estimators:
+
+\begin{align*}
+  \Delta^{Y}_{DID}(k)=\sum w^k(d,d',\tau,\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau'),
+\end{align*}
+
+where the sum is taken in coherence with the weights.
+These DID estimators are going to identify various features of the effects of the treatment, using various types of reference groups and time periods.
+Let us be more precise:
+
+  1. A first set of weights combines the various estimates of the same treatment effect on the outcomes of group $d$ observed at period $d=\tau$. 
+  These weights, which we denote $w^s_{d,\tau}(d',\tau')$, are such that they take value zero for estimates $\Delta^{Y}_{DID}(d'',d',\tau'',\tau')$ that are such $d''\neq d$ and $\tau''\neq\tau$ and they have: $\sum_{\tau',d'>d+\tau}w^s_{d,\tau}(d',\tau')=1$. 
+  One way to define these weights is to make them proportional to the proportion of $(d',\tau')$ groups of observations in the population.
+  2. A second set of weights is going to combine the treatment effects themselves.
+  For example, one might want to measure the average effect of the treatment $\tau$ periods after entering it.
+  This type of dynamic treatment effect is useful to measure how the effect of the treatment varies over time.
+  There are two versions of this set of weights: one unconditional and one conditional on at least reaching a certain number of periods in the treatment (let's say $\tau''>\tau$ periods after the treatment).
+  With the second version, all the estimates of the dynamic effects of the treatment are going to be taken over the same set of groups.
+  With the first version, changes in treatment effects over time might be confounded by changes in group composition. 
+  Let's denote the first type of weights $w^u_{\tau}(d,d',\tau')$ and the second $w^c_{\tau,\tau''}(d,d',\tau')$ , with $\tau''>\tau$.
+  We then have $\Delta^{Y_u}_{DID}(\tau)=\sum_{d,d'>d+\tau,\tau'} w^u_{\tau}(d,d',\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')$ and $\Delta^{Y_c}_{DID}(\tau,\tau'')=\sum_{d,d'>d+\tau,\tau'} w^c_{\tau,\tau''}(d,d',\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')$.
+  These effects can also be restricted to versions using a single reference period $\tau'$ to build the DID estimator: $\Delta^{Y_u}_{DID}(\tau,\tau')$ and $\Delta^{Y_c}_{DID}(\tau,\tau',\tau'')$.
+  3. A third set of effects is simply taking the average of all the treatment effects at a given time period. 
+  Let's denote these set of weights $w^t(d,d',\tau,\tau')$ for the effect observed at period $t$.
+  Then, we have $\Delta^{Y_t}_{DID}=\sum_{\tau+d=t,d'>d+\tau,\tau'} w^t(d,d',\tau,\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')$.
+  Another version again uses only estimates taken with period $d-\tau'$ as a reference: $\Delta^{Y_t}_{DID}(\tau')=\sum_{\tau+d=t,d'>d+\tau} w^t_{\tau'}(d,d',\tau)\Delta^{Y}_{DID}(d,d',\tau,\tau')$.
+  4. Finally, one can simply define the overall effect of the treatment on the treated as the sum of all relevant treatment effects estimated in the sample.
+  Let's define the set of weights $w^a(d,d',\tau,\tau')$ and the estimate of the average treatment effect on the treated as $\Delta^{Y}_{DID}=\sum_{\tau,d,d'>d+\tau,\tau'} w^a(d,d',\tau,\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')$.
+  Again, some authors restrict this estimate to be specific to a given reference period: $\Delta^{Y}_{DID}(\tau')=\sum_{\tau,d,d'>d+\tau} w^a_{\tau'}(d,d',\tau)\Delta^{Y}_{DID}(d,d',\tau,\tau')$.
+  
+As a consequence of Theorem \@ref(thm:IdentDIDTime), all the aggregate treatment effects are identified, as long as each of their separate components are identified. 
+The following corollary makes that clear:
+
+```{corollary,IdentDIDAgg,name="DID identifies Weighted TT"}
+Under Assumptions \@ref(hyp:NoTreatmentTime), \@ref(hyp:NoAnticipationEffectsTime) and \@ref(hyp:ParallelTrendsTime), assuming that $\Pr(D_i=d)>0$ and $\Pr(D_i=d')>0$, $\forall (d,d')\in \left\{1,2,\dots,T,\infty\right\}$ such that $w^k(d,d',\tau,\tau')>0$ and assuming that $\forall d,d',\tau,\tau'$ such that $w^k(d,d',\tau,\tau')>0$, $(d+\tau,d'-\tau')\in\left\{1,2,\dots,T,\infty\right\}^2$, the weighted DID estimator identifies the corresponding weigthed average of Treatment on the Treated:
+
+\begin{align*}
+    \Delta^{Y}_{DID}(k) & =  \Delta^{Y}_{TT}(k),
+\end{align*}
+with 
+\begin{align*}
+    \Delta^{Y}_{TT}(k) & = \sum w^k(d,d',\tau,\tau')\Delta^{Y_{\tau}}_{TT_d}
+\end{align*}
+```
+
+```{proof}
+The proof follows from Theorem \@ref(thm:IdentDIDTime): as long as the groups for which the weights are non null exist, and the time periods for which the weights are non null also exist in the data, Theorem \@ref(thm:IdentDIDTime) ensures that each of the components of the weighted average is identifed and thus the weighted average is identified as well.
+```
+
+Before going through an example to illustrate all of these notions, let me introduce one estimator.
+
 #### Estimation
 
-**Build a new dataset with several time periods.**
+Estimation of the various DID estimators that we have defined in the previous section can take several forms.
+The simplest form estimates the separate individual DID components using the methods seen in Section \@ref(DIDbasic), and then manually computes their weighted averages. 
+This approach has been proposed by [Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) and by [Callaway and Sant'Anna](https://www.sciencedirect.com/science/article/pii/S0304407620303948). 
+A more intricate approach uses an imputation model to derive the predicted counterfactual values for all treated observations and then averages them.
+This approach has been proposed by [Borusyak, Jaravel and Speiss (2021)](http://arxiv.org/abs/2108.12419).
+[de Chaisemartin and d'Haultfoeuille](https://www.aeaweb.org/articles?id=10.1257/aer.20181169) propose to only use changes that occur around the treatment date.
+Finally, one could use the Two Way Fixed Effects model presented in Section \@ref(DIDbasic), combining all the time periods in a single estimator.
+Recent work by [Goodman-Bacon](https://www.sciencedirect.com/science/article/pii/S0304407621001445) has shown that this approach is only valid under much more restrictive assumptions than the ones stated in Corollary \@ref(cor:IdentDIDAgg).
+The main reason for why is that the Two Way Fixed Effects estimator combines individual DID and $DID^r$ estimates, thereby generating strong biases if the assumptions that ensure the validity of $DID^r$ are not valid. 
+An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
+It has been proposed by [Cengiz, Dube, Lindner and Zipperer (2019)](https://academic.oup.com/qje/article/134/3/1405/5484905) and extended by [Gardner (2021)](https://jrgcmu.github.io/2sdd_current.pdf) who also proposes an imputation estimator *à la* Borusyak, Jaravel and Speiss. 
+
+##### Using weighted averages of individual DID estimators
+
+This estimator is pretty simple to define.
+Simply take all the possible $2\times2$ possible DID estimators $\Delta^{Y}_{DID}(d,d',\tau,\tau')$, with $\tau,\tau'>0$ and $d'>d+\tau$, and then average them using the pre-defined weights $w^k(d,d',\tau,\tau')$ of your choice. 
+The key to this section is to illustrate how to operationalize this approach in practice with an example.
+Let's go.
+
+```{example}
+The key here is first to generate some data.
+```
+We are going to have four successive time periods, $1$, $2$, $3$, and $4$.
+At each of these time periods, some units start receiving the treatment, generating four treatment groups: $D_i\in\{1,2,3,4\}$.
+Let us write a model compatible with this setting, choose a parameterization and generate the data.
+
+\begin{align*}
+y^1_{i,t} & = y_{i,t}^0+\bar{\alpha}_t+\sum_{d}(\bar{\alpha}_{t,d}+\theta_d\mu_i)\uns{D_{i,d}=1}+\eta_{i,t} \\
+y^0_{i,t} & = \mu_i+\delta_t+U^0_{i,t} \\
+U^0_{i,t} & = \rho U^0_{i,t-1}+\epsilon_{i,t} \\
+D_{i,t}   & = \uns{y^0_{i,1} + \xi_t+ V_i\leq\bar{y}} \\
+V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_{i,1} \\
+U^0_{i,1} & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+(\eta_{i,t},\omega_{i,t}) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})\\
+\epsilon_{i,t} & \sim\mathcal{N}(0,\sigma^2_{\epsilon}).
+\end{align*}
+
+I am going to parameterize the $\bar{\alpha}_{t,d}$ process in order to avoid having to specify the 14 parameters that it otherwise would require.
+The parameterization I am choosing is $\bar{\alpha}_{t,d}=\kappa(t-d)\uns{t\geq d}$, so that treatment effects increase linearly as time into the treatment increases.
+Let us now choose some parameter values: 
+
+```{r param.DID.staggered,eval=TRUE,echo=TRUE,results='hide'}
+param <- c(8,.5,.28,1500,0.9,
+           0.01,0.01,0.01,0.01,
+           0.05,0.05,
+           0,0.1,0.2,0.3,
+           0.05,0.1,0.15,0.2,0.5,
+           0.5,0,-0.5,-1,
+           0.1,0.28,0)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho",
+                  "theta1","theta2","theta3","theta4",
+                  "sigma2epsilon","sigma2eta",
+                  "delta1","delta2","delta3","delta4",
+                  "baralpha1","baralpha2","baralpha3","baralpha4","kappa",
+                  "xi1","xi2","xi3","xi4",
+                  "gamma","sigma2omega","rhoetaomega")
+```
+
+Let us now generate the corresponding data (in long format):
+
+```{r SimulDIDStaggered,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,results='hide'}
+set.seed(1234)
+N <- 1000
+T <- 4
+cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
+data <- as.data.frame(mvrnorm(N*T,c(0,0),cov.eta.omega))
+colnames(data) <- c('eta','omega')
+# time and individual identifiers
+data$time <- c(rep(1,N),rep(2,N),rep(3,N),rep(4,N))
+data$id <- rep((1:N),T)
+# unit fixed effects
+data$mu <- rep(rnorm(N,param["barmu"],sqrt(param["sigma2mu"])),T)
+# time fixed effects
+data$delta <- c(rep(param["delta1"],N),rep(param["delta2"],N),rep(param["delta3"],N),rep(param["delta4"],N))
+data$baralphat <- c(rep(param["baralpha1"],N),rep(param["baralpha2"],N),rep(param["baralpha3"],N),rep(param["baralpha4"],N))
+
+# building autocorrelated error terms
+data$epsilon <- rnorm(N*T,0,sqrt(param["sigma2epsilon"]))
+data$U[1:N] <- rnorm(N,0,sqrt(param["sigma2U"]))
+data$U[(N+1):(2*N)] <- param["rho"]*data$U[1:N] + data$epsilon[(N+1):(2*N)]
+data$U[(2*N+1):(3*N)] <- param["rho"]*data$U[(N+1):(2*N)] + data$epsilon[(2*N+1):(3*N)]
+data$U[(3*N+1):(T*N)] <- param["rho"]*data$U[(2*N+1):(3*N)] + data$epsilon[(3*N+1):(T*N)]
+# potential outcomes in the absence of the treatment
+data$y0 <- data$mu + data$delta + data$U 
+data$Y0 <- exp(data$y0)
+# treatment timing
+# error term
+data$V <- param["gamma"]*(data$mu-param["barmu"])+data$omega
+# treatment group, with 99 for the never treated instead of infinity
+Ds <- if_else(data$y0[1:N]+param["xi1"]+data$V[1:N]<=log(param["barY"]),1,
+              if_else(data$y0[1:N]+param["xi2"]+data$V[1:N]<=log(param["barY"]),2,
+                      if_else(data$y0[1:N]+param["xi3"]+data$V[1:N]<=log(param["barY"]),3,
+                              if_else(data$y0[1:N]+param["xi4"]+data$V[1:N]<=log(param["barY"]),4,99))))
+data$Ds <- rep(Ds,T)
+# Treatment status
+data$D <- if_else(data$Ds>data$time,0,1)
+# potential outcomes with the treatment
+# effect of the treatment by group
+data$baralphatd <- param["kappa"]*(data$t-data$Ds)*if_else(data$time>=data$Ds,1,0)
+data$y1 <- data$y0 + data$baralphat + data$baralphatd + if_else(data$Ds==1,param["theta1"],if_else(data$Ds==2,param["theta2"],if_else(data$Ds==3,param["theta3"],param["theta4"])))*data$mu + data$eta
+data$Y1 <- exp(data$y1)
+data$y <- data$y1*data$D+data$y0*(1-data$D)
+data$Y <- data$Y1*data$D+data$Y0*(1-data$D)
+```
+
+Let us now plot the data, especially the potential outcomes for each group.
+
+```{r PlotDIDStaggered,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap='Evolution of average outcomes in the various treatment groups defined by their date of entry into the treatment',fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+dataplotDIDStaggered <- data %>%
+                          group_by(Ds,time) %>%
+                          summarize(
+                            y1=mean(y1),
+                            y0=mean(y0)
+                          ) %>%
+                          pivot_longer(cols=c("y1","y0"),values_to="Outcome",names_to="PotentialOutcome") %>%
+                          mutate(
+                            TreatmentDate = factor(Ds,levels=c("99","4","3","2","1"))
+                          )
+
+ggplot(dataplotDIDStaggered,aes(x=time,y=Outcome,color=TreatmentDate,shape=TreatmentDate,linetype=PotentialOutcome))+
+      geom_line() +
+      geom_point()+
+#    scale_linetype_discrete(guide='none') +
+    theme_bw()
+```
+
+Figure \@ref(fig:PlotDIDStaggered) shows that the first units to be treated have the lowest potential outcomes in the absence of the treatment ($y^0$, in full line), and that each successive cohort entering the treatment over time has increasingly large potential outcomes.
+Assumption \@ref(hyp:ParallelTrendsTime) seems to hold in this dataset, at least visually: the trends in potential outcomes in the absence of the treatment seem to be rather parallel to each other in each group.
+Once a group of unit has entered the treatment, it experiences an increase in outcomes that grows over time. 
+Finally, note that we will be unable to estimate the impact on the group with $D_i=1$ since they enter the treatment at the first period. 
+
+Let us now compute each possible DID estimator on this dataset.
+In order to save some space and time, we will start by focusing on group 2.
+Group 2 starts treatment at period 2, and thus only period 1 can be used for building a DID estimator.
+But several comparison groups exist: the never treated (note that we have used $D_i=99$ instead of $D_i=\infty$ to characterize this group, in order to make it simpler to manipulate it in `R`) but also group 3, that can serve as an untreated benchmark between periods 1 and 2, and group 4, which can be used as an untreated benchmark in periods 1, 2 and 3.
+Let's compute all these effects.
+In order to make our lives simpler, we are going to generate a function to generate $\hat\Delta^{Y}_{DID}(d,d',\tau,\tau')$.
+
+```{r DIDStaggeredFun22,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# StaggeredDID22 is a function that takes as inputs:
+# y: name of outcome variable (character)
+# D: name of treatment group variable (character)
+# d: treatment group defined by date of entry into the treatment
+# dprime: comparison group
+# tau: number of periods after treatment date at which we estimate the effect of the treatment
+# tauprime: number of periods before the treatment date that we use a baseline period (defaults to one)
+# t: time indicator (character)
+# i: individual unit indicator (character)
+# data: dataset containing the outcomes and treatments and time and unit indicators
+StaggeredDID22 <- function(tau,y,D,d,dprime,tauprime=1,t,i,data){
+  # taking out the irrelevant groups and time periods and generating a useful treatment variable
+  data.DID <- data %>%
+            filter(!!sym(D)==d | !!sym(D)==dprime) %>% 
+            filter(time==d+tau | time==d-tauprime) %>%
+            mutate(
+              Dit = if_else(!!sym(D)==d & time==d+tau,1,0)
+            )
+  # running the within estimator (fixest)
+  # regression formula
+  DID.form <- as.formula(paste(paste(y,paste("Dit",t,sep="+"),sep="~"),i,sep="|"))
+  reg.W.fixest <- feols(DID.form, data = data.DID)
+  # result vector
+  DID.est.W.fixest <- c(d,dprime,tau,tauprime,coef(reg.W.fixest)[[1]],sqrt(vcov(reg.W.fixest)[[1,1]]))
+  names(DID.est.W.fixest) <- c("d","dprime","tau","tauprime","DIDest","DIDse")
+  return(DID.est.W.fixest)
+}
+
+# Run the regression and keep results
+# D=99 as benchmark
+# list of tau for d=2 and dprime=99 and tauprime=1
+tau.2.99 <- c(0,1,2)
+DID.2.99.1 <- map_dfr(tau.2.99,StaggeredDID22,y='y',D='Ds',d=2,dprime=99,tauprime=1,t="time",i="id",data=data) 
+# D=3 
+# list of tau for d=2 and dprime=3 and tauprime=1
+tau.2.3 <- c(0)
+DID.2.3.1 <- map_dfr(tau.2.3,StaggeredDID22,y='y',D='Ds',d=2,dprime=3,tauprime=1,t="time",i="id",data=data) 
+# D=4 
+# list of tau for d=2 and dprime=4 and tauprime=1
+tau.2.4 <- c(0,1)
+DID.2.4.1 <- map_dfr(tau.2.4,StaggeredDID22,y='y',D='Ds',d=2,dprime=4,tauprime=1,t="time",i="id",data=data) 
+
+# regroup results
+DID.2.1 <- rbind(DID.2.99.1,DID.2.3.1,DID.2.4.1)
+
+# true effects (in the sample)
+ATT.2.0 <- mean(data$y1[data$Ds==2 & data$time==2])-mean(data$y0[data$Ds==2 & data$time==2])
+ATT.2.1 <- mean(data$y1[data$Ds==2 & data$time==3])-mean(data$y0[data$Ds==2 & data$time==3])
+ATT.2.2 <- mean(data$y1[data$Ds==2 & data$time==4])-mean(data$y0[data$Ds==2 & data$time==4])
+```
+
+Let us now plot the results for the DID estimates on group $2$ using $\tau'=1$ as a benchmark pre-treatment period.
+
+```{r PlotDIDStaggeredGroup2,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("DID estimates for Group 2 at various time periods after the treament and with various comparison groups and with the reference period $\\tau'=1$"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+# preparing data
+DID.2.1 <- DID.2.1 %>%
+            mutate(
+              dprime=factor(dprime,levels=c("99","4","3"))
+            )
+
+ggplot(DID.2.1,aes(x=tau,y=DIDest,colour=dprime,linetype=dprime))+
+      geom_line() +
+    geom_pointrange(aes(ymin=DIDest-1.96*DIDse,ymax=DIDest+1.96*DIDse))+
+    ylab("DID estimate") +
+    xlab("Time after treatment (tau)") +
+    scale_x_continuous(breaks=c(0,1,2)) +
+    expand_limits(y=0) +
+    scale_colour_discrete(name="Comparison\ngroup")+
+    scale_linetype_discrete(name="Comparison\ngroup")+
+    theme_bw()
+```
+
+Figure \@ref(fig:PlotDIDStaggeredGroup2) shows the $\hat\Delta^{Y}_{DID}(d,d',\tau,\tau')$ estimates for $d=2$ and $\tau'=1$, varying both $\tau$ and $d'$. 
+The treatment effects estimated using different reference groups are similar to each other when we can compare them.
+Moreover, the treatment effect grows with time, as expected from Figure \@ref(fig:PlotDIDStaggered).
+The true effects of the treatment on group 2 are, in our sample: $\hat\Delta^{Y_{0}}_{TT_2}=$ `r round(ATT.2.0,2)`, $\hat\Delta^{Y_{1}}_{TT_2}=$ `r round(ATT.2.1,2)` and $\hat\Delta^{Y_{2}}_{TT_2}=$ `r round(ATT.2.2,2)`.
+These are very close to our DID estimates.
+For example, $\hat\Delta^{Y}_{DID}(2,99,0,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==99,tau==0,tauprime==1) %>% pull(DIDest),2)`, while $\hat\Delta^{Y}_{DID}(2,4,0,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==4,tau==0,tauprime==1) %>% pull(DIDest),2)` and $\hat\Delta^{Y}_{DID}(2,3,0,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==3,tau==0,tauprime==1) %>% pull(DIDest),2)`, which are all pretty close to $\hat\Delta^{Y_{0}}_{TT_2}=$ `r round(ATT.2.0,2)`.
+$\hat\Delta^{Y}_{DID}(2,99,1,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==99,tau==1,tauprime==1) %>% pull(DIDest),2)`, while $\hat\Delta^{Y}_{DID}(2,4,1,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==4,tau==1,tauprime==1) %>% pull(DIDest),2)`, which are also all pretty close to $\hat\Delta^{Y_{1}}_{TT_2}=$ `r round(ATT.2.1,2)`.
+Finally, $\hat\Delta^{Y}_{DID}(2,99,2,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==99,tau==2,tauprime==1) %>% pull(DIDest),2)`, while $\hat\Delta^{Y_{2}}_{TT_2}=$ `r round(ATT.2.2,2)`.
+
+
+
 
 
 ### Difference In Differences with Instrumental Variables

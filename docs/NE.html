@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-02-03" />
+<meta name="date" content="2022-02-11" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -231,7 +231,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2" data-path="NE.html"><a href="NE.html#regression-discontinuity-designs"><i class="fa fa-check"></i><b>4.2</b> Regression Discontinuity Designs</a></li>
 <li class="chapter" data-level="4.3" data-path="NE.html"><a href="NE.html#difference-in-differences"><i class="fa fa-check"></i><b>4.3</b> Difference In Differences</a>
 <ul>
-<li class="chapter" data-level="4.3.1" data-path="NE.html"><a href="NE.html#difference-in-differences-with-two-time-periods"><i class="fa fa-check"></i><b>4.3.1</b> Difference In Differences with two time periods</a></li>
+<li class="chapter" data-level="4.3.1" data-path="NE.html"><a href="NE.html#DIDbasic"><i class="fa fa-check"></i><b>4.3.1</b> Difference In Differences with two time periods</a></li>
 <li class="chapter" data-level="4.3.2" data-path="NE.html"><a href="NE.html#reverse-difference-in-differences-designs-with-two-time-periods"><i class="fa fa-check"></i><b>4.3.2</b> Reverse Difference In Differences designs with two time periods</a></li>
 <li class="chapter" data-level="4.3.3" data-path="NE.html"><a href="NE.html#difference-in-differences-with-multiple-time-periods"><i class="fa fa-check"></i><b>4.3.3</b> Difference In Differences with multiple time periods</a></li>
 <li class="chapter" data-level="4.3.4" data-path="NE.html"><a href="NE.html#difference-in-differences-with-instrumental-variables"><i class="fa fa-check"></i><b>4.3.4</b> Difference In Differences with Instrumental Variables</a></li>
@@ -1301,7 +1301,7 @@ In the staggered design, troubles start appearing for the TWFE estimator.
 We will survey these problems and the proposed solutions to address them.
 Finally, we will look at the combination of DID with instrumental variables (the DID-IV estimator) and see which specific types of problems happen there as well.
 Let’s get to it.</p>
-<div id="difference-in-differences-with-two-time-periods" class="section level3" number="4.3.1">
+<div id="DIDbasic" class="section level3" number="4.3.1">
 <h3><span class="header-section-number">4.3.1</span> Difference In Differences with two time periods</h3>
 <p>Before getting into the rigorous derivations, let’s start with a very simple illustration using our workhorse example.</p>
 
@@ -2637,19 +2637,18 @@ Units treated at period <span class="math inline">\(1\)</span> (or even before, 
 Then, units enter at successive periods until the last one.
 Finally, some units may never receive the treatment (<em>never takers</em>).
 By convention, we denote them with <span class="math inline">\(D_{i}=\infty\)</span>.</p>
-<p>We can define a separate treatment effect for each of the treatment groups and for each time period: <span class="math inline">\(\Delta^{Y_t}_{TT_d}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=d}\)</span>, for <span class="math inline">\(t,d\in\left\{1,2,\dots,T\right\}\)</span>.
-We can also define a treatment on the untreated <span class="math inline">\(\Delta^{Y_t}_{TUT}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=\infty}\)</span>.</p>
+<p>We can define a separate treatment effect for each of the treatment groups and for each time period: <span class="math inline">\(\Delta^{Y_{\tau}}_{TT_d}=\esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}\)</span>, for <span class="math inline">\(\tau,d\in\left\{1,2,\dots,T\right\}\)</span>.</p>
 <p>We can also form a very large bunch of DID estimators:</p>
 <p><span class="math display">\[\begin{align*}
-  \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau&#39;}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau&#39;}|D_i=d&#39;},
+  \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau&#39;}|D_i=d}-(\esp{Y_{i,d+\tau}|D_i=d&#39;}-\esp{Y_{i,d-\tau&#39;}|D_i=d&#39;}),
 \end{align*}\]</span></p>
 <p>where <span class="math inline">\(\tau,\tau&#39;&gt;0\)</span> and <span class="math inline">\(d&#39;&gt;d+\tau\)</span>.
 <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> tries to estimate the effect of the treatment on units that first entered the treatment at period <span class="math inline">\(t=d\)</span> (the treated group here) using the units that received the treatment at period <span class="math inline">\(d&#39;&gt;d\)</span> as a benchmark.
 <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> compares how outcomes have changed between <span class="math inline">\(\tau\)</span> periods after the treatment and <span class="math inline">\(\tau&#39;\)</span> periods before the treatment.</p>
 <p>Imposing <span class="math inline">\(d&#39;&gt;d+\tau\)</span> ensures that <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> is a proper DID estimator.
-If <span class="math inline">\(d-\tau&#39;&lt;d&#39;&lt;d+\tau\)</span>, <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> is not a proper DID estimator since <span class="math inline">\(d&#39;\)</span> receives also receives the treatment between the two dates at which outcomes are measured.
+If <span class="math inline">\(d-\tau&#39;&lt;d&#39;&lt;d+\tau\)</span>, <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> is not a proper DID estimator since units in group <span class="math inline">\(d&#39;\)</span> also receive the treatment between the two dates at which outcomes are measured.
 When <span class="math inline">\(d&#39;&lt;d-\tau&#39;\)</span>, <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> compares the change in outcomes in the group entering the treatment at date <span class="math inline">\(d\)</span> with the changes in outcomes occurring in a group that has already entered the treatment at a date <span class="math inline">\(d&#39;\)</span> that is prior the starting date of the DID.
-Since this estimator is a <span class="math inline">\(DID^r\)</span> estimator, I am going to note it as such in the future.
+Since this estimator is a <span class="math inline">\(DID^r\)</span> estimator, I am going to denote it as such in the future.
 <span class="math inline">\(\Delta^{Y}_{DID^r}(d,d&#39;,\tau,\tau&#39;)\)</span> is well-defined only when <span class="math inline">\(d&#39;&lt;d-\tau&#39;\)</span>.</p>
 <p>Before stating our first identification result, let us make some assumptions that will mirror the simpler ones we made in the previous section.
 First, we are going to assume that at least some units are untreated at some period:</p>
@@ -2668,35 +2667,291 @@ First, we are going to assume that at least some units are untreated at some per
 <div class="hypothesis">
 <p><span id="hyp:ParallelTrendsTime" class="hypothesis"><strong>Hypothesis 4.17  (Parallel Trends for All Groups)  </strong></span>We assume that the trends in the potential outcomes in the absence the treatment are the same for all the treatment groups:</p>
 <span class="math display">\[\begin{align*}
-    \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t&#39;}|D_i=d} &amp; =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t&#39;}|D_i=\infty}.
+   \forall d,t,t&#39;\in\left\{1,2,\dots,T\right\} &amp; = \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t&#39;}|D_i=d} =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t&#39;}|D_i=\infty}.
 \end{align*}\]</span>
-<span class="math inline">\(\forall d\in\left\{1,2,\dots,T\right\}\)</span> and <span class="math inline">\(\forall t,t&#39;\in\left\{1,2,\dots,T\right\}\)</span>
 </div>
 <p>We are now ready to state our main identification result:</p>
 
 <div class="theorem">
-<p><span id="thm:IdentDIDTime" class="theorem"><strong>Theorem 4.10  (DID identifies TT at Each Point in Time)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a>, <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a> and <a href="NE.html#hyp:ParallelTrendsTime">4.17</a>, the DID estimator identifies the average effect of the Treatment on the Treated after the treatment in each time period:</p>
+<p><span id="thm:IdentDIDTime" class="theorem"><strong>Theorem 4.10  (DID identifies TT at Each Point in Time)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a>, <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a> and <a href="NE.html#hyp:ParallelTrendsTime">4.17</a>, the DID estimator identifies the average effect of the Treatment on the Treated in each time period:</p>
 <span class="math display">\[\begin{align*}
-    \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; =  \Delta^{Y_{d+\tau}}_{TT_d},
+    \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; =  \Delta^{Y_{\tau}}_{TT_d},
 \end{align*}\]</span>
 where <span class="math inline">\(\tau,\tau&#39;&gt;0\)</span> and <span class="math inline">\(d&#39;&gt;d+\tau\)</span>.
 </div>
 
 <div class="proof">
 <p> <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
-  \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau&#39;}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau&#39;}|D_i=d&#39;}\\
-                                    &amp; = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau&#39;}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d&#39;}\\
-                                    &amp; = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau&#39;}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d}\\
+  \Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;) &amp; = \esp{Y_{i,d+\tau}-Y_{i,d-\tau&#39;}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau&#39;}|D_i=d&#39;}\\
+                                    &amp; = \esp{Y^1_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d&#39;}\\
+                                    &amp; = \esp{Y^1_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau&#39;}|D_i=d}\\
                                     &amp; = \esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}
 \end{align*}\]</span></p>
 <p>where the second equality follows from Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a> and <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a> and the fact that <span class="math inline">\(d&#39;&gt;d+\tau\)</span>.
 The third equality follows from Assumption <a href="NE.html#hyp:ParallelTrendsTime">4.17</a>.
 This proves the result.</p>
 </div>
+<p>Theorem <a href="NE.html#thm:IdentDIDTime">4.10</a> shows that the basic mechanics of the DID estimator extends to multiple periods.
+The problem with Theorem <a href="NE.html#thm:IdentDIDTime">4.10</a> is that we now have multiple ATT estimates for various groups and time periods, using various time periods and groups as reference.
+How do we reconcile all of these estimates in a unique parameter, or at least a vector of parameters that makes some sense?
+Let’s define sets of positive weights <span class="math inline">\(w^k(d,d&#39;,\tau,\tau&#39;)\)</span> that sum to one.
+We can then define a set of DID estimators:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta^{Y}_{DID}(k)=\sum w^k(d,d&#39;,\tau,\tau&#39;)\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;),
+\end{align*}\]</span></p>
+<p>where the sum is taken in coherence with the weights.
+These DID estimators are going to identify various features of the effects of the treatment, using various types of reference groups and time periods.
+Let us be more precise:</p>
+<ol style="list-style-type: decimal">
+<li>A first set of weights combines the various estimates of the same treatment effect on the outcomes of group <span class="math inline">\(d\)</span> observed at period <span class="math inline">\(d=\tau\)</span>.
+These weights, which we denote <span class="math inline">\(w^s_{d,\tau}(d&#39;,\tau&#39;)\)</span>, are such that they take value zero for estimates <span class="math inline">\(\Delta^{Y}_{DID}(d&#39;&#39;,d&#39;,\tau&#39;&#39;,\tau&#39;)\)</span> that are such <span class="math inline">\(d&#39;&#39;\neq d\)</span> and <span class="math inline">\(\tau&#39;&#39;\neq\tau\)</span> and they have: <span class="math inline">\(\sum_{\tau&#39;,d&#39;&gt;d+\tau}w^s_{d,\tau}(d&#39;,\tau&#39;)=1\)</span>.
+One way to define these weights is to make them proportional to the proportion of <span class="math inline">\((d&#39;,\tau&#39;)\)</span> groups of observations in the population.</li>
+<li>A second set of weights is going to combine the treatment effects themselves.
+For example, one might want to measure the average effect of the treatment <span class="math inline">\(\tau\)</span> periods after entering it.
+This type of dynamic treatment effect is useful to measure how the effect of the treatment varies over time.
+There are two versions of this set of weights: one unconditional and one conditional on at least reaching a certain number of periods in the treatment (let’s say <span class="math inline">\(\tau&#39;&#39;&gt;\tau\)</span> periods after the treatment).
+With the second version, all the estimates of the dynamic effects of the treatment are going to be taken over the same set of groups.
+With the first version, changes in treatment effects over time might be confounded by changes in group composition.
+Let’s denote the first type of weights <span class="math inline">\(w^u_{\tau}(d,d&#39;,\tau&#39;)\)</span> and the second <span class="math inline">\(w^c_{\tau,\tau&#39;&#39;}(d,d&#39;,\tau&#39;)\)</span> , with <span class="math inline">\(\tau&#39;&#39;&gt;\tau\)</span>.
+We then have <span class="math inline">\(\Delta^{Y_u}_{DID}(\tau)=\sum_{d,d&#39;&gt;d+\tau,\tau&#39;} w^u_{\tau}(d,d&#39;,\tau&#39;)\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> and <span class="math inline">\(\Delta^{Y_c}_{DID}(\tau,\tau&#39;&#39;)=\sum_{d,d&#39;&gt;d+\tau,\tau&#39;} w^c_{\tau,\tau&#39;&#39;}(d,d&#39;,\tau&#39;)\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>.
+These effects can also be restricted to versions using a single reference period <span class="math inline">\(\tau&#39;\)</span> to build the DID estimator: <span class="math inline">\(\Delta^{Y_u}_{DID}(\tau,\tau&#39;)\)</span> and <span class="math inline">\(\Delta^{Y_c}_{DID}(\tau,\tau&#39;,\tau&#39;&#39;)\)</span>.</li>
+<li>A third set of effects is simply taking the average of all the treatment effects at a given time period.
+Let’s denote these set of weights <span class="math inline">\(w^t(d,d&#39;,\tau,\tau&#39;)\)</span> for the effect observed at period <span class="math inline">\(t\)</span>.
+Then, we have <span class="math inline">\(\Delta^{Y_t}_{DID}=\sum_{\tau+d=t,d&#39;&gt;d+\tau,\tau&#39;} w^t(d,d&#39;,\tau,\tau&#39;)\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>.
+Another version again uses only estimates taken with period <span class="math inline">\(d-\tau&#39;\)</span> as a reference: <span class="math inline">\(\Delta^{Y_t}_{DID}(\tau&#39;)=\sum_{\tau+d=t,d&#39;&gt;d+\tau} w^t_{\tau&#39;}(d,d&#39;,\tau)\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>.</li>
+<li>Finally, one can simply define the overall effect of the treatment on the treated as the sum of all relevant treatment effects estimated in the sample.
+Let’s define the set of weights <span class="math inline">\(w^a(d,d&#39;,\tau,\tau&#39;)\)</span> and the estimate of the average treatment effect on the treated as <span class="math inline">\(\Delta^{Y}_{DID}=\sum_{\tau,d,d&#39;&gt;d+\tau,\tau&#39;} w^a(d,d&#39;,\tau,\tau&#39;)\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>.
+Again, some authors restrict this estimate to be specific to a given reference period: <span class="math inline">\(\Delta^{Y}_{DID}(\tau&#39;)=\sum_{\tau,d,d&#39;&gt;d+\tau} w^a_{\tau&#39;}(d,d&#39;,\tau)\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>.</li>
+</ol>
+<p>As a consequence of Theorem <a href="NE.html#thm:IdentDIDTime">4.10</a>, all the aggregate treatment effects are identified, as long as each of their separate components are identified.
+The following corollary makes that clear:</p>
+
+<div class="corollary">
+<p><span id="cor:IdentDIDAgg" class="corollary"><strong>Corollary 4.3  (DID identifies Weighted TT)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a>, <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a> and <a href="NE.html#hyp:ParallelTrendsTime">4.17</a>, assuming that <span class="math inline">\(\Pr(D_i=d)&gt;0\)</span> and <span class="math inline">\(\Pr(D_i=d&#39;)&gt;0\)</span>, <span class="math inline">\(\forall (d,d&#39;)\in \left\{1,2,\dots,T,\infty\right\}\)</span> such that <span class="math inline">\(w^k(d,d&#39;,\tau,\tau&#39;)&gt;0\)</span> and assuming that <span class="math inline">\(\forall d,d&#39;,\tau,\tau&#39;\)</span> such that <span class="math inline">\(w^k(d,d&#39;,\tau,\tau&#39;)&gt;0\)</span>, <span class="math inline">\((d+\tau,d&#39;-\tau&#39;)\in\left\{1,2,\dots,T,\infty\right\}^2\)</span>, the weighted DID estimator identifies the corresponding weigthed average of Treatment on the Treated:</p>
+<span class="math display">\[\begin{align*}
+    \Delta^{Y}_{DID}(k) &amp; =  \Delta^{Y}_{TT}(k),
+\end{align*}\]</span>
+with
+<span class="math display">\[\begin{align*}
+    \Delta^{Y}_{TT}(k) &amp; = \sum w^k(d,d&#39;,\tau,\tau&#39;)\Delta^{Y_{\tau}}_{TT_d}
+\end{align*}\]</span>
+</div>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> The proof follows from Theorem <a href="NE.html#thm:IdentDIDTime">4.10</a>: as long as the groups for which the weights are non null exist, and the time periods for which the weights are non null also exist in the data, Theorem <a href="NE.html#thm:IdentDIDTime">4.10</a> ensures that each of the components of the weighted average is identifed and thus the weighted average is identified as well.
+</div>
+<p>Before going through an example to illustrate all of these notions, let me introduce one estimator.</p>
 </div>
 <div id="estimation-2" class="section level4" number="4.3.3.2">
 <h4><span class="header-section-number">4.3.3.2</span> Estimation</h4>
-<p><strong>Build a new dataset with several time periods.</strong></p>
+<p>Estimation of the various DID estimators that we have defined in the previous section can take several forms.
+The simplest form estimates the separate individual DID components using the methods seen in Section <a href="NE.html#DIDbasic">4.3.1</a>, and then manually computes their weighted averages.
+This approach has been proposed by <a href="https://www.sciencedirect.com/science/article/pii/S030440762030378X">Sun and Abraham (2021)</a> and by <a href="https://www.sciencedirect.com/science/article/pii/S0304407620303948">Callaway and Sant’Anna</a>.
+A more intricate approach uses an imputation model to derive the predicted counterfactual values for all treated observations and then averages them.
+This approach has been proposed by <a href="http://arxiv.org/abs/2108.12419">Borusyak, Jaravel and Speiss (2021)</a>.
+<a href="https://www.aeaweb.org/articles?id=10.1257/aer.20181169">de Chaisemartin and d’Haultfoeuille</a> propose to only use changes that occur around the treatment date.
+Finally, one could use the Two Way Fixed Effects model presented in Section <a href="NE.html#DIDbasic">4.3.1</a>, combining all the time periods in a single estimator.
+Recent work by <a href="https://www.sciencedirect.com/science/article/pii/S0304407621001445">Goodman-Bacon</a> has shown that this approach is only valid under much more restrictive assumptions than the ones stated in Corollary <a href="NE.html#cor:IdentDIDAgg">4.3</a>.
+The main reason for why is that the Two Way Fixed Effects estimator combines individual DID and <span class="math inline">\(DID^r\)</span> estimates, thereby generating strong biases if the assumptions that ensure the validity of <span class="math inline">\(DID^r\)</span> are not valid.
+An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
+It has been proposed by <a href="https://academic.oup.com/qje/article/134/3/1405/5484905">Cengiz, Dube, Lindner and Zipperer (2019)</a> and extended by <a href="https://jrgcmu.github.io/2sdd_current.pdf">Gardner (2021)</a> who also proposes an imputation estimator <em>à la</em> Borusyak, Jaravel and Speiss.</p>
+<div id="using-weighted-averages-of-individual-did-estimators" class="section level5" number="4.3.3.2.1">
+<h5><span class="header-section-number">4.3.3.2.1</span> Using weighted averages of individual DID estimators</h5>
+<p>This estimator is pretty simple to define.
+Simply take all the possible <span class="math inline">\(2\times2\)</span> possible DID estimators <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>, with <span class="math inline">\(\tau,\tau&#39;&gt;0\)</span> and <span class="math inline">\(d&#39;&gt;d+\tau\)</span>, and then average them using the pre-defined weights <span class="math inline">\(w^k(d,d&#39;,\tau,\tau&#39;)\)</span> of your choice.
+The key to this section is to illustrate how to operationalize this approach in practice with an example.
+Let’s go.</p>
+
+<div class="example">
+<span id="exm:unnamed-chunk-207" class="example"><strong>Example 4.27  </strong></span>The key here is first to generate some data.
+</div>
+<p>We are going to have four successive time periods, <span class="math inline">\(1\)</span>, <span class="math inline">\(2\)</span>, <span class="math inline">\(3\)</span>, and <span class="math inline">\(4\)</span>.
+At each of these time periods, some units start receiving the treatment, generating four treatment groups: <span class="math inline">\(D_i\in\{1,2,3,4\}\)</span>.
+Let us write a model compatible with this setting, choose a parameterization and generate the data.</p>
+<p><span class="math display">\[\begin{align*}
+y^1_{i,t} &amp; = y_{i,t}^0+\bar{\alpha}_t+\sum_{d}(\bar{\alpha}_{t,d}+\theta_d\mu_i)\uns{D_{i,d}=1}+\eta_{i,t} \\
+y^0_{i,t} &amp; = \mu_i+\delta_t+U^0_{i,t} \\
+U^0_{i,t} &amp; = \rho U^0_{i,t-1}+\epsilon_{i,t} \\
+D_{i,t}   &amp; = \uns{y^0_{i,1} + \xi_t+ V_i\leq\bar{y}} \\
+V_i   &amp; = \gamma(\mu_i-\bar{\mu}) + \omega_{i,1} \\
+U^0_{i,1} &amp; \sim\mathcal{N}(0,\sigma^2_{U}) \\
+(\eta_{i,t},\omega_{i,t}) &amp; \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})\\
+\epsilon_{i,t} &amp; \sim\mathcal{N}(0,\sigma^2_{\epsilon}).
+\end{align*}\]</span></p>
+<p>I am going to parameterize the <span class="math inline">\(\bar{\alpha}_{t,d}\)</span> process in order to avoid having to specify the 14 parameters that it otherwise would require.
+The parameterization I am choosing is <span class="math inline">\(\bar{\alpha}_{t,d}=\kappa(t-d)\uns{t\geq d}\)</span>, so that treatment effects increase linearly as time into the treatment increases.
+Let us now choose some parameter values:</p>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="NE.html#cb169-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>,<span class="fl">0.9</span>,</span>
+<span id="cb169-2"><a href="NE.html#cb169-2" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.01</span>,<span class="fl">0.01</span>,<span class="fl">0.01</span>,<span class="fl">0.01</span>,</span>
+<span id="cb169-3"><a href="NE.html#cb169-3" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.05</span>,<span class="fl">0.05</span>,</span>
+<span id="cb169-4"><a href="NE.html#cb169-4" aria-hidden="true" tabindex="-1"></a>           <span class="dv">0</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.3</span>,</span>
+<span id="cb169-5"><a href="NE.html#cb169-5" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.15</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>,</span>
+<span id="cb169-6"><a href="NE.html#cb169-6" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.5</span>,<span class="dv">0</span>,<span class="sc">-</span><span class="fl">0.5</span>,<span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb169-7"><a href="NE.html#cb169-7" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.1</span>,<span class="fl">0.28</span>,<span class="dv">0</span>)</span>
+<span id="cb169-8"><a href="NE.html#cb169-8" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,</span>
+<span id="cb169-9"><a href="NE.html#cb169-9" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;theta1&quot;</span>,<span class="st">&quot;theta2&quot;</span>,<span class="st">&quot;theta3&quot;</span>,<span class="st">&quot;theta4&quot;</span>,</span>
+<span id="cb169-10"><a href="NE.html#cb169-10" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,</span>
+<span id="cb169-11"><a href="NE.html#cb169-11" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;delta1&quot;</span>,<span class="st">&quot;delta2&quot;</span>,<span class="st">&quot;delta3&quot;</span>,<span class="st">&quot;delta4&quot;</span>,</span>
+<span id="cb169-12"><a href="NE.html#cb169-12" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;baralpha1&quot;</span>,<span class="st">&quot;baralpha2&quot;</span>,<span class="st">&quot;baralpha3&quot;</span>,<span class="st">&quot;baralpha4&quot;</span>,<span class="st">&quot;kappa&quot;</span>,</span>
+<span id="cb169-13"><a href="NE.html#cb169-13" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;xi1&quot;</span>,<span class="st">&quot;xi2&quot;</span>,<span class="st">&quot;xi3&quot;</span>,<span class="st">&quot;xi4&quot;</span>,</span>
+<span id="cb169-14"><a href="NE.html#cb169-14" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;gamma&quot;</span>,<span class="st">&quot;sigma2omega&quot;</span>,<span class="st">&quot;rhoetaomega&quot;</span>)</span></code></pre></div>
+<p>Let us now generate the corresponding data (in long format):</p>
+<div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="NE.html#cb170-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb170-2"><a href="NE.html#cb170-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb170-3"><a href="NE.html#cb170-3" aria-hidden="true" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb170-4"><a href="NE.html#cb170-4" aria-hidden="true" tabindex="-1"></a>cov.eta.omega <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(param[<span class="st">&quot;sigma2eta&quot;</span>],param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;rhoetaomega&quot;</span>]<span class="sc">*</span><span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2eta&quot;</span>]<span class="sc">*</span>param[<span class="st">&quot;sigma2omega&quot;</span>]),param[<span class="st">&quot;sigma2omega&quot;</span>]),<span class="at">ncol=</span><span class="dv">2</span>,<span class="at">nrow=</span><span class="dv">2</span>)</span>
+<span id="cb170-5"><a href="NE.html#cb170-5" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">mvrnorm</span>(N<span class="sc">*</span>T,<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),cov.eta.omega))</span>
+<span id="cb170-6"><a href="NE.html#cb170-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;eta&#39;</span>,<span class="st">&#39;omega&#39;</span>)</span>
+<span id="cb170-7"><a href="NE.html#cb170-7" aria-hidden="true" tabindex="-1"></a><span class="co"># time and individual identifiers</span></span>
+<span id="cb170-8"><a href="NE.html#cb170-8" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>,N),<span class="fu">rep</span>(<span class="dv">2</span>,N),<span class="fu">rep</span>(<span class="dv">3</span>,N),<span class="fu">rep</span>(<span class="dv">4</span>,N))</span>
+<span id="cb170-9"><a href="NE.html#cb170-9" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">rep</span>((<span class="dv">1</span><span class="sc">:</span>N),T)</span>
+<span id="cb170-10"><a href="NE.html#cb170-10" aria-hidden="true" tabindex="-1"></a><span class="co"># unit fixed effects</span></span>
+<span id="cb170-11"><a href="NE.html#cb170-11" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>mu <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(N,param[<span class="st">&quot;barmu&quot;</span>],<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2mu&quot;</span>])),T)</span>
+<span id="cb170-12"><a href="NE.html#cb170-12" aria-hidden="true" tabindex="-1"></a><span class="co"># time fixed effects</span></span>
+<span id="cb170-13"><a href="NE.html#cb170-13" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>delta <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(param[<span class="st">&quot;delta1&quot;</span>],N),<span class="fu">rep</span>(param[<span class="st">&quot;delta2&quot;</span>],N),<span class="fu">rep</span>(param[<span class="st">&quot;delta3&quot;</span>],N),<span class="fu">rep</span>(param[<span class="st">&quot;delta4&quot;</span>],N))</span>
+<span id="cb170-14"><a href="NE.html#cb170-14" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>baralphat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(param[<span class="st">&quot;baralpha1&quot;</span>],N),<span class="fu">rep</span>(param[<span class="st">&quot;baralpha2&quot;</span>],N),<span class="fu">rep</span>(param[<span class="st">&quot;baralpha3&quot;</span>],N),<span class="fu">rep</span>(param[<span class="st">&quot;baralpha4&quot;</span>],N))</span>
+<span id="cb170-15"><a href="NE.html#cb170-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb170-16"><a href="NE.html#cb170-16" aria-hidden="true" tabindex="-1"></a><span class="co"># building autocorrelated error terms</span></span>
+<span id="cb170-17"><a href="NE.html#cb170-17" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>epsilon <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N<span class="sc">*</span>T,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2epsilon&quot;</span>]))</span>
+<span id="cb170-18"><a href="NE.html#cb170-18" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>U[<span class="dv">1</span><span class="sc">:</span>N] <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N,<span class="dv">0</span>,<span class="fu">sqrt</span>(param[<span class="st">&quot;sigma2U&quot;</span>]))</span>
+<span id="cb170-19"><a href="NE.html#cb170-19" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>U[(N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>N)] <span class="ot">&lt;-</span> param[<span class="st">&quot;rho&quot;</span>]<span class="sc">*</span>data<span class="sc">$</span>U[<span class="dv">1</span><span class="sc">:</span>N] <span class="sc">+</span> data<span class="sc">$</span>epsilon[(N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>N)]</span>
+<span id="cb170-20"><a href="NE.html#cb170-20" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>U[(<span class="dv">2</span><span class="sc">*</span>N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">3</span><span class="sc">*</span>N)] <span class="ot">&lt;-</span> param[<span class="st">&quot;rho&quot;</span>]<span class="sc">*</span>data<span class="sc">$</span>U[(N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>N)] <span class="sc">+</span> data<span class="sc">$</span>epsilon[(<span class="dv">2</span><span class="sc">*</span>N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">3</span><span class="sc">*</span>N)]</span>
+<span id="cb170-21"><a href="NE.html#cb170-21" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>U[(<span class="dv">3</span><span class="sc">*</span>N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(T<span class="sc">*</span>N)] <span class="ot">&lt;-</span> param[<span class="st">&quot;rho&quot;</span>]<span class="sc">*</span>data<span class="sc">$</span>U[(<span class="dv">2</span><span class="sc">*</span>N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">3</span><span class="sc">*</span>N)] <span class="sc">+</span> data<span class="sc">$</span>epsilon[(<span class="dv">3</span><span class="sc">*</span>N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(T<span class="sc">*</span>N)]</span>
+<span id="cb170-22"><a href="NE.html#cb170-22" aria-hidden="true" tabindex="-1"></a><span class="co"># potential outcomes in the absence of the treatment</span></span>
+<span id="cb170-23"><a href="NE.html#cb170-23" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y0 <span class="ot">&lt;-</span> data<span class="sc">$</span>mu <span class="sc">+</span> data<span class="sc">$</span>delta <span class="sc">+</span> data<span class="sc">$</span>U </span>
+<span id="cb170-24"><a href="NE.html#cb170-24" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Y0 <span class="ot">&lt;-</span> <span class="fu">exp</span>(data<span class="sc">$</span>y0)</span>
+<span id="cb170-25"><a href="NE.html#cb170-25" aria-hidden="true" tabindex="-1"></a><span class="co"># treatment timing</span></span>
+<span id="cb170-26"><a href="NE.html#cb170-26" aria-hidden="true" tabindex="-1"></a><span class="co"># error term</span></span>
+<span id="cb170-27"><a href="NE.html#cb170-27" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>V <span class="ot">&lt;-</span> param[<span class="st">&quot;gamma&quot;</span>]<span class="sc">*</span>(data<span class="sc">$</span>mu<span class="sc">-</span>param[<span class="st">&quot;barmu&quot;</span>])<span class="sc">+</span>data<span class="sc">$</span>omega</span>
+<span id="cb170-28"><a href="NE.html#cb170-28" aria-hidden="true" tabindex="-1"></a><span class="co"># treatment group, with 99 for the never treated instead of infinity</span></span>
+<span id="cb170-29"><a href="NE.html#cb170-29" aria-hidden="true" tabindex="-1"></a>Ds <span class="ot">&lt;-</span> <span class="fu">if_else</span>(data<span class="sc">$</span>y0[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">+</span>param[<span class="st">&quot;xi1&quot;</span>]<span class="sc">+</span>data<span class="sc">$</span>V[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="dv">1</span>,</span>
+<span id="cb170-30"><a href="NE.html#cb170-30" aria-hidden="true" tabindex="-1"></a>              <span class="fu">if_else</span>(data<span class="sc">$</span>y0[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">+</span>param[<span class="st">&quot;xi2&quot;</span>]<span class="sc">+</span>data<span class="sc">$</span>V[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="dv">2</span>,</span>
+<span id="cb170-31"><a href="NE.html#cb170-31" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">if_else</span>(data<span class="sc">$</span>y0[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">+</span>param[<span class="st">&quot;xi3&quot;</span>]<span class="sc">+</span>data<span class="sc">$</span>V[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="dv">3</span>,</span>
+<span id="cb170-32"><a href="NE.html#cb170-32" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">if_else</span>(data<span class="sc">$</span>y0[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">+</span>param[<span class="st">&quot;xi4&quot;</span>]<span class="sc">+</span>data<span class="sc">$</span>V[<span class="dv">1</span><span class="sc">:</span>N]<span class="sc">&lt;=</span><span class="fu">log</span>(param[<span class="st">&quot;barY&quot;</span>]),<span class="dv">4</span>,<span class="dv">99</span>))))</span>
+<span id="cb170-33"><a href="NE.html#cb170-33" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Ds <span class="ot">&lt;-</span> <span class="fu">rep</span>(Ds,T)</span>
+<span id="cb170-34"><a href="NE.html#cb170-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Treatment status</span></span>
+<span id="cb170-35"><a href="NE.html#cb170-35" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>D <span class="ot">&lt;-</span> <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">&gt;</span>data<span class="sc">$</span>time,<span class="dv">0</span>,<span class="dv">1</span>)</span>
+<span id="cb170-36"><a href="NE.html#cb170-36" aria-hidden="true" tabindex="-1"></a><span class="co"># potential outcomes with the treatment</span></span>
+<span id="cb170-37"><a href="NE.html#cb170-37" aria-hidden="true" tabindex="-1"></a><span class="co"># effect of the treatment by group</span></span>
+<span id="cb170-38"><a href="NE.html#cb170-38" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>baralphatd <span class="ot">&lt;-</span> param[<span class="st">&quot;kappa&quot;</span>]<span class="sc">*</span>(data<span class="sc">$</span>t<span class="sc">-</span>data<span class="sc">$</span>Ds)<span class="sc">*</span><span class="fu">if_else</span>(data<span class="sc">$</span>time<span class="sc">&gt;=</span>data<span class="sc">$</span>Ds,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb170-39"><a href="NE.html#cb170-39" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y1 <span class="ot">&lt;-</span> data<span class="sc">$</span>y0 <span class="sc">+</span> data<span class="sc">$</span>baralphat <span class="sc">+</span> data<span class="sc">$</span>baralphatd <span class="sc">+</span> <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">1</span>,param[<span class="st">&quot;theta1&quot;</span>],<span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span>,param[<span class="st">&quot;theta2&quot;</span>],<span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span>,param[<span class="st">&quot;theta3&quot;</span>],param[<span class="st">&quot;theta4&quot;</span>])))<span class="sc">*</span>data<span class="sc">$</span>mu <span class="sc">+</span> data<span class="sc">$</span>eta</span>
+<span id="cb170-40"><a href="NE.html#cb170-40" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Y1 <span class="ot">&lt;-</span> <span class="fu">exp</span>(data<span class="sc">$</span>y1)</span>
+<span id="cb170-41"><a href="NE.html#cb170-41" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y <span class="ot">&lt;-</span> data<span class="sc">$</span>y1<span class="sc">*</span>data<span class="sc">$</span>D<span class="sc">+</span>data<span class="sc">$</span>y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>data<span class="sc">$</span>D)</span>
+<span id="cb170-42"><a href="NE.html#cb170-42" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Y <span class="ot">&lt;-</span> data<span class="sc">$</span>Y1<span class="sc">*</span>data<span class="sc">$</span>D<span class="sc">+</span>data<span class="sc">$</span>Y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>data<span class="sc">$</span>D)</span></code></pre></div>
+<p>Let us now plot the data, especially the potential outcomes for each group.</p>
+<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="NE.html#cb171-1" aria-hidden="true" tabindex="-1"></a>dataplotDIDStaggered <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb171-2"><a href="NE.html#cb171-2" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">group_by</span>(Ds,time) <span class="sc">%&gt;%</span></span>
+<span id="cb171-3"><a href="NE.html#cb171-3" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">summarize</span>(</span>
+<span id="cb171-4"><a href="NE.html#cb171-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">y1=</span><span class="fu">mean</span>(y1),</span>
+<span id="cb171-5"><a href="NE.html#cb171-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">y0=</span><span class="fu">mean</span>(y0)</span>
+<span id="cb171-6"><a href="NE.html#cb171-6" aria-hidden="true" tabindex="-1"></a>                          ) <span class="sc">%&gt;%</span></span>
+<span id="cb171-7"><a href="NE.html#cb171-7" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">pivot_longer</span>(<span class="at">cols=</span><span class="fu">c</span>(<span class="st">&quot;y1&quot;</span>,<span class="st">&quot;y0&quot;</span>),<span class="at">values_to=</span><span class="st">&quot;Outcome&quot;</span>,<span class="at">names_to=</span><span class="st">&quot;PotentialOutcome&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb171-8"><a href="NE.html#cb171-8" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">mutate</span>(</span>
+<span id="cb171-9"><a href="NE.html#cb171-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">TreatmentDate =</span> <span class="fu">factor</span>(Ds,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;99&quot;</span>,<span class="st">&quot;4&quot;</span>,<span class="st">&quot;3&quot;</span>,<span class="st">&quot;2&quot;</span>,<span class="st">&quot;1&quot;</span>))</span>
+<span id="cb171-10"><a href="NE.html#cb171-10" aria-hidden="true" tabindex="-1"></a>                          )</span>
+<span id="cb171-11"><a href="NE.html#cb171-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb171-12"><a href="NE.html#cb171-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dataplotDIDStaggered,<span class="fu">aes</span>(<span class="at">x=</span>time,<span class="at">y=</span>Outcome,<span class="at">color=</span>TreatmentDate,<span class="at">shape=</span>TreatmentDate,<span class="at">linetype=</span>PotentialOutcome))<span class="sc">+</span></span>
+<span id="cb171-13"><a href="NE.html#cb171-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb171-14"><a href="NE.html#cb171-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb171-15"><a href="NE.html#cb171-15" aria-hidden="true" tabindex="-1"></a><span class="co">#    scale_linetype_discrete(guide=&#39;none&#39;) +</span></span>
+<span id="cb171-16"><a href="NE.html#cb171-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggered"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggered-1.png" alt="Evolution of average outcomes in the various treatment groups defined by their date of entry into the treatment" width="50%" />
+<p class="caption">
+Figure 4.12: Evolution of average outcomes in the various treatment groups defined by their date of entry into the treatment
+</p>
+</div>
+<p>Figure <a href="NE.html#fig:PlotDIDStaggered">4.12</a> shows that the first units to be treated have the lowest potential outcomes in the absence of the treatment (<span class="math inline">\(y^0\)</span>, in full line), and that each successive cohort entering the treatment over time has increasingly large potential outcomes.
+Assumption <a href="NE.html#hyp:ParallelTrendsTime">4.17</a> seems to hold in this dataset, at least visually: the trends in potential outcomes in the absence of the treatment seem to be rather parallel to each other in each group.
+Once a group of unit has entered the treatment, it experiences an increase in outcomes that grows over time.
+Finally, note that we will be unable to estimate the impact on the group with <span class="math inline">\(D_i=1\)</span> since they enter the treatment at the first period.</p>
+<p>Let us now compute each possible DID estimator on this dataset.
+In order to save some space and time, we will start by focusing on group 2.
+Group 2 starts treatment at period 2, and thus only period 1 can be used for building a DID estimator.
+But several comparison groups exist: the never treated (note that we have used <span class="math inline">\(D_i=99\)</span> instead of <span class="math inline">\(D_i=\infty\)</span> to characterize this group, in order to make it simpler to manipulate it in <code>R</code>) but also group 3, that can serve as an untreated benchmark between periods 1 and 2, and group 4, which can be used as an untreated benchmark in periods 1, 2 and 3.
+Let’s compute all these effects.
+In order to make our lives simpler, we are going to generate a function to generate <span class="math inline">\(\hat\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>.</p>
+<div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb172-1"><a href="NE.html#cb172-1" aria-hidden="true" tabindex="-1"></a><span class="co"># StaggeredDID22 is a function that takes as inputs:</span></span>
+<span id="cb172-2"><a href="NE.html#cb172-2" aria-hidden="true" tabindex="-1"></a><span class="co"># y: name of outcome variable (character)</span></span>
+<span id="cb172-3"><a href="NE.html#cb172-3" aria-hidden="true" tabindex="-1"></a><span class="co"># D: name of treatment group variable (character)</span></span>
+<span id="cb172-4"><a href="NE.html#cb172-4" aria-hidden="true" tabindex="-1"></a><span class="co"># d: treatment group defined by date of entry into the treatment</span></span>
+<span id="cb172-5"><a href="NE.html#cb172-5" aria-hidden="true" tabindex="-1"></a><span class="co"># dprime: comparison group</span></span>
+<span id="cb172-6"><a href="NE.html#cb172-6" aria-hidden="true" tabindex="-1"></a><span class="co"># tau: number of periods after treatment date at which we estimate the effect of the treatment</span></span>
+<span id="cb172-7"><a href="NE.html#cb172-7" aria-hidden="true" tabindex="-1"></a><span class="co"># tauprime: number of periods before the treatment date that we use a baseline period (defaults to one)</span></span>
+<span id="cb172-8"><a href="NE.html#cb172-8" aria-hidden="true" tabindex="-1"></a><span class="co"># t: time indicator (character)</span></span>
+<span id="cb172-9"><a href="NE.html#cb172-9" aria-hidden="true" tabindex="-1"></a><span class="co"># i: individual unit indicator (character)</span></span>
+<span id="cb172-10"><a href="NE.html#cb172-10" aria-hidden="true" tabindex="-1"></a><span class="co"># data: dataset containing the outcomes and treatments and time and unit indicators</span></span>
+<span id="cb172-11"><a href="NE.html#cb172-11" aria-hidden="true" tabindex="-1"></a>StaggeredDID22 <span class="ot">&lt;-</span> <span class="cf">function</span>(tau,y,D,d,dprime,<span class="at">tauprime=</span><span class="dv">1</span>,t,i,data){</span>
+<span id="cb172-12"><a href="NE.html#cb172-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># taking out the irrelevant groups and time periods and generating a useful treatment variable</span></span>
+<span id="cb172-13"><a href="NE.html#cb172-13" aria-hidden="true" tabindex="-1"></a>  data.DID <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb172-14"><a href="NE.html#cb172-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">sym</span>(D)<span class="sc">==</span>d <span class="sc">|</span> <span class="sc">!!</span><span class="fu">sym</span>(D)<span class="sc">==</span>dprime) <span class="sc">%&gt;%</span> </span>
+<span id="cb172-15"><a href="NE.html#cb172-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(time<span class="sc">==</span>d<span class="sc">+</span>tau <span class="sc">|</span> time<span class="sc">==</span>d<span class="sc">-</span>tauprime) <span class="sc">%&gt;%</span></span>
+<span id="cb172-16"><a href="NE.html#cb172-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb172-17"><a href="NE.html#cb172-17" aria-hidden="true" tabindex="-1"></a>              <span class="at">Dit =</span> <span class="fu">if_else</span>(<span class="sc">!!</span><span class="fu">sym</span>(D)<span class="sc">==</span>d <span class="sc">&amp;</span> time<span class="sc">==</span>d<span class="sc">+</span>tau,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb172-18"><a href="NE.html#cb172-18" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb172-19"><a href="NE.html#cb172-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># running the within estimator (fixest)</span></span>
+<span id="cb172-20"><a href="NE.html#cb172-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># regression formula</span></span>
+<span id="cb172-21"><a href="NE.html#cb172-21" aria-hidden="true" tabindex="-1"></a>  DID.form <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="fu">paste</span>(y,<span class="fu">paste</span>(<span class="st">&quot;Dit&quot;</span>,t,<span class="at">sep=</span><span class="st">&quot;+&quot;</span>),<span class="at">sep=</span><span class="st">&quot;~&quot;</span>),i,<span class="at">sep=</span><span class="st">&quot;|&quot;</span>))</span>
+<span id="cb172-22"><a href="NE.html#cb172-22" aria-hidden="true" tabindex="-1"></a>  reg.W.fixest <span class="ot">&lt;-</span> <span class="fu">feols</span>(DID.form, <span class="at">data =</span> data.DID)</span>
+<span id="cb172-23"><a href="NE.html#cb172-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># result vector</span></span>
+<span id="cb172-24"><a href="NE.html#cb172-24" aria-hidden="true" tabindex="-1"></a>  DID.est.W.fixest <span class="ot">&lt;-</span> <span class="fu">c</span>(d,dprime,tau,tauprime,<span class="fu">coef</span>(reg.W.fixest)[[<span class="dv">1</span>]],<span class="fu">sqrt</span>(<span class="fu">vcov</span>(reg.W.fixest)[[<span class="dv">1</span>,<span class="dv">1</span>]]))</span>
+<span id="cb172-25"><a href="NE.html#cb172-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(DID.est.W.fixest) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;d&quot;</span>,<span class="st">&quot;dprime&quot;</span>,<span class="st">&quot;tau&quot;</span>,<span class="st">&quot;tauprime&quot;</span>,<span class="st">&quot;DIDest&quot;</span>,<span class="st">&quot;DIDse&quot;</span>)</span>
+<span id="cb172-26"><a href="NE.html#cb172-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(DID.est.W.fixest)</span>
+<span id="cb172-27"><a href="NE.html#cb172-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb172-28"><a href="NE.html#cb172-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb172-29"><a href="NE.html#cb172-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the regression and keep results</span></span>
+<span id="cb172-30"><a href="NE.html#cb172-30" aria-hidden="true" tabindex="-1"></a><span class="co"># D=99 as benchmark</span></span>
+<span id="cb172-31"><a href="NE.html#cb172-31" aria-hidden="true" tabindex="-1"></a><span class="co"># list of tau for d=2 and dprime=99 and tauprime=1</span></span>
+<span id="cb172-32"><a href="NE.html#cb172-32" aria-hidden="true" tabindex="-1"></a>tau.<span class="fl">2.99</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)</span>
+<span id="cb172-33"><a href="NE.html#cb172-33" aria-hidden="true" tabindex="-1"></a>DID.<span class="dv">2</span>.<span class="fl">99.1</span> <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(tau.<span class="fl">2.99</span>,StaggeredDID22,<span class="at">y=</span><span class="st">&#39;y&#39;</span>,<span class="at">D=</span><span class="st">&#39;Ds&#39;</span>,<span class="at">d=</span><span class="dv">2</span>,<span class="at">dprime=</span><span class="dv">99</span>,<span class="at">tauprime=</span><span class="dv">1</span>,<span class="at">t=</span><span class="st">&quot;time&quot;</span>,<span class="at">i=</span><span class="st">&quot;id&quot;</span>,<span class="at">data=</span>data) </span>
+<span id="cb172-34"><a href="NE.html#cb172-34" aria-hidden="true" tabindex="-1"></a><span class="co"># D=3 </span></span>
+<span id="cb172-35"><a href="NE.html#cb172-35" aria-hidden="true" tabindex="-1"></a><span class="co"># list of tau for d=2 and dprime=3 and tauprime=1</span></span>
+<span id="cb172-36"><a href="NE.html#cb172-36" aria-hidden="true" tabindex="-1"></a>tau.<span class="fl">2.3</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>)</span>
+<span id="cb172-37"><a href="NE.html#cb172-37" aria-hidden="true" tabindex="-1"></a>DID.<span class="dv">2</span>.<span class="fl">3.1</span> <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(tau.<span class="fl">2.3</span>,StaggeredDID22,<span class="at">y=</span><span class="st">&#39;y&#39;</span>,<span class="at">D=</span><span class="st">&#39;Ds&#39;</span>,<span class="at">d=</span><span class="dv">2</span>,<span class="at">dprime=</span><span class="dv">3</span>,<span class="at">tauprime=</span><span class="dv">1</span>,<span class="at">t=</span><span class="st">&quot;time&quot;</span>,<span class="at">i=</span><span class="st">&quot;id&quot;</span>,<span class="at">data=</span>data) </span>
+<span id="cb172-38"><a href="NE.html#cb172-38" aria-hidden="true" tabindex="-1"></a><span class="co"># D=4 </span></span>
+<span id="cb172-39"><a href="NE.html#cb172-39" aria-hidden="true" tabindex="-1"></a><span class="co"># list of tau for d=2 and dprime=4 and tauprime=1</span></span>
+<span id="cb172-40"><a href="NE.html#cb172-40" aria-hidden="true" tabindex="-1"></a>tau.<span class="fl">2.4</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)</span>
+<span id="cb172-41"><a href="NE.html#cb172-41" aria-hidden="true" tabindex="-1"></a>DID.<span class="dv">2</span>.<span class="fl">4.1</span> <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(tau.<span class="fl">2.4</span>,StaggeredDID22,<span class="at">y=</span><span class="st">&#39;y&#39;</span>,<span class="at">D=</span><span class="st">&#39;Ds&#39;</span>,<span class="at">d=</span><span class="dv">2</span>,<span class="at">dprime=</span><span class="dv">4</span>,<span class="at">tauprime=</span><span class="dv">1</span>,<span class="at">t=</span><span class="st">&quot;time&quot;</span>,<span class="at">i=</span><span class="st">&quot;id&quot;</span>,<span class="at">data=</span>data) </span>
+<span id="cb172-42"><a href="NE.html#cb172-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb172-43"><a href="NE.html#cb172-43" aria-hidden="true" tabindex="-1"></a><span class="co"># regroup results</span></span>
+<span id="cb172-44"><a href="NE.html#cb172-44" aria-hidden="true" tabindex="-1"></a>DID.<span class="fl">2.1</span> <span class="ot">&lt;-</span> <span class="fu">rbind</span>(DID.<span class="dv">2</span>.<span class="fl">99.1</span>,DID.<span class="dv">2</span>.<span class="fl">3.1</span>,DID.<span class="dv">2</span>.<span class="fl">4.1</span>)</span>
+<span id="cb172-45"><a href="NE.html#cb172-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb172-46"><a href="NE.html#cb172-46" aria-hidden="true" tabindex="-1"></a><span class="co"># true effects (in the sample)</span></span>
+<span id="cb172-47"><a href="NE.html#cb172-47" aria-hidden="true" tabindex="-1"></a>ATT.<span class="fl">2.0</span> <span class="ot">&lt;-</span> <span class="fu">mean</span>(data<span class="sc">$</span>y1[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">2</span>])<span class="sc">-</span><span class="fu">mean</span>(data<span class="sc">$</span>y0[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">2</span>])</span>
+<span id="cb172-48"><a href="NE.html#cb172-48" aria-hidden="true" tabindex="-1"></a>ATT.<span class="fl">2.1</span> <span class="ot">&lt;-</span> <span class="fu">mean</span>(data<span class="sc">$</span>y1[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">3</span>])<span class="sc">-</span><span class="fu">mean</span>(data<span class="sc">$</span>y0[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">3</span>])</span>
+<span id="cb172-49"><a href="NE.html#cb172-49" aria-hidden="true" tabindex="-1"></a>ATT.<span class="fl">2.2</span> <span class="ot">&lt;-</span> <span class="fu">mean</span>(data<span class="sc">$</span>y1[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">4</span>])<span class="sc">-</span><span class="fu">mean</span>(data<span class="sc">$</span>y0[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">4</span>])</span></code></pre></div>
+<p>Let us now plot the results for the DID estimates on group <span class="math inline">\(2\)</span> using <span class="math inline">\(\tau&#39;=1\)</span> as a benchmark pre-treatment period.</p>
+<div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb173-1"><a href="NE.html#cb173-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparing data</span></span>
+<span id="cb173-2"><a href="NE.html#cb173-2" aria-hidden="true" tabindex="-1"></a>DID.<span class="fl">2.1</span> <span class="ot">&lt;-</span> DID.<span class="fl">2.1</span> <span class="sc">%&gt;%</span></span>
+<span id="cb173-3"><a href="NE.html#cb173-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb173-4"><a href="NE.html#cb173-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">dprime=</span><span class="fu">factor</span>(dprime,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;99&quot;</span>,<span class="st">&quot;4&quot;</span>,<span class="st">&quot;3&quot;</span>))</span>
+<span id="cb173-5"><a href="NE.html#cb173-5" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb173-6"><a href="NE.html#cb173-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb173-7"><a href="NE.html#cb173-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.<span class="fl">2.1</span>,<span class="fu">aes</span>(<span class="at">x=</span>tau,<span class="at">y=</span>DIDest,<span class="at">colour=</span>dprime,<span class="at">linetype=</span>dprime))<span class="sc">+</span></span>
+<span id="cb173-8"><a href="NE.html#cb173-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb173-9"><a href="NE.html#cb173-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>DIDest<span class="fl">-1.96</span><span class="sc">*</span>DIDse,<span class="at">ymax=</span>DIDest<span class="fl">+1.96</span><span class="sc">*</span>DIDse))<span class="sc">+</span></span>
+<span id="cb173-10"><a href="NE.html#cb173-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb173-11"><a href="NE.html#cb173-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time after treatment (tau)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb173-12"><a href="NE.html#cb173-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb173-13"><a href="NE.html#cb173-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb173-14"><a href="NE.html#cb173-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Comparison</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb173-15"><a href="NE.html#cb173-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Comparison</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb173-16"><a href="NE.html#cb173-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredGroup2"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredGroup2-1.png" alt="DID estimates for Group 2 at various time periods after the treament and with various comparison groups and with the reference period $\tau'=1$" width="50%" />
+<p class="caption">
+Figure 4.13: DID estimates for Group 2 at various time periods after the treament and with various comparison groups and with the reference period <span class="math inline">\(\tau&#39;=1\)</span>
+</p>
+</div>
+<p>Figure <a href="NE.html#fig:PlotDIDStaggeredGroup2">4.13</a> shows the <span class="math inline">\(\hat\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> estimates for <span class="math inline">\(d=2\)</span> and <span class="math inline">\(\tau&#39;=1\)</span>, varying both <span class="math inline">\(\tau\)</span> and <span class="math inline">\(d&#39;\)</span>.
+The treatment effects estimated using different reference groups are similar to each other when we can compare them.
+Moreover, the treatment effect grows with time, as expected from Figure <a href="NE.html#fig:PlotDIDStaggered">4.12</a>.
+The true effects of the treatment on group 2 are, in our sample: <span class="math inline">\(\hat\Delta^{Y_{0}}_{TT_2}=\)</span> 0.21, <span class="math inline">\(\hat\Delta^{Y_{1}}_{TT_2}=\)</span> 0.71 and <span class="math inline">\(\hat\Delta^{Y_{2}}_{TT_2}=\)</span> 1.26.
+These are very close to our DID estimates.
+For example, <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,0,1)=\)</span> 0.27, while <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,4,0,1)=\)</span> 0.21 and <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,3,0,1)=\)</span> 0.2, which are all pretty close to <span class="math inline">\(\hat\Delta^{Y_{0}}_{TT_2}=\)</span> 0.21.
+<span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,1,1)=\)</span> 0.8, while <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,4,1,1)=\)</span> 0.72, which are also all pretty close to <span class="math inline">\(\hat\Delta^{Y_{1}}_{TT_2}=\)</span> 0.71.
+Finally, <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,2,1)=\)</span> 1.39, while <span class="math inline">\(\hat\Delta^{Y_{2}}_{TT_2}=\)</span> 1.26.</p>
+</div>
 </div>
 </div>
 <div id="difference-in-differences-with-instrumental-variables" class="section level3" number="4.3.4">

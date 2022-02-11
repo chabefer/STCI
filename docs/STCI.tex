@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-02-03}
+\date{2022-02-11}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -7612,8 +7612,8 @@ We will survey these problems and the proposed solutions to address them.
 Finally, we will look at the combination of DID with instrumental variables (the DID-IV estimator) and see which specific types of problems happen there as well.
 Let's get to it.
 
-\hypertarget{difference-in-differences-with-two-time-periods}{%
-\subsection{Difference In Differences with two time periods}\label{difference-in-differences-with-two-time-periods}}
+\hypertarget{DIDbasic}{%
+\subsection{Difference In Differences with two time periods}\label{DIDbasic}}
 
 Before getting into the rigorous derivations, let's start with a very simple illustration using our workhorse example.
 
@@ -9240,13 +9240,12 @@ Then, units enter at successive periods until the last one.
 Finally, some units may never receive the treatment (\emph{never takers}).
 By convention, we denote them with \(D_{i}=\infty\).
 
-We can define a separate treatment effect for each of the treatment groups and for each time period: \(\Delta^{Y_t}_{TT_d}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=d}\), for \(t,d\in\left\{1,2,\dots,T\right\}\).
-We can also define a treatment on the untreated \(\Delta^{Y_t}_{TUT}=\esp{Y^1_{i,t}-Y^0_{i,t}|D_i=\infty}\).
+We can define a separate treatment effect for each of the treatment groups and for each time period: \(\Delta^{Y_{\tau}}_{TT_d}=\esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}\), for \(\tau,d\in\left\{1,2,\dots,T\right\}\).
 
 We can also form a very large bunch of DID estimators:
 
 \begin{align*}
-  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'},
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-(\esp{Y_{i,d+\tau}|D_i=d'}-\esp{Y_{i,d-\tau'}|D_i=d'}),
 \end{align*}
 
 where \(\tau,\tau'>0\) and \(d'>d+\tau\).
@@ -9254,9 +9253,9 @@ where \(\tau,\tau'>0\) and \(d'>d+\tau\).
 \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) compares how outcomes have changed between \(\tau\) periods after the treatment and \(\tau'\) periods before the treatment.
 
 Imposing \(d'>d+\tau\) ensures that \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) is a proper DID estimator.
-If \(d-\tau'<d'<d+\tau\), \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) is not a proper DID estimator since \(d'\) receives also receives the treatment between the two dates at which outcomes are measured.
+If \(d-\tau'<d'<d+\tau\), \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) is not a proper DID estimator since units in group \(d'\) also receive the treatment between the two dates at which outcomes are measured.
 When \(d'<d-\tau'\), \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\) compares the change in outcomes in the group entering the treatment at date \(d\) with the changes in outcomes occurring in a group that has already entered the treatment at a date \(d'\) that is prior the starting date of the DID.
-Since this estimator is a \(DID^r\) estimator, I am going to note it as such in the future.
+Since this estimator is a \(DID^r\) estimator, I am going to denote it as such in the future.
 \(\Delta^{Y}_{DID^r}(d,d',\tau,\tau')\) is well-defined only when \(d'<d-\tau'\).
 
 Before stating our first identification result, let us make some assumptions that will mirror the simpler ones we made in the previous section.
@@ -9280,27 +9279,26 @@ The final very important assumption that we can make is to assume that the trend
 \protect\hypertarget{hyp:ParallelTrendsTime}{}{\label{hyp:ParallelTrendsTime} \iffalse (Parallel Trends for All Groups) \fi{} }We assume that the trends in the potential outcomes in the absence the treatment are the same for all the treatment groups:
 
 \begin{align*}
-    \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} & =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
+   \forall d,t,t'\in\left\{1,2,\dots,T\right\} & = \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
 \end{align*}
-\(\forall d\in\left\{1,2,\dots,T\right\}\) and \(\forall t,t'\in\left\{1,2,\dots,T\right\}\)
 \end{hypothesis}
 
 We are now ready to state our main identification result:
 
 \begin{theorem}[DID identifies TT at Each Point in Time]
-\protect\hypertarget{thm:IdentDIDTime}{}{\label{thm:IdentDIDTime} \iffalse (DID identifies TT at Each Point in Time) \fi{} }Under Assumptions \ref{hyp:NoTreatmentTime}, \ref{hyp:NoAnticipationEffectsTime} and \ref{hyp:ParallelTrendsTime}, the DID estimator identifies the average effect of the Treatment on the Treated after the treatment in each time period:
+\protect\hypertarget{thm:IdentDIDTime}{}{\label{thm:IdentDIDTime} \iffalse (DID identifies TT at Each Point in Time) \fi{} }Under Assumptions \ref{hyp:NoTreatmentTime}, \ref{hyp:NoAnticipationEffectsTime} and \ref{hyp:ParallelTrendsTime}, the DID estimator identifies the average effect of the Treatment on the Treated in each time period:
 
 \begin{align*}
-    \Delta^{Y}_{DID}(d,d',\tau,\tau') & =  \Delta^{Y_{d+\tau}}_{TT_d},
+    \Delta^{Y}_{DID}(d,d',\tau,\tau') & =  \Delta^{Y_{\tau}}_{TT_d},
 \end{align*}
 where \(\tau,\tau'>0\) and \(d'>d+\tau\).
 \end{theorem}
 
 \begin{proof}
 \iffalse{} {Proof. } \fi{}\begin{align*}
-  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}|D_i=d}-\esp{Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'}\\
-                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d'}\\
-                                    & = \esp{Y^1_{i,d+\tau}|D_i=d}-\esp{Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}\\
+  \Delta^{Y}_{DID}(d,d',\tau,\tau') & = \esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d}-\esp{Y_{i,d+\tau}-Y_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d'}\\
+                                    & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}-\esp{Y^0_{i,d+\tau}-Y^0_{i,d-\tau'}|D_i=d}\\
                                     & = \esp{Y^1_{i,d+\tau}-Y^0_{i,d+\tau}|D_i=d}
 \end{align*}
 
@@ -9309,10 +9307,320 @@ The third equality follows from Assumption \ref{hyp:ParallelTrendsTime}.
 This proves the result.
 \end{proof}
 
+Theorem \ref{thm:IdentDIDTime} shows that the basic mechanics of the DID estimator extends to multiple periods.
+The problem with Theorem \ref{thm:IdentDIDTime} is that we now have multiple ATT estimates for various groups and time periods, using various time periods and groups as reference.
+How do we reconcile all of these estimates in a unique parameter, or at least a vector of parameters that makes some sense?
+Let's define sets of positive weights \(w^k(d,d',\tau,\tau')\) that sum to one.
+We can then define a set of DID estimators:
+
+\begin{align*}
+  \Delta^{Y}_{DID}(k)=\sum w^k(d,d',\tau,\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau'),
+\end{align*}
+
+where the sum is taken in coherence with the weights.
+These DID estimators are going to identify various features of the effects of the treatment, using various types of reference groups and time periods.
+Let us be more precise:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  A first set of weights combines the various estimates of the same treatment effect on the outcomes of group \(d\) observed at period \(d=\tau\).
+  These weights, which we denote \(w^s_{d,\tau}(d',\tau')\), are such that they take value zero for estimates \(\Delta^{Y}_{DID}(d'',d',\tau'',\tau')\) that are such \(d''\neq d\) and \(\tau''\neq\tau\) and they have: \(\sum_{\tau',d'>d+\tau}w^s_{d,\tau}(d',\tau')=1\).
+  One way to define these weights is to make them proportional to the proportion of \((d',\tau')\) groups of observations in the population.
+\item
+  A second set of weights is going to combine the treatment effects themselves.
+  For example, one might want to measure the average effect of the treatment \(\tau\) periods after entering it.
+  This type of dynamic treatment effect is useful to measure how the effect of the treatment varies over time.
+  There are two versions of this set of weights: one unconditional and one conditional on at least reaching a certain number of periods in the treatment (let's say \(\tau''>\tau\) periods after the treatment).
+  With the second version, all the estimates of the dynamic effects of the treatment are going to be taken over the same set of groups.
+  With the first version, changes in treatment effects over time might be confounded by changes in group composition.
+  Let's denote the first type of weights \(w^u_{\tau}(d,d',\tau')\) and the second \(w^c_{\tau,\tau''}(d,d',\tau')\) , with \(\tau''>\tau\).
+  We then have \(\Delta^{Y_u}_{DID}(\tau)=\sum_{d,d'>d+\tau,\tau'} w^u_{\tau}(d,d',\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')\) and \(\Delta^{Y_c}_{DID}(\tau,\tau'')=\sum_{d,d'>d+\tau,\tau'} w^c_{\tau,\tau''}(d,d',\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')\).
+  These effects can also be restricted to versions using a single reference period \(\tau'\) to build the DID estimator: \(\Delta^{Y_u}_{DID}(\tau,\tau')\) and \(\Delta^{Y_c}_{DID}(\tau,\tau',\tau'')\).
+\item
+  A third set of effects is simply taking the average of all the treatment effects at a given time period.
+  Let's denote these set of weights \(w^t(d,d',\tau,\tau')\) for the effect observed at period \(t\).
+  Then, we have \(\Delta^{Y_t}_{DID}=\sum_{\tau+d=t,d'>d+\tau,\tau'} w^t(d,d',\tau,\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')\).
+  Another version again uses only estimates taken with period \(d-\tau'\) as a reference: \(\Delta^{Y_t}_{DID}(\tau')=\sum_{\tau+d=t,d'>d+\tau} w^t_{\tau'}(d,d',\tau)\Delta^{Y}_{DID}(d,d',\tau,\tau')\).
+\item
+  Finally, one can simply define the overall effect of the treatment on the treated as the sum of all relevant treatment effects estimated in the sample.
+  Let's define the set of weights \(w^a(d,d',\tau,\tau')\) and the estimate of the average treatment effect on the treated as \(\Delta^{Y}_{DID}=\sum_{\tau,d,d'>d+\tau,\tau'} w^a(d,d',\tau,\tau')\Delta^{Y}_{DID}(d,d',\tau,\tau')\).
+  Again, some authors restrict this estimate to be specific to a given reference period: \(\Delta^{Y}_{DID}(\tau')=\sum_{\tau,d,d'>d+\tau} w^a_{\tau'}(d,d',\tau)\Delta^{Y}_{DID}(d,d',\tau,\tau')\).
+\end{enumerate}
+
+As a consequence of Theorem \ref{thm:IdentDIDTime}, all the aggregate treatment effects are identified, as long as each of their separate components are identified.
+The following corollary makes that clear:
+
+\begin{corollary}[DID identifies Weighted TT]
+\protect\hypertarget{cor:IdentDIDAgg}{}{\label{cor:IdentDIDAgg} \iffalse (DID identifies Weighted TT) \fi{} }Under Assumptions \ref{hyp:NoTreatmentTime}, \ref{hyp:NoAnticipationEffectsTime} and \ref{hyp:ParallelTrendsTime}, assuming that \(\Pr(D_i=d)>0\) and \(\Pr(D_i=d')>0\), \(\forall (d,d')\in \left\{1,2,\dots,T,\infty\right\}\) such that \(w^k(d,d',\tau,\tau')>0\) and assuming that \(\forall d,d',\tau,\tau'\) such that \(w^k(d,d',\tau,\tau')>0\), \((d+\tau,d'-\tau')\in\left\{1,2,\dots,T,\infty\right\}^2\), the weighted DID estimator identifies the corresponding weigthed average of Treatment on the Treated:
+
+\begin{align*}
+    \Delta^{Y}_{DID}(k) & =  \Delta^{Y}_{TT}(k),
+\end{align*}
+with
+\begin{align*}
+    \Delta^{Y}_{TT}(k) & = \sum w^k(d,d',\tau,\tau')\Delta^{Y_{\tau}}_{TT_d}
+\end{align*}
+\end{corollary}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}The proof follows from Theorem \ref{thm:IdentDIDTime}: as long as the groups for which the weights are non null exist, and the time periods for which the weights are non null also exist in the data, Theorem \ref{thm:IdentDIDTime} ensures that each of the components of the weighted average is identifed and thus the weighted average is identified as well.
+\end{proof}
+
+Before going through an example to illustrate all of these notions, let me introduce one estimator.
+
 \hypertarget{estimation-2}{%
 \subsubsection{Estimation}\label{estimation-2}}
 
-\textbf{Build a new dataset with several time periods.}
+Estimation of the various DID estimators that we have defined in the previous section can take several forms.
+The simplest form estimates the separate individual DID components using the methods seen in Section \ref{DIDbasic}, and then manually computes their weighted averages.
+This approach has been proposed by \href{https://www.sciencedirect.com/science/article/pii/S030440762030378X}{Sun and Abraham (2021)} and by \href{https://www.sciencedirect.com/science/article/pii/S0304407620303948}{Callaway and Sant'Anna}.
+A more intricate approach uses an imputation model to derive the predicted counterfactual values for all treated observations and then averages them.
+This approach has been proposed by \href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)}.
+\href{https://www.aeaweb.org/articles?id=10.1257/aer.20181169}{de Chaisemartin and d'Haultfoeuille} propose to only use changes that occur around the treatment date.
+Finally, one could use the Two Way Fixed Effects model presented in Section \ref{DIDbasic}, combining all the time periods in a single estimator.
+Recent work by \href{https://www.sciencedirect.com/science/article/pii/S0304407621001445}{Goodman-Bacon} has shown that this approach is only valid under much more restrictive assumptions than the ones stated in Corollary \ref{cor:IdentDIDAgg}.
+The main reason for why is that the Two Way Fixed Effects estimator combines individual DID and \(DID^r\) estimates, thereby generating strong biases if the assumptions that ensure the validity of \(DID^r\) are not valid.
+An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
+It has been proposed by \href{https://academic.oup.com/qje/article/134/3/1405/5484905}{Cengiz, Dube, Lindner and Zipperer (2019)} and extended by \href{https://jrgcmu.github.io/2sdd_current.pdf}{Gardner (2021)} who also proposes an imputation estimator \emph{à la} Borusyak, Jaravel and Speiss.
+
+\hypertarget{using-weighted-averages-of-individual-did-estimators}{%
+\paragraph{Using weighted averages of individual DID estimators}\label{using-weighted-averages-of-individual-did-estimators}}
+
+This estimator is pretty simple to define.
+Simply take all the possible \(2\times2\) possible DID estimators \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\), with \(\tau,\tau'>0\) and \(d'>d+\tau\), and then average them using the pre-defined weights \(w^k(d,d',\tau,\tau')\) of your choice.
+The key to this section is to illustrate how to operationalize this approach in practice with an example.
+Let's go.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-207}{}{\label{exm:unnamed-chunk-207} }The key here is first to generate some data.
+\end{example}
+We are going to have four successive time periods, \(1\), \(2\), \(3\), and \(4\).
+At each of these time periods, some units start receiving the treatment, generating four treatment groups: \(D_i\in\{1,2,3,4\}\).
+Let us write a model compatible with this setting, choose a parameterization and generate the data.
+
+\begin{align*}
+y^1_{i,t} & = y_{i,t}^0+\bar{\alpha}_t+\sum_{d}(\bar{\alpha}_{t,d}+\theta_d\mu_i)\uns{D_{i,d}=1}+\eta_{i,t} \\
+y^0_{i,t} & = \mu_i+\delta_t+U^0_{i,t} \\
+U^0_{i,t} & = \rho U^0_{i,t-1}+\epsilon_{i,t} \\
+D_{i,t}   & = \uns{y^0_{i,1} + \xi_t+ V_i\leq\bar{y}} \\
+V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_{i,1} \\
+U^0_{i,1} & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+(\eta_{i,t},\omega_{i,t}) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})\\
+\epsilon_{i,t} & \sim\mathcal{N}(0,\sigma^2_{\epsilon}).
+\end{align*}
+
+I am going to parameterize the \(\bar{\alpha}_{t,d}\) process in order to avoid having to specify the 14 parameters that it otherwise would require.
+The parameterization I am choosing is \(\bar{\alpha}_{t,d}=\kappa(t-d)\uns{t\geq d}\), so that treatment effects increase linearly as time into the treatment increases.
+Let us now choose some parameter values:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{param }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{8}\NormalTok{,.}\DecValTok{5}\NormalTok{,.}\DecValTok{28}\NormalTok{,}\DecValTok{1500}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}
+           \FloatTok{0.01}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}\FloatTok{0.01}\NormalTok{,}
+           \FloatTok{0.05}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}
+           \DecValTok{0}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.2}\NormalTok{,}\FloatTok{0.3}\NormalTok{,}
+           \FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.15}\NormalTok{,}\FloatTok{0.2}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}
+           \FloatTok{0.5}\NormalTok{,}\DecValTok{0}\NormalTok{,}\SpecialCharTok{{-}}\FloatTok{0.5}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}
+           \FloatTok{0.1}\NormalTok{,}\FloatTok{0.28}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\FunctionTok{names}\NormalTok{(param) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}
+                  \StringTok{"theta1"}\NormalTok{,}\StringTok{"theta2"}\NormalTok{,}\StringTok{"theta3"}\NormalTok{,}\StringTok{"theta4"}\NormalTok{,}
+                  \StringTok{"sigma2epsilon"}\NormalTok{,}\StringTok{"sigma2eta"}\NormalTok{,}
+                  \StringTok{"delta1"}\NormalTok{,}\StringTok{"delta2"}\NormalTok{,}\StringTok{"delta3"}\NormalTok{,}\StringTok{"delta4"}\NormalTok{,}
+                  \StringTok{"baralpha1"}\NormalTok{,}\StringTok{"baralpha2"}\NormalTok{,}\StringTok{"baralpha3"}\NormalTok{,}\StringTok{"baralpha4"}\NormalTok{,}\StringTok{"kappa"}\NormalTok{,}
+                  \StringTok{"xi1"}\NormalTok{,}\StringTok{"xi2"}\NormalTok{,}\StringTok{"xi3"}\NormalTok{,}\StringTok{"xi4"}\NormalTok{,}
+                  \StringTok{"gamma"}\NormalTok{,}\StringTok{"sigma2omega"}\NormalTok{,}\StringTok{"rhoetaomega"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now generate the corresponding data (in long format):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{N }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{T }\OtherTok{\textless{}{-}} \DecValTok{4}
+\NormalTok{cov.eta.omega }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{],param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"rhoetaomega"}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{param[}\StringTok{"sigma2omega"}\NormalTok{]),param[}\StringTok{"sigma2omega"}\NormalTok{]),}\AttributeTok{ncol=}\DecValTok{2}\NormalTok{,}\AttributeTok{nrow=}\DecValTok{2}\NormalTok{)}
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{mvrnorm}\NormalTok{(N}\SpecialCharTok{*}\NormalTok{T,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{),cov.eta.omega))}
+\FunctionTok{colnames}\NormalTok{(data) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}eta\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}omega\textquotesingle{}}\NormalTok{)}
+\CommentTok{\# time and individual identifiers}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{time }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{,N),}\FunctionTok{rep}\NormalTok{(}\DecValTok{2}\NormalTok{,N),}\FunctionTok{rep}\NormalTok{(}\DecValTok{3}\NormalTok{,N),}\FunctionTok{rep}\NormalTok{(}\DecValTok{4}\NormalTok{,N))}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{id }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{((}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N),T)}
+\CommentTok{\# unit fixed effects}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{mu }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{])),T)}
+\CommentTok{\# time fixed effects}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{delta }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"delta1"}\NormalTok{],N),}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"delta2"}\NormalTok{],N),}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"delta3"}\NormalTok{],N),}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"delta4"}\NormalTok{],N))}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{baralphat }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"baralpha1"}\NormalTok{],N),}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"baralpha2"}\NormalTok{],N),}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"baralpha3"}\NormalTok{],N),}\FunctionTok{rep}\NormalTok{(param[}\StringTok{"baralpha4"}\NormalTok{],N))}
+
+\CommentTok{\# building autocorrelated error terms}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{epsilon }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N}\SpecialCharTok{*}\NormalTok{T,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{U[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N] }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{U[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{N)] }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{data}\SpecialCharTok{$}\NormalTok{U[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N] }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{epsilon[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{N)]}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{U[(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\DecValTok{3}\SpecialCharTok{*}\NormalTok{N)] }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{data}\SpecialCharTok{$}\NormalTok{U[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{N)] }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{epsilon[(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\DecValTok{3}\SpecialCharTok{*}\NormalTok{N)]}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{U[(}\DecValTok{3}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(T}\SpecialCharTok{*}\NormalTok{N)] }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{data}\SpecialCharTok{$}\NormalTok{U[(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\DecValTok{3}\SpecialCharTok{*}\NormalTok{N)] }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{epsilon[(}\DecValTok{3}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(T}\SpecialCharTok{*}\NormalTok{N)]}
+\CommentTok{\# potential outcomes in the absence of the treatment}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{y0 }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{delta }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{U }
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Y0 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0)}
+\CommentTok{\# treatment timing}
+\CommentTok{\# error term}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{V }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"gamma"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{mu}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{"barmu"}\NormalTok{])}\SpecialCharTok{+}\NormalTok{data}\SpecialCharTok{$}\NormalTok{omega}
+\CommentTok{\# treatment group, with 99 for the never treated instead of infinity}
+\NormalTok{Ds }\OtherTok{\textless{}{-}} \FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"xi1"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{data}\SpecialCharTok{$}\NormalTok{V[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{1}\NormalTok{,}
+              \FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"xi2"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{data}\SpecialCharTok{$}\NormalTok{V[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{2}\NormalTok{,}
+                      \FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"xi3"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{data}\SpecialCharTok{$}\NormalTok{V[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{3}\NormalTok{,}
+                              \FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{+}\NormalTok{param[}\StringTok{"xi4"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{data}\SpecialCharTok{$}\NormalTok{V[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N]}\SpecialCharTok{\textless{}=}\FunctionTok{log}\NormalTok{(param[}\StringTok{"barY"}\NormalTok{]),}\DecValTok{4}\NormalTok{,}\DecValTok{99}\NormalTok{))))}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Ds }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(Ds,T)}
+\CommentTok{\# Treatment status}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{D }\OtherTok{\textless{}{-}} \FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{\textgreater{}}\NormalTok{data}\SpecialCharTok{$}\NormalTok{time,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\CommentTok{\# potential outcomes with the treatment}
+\CommentTok{\# effect of the treatment by group}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{baralphatd }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"kappa"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{t}\SpecialCharTok{{-}}\NormalTok{data}\SpecialCharTok{$}\NormalTok{Ds)}\SpecialCharTok{*}\FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{time}\SpecialCharTok{\textgreater{}=}\NormalTok{data}\SpecialCharTok{$}\NormalTok{Ds,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{y1 }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{y0 }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{baralphat }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{baralphatd }\SpecialCharTok{+} \FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,param[}\StringTok{"theta1"}\NormalTok{],}\FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{2}\NormalTok{,param[}\StringTok{"theta2"}\NormalTok{],}\FunctionTok{if\_else}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{3}\NormalTok{,param[}\StringTok{"theta3"}\NormalTok{],param[}\StringTok{"theta4"}\NormalTok{])))}\SpecialCharTok{*}\NormalTok{data}\SpecialCharTok{$}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{eta}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Y1 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y1)}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{y1}\SpecialCharTok{*}\NormalTok{data}\SpecialCharTok{$}\NormalTok{D}\SpecialCharTok{+}\NormalTok{data}\SpecialCharTok{$}\NormalTok{y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{data}\SpecialCharTok{$}\NormalTok{D)}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Y }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{Y1}\SpecialCharTok{*}\NormalTok{data}\SpecialCharTok{$}\NormalTok{D}\SpecialCharTok{+}\NormalTok{data}\SpecialCharTok{$}\NormalTok{Y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{data}\SpecialCharTok{$}\NormalTok{D)}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the data, especially the potential outcomes for each group.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dataplotDIDStaggered }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+                          \FunctionTok{group\_by}\NormalTok{(Ds,time) }\SpecialCharTok{\%\textgreater{}\%}
+                          \FunctionTok{summarize}\NormalTok{(}
+                            \AttributeTok{y1=}\FunctionTok{mean}\NormalTok{(y1),}
+                            \AttributeTok{y0=}\FunctionTok{mean}\NormalTok{(y0)}
+\NormalTok{                          ) }\SpecialCharTok{\%\textgreater{}\%}
+                          \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols=}\FunctionTok{c}\NormalTok{(}\StringTok{"y1"}\NormalTok{,}\StringTok{"y0"}\NormalTok{),}\AttributeTok{values\_to=}\StringTok{"Outcome"}\NormalTok{,}\AttributeTok{names\_to=}\StringTok{"PotentialOutcome"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+                          \FunctionTok{mutate}\NormalTok{(}
+                            \AttributeTok{TreatmentDate =} \FunctionTok{factor}\NormalTok{(Ds,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"99"}\NormalTok{,}\StringTok{"4"}\NormalTok{,}\StringTok{"3"}\NormalTok{,}\StringTok{"2"}\NormalTok{,}\StringTok{"1"}\NormalTok{))}
+\NormalTok{                          )}
+
+\FunctionTok{ggplot}\NormalTok{(dataplotDIDStaggered,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{time,}\AttributeTok{y=}\NormalTok{Outcome,}\AttributeTok{color=}\NormalTok{TreatmentDate,}\AttributeTok{shape=}\NormalTok{TreatmentDate,}\AttributeTok{linetype=}\NormalTok{PotentialOutcome))}\SpecialCharTok{+}
+      \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+      \FunctionTok{geom\_point}\NormalTok{()}\SpecialCharTok{+}
+\CommentTok{\#    scale\_linetype\_discrete(guide=\textquotesingle{}none\textquotesingle{}) +}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStaggered-1} 
+
+}
+
+\caption{Evolution of average outcomes in the various treatment groups defined by their date of entry into the treatment}\label{fig:PlotDIDStaggered}
+\end{figure}
+
+Figure \ref{fig:PlotDIDStaggered} shows that the first units to be treated have the lowest potential outcomes in the absence of the treatment (\(y^0\), in full line), and that each successive cohort entering the treatment over time has increasingly large potential outcomes.
+Assumption \ref{hyp:ParallelTrendsTime} seems to hold in this dataset, at least visually: the trends in potential outcomes in the absence of the treatment seem to be rather parallel to each other in each group.
+Once a group of unit has entered the treatment, it experiences an increase in outcomes that grows over time.
+Finally, note that we will be unable to estimate the impact on the group with \(D_i=1\) since they enter the treatment at the first period.
+
+Let us now compute each possible DID estimator on this dataset.
+In order to save some space and time, we will start by focusing on group 2.
+Group 2 starts treatment at period 2, and thus only period 1 can be used for building a DID estimator.
+But several comparison groups exist: the never treated (note that we have used \(D_i=99\) instead of \(D_i=\infty\) to characterize this group, in order to make it simpler to manipulate it in \texttt{R}) but also group 3, that can serve as an untreated benchmark between periods 1 and 2, and group 4, which can be used as an untreated benchmark in periods 1, 2 and 3.
+Let's compute all these effects.
+In order to make our lives simpler, we are going to generate a function to generate \(\hat\Delta^{Y}_{DID}(d,d',\tau,\tau')\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# StaggeredDID22 is a function that takes as inputs:}
+\CommentTok{\# y: name of outcome variable (character)}
+\CommentTok{\# D: name of treatment group variable (character)}
+\CommentTok{\# d: treatment group defined by date of entry into the treatment}
+\CommentTok{\# dprime: comparison group}
+\CommentTok{\# tau: number of periods after treatment date at which we estimate the effect of the treatment}
+\CommentTok{\# tauprime: number of periods before the treatment date that we use a baseline period (defaults to one)}
+\CommentTok{\# t: time indicator (character)}
+\CommentTok{\# i: individual unit indicator (character)}
+\CommentTok{\# data: dataset containing the outcomes and treatments and time and unit indicators}
+\NormalTok{StaggeredDID22 }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(tau,y,D,d,dprime,}\AttributeTok{tauprime=}\DecValTok{1}\NormalTok{,t,i,data)\{}
+  \CommentTok{\# taking out the irrelevant groups and time periods and generating a useful treatment variable}
+\NormalTok{  data.DID }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!!}\FunctionTok{sym}\NormalTok{(D)}\SpecialCharTok{==}\NormalTok{d }\SpecialCharTok{|} \SpecialCharTok{!!}\FunctionTok{sym}\NormalTok{(D)}\SpecialCharTok{==}\NormalTok{dprime) }\SpecialCharTok{\%\textgreater{}\%} 
+            \FunctionTok{filter}\NormalTok{(time}\SpecialCharTok{==}\NormalTok{d}\SpecialCharTok{+}\NormalTok{tau }\SpecialCharTok{|}\NormalTok{ time}\SpecialCharTok{==}\NormalTok{d}\SpecialCharTok{{-}}\NormalTok{tauprime) }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}
+              \AttributeTok{Dit =} \FunctionTok{if\_else}\NormalTok{(}\SpecialCharTok{!!}\FunctionTok{sym}\NormalTok{(D)}\SpecialCharTok{==}\NormalTok{d }\SpecialCharTok{\&}\NormalTok{ time}\SpecialCharTok{==}\NormalTok{d}\SpecialCharTok{+}\NormalTok{tau,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{            )}
+  \CommentTok{\# running the within estimator (fixest)}
+  \CommentTok{\# regression formula}
+\NormalTok{  DID.form }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\FunctionTok{paste}\NormalTok{(y,}\FunctionTok{paste}\NormalTok{(}\StringTok{"Dit"}\NormalTok{,t,}\AttributeTok{sep=}\StringTok{"+"}\NormalTok{),}\AttributeTok{sep=}\StringTok{"\textasciitilde{}"}\NormalTok{),i,}\AttributeTok{sep=}\StringTok{"|"}\NormalTok{))}
+\NormalTok{  reg.W.fixest }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(DID.form, }\AttributeTok{data =}\NormalTok{ data.DID)}
+  \CommentTok{\# result vector}
+\NormalTok{  DID.est.W.fixest }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(d,dprime,tau,tauprime,}\FunctionTok{coef}\NormalTok{(reg.W.fixest)[[}\DecValTok{1}\NormalTok{]],}\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{vcov}\NormalTok{(reg.W.fixest)[[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]]))}
+  \FunctionTok{names}\NormalTok{(DID.est.W.fixest) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"d"}\NormalTok{,}\StringTok{"dprime"}\NormalTok{,}\StringTok{"tau"}\NormalTok{,}\StringTok{"tauprime"}\NormalTok{,}\StringTok{"DIDest"}\NormalTok{,}\StringTok{"DIDse"}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(DID.est.W.fixest)}
+\NormalTok{\}}
+
+\CommentTok{\# Run the regression and keep results}
+\CommentTok{\# D=99 as benchmark}
+\CommentTok{\# list of tau for d=2 and dprime=99 and tauprime=1}
+\NormalTok{tau.}\FloatTok{2.99} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)}
+\NormalTok{DID.}\DecValTok{2}\NormalTok{.}\FloatTok{99.1} \OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(tau.}\FloatTok{2.99}\NormalTok{,StaggeredDID22,}\AttributeTok{y=}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{,}\AttributeTok{D=}\StringTok{\textquotesingle{}Ds\textquotesingle{}}\NormalTok{,}\AttributeTok{d=}\DecValTok{2}\NormalTok{,}\AttributeTok{dprime=}\DecValTok{99}\NormalTok{,}\AttributeTok{tauprime=}\DecValTok{1}\NormalTok{,}\AttributeTok{t=}\StringTok{"time"}\NormalTok{,}\AttributeTok{i=}\StringTok{"id"}\NormalTok{,}\AttributeTok{data=}\NormalTok{data) }
+\CommentTok{\# D=3 }
+\CommentTok{\# list of tau for d=2 and dprime=3 and tauprime=1}
+\NormalTok{tau.}\FloatTok{2.3} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{)}
+\NormalTok{DID.}\DecValTok{2}\NormalTok{.}\FloatTok{3.1} \OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(tau.}\FloatTok{2.3}\NormalTok{,StaggeredDID22,}\AttributeTok{y=}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{,}\AttributeTok{D=}\StringTok{\textquotesingle{}Ds\textquotesingle{}}\NormalTok{,}\AttributeTok{d=}\DecValTok{2}\NormalTok{,}\AttributeTok{dprime=}\DecValTok{3}\NormalTok{,}\AttributeTok{tauprime=}\DecValTok{1}\NormalTok{,}\AttributeTok{t=}\StringTok{"time"}\NormalTok{,}\AttributeTok{i=}\StringTok{"id"}\NormalTok{,}\AttributeTok{data=}\NormalTok{data) }
+\CommentTok{\# D=4 }
+\CommentTok{\# list of tau for d=2 and dprime=4 and tauprime=1}
+\NormalTok{tau.}\FloatTok{2.4} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{DID.}\DecValTok{2}\NormalTok{.}\FloatTok{4.1} \OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(tau.}\FloatTok{2.4}\NormalTok{,StaggeredDID22,}\AttributeTok{y=}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{,}\AttributeTok{D=}\StringTok{\textquotesingle{}Ds\textquotesingle{}}\NormalTok{,}\AttributeTok{d=}\DecValTok{2}\NormalTok{,}\AttributeTok{dprime=}\DecValTok{4}\NormalTok{,}\AttributeTok{tauprime=}\DecValTok{1}\NormalTok{,}\AttributeTok{t=}\StringTok{"time"}\NormalTok{,}\AttributeTok{i=}\StringTok{"id"}\NormalTok{,}\AttributeTok{data=}\NormalTok{data) }
+
+\CommentTok{\# regroup results}
+\NormalTok{DID.}\FloatTok{2.1} \OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(DID.}\DecValTok{2}\NormalTok{.}\FloatTok{99.1}\NormalTok{,DID.}\DecValTok{2}\NormalTok{.}\FloatTok{3.1}\NormalTok{,DID.}\DecValTok{2}\NormalTok{.}\FloatTok{4.1}\NormalTok{)}
+
+\CommentTok{\# true effects (in the sample)}
+\NormalTok{ATT.}\FloatTok{2.0} \OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y1[data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{time}\SpecialCharTok{==}\DecValTok{2}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0[data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{time}\SpecialCharTok{==}\DecValTok{2}\NormalTok{])}
+\NormalTok{ATT.}\FloatTok{2.1} \OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y1[data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{time}\SpecialCharTok{==}\DecValTok{3}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0[data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{time}\SpecialCharTok{==}\DecValTok{3}\NormalTok{])}
+\NormalTok{ATT.}\FloatTok{2.2} \OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y1[data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{time}\SpecialCharTok{==}\DecValTok{4}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{y0[data}\SpecialCharTok{$}\NormalTok{Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{time}\SpecialCharTok{==}\DecValTok{4}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the results for the DID estimates on group \(2\) using \(\tau'=1\) as a benchmark pre-treatment period.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# preparing data}
+\NormalTok{DID.}\FloatTok{2.1} \OtherTok{\textless{}{-}}\NormalTok{ DID.}\FloatTok{2.1} \SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}
+              \AttributeTok{dprime=}\FunctionTok{factor}\NormalTok{(dprime,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"99"}\NormalTok{,}\StringTok{"4"}\NormalTok{,}\StringTok{"3"}\NormalTok{))}
+\NormalTok{            )}
+
+\FunctionTok{ggplot}\NormalTok{(DID.}\FloatTok{2.1}\NormalTok{,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{tau,}\AttributeTok{y=}\NormalTok{DIDest,}\AttributeTok{colour=}\NormalTok{dprime,}\AttributeTok{linetype=}\NormalTok{dprime))}\SpecialCharTok{+}
+      \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{DIDest}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{DIDse,}\AttributeTok{ymax=}\NormalTok{DIDest}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{DIDse))}\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time after treatment (tau)"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Comparison}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Comparison}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStaggeredGroup2-1} 
+
+}
+
+\caption{DID estimates for Group 2 at various time periods after the treament and with various comparison groups and with the reference period $\tau'=1$}\label{fig:PlotDIDStaggeredGroup2}
+\end{figure}
+
+Figure \ref{fig:PlotDIDStaggeredGroup2} shows the \(\hat\Delta^{Y}_{DID}(d,d',\tau,\tau')\) estimates for \(d=2\) and \(\tau'=1\), varying both \(\tau\) and \(d'\).
+The treatment effects estimated using different reference groups are similar to each other when we can compare them.
+Moreover, the treatment effect grows with time, as expected from Figure \ref{fig:PlotDIDStaggered}.
+The true effects of the treatment on group 2 are, in our sample: \(\hat\Delta^{Y_{0}}_{TT_2}=\) 0.21, \(\hat\Delta^{Y_{1}}_{TT_2}=\) 0.71 and \(\hat\Delta^{Y_{2}}_{TT_2}=\) 1.26.
+These are very close to our DID estimates.
+For example, \(\hat\Delta^{Y}_{DID}(2,99,0,1)=\) 0.27, while \(\hat\Delta^{Y}_{DID}(2,4,0,1)=\) 0.21 and \(\hat\Delta^{Y}_{DID}(2,3,0,1)=\) 0.2, which are all pretty close to \(\hat\Delta^{Y_{0}}_{TT_2}=\) 0.21.
+\(\hat\Delta^{Y}_{DID}(2,99,1,1)=\) 0.8, while \(\hat\Delta^{Y}_{DID}(2,4,1,1)=\) 0.72, which are also all pretty close to \(\hat\Delta^{Y_{1}}_{TT_2}=\) 0.71.
+Finally, \(\hat\Delta^{Y}_{DID}(2,99,2,1)=\) 1.39, while \(\hat\Delta^{Y_{2}}_{TT_2}=\) 1.26.
 
 \hypertarget{difference-in-differences-with-instrumental-variables}{%
 \subsection{Difference In Differences with Instrumental Variables}\label{difference-in-differences-with-instrumental-variables}}
@@ -9510,7 +9818,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-208}{}{\label{exm:unnamed-chunk-208} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -9771,7 +10079,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-214}{}{\label{exm:unnamed-chunk-214} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -9915,7 +10223,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-218}{}{\label{exm:unnamed-chunk-218} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -10038,7 +10346,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-219}{}{\label{exm:unnamed-chunk-219} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -10100,7 +10408,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-218}{}{\label{exm:unnamed-chunk-218} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -10141,7 +10449,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-221}{}{\label{exm:unnamed-chunk-221} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is NA.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -10176,7 +10484,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-225}{}{\label{exm:unnamed-chunk-225} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -10291,7 +10599,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-226}{}{\label{exm:unnamed-chunk-226} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -10482,7 +10790,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-225}{}{\label{exm:unnamed-chunk-225} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-227}{}{\label{exm:unnamed-chunk-227} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -10579,7 +10887,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-226}{}{\label{exm:unnamed-chunk-226} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10699,7 +11007,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -10778,7 +11086,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-229}{}{\label{exm:unnamed-chunk-229} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -10921,7 +11229,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11025,7 +11333,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-233}{}{\label{exm:unnamed-chunk-233} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -11363,7 +11671,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-234}{}{\label{exm:unnamed-chunk-234} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11522,7 +11830,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-233}{}{\label{exm:unnamed-chunk-233} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-235}{}{\label{exm:unnamed-chunk-235} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -11812,7 +12120,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-240}{}{\label{exm:unnamed-chunk-240} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-242}{}{\label{exm:unnamed-chunk-242} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -11829,7 +12137,7 @@ Let's start with the homogeneous treatment effect case
 
 \begin{figure}[htbp]
 
-{\centering \subfloat[KS objective function\label{fig:pCurvePubBiasFEPlot-1}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasFEPlot-1} }\subfloat[Cumulative distribution of pp-values at the optimum\label{fig:pCurvePubBiasFEPlot-2}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasFEPlot-2} }
+{\centering \subfloat[KS objective function\label{fig:pCurvePubBiasFEPlot-1}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasFEPlot-1} }\subfloat[Cumulative distribution of pp-values at the optimum\label{fig:pCurvePubBiasFEPlot-2}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasFEPlot-2} }\subfloat[KS objective function\label{fig:pCurvePubBiasFEPlot-3}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasFEPlot-3} }
 
 }
 
@@ -11853,7 +12161,7 @@ Let's see what happens when effects are heterogeneous.
 
 \begin{figure}[htbp]
 
-{\centering \subfloat[KS objective function\label{fig:pCurvePubBiasREPlot-1}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasREPlot-1} }\subfloat[Cumulative distribution of pp-values at the optimum\label{fig:pCurvePubBiasREPlot-2}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasREPlot-2} }
+{\centering \subfloat[KS objective function\label{fig:pCurvePubBiasREPlot-1}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasREPlot-1} }\subfloat[Cumulative distribution of pp-values at the optimum\label{fig:pCurvePubBiasREPlot-2}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasREPlot-2} }\subfloat[KS objective function\label{fig:pCurvePubBiasREPlot-3}]{\includegraphics[width=0.45\linewidth]{STCI_files/figure-latex/pCurvePubBiasREPlot-3} }
 
 }
 
@@ -12065,7 +12373,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-247}{}{\label{exm:unnamed-chunk-247} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-249}{}{\label{exm:unnamed-chunk-249} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
