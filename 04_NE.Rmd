@@ -2795,7 +2795,7 @@ Before going through an example to illustrate all of these notions, let me intro
 
 Estimation of the various DID estimators that we have defined in the previous section can take several forms.
 The simplest form estimates the separate individual DID components using the methods seen in Section \@ref(DIDbasic), and then manually computes their weighted averages. 
-This approach has been proposed by [Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) and by [Callaway and Sant'Anna](https://www.sciencedirect.com/science/article/pii/S0304407620303948). 
+This approach has been proposed by [Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) and by [Callaway and Sant'Anna (2021)](https://www.sciencedirect.com/science/article/pii/S0304407620303948). 
 A more intricate approach uses an imputation model to derive the predicted counterfactual values for all treated observations and then averages them.
 This approach has been proposed by [Borusyak, Jaravel and Speiss (2021)](http://arxiv.org/abs/2108.12419).
 [de Chaisemartin and d'Haultfoeuille](https://www.aeaweb.org/articles?id=10.1257/aer.20181169) propose to only use changes that occur around the treatment date.
@@ -2831,7 +2831,7 @@ U^0_{i,1} & \sim\mathcal{N}(0,\sigma^2_{U}) \\
 \end{align*}
 
 I am going to parameterize the $\bar{\alpha}_{t,d}$ process in order to avoid having to specify the 14 parameters that it otherwise would require.
-The parameterization I am choosing is $\bar{\alpha}_{t,d}=\kappa(t-d)\uns{t\geq d}$, so that treatment effects increase linearly as time into the treatment increases.
+The parameterization I am choosing is $\bar{\alpha}_{t,d}=\bar\chi_d+\kappa_d(t-d)\uns{t\geq d}$, so that treatment effects increase linearly as time into the treatment increases.
 Let us now choose some parameter values: 
 
 ```{r param.DID.staggered,eval=TRUE,echo=TRUE,results='hide'}
@@ -2839,14 +2839,18 @@ param <- c(8,.5,.28,1500,0.9,
            0.01,0.01,0.01,0.01,
            0.05,0.05,
            0,0.1,0.2,0.3,
-           0.05,0.1,0.15,0.2,0.5,
+           0.05,0.1,0.15,0.2,
+           0.25,0.1,0.05,0,
+           0.75,0.5,0.25,0.1,
            0.5,0,-0.5,-1,
            0.1,0.28,0)
 names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho",
                   "theta1","theta2","theta3","theta4",
                   "sigma2epsilon","sigma2eta",
                   "delta1","delta2","delta3","delta4",
-                  "baralpha1","baralpha2","baralpha3","baralpha4","kappa",
+                  "baralpha1","baralpha2","baralpha3","baralpha4",
+                  "barchi1","barchi2","barchi3","barchi4",
+                  "kappa1","kappa2","kappa3","kappa4",
                   "xi1","xi2","xi3","xi4",
                   "gamma","sigma2omega","rhoetaomega")
 ```
@@ -2891,7 +2895,14 @@ data$Ds <- rep(Ds,T)
 data$D <- if_else(data$Ds>data$time,0,1)
 # potential outcomes with the treatment
 # effect of the treatment by group
-data$baralphatd <- param["kappa"]*(data$t-data$Ds)*if_else(data$time>=data$Ds,1,0)
+data$baralphatd <- if_else(data$Ds==1,param["barchi1"],
+                           if_else(data$Ds==2,param["barchi2"],
+                                   if_else(data$Ds==3,param["barchi3"],
+                                           if_else(data$Ds==4,param["barchi4"],0))))+
+                  if_else(data$Ds==1,param["kappa1"],
+                           if_else(data$Ds==2,param["kappa2"],
+                                   if_else(data$Ds==3,param["kappa3"],
+                                           if_else(data$Ds==4,param["kappa4"],0))))*(data$t-data$Ds)*if_else(data$time>=data$Ds,1,0)
 data$y1 <- data$y0 + data$baralphat + data$baralphatd + if_else(data$Ds==1,param["theta1"],if_else(data$Ds==2,param["theta2"],if_else(data$Ds==3,param["theta3"],param["theta4"])))*data$mu + data$eta
 data$Y1 <- exp(data$y1)
 data$y <- data$y1*data$D+data$y0*(1-data$D)
@@ -2989,9 +3000,10 @@ Let us now plot the results for the DID estimates on group $2$ using $\tau'=1$ a
 # preparing data
 DID.2.1 <- DID.2.1 %>%
             mutate(
-              dprime=factor(dprime,levels=c("99","4","3"))
+              dprime=factor(dprime,levels=c("99","4","3","2","1"))
             )
 
+# plot
 ggplot(DID.2.1,aes(x=tau,y=DIDest,colour=dprime,linetype=dprime))+
       geom_line() +
     geom_pointrange(aes(ymin=DIDest-1.96*DIDse,ymax=DIDest+1.96*DIDse))+
@@ -3013,9 +3025,307 @@ For example, $\hat\Delta^{Y}_{DID}(2,99,0,1)=$ `r round(DID.2.1 %>% filter(d==2,
 $\hat\Delta^{Y}_{DID}(2,99,1,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==99,tau==1,tauprime==1) %>% pull(DIDest),2)`, while $\hat\Delta^{Y}_{DID}(2,4,1,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==4,tau==1,tauprime==1) %>% pull(DIDest),2)`, which are also all pretty close to $\hat\Delta^{Y_{1}}_{TT_2}=$ `r round(ATT.2.1,2)`.
 Finally, $\hat\Delta^{Y}_{DID}(2,99,2,1)=$ `r round(DID.2.1 %>% filter(d==2,dprime==99,tau==2,tauprime==1) %>% pull(DIDest),2)`, while $\hat\Delta^{Y_{2}}_{TT_2}=$ `r round(ATT.2.2,2)`.
 
+In order to aggregate the estimates presented in Figure \@ref(fig:PlotDIDStaggeredGroup2), we could for example use the proportion of each comparison group in the sample and average the treatment effects for each post treatment period $\tau$ with these weights.
+We can do the same thing with groups 3 and 4 and see what happens.
+
+```{r DIDStaggered34Agg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# do the DID22 estimates for d=3
+# Run the regression and keep results
+# D=99 as benchmark
+# list of tau for d=3 and dprime=99 and tauprime=1
+tau.3.99 <- c(0,1)
+DID.3.99.1 <- map_dfr(tau.3.99,StaggeredDID22,y='y',D='Ds',d=3,dprime=99,tauprime=1,t="time",i="id",data=data) 
+# D=4 as a benchmark 
+# list of tau for d=3 and dprime=4 and tauprime=1
+tau.3.4 <- c(0)
+DID.3.4.1 <- map_dfr(tau.3.4,StaggeredDID22,y='y',D='Ds',d=3,dprime=4,tauprime=1,t="time",i="id",data=data) 
+
+# regroup results
+DID.3.1 <- rbind(DID.3.99.1,DID.3.4.1)
+
+# true effects (in the sample)
+ATT.3.0 <- mean(data$y1[data$Ds==3 & data$time==3])-mean(data$y0[data$Ds==3 & data$time==3])
+ATT.3.1 <- mean(data$y1[data$Ds==3 & data$time==4])-mean(data$y0[data$Ds==3 & data$time==4])
+
+# do the DID22 estimates for d=4
+# Run the regression and keep results
+# D=99 as benchmark
+# list of tau for d=4 and dprime=99 and tauprime=1
+tau.4.99 <- c(0)
+DID.4.99.1 <- map_dfr(tau.4.99,StaggeredDID22,y='y',D='Ds',d=4,dprime=99,tauprime=1,t="time",i="id",data=data) 
+
+# true effects (in the sample)
+ATT.4.0 <- mean(data$y1[data$Ds==4 & data$time==4])-mean(data$y0[data$Ds==4 & data$time==4])
+
+# regrouping all effects
+DID.1 <- rbind(DID.2.1,DID.3.1,DID.4.99.1)
+
+# computing the weights
+prop.groups.DID <- data %>%
+                    filter(time==1) %>%
+                    group_by(Ds) %>%
+                    summarize(
+                      prop.group = n()/N
+                    ) %>%
+                    rename(
+                      dprime=Ds
+                    )%>%
+                    mutate(
+                      dprime=factor(dprime,levels=c("99","4","3","2","1"))
+                    )
+
+# joining the weights to the results
+DID.1 <- DID.1 %>%
+          left_join(prop.groups.DID,by=c("dprime"))
+
+# generating the weighted averages by tau
+DID.tau <- DID.1 %>%
+            mutate(
+              w.ATT = prop.group*DIDest
+            ) %>%
+            group_by(tau,d) %>%
+            summarize(
+              sum.w.ATT = sum(w.ATT),
+              sum.w = sum(prop.group)
+            ) %>% 
+            mutate(
+              ATT.tau = sum.w.ATT/sum.w
+            ) %>%
+            select(d,tau,ATT.tau) %>%
+            mutate(
+              d=factor(d,levels=c("2","3","4"))
+            )
+```
+
+Let us now plot the results for the DID estimates in groups $2$, $3$ and $4$ using $\tau'=1$ as a benchmark pre-treatment period and aggregating the estimates using every possible valid control group:
+
+```{r PlotDIDStaggeredGroups,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("DID estimates for all groups at various time periods after the treament aggregated across all comparison groups and with the reference period $\\tau'=1$"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+ggplot(DID.tau,aes(x=tau,y=ATT.tau,colour=d,linetype=d))+
+    geom_line() +
+    geom_point() +
+    ylab("DID estimate") +
+    xlab("Time after treatment (tau)") +
+    scale_x_continuous(breaks=c(0,1,2)) +
+    expand_limits(y=0) +
+    scale_colour_discrete(name="Treatment\ngroup")+
+    scale_linetype_discrete(name="Treatment\ngroup")+
+    theme_bw()
+```
+
+On Figure \@ref(fig:PlotDIDStaggeredGroups), we can see that all the estimators are comparable for each other at each time period $\tau$, no matter the treatment group.
+We thus can aggregate the impacts at each period $\tau$ across all treatment groups.
+There are two ways to do that: one is to use all the groups for which we observe the effect of the treatment at period $\tau$.
+The drawback of this approach is that group composoition changes with $\tau$.
+For example, on Figure \@ref(fig:PlotDIDStaggeredGroups), we can see that the treatment group treated in the last period (for which $D_i=4$) contributes only to the computation of the effect of the treatment at period $\tau=0$.
+This is because we cannot observe what happens to this group in later periods with our dataset.
+As a consequence, in period $\tau=0$, all three groups--$D_i=2$, $D_i=3$ and $D_i=4$--contribute to the estimation of the effect of the treatment, whereas only groups with $D_i=2$ and $D_i=3$ contribute to the estimation of the effect at $\tau=1$, and only $D_i=2$ contributes to estimating the effect at $\tau=2$. 
+If treatment effects were heterogeneous across treatment groups, this change in group composition would confound actual changes in the magnitude of treatment effects.
+Since the effect of the treatment is rather homogenous across groups, this group comopsition problem will not matter in our application.
+Nevetheless, we are still going to estimate the effect of the treatment at $\tau=0$ and $\tau=1$ maintaining group composition constant ($D_i=2$ and $D_i=3$). 
+In our application, both approaches will yield very similar results.
+The weigths we are going to use for our aggregation are the proportions of units belonging to each group.
+
+```{r DIDStaggeredAgg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# joining the weights to the results
+DID.tau <- DID.tau %>%
+          left_join(prop.groups.DID,by=c("d"="dprime"))
+
+# generating the weighted averages by tau (varying group composition)
+DID.tau.agg <- DID.tau %>%
+            mutate(
+              w.ATT = prop.group*ATT.tau
+            ) %>%
+            group_by(tau) %>%
+            summarize(
+              sum.w.ATT = sum(w.ATT),
+              sum.w = sum(prop.group)
+            ) %>% 
+            mutate(
+              ATT.tau.agg = sum.w.ATT/sum.w
+            ) %>%
+            select(tau,ATT.tau.agg) %>%
+            mutate(
+              Composition="Varying"
+            )
+
+# generating the weighted averages by tau (constant group composition)
+DID.tau.agg.cst <- DID.tau %>%
+            filter(d==2 | d==3) %>%
+            filter(tau==0 | tau==1) %>%
+            mutate(
+              w.ATT = prop.group*ATT.tau
+            ) %>%
+            group_by(tau) %>%
+            summarize(
+              sum.w.ATT = sum(w.ATT),
+              sum.w = sum(prop.group)
+            ) %>% 
+            mutate(
+              ATT.tau.agg = sum.w.ATT/sum.w
+            ) %>%
+            select(tau,ATT.tau.agg) %>%
+            mutate(
+              Composition="Constant"
+            )
+
+#regrouping estimates
+DID.tau.agg.tot <- rbind(DID.tau.agg,DID.tau.agg.cst) %>%
+                    mutate(
+                      Composition = factor(Composition,levels=c("Constant","Varying"))
+                    )
+
+```
+
+Let's pot the resulting estimates.
+
+```{r PlotDIDStaggeredAgg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("DID estimates at various time periods after the treament aggregated across all treatment groups and maintaining treatment group composition constant (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+ggplot(DID.tau.agg.tot,aes(x=tau,y=ATT.tau.agg,colour=Composition,linetype=Composition))+
+    geom_line() +
+    geom_point() +
+    ylab("DID estimate") +
+    xlab("Time after treatment (tau)") +
+    scale_x_continuous(breaks=c(0,1,2)) +
+    expand_limits(y=0) +
+    scale_colour_discrete(name="Group\ncomposition")+
+    scale_linetype_discrete(name="Group\ncomposition")+
+    theme_bw()
+```
+
+As expected, Figure \@ref(fig:PlotDIDStaggeredAgg) confirms that group composition does not play an important role in treatment effect heterogeneity: there actually is a true heterogeneity along the time dimension: the treatment effect seems to increase linearly over time (as we suspected it would, since we parameterized our model just like it).
+
+Finally, let us aggregate all treatment effects from all periods into one unique estimate. 
+It is not an easy feat, especially in our current example which exhibits lots of treatment effect heterogeneity over $\tau$.
+Should we simply aggregate all treatment effect estimates using equal weights for each period $\tau$ or, rather, should we try to reflect the actual composition of treated groups and time periods in the sample? 
+The choice of the mode of aggregation might make a huge difference to the eventual result, since giving more weights to higher $\tau$ will result in a much higher overall treatment effect.
+Let's see what happens with both approaches.
+
+```{r DIDStaggeredATT,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# aggregating by weighing equally each time period tau
+ATT.equal <- DID.tau.agg.tot %>%
+                filter(Composition=="Varying") %>%
+                summarize(
+                  ATT.equal = mean(ATT.tau.agg)
+                ) %>%
+                pull(ATT.equal)
+
+# aggregating by weighing as a proportion of time spent by each group in the treatment state 
+ATT.varying <- DID.tau %>%
+            ungroup() %>%
+            mutate(
+              w.ATT = prop.group*ATT.tau
+            ) %>%
+            summarize(
+              sum.w.ATT = sum(w.ATT),
+              sum.w = sum(prop.group)
+            ) %>% 
+            mutate(
+              ATT.varying = sum.w.ATT/sum.w
+            ) %>%
+            pull(ATT.varying)
+```
+
+The average effect of the treatment, giving equal weight to each time period $\tau\in\{0,1,2\}$, is equal to $\hat\Delta^{Y}_{TT}(e)=$ `r round(ATT.equal,2)`, where $e$ stands for "equal" weights.
+The average effect of the treatment, giving weights proportional to group composition and time spent in the treatment is equal to $\hat\Delta^{Y}_{TT}(v)=$ `r round(ATT.varying,2)`, where $v$ stands for "varying" weights.
+
+##### Direct weighting using one reference period and one reference group (Sun and Abraham)
+
+OK, so now, we know how to compute the various DID estimators by hand and how to aggregate them.
+Is there a way to obtain directly an aggregated estimate with an R package? 
+Yes, actually, plenty of such estimator exist. 
+They are listed on [Asjad Naqvi's DID webpage](https://asjadnaqvi.github.io/DiD/docs/02_R/). 
+Let's start with the ones implementing the [Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) estimator.
+[Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X)'s estimator start with estimating a Two Way Fixed Effect model with a rich dynamic specification:
+
+\begin{align*}
+  	Y_{i,t} &  = \mu_i + \delta_t + \sum_{d=2}^T\sum_{\tau\neq-1}\beta_{d,\tau}^{SA}\uns{D_{i}=d \land t=d+\tau}  + \epsilon^{SA}_{i,t},
+\end{align*}
+
+on the sample excluding the always treated individuals ($D_i=1$).
+In order to be consistent with previous estimators, we are going to start using the `fixest` package to obtain our estimator.
+In order to be able to estimate [Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X)'s estimator with `fixest`, we simply are going to add a `sunab(d,t)` term to the `feols` command, with the first term giving the treatment group and the second term the time fixed effect.
+We then can aggregate the estiamted terms.
+Let's go:
+
+```{r DIDSAfixest,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# regression
+reg.fixest.SA.Agg <- feols(y ~ sunab(Ds,time)| id + time, data=filter(data,Ds>1))
+
+# aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)
+# The selection of coefficients to aggregate uses a string detection pattern language
+# varying composition
+aggregate.SA.varying <- aggregate(reg.fixest.SA.Agg, c("tau" = "time::([[:digit:]]+)"))
+```
+
+Let's plot the results:
+
+```{r PlotDIDStaggeredAggSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("DID estimates at various time periods after the treament using Sun and Abraham's estimator implemented by fixest (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+# preparation
+colnames(aggregate.SA.varying) <- c("ATT","Se","t","pval")
+aggregate.SA.varying <- aggregate.SA.varying %>%
+                  as.data.frame(.)  %>%
+                  mutate(tau = 0:2) 
+
+# plot
+ggplot(aggregate.SA.varying,aes(x=tau,y=ATT))+
+    geom_line() +
+    geom_pointrange(aes(ymin=ATT-1.96*Se,ymax=ATT+1.96*Se)) +
+    ylab("DID estimate") +
+    xlab("Time after treatment (tau)") +
+    scale_x_continuous(breaks=c(0,1,2)) +
+    expand_limits(y=0) +
+    scale_colour_discrete(name="Group\ncomposition")+
+    scale_linetype_discrete(name="Group\ncomposition")+
+    theme_bw()
+```
+
+Again, as we have seen before, the change in group composition makes it look like there is a trend break in the treatment effect.
+What we would need is to aggregate treatment effects with a constant group composition.
+In order to do that, we need to be able to access the individual coefficeints for each treatment group, and then to combine them.
+One way to do that is to we need to define a time to treatment indicator (this is the role of $\tau=t-d$ in the above equation) and to run a TWFE regression with individual and year fixed effects, and one interacted dummy per time to treatment and treatment group. 
+Note that there has to be a reference time to treatment (here $\tau=-1$ (note that $\tau$ can take negative values)) and a reference treated group (here $D_i=\infty$ (in practice, $D_i=99$)).
+In practice, we are generating a variable of time to treatment which takes value $-99$ fot the never treated and we exclude this value and the $-1$ time to treatment date. 
+
+```{r DIDSAfixestMore,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# creating a time to treatment variable:
+data <- data %>%
+          mutate(
+            tau=time-Ds
+          ) %>%
+          mutate( 
+            tau = replace(tau,tau<=-90,-99)
+          )
+
+# regression
+reg.fixest.SA.nonAgg <- feols(y ~ i(tau,i.Ds,ref=c(-1,-99))| id + time, data=filter(data,Ds>1))
+# aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)
+# The selection of coefficients to aggregate uses a string detection pattern language
+# varying composition
+aggregate.SA.nonAgg.varying <- aggregate(reg.fixest.SA.nonAgg, c("tau" = "tau::([[:digit:]]+)"))
+````
+
+**Aggregate above using a weighting matrix**
+**plot for all groups**
+**plot with constant group composition**
+
+##### Direct weighting using one reference period and one reference group (Callaway and Sant'Anna)
 
 
 
+##### Imputation methods: Borusyak, Jaravel and Speiss, Gardner
+
+
+**How to combine estimates, even with only one reference period, when there are several estimates for the same treatment effect ($\tau$)?**
+**We should focus on the most efficient estimator: I think that's Borusyak's point**
+
+##### De Chaisemartin and d'Haultfoeuille 
+
+##### Two-Way Fixed Effects estimation: Goodman-Bacon's decomposition
+
+##### Stacked DID 
+
+#### Inference
+
+**Simple estimators use the Delta method with an appropriate weighting matrix**
 
 ### Difference In Differences with Instrumental Variables
 

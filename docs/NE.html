@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-02-11" />
+<meta name="date" content="2022-02-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -2746,7 +2746,7 @@ with
 <h4><span class="header-section-number">4.3.3.2</span> Estimation</h4>
 <p>Estimation of the various DID estimators that we have defined in the previous section can take several forms.
 The simplest form estimates the separate individual DID components using the methods seen in Section <a href="NE.html#DIDbasic">4.3.1</a>, and then manually computes their weighted averages.
-This approach has been proposed by <a href="https://www.sciencedirect.com/science/article/pii/S030440762030378X">Sun and Abraham (2021)</a> and by <a href="https://www.sciencedirect.com/science/article/pii/S0304407620303948">Callaway and Sant’Anna</a>.
+This approach has been proposed by <a href="https://www.sciencedirect.com/science/article/pii/S030440762030378X">Sun and Abraham (2021)</a> and by <a href="https://www.sciencedirect.com/science/article/pii/S0304407620303948">Callaway and Sant’Anna (2021)</a>.
 A more intricate approach uses an imputation model to derive the predicted counterfactual values for all treated observations and then averages them.
 This approach has been proposed by <a href="http://arxiv.org/abs/2108.12419">Borusyak, Jaravel and Speiss (2021)</a>.
 <a href="https://www.aeaweb.org/articles?id=10.1257/aer.20181169">de Chaisemartin and d’Haultfoeuille</a> propose to only use changes that occur around the treatment date.
@@ -2779,22 +2779,26 @@ U^0_{i,1} &amp; \sim\mathcal{N}(0,\sigma^2_{U}) \\
 \epsilon_{i,t} &amp; \sim\mathcal{N}(0,\sigma^2_{\epsilon}).
 \end{align*}\]</span></p>
 <p>I am going to parameterize the <span class="math inline">\(\bar{\alpha}_{t,d}\)</span> process in order to avoid having to specify the 14 parameters that it otherwise would require.
-The parameterization I am choosing is <span class="math inline">\(\bar{\alpha}_{t,d}=\kappa(t-d)\uns{t\geq d}\)</span>, so that treatment effects increase linearly as time into the treatment increases.
+The parameterization I am choosing is <span class="math inline">\(\bar{\alpha}_{t,d}=\bar\chi_d+\kappa_d(t-d)\uns{t\geq d}\)</span>, so that treatment effects increase linearly as time into the treatment increases.
 Let us now choose some parameter values:</p>
 <div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="NE.html#cb169-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>,<span class="fl">0.9</span>,</span>
 <span id="cb169-2"><a href="NE.html#cb169-2" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.01</span>,<span class="fl">0.01</span>,<span class="fl">0.01</span>,<span class="fl">0.01</span>,</span>
 <span id="cb169-3"><a href="NE.html#cb169-3" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.05</span>,<span class="fl">0.05</span>,</span>
 <span id="cb169-4"><a href="NE.html#cb169-4" aria-hidden="true" tabindex="-1"></a>           <span class="dv">0</span>,<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.3</span>,</span>
-<span id="cb169-5"><a href="NE.html#cb169-5" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.15</span>,<span class="fl">0.2</span>,<span class="fl">0.5</span>,</span>
-<span id="cb169-6"><a href="NE.html#cb169-6" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.5</span>,<span class="dv">0</span>,<span class="sc">-</span><span class="fl">0.5</span>,<span class="sc">-</span><span class="dv">1</span>,</span>
-<span id="cb169-7"><a href="NE.html#cb169-7" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.1</span>,<span class="fl">0.28</span>,<span class="dv">0</span>)</span>
-<span id="cb169-8"><a href="NE.html#cb169-8" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,</span>
-<span id="cb169-9"><a href="NE.html#cb169-9" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;theta1&quot;</span>,<span class="st">&quot;theta2&quot;</span>,<span class="st">&quot;theta3&quot;</span>,<span class="st">&quot;theta4&quot;</span>,</span>
-<span id="cb169-10"><a href="NE.html#cb169-10" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,</span>
-<span id="cb169-11"><a href="NE.html#cb169-11" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;delta1&quot;</span>,<span class="st">&quot;delta2&quot;</span>,<span class="st">&quot;delta3&quot;</span>,<span class="st">&quot;delta4&quot;</span>,</span>
-<span id="cb169-12"><a href="NE.html#cb169-12" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;baralpha1&quot;</span>,<span class="st">&quot;baralpha2&quot;</span>,<span class="st">&quot;baralpha3&quot;</span>,<span class="st">&quot;baralpha4&quot;</span>,<span class="st">&quot;kappa&quot;</span>,</span>
-<span id="cb169-13"><a href="NE.html#cb169-13" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;xi1&quot;</span>,<span class="st">&quot;xi2&quot;</span>,<span class="st">&quot;xi3&quot;</span>,<span class="st">&quot;xi4&quot;</span>,</span>
-<span id="cb169-14"><a href="NE.html#cb169-14" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;gamma&quot;</span>,<span class="st">&quot;sigma2omega&quot;</span>,<span class="st">&quot;rhoetaomega&quot;</span>)</span></code></pre></div>
+<span id="cb169-5"><a href="NE.html#cb169-5" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.05</span>,<span class="fl">0.1</span>,<span class="fl">0.15</span>,<span class="fl">0.2</span>,</span>
+<span id="cb169-6"><a href="NE.html#cb169-6" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.25</span>,<span class="fl">0.1</span>,<span class="fl">0.05</span>,<span class="dv">0</span>,</span>
+<span id="cb169-7"><a href="NE.html#cb169-7" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.75</span>,<span class="fl">0.5</span>,<span class="fl">0.25</span>,<span class="fl">0.1</span>,</span>
+<span id="cb169-8"><a href="NE.html#cb169-8" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.5</span>,<span class="dv">0</span>,<span class="sc">-</span><span class="fl">0.5</span>,<span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb169-9"><a href="NE.html#cb169-9" aria-hidden="true" tabindex="-1"></a>           <span class="fl">0.1</span>,<span class="fl">0.28</span>,<span class="dv">0</span>)</span>
+<span id="cb169-10"><a href="NE.html#cb169-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,</span>
+<span id="cb169-11"><a href="NE.html#cb169-11" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;theta1&quot;</span>,<span class="st">&quot;theta2&quot;</span>,<span class="st">&quot;theta3&quot;</span>,<span class="st">&quot;theta4&quot;</span>,</span>
+<span id="cb169-12"><a href="NE.html#cb169-12" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,</span>
+<span id="cb169-13"><a href="NE.html#cb169-13" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;delta1&quot;</span>,<span class="st">&quot;delta2&quot;</span>,<span class="st">&quot;delta3&quot;</span>,<span class="st">&quot;delta4&quot;</span>,</span>
+<span id="cb169-14"><a href="NE.html#cb169-14" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;baralpha1&quot;</span>,<span class="st">&quot;baralpha2&quot;</span>,<span class="st">&quot;baralpha3&quot;</span>,<span class="st">&quot;baralpha4&quot;</span>,</span>
+<span id="cb169-15"><a href="NE.html#cb169-15" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;barchi1&quot;</span>,<span class="st">&quot;barchi2&quot;</span>,<span class="st">&quot;barchi3&quot;</span>,<span class="st">&quot;barchi4&quot;</span>,</span>
+<span id="cb169-16"><a href="NE.html#cb169-16" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;kappa1&quot;</span>,<span class="st">&quot;kappa2&quot;</span>,<span class="st">&quot;kappa3&quot;</span>,<span class="st">&quot;kappa4&quot;</span>,</span>
+<span id="cb169-17"><a href="NE.html#cb169-17" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;xi1&quot;</span>,<span class="st">&quot;xi2&quot;</span>,<span class="st">&quot;xi3&quot;</span>,<span class="st">&quot;xi4&quot;</span>,</span>
+<span id="cb169-18"><a href="NE.html#cb169-18" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;gamma&quot;</span>,<span class="st">&quot;sigma2omega&quot;</span>,<span class="st">&quot;rhoetaomega&quot;</span>)</span></code></pre></div>
 <p>Let us now generate the corresponding data (in long format):</p>
 <div class="sourceCode" id="cb170"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb170-1"><a href="NE.html#cb170-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb170-2"><a href="NE.html#cb170-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
@@ -2833,11 +2837,18 @@ Let us now choose some parameter values:</p>
 <span id="cb170-35"><a href="NE.html#cb170-35" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>D <span class="ot">&lt;-</span> <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">&gt;</span>data<span class="sc">$</span>time,<span class="dv">0</span>,<span class="dv">1</span>)</span>
 <span id="cb170-36"><a href="NE.html#cb170-36" aria-hidden="true" tabindex="-1"></a><span class="co"># potential outcomes with the treatment</span></span>
 <span id="cb170-37"><a href="NE.html#cb170-37" aria-hidden="true" tabindex="-1"></a><span class="co"># effect of the treatment by group</span></span>
-<span id="cb170-38"><a href="NE.html#cb170-38" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>baralphatd <span class="ot">&lt;-</span> param[<span class="st">&quot;kappa&quot;</span>]<span class="sc">*</span>(data<span class="sc">$</span>t<span class="sc">-</span>data<span class="sc">$</span>Ds)<span class="sc">*</span><span class="fu">if_else</span>(data<span class="sc">$</span>time<span class="sc">&gt;=</span>data<span class="sc">$</span>Ds,<span class="dv">1</span>,<span class="dv">0</span>)</span>
-<span id="cb170-39"><a href="NE.html#cb170-39" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y1 <span class="ot">&lt;-</span> data<span class="sc">$</span>y0 <span class="sc">+</span> data<span class="sc">$</span>baralphat <span class="sc">+</span> data<span class="sc">$</span>baralphatd <span class="sc">+</span> <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">1</span>,param[<span class="st">&quot;theta1&quot;</span>],<span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span>,param[<span class="st">&quot;theta2&quot;</span>],<span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span>,param[<span class="st">&quot;theta3&quot;</span>],param[<span class="st">&quot;theta4&quot;</span>])))<span class="sc">*</span>data<span class="sc">$</span>mu <span class="sc">+</span> data<span class="sc">$</span>eta</span>
-<span id="cb170-40"><a href="NE.html#cb170-40" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Y1 <span class="ot">&lt;-</span> <span class="fu">exp</span>(data<span class="sc">$</span>y1)</span>
-<span id="cb170-41"><a href="NE.html#cb170-41" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y <span class="ot">&lt;-</span> data<span class="sc">$</span>y1<span class="sc">*</span>data<span class="sc">$</span>D<span class="sc">+</span>data<span class="sc">$</span>y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>data<span class="sc">$</span>D)</span>
-<span id="cb170-42"><a href="NE.html#cb170-42" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Y <span class="ot">&lt;-</span> data<span class="sc">$</span>Y1<span class="sc">*</span>data<span class="sc">$</span>D<span class="sc">+</span>data<span class="sc">$</span>Y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>data<span class="sc">$</span>D)</span></code></pre></div>
+<span id="cb170-38"><a href="NE.html#cb170-38" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>baralphatd <span class="ot">&lt;-</span> <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">1</span>,param[<span class="st">&quot;barchi1&quot;</span>],</span>
+<span id="cb170-39"><a href="NE.html#cb170-39" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span>,param[<span class="st">&quot;barchi2&quot;</span>],</span>
+<span id="cb170-40"><a href="NE.html#cb170-40" aria-hidden="true" tabindex="-1"></a>                                   <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span>,param[<span class="st">&quot;barchi3&quot;</span>],</span>
+<span id="cb170-41"><a href="NE.html#cb170-41" aria-hidden="true" tabindex="-1"></a>                                           <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">4</span>,param[<span class="st">&quot;barchi4&quot;</span>],<span class="dv">0</span>))))<span class="sc">+</span></span>
+<span id="cb170-42"><a href="NE.html#cb170-42" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">1</span>,param[<span class="st">&quot;kappa1&quot;</span>],</span>
+<span id="cb170-43"><a href="NE.html#cb170-43" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span>,param[<span class="st">&quot;kappa2&quot;</span>],</span>
+<span id="cb170-44"><a href="NE.html#cb170-44" aria-hidden="true" tabindex="-1"></a>                                   <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span>,param[<span class="st">&quot;kappa3&quot;</span>],</span>
+<span id="cb170-45"><a href="NE.html#cb170-45" aria-hidden="true" tabindex="-1"></a>                                           <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">4</span>,param[<span class="st">&quot;kappa4&quot;</span>],<span class="dv">0</span>))))<span class="sc">*</span>(data<span class="sc">$</span>t<span class="sc">-</span>data<span class="sc">$</span>Ds)<span class="sc">*</span><span class="fu">if_else</span>(data<span class="sc">$</span>time<span class="sc">&gt;=</span>data<span class="sc">$</span>Ds,<span class="dv">1</span>,<span class="dv">0</span>)</span>
+<span id="cb170-46"><a href="NE.html#cb170-46" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y1 <span class="ot">&lt;-</span> data<span class="sc">$</span>y0 <span class="sc">+</span> data<span class="sc">$</span>baralphat <span class="sc">+</span> data<span class="sc">$</span>baralphatd <span class="sc">+</span> <span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">1</span>,param[<span class="st">&quot;theta1&quot;</span>],<span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">2</span>,param[<span class="st">&quot;theta2&quot;</span>],<span class="fu">if_else</span>(data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span>,param[<span class="st">&quot;theta3&quot;</span>],param[<span class="st">&quot;theta4&quot;</span>])))<span class="sc">*</span>data<span class="sc">$</span>mu <span class="sc">+</span> data<span class="sc">$</span>eta</span>
+<span id="cb170-47"><a href="NE.html#cb170-47" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Y1 <span class="ot">&lt;-</span> <span class="fu">exp</span>(data<span class="sc">$</span>y1)</span>
+<span id="cb170-48"><a href="NE.html#cb170-48" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>y <span class="ot">&lt;-</span> data<span class="sc">$</span>y1<span class="sc">*</span>data<span class="sc">$</span>D<span class="sc">+</span>data<span class="sc">$</span>y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>data<span class="sc">$</span>D)</span>
+<span id="cb170-49"><a href="NE.html#cb170-49" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>Y <span class="ot">&lt;-</span> data<span class="sc">$</span>Y1<span class="sc">*</span>data<span class="sc">$</span>D<span class="sc">+</span>data<span class="sc">$</span>Y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>data<span class="sc">$</span>D)</span></code></pre></div>
 <p>Let us now plot the data, especially the potential outcomes for each group.</p>
 <div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="NE.html#cb171-1" aria-hidden="true" tabindex="-1"></a>dataplotDIDStaggered <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
 <span id="cb171-2"><a href="NE.html#cb171-2" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">group_by</span>(Ds,time) <span class="sc">%&gt;%</span></span>
@@ -2924,19 +2935,20 @@ In order to make our lives simpler, we are going to generate a function to gener
 <div class="sourceCode" id="cb173"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb173-1"><a href="NE.html#cb173-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparing data</span></span>
 <span id="cb173-2"><a href="NE.html#cb173-2" aria-hidden="true" tabindex="-1"></a>DID.<span class="fl">2.1</span> <span class="ot">&lt;-</span> DID.<span class="fl">2.1</span> <span class="sc">%&gt;%</span></span>
 <span id="cb173-3"><a href="NE.html#cb173-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
-<span id="cb173-4"><a href="NE.html#cb173-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">dprime=</span><span class="fu">factor</span>(dprime,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;99&quot;</span>,<span class="st">&quot;4&quot;</span>,<span class="st">&quot;3&quot;</span>))</span>
+<span id="cb173-4"><a href="NE.html#cb173-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">dprime=</span><span class="fu">factor</span>(dprime,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;99&quot;</span>,<span class="st">&quot;4&quot;</span>,<span class="st">&quot;3&quot;</span>,<span class="st">&quot;2&quot;</span>,<span class="st">&quot;1&quot;</span>))</span>
 <span id="cb173-5"><a href="NE.html#cb173-5" aria-hidden="true" tabindex="-1"></a>            )</span>
 <span id="cb173-6"><a href="NE.html#cb173-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb173-7"><a href="NE.html#cb173-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.<span class="fl">2.1</span>,<span class="fu">aes</span>(<span class="at">x=</span>tau,<span class="at">y=</span>DIDest,<span class="at">colour=</span>dprime,<span class="at">linetype=</span>dprime))<span class="sc">+</span></span>
-<span id="cb173-8"><a href="NE.html#cb173-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb173-9"><a href="NE.html#cb173-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>DIDest<span class="fl">-1.96</span><span class="sc">*</span>DIDse,<span class="at">ymax=</span>DIDest<span class="fl">+1.96</span><span class="sc">*</span>DIDse))<span class="sc">+</span></span>
-<span id="cb173-10"><a href="NE.html#cb173-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
-<span id="cb173-11"><a href="NE.html#cb173-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time after treatment (tau)&quot;</span>) <span class="sc">+</span></span>
-<span id="cb173-12"><a href="NE.html#cb173-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
-<span id="cb173-13"><a href="NE.html#cb173-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb173-14"><a href="NE.html#cb173-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Comparison</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
-<span id="cb173-15"><a href="NE.html#cb173-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Comparison</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
-<span id="cb173-16"><a href="NE.html#cb173-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<span id="cb173-7"><a href="NE.html#cb173-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb173-8"><a href="NE.html#cb173-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.<span class="fl">2.1</span>,<span class="fu">aes</span>(<span class="at">x=</span>tau,<span class="at">y=</span>DIDest,<span class="at">colour=</span>dprime,<span class="at">linetype=</span>dprime))<span class="sc">+</span></span>
+<span id="cb173-9"><a href="NE.html#cb173-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb173-10"><a href="NE.html#cb173-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>DIDest<span class="fl">-1.96</span><span class="sc">*</span>DIDse,<span class="at">ymax=</span>DIDest<span class="fl">+1.96</span><span class="sc">*</span>DIDse))<span class="sc">+</span></span>
+<span id="cb173-11"><a href="NE.html#cb173-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb173-12"><a href="NE.html#cb173-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time after treatment (tau)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb173-13"><a href="NE.html#cb173-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb173-14"><a href="NE.html#cb173-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb173-15"><a href="NE.html#cb173-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Comparison</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb173-16"><a href="NE.html#cb173-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Comparison</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb173-17"><a href="NE.html#cb173-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredGroup2"></span>
 <img src="STCI_files/figure-html/PlotDIDStaggeredGroup2-1.png" alt="DID estimates for Group 2 at various time periods after the treament and with various comparison groups and with the reference period $\tau'=1$" width="50%" />
 <p class="caption">
@@ -2946,12 +2958,296 @@ Figure 4.13: DID estimates for Group 2 at various time periods after the treamen
 <p>Figure <a href="NE.html#fig:PlotDIDStaggeredGroup2">4.13</a> shows the <span class="math inline">\(\hat\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span> estimates for <span class="math inline">\(d=2\)</span> and <span class="math inline">\(\tau&#39;=1\)</span>, varying both <span class="math inline">\(\tau\)</span> and <span class="math inline">\(d&#39;\)</span>.
 The treatment effects estimated using different reference groups are similar to each other when we can compare them.
 Moreover, the treatment effect grows with time, as expected from Figure <a href="NE.html#fig:PlotDIDStaggered">4.12</a>.
-The true effects of the treatment on group 2 are, in our sample: <span class="math inline">\(\hat\Delta^{Y_{0}}_{TT_2}=\)</span> 0.21, <span class="math inline">\(\hat\Delta^{Y_{1}}_{TT_2}=\)</span> 0.71 and <span class="math inline">\(\hat\Delta^{Y_{2}}_{TT_2}=\)</span> 1.26.
+The true effects of the treatment on group 2 are, in our sample: <span class="math inline">\(\hat\Delta^{Y_{0}}_{TT_2}=\)</span> 0.31, <span class="math inline">\(\hat\Delta^{Y_{1}}_{TT_2}=\)</span> 0.81 and <span class="math inline">\(\hat\Delta^{Y_{2}}_{TT_2}=\)</span> 1.36.
 These are very close to our DID estimates.
-For example, <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,0,1)=\)</span> 0.27, while <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,4,0,1)=\)</span> 0.21 and <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,3,0,1)=\)</span> 0.2, which are all pretty close to <span class="math inline">\(\hat\Delta^{Y_{0}}_{TT_2}=\)</span> 0.21.
-<span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,1,1)=\)</span> 0.8, while <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,4,1,1)=\)</span> 0.72, which are also all pretty close to <span class="math inline">\(\hat\Delta^{Y_{1}}_{TT_2}=\)</span> 0.71.
-Finally, <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,2,1)=\)</span> 1.39, while <span class="math inline">\(\hat\Delta^{Y_{2}}_{TT_2}=\)</span> 1.26.</p>
+For example, <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,0,1)=\)</span> 0.37, while <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,4,0,1)=\)</span> 0.31 and <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,3,0,1)=\)</span> 0.3, which are all pretty close to <span class="math inline">\(\hat\Delta^{Y_{0}}_{TT_2}=\)</span> 0.31.
+<span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,1,1)=\)</span> 0.9, while <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,4,1,1)=\)</span> 0.82, which are also all pretty close to <span class="math inline">\(\hat\Delta^{Y_{1}}_{TT_2}=\)</span> 0.81.
+Finally, <span class="math inline">\(\hat\Delta^{Y}_{DID}(2,99,2,1)=\)</span> 1.49, while <span class="math inline">\(\hat\Delta^{Y_{2}}_{TT_2}=\)</span> 1.36.</p>
+<p>In order to aggregate the estimates presented in Figure <a href="NE.html#fig:PlotDIDStaggeredGroup2">4.13</a>, we could for example use the proportion of each comparison group in the sample and average the treatment effects for each post treatment period <span class="math inline">\(\tau\)</span> with these weights.
+We can do the same thing with groups 3 and 4 and see what happens.</p>
+<div class="sourceCode" id="cb174"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb174-1"><a href="NE.html#cb174-1" aria-hidden="true" tabindex="-1"></a><span class="co"># do the DID22 estimates for d=3</span></span>
+<span id="cb174-2"><a href="NE.html#cb174-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the regression and keep results</span></span>
+<span id="cb174-3"><a href="NE.html#cb174-3" aria-hidden="true" tabindex="-1"></a><span class="co"># D=99 as benchmark</span></span>
+<span id="cb174-4"><a href="NE.html#cb174-4" aria-hidden="true" tabindex="-1"></a><span class="co"># list of tau for d=3 and dprime=99 and tauprime=1</span></span>
+<span id="cb174-5"><a href="NE.html#cb174-5" aria-hidden="true" tabindex="-1"></a>tau.<span class="fl">3.99</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)</span>
+<span id="cb174-6"><a href="NE.html#cb174-6" aria-hidden="true" tabindex="-1"></a>DID.<span class="dv">3</span>.<span class="fl">99.1</span> <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(tau.<span class="fl">3.99</span>,StaggeredDID22,<span class="at">y=</span><span class="st">&#39;y&#39;</span>,<span class="at">D=</span><span class="st">&#39;Ds&#39;</span>,<span class="at">d=</span><span class="dv">3</span>,<span class="at">dprime=</span><span class="dv">99</span>,<span class="at">tauprime=</span><span class="dv">1</span>,<span class="at">t=</span><span class="st">&quot;time&quot;</span>,<span class="at">i=</span><span class="st">&quot;id&quot;</span>,<span class="at">data=</span>data) </span>
+<span id="cb174-7"><a href="NE.html#cb174-7" aria-hidden="true" tabindex="-1"></a><span class="co"># D=4 as a benchmark </span></span>
+<span id="cb174-8"><a href="NE.html#cb174-8" aria-hidden="true" tabindex="-1"></a><span class="co"># list of tau for d=3 and dprime=4 and tauprime=1</span></span>
+<span id="cb174-9"><a href="NE.html#cb174-9" aria-hidden="true" tabindex="-1"></a>tau.<span class="fl">3.4</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>)</span>
+<span id="cb174-10"><a href="NE.html#cb174-10" aria-hidden="true" tabindex="-1"></a>DID.<span class="dv">3</span>.<span class="fl">4.1</span> <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(tau.<span class="fl">3.4</span>,StaggeredDID22,<span class="at">y=</span><span class="st">&#39;y&#39;</span>,<span class="at">D=</span><span class="st">&#39;Ds&#39;</span>,<span class="at">d=</span><span class="dv">3</span>,<span class="at">dprime=</span><span class="dv">4</span>,<span class="at">tauprime=</span><span class="dv">1</span>,<span class="at">t=</span><span class="st">&quot;time&quot;</span>,<span class="at">i=</span><span class="st">&quot;id&quot;</span>,<span class="at">data=</span>data) </span>
+<span id="cb174-11"><a href="NE.html#cb174-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-12"><a href="NE.html#cb174-12" aria-hidden="true" tabindex="-1"></a><span class="co"># regroup results</span></span>
+<span id="cb174-13"><a href="NE.html#cb174-13" aria-hidden="true" tabindex="-1"></a>DID.<span class="fl">3.1</span> <span class="ot">&lt;-</span> <span class="fu">rbind</span>(DID.<span class="dv">3</span>.<span class="fl">99.1</span>,DID.<span class="dv">3</span>.<span class="fl">4.1</span>)</span>
+<span id="cb174-14"><a href="NE.html#cb174-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-15"><a href="NE.html#cb174-15" aria-hidden="true" tabindex="-1"></a><span class="co"># true effects (in the sample)</span></span>
+<span id="cb174-16"><a href="NE.html#cb174-16" aria-hidden="true" tabindex="-1"></a>ATT.<span class="fl">3.0</span> <span class="ot">&lt;-</span> <span class="fu">mean</span>(data<span class="sc">$</span>y1[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">3</span>])<span class="sc">-</span><span class="fu">mean</span>(data<span class="sc">$</span>y0[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">3</span>])</span>
+<span id="cb174-17"><a href="NE.html#cb174-17" aria-hidden="true" tabindex="-1"></a>ATT.<span class="fl">3.1</span> <span class="ot">&lt;-</span> <span class="fu">mean</span>(data<span class="sc">$</span>y1[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">4</span>])<span class="sc">-</span><span class="fu">mean</span>(data<span class="sc">$</span>y0[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">3</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">4</span>])</span>
+<span id="cb174-18"><a href="NE.html#cb174-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-19"><a href="NE.html#cb174-19" aria-hidden="true" tabindex="-1"></a><span class="co"># do the DID22 estimates for d=4</span></span>
+<span id="cb174-20"><a href="NE.html#cb174-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the regression and keep results</span></span>
+<span id="cb174-21"><a href="NE.html#cb174-21" aria-hidden="true" tabindex="-1"></a><span class="co"># D=99 as benchmark</span></span>
+<span id="cb174-22"><a href="NE.html#cb174-22" aria-hidden="true" tabindex="-1"></a><span class="co"># list of tau for d=4 and dprime=99 and tauprime=1</span></span>
+<span id="cb174-23"><a href="NE.html#cb174-23" aria-hidden="true" tabindex="-1"></a>tau.<span class="fl">4.99</span> <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>)</span>
+<span id="cb174-24"><a href="NE.html#cb174-24" aria-hidden="true" tabindex="-1"></a>DID.<span class="dv">4</span>.<span class="fl">99.1</span> <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(tau.<span class="fl">4.99</span>,StaggeredDID22,<span class="at">y=</span><span class="st">&#39;y&#39;</span>,<span class="at">D=</span><span class="st">&#39;Ds&#39;</span>,<span class="at">d=</span><span class="dv">4</span>,<span class="at">dprime=</span><span class="dv">99</span>,<span class="at">tauprime=</span><span class="dv">1</span>,<span class="at">t=</span><span class="st">&quot;time&quot;</span>,<span class="at">i=</span><span class="st">&quot;id&quot;</span>,<span class="at">data=</span>data) </span>
+<span id="cb174-25"><a href="NE.html#cb174-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-26"><a href="NE.html#cb174-26" aria-hidden="true" tabindex="-1"></a><span class="co"># true effects (in the sample)</span></span>
+<span id="cb174-27"><a href="NE.html#cb174-27" aria-hidden="true" tabindex="-1"></a>ATT.<span class="fl">4.0</span> <span class="ot">&lt;-</span> <span class="fu">mean</span>(data<span class="sc">$</span>y1[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">4</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">4</span>])<span class="sc">-</span><span class="fu">mean</span>(data<span class="sc">$</span>y0[data<span class="sc">$</span>Ds<span class="sc">==</span><span class="dv">4</span> <span class="sc">&amp;</span> data<span class="sc">$</span>time<span class="sc">==</span><span class="dv">4</span>])</span>
+<span id="cb174-28"><a href="NE.html#cb174-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-29"><a href="NE.html#cb174-29" aria-hidden="true" tabindex="-1"></a><span class="co"># regrouping all effects</span></span>
+<span id="cb174-30"><a href="NE.html#cb174-30" aria-hidden="true" tabindex="-1"></a>DID<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">rbind</span>(DID.<span class="fl">2.1</span>,DID.<span class="fl">3.1</span>,DID.<span class="dv">4</span>.<span class="fl">99.1</span>)</span>
+<span id="cb174-31"><a href="NE.html#cb174-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-32"><a href="NE.html#cb174-32" aria-hidden="true" tabindex="-1"></a><span class="co"># computing the weights</span></span>
+<span id="cb174-33"><a href="NE.html#cb174-33" aria-hidden="true" tabindex="-1"></a>prop.groups.DID <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb174-34"><a href="NE.html#cb174-34" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">filter</span>(time<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb174-35"><a href="NE.html#cb174-35" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">group_by</span>(Ds) <span class="sc">%&gt;%</span></span>
+<span id="cb174-36"><a href="NE.html#cb174-36" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">summarize</span>(</span>
+<span id="cb174-37"><a href="NE.html#cb174-37" aria-hidden="true" tabindex="-1"></a>                      <span class="at">prop.group =</span> <span class="fu">n</span>()<span class="sc">/</span>N</span>
+<span id="cb174-38"><a href="NE.html#cb174-38" aria-hidden="true" tabindex="-1"></a>                    ) <span class="sc">%&gt;%</span></span>
+<span id="cb174-39"><a href="NE.html#cb174-39" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">rename</span>(</span>
+<span id="cb174-40"><a href="NE.html#cb174-40" aria-hidden="true" tabindex="-1"></a>                      <span class="at">dprime=</span>Ds</span>
+<span id="cb174-41"><a href="NE.html#cb174-41" aria-hidden="true" tabindex="-1"></a>                    )<span class="sc">%&gt;%</span></span>
+<span id="cb174-42"><a href="NE.html#cb174-42" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">mutate</span>(</span>
+<span id="cb174-43"><a href="NE.html#cb174-43" aria-hidden="true" tabindex="-1"></a>                      <span class="at">dprime=</span><span class="fu">factor</span>(dprime,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;99&quot;</span>,<span class="st">&quot;4&quot;</span>,<span class="st">&quot;3&quot;</span>,<span class="st">&quot;2&quot;</span>,<span class="st">&quot;1&quot;</span>))</span>
+<span id="cb174-44"><a href="NE.html#cb174-44" aria-hidden="true" tabindex="-1"></a>                    )</span>
+<span id="cb174-45"><a href="NE.html#cb174-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-46"><a href="NE.html#cb174-46" aria-hidden="true" tabindex="-1"></a><span class="co"># joining the weights to the results</span></span>
+<span id="cb174-47"><a href="NE.html#cb174-47" aria-hidden="true" tabindex="-1"></a>DID<span class="fl">.1</span> <span class="ot">&lt;-</span> DID<span class="fl">.1</span> <span class="sc">%&gt;%</span></span>
+<span id="cb174-48"><a href="NE.html#cb174-48" aria-hidden="true" tabindex="-1"></a>          <span class="fu">left_join</span>(prop.groups.DID,<span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;dprime&quot;</span>))</span>
+<span id="cb174-49"><a href="NE.html#cb174-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb174-50"><a href="NE.html#cb174-50" aria-hidden="true" tabindex="-1"></a><span class="co"># generating the weighted averages by tau</span></span>
+<span id="cb174-51"><a href="NE.html#cb174-51" aria-hidden="true" tabindex="-1"></a>DID.tau <span class="ot">&lt;-</span> DID<span class="fl">.1</span> <span class="sc">%&gt;%</span></span>
+<span id="cb174-52"><a href="NE.html#cb174-52" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb174-53"><a href="NE.html#cb174-53" aria-hidden="true" tabindex="-1"></a>              <span class="at">w.ATT =</span> prop.group<span class="sc">*</span>DIDest</span>
+<span id="cb174-54"><a href="NE.html#cb174-54" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb174-55"><a href="NE.html#cb174-55" aria-hidden="true" tabindex="-1"></a>            <span class="fu">group_by</span>(tau,d) <span class="sc">%&gt;%</span></span>
+<span id="cb174-56"><a href="NE.html#cb174-56" aria-hidden="true" tabindex="-1"></a>            <span class="fu">summarize</span>(</span>
+<span id="cb174-57"><a href="NE.html#cb174-57" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w.ATT =</span> <span class="fu">sum</span>(w.ATT),</span>
+<span id="cb174-58"><a href="NE.html#cb174-58" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w =</span> <span class="fu">sum</span>(prop.group)</span>
+<span id="cb174-59"><a href="NE.html#cb174-59" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span> </span>
+<span id="cb174-60"><a href="NE.html#cb174-60" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb174-61"><a href="NE.html#cb174-61" aria-hidden="true" tabindex="-1"></a>              <span class="at">ATT.tau =</span> sum.w.ATT<span class="sc">/</span>sum.w</span>
+<span id="cb174-62"><a href="NE.html#cb174-62" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb174-63"><a href="NE.html#cb174-63" aria-hidden="true" tabindex="-1"></a>            <span class="fu">select</span>(d,tau,ATT.tau) <span class="sc">%&gt;%</span></span>
+<span id="cb174-64"><a href="NE.html#cb174-64" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb174-65"><a href="NE.html#cb174-65" aria-hidden="true" tabindex="-1"></a>              <span class="at">d=</span><span class="fu">factor</span>(d,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;2&quot;</span>,<span class="st">&quot;3&quot;</span>,<span class="st">&quot;4&quot;</span>))</span>
+<span id="cb174-66"><a href="NE.html#cb174-66" aria-hidden="true" tabindex="-1"></a>            )</span></code></pre></div>
+<p>Let us now plot the results for the DID estimates in groups <span class="math inline">\(2\)</span>, <span class="math inline">\(3\)</span> and <span class="math inline">\(4\)</span> using <span class="math inline">\(\tau&#39;=1\)</span> as a benchmark pre-treatment period and aggregating the estimates using every possible valid control group:</p>
+<div class="sourceCode" id="cb175"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb175-1"><a href="NE.html#cb175-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.tau,<span class="fu">aes</span>(<span class="at">x=</span>tau,<span class="at">y=</span>ATT.tau,<span class="at">colour=</span>d,<span class="at">linetype=</span>d))<span class="sc">+</span></span>
+<span id="cb175-2"><a href="NE.html#cb175-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb175-3"><a href="NE.html#cb175-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb175-4"><a href="NE.html#cb175-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb175-5"><a href="NE.html#cb175-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time after treatment (tau)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb175-6"><a href="NE.html#cb175-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb175-7"><a href="NE.html#cb175-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb175-8"><a href="NE.html#cb175-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb175-9"><a href="NE.html#cb175-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb175-10"><a href="NE.html#cb175-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredGroups"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredGroups-1.png" alt="DID estimates for all groups at various time periods after the treament aggregated across all comparison groups and with the reference period $\tau'=1$" width="50%" />
+<p class="caption">
+Figure 4.14: DID estimates for all groups at various time periods after the treament aggregated across all comparison groups and with the reference period <span class="math inline">\(\tau&#39;=1\)</span>
+</p>
 </div>
+<p>On Figure <a href="NE.html#fig:PlotDIDStaggeredGroups">4.14</a>, we can see that all the estimators are comparable for each other at each time period <span class="math inline">\(\tau\)</span>, no matter the treatment group.
+We thus can aggregate the impacts at each period <span class="math inline">\(\tau\)</span> across all treatment groups.
+There are two ways to do that: one is to use all the groups for which we observe the effect of the treatment at period <span class="math inline">\(\tau\)</span>.
+The drawback of this approach is that group composoition changes with <span class="math inline">\(\tau\)</span>.
+For example, on Figure <a href="NE.html#fig:PlotDIDStaggeredGroups">4.14</a>, we can see that the treatment group treated in the last period (for which <span class="math inline">\(D_i=4\)</span>) contributes only to the computation of the effect of the treatment at period <span class="math inline">\(\tau=0\)</span>.
+This is because we cannot observe what happens to this group in later periods with our dataset.
+As a consequence, in period <span class="math inline">\(\tau=0\)</span>, all three groups–<span class="math inline">\(D_i=2\)</span>, <span class="math inline">\(D_i=3\)</span> and <span class="math inline">\(D_i=4\)</span>–contribute to the estimation of the effect of the treatment, whereas only groups with <span class="math inline">\(D_i=2\)</span> and <span class="math inline">\(D_i=3\)</span> contribute to the estimation of the effect at <span class="math inline">\(\tau=1\)</span>, and only <span class="math inline">\(D_i=2\)</span> contributes to estimating the effect at <span class="math inline">\(\tau=2\)</span>.
+If treatment effects were heterogeneous across treatment groups, this change in group composition would confound actual changes in the magnitude of treatment effects.
+Since the effect of the treatment is rather homogenous across groups, this group comopsition problem will not matter in our application.
+Nevetheless, we are still going to estimate the effect of the treatment at <span class="math inline">\(\tau=0\)</span> and <span class="math inline">\(\tau=1\)</span> maintaining group composition constant (<span class="math inline">\(D_i=2\)</span> and <span class="math inline">\(D_i=3\)</span>).
+In our application, both approaches will yield very similar results.
+The weigths we are going to use for our aggregation are the proportions of units belonging to each group.</p>
+<div class="sourceCode" id="cb176"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb176-1"><a href="NE.html#cb176-1" aria-hidden="true" tabindex="-1"></a><span class="co"># joining the weights to the results</span></span>
+<span id="cb176-2"><a href="NE.html#cb176-2" aria-hidden="true" tabindex="-1"></a>DID.tau <span class="ot">&lt;-</span> DID.tau <span class="sc">%&gt;%</span></span>
+<span id="cb176-3"><a href="NE.html#cb176-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">left_join</span>(prop.groups.DID,<span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;d&quot;</span><span class="ot">=</span><span class="st">&quot;dprime&quot;</span>))</span>
+<span id="cb176-4"><a href="NE.html#cb176-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb176-5"><a href="NE.html#cb176-5" aria-hidden="true" tabindex="-1"></a><span class="co"># generating the weighted averages by tau (varying group composition)</span></span>
+<span id="cb176-6"><a href="NE.html#cb176-6" aria-hidden="true" tabindex="-1"></a>DID.tau.agg <span class="ot">&lt;-</span> DID.tau <span class="sc">%&gt;%</span></span>
+<span id="cb176-7"><a href="NE.html#cb176-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb176-8"><a href="NE.html#cb176-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">w.ATT =</span> prop.group<span class="sc">*</span>ATT.tau</span>
+<span id="cb176-9"><a href="NE.html#cb176-9" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb176-10"><a href="NE.html#cb176-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">group_by</span>(tau) <span class="sc">%&gt;%</span></span>
+<span id="cb176-11"><a href="NE.html#cb176-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">summarize</span>(</span>
+<span id="cb176-12"><a href="NE.html#cb176-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w.ATT =</span> <span class="fu">sum</span>(w.ATT),</span>
+<span id="cb176-13"><a href="NE.html#cb176-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w =</span> <span class="fu">sum</span>(prop.group)</span>
+<span id="cb176-14"><a href="NE.html#cb176-14" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span> </span>
+<span id="cb176-15"><a href="NE.html#cb176-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb176-16"><a href="NE.html#cb176-16" aria-hidden="true" tabindex="-1"></a>              <span class="at">ATT.tau.agg =</span> sum.w.ATT<span class="sc">/</span>sum.w</span>
+<span id="cb176-17"><a href="NE.html#cb176-17" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb176-18"><a href="NE.html#cb176-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">select</span>(tau,ATT.tau.agg) <span class="sc">%&gt;%</span></span>
+<span id="cb176-19"><a href="NE.html#cb176-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb176-20"><a href="NE.html#cb176-20" aria-hidden="true" tabindex="-1"></a>              <span class="at">Composition=</span><span class="st">&quot;Varying&quot;</span></span>
+<span id="cb176-21"><a href="NE.html#cb176-21" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb176-22"><a href="NE.html#cb176-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb176-23"><a href="NE.html#cb176-23" aria-hidden="true" tabindex="-1"></a><span class="co"># generating the weighted averages by tau (constant group composition)</span></span>
+<span id="cb176-24"><a href="NE.html#cb176-24" aria-hidden="true" tabindex="-1"></a>DID.tau.agg.cst <span class="ot">&lt;-</span> DID.tau <span class="sc">%&gt;%</span></span>
+<span id="cb176-25"><a href="NE.html#cb176-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(d<span class="sc">==</span><span class="dv">2</span> <span class="sc">|</span> d<span class="sc">==</span><span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb176-26"><a href="NE.html#cb176-26" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(tau<span class="sc">==</span><span class="dv">0</span> <span class="sc">|</span> tau<span class="sc">==</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb176-27"><a href="NE.html#cb176-27" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb176-28"><a href="NE.html#cb176-28" aria-hidden="true" tabindex="-1"></a>              <span class="at">w.ATT =</span> prop.group<span class="sc">*</span>ATT.tau</span>
+<span id="cb176-29"><a href="NE.html#cb176-29" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb176-30"><a href="NE.html#cb176-30" aria-hidden="true" tabindex="-1"></a>            <span class="fu">group_by</span>(tau) <span class="sc">%&gt;%</span></span>
+<span id="cb176-31"><a href="NE.html#cb176-31" aria-hidden="true" tabindex="-1"></a>            <span class="fu">summarize</span>(</span>
+<span id="cb176-32"><a href="NE.html#cb176-32" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w.ATT =</span> <span class="fu">sum</span>(w.ATT),</span>
+<span id="cb176-33"><a href="NE.html#cb176-33" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w =</span> <span class="fu">sum</span>(prop.group)</span>
+<span id="cb176-34"><a href="NE.html#cb176-34" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span> </span>
+<span id="cb176-35"><a href="NE.html#cb176-35" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb176-36"><a href="NE.html#cb176-36" aria-hidden="true" tabindex="-1"></a>              <span class="at">ATT.tau.agg =</span> sum.w.ATT<span class="sc">/</span>sum.w</span>
+<span id="cb176-37"><a href="NE.html#cb176-37" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb176-38"><a href="NE.html#cb176-38" aria-hidden="true" tabindex="-1"></a>            <span class="fu">select</span>(tau,ATT.tau.agg) <span class="sc">%&gt;%</span></span>
+<span id="cb176-39"><a href="NE.html#cb176-39" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb176-40"><a href="NE.html#cb176-40" aria-hidden="true" tabindex="-1"></a>              <span class="at">Composition=</span><span class="st">&quot;Constant&quot;</span></span>
+<span id="cb176-41"><a href="NE.html#cb176-41" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb176-42"><a href="NE.html#cb176-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb176-43"><a href="NE.html#cb176-43" aria-hidden="true" tabindex="-1"></a><span class="co">#regrouping estimates</span></span>
+<span id="cb176-44"><a href="NE.html#cb176-44" aria-hidden="true" tabindex="-1"></a>DID.tau.agg.tot <span class="ot">&lt;-</span> <span class="fu">rbind</span>(DID.tau.agg,DID.tau.agg.cst) <span class="sc">%&gt;%</span></span>
+<span id="cb176-45"><a href="NE.html#cb176-45" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">mutate</span>(</span>
+<span id="cb176-46"><a href="NE.html#cb176-46" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Composition =</span> <span class="fu">factor</span>(Composition,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&quot;Constant&quot;</span>,<span class="st">&quot;Varying&quot;</span>))</span>
+<span id="cb176-47"><a href="NE.html#cb176-47" aria-hidden="true" tabindex="-1"></a>                    )</span></code></pre></div>
+<p>Let’s pot the resulting estimates.</p>
+<div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="NE.html#cb177-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.tau.agg.tot,<span class="fu">aes</span>(<span class="at">x=</span>tau,<span class="at">y=</span>ATT.tau.agg,<span class="at">colour=</span>Composition,<span class="at">linetype=</span>Composition))<span class="sc">+</span></span>
+<span id="cb177-2"><a href="NE.html#cb177-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb177-3"><a href="NE.html#cb177-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb177-4"><a href="NE.html#cb177-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb177-5"><a href="NE.html#cb177-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time after treatment (tau)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb177-6"><a href="NE.html#cb177-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb177-7"><a href="NE.html#cb177-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb177-8"><a href="NE.html#cb177-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Group</span><span class="sc">\n</span><span class="st">composition&quot;</span>)<span class="sc">+</span></span>
+<span id="cb177-9"><a href="NE.html#cb177-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Group</span><span class="sc">\n</span><span class="st">composition&quot;</span>)<span class="sc">+</span></span>
+<span id="cb177-10"><a href="NE.html#cb177-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredAgg"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredAgg-1.png" alt="DID estimates at various time periods after the treament aggregated across all treatment groups and maintaining treatment group composition constant (reference period $\tau'=1$)" width="50%" />
+<p class="caption">
+Figure 4.15: DID estimates at various time periods after the treament aggregated across all treatment groups and maintaining treatment group composition constant (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+</p>
+</div>
+<p>As expected, Figure <a href="NE.html#fig:PlotDIDStaggeredAgg">4.15</a> confirms that group composition does not play an important role in treatment effect heterogeneity: there actually is a true heterogeneity along the time dimension: the treatment effect seems to increase linearly over time (as we suspected it would, since we parameterized our model just like it).</p>
+<p>Finally, let us aggregate all treatment effects from all periods into one unique estimate.
+It is not an easy feat, especially in our current example which exhibits lots of treatment effect heterogeneity over <span class="math inline">\(\tau\)</span>.
+Should we simply aggregate all treatment effect estimates using equal weights for each period <span class="math inline">\(\tau\)</span> or, rather, should we try to reflect the actual composition of treated groups and time periods in the sample?
+The choice of the mode of aggregation might make a huge difference to the eventual result, since giving more weights to higher <span class="math inline">\(\tau\)</span> will result in a much higher overall treatment effect.
+Let’s see what happens with both approaches.</p>
+<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb178-1"><a href="NE.html#cb178-1" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregating by weighing equally each time period tau</span></span>
+<span id="cb178-2"><a href="NE.html#cb178-2" aria-hidden="true" tabindex="-1"></a>ATT.equal <span class="ot">&lt;-</span> DID.tau.agg.tot <span class="sc">%&gt;%</span></span>
+<span id="cb178-3"><a href="NE.html#cb178-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(Composition<span class="sc">==</span><span class="st">&quot;Varying&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb178-4"><a href="NE.html#cb178-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">summarize</span>(</span>
+<span id="cb178-5"><a href="NE.html#cb178-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ATT.equal =</span> <span class="fu">mean</span>(ATT.tau.agg)</span>
+<span id="cb178-6"><a href="NE.html#cb178-6" aria-hidden="true" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
+<span id="cb178-7"><a href="NE.html#cb178-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">pull</span>(ATT.equal)</span>
+<span id="cb178-8"><a href="NE.html#cb178-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb178-9"><a href="NE.html#cb178-9" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregating by weighing as a proportion of time spent by each group in the treatment state </span></span>
+<span id="cb178-10"><a href="NE.html#cb178-10" aria-hidden="true" tabindex="-1"></a>ATT.varying <span class="ot">&lt;-</span> DID.tau <span class="sc">%&gt;%</span></span>
+<span id="cb178-11"><a href="NE.html#cb178-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb178-12"><a href="NE.html#cb178-12" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb178-13"><a href="NE.html#cb178-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">w.ATT =</span> prop.group<span class="sc">*</span>ATT.tau</span>
+<span id="cb178-14"><a href="NE.html#cb178-14" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb178-15"><a href="NE.html#cb178-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">summarize</span>(</span>
+<span id="cb178-16"><a href="NE.html#cb178-16" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w.ATT =</span> <span class="fu">sum</span>(w.ATT),</span>
+<span id="cb178-17"><a href="NE.html#cb178-17" aria-hidden="true" tabindex="-1"></a>              <span class="at">sum.w =</span> <span class="fu">sum</span>(prop.group)</span>
+<span id="cb178-18"><a href="NE.html#cb178-18" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span> </span>
+<span id="cb178-19"><a href="NE.html#cb178-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb178-20"><a href="NE.html#cb178-20" aria-hidden="true" tabindex="-1"></a>              <span class="at">ATT.varying =</span> sum.w.ATT<span class="sc">/</span>sum.w</span>
+<span id="cb178-21"><a href="NE.html#cb178-21" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb178-22"><a href="NE.html#cb178-22" aria-hidden="true" tabindex="-1"></a>            <span class="fu">pull</span>(ATT.varying)</span></code></pre></div>
+<p>The average effect of the treatment, giving equal weight to each time period <span class="math inline">\(\tau\in\{0,1,2\}\)</span>, is equal to <span class="math inline">\(\hat\Delta^{Y}_{TT}(e)=\)</span> 0.84, where <span class="math inline">\(e\)</span> stands for “equal” weights.
+The average effect of the treatment, giving weights proportional to group composition and time spent in the treatment is equal to <span class="math inline">\(\hat\Delta^{Y}_{TT}(v)=\)</span> 0.61, where <span class="math inline">\(v\)</span> stands for “varying” weights.</p>
+</div>
+<div id="direct-weighting-using-one-reference-period-and-one-reference-group-sun-and-abraham" class="section level5" number="4.3.3.2.2">
+<h5><span class="header-section-number">4.3.3.2.2</span> Direct weighting using one reference period and one reference group (Sun and Abraham)</h5>
+<p>OK, so now, we know how to compute the various DID estimators by hand and how to aggregate them.
+Is there a way to obtain directly an aggregated estimate with an R package?
+Yes, actually, plenty of such estimator exist.
+They are listed on <a href="https://asjadnaqvi.github.io/DiD/docs/02_R/">Asjad Naqvi’s DID webpage</a>.
+Let’s start with the ones implementing the <a href="https://www.sciencedirect.com/science/article/pii/S030440762030378X">Sun and Abraham (2021)</a> estimator.
+<a href="https://www.sciencedirect.com/science/article/pii/S030440762030378X">Sun and Abraham (2021)</a>’s estimator start with estimating a Two Way Fixed Effect model with a rich dynamic specification:</p>
+<p><span class="math display">\[\begin{align*}
+    Y_{i,t} &amp;  = \mu_i + \delta_t + \sum_{d=2}^T\sum_{\tau\neq-1}\beta_{d,\tau}^{SA}\uns{D_{i}=d \land t=d+\tau}  + \epsilon^{SA}_{i,t},
+\end{align*}\]</span></p>
+<p>on the sample excluding the always treated individuals (<span class="math inline">\(D_i=1\)</span>).
+In order to be consistent with previous estimators, we are going to start using the <code>fixest</code> package to obtain our estimator.
+In order to be able to estimate <a href="https://www.sciencedirect.com/science/article/pii/S030440762030378X">Sun and Abraham (2021)</a>’s estimator with <code>fixest</code>, we simply are going to add a <code>sunab(d,t)</code> term to the <code>feols</code> command, with the first term giving the treatment group and the second term the time fixed effect.
+We then can aggregate the estiamted terms.
+Let’s go:</p>
+<div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb179-1"><a href="NE.html#cb179-1" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
+<span id="cb179-2"><a href="NE.html#cb179-2" aria-hidden="true" tabindex="-1"></a>reg.fixest.SA.Agg <span class="ot">&lt;-</span> <span class="fu">feols</span>(y <span class="sc">~</span> <span class="fu">sunab</span>(Ds,time)<span class="sc">|</span> id <span class="sc">+</span> time, <span class="at">data=</span><span class="fu">filter</span>(data,Ds<span class="sc">&gt;</span><span class="dv">1</span>))</span>
+<span id="cb179-3"><a href="NE.html#cb179-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb179-4"><a href="NE.html#cb179-4" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)</span></span>
+<span id="cb179-5"><a href="NE.html#cb179-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The selection of coefficients to aggregate uses a string detection pattern language</span></span>
+<span id="cb179-6"><a href="NE.html#cb179-6" aria-hidden="true" tabindex="-1"></a><span class="co"># varying composition</span></span>
+<span id="cb179-7"><a href="NE.html#cb179-7" aria-hidden="true" tabindex="-1"></a>aggregate.SA.varying <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(reg.fixest.SA.Agg, <span class="fu">c</span>(<span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="st">&quot;time::([[:digit:]]+)&quot;</span>))</span></code></pre></div>
+<p>Let’s plot the results:</p>
+<div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb180-1"><a href="NE.html#cb180-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparation</span></span>
+<span id="cb180-2"><a href="NE.html#cb180-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(aggregate.SA.varying) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;ATT&quot;</span>,<span class="st">&quot;Se&quot;</span>,<span class="st">&quot;t&quot;</span>,<span class="st">&quot;pval&quot;</span>)</span>
+<span id="cb180-3"><a href="NE.html#cb180-3" aria-hidden="true" tabindex="-1"></a>aggregate.SA.varying <span class="ot">&lt;-</span> aggregate.SA.varying <span class="sc">%&gt;%</span></span>
+<span id="cb180-4"><a href="NE.html#cb180-4" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">as.data.frame</span>(.)  <span class="sc">%&gt;%</span></span>
+<span id="cb180-5"><a href="NE.html#cb180-5" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">mutate</span>(<span class="at">tau =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">2</span>) </span>
+<span id="cb180-6"><a href="NE.html#cb180-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb180-7"><a href="NE.html#cb180-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb180-8"><a href="NE.html#cb180-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(aggregate.SA.varying,<span class="fu">aes</span>(<span class="at">x=</span>tau,<span class="at">y=</span>ATT))<span class="sc">+</span></span>
+<span id="cb180-9"><a href="NE.html#cb180-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb180-10"><a href="NE.html#cb180-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>ATT<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>ATT<span class="fl">+1.96</span><span class="sc">*</span>Se)) <span class="sc">+</span></span>
+<span id="cb180-11"><a href="NE.html#cb180-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb180-12"><a href="NE.html#cb180-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time after treatment (tau)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb180-13"><a href="NE.html#cb180-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb180-14"><a href="NE.html#cb180-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb180-15"><a href="NE.html#cb180-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Group</span><span class="sc">\n</span><span class="st">composition&quot;</span>)<span class="sc">+</span></span>
+<span id="cb180-16"><a href="NE.html#cb180-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Group</span><span class="sc">\n</span><span class="st">composition&quot;</span>)<span class="sc">+</span></span>
+<span id="cb180-17"><a href="NE.html#cb180-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredAggSA"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredAggSA-1.png" alt="DID estimates at various time periods after the treament using Sun and Abraham's estimator implemented by fixest (reference period $\tau'=1$)" width="50%" />
+<p class="caption">
+Figure 4.16: DID estimates at various time periods after the treament using Sun and Abraham’s estimator implemented by fixest (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+</p>
+</div>
+<p>Again, as we have seen before, the change in group composition makes it look like there is a trend break in the treatment effect.
+What we would need is to aggregate treatment effects with a constant group composition.
+In order to do that, we need to be able to access the individual coefficeints for each treatment group, and then to combine them.
+One way to do that is to we need to define a time to treatment indicator (this is the role of <span class="math inline">\(\tau=t-d\)</span> in the above equation) and to run a TWFE regression with individual and year fixed effects, and one interacted dummy per time to treatment and treatment group.
+Note that there has to be a reference time to treatment (here <span class="math inline">\(\tau=-1\)</span> (note that <span class="math inline">\(\tau\)</span> can take negative values)) and a reference treated group (here <span class="math inline">\(D_i=\infty\)</span> (in practice, <span class="math inline">\(D_i=99\)</span>)).
+In practice, we are generating a variable of time to treatment which takes value <span class="math inline">\(-99\)</span> fot the never treated and we exclude this value and the <span class="math inline">\(-1\)</span> time to treatment date.</p>
+<div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb181-1"><a href="NE.html#cb181-1" aria-hidden="true" tabindex="-1"></a><span class="co"># creating a time to treatment variable:</span></span>
+<span id="cb181-2"><a href="NE.html#cb181-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb181-3"><a href="NE.html#cb181-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate</span>(</span>
+<span id="cb181-4"><a href="NE.html#cb181-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">tau=</span>time<span class="sc">-</span>Ds</span>
+<span id="cb181-5"><a href="NE.html#cb181-5" aria-hidden="true" tabindex="-1"></a>          ) <span class="sc">%&gt;%</span></span>
+<span id="cb181-6"><a href="NE.html#cb181-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate</span>( </span>
+<span id="cb181-7"><a href="NE.html#cb181-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">tau =</span> <span class="fu">replace</span>(tau,tau<span class="sc">&lt;=-</span><span class="dv">90</span>,<span class="sc">-</span><span class="dv">99</span>)</span>
+<span id="cb181-8"><a href="NE.html#cb181-8" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb181-9"><a href="NE.html#cb181-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb181-10"><a href="NE.html#cb181-10" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
+<span id="cb181-11"><a href="NE.html#cb181-11" aria-hidden="true" tabindex="-1"></a>reg.fixest.SA.nonAgg <span class="ot">&lt;-</span> <span class="fu">feols</span>(y <span class="sc">~</span> <span class="fu">i</span>(tau,i.Ds,<span class="at">ref=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="sc">-</span><span class="dv">99</span>))<span class="sc">|</span> id <span class="sc">+</span> time, <span class="at">data=</span><span class="fu">filter</span>(data,Ds<span class="sc">&gt;</span><span class="dv">1</span>))</span>
+<span id="cb181-12"><a href="NE.html#cb181-12" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)</span></span>
+<span id="cb181-13"><a href="NE.html#cb181-13" aria-hidden="true" tabindex="-1"></a><span class="co"># The selection of coefficients to aggregate uses a string detection pattern language</span></span>
+<span id="cb181-14"><a href="NE.html#cb181-14" aria-hidden="true" tabindex="-1"></a><span class="co"># varying composition</span></span>
+<span id="cb181-15"><a href="NE.html#cb181-15" aria-hidden="true" tabindex="-1"></a>aggregate.SA.nonAgg.varying <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(reg.fixest.SA.nonAgg, <span class="fu">c</span>(<span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="st">&quot;tau::([[:digit:]]+)&quot;</span>))</span></code></pre></div>
+<p><strong>Aggregate above using a weighting matrix</strong>
+<strong>plot for all groups</strong>
+<strong>plot with constant group composition</strong></p>
+</div>
+<div id="direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna" class="section level5" number="4.3.3.2.3">
+<h5><span class="header-section-number">4.3.3.2.3</span> Direct weighting using one reference period and one reference group (Callaway and Sant’Anna)</h5>
+</div>
+<div id="imputation-methods-borusyak-jaravel-and-speiss-gardner" class="section level5" number="4.3.3.2.4">
+<h5><span class="header-section-number">4.3.3.2.4</span> Imputation methods: Borusyak, Jaravel and Speiss, Gardner</h5>
+<p><strong>How to combine estimates, even with only one reference period, when there are several estimates for the same treatment effect (<span class="math inline">\(\tau\)</span>)?</strong>
+<strong>We should focus on the most efficient estimator: I think that’s Borusyak’s point</strong></p>
+</div>
+<div id="de-chaisemartin-and-dhaultfoeuille" class="section level5" number="4.3.3.2.5">
+<h5><span class="header-section-number">4.3.3.2.5</span> De Chaisemartin and d’Haultfoeuille</h5>
+</div>
+<div id="two-way-fixed-effects-estimation-goodman-bacons-decomposition" class="section level5" number="4.3.3.2.6">
+<h5><span class="header-section-number">4.3.3.2.6</span> Two-Way Fixed Effects estimation: Goodman-Bacon’s decomposition</h5>
+</div>
+<div id="stacked-did" class="section level5" number="4.3.3.2.7">
+<h5><span class="header-section-number">4.3.3.2.7</span> Stacked DID</h5>
+</div>
+</div>
+<div id="inference-1" class="section level4" number="4.3.3.3">
+<h4><span class="header-section-number">4.3.3.3</span> Inference</h4>
+<p><strong>Simple estimators use the Delta method with an appropriate weighting matrix</strong></p>
 </div>
 </div>
 <div id="difference-in-differences-with-instrumental-variables" class="section level3" number="4.3.4">
