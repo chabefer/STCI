@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-02-21}
+\date{2022-02-22}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -9385,8 +9385,8 @@ The main reason for why is that the Two Way Fixed Effects estimator combines ind
 An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
 It has been proposed by \href{https://academic.oup.com/qje/article/134/3/1405/5484905}{Cengiz, Dube, Lindner and Zipperer (2019)} and extended by \href{https://jrgcmu.github.io/2sdd_current.pdf}{Gardner (2021)} who also proposes an imputation estimator \emph{à la} Borusyak, Jaravel and Speiss.
 
-\hypertarget{using-weighted-averages-of-individual-did-estimators}{%
-\paragraph{Using weighted averages of individual DID estimators}\label{using-weighted-averages-of-individual-did-estimators}}
+\hypertarget{IndivDID}{%
+\paragraph{Using weighted averages of individual DID estimators}\label{IndivDID}}
 
 This estimator is pretty simple to define.
 Simply take all the possible \(2\times2\) possible DID estimators \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\), with \(\tau,\tau'>0\) and \(d'>d+\tau\), and then average them using the pre-defined weights \(w^k(d,d',\tau,\tau')\) of your choice.
@@ -9880,7 +9880,7 @@ Let's start with the ones implementing the \href{https://www.sciencedirect.com/s
 on the sample excluding the always treated individuals (\(D_i=1\)).
 In order to be consistent with previous estimators, we are going to start using the \texttt{fixest} package to obtain our estimator.
 In order to be able to estimate \href{https://www.sciencedirect.com/science/article/pii/S030440762030378X}{Sun and Abraham (2021)}'s estimator with \texttt{fixest}, we simply are going to add a \texttt{sunab(d,t)} term to the \texttt{feols} command, with the first term giving the treatment group and the second term the time fixed effect.
-We then can aggregate the estiamted terms.
+We then can aggregate the estimated terms using \texttt{regexp} in order to detect the string patterns.
 Let's go:
 
 \begin{Shaded}
@@ -9892,6 +9892,23 @@ Let's go:
 \CommentTok{\# The selection of coefficients to aggregate uses a string detection pattern language}
 \CommentTok{\# varying composition}
 \NormalTok{aggregate.SA.varying }\OtherTok{\textless{}{-}} \FunctionTok{aggregate}\NormalTok{(reg.fixest.SA.Agg, }\FunctionTok{c}\NormalTok{(}\StringTok{"tau"} \OtherTok{=} \StringTok{"time::([[:digit:]]+)"}\NormalTok{))}
+
+\CommentTok{\# another approach using the i function: not run, but works}
+\CommentTok{\# creating a time to treatment variable:}
+\CommentTok{\# data \textless{}{-} data \%\textgreater{}\%}
+\CommentTok{\#           mutate(}
+\CommentTok{\#             tau=time{-}Ds}
+\CommentTok{\#           ) \%\textgreater{}\%}
+\CommentTok{\#           mutate( }
+\CommentTok{\#             tau = replace(tau,tau\textless{}={-}90,{-}99)}
+\CommentTok{\#           )}
+
+\CommentTok{\# regression}
+\CommentTok{\# reg.fixest.SA.nonAgg \textless{}{-} feols(y \textasciitilde{} i(tau,i.Ds,ref=c({-}1,{-}99))| id + time, data=filter(data,Ds\textgreater{}1))}
+\CommentTok{\# aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)}
+\CommentTok{\# The selection of coefficients to aggregate uses a string detection pattern language}
+\CommentTok{\# varying composition}
+\CommentTok{\# aggregate.SA.nonAgg.varying \textless{}{-} aggregate(reg.fixest.SA.nonAgg, c("tau" = "tau::([[:digit:]]+)"))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -9930,37 +9947,176 @@ Let's plot the results:
 
 Again, as we have seen before, the change in group composition makes it look like there is a trend break in the treatment effect.
 What we would need is to aggregate treatment effects with a constant group composition.
-In order to do that, we need to be able to access the individual coefficeints for each treatment group, and then to combine them.
-One way to do that is to we need to define a time to treatment indicator (this is the role of \(\tau=t-d\) in the above equation) and to run a TWFE regression with individual and year fixed effects, and one interacted dummy per time to treatment and treatment group.
-Note that there has to be a reference time to treatment (here \(\tau=-1\) (note that \(\tau\) can take negative values)) and a reference treated group (here \(D_i=\infty\) (in practice, \(D_i=99\))).
-In practice, we are generating a variable of time to treatment which takes value \(-99\) fot the never treated and we exclude this value and the \(-1\) time to treatment date.
+One way to do that would be to use the full disaggregated results of the Sun and Abraham decomposition and to reaggregate them in another way.
+In order to access the disaggregated results of the Sun and Abraham regression, we need to use the option \texttt{agg=FALSE} in the \texttt{coef} and \texttt{se} commands.
+Let's see how this works.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# creating a time to treatment variable:}
-\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
-          \FunctionTok{mutate}\NormalTok{(}
-            \AttributeTok{tau=}\NormalTok{time}\SpecialCharTok{{-}}\NormalTok{Ds}
-\NormalTok{          ) }\SpecialCharTok{\%\textgreater{}\%}
-          \FunctionTok{mutate}\NormalTok{( }
-            \AttributeTok{tau =} \FunctionTok{replace}\NormalTok{(tau,tau}\SpecialCharTok{\textless{}={-}}\DecValTok{90}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{)}
-\NormalTok{          )}
+\CommentTok{\# Disaggregate estimates}
+\NormalTok{disaggregate.SA }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(}\FunctionTok{coef}\NormalTok{(reg.fixest.SA.Agg,}\AttributeTok{agg=}\ConstantTok{FALSE}\NormalTok{),}\FunctionTok{se}\NormalTok{(reg.fixest.SA.Agg,}\AttributeTok{agg=}\ConstantTok{FALSE}\NormalTok{)))}
+\FunctionTok{colnames}\NormalTok{(disaggregate.SA) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Coef\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Se\textquotesingle{}}\NormalTok{)}
+\CommentTok{\# adding treatment groups and time to treatment}
+\NormalTok{disaggregate.SA }\OtherTok{\textless{}{-}}\NormalTok{ disaggregate.SA }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{test =}  \FunctionTok{names}\NormalTok{(}\FunctionTok{coef}\NormalTok{(reg.fixest.SA.Agg,}\AttributeTok{agg=}\ConstantTok{FALSE}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{mutate}\NormalTok{(}
+                      \AttributeTok{Group =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{str\_sub}\NormalTok{(test,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Aggregate\textquotesingle{}}\NormalTok{)),}
+                      \AttributeTok{TimeToTreatment =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{if\_else}\NormalTok{(}\FunctionTok{str\_detect}\NormalTok{(test,}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{{-}"}\NormalTok{),}\FunctionTok{str\_extract}\NormalTok{(test,}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{{-}[[:digit:]]"}\NormalTok{),}\FunctionTok{str\_extract}\NormalTok{(test,}\StringTok{"[[:digit:]]"}\NormalTok{)),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}{-}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}0\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{))}
+\NormalTok{                    ) }\SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{test)}
 
-\CommentTok{\# regression}
-\NormalTok{reg.fixest.SA.nonAgg }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}} \FunctionTok{i}\NormalTok{(tau,i.Ds,}\AttributeTok{ref=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{))}\SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time, }\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{))}
-\CommentTok{\# aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)}
-\CommentTok{\# The selection of coefficients to aggregate uses a string detection pattern language}
-\CommentTok{\# varying composition}
-\NormalTok{aggregate.SA.nonAgg.varying }\OtherTok{\textless{}{-}} \FunctionTok{aggregate}\NormalTok{(reg.fixest.SA.nonAgg, }\FunctionTok{c}\NormalTok{(}\StringTok{"tau"} \OtherTok{=} \StringTok{"tau::([[:digit:]]+)"}\NormalTok{))}
+\CommentTok{\# adding reference period}
+\NormalTok{Group }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{)}
+\NormalTok{TimeToTreatment }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\DecValTok{3}\NormalTok{)}
+\NormalTok{ref }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Group,TimeToTreatment)) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}
+          \AttributeTok{Coef =} \DecValTok{0}\NormalTok{,}
+          \AttributeTok{Se =} \DecValTok{0}\NormalTok{,}
+          \AttributeTok{Group =} \FunctionTok{factor}\NormalTok{(Group,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Aggregate\textquotesingle{}}\NormalTok{)),}
+          \AttributeTok{TimeToTreatment =} \FunctionTok{factor}\NormalTok{(TimeToTreatment,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}{-}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}0\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{))}
+\NormalTok{          )}
+\NormalTok{disaggregate.SA }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(disaggregate.SA,ref) }
+
+\CommentTok{\# adding aggregate results}
+\CommentTok{\# aggregate estimates}
+\NormalTok{aggregate.SA }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(}\FunctionTok{coef}\NormalTok{(reg.fixest.SA.Agg),}\FunctionTok{se}\NormalTok{(reg.fixest.SA.Agg)))}
+\FunctionTok{colnames}\NormalTok{(aggregate.SA) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Coef\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Se\textquotesingle{}}\NormalTok{)}
+\CommentTok{\# adding treatment groups and time to treatment}
+\NormalTok{aggregate.SA }\OtherTok{\textless{}{-}}\NormalTok{ aggregate.SA }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{test =}  \FunctionTok{names}\NormalTok{(}\FunctionTok{coef}\NormalTok{(reg.fixest.SA.Agg))) }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{mutate}\NormalTok{(}
+                      \AttributeTok{Group =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\StringTok{"Aggregate"}\NormalTok{,}\DecValTok{5}\NormalTok{),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Aggregate\textquotesingle{}}\NormalTok{)),}
+                      \AttributeTok{TimeToTreatment =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{if\_else}\NormalTok{(}\FunctionTok{str\_detect}\NormalTok{(test,}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{{-}"}\NormalTok{),}\FunctionTok{str\_extract}\NormalTok{(test,}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{{-}[[:digit:]]"}\NormalTok{),}\FunctionTok{str\_extract}\NormalTok{(test,}\StringTok{"[[:digit:]]"}\NormalTok{)),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}{-}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}0\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{))}
+\NormalTok{                    ) }\SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{test)}
+
+\CommentTok{\# adding reference period}
+\NormalTok{Group }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Aggregate"}\NormalTok{)}
+\NormalTok{TimeToTreatment }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{ref }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Group,TimeToTreatment)) }\SpecialCharTok{\%\textgreater{}\%}
+        \FunctionTok{mutate}\NormalTok{(}
+          \AttributeTok{Coef =} \DecValTok{0}\NormalTok{,}
+          \AttributeTok{Se =} \DecValTok{0}\NormalTok{,}
+          \AttributeTok{Group =} \FunctionTok{factor}\NormalTok{(Group,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Aggregate\textquotesingle{}}\NormalTok{)),}
+          \AttributeTok{TimeToTreatment =} \FunctionTok{factor}\NormalTok{(TimeToTreatment,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}{-}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}0\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{))}
+\NormalTok{          )}
+\NormalTok{disaggregate.SA }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(disaggregate.SA,aggregate.SA,ref) }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{TimeToTreatment =} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(TimeToTreatment)))}
 \end{Highlighting}
 \end{Shaded}
 
-\textbf{Aggregate above using a weighting matrix}
-\textbf{plot for all groups}
-\textbf{plot with constant group composition}
+Let's plot the result:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(disaggregate.SA,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef,}\AttributeTok{colour=}\NormalTok{Group,}\AttributeTok{linetype=}\NormalTok{Group))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStaggeredDisAgg-1} 
+
+}
+
+\caption{Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAgg}
+\end{figure}
+
+Figure \ref{fig:PlotDIDStaggeredDisAgg} shows very well how the Sun and Abraham estimator works: it aggregates each group specific treatment effect (relative to the reference period \(\tau'=-1\) and to the reference group (\(D_i=\infty\))) with period-specific weights which depend on the proportion of each treated group among the treated at this period.
+As a result, some dynamic changes in treatment effects might be driven by changes in group composition and not by genuine changes in the effect of the treatment.
+This is the case in Figure \ref{fig:PlotDIDStaggeredDisAgg} between periods 1 and 2 where the acceleration in the growth of the aggregated treatment effect is due to the disappearance of group 3, which has a lower speed of increase of its average treatment effect, at period 2.
+As it is always tricky to interpret the aggregated result, I suggest to always plot the disaggregated results on the same graph, as in Figure \ref{fig:PlotDIDStaggeredDisAgg}.
 
 \hypertarget{direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna}{%
 \paragraph{Direct weighting using one reference period and one reference group (Callaway and Sant'Anna)}\label{direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna}}
+
+\href{https://www.sciencedirect.com/science/article/pii/S0304407620303948}{Callaway and Sant'Anna (2021)} propose an alternative estimator to the one proposed by Sun and Abraham.
+They suggest using a doubly robust matching estimator to condition on observed covariates.
+We are only going to encouter these estimators in Section \ref(OM).
+In the absence of covariates, Callaway and Sant'Anna's estimator is equivalent to the Sun and Abraham estimator.
+Callaway and Sant'Anna have proposed the \texttt{did} package to implement their estimator.
+The main command is \texttt{att\_gt}, which computes all the estimates for each treatment group \(D_i=g\) and each time period \(t\).
+Let's see if we can make it work.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# preparing the data}
+\CommentTok{\# The Group variable has to take value 0 for the never treated (instead of infty or 99)}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{Group =} \FunctionTok{if\_else}\NormalTok{(Ds}\SpecialCharTok{\textless{}}\DecValTok{99}\NormalTok{,Ds,}\DecValTok{0}\NormalTok{)}
+\NormalTok{          )}
+
+\CommentTok{\# regression}
+\NormalTok{reg.CSA }\OtherTok{\textless{}{-}} \FunctionTok{att\_gt}\NormalTok{(}\AttributeTok{yname=}\StringTok{"y"}\NormalTok{,}\AttributeTok{tname=}\StringTok{"time"}\NormalTok{,}\AttributeTok{idname=}\StringTok{"id"}\NormalTok{,}\AttributeTok{gname=}\StringTok{"Group"}\NormalTok{,}\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{base\_period=}\StringTok{"universal"}\NormalTok{)}
+
+\CommentTok{\# dynamic treatment effects (event{-}study graph)}
+\NormalTok{reg.CSA.Agg }\OtherTok{\textless{}{-}} \FunctionTok{aggte}\NormalTok{(reg.CSA,}\AttributeTok{type=}\StringTok{"dynamic"}\NormalTok{)   }
+\end{Highlighting}
+\end{Shaded}
+
+Let's plot the result:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# preparing the results for the plot  }
+\NormalTok{DID.CSA }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(reg.CSA}\SpecialCharTok{$}\NormalTok{group)}
+\FunctionTok{colnames}\NormalTok{(DID.CSA) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Group"}\NormalTok{)}
+\NormalTok{DID.CSA }\OtherTok{\textless{}{-}}\NormalTok{ DID.CSA }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}
+              \AttributeTok{time =}\NormalTok{ reg.CSA}\SpecialCharTok{$}\NormalTok{t,}
+              \AttributeTok{Coef =}\NormalTok{ reg.CSA}\SpecialCharTok{$}\NormalTok{att,}
+              \AttributeTok{Se =}\NormalTok{ reg.CSA}\SpecialCharTok{$}\NormalTok{se}
+\NormalTok{            ) }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}
+              \AttributeTok{TimeToTreatment =}\NormalTok{ time}\SpecialCharTok{{-}}\NormalTok{Group,}
+              \AttributeTok{Group =} \FunctionTok{factor}\NormalTok{(Group,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Aggregate\textquotesingle{}}\NormalTok{)),}
+\NormalTok{            )}
+
+\CommentTok{\# add aggregate effect}
+\NormalTok{DID.CSA.Agg }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(reg.CSA.Agg}\SpecialCharTok{$}\NormalTok{egt,reg.CSA.Agg}\SpecialCharTok{$}\NormalTok{att.egt,reg.CSA.Agg}\SpecialCharTok{$}\NormalTok{se.egt))}
+\FunctionTok{colnames}\NormalTok{(DID.CSA.Agg) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}TimeToTreatment\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Coef\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Se\textquotesingle{}}\NormalTok{)}
+\NormalTok{DID.CSA.Agg }\OtherTok{\textless{}{-}}\NormalTok{ DID.CSA.Agg }\SpecialCharTok{\%\textgreater{}\%}
+                \FunctionTok{mutate}\NormalTok{(}
+                  \AttributeTok{Group =} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\StringTok{"Aggregate"}\NormalTok{,}\FunctionTok{nrow}\NormalTok{(DID.CSA.Agg)),}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Aggregate\textquotesingle{}}\NormalTok{))}
+\NormalTok{                )}
+
+\CommentTok{\# merge all results}
+\NormalTok{DID.CSA }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}\FunctionTok{select}\NormalTok{(DID.CSA,}\SpecialCharTok{{-}}\NormalTok{time),DID.CSA.Agg)}
+
+\FunctionTok{ggplot}\NormalTok{(DID.CSA,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef,}\AttributeTok{colour=}\NormalTok{Group,}\AttributeTok{linetype=}\NormalTok{Group))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStaggeredDisAggCSA-1} 
+
+}
+
+\caption{Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant'Anna procedure in did (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAggCSA}
+\end{figure}
+
+Figure \ref{fig:PlotDIDStaggeredDisAggCSA} shows a result that is very similar to the one obtained in Figure \ref{fig:PlotDIDStaggeredDisAgg} using Sun and Abraham's approch as implemented in \texttt{fixest}.
+The two approaches are indeed equivalent with the options that we have chosen.
 
 \hypertarget{imputation-methods-borusyak-jaravel-and-speiss-gardner}{%
 \paragraph{Imputation methods: Borusyak, Jaravel and Speiss, Gardner}\label{imputation-methods-borusyak-jaravel-and-speiss-gardner}}

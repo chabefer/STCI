@@ -2805,7 +2805,7 @@ The main reason for why is that the Two Way Fixed Effects estimator combines ind
 An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
 It has been proposed by [Cengiz, Dube, Lindner and Zipperer (2019)](https://academic.oup.com/qje/article/134/3/1405/5484905) and extended by [Gardner (2021)](https://jrgcmu.github.io/2sdd_current.pdf) who also proposes an imputation estimator *à la* Borusyak, Jaravel and Speiss. 
 
-##### Using weighted averages of individual DID estimators
+##### Using weighted averages of individual DID estimators {#IndivDID}
 
 This estimator is pretty simple to define.
 Simply take all the possible $2\times2$ possible DID estimators $\Delta^{Y}_{DID}(d,d',\tau,\tau')$, with $\tau,\tau'>0$ and $d'>d+\tau$, and then average them using the pre-defined weights $w^k(d,d',\tau,\tau')$ of your choice. 
@@ -3243,7 +3243,7 @@ Let's start with the ones implementing the [Sun and Abraham (2021)](https://www.
 on the sample excluding the always treated individuals ($D_i=1$).
 In order to be consistent with previous estimators, we are going to start using the `fixest` package to obtain our estimator.
 In order to be able to estimate [Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X)'s estimator with `fixest`, we simply are going to add a `sunab(d,t)` term to the `feols` command, with the first term giving the treatment group and the second term the time fixed effect.
-We then can aggregate the estiamted terms.
+We then can aggregate the estimated terms using `regexp` in order to detect the string patterns.
 Let's go:
 
 ```{r DIDSAfixest,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
@@ -3254,6 +3254,23 @@ reg.fixest.SA.Agg <- feols(y ~ sunab(Ds,time)| id + time, data=filter(data,Ds>1)
 # The selection of coefficients to aggregate uses a string detection pattern language
 # varying composition
 aggregate.SA.varying <- aggregate(reg.fixest.SA.Agg, c("tau" = "time::([[:digit:]]+)"))
+
+# another approach using the i function: not run, but works
+# creating a time to treatment variable:
+# data <- data %>%
+#           mutate(
+#             tau=time-Ds
+#           ) %>%
+#           mutate( 
+#             tau = replace(tau,tau<=-90,-99)
+#           )
+
+# regression
+# reg.fixest.SA.nonAgg <- feols(y ~ i(tau,i.Ds,ref=c(-1,-99))| id + time, data=filter(data,Ds>1))
+# aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)
+# The selection of coefficients to aggregate uses a string detection pattern language
+# varying composition
+# aggregate.SA.nonAgg.varying <- aggregate(reg.fixest.SA.nonAgg, c("tau" = "tau::([[:digit:]]+)"))
 ```
 
 Let's plot the results:
@@ -3280,36 +3297,150 @@ ggplot(aggregate.SA.varying,aes(x=tau,y=ATT))+
 
 Again, as we have seen before, the change in group composition makes it look like there is a trend break in the treatment effect.
 What we would need is to aggregate treatment effects with a constant group composition.
-In order to do that, we need to be able to access the individual coefficeints for each treatment group, and then to combine them.
-One way to do that is to we need to define a time to treatment indicator (this is the role of $\tau=t-d$ in the above equation) and to run a TWFE regression with individual and year fixed effects, and one interacted dummy per time to treatment and treatment group. 
-Note that there has to be a reference time to treatment (here $\tau=-1$ (note that $\tau$ can take negative values)) and a reference treated group (here $D_i=\infty$ (in practice, $D_i=99$)).
-In practice, we are generating a variable of time to treatment which takes value $-99$ fot the never treated and we exclude this value and the $-1$ time to treatment date. 
+One way to do that would be to use the full disaggregated results of the Sun and Abraham decomposition and to reaggregate them in another way.
+In order to access the disaggregated results of the Sun and Abraham regression, we need to use the option `agg=FALSE` in the `coef` and `se` commands.
+Let's see how this works.
 
-```{r DIDSAfixestMore,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
-# creating a time to treatment variable:
-data <- data %>%
-          mutate(
-            tau=time-Ds
-          ) %>%
-          mutate( 
-            tau = replace(tau,tau<=-90,-99)
+```{r DIDSAfixestDisAgg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# Disaggregate estimates
+disaggregate.SA <- as.data.frame(cbind(coef(reg.fixest.SA.Agg,agg=FALSE),se(reg.fixest.SA.Agg,agg=FALSE)))
+colnames(disaggregate.SA) <- c('Coef','Se')
+# adding treatment groups and time to treatment
+disaggregate.SA <- disaggregate.SA %>%
+                    mutate(test =  names(coef(reg.fixest.SA.Agg,agg=FALSE))) %>%
+                    mutate(
+                      Group = factor(str_sub(test,-1),levels=c('1','2','3','4','Aggregate')),
+                      TimeToTreatment = factor(if_else(str_detect(test,"\\-"),str_extract(test,"\\-[[:digit:]]"),str_extract(test,"[[:digit:]]")),levels=c('-3','-2','-1','0','1','2'))
+                    ) %>%
+                  select(-test)
+
+# adding reference period
+Group <- c('2','3','4')
+TimeToTreatment <- rep('-1',3)
+ref <- as.data.frame(cbind(Group,TimeToTreatment)) %>%
+        mutate(
+          Coef = 0,
+          Se = 0,
+          Group = factor(Group,levels=c('1','2','3','4','Aggregate')),
+          TimeToTreatment = factor(TimeToTreatment,levels=c('-3','-2','-1','0','1','2'))
           )
+disaggregate.SA <- rbind(disaggregate.SA,ref) 
 
-# regression
-reg.fixest.SA.nonAgg <- feols(y ~ i(tau,i.Ds,ref=c(-1,-99))| id + time, data=filter(data,Ds>1))
-# aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)
-# The selection of coefficients to aggregate uses a string detection pattern language
-# varying composition
-aggregate.SA.nonAgg.varying <- aggregate(reg.fixest.SA.nonAgg, c("tau" = "tau::([[:digit:]]+)"))
-````
+# adding aggregate results
+# aggregate estimates
+aggregate.SA <- as.data.frame(cbind(coef(reg.fixest.SA.Agg),se(reg.fixest.SA.Agg)))
+colnames(aggregate.SA) <- c('Coef','Se')
+# adding treatment groups and time to treatment
+aggregate.SA <- aggregate.SA %>%
+                    mutate(test =  names(coef(reg.fixest.SA.Agg))) %>%
+                    mutate(
+                      Group = factor(rep("Aggregate",5),levels=c('1','2','3','4','Aggregate')),
+                      TimeToTreatment = factor(if_else(str_detect(test,"\\-"),str_extract(test,"\\-[[:digit:]]"),str_extract(test,"[[:digit:]]")),levels=c('-3','-2','-1','0','1','2'))
+                    ) %>%
+                  select(-test)
 
-**Aggregate above using a weighting matrix**
-**plot for all groups**
-**plot with constant group composition**
+# adding reference period
+Group <- c("Aggregate")
+TimeToTreatment <- rep('-1',1)
+ref <- as.data.frame(cbind(Group,TimeToTreatment)) %>%
+        mutate(
+          Coef = 0,
+          Se = 0,
+          Group = factor(Group,levels=c('1','2','3','4','Aggregate')),
+          TimeToTreatment = factor(TimeToTreatment,levels=c('-3','-2','-1','0','1','2'))
+          )
+disaggregate.SA <- rbind(disaggregate.SA,aggregate.SA,ref) %>%
+                    mutate(TimeToTreatment = as.numeric(as.character(TimeToTreatment)))
+
+```
+
+Let's plot the result:
+
+```{r PlotDIDStaggeredDisAgg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+ggplot(disaggregate.SA,aes(x=TimeToTreatment,y=Coef,colour=Group,linetype=Group))+
+    geom_line() +
+    geom_pointrange(aes(ymin=Coef-1.96*Se,ymax=Coef+1.96*Se)) +
+    ylab("DID estimate") +
+    xlab("Time relative to treatment") +
+    scale_x_continuous(breaks=c(-3,-2,-1,0,1,2)) +
+    expand_limits(y=0) +
+    scale_colour_discrete(name="Treatment\ngroup")+
+    scale_linetype_discrete(name="Treatment\ngroup")+
+    theme_bw()
+```
+
+Figure \@ref(fig:PlotDIDStaggeredDisAgg) shows very well how the Sun and Abraham estimator works: it aggregates each group specific treatment effect (relative to the reference period $\tau'=-1$ and to the reference group ($D_i=\infty$)) with period-specific weights which depend on the proportion of each treated group among the treated at this period.
+As a result, some dynamic changes in treatment effects might be driven by changes in group composition and not by genuine changes in the effect of the treatment.
+This is the case in Figure \@ref(fig:PlotDIDStaggeredDisAgg) between periods 1 and 2 where the acceleration in the growth of the aggregated treatment effect is due to the disappearance of group 3, which has a lower speed of increase of its average treatment effect, at period 2.
+As it is always tricky to interpret the aggregated result, I suggest to always plot the disaggregated results on the same graph, as in Figure \@ref(fig:PlotDIDStaggeredDisAgg).
 
 ##### Direct weighting using one reference period and one reference group (Callaway and Sant'Anna)
 
+[Callaway and Sant'Anna (2021)](https://www.sciencedirect.com/science/article/pii/S0304407620303948) propose an alternative estimator to the one proposed by Sun and Abraham.
+They suggest using a doubly robust matching estimator to condition on observed covariates.
+We are only going to encouter these estimators in Section \ref(OM).
+In the absence of covariates, Callaway and Sant'Anna's estimator is equivalent to the Sun and Abraham estimator.
+Callaway and Sant'Anna have proposed the `did` package to implement their estimator.
+The main command is `att_gt`, which computes all the estimates for each treatment group $D_i=g$ and each time period $t$.
+Let's see if we can make it work.
 
+```{r DIDCSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# preparing the data
+# The Group variable has to take value 0 for the never treated (instead of infty or 99)
+data <- data %>%
+          mutate(
+            Group = if_else(Ds<99,Ds,0)
+          )
+
+# regression
+reg.CSA <- att_gt(yname="y",tname="time",idname="id",gname="Group",data=filter(data,Ds!=1),base_period="universal")
+
+# dynamic treatment effects (event-study graph)
+reg.CSA.Agg <- aggte(reg.CSA,type="dynamic")   
+```
+
+Let's plot the result:
+
+```{r PlotDIDStaggeredDisAggCSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant'Anna procedure in did (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+# preparing the results for the plot  
+DID.CSA <- as.data.frame(reg.CSA$group)
+colnames(DID.CSA) <- c("Group")
+DID.CSA <- DID.CSA %>%
+            mutate(
+              time = reg.CSA$t,
+              Coef = reg.CSA$att,
+              Se = reg.CSA$se
+            ) %>%
+            mutate(
+              TimeToTreatment = time-Group,
+              Group = factor(Group,levels=c('1','2','3','4','Aggregate')),
+            )
+
+# add aggregate effect
+DID.CSA.Agg <- as.data.frame(cbind(reg.CSA.Agg$egt,reg.CSA.Agg$att.egt,reg.CSA.Agg$se.egt))
+colnames(DID.CSA.Agg) <- c('TimeToTreatment','Coef','Se')
+DID.CSA.Agg <- DID.CSA.Agg %>%
+                mutate(
+                  Group = factor(rep("Aggregate",nrow(DID.CSA.Agg)),levels=c('1','2','3','4','Aggregate'))
+                )
+
+# merge all results
+DID.CSA <- rbind(select(DID.CSA,-time),DID.CSA.Agg)
+
+ggplot(DID.CSA,aes(x=TimeToTreatment,y=Coef,colour=Group,linetype=Group))+
+    geom_line() +
+    geom_pointrange(aes(ymin=Coef-1.96*Se,ymax=Coef+1.96*Se)) +
+    ylab("DID estimate") +
+    xlab("Time relative to treatment") +
+    scale_x_continuous(breaks=c(-3,-2,-1,0,1,2)) +
+    expand_limits(y=0) +
+    scale_colour_discrete(name="Treatment\ngroup")+
+    scale_linetype_discrete(name="Treatment\ngroup")+
+    theme_bw()
+```
+
+Figure \@ref(fig:PlotDIDStaggeredDisAggCSA) shows a result that is very similar to the one obtained in Figure \@ref(fig:PlotDIDStaggeredDisAgg) using Sun and Abraham's approch as implemented in `fixest`. 
+The two approaches are indeed equivalent with the options that we have chosen.
 
 ##### Imputation methods: Borusyak, Jaravel and Speiss, Gardner
 

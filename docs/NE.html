@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-02-21" />
+<meta name="date" content="2022-02-22" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -2755,7 +2755,7 @@ Recent work by <a href="https://www.sciencedirect.com/science/article/pii/S03044
 The main reason for why is that the Two Way Fixed Effects estimator combines individual DID and <span class="math inline">\(DID^r\)</span> estimates, thereby generating strong biases if the assumptions that ensure the validity of <span class="math inline">\(DID^r\)</span> are not valid.
 An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
 It has been proposed by <a href="https://academic.oup.com/qje/article/134/3/1405/5484905">Cengiz, Dube, Lindner and Zipperer (2019)</a> and extended by <a href="https://jrgcmu.github.io/2sdd_current.pdf">Gardner (2021)</a> who also proposes an imputation estimator <em>à la</em> Borusyak, Jaravel and Speiss.</p>
-<div id="using-weighted-averages-of-individual-did-estimators" class="section level5" number="4.3.3.2.1">
+<div id="IndivDID" class="section level5" number="4.3.3.2.1">
 <h5><span class="header-section-number">4.3.3.2.1</span> Using weighted averages of individual DID estimators</h5>
 <p>This estimator is pretty simple to define.
 Simply take all the possible <span class="math inline">\(2\times2\)</span> possible DID estimators <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>, with <span class="math inline">\(\tau,\tau&#39;&gt;0\)</span> and <span class="math inline">\(d&#39;&gt;d+\tau\)</span>, and then average them using the pre-defined weights <span class="math inline">\(w^k(d,d&#39;,\tau,\tau&#39;)\)</span> of your choice.
@@ -3169,7 +3169,7 @@ Let’s start with the ones implementing the <a href="https://www.sciencedirect.
 <p>on the sample excluding the always treated individuals (<span class="math inline">\(D_i=1\)</span>).
 In order to be consistent with previous estimators, we are going to start using the <code>fixest</code> package to obtain our estimator.
 In order to be able to estimate <a href="https://www.sciencedirect.com/science/article/pii/S030440762030378X">Sun and Abraham (2021)</a>’s estimator with <code>fixest</code>, we simply are going to add a <code>sunab(d,t)</code> term to the <code>feols</code> command, with the first term giving the treatment group and the second term the time fixed effect.
-We then can aggregate the estiamted terms.
+We then can aggregate the estimated terms using <code>regexp</code> in order to detect the string patterns.
 Let’s go:</p>
 <div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb179-1"><a href="NE.html#cb179-1" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
 <span id="cb179-2"><a href="NE.html#cb179-2" aria-hidden="true" tabindex="-1"></a>reg.fixest.SA.Agg <span class="ot">&lt;-</span> <span class="fu">feols</span>(y <span class="sc">~</span> <span class="fu">sunab</span>(Ds,time)<span class="sc">|</span> id <span class="sc">+</span> time, <span class="at">data=</span><span class="fu">filter</span>(data,Ds<span class="sc">&gt;</span><span class="dv">1</span>))</span>
@@ -3177,7 +3177,24 @@ Let’s go:</p>
 <span id="cb179-4"><a href="NE.html#cb179-4" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)</span></span>
 <span id="cb179-5"><a href="NE.html#cb179-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The selection of coefficients to aggregate uses a string detection pattern language</span></span>
 <span id="cb179-6"><a href="NE.html#cb179-6" aria-hidden="true" tabindex="-1"></a><span class="co"># varying composition</span></span>
-<span id="cb179-7"><a href="NE.html#cb179-7" aria-hidden="true" tabindex="-1"></a>aggregate.SA.varying <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(reg.fixest.SA.Agg, <span class="fu">c</span>(<span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="st">&quot;time::([[:digit:]]+)&quot;</span>))</span></code></pre></div>
+<span id="cb179-7"><a href="NE.html#cb179-7" aria-hidden="true" tabindex="-1"></a>aggregate.SA.varying <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(reg.fixest.SA.Agg, <span class="fu">c</span>(<span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="st">&quot;time::([[:digit:]]+)&quot;</span>))</span>
+<span id="cb179-8"><a href="NE.html#cb179-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb179-9"><a href="NE.html#cb179-9" aria-hidden="true" tabindex="-1"></a><span class="co"># another approach using the i function: not run, but works</span></span>
+<span id="cb179-10"><a href="NE.html#cb179-10" aria-hidden="true" tabindex="-1"></a><span class="co"># creating a time to treatment variable:</span></span>
+<span id="cb179-11"><a href="NE.html#cb179-11" aria-hidden="true" tabindex="-1"></a><span class="co"># data &lt;- data %&gt;%</span></span>
+<span id="cb179-12"><a href="NE.html#cb179-12" aria-hidden="true" tabindex="-1"></a><span class="co">#           mutate(</span></span>
+<span id="cb179-13"><a href="NE.html#cb179-13" aria-hidden="true" tabindex="-1"></a><span class="co">#             tau=time-Ds</span></span>
+<span id="cb179-14"><a href="NE.html#cb179-14" aria-hidden="true" tabindex="-1"></a><span class="co">#           ) %&gt;%</span></span>
+<span id="cb179-15"><a href="NE.html#cb179-15" aria-hidden="true" tabindex="-1"></a><span class="co">#           mutate( </span></span>
+<span id="cb179-16"><a href="NE.html#cb179-16" aria-hidden="true" tabindex="-1"></a><span class="co">#             tau = replace(tau,tau&lt;=-90,-99)</span></span>
+<span id="cb179-17"><a href="NE.html#cb179-17" aria-hidden="true" tabindex="-1"></a><span class="co">#           )</span></span>
+<span id="cb179-18"><a href="NE.html#cb179-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb179-19"><a href="NE.html#cb179-19" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
+<span id="cb179-20"><a href="NE.html#cb179-20" aria-hidden="true" tabindex="-1"></a><span class="co"># reg.fixest.SA.nonAgg &lt;- feols(y ~ i(tau,i.Ds,ref=c(-1,-99))| id + time, data=filter(data,Ds&gt;1))</span></span>
+<span id="cb179-21"><a href="NE.html#cb179-21" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)</span></span>
+<span id="cb179-22"><a href="NE.html#cb179-22" aria-hidden="true" tabindex="-1"></a><span class="co"># The selection of coefficients to aggregate uses a string detection pattern language</span></span>
+<span id="cb179-23"><a href="NE.html#cb179-23" aria-hidden="true" tabindex="-1"></a><span class="co"># varying composition</span></span>
+<span id="cb179-24"><a href="NE.html#cb179-24" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate.SA.nonAgg.varying &lt;- aggregate(reg.fixest.SA.nonAgg, c(&quot;tau&quot; = &quot;tau::([[:digit:]]+)&quot;))</span></span></code></pre></div>
 <p>Let’s plot the results:</p>
 <div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb180-1"><a href="NE.html#cb180-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparation</span></span>
 <span id="cb180-2"><a href="NE.html#cb180-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(aggregate.SA.varying) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;ATT&quot;</span>,<span class="st">&quot;Se&quot;</span>,<span class="st">&quot;t&quot;</span>,<span class="st">&quot;pval&quot;</span>)</span>
@@ -3204,31 +3221,145 @@ Figure 4.16: DID estimates at various time periods after the treament using Sun 
 </div>
 <p>Again, as we have seen before, the change in group composition makes it look like there is a trend break in the treatment effect.
 What we would need is to aggregate treatment effects with a constant group composition.
-In order to do that, we need to be able to access the individual coefficeints for each treatment group, and then to combine them.
-One way to do that is to we need to define a time to treatment indicator (this is the role of <span class="math inline">\(\tau=t-d\)</span> in the above equation) and to run a TWFE regression with individual and year fixed effects, and one interacted dummy per time to treatment and treatment group.
-Note that there has to be a reference time to treatment (here <span class="math inline">\(\tau=-1\)</span> (note that <span class="math inline">\(\tau\)</span> can take negative values)) and a reference treated group (here <span class="math inline">\(D_i=\infty\)</span> (in practice, <span class="math inline">\(D_i=99\)</span>)).
-In practice, we are generating a variable of time to treatment which takes value <span class="math inline">\(-99\)</span> fot the never treated and we exclude this value and the <span class="math inline">\(-1\)</span> time to treatment date.</p>
-<div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb181-1"><a href="NE.html#cb181-1" aria-hidden="true" tabindex="-1"></a><span class="co"># creating a time to treatment variable:</span></span>
-<span id="cb181-2"><a href="NE.html#cb181-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb181-3"><a href="NE.html#cb181-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate</span>(</span>
-<span id="cb181-4"><a href="NE.html#cb181-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">tau=</span>time<span class="sc">-</span>Ds</span>
-<span id="cb181-5"><a href="NE.html#cb181-5" aria-hidden="true" tabindex="-1"></a>          ) <span class="sc">%&gt;%</span></span>
-<span id="cb181-6"><a href="NE.html#cb181-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate</span>( </span>
-<span id="cb181-7"><a href="NE.html#cb181-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">tau =</span> <span class="fu">replace</span>(tau,tau<span class="sc">&lt;=-</span><span class="dv">90</span>,<span class="sc">-</span><span class="dv">99</span>)</span>
-<span id="cb181-8"><a href="NE.html#cb181-8" aria-hidden="true" tabindex="-1"></a>          )</span>
-<span id="cb181-9"><a href="NE.html#cb181-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb181-10"><a href="NE.html#cb181-10" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
-<span id="cb181-11"><a href="NE.html#cb181-11" aria-hidden="true" tabindex="-1"></a>reg.fixest.SA.nonAgg <span class="ot">&lt;-</span> <span class="fu">feols</span>(y <span class="sc">~</span> <span class="fu">i</span>(tau,i.Ds,<span class="at">ref=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="sc">-</span><span class="dv">99</span>))<span class="sc">|</span> id <span class="sc">+</span> time, <span class="at">data=</span><span class="fu">filter</span>(data,Ds<span class="sc">&gt;</span><span class="dv">1</span>))</span>
-<span id="cb181-12"><a href="NE.html#cb181-12" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate estimate (this is a command specific to fixest that aggregates various coefficients where an i. specification was used)</span></span>
-<span id="cb181-13"><a href="NE.html#cb181-13" aria-hidden="true" tabindex="-1"></a><span class="co"># The selection of coefficients to aggregate uses a string detection pattern language</span></span>
-<span id="cb181-14"><a href="NE.html#cb181-14" aria-hidden="true" tabindex="-1"></a><span class="co"># varying composition</span></span>
-<span id="cb181-15"><a href="NE.html#cb181-15" aria-hidden="true" tabindex="-1"></a>aggregate.SA.nonAgg.varying <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(reg.fixest.SA.nonAgg, <span class="fu">c</span>(<span class="st">&quot;tau&quot;</span> <span class="ot">=</span> <span class="st">&quot;tau::([[:digit:]]+)&quot;</span>))</span></code></pre></div>
-<p><strong>Aggregate above using a weighting matrix</strong>
-<strong>plot for all groups</strong>
-<strong>plot with constant group composition</strong></p>
+One way to do that would be to use the full disaggregated results of the Sun and Abraham decomposition and to reaggregate them in another way.
+In order to access the disaggregated results of the Sun and Abraham regression, we need to use the option <code>agg=FALSE</code> in the <code>coef</code> and <code>se</code> commands.
+Let’s see how this works.</p>
+<div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb181-1"><a href="NE.html#cb181-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Disaggregate estimates</span></span>
+<span id="cb181-2"><a href="NE.html#cb181-2" aria-hidden="true" tabindex="-1"></a>disaggregate.SA <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="fu">coef</span>(reg.fixest.SA.Agg,<span class="at">agg=</span><span class="cn">FALSE</span>),<span class="fu">se</span>(reg.fixest.SA.Agg,<span class="at">agg=</span><span class="cn">FALSE</span>)))</span>
+<span id="cb181-3"><a href="NE.html#cb181-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(disaggregate.SA) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;Coef&#39;</span>,<span class="st">&#39;Se&#39;</span>)</span>
+<span id="cb181-4"><a href="NE.html#cb181-4" aria-hidden="true" tabindex="-1"></a><span class="co"># adding treatment groups and time to treatment</span></span>
+<span id="cb181-5"><a href="NE.html#cb181-5" aria-hidden="true" tabindex="-1"></a>disaggregate.SA <span class="ot">&lt;-</span> disaggregate.SA <span class="sc">%&gt;%</span></span>
+<span id="cb181-6"><a href="NE.html#cb181-6" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">mutate</span>(<span class="at">test =</span>  <span class="fu">names</span>(<span class="fu">coef</span>(reg.fixest.SA.Agg,<span class="at">agg=</span><span class="cn">FALSE</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb181-7"><a href="NE.html#cb181-7" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">mutate</span>(</span>
+<span id="cb181-8"><a href="NE.html#cb181-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Group =</span> <span class="fu">factor</span>(<span class="fu">str_sub</span>(test,<span class="sc">-</span><span class="dv">1</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>,<span class="st">&#39;3&#39;</span>,<span class="st">&#39;4&#39;</span>,<span class="st">&#39;Aggregate&#39;</span>)),</span>
+<span id="cb181-9"><a href="NE.html#cb181-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">TimeToTreatment =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(<span class="fu">str_detect</span>(test,<span class="st">&quot;</span><span class="sc">\\</span><span class="st">-&quot;</span>),<span class="fu">str_extract</span>(test,<span class="st">&quot;</span><span class="sc">\\</span><span class="st">-[[:digit:]]&quot;</span>),<span class="fu">str_extract</span>(test,<span class="st">&quot;[[:digit:]]&quot;</span>)),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;-3&#39;</span>,<span class="st">&#39;-2&#39;</span>,<span class="st">&#39;-1&#39;</span>,<span class="st">&#39;0&#39;</span>,<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>))</span>
+<span id="cb181-10"><a href="NE.html#cb181-10" aria-hidden="true" tabindex="-1"></a>                    ) <span class="sc">%&gt;%</span></span>
+<span id="cb181-11"><a href="NE.html#cb181-11" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">select</span>(<span class="sc">-</span>test)</span>
+<span id="cb181-12"><a href="NE.html#cb181-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb181-13"><a href="NE.html#cb181-13" aria-hidden="true" tabindex="-1"></a><span class="co"># adding reference period</span></span>
+<span id="cb181-14"><a href="NE.html#cb181-14" aria-hidden="true" tabindex="-1"></a>Group <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;2&#39;</span>,<span class="st">&#39;3&#39;</span>,<span class="st">&#39;4&#39;</span>)</span>
+<span id="cb181-15"><a href="NE.html#cb181-15" aria-hidden="true" tabindex="-1"></a>TimeToTreatment <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="st">&#39;-1&#39;</span>,<span class="dv">3</span>)</span>
+<span id="cb181-16"><a href="NE.html#cb181-16" aria-hidden="true" tabindex="-1"></a>ref <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(Group,TimeToTreatment)) <span class="sc">%&gt;%</span></span>
+<span id="cb181-17"><a href="NE.html#cb181-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(</span>
+<span id="cb181-18"><a href="NE.html#cb181-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">Coef =</span> <span class="dv">0</span>,</span>
+<span id="cb181-19"><a href="NE.html#cb181-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">Se =</span> <span class="dv">0</span>,</span>
+<span id="cb181-20"><a href="NE.html#cb181-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">Group =</span> <span class="fu">factor</span>(Group,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>,<span class="st">&#39;3&#39;</span>,<span class="st">&#39;4&#39;</span>,<span class="st">&#39;Aggregate&#39;</span>)),</span>
+<span id="cb181-21"><a href="NE.html#cb181-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">TimeToTreatment =</span> <span class="fu">factor</span>(TimeToTreatment,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;-3&#39;</span>,<span class="st">&#39;-2&#39;</span>,<span class="st">&#39;-1&#39;</span>,<span class="st">&#39;0&#39;</span>,<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>))</span>
+<span id="cb181-22"><a href="NE.html#cb181-22" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb181-23"><a href="NE.html#cb181-23" aria-hidden="true" tabindex="-1"></a>disaggregate.SA <span class="ot">&lt;-</span> <span class="fu">rbind</span>(disaggregate.SA,ref) </span>
+<span id="cb181-24"><a href="NE.html#cb181-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb181-25"><a href="NE.html#cb181-25" aria-hidden="true" tabindex="-1"></a><span class="co"># adding aggregate results</span></span>
+<span id="cb181-26"><a href="NE.html#cb181-26" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate estimates</span></span>
+<span id="cb181-27"><a href="NE.html#cb181-27" aria-hidden="true" tabindex="-1"></a>aggregate.SA <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="fu">coef</span>(reg.fixest.SA.Agg),<span class="fu">se</span>(reg.fixest.SA.Agg)))</span>
+<span id="cb181-28"><a href="NE.html#cb181-28" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(aggregate.SA) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;Coef&#39;</span>,<span class="st">&#39;Se&#39;</span>)</span>
+<span id="cb181-29"><a href="NE.html#cb181-29" aria-hidden="true" tabindex="-1"></a><span class="co"># adding treatment groups and time to treatment</span></span>
+<span id="cb181-30"><a href="NE.html#cb181-30" aria-hidden="true" tabindex="-1"></a>aggregate.SA <span class="ot">&lt;-</span> aggregate.SA <span class="sc">%&gt;%</span></span>
+<span id="cb181-31"><a href="NE.html#cb181-31" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">mutate</span>(<span class="at">test =</span>  <span class="fu">names</span>(<span class="fu">coef</span>(reg.fixest.SA.Agg))) <span class="sc">%&gt;%</span></span>
+<span id="cb181-32"><a href="NE.html#cb181-32" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">mutate</span>(</span>
+<span id="cb181-33"><a href="NE.html#cb181-33" aria-hidden="true" tabindex="-1"></a>                      <span class="at">Group =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="st">&quot;Aggregate&quot;</span>,<span class="dv">5</span>),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>,<span class="st">&#39;3&#39;</span>,<span class="st">&#39;4&#39;</span>,<span class="st">&#39;Aggregate&#39;</span>)),</span>
+<span id="cb181-34"><a href="NE.html#cb181-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">TimeToTreatment =</span> <span class="fu">factor</span>(<span class="fu">if_else</span>(<span class="fu">str_detect</span>(test,<span class="st">&quot;</span><span class="sc">\\</span><span class="st">-&quot;</span>),<span class="fu">str_extract</span>(test,<span class="st">&quot;</span><span class="sc">\\</span><span class="st">-[[:digit:]]&quot;</span>),<span class="fu">str_extract</span>(test,<span class="st">&quot;[[:digit:]]&quot;</span>)),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;-3&#39;</span>,<span class="st">&#39;-2&#39;</span>,<span class="st">&#39;-1&#39;</span>,<span class="st">&#39;0&#39;</span>,<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>))</span>
+<span id="cb181-35"><a href="NE.html#cb181-35" aria-hidden="true" tabindex="-1"></a>                    ) <span class="sc">%&gt;%</span></span>
+<span id="cb181-36"><a href="NE.html#cb181-36" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">select</span>(<span class="sc">-</span>test)</span>
+<span id="cb181-37"><a href="NE.html#cb181-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb181-38"><a href="NE.html#cb181-38" aria-hidden="true" tabindex="-1"></a><span class="co"># adding reference period</span></span>
+<span id="cb181-39"><a href="NE.html#cb181-39" aria-hidden="true" tabindex="-1"></a>Group <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Aggregate&quot;</span>)</span>
+<span id="cb181-40"><a href="NE.html#cb181-40" aria-hidden="true" tabindex="-1"></a>TimeToTreatment <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="st">&#39;-1&#39;</span>,<span class="dv">1</span>)</span>
+<span id="cb181-41"><a href="NE.html#cb181-41" aria-hidden="true" tabindex="-1"></a>ref <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(Group,TimeToTreatment)) <span class="sc">%&gt;%</span></span>
+<span id="cb181-42"><a href="NE.html#cb181-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(</span>
+<span id="cb181-43"><a href="NE.html#cb181-43" aria-hidden="true" tabindex="-1"></a>          <span class="at">Coef =</span> <span class="dv">0</span>,</span>
+<span id="cb181-44"><a href="NE.html#cb181-44" aria-hidden="true" tabindex="-1"></a>          <span class="at">Se =</span> <span class="dv">0</span>,</span>
+<span id="cb181-45"><a href="NE.html#cb181-45" aria-hidden="true" tabindex="-1"></a>          <span class="at">Group =</span> <span class="fu">factor</span>(Group,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>,<span class="st">&#39;3&#39;</span>,<span class="st">&#39;4&#39;</span>,<span class="st">&#39;Aggregate&#39;</span>)),</span>
+<span id="cb181-46"><a href="NE.html#cb181-46" aria-hidden="true" tabindex="-1"></a>          <span class="at">TimeToTreatment =</span> <span class="fu">factor</span>(TimeToTreatment,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;-3&#39;</span>,<span class="st">&#39;-2&#39;</span>,<span class="st">&#39;-1&#39;</span>,<span class="st">&#39;0&#39;</span>,<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>))</span>
+<span id="cb181-47"><a href="NE.html#cb181-47" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb181-48"><a href="NE.html#cb181-48" aria-hidden="true" tabindex="-1"></a>disaggregate.SA <span class="ot">&lt;-</span> <span class="fu">rbind</span>(disaggregate.SA,aggregate.SA,ref) <span class="sc">%&gt;%</span></span>
+<span id="cb181-49"><a href="NE.html#cb181-49" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">mutate</span>(<span class="at">TimeToTreatment =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(TimeToTreatment)))</span></code></pre></div>
+<p>Let’s plot the result:</p>
+<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="NE.html#cb182-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(disaggregate.SA,<span class="fu">aes</span>(<span class="at">x=</span>TimeToTreatment,<span class="at">y=</span>Coef,<span class="at">colour=</span>Group,<span class="at">linetype=</span>Group))<span class="sc">+</span></span>
+<span id="cb182-2"><a href="NE.html#cb182-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb182-3"><a href="NE.html#cb182-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>Coef<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>Coef<span class="fl">+1.96</span><span class="sc">*</span>Se)) <span class="sc">+</span></span>
+<span id="cb182-4"><a href="NE.html#cb182-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb182-5"><a href="NE.html#cb182-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time relative to treatment&quot;</span>) <span class="sc">+</span></span>
+<span id="cb182-6"><a href="NE.html#cb182-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb182-7"><a href="NE.html#cb182-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb182-8"><a href="NE.html#cb182-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb182-9"><a href="NE.html#cb182-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb182-10"><a href="NE.html#cb182-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredDisAgg"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredDisAgg-1.png" alt="Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period $\tau'=1$)" width="50%" />
+<p class="caption">
+Figure 4.17: Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+</p>
+</div>
+<p>Figure <a href="NE.html#fig:PlotDIDStaggeredDisAgg">4.17</a> shows very well how the Sun and Abraham estimator works: it aggregates each group specific treatment effect (relative to the reference period <span class="math inline">\(\tau&#39;=-1\)</span> and to the reference group (<span class="math inline">\(D_i=\infty\)</span>)) with period-specific weights which depend on the proportion of each treated group among the treated at this period.
+As a result, some dynamic changes in treatment effects might be driven by changes in group composition and not by genuine changes in the effect of the treatment.
+This is the case in Figure <a href="NE.html#fig:PlotDIDStaggeredDisAgg">4.17</a> between periods 1 and 2 where the acceleration in the growth of the aggregated treatment effect is due to the disappearance of group 3, which has a lower speed of increase of its average treatment effect, at period 2.
+As it is always tricky to interpret the aggregated result, I suggest to always plot the disaggregated results on the same graph, as in Figure <a href="NE.html#fig:PlotDIDStaggeredDisAgg">4.17</a>.</p>
 </div>
 <div id="direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna" class="section level5" number="4.3.3.2.3">
 <h5><span class="header-section-number">4.3.3.2.3</span> Direct weighting using one reference period and one reference group (Callaway and Sant’Anna)</h5>
+<p><a href="https://www.sciencedirect.com/science/article/pii/S0304407620303948">Callaway and Sant’Anna (2021)</a> propose an alternative estimator to the one proposed by Sun and Abraham.
+They suggest using a doubly robust matching estimator to condition on observed covariates.
+We are only going to encouter these estimators in Section (OM).
+In the absence of covariates, Callaway and Sant’Anna’s estimator is equivalent to the Sun and Abraham estimator.
+Callaway and Sant’Anna have proposed the <code>did</code> package to implement their estimator.
+The main command is <code>att_gt</code>, which computes all the estimates for each treatment group <span class="math inline">\(D_i=g\)</span> and each time period <span class="math inline">\(t\)</span>.
+Let’s see if we can make it work.</p>
+<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb183-1"><a href="NE.html#cb183-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparing the data</span></span>
+<span id="cb183-2"><a href="NE.html#cb183-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The Group variable has to take value 0 for the never treated (instead of infty or 99)</span></span>
+<span id="cb183-3"><a href="NE.html#cb183-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb183-4"><a href="NE.html#cb183-4" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate</span>(</span>
+<span id="cb183-5"><a href="NE.html#cb183-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">Group =</span> <span class="fu">if_else</span>(Ds<span class="sc">&lt;</span><span class="dv">99</span>,Ds,<span class="dv">0</span>)</span>
+<span id="cb183-6"><a href="NE.html#cb183-6" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb183-7"><a href="NE.html#cb183-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb183-8"><a href="NE.html#cb183-8" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
+<span id="cb183-9"><a href="NE.html#cb183-9" aria-hidden="true" tabindex="-1"></a>reg.CSA <span class="ot">&lt;-</span> <span class="fu">att_gt</span>(<span class="at">yname=</span><span class="st">&quot;y&quot;</span>,<span class="at">tname=</span><span class="st">&quot;time&quot;</span>,<span class="at">idname=</span><span class="st">&quot;id&quot;</span>,<span class="at">gname=</span><span class="st">&quot;Group&quot;</span>,<span class="at">data=</span><span class="fu">filter</span>(data,Ds<span class="sc">!=</span><span class="dv">1</span>),<span class="at">base_period=</span><span class="st">&quot;universal&quot;</span>)</span>
+<span id="cb183-10"><a href="NE.html#cb183-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb183-11"><a href="NE.html#cb183-11" aria-hidden="true" tabindex="-1"></a><span class="co"># dynamic treatment effects (event-study graph)</span></span>
+<span id="cb183-12"><a href="NE.html#cb183-12" aria-hidden="true" tabindex="-1"></a>reg.CSA.Agg <span class="ot">&lt;-</span> <span class="fu">aggte</span>(reg.CSA,<span class="at">type=</span><span class="st">&quot;dynamic&quot;</span>)   </span></code></pre></div>
+<p>Let’s plot the result:</p>
+<div class="sourceCode" id="cb184"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb184-1"><a href="NE.html#cb184-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparing the results for the plot  </span></span>
+<span id="cb184-2"><a href="NE.html#cb184-2" aria-hidden="true" tabindex="-1"></a>DID.CSA <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(reg.CSA<span class="sc">$</span>group)</span>
+<span id="cb184-3"><a href="NE.html#cb184-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(DID.CSA) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Group&quot;</span>)</span>
+<span id="cb184-4"><a href="NE.html#cb184-4" aria-hidden="true" tabindex="-1"></a>DID.CSA <span class="ot">&lt;-</span> DID.CSA <span class="sc">%&gt;%</span></span>
+<span id="cb184-5"><a href="NE.html#cb184-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb184-6"><a href="NE.html#cb184-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">time =</span> reg.CSA<span class="sc">$</span>t,</span>
+<span id="cb184-7"><a href="NE.html#cb184-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">Coef =</span> reg.CSA<span class="sc">$</span>att,</span>
+<span id="cb184-8"><a href="NE.html#cb184-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">Se =</span> reg.CSA<span class="sc">$</span>se</span>
+<span id="cb184-9"><a href="NE.html#cb184-9" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb184-10"><a href="NE.html#cb184-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb184-11"><a href="NE.html#cb184-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">TimeToTreatment =</span> time<span class="sc">-</span>Group,</span>
+<span id="cb184-12"><a href="NE.html#cb184-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">Group =</span> <span class="fu">factor</span>(Group,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>,<span class="st">&#39;3&#39;</span>,<span class="st">&#39;4&#39;</span>,<span class="st">&#39;Aggregate&#39;</span>)),</span>
+<span id="cb184-13"><a href="NE.html#cb184-13" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb184-14"><a href="NE.html#cb184-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb184-15"><a href="NE.html#cb184-15" aria-hidden="true" tabindex="-1"></a><span class="co"># add aggregate effect</span></span>
+<span id="cb184-16"><a href="NE.html#cb184-16" aria-hidden="true" tabindex="-1"></a>DID.CSA.Agg <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(reg.CSA.Agg<span class="sc">$</span>egt,reg.CSA.Agg<span class="sc">$</span>att.egt,reg.CSA.Agg<span class="sc">$</span>se.egt))</span>
+<span id="cb184-17"><a href="NE.html#cb184-17" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(DID.CSA.Agg) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;TimeToTreatment&#39;</span>,<span class="st">&#39;Coef&#39;</span>,<span class="st">&#39;Se&#39;</span>)</span>
+<span id="cb184-18"><a href="NE.html#cb184-18" aria-hidden="true" tabindex="-1"></a>DID.CSA.Agg <span class="ot">&lt;-</span> DID.CSA.Agg <span class="sc">%&gt;%</span></span>
+<span id="cb184-19"><a href="NE.html#cb184-19" aria-hidden="true" tabindex="-1"></a>                <span class="fu">mutate</span>(</span>
+<span id="cb184-20"><a href="NE.html#cb184-20" aria-hidden="true" tabindex="-1"></a>                  <span class="at">Group =</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="st">&quot;Aggregate&quot;</span>,<span class="fu">nrow</span>(DID.CSA.Agg)),<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;1&#39;</span>,<span class="st">&#39;2&#39;</span>,<span class="st">&#39;3&#39;</span>,<span class="st">&#39;4&#39;</span>,<span class="st">&#39;Aggregate&#39;</span>))</span>
+<span id="cb184-21"><a href="NE.html#cb184-21" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb184-22"><a href="NE.html#cb184-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb184-23"><a href="NE.html#cb184-23" aria-hidden="true" tabindex="-1"></a><span class="co"># merge all results</span></span>
+<span id="cb184-24"><a href="NE.html#cb184-24" aria-hidden="true" tabindex="-1"></a>DID.CSA <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">select</span>(DID.CSA,<span class="sc">-</span>time),DID.CSA.Agg)</span>
+<span id="cb184-25"><a href="NE.html#cb184-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb184-26"><a href="NE.html#cb184-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.CSA,<span class="fu">aes</span>(<span class="at">x=</span>TimeToTreatment,<span class="at">y=</span>Coef,<span class="at">colour=</span>Group,<span class="at">linetype=</span>Group))<span class="sc">+</span></span>
+<span id="cb184-27"><a href="NE.html#cb184-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb184-28"><a href="NE.html#cb184-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>Coef<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>Coef<span class="fl">+1.96</span><span class="sc">*</span>Se)) <span class="sc">+</span></span>
+<span id="cb184-29"><a href="NE.html#cb184-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb184-30"><a href="NE.html#cb184-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time relative to treatment&quot;</span>) <span class="sc">+</span></span>
+<span id="cb184-31"><a href="NE.html#cb184-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb184-32"><a href="NE.html#cb184-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb184-33"><a href="NE.html#cb184-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_colour_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb184-34"><a href="NE.html#cb184-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
+<span id="cb184-35"><a href="NE.html#cb184-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredDisAggCSA"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredDisAggCSA-1.png" alt="Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant'Anna procedure in did (reference period $\tau'=1$)" width="50%" />
+<p class="caption">
+Figure 4.18: Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant’Anna procedure in did (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+</p>
+</div>
+<p>Figure <a href="NE.html#fig:PlotDIDStaggeredDisAggCSA">4.18</a> shows a result that is very similar to the one obtained in Figure <a href="NE.html#fig:PlotDIDStaggeredDisAgg">4.17</a> using Sun and Abraham’s approch as implemented in <code>fixest</code>.
+The two approaches are indeed equivalent with the options that we have chosen.</p>
 </div>
 <div id="imputation-methods-borusyak-jaravel-and-speiss-gardner" class="section level5" number="4.3.3.2.4">
 <h5><span class="header-section-number">4.3.3.2.4</span> Imputation methods: Borusyak, Jaravel and Speiss, Gardner</h5>
