@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-02-22}
+\date{2022-02-25}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -10028,7 +10028,7 @@ Let's plot the result:
 
 }
 
-\caption{Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAgg}
+\caption{Disaggregated DID estimates around the treatment date estimated using the Sun and Abraham procedure in fixest (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAgg}
 \end{figure}
 
 Figure \ref{fig:PlotDIDStaggeredDisAgg} shows very well how the Sun and Abraham estimator works: it aggregates each group specific treatment effect (relative to the reference period \(\tau'=-1\) and to the reference group (\(D_i=\infty\))) with period-specific weights which depend on the proportion of each treated group among the treated at this period.
@@ -10112,20 +10112,214 @@ Let's plot the result:
 
 }
 
-\caption{Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant'Anna procedure in did (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAggCSA}
+\caption{Disaggregated DID estimates around the treatment date estimated using the Callaway and Sant'Anna procedure in did (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAggCSA}
 \end{figure}
 
 Figure \ref{fig:PlotDIDStaggeredDisAggCSA} shows a result that is very similar to the one obtained in Figure \ref{fig:PlotDIDStaggeredDisAgg} using Sun and Abraham's approch as implemented in \texttt{fixest}.
 The two approaches are indeed equivalent with the options that we have chosen.
 
-\hypertarget{imputation-methods-borusyak-jaravel-and-speiss-gardner}{%
-\paragraph{Imputation methods: Borusyak, Jaravel and Speiss, Gardner}\label{imputation-methods-borusyak-jaravel-and-speiss-gardner}}
+\hypertarget{de-chaisemartin-and-dhaultfoeuille}{%
+\paragraph{De Chaisemartin and d'Haultfoeuille}\label{de-chaisemartin-and-dhaultfoeuille}}
+
+de Chaisemartin et d'Haultfoeuille propose two ways to deal with DID with differences in treatment timing.
+In de Chaisemartin et d'Haultfoeuille (2021a), they propose to estimate the effect of the treatment using only the periods where a change in treatment status occurs, by comparing the treated to the not yet treated at the same time periods.
+In de Chaisemartin et d'Haultfoeuille (2021b), they propose to estimate the dynamic effect of the treatment using a discounted sum of treatment effects over time.
+In its simplest form, with staggered designs, a discrete treatment and no covariates, de Chaisemartin et d'Haultfoeuille (2021b)'s estimator is equivalent to that of Sun and Abraham or Callaway and Sant'Anna.
+Both estimators have been implemented in the \texttt{DIDmutiplegt} package with the \texttt{did\_multiplegt} function.
+Let's see how it works.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regression}
+\NormalTok{reg.dCdH }\OtherTok{\textless{}{-}} \FunctionTok{did\_multiplegt}\NormalTok{(}\AttributeTok{Y=}\StringTok{"y"}\NormalTok{,}\AttributeTok{T=}\StringTok{"time"}\NormalTok{,}\AttributeTok{G=}\StringTok{"id"}\NormalTok{,}\AttributeTok{D=}\StringTok{"D"}\NormalTok{,}\AttributeTok{df=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{placebo=}\DecValTok{3}\NormalTok{,}\AttributeTok{dynamic=}\DecValTok{3}\NormalTok{,}\AttributeTok{average\_effect=}\StringTok{"prop\_number°switchers"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now pot the results:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# preparing the results for the plot  }
+\NormalTok{DID.dCdH }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{c}\NormalTok{(reg.dCdH}\SpecialCharTok{$}\NormalTok{placebo\_2,reg.dCdH}\SpecialCharTok{$}\NormalTok{placebo\_1,}\DecValTok{0}\NormalTok{,reg.dCdH}\SpecialCharTok{$}\NormalTok{effect,reg.dCdH}\SpecialCharTok{$}\NormalTok{dynamic\_1,reg.dCdH}\SpecialCharTok{$}\NormalTok{dynamic\_2))}
+\FunctionTok{colnames}\NormalTok{(DID.dCdH) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Coef"}\NormalTok{)}
+\NormalTok{DID.dCdH }\OtherTok{\textless{}{-}}\NormalTok{ DID.dCdH }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}
+              \AttributeTok{TimeToTreatment =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{),}
+              \AttributeTok{Se =} \FunctionTok{c}\NormalTok{(reg.dCdH}\SpecialCharTok{$}\NormalTok{se\_placebo\_2,reg.dCdH}\SpecialCharTok{$}\NormalTok{se\_placebo\_1,}\DecValTok{0}\NormalTok{,reg.dCdH}\SpecialCharTok{$}\NormalTok{se\_effect,reg.dCdH}\SpecialCharTok{$}\NormalTok{se\_dynamic\_1,reg.dCdH}\SpecialCharTok{$}\NormalTok{se\_dynamic\_2)}
+\NormalTok{            ) }
+
+\FunctionTok{ggplot}\NormalTok{(DID.dCdH,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStaggeredDisAggdCdH-1} 
+
+}
+
+\caption{DID estimates around the treatment date estimated using the de Chaisemartin and d'Haultfoeuille procedure (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAggdCdH}
+\end{figure}
+
+Figure \ref{fig:PlotDIDStaggeredDisAggdCdH} shows that the profile estimated using de Chaisemartin and d'Haultfoeuille's aprproach is similar but distinct from the one estimated by the other authors.
+Why is still to be determined.
+
+\hypertarget{imputation-methods-borusyak-jaravel-and-speiss}{%
+\paragraph{Imputation methods: Borusyak, Jaravel and Speiss}\label{imputation-methods-borusyak-jaravel-and-speiss}}
+
+Borusyak, Jaravel and Speiss (2021) adopt a very differnet framework from the previous ones.
+They do not build from the individual DID estimators \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\), but instead propose to estimate the individual level treatment effects \(\hat\Delta^Y_{i,t}\) and then to aggregate them as one wishes to.
+In order to build an estimate of the individual level treatment effects \(\hat\Delta^Y_{i,t}\), Borusyak, Jaravel and Speiss (2021) propose to use an imputation estimator, \(\hat Y^0_{i,t}\), which predicts the value of \(Y^0_{i,t}\) for each treated unit.
+Borusyak, Jaravel and Speiss (2021)'s imputation estimator works as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Within the never treated and not-yet-treated observations only, estimate \(\hat\mu_i^{OLS}\) and \(\hat\delta_t^{OLS}\) using the following OLS regression:
+\end{enumerate}
+
+\begin{align*}
+  Y^0_{i,t} & = \mu_i + \delta_t + U^0_{i,t}
+\end{align*}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  For each treated observation, set \(\hat Y^0_{i,t} = \hat\mu_i^{OLS}+\hat\delta_t^{OLS}\) and \(\hat\Delta^Y_{i,t}=Y^1_{i,t}-\hat Y^0_{i,t}\).
+\end{enumerate}
+
+Finally, Borusyak, Jaravel and Speiss (2021) propose to aggregate the estimates for each treatment effect using weights \(w^{BJS_k}_{i,t}\) in order to form \(\hat\Delta^{Y}_{TT}(BJS_k)=\sum w^{BJS_k}_{i,t}\hat\Delta^Y_{i,t}\).
+
+In the absence of covariates, or group-specific time trends, the main assumption of Borusyak, Jaravel and Speiss (2021)'s framework is that the potential outcomes in the absence of the treatment can be decomposed in two separate influences:
+
+\begin{hypothesis}[Additive Separability of Potential Outcomes in the Absence of the Treatment]
+\protect\hypertarget{hyp:AdditiveSeparabilityFE}{}{\label{hyp:AdditiveSeparabilityFE} \iffalse (Additive Separability of Potential Outcomes in the Absence of the Treatment) \fi{} }We assume that the potential outcomes in the absence of the treatment are additively separable between time and individual fixed effects:
+
+\begin{align*}
+   Y^0_{i,t} & = \mu_i + \delta_t + U^0_{i,t},
+\end{align*}
+
+with \(\esp{U^0_{i,t}|D_i}=0\), \(\forall t\in\{1,\dots,T\}\).
+\end{hypothesis}
+
+Assumption \ref{hyp:AdditiveSeparabilityFE} assumes that all the time and individual-level influences on potential outcomes that are potentially correlated with treatment intake are additively separable.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Borusyak, Jaravel and Speiss (2021) claim that Assumption \ref{hyp:AdditiveSeparabilityFE} is equivalent to Assumption \ref{hyp:ParallelTrendsTime} of parallel trends.
+I think we still need a formal proof of that claim.
+\end{remark}
+
+Borusyak, Jaravel and Speiss (2021) add another assumption, namely that error terms are homoskedastic:
+
+\begin{hypothesis}[Homoskedasticity]
+\protect\hypertarget{hyp:HomoskedasticityFE}{}{\label{hyp:HomoskedasticityFE} \iffalse (Homoskedasticity) \fi{} }We assume that the error terms are homoskedastic and mutually uncorrelated:
+
+\begin{align*}
+   \esp{U_0U_0'} & = \sigma^2\mathbf{I},
+\end{align*}
+
+with \(U_0\) the vector of error terms and \(\mathbf{I}\) the identity matrix of the coresponding dimension.
+\end{hypothesis}
+
+Under these assumptions, and the no-anticipation condition, Borusyak, Jaravel and Speiss (2021) prove a very powerful result:
+
+\begin{theorem}[Imputation identifies Weighted TT]
+\protect\hypertarget{thm:IdentDIDAggBJS}{}{\label{thm:IdentDIDAggBJS} \iffalse (Imputation identifies Weighted TT) \fi{} }Under Assumptions \ref{hyp:NoTreatmentTime}, \ref{hyp:NoAnticipationEffectsTime} and \ref{hyp:AdditiveSeparabilityFE}, the imputation estimator is the unique efficient linear unbiased estimator of the corresponding weighted average of Treatment on the Treated:
+
+\begin{align*}
+    \sum w^{BJS_k}_{i,t}\hat\Delta^Y_{i,t} & =  \Delta^{Y}_{TT}(BJS_k).
+\end{align*}
+with
+\begin{align*}
+    \Delta^{Y}_{TT}(BJS_k) & = \sum w^k_{i,t}\Delta^Y_{i,t}
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}See Borusyak, Jaravel and Speiss (2021) Theorems 1 and 2.
+\end{proof}
+
+Theorem \ref{thm:IdentDIDAggBJS} is a pretty cool result.
+It shows that, under the assumptions made so far, the imputation estimator is the most efficient way to combine observations in order to obtain DID estimates of the effect of the treatment.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}The ``trick'' that makes the Borusyak, Jaravel and Speiss (2021)'s imputation estimator more efficient than Sun and Abraham or Callaway and Sant'Anna's estimators is that it combines all pre-treatment observations when generating the treatment effect estimate.
+An open question is whether a weigthed average of the individual DID estimates, including all the ones formed using all pre-treatment observations as reference periods, is as efficient as Borusyak, Jaravel and Speiss (2021)'s imputation estimator.
+\end{remark}
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Borusyak, Jaravel and Speiss (2021) claim that Assumption \ref{hyp:HomoskedasticityFE} can be relaxed to any known form of heteroskedasticity or autocorrelation and that Theorem \ref{thm:IdentDIDAggBJS} would still hold.
+\end{remark}
+
+How does Borusyak, Jaravel and Speiss (2021)'s imputation estimator work in practice?
+Thanks to the amazing \href{https://kylebutts.com/}{Kyle Butts}, we have a package that computes Borusyak, Jaravel and Speiss (2021)'s imputation estimator, \texttt{didimputation}.
+The command is \texttt{did\_imputation}.
+Let's see how it works.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regression}
+\NormalTok{reg.BJS }\OtherTok{\textless{}{-}} \FunctionTok{did\_imputation}\NormalTok{(}\AttributeTok{yname=}\StringTok{"y"}\NormalTok{,}\AttributeTok{tname=}\StringTok{"time"}\NormalTok{,}\AttributeTok{idname=}\StringTok{"id"}\NormalTok{,}\AttributeTok{gname=}\StringTok{"Group"}\NormalTok{,}\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{horizon=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{pretrends=}\ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the results:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# preparing the results for the plot  }
+\NormalTok{DID.BJS }\OtherTok{\textless{}{-}}\NormalTok{ reg.BJS }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{rename}\NormalTok{(}
+              \AttributeTok{TimeToTreatment=}\NormalTok{term,}
+              \AttributeTok{Coef=}\NormalTok{estimate,}
+              \AttributeTok{Se=}\NormalTok{std.error}
+\NormalTok{            ) }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}
+              \AttributeTok{TimeToTreatment=}\FunctionTok{as.numeric}\NormalTok{(TimeToTreatment)}
+\NormalTok{            )}
+\CommentTok{\# adding reference period}
+\NormalTok{DID.BJS[}\FunctionTok{nrow}\NormalTok{(DID.BJS)}\SpecialCharTok{+}\DecValTok{1}\NormalTok{,] }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+
+\CommentTok{\#plot}
+\FunctionTok{ggplot}\NormalTok{(DID.BJS,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStaggeredDisAggdBJS-1} 
+
+}
+
+\caption{DID estimates around the treatment date estimated using Borusyak, Jaravel and Speiss's procedure (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredDisAggdBJS}
+\end{figure}
+
+As Figure \ref{fig:PlotDIDStaggeredDisAggdBJS} shows, the dynamic profile of the treatment effect estimated using Borusyak, Jaravel and Speiss's procedure is very similar to the one obtained using Sun and Abraham and Callaway and Sant'Anna.
+
+\hypertarget{imputation-methods-gardner}{%
+\paragraph{Imputation methods: Gardner}\label{imputation-methods-gardner}}
+
+\href{https://jrgcmu.github.io/}{Gardner (2021)} proposes a two stage estimator very similar to the one by Borusyak, Jaravel and Speiss (2021).
 
 \textbf{How to combine estimates, even with only one reference period, when there are several estimates for the same treatment effect (\(\tau\))?}
 \textbf{We should focus on the most efficient estimator: I think that's Borusyak's point}
-
-\hypertarget{de-chaisemartin-and-dhaultfoeuille}{%
-\paragraph{De Chaisemartin and d'Haultfoeuille}\label{de-chaisemartin-and-dhaultfoeuille}}
 
 \hypertarget{two-way-fixed-effects-estimation-goodman-bacons-decomposition}{%
 \paragraph{Two-Way Fixed Effects estimation: Goodman-Bacon's decomposition}\label{two-way-fixed-effects-estimation-goodman-bacons-decomposition}}
@@ -10143,6 +10337,11 @@ The two approaches are indeed equivalent with the options that we have chosen.
 
 \hypertarget{OM}{%
 \chapter{Observational Methods}\label{OM}}
+
+\hypertarget{imputation-methods}{%
+\section{Imputation methods}\label{imputation-methods}}
+
+\href{https://yiqingxu.org/packages/fect/fect.html}{Generalized fixed effects methods}
 
 \hypertarget{threats}{%
 \chapter{Threats to the validity of Causal Inference}\label{threats}}
@@ -10334,7 +10533,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-214}{}{\label{exm:unnamed-chunk-214} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -10595,7 +10794,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -10739,7 +10938,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-218}{}{\label{exm:unnamed-chunk-218} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -10862,7 +11061,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-219}{}{\label{exm:unnamed-chunk-219} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -10924,7 +11123,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -10965,7 +11164,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-227}{}{\label{exm:unnamed-chunk-227} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is NA.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -11000,7 +11199,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-225}{}{\label{exm:unnamed-chunk-225} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-229}{}{\label{exm:unnamed-chunk-229} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -11115,7 +11314,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-226}{}{\label{exm:unnamed-chunk-226} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -11306,7 +11505,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-227}{}{\label{exm:unnamed-chunk-227} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -11403,7 +11602,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11523,7 +11722,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-234}{}{\label{exm:unnamed-chunk-234} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -11602,7 +11801,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-235}{}{\label{exm:unnamed-chunk-235} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -11745,7 +11944,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-236}{}{\label{exm:unnamed-chunk-236} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11849,7 +12048,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-233}{}{\label{exm:unnamed-chunk-233} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-237}{}{\label{exm:unnamed-chunk-237} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -12187,7 +12386,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-234}{}{\label{exm:unnamed-chunk-234} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-238}{}{\label{exm:unnamed-chunk-238} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -12346,7 +12545,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-235}{}{\label{exm:unnamed-chunk-235} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-239}{}{\label{exm:unnamed-chunk-239} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -12636,7 +12835,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-242}{}{\label{exm:unnamed-chunk-242} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-246}{}{\label{exm:unnamed-chunk-246} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -12889,7 +13088,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-249}{}{\label{exm:unnamed-chunk-249} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-253}{}{\label{exm:unnamed-chunk-253} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}

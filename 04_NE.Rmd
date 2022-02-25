@@ -3356,7 +3356,7 @@ disaggregate.SA <- rbind(disaggregate.SA,aggregate.SA,ref) %>%
 
 Let's plot the result:
 
-```{r PlotDIDStaggeredDisAgg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+```{r PlotDIDStaggeredDisAgg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("Disaggregated DID estimates around the treatment date estimated using the Sun and Abraham procedure in fixest (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
 ggplot(disaggregate.SA,aes(x=TimeToTreatment,y=Coef,colour=Group,linetype=Group))+
     geom_line() +
     geom_pointrange(aes(ymin=Coef-1.96*Se,ymax=Coef+1.96*Se)) +
@@ -3401,7 +3401,7 @@ reg.CSA.Agg <- aggte(reg.CSA,type="dynamic")
 
 Let's plot the result:
 
-```{r PlotDIDStaggeredDisAggCSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant'Anna procedure in did (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+```{r PlotDIDStaggeredDisAggCSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("Disaggregated DID estimates around the treatment date estimated using the Callaway and Sant'Anna procedure in did (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
 # preparing the results for the plot  
 DID.CSA <- as.data.frame(reg.CSA$group)
 colnames(DID.CSA) <- c("Group")
@@ -3442,13 +3442,170 @@ ggplot(DID.CSA,aes(x=TimeToTreatment,y=Coef,colour=Group,linetype=Group))+
 Figure \@ref(fig:PlotDIDStaggeredDisAggCSA) shows a result that is very similar to the one obtained in Figure \@ref(fig:PlotDIDStaggeredDisAgg) using Sun and Abraham's approch as implemented in `fixest`. 
 The two approaches are indeed equivalent with the options that we have chosen.
 
-##### Imputation methods: Borusyak, Jaravel and Speiss, Gardner
+##### De Chaisemartin and d'Haultfoeuille 
+
+de Chaisemartin et d'Haultfoeuille propose two ways to deal with DID with differences in treatment timing.
+In de Chaisemartin et d'Haultfoeuille (2021a), they propose to estimate the effect of the treatment using only the periods where a change in treatment status occurs, by comparing the treated to the not yet treated at the same time periods.
+In de Chaisemartin et d'Haultfoeuille (2021b), they propose to estimate the dynamic effect of the treatment using a discounted sum of treatment effects over time.
+In its simplest form, with staggered designs, a discrete treatment and no covariates, de Chaisemartin et d'Haultfoeuille (2021b)'s estimator is equivalent to that of Sun and Abraham or Callaway and Sant'Anna.
+Both estimators have been implemented in the `DIDmutiplegt` package with the `did_multiplegt` function.
+Let's see how it works.
+
+```{r DIDdCdH,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# regression
+reg.dCdH <- did_multiplegt(Y="y",T="time",G="id",D="D",df=filter(data,Ds!=1),placebo=3,dynamic=3,average_effect="prop_number°switchers")
+```
+
+Let us now pot the results:
+
+```{r PlotDIDStaggeredDisAggdCdH,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("DID estimates around the treatment date estimated using the de Chaisemartin and d'Haultfoeuille procedure (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+# preparing the results for the plot  
+DID.dCdH <- as.data.frame(c(reg.dCdH$placebo_2,reg.dCdH$placebo_1,0,reg.dCdH$effect,reg.dCdH$dynamic_1,reg.dCdH$dynamic_2))
+colnames(DID.dCdH) <- c("Coef")
+DID.dCdH <- DID.dCdH %>%
+            mutate(
+              TimeToTreatment = c(-3,-2,-1,0,1,2),
+              Se = c(reg.dCdH$se_placebo_2,reg.dCdH$se_placebo_1,0,reg.dCdH$se_effect,reg.dCdH$se_dynamic_1,reg.dCdH$se_dynamic_2)
+            ) 
+
+ggplot(DID.dCdH,aes(x=TimeToTreatment,y=Coef))+
+    geom_line() +
+    geom_pointrange(aes(ymin=Coef-1.96*Se,ymax=Coef+1.96*Se)) +
+    ylab("DID estimate") +
+    xlab("Time relative to treatment") +
+    scale_x_continuous(breaks=c(-3,-2,-1,0,1,2)) +
+    expand_limits(y=0) +
+    theme_bw()
+```
+Figure \@ref(fig:PlotDIDStaggeredDisAggdCdH) shows that the profile estimated using de Chaisemartin and d'Haultfoeuille's aprproach is similar but distinct from the one estimated by the other authors. 
+Why is still to be determined.
+
+##### Imputation methods: Borusyak, Jaravel and Speiss
+
+Borusyak, Jaravel and Speiss (2021) adopt a very differnet framework from the previous ones.
+They do not build from the individual DID estimators $\Delta^{Y}_{DID}(d,d',\tau,\tau')$, but instead propose to estimate the individual level treatment effects $\hat\Delta^Y_{i,t}$ and then to aggregate them as one wishes to. 
+In order to build an estimate of the individual level treatment effects $\hat\Delta^Y_{i,t}$, Borusyak, Jaravel and Speiss (2021) propose to use an imputation estimator, $\hat Y^0_{i,t}$, which predicts the value of $Y^0_{i,t}$ for each treated unit.
+Borusyak, Jaravel and Speiss (2021)'s imputation estimator works as follows:
+
+  1. Within the never treated and not-yet-treated observations only, estimate $\hat\mu_i^{OLS}$ and $\hat\delta_t^{OLS}$ using the following OLS regression:
+
+\begin{align*}
+  Y^0_{i,t} & = \mu_i + \delta_t + U^0_{i,t}
+\end{align*}
+
+  2. For each treated observation, set $\hat Y^0_{i,t} = \hat\mu_i^{OLS}+\hat\delta_t^{OLS}$ and $\hat\Delta^Y_{i,t}=Y^1_{i,t}-\hat Y^0_{i,t}$.
+  
+Finally, Borusyak, Jaravel and Speiss (2021) propose to aggregate the estimates for each treatment effect using weights $w^{BJS_k}_{i,t}$ in order to form $\hat\Delta^{Y}_{TT}(BJS_k)=\sum w^{BJS_k}_{i,t}\hat\Delta^Y_{i,t}$.
+
+In the absence of covariates, or group-specific time trends, the main assumption of Borusyak, Jaravel and Speiss (2021)'s framework is that the potential outcomes in the absence of the treatment can be decomposed in two separate influences:
+
+```{hypothesis,AdditiveSeparabilityFE,name="Additive Separability of Potential Outcomes in the Absence of the Treatment"}
+We assume that the potential outcomes in the absence of the treatment are additively separable between time and individual fixed effects:
+
+\begin{align*}
+   Y^0_{i,t} & = \mu_i + \delta_t + U^0_{i,t},
+\end{align*}
+
+with $\esp{U^0_{i,t}|D_i}=0$, $\forall t\in\{1,\dots,T\}$.
+```
+
+Assumption \@ref(hyp:AdditiveSeparabilityFE) assumes that all the time and individual-level influences on potential outcomes that are potentially correlated with treatment intake are additively separable. 
+
+```{remark}
+Borusyak, Jaravel and Speiss (2021) claim that Assumption \@ref(hyp:AdditiveSeparabilityFE) is equivalent to Assumption \@ref(hyp:ParallelTrendsTime) of parallel trends. 
+I think we still need a formal proof of that claim.
+```
+
+Borusyak, Jaravel and Speiss (2021) add another assumption, namely that error terms are homoskedastic:
+
+```{hypothesis,HomoskedasticityFE,name="Homoskedasticity"}
+We assume that the error terms are homoskedastic and mutually uncorrelated:
+
+\begin{align*}
+   \esp{U_0U_0'} & = \sigma^2\mathbf{I},
+\end{align*}
+
+with $U_0$ the vector of error terms and $\mathbf{I}$ the identity matrix of the coresponding dimension.
+```
+
+Under these assumptions, and the no-anticipation condition, Borusyak, Jaravel and Speiss (2021) prove a very powerful result:
+
+```{theorem,IdentDIDAggBJS,name="Imputation identifies Weighted TT"}
+Under Assumptions \@ref(hyp:NoTreatmentTime), \@ref(hyp:NoAnticipationEffectsTime) and \@ref(hyp:AdditiveSeparabilityFE), the imputation estimator is the unique efficient linear unbiased estimator of the corresponding weighted average of Treatment on the Treated:
+
+\begin{align*}
+    \sum w^{BJS_k}_{i,t}\hat\Delta^Y_{i,t} & =  \Delta^{Y}_{TT}(BJS_k).
+\end{align*}
+with 
+\begin{align*}
+    \Delta^{Y}_{TT}(BJS_k) & = \sum w^k_{i,t}\Delta^Y_{i,t}
+\end{align*}
+```
+
+```{proof}
+See Borusyak, Jaravel and Speiss (2021) Theorems 1 and 2.
+```
+
+Theorem \@ref(thm:IdentDIDAggBJS) is a pretty cool result.
+It shows that, under the assumptions made so far, the imputation estimator is the most efficient way to combine observations in order to obtain DID estimates of the effect of the treatment.
+
+
+```{remark}
+The "trick" that makes the Borusyak, Jaravel and Speiss (2021)'s imputation estimator more efficient than Sun and Abraham or Callaway and Sant'Anna's estimators is that it combines all pre-treatment observations when generating the treatment effect estimate.
+An open question is whether a weigthed average of the individual DID estimates, including all the ones formed using all pre-treatment observations as reference periods, is as efficient as Borusyak, Jaravel and Speiss (2021)'s imputation estimator.
+```
+
+```{remark}
+Borusyak, Jaravel and Speiss (2021) claim that Assumption \@ref(hyp:HomoskedasticityFE) can be relaxed to any known form of heteroskedasticity or autocorrelation and that Theorem \@ref(thm:IdentDIDAggBJS) would still hold.
+```
+
+How does Borusyak, Jaravel and Speiss (2021)'s imputation estimator work in practice? 
+Thanks to the amazing [Kyle Butts](https://kylebutts.com/), we have a package that computes Borusyak, Jaravel and Speiss (2021)'s imputation estimator, `didimputation`. 
+The command is `did_imputation`. 
+Let's see how it works.
+
+```{r DIDBJS,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# regression
+reg.BJS <- did_imputation(yname="y",tname="time",idname="id",gname="Group",data=filter(data,Ds!=1),horizon=TRUE,pretrends=TRUE)
+```
+
+Let us now plot the results:
+
+```{r PlotDIDStaggeredDisAggdBJS,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("DID estimates around the treatment date estimated using Borusyak, Jaravel and Speiss's procedure (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+# preparing the results for the plot  
+DID.BJS <- reg.BJS %>%
+            rename(
+              TimeToTreatment=term,
+              Coef=estimate,
+              Se=std.error
+            ) %>%
+            mutate(
+              TimeToTreatment=as.numeric(TimeToTreatment)
+            )
+# adding reference period
+DID.BJS[nrow(DID.BJS)+1,] <- list(-1,0,0,0,0)
+
+#plot
+ggplot(DID.BJS,aes(x=TimeToTreatment,y=Coef))+
+    geom_line() +
+    geom_pointrange(aes(ymin=Coef-1.96*Se,ymax=Coef+1.96*Se)) +
+    ylab("DID estimate") +
+    xlab("Time relative to treatment") +
+    scale_x_continuous(breaks=c(-3,-2,-1,0,1,2)) +
+    expand_limits(y=0) +
+    theme_bw()
+```
+
+As Figure \@ref(fig:PlotDIDStaggeredDisAggdBJS) shows, the dynamic profile of the treatment effect estimated using Borusyak, Jaravel and Speiss's procedure is very similar to the one obtained using Sun and Abraham and Callaway and Sant'Anna. 
+
+##### Imputation methods: Gardner
+
+[Gardner (2021)](https://jrgcmu.github.io/) proposes a two stage estimator very similar to the one by Borusyak, Jaravel and Speiss (2021). 
+
 
 
 **How to combine estimates, even with only one reference period, when there are several estimates for the same treatment effect ($\tau$)?**
 **We should focus on the most efficient estimator: I think that's Borusyak's point**
-
-##### De Chaisemartin and d'Haultfoeuille 
 
 ##### Two-Way Fixed Effects estimation: Goodman-Bacon's decomposition
 

@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-02-22" />
+<meta name="date" content="2022-02-25" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -237,7 +237,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.3.4" data-path="NE.html"><a href="NE.html#difference-in-differences-with-instrumental-variables"><i class="fa fa-check"></i><b>4.3.4</b> Difference In Differences with Instrumental Variables</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a></li>
+<li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.1</b> Imputation methods</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="threats.html"><a href="threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a>
 <ul>
 <li class="chapter" data-level="6.1" data-path="threats.html"><a href="threats.html#threats-to-internal-validity"><i class="fa fa-check"></i><b>6.1</b> Threats to internal validity</a>
@@ -3285,9 +3288,9 @@ Let’s see how this works.</p>
 <span id="cb182-9"><a href="NE.html#cb182-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
 <span id="cb182-10"><a href="NE.html#cb182-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredDisAgg"></span>
-<img src="STCI_files/figure-html/PlotDIDStaggeredDisAgg-1.png" alt="Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period $\tau'=1$)" width="50%" />
+<img src="STCI_files/figure-html/PlotDIDStaggeredDisAgg-1.png" alt="Disaggregated DID estimates around the treatment date estimated using the Sun and Abraham procedure in fixest (reference period $\tau'=1$)" width="50%" />
 <p class="caption">
-Figure 4.17: Disaggregated DID estimates at various time periods after the treament estimated using the Sun and Abraham procedure in fixest (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+Figure 4.17: Disaggregated DID estimates around the treatment date estimated using the Sun and Abraham procedure in fixest (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
 </p>
 </div>
 <p>Figure <a href="NE.html#fig:PlotDIDStaggeredDisAgg">4.17</a> shows very well how the Sun and Abraham estimator works: it aggregates each group specific treatment effect (relative to the reference period <span class="math inline">\(\tau&#39;=-1\)</span> and to the reference group (<span class="math inline">\(D_i=\infty\)</span>)) with period-specific weights which depend on the proportion of each treated group among the treated at this period.
@@ -3353,27 +3356,166 @@ Let’s see if we can make it work.</p>
 <span id="cb184-34"><a href="NE.html#cb184-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_linetype_discrete</span>(<span class="at">name=</span><span class="st">&quot;Treatment</span><span class="sc">\n</span><span class="st">group&quot;</span>)<span class="sc">+</span></span>
 <span id="cb184-35"><a href="NE.html#cb184-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredDisAggCSA"></span>
-<img src="STCI_files/figure-html/PlotDIDStaggeredDisAggCSA-1.png" alt="Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant'Anna procedure in did (reference period $\tau'=1$)" width="50%" />
+<img src="STCI_files/figure-html/PlotDIDStaggeredDisAggCSA-1.png" alt="Disaggregated DID estimates around the treatment date estimated using the Callaway and Sant'Anna procedure in did (reference period $\tau'=1$)" width="50%" />
 <p class="caption">
-Figure 4.18: Disaggregated DID estimates at various time periods after the treament estimated using the Callaway and Sant’Anna procedure in did (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+Figure 4.18: Disaggregated DID estimates around the treatment date estimated using the Callaway and Sant’Anna procedure in did (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
 </p>
 </div>
 <p>Figure <a href="NE.html#fig:PlotDIDStaggeredDisAggCSA">4.18</a> shows a result that is very similar to the one obtained in Figure <a href="NE.html#fig:PlotDIDStaggeredDisAgg">4.17</a> using Sun and Abraham’s approch as implemented in <code>fixest</code>.
 The two approaches are indeed equivalent with the options that we have chosen.</p>
 </div>
-<div id="imputation-methods-borusyak-jaravel-and-speiss-gardner" class="section level5" number="4.3.3.2.4">
-<h5><span class="header-section-number">4.3.3.2.4</span> Imputation methods: Borusyak, Jaravel and Speiss, Gardner</h5>
+<div id="de-chaisemartin-and-dhaultfoeuille" class="section level5" number="4.3.3.2.4">
+<h5><span class="header-section-number">4.3.3.2.4</span> De Chaisemartin and d’Haultfoeuille</h5>
+<p>de Chaisemartin et d’Haultfoeuille propose two ways to deal with DID with differences in treatment timing.
+In de Chaisemartin et d’Haultfoeuille (2021a), they propose to estimate the effect of the treatment using only the periods where a change in treatment status occurs, by comparing the treated to the not yet treated at the same time periods.
+In de Chaisemartin et d’Haultfoeuille (2021b), they propose to estimate the dynamic effect of the treatment using a discounted sum of treatment effects over time.
+In its simplest form, with staggered designs, a discrete treatment and no covariates, de Chaisemartin et d’Haultfoeuille (2021b)’s estimator is equivalent to that of Sun and Abraham or Callaway and Sant’Anna.
+Both estimators have been implemented in the <code>DIDmutiplegt</code> package with the <code>did_multiplegt</code> function.
+Let’s see how it works.</p>
+<div class="sourceCode" id="cb185"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb185-1"><a href="NE.html#cb185-1" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
+<span id="cb185-2"><a href="NE.html#cb185-2" aria-hidden="true" tabindex="-1"></a>reg.dCdH <span class="ot">&lt;-</span> <span class="fu">did_multiplegt</span>(<span class="at">Y=</span><span class="st">&quot;y&quot;</span>,<span class="at">T=</span><span class="st">&quot;time&quot;</span>,<span class="at">G=</span><span class="st">&quot;id&quot;</span>,<span class="at">D=</span><span class="st">&quot;D&quot;</span>,<span class="at">df=</span><span class="fu">filter</span>(data,Ds<span class="sc">!=</span><span class="dv">1</span>),<span class="at">placebo=</span><span class="dv">3</span>,<span class="at">dynamic=</span><span class="dv">3</span>,<span class="at">average_effect=</span><span class="st">&quot;prop_number°switchers&quot;</span>)</span></code></pre></div>
+<p>Let us now pot the results:</p>
+<div class="sourceCode" id="cb186"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb186-1"><a href="NE.html#cb186-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparing the results for the plot  </span></span>
+<span id="cb186-2"><a href="NE.html#cb186-2" aria-hidden="true" tabindex="-1"></a>DID.dCdH <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">c</span>(reg.dCdH<span class="sc">$</span>placebo_2,reg.dCdH<span class="sc">$</span>placebo_1,<span class="dv">0</span>,reg.dCdH<span class="sc">$</span>effect,reg.dCdH<span class="sc">$</span>dynamic_1,reg.dCdH<span class="sc">$</span>dynamic_2))</span>
+<span id="cb186-3"><a href="NE.html#cb186-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(DID.dCdH) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Coef&quot;</span>)</span>
+<span id="cb186-4"><a href="NE.html#cb186-4" aria-hidden="true" tabindex="-1"></a>DID.dCdH <span class="ot">&lt;-</span> DID.dCdH <span class="sc">%&gt;%</span></span>
+<span id="cb186-5"><a href="NE.html#cb186-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb186-6"><a href="NE.html#cb186-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">TimeToTreatment =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb186-7"><a href="NE.html#cb186-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">Se =</span> <span class="fu">c</span>(reg.dCdH<span class="sc">$</span>se_placebo_2,reg.dCdH<span class="sc">$</span>se_placebo_1,<span class="dv">0</span>,reg.dCdH<span class="sc">$</span>se_effect,reg.dCdH<span class="sc">$</span>se_dynamic_1,reg.dCdH<span class="sc">$</span>se_dynamic_2)</span>
+<span id="cb186-8"><a href="NE.html#cb186-8" aria-hidden="true" tabindex="-1"></a>            ) </span>
+<span id="cb186-9"><a href="NE.html#cb186-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb186-10"><a href="NE.html#cb186-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.dCdH,<span class="fu">aes</span>(<span class="at">x=</span>TimeToTreatment,<span class="at">y=</span>Coef))<span class="sc">+</span></span>
+<span id="cb186-11"><a href="NE.html#cb186-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb186-12"><a href="NE.html#cb186-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>Coef<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>Coef<span class="fl">+1.96</span><span class="sc">*</span>Se)) <span class="sc">+</span></span>
+<span id="cb186-13"><a href="NE.html#cb186-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb186-14"><a href="NE.html#cb186-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time relative to treatment&quot;</span>) <span class="sc">+</span></span>
+<span id="cb186-15"><a href="NE.html#cb186-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb186-16"><a href="NE.html#cb186-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb186-17"><a href="NE.html#cb186-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredDisAggdCdH"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredDisAggdCdH-1.png" alt="DID estimates around the treatment date estimated using the de Chaisemartin and d'Haultfoeuille procedure (reference period $\tau'=1$)" width="50%" />
+<p class="caption">
+Figure 4.19: DID estimates around the treatment date estimated using the de Chaisemartin and d’Haultfoeuille procedure (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+</p>
+</div>
+<p>Figure <a href="NE.html#fig:PlotDIDStaggeredDisAggdCdH">4.19</a> shows that the profile estimated using de Chaisemartin and d’Haultfoeuille’s aprproach is similar but distinct from the one estimated by the other authors.
+Why is still to be determined.</p>
+</div>
+<div id="imputation-methods-borusyak-jaravel-and-speiss" class="section level5" number="4.3.3.2.5">
+<h5><span class="header-section-number">4.3.3.2.5</span> Imputation methods: Borusyak, Jaravel and Speiss</h5>
+<p>Borusyak, Jaravel and Speiss (2021) adopt a very differnet framework from the previous ones.
+They do not build from the individual DID estimators <span class="math inline">\(\Delta^{Y}_{DID}(d,d&#39;,\tau,\tau&#39;)\)</span>, but instead propose to estimate the individual level treatment effects <span class="math inline">\(\hat\Delta^Y_{i,t}\)</span> and then to aggregate them as one wishes to.
+In order to build an estimate of the individual level treatment effects <span class="math inline">\(\hat\Delta^Y_{i,t}\)</span>, Borusyak, Jaravel and Speiss (2021) propose to use an imputation estimator, <span class="math inline">\(\hat Y^0_{i,t}\)</span>, which predicts the value of <span class="math inline">\(Y^0_{i,t}\)</span> for each treated unit.
+Borusyak, Jaravel and Speiss (2021)’s imputation estimator works as follows:</p>
+<ol style="list-style-type: decimal">
+<li>Within the never treated and not-yet-treated observations only, estimate <span class="math inline">\(\hat\mu_i^{OLS}\)</span> and <span class="math inline">\(\hat\delta_t^{OLS}\)</span> using the following OLS regression:</li>
+</ol>
+<p><span class="math display">\[\begin{align*}
+  Y^0_{i,t} &amp; = \mu_i + \delta_t + U^0_{i,t}
+\end{align*}\]</span></p>
+<ol start="2" style="list-style-type: decimal">
+<li>For each treated observation, set <span class="math inline">\(\hat Y^0_{i,t} = \hat\mu_i^{OLS}+\hat\delta_t^{OLS}\)</span> and <span class="math inline">\(\hat\Delta^Y_{i,t}=Y^1_{i,t}-\hat Y^0_{i,t}\)</span>.</li>
+</ol>
+<p>Finally, Borusyak, Jaravel and Speiss (2021) propose to aggregate the estimates for each treatment effect using weights <span class="math inline">\(w^{BJS_k}_{i,t}\)</span> in order to form <span class="math inline">\(\hat\Delta^{Y}_{TT}(BJS_k)=\sum w^{BJS_k}_{i,t}\hat\Delta^Y_{i,t}\)</span>.</p>
+<p>In the absence of covariates, or group-specific time trends, the main assumption of Borusyak, Jaravel and Speiss (2021)’s framework is that the potential outcomes in the absence of the treatment can be decomposed in two separate influences:</p>
+
+<div class="hypothesis">
+<p><span id="hyp:AdditiveSeparabilityFE" class="hypothesis"><strong>Hypothesis 4.18  (Additive Separability of Potential Outcomes in the Absence of the Treatment)  </strong></span>We assume that the potential outcomes in the absence of the treatment are additively separable between time and individual fixed effects:</p>
+<p><span class="math display">\[\begin{align*}
+   Y^0_{i,t} &amp; = \mu_i + \delta_t + U^0_{i,t},
+\end{align*}\]</span></p>
+with <span class="math inline">\(\esp{U^0_{i,t}|D_i}=0\)</span>, <span class="math inline">\(\forall t\in\{1,\dots,T\}\)</span>.
+</div>
+<p>Assumption <a href="NE.html#hyp:AdditiveSeparabilityFE">4.18</a> assumes that all the time and individual-level influences on potential outcomes that are potentially correlated with treatment intake are additively separable.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Borusyak, Jaravel and Speiss (2021) claim that Assumption <a href="NE.html#hyp:AdditiveSeparabilityFE">4.18</a> is equivalent to Assumption <a href="NE.html#hyp:ParallelTrendsTime">4.17</a> of parallel trends.
+I think we still need a formal proof of that claim.
+</div>
+<p>Borusyak, Jaravel and Speiss (2021) add another assumption, namely that error terms are homoskedastic:</p>
+
+<div class="hypothesis">
+<p><span id="hyp:HomoskedasticityFE" class="hypothesis"><strong>Hypothesis 4.19  (Homoskedasticity)  </strong></span>We assume that the error terms are homoskedastic and mutually uncorrelated:</p>
+<p><span class="math display">\[\begin{align*}
+   \esp{U_0U_0&#39;} &amp; = \sigma^2\mathbf{I},
+\end{align*}\]</span></p>
+with <span class="math inline">\(U_0\)</span> the vector of error terms and <span class="math inline">\(\mathbf{I}\)</span> the identity matrix of the coresponding dimension.
+</div>
+<p>Under these assumptions, and the no-anticipation condition, Borusyak, Jaravel and Speiss (2021) prove a very powerful result:</p>
+
+<div class="theorem">
+<p><span id="thm:IdentDIDAggBJS" class="theorem"><strong>Theorem 4.11  (Imputation identifies Weighted TT)  </strong></span>Under Assumptions <a href="NE.html#hyp:NoTreatmentTime">4.15</a>, <a href="NE.html#hyp:NoAnticipationEffectsTime">4.16</a> and <a href="NE.html#hyp:AdditiveSeparabilityFE">4.18</a>, the imputation estimator is the unique efficient linear unbiased estimator of the corresponding weighted average of Treatment on the Treated:</p>
+<span class="math display">\[\begin{align*}
+    \sum w^{BJS_k}_{i,t}\hat\Delta^Y_{i,t} &amp; =  \Delta^{Y}_{TT}(BJS_k).
+\end{align*}\]</span>
+with
+<span class="math display">\[\begin{align*}
+    \Delta^{Y}_{TT}(BJS_k) &amp; = \sum w^k_{i,t}\Delta^Y_{i,t}
+\end{align*}\]</span>
+</div>
+
+<div class="proof">
+ <span class="proof"><em>Proof. </em></span> See Borusyak, Jaravel and Speiss (2021) Theorems 1 and 2.
+</div>
+<p>Theorem <a href="NE.html#thm:IdentDIDAggBJS">4.11</a> is a pretty cool result.
+It shows that, under the assumptions made so far, the imputation estimator is the most efficient way to combine observations in order to obtain DID estimates of the effect of the treatment.</p>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> The “trick” that makes the Borusyak, Jaravel and Speiss (2021)’s imputation estimator more efficient than Sun and Abraham or Callaway and Sant’Anna’s estimators is that it combines all pre-treatment observations when generating the treatment effect estimate.
+An open question is whether a weigthed average of the individual DID estimates, including all the ones formed using all pre-treatment observations as reference periods, is as efficient as Borusyak, Jaravel and Speiss (2021)’s imputation estimator.
+</div>
+
+<div class="remark">
+ <span class="remark"><em>Remark. </em></span> Borusyak, Jaravel and Speiss (2021) claim that Assumption <a href="NE.html#hyp:HomoskedasticityFE">4.19</a> can be relaxed to any known form of heteroskedasticity or autocorrelation and that Theorem <a href="NE.html#thm:IdentDIDAggBJS">4.11</a> would still hold.
+</div>
+<p>How does Borusyak, Jaravel and Speiss (2021)’s imputation estimator work in practice?
+Thanks to the amazing <a href="https://kylebutts.com/">Kyle Butts</a>, we have a package that computes Borusyak, Jaravel and Speiss (2021)’s imputation estimator, <code>didimputation</code>.
+The command is <code>did_imputation</code>.
+Let’s see how it works.</p>
+<div class="sourceCode" id="cb187"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb187-1"><a href="NE.html#cb187-1" aria-hidden="true" tabindex="-1"></a><span class="co"># regression</span></span>
+<span id="cb187-2"><a href="NE.html#cb187-2" aria-hidden="true" tabindex="-1"></a>reg.BJS <span class="ot">&lt;-</span> <span class="fu">did_imputation</span>(<span class="at">yname=</span><span class="st">&quot;y&quot;</span>,<span class="at">tname=</span><span class="st">&quot;time&quot;</span>,<span class="at">idname=</span><span class="st">&quot;id&quot;</span>,<span class="at">gname=</span><span class="st">&quot;Group&quot;</span>,<span class="at">data=</span><span class="fu">filter</span>(data,Ds<span class="sc">!=</span><span class="dv">1</span>),<span class="at">horizon=</span><span class="cn">TRUE</span>,<span class="at">pretrends=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>Let us now plot the results:</p>
+<div class="sourceCode" id="cb188"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb188-1"><a href="NE.html#cb188-1" aria-hidden="true" tabindex="-1"></a><span class="co"># preparing the results for the plot  </span></span>
+<span id="cb188-2"><a href="NE.html#cb188-2" aria-hidden="true" tabindex="-1"></a>DID.BJS <span class="ot">&lt;-</span> reg.BJS <span class="sc">%&gt;%</span></span>
+<span id="cb188-3"><a href="NE.html#cb188-3" aria-hidden="true" tabindex="-1"></a>            <span class="fu">rename</span>(</span>
+<span id="cb188-4"><a href="NE.html#cb188-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">TimeToTreatment=</span>term,</span>
+<span id="cb188-5"><a href="NE.html#cb188-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">Coef=</span>estimate,</span>
+<span id="cb188-6"><a href="NE.html#cb188-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">Se=</span>std.error</span>
+<span id="cb188-7"><a href="NE.html#cb188-7" aria-hidden="true" tabindex="-1"></a>            ) <span class="sc">%&gt;%</span></span>
+<span id="cb188-8"><a href="NE.html#cb188-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mutate</span>(</span>
+<span id="cb188-9"><a href="NE.html#cb188-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">TimeToTreatment=</span><span class="fu">as.numeric</span>(TimeToTreatment)</span>
+<span id="cb188-10"><a href="NE.html#cb188-10" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb188-11"><a href="NE.html#cb188-11" aria-hidden="true" tabindex="-1"></a><span class="co"># adding reference period</span></span>
+<span id="cb188-12"><a href="NE.html#cb188-12" aria-hidden="true" tabindex="-1"></a>DID.BJS[<span class="fu">nrow</span>(DID.BJS)<span class="sc">+</span><span class="dv">1</span>,] <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>)</span>
+<span id="cb188-13"><a href="NE.html#cb188-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb188-14"><a href="NE.html#cb188-14" aria-hidden="true" tabindex="-1"></a><span class="co">#plot</span></span>
+<span id="cb188-15"><a href="NE.html#cb188-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(DID.BJS,<span class="fu">aes</span>(<span class="at">x=</span>TimeToTreatment,<span class="at">y=</span>Coef))<span class="sc">+</span></span>
+<span id="cb188-16"><a href="NE.html#cb188-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb188-17"><a href="NE.html#cb188-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>Coef<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>Coef<span class="fl">+1.96</span><span class="sc">*</span>Se)) <span class="sc">+</span></span>
+<span id="cb188-18"><a href="NE.html#cb188-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">&quot;DID estimate&quot;</span>) <span class="sc">+</span></span>
+<span id="cb188-19"><a href="NE.html#cb188-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">&quot;Time relative to treatment&quot;</span>) <span class="sc">+</span></span>
+<span id="cb188-20"><a href="NE.html#cb188-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">breaks=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb188-21"><a href="NE.html#cb188-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">expand_limits</span>(<span class="at">y=</span><span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb188-22"><a href="NE.html#cb188-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:PlotDIDStaggeredDisAggdBJS"></span>
+<img src="STCI_files/figure-html/PlotDIDStaggeredDisAggdBJS-1.png" alt="DID estimates around the treatment date estimated using Borusyak, Jaravel and Speiss's procedure (reference period $\tau'=1$)" width="50%" />
+<p class="caption">
+Figure 4.20: DID estimates around the treatment date estimated using Borusyak, Jaravel and Speiss’s procedure (reference period <span class="math inline">\(\tau&#39;=1\)</span>)
+</p>
+</div>
+<p>As Figure <a href="NE.html#fig:PlotDIDStaggeredDisAggdBJS">4.20</a> shows, the dynamic profile of the treatment effect estimated using Borusyak, Jaravel and Speiss’s procedure is very similar to the one obtained using Sun and Abraham and Callaway and Sant’Anna.</p>
+</div>
+<div id="imputation-methods-gardner" class="section level5" number="4.3.3.2.6">
+<h5><span class="header-section-number">4.3.3.2.6</span> Imputation methods: Gardner</h5>
+<p><a href="https://jrgcmu.github.io/">Gardner (2021)</a> proposes a two stage estimator very similar to the one by Borusyak, Jaravel and Speiss (2021).</p>
 <p><strong>How to combine estimates, even with only one reference period, when there are several estimates for the same treatment effect (<span class="math inline">\(\tau\)</span>)?</strong>
 <strong>We should focus on the most efficient estimator: I think that’s Borusyak’s point</strong></p>
 </div>
-<div id="de-chaisemartin-and-dhaultfoeuille" class="section level5" number="4.3.3.2.5">
-<h5><span class="header-section-number">4.3.3.2.5</span> De Chaisemartin and d’Haultfoeuille</h5>
+<div id="two-way-fixed-effects-estimation-goodman-bacons-decomposition" class="section level5" number="4.3.3.2.7">
+<h5><span class="header-section-number">4.3.3.2.7</span> Two-Way Fixed Effects estimation: Goodman-Bacon’s decomposition</h5>
 </div>
-<div id="two-way-fixed-effects-estimation-goodman-bacons-decomposition" class="section level5" number="4.3.3.2.6">
-<h5><span class="header-section-number">4.3.3.2.6</span> Two-Way Fixed Effects estimation: Goodman-Bacon’s decomposition</h5>
-</div>
-<div id="stacked-did" class="section level5" number="4.3.3.2.7">
-<h5><span class="header-section-number">4.3.3.2.7</span> Stacked DID</h5>
+<div id="stacked-did" class="section level5" number="4.3.3.2.8">
+<h5><span class="header-section-number">4.3.3.2.8</span> Stacked DID</h5>
 </div>
 </div>
 <div id="inference-1" class="section level4" number="4.3.3.3">
