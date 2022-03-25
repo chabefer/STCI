@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-02-25}
+\date{2022-03-25}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -7612,8 +7612,8 @@ We will survey these problems and the proposed solutions to address them.
 Finally, we will look at the combination of DID with instrumental variables (the DID-IV estimator) and see which specific types of problems happen there as well.
 Let's get to it.
 
-\hypertarget{DIDbasic}{%
-\subsection{Difference In Differences with two time periods}\label{DIDbasic}}
+\hypertarget{sec:DIDbasic}{%
+\subsection{Difference In Differences with two time periods}\label{sec:DIDbasic}}
 
 Before getting into the rigorous derivations, let's start with a very simple illustration using our workhorse example.
 
@@ -8020,8 +8020,8 @@ Note also that \(\alpha^{FD}\) estimates the Before/After change in outcomes amo
 In our case, we have \(\hat{\alpha}^{FD}_{OLS}=\) 0.057.
 Remember that in our sample, the Before/After estimator among the untreated is equal to \(\hat{\Delta}^{y}_{BA|D=0}=\) 0.057.
 
-\hypertarget{using-the-least-squares-dummy-variables-estimator}{%
-\paragraph{Using the Least Squares Dummy Variables estimator}\label{using-the-least-squares-dummy-variables-estimator}}
+\hypertarget{sec:LSDV}{%
+\paragraph{Using the Least Squares Dummy Variables estimator}\label{sec:LSDV}}
 
 One very computer-intensive way to estimate \(TT\) in a DID setting is to use the OLS estimator supplemented with dummies for each observation and for each time period, also called the Least-Squares Dummy Variables estimator.
 In practice, the estimator is based on the following regression:
@@ -8066,8 +8066,8 @@ It refers to the fact that both \(\mu_i\) and \(\delta_t\) are allowed to be cor
 This is in contrast to the \emph{random effects model} where \(\mu_i\) and \(\delta_t\) are assumed to be independent of the regressors of interest.
 \end{remark}
 
-\hypertarget{using-the-within-estimator}{%
-\paragraph{Using the Within estimator}\label{using-the-within-estimator}}
+\hypertarget{sec:Within}{%
+\paragraph{Using the Within estimator}\label{sec:Within}}
 
 You might have noticed that the Least-Squares Dummy Variables estimator took some time to compute on your computer.
 This is because it requires the inversion of a very large matrix, as large as the number of fixed effects plus one.
@@ -8144,8 +8144,8 @@ Let's see how this works.
 
 As expected, \texttt{plm} gives the following estimates for \(TT\): \(\hat{\beta}^{W}=\) 0.161, \(\hat{\beta}^{FD}=\) 0.161 and \(\hat{\beta}^{OLS}=\) 0.161.
 
-\hypertarget{using-fast-estimators-of-the-two-way-fixed-effects-model}{%
-\paragraph{Using fast estimators of the Two-Way Fixed Effects model}\label{using-fast-estimators-of-the-two-way-fixed-effects-model}}
+\hypertarget{sec:FastTWFE}{%
+\paragraph{Using fast estimators of the Two-Way Fixed Effects model}\label{sec:FastTWFE}}
 
 All the estimators of the TWFE model that we have seen so far have issues.
 The OLS pooling DID estimator does not account for the panel structure of the data when it exists.
@@ -8253,16 +8253,16 @@ This is not going to be the case with panel data, since all the estimators based
 
 \textbf{Derive the distribution of the estimators with repeated cross sections and panels}
 
-\hypertarget{reverse-difference-in-differences-designs-with-two-time-periods}{%
-\subsection{Reverse Difference In Differences designs with two time periods}\label{reverse-difference-in-differences-designs-with-two-time-periods}}
+\hypertarget{sec:DIDr}{%
+\subsection{Reverse Difference In Differences designs with two time periods}\label{sec:DIDr}}
 
 Before getting into the general case of DID with several time periods and several treatment dates, it is useful to quickly look at identification in the case of reverse DID designs.
 We are going to look at two such designs.
 In the first type, some units are exposed to the treatment in the first period and the rest of the units enter the treatment in the second period.
 In the second type of reverse DID design, all units receive the treatment in the first period and some units exit the treatment in the second period.
 
-\hypertarget{reverse-did-designs-where-everyone-enters-the-treatment-at-the-second-period}{%
-\subsubsection{Reverse DID designs where everyone enters the treatment at the second period}\label{reverse-did-designs-where-everyone-enters-the-treatment-at-the-second-period}}
+\hypertarget{sec:DIDr2}{%
+\subsubsection{Reverse DID designs where everyone enters the treatment at the second period}\label{sec:DIDr2}}
 
 Compared to the setting in the previous section, the main change is to Assumption \ref{hyp:NoTreatmentFirst}:
 
@@ -8582,14 +8582,13 @@ Assumptions \ref{hyp:ParallelTrends}, \ref{hyp:ParallelTrendsy1} and \ref{hyp:Pa
 The following lemma does the job:
 \end{remark}
 
-\begin{lemma}[Bias of the DIDr estimator]
-\protect\hypertarget{lem:BiasDIDr}{}{\label{lem:BiasDIDr} \iffalse (Bias of the DIDr estimator) \fi{} }Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects} and \ref{hyp:ParallelTrends}, the \(DID^r\) estimator is biased for the average effect of the Treatment on the switchers before and after the treatment:
+\begin{theorem}[Bias of the DIDr estimator]
+\protect\hypertarget{thm:BiasDIDr}{}{\label{thm:BiasDIDr} \iffalse (Bias of the DIDr estimator) \fi{} }Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects} and \ref{hyp:ParallelTrends}, the \(DID^r\) estimator is biased for the average effect of the Treatment on the switchers before and after the treatment:
 
 \begin{align*}
     \Delta_{DID^r}^{Y} & =  \Delta^{Y_B}_{TUT}+B^{Y_B}_{DID^r} \\
     \Delta_{DID^r}^{Y} & =  \Delta^{Y_A}_{TUT}+B^{Y_A}_{DID^r} 
 \end{align*}
-\end{lemma}
 
 with:
 
@@ -8597,6 +8596,7 @@ with:
     B^{Y_B}_{DID^r} & =  \Delta^{Y_A}_{TUT}-\Delta^{Y_B}_{TUT}-(\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT})\\
     B^{Y_A}_{DID^r} & = -(\Delta^{Y_A}_{TT}-\Delta^{Y_B}_{TT}). 
 \end{align*}
+\end{theorem}
 
 \begin{proof}
 \iffalse{} {Proof. } \fi{}\begin{align*}
@@ -8624,7 +8624,7 @@ where the second equality follows from Assumptions \ref{hyp:NoTreatmentFirst} an
 where the second equality follows from Assumptions \ref{hyp:NoTreatmentFirst} and \ref{hyp:NoAnticipationEffects} and the switching equation, and the fourth equality follows from Assumption \ref{hyp:ParallelTrends}.
 \end{proof}
 
-Lemma \ref{lem:BiasDIDr} helps to make sense of Figure \ref{fig:PlotDIDRev2nd}.
+Theorem \ref{thm:BiasDIDr} helps to make sense of Figure \ref{fig:PlotDIDRev2nd}.
 The bias of the \(DID^r\) estimator for the average effect of the treatment on the \emph{switchers} in the second period is equal to the opposite of the change in treatment effects for the \emph{always treated} between the first and the second period.
 This means that if the effect of the treatment increases over time for the \emph{always takers}, the \(DID^r\) estimator will be biased negatively.
 If this negative bias is sufficiently large, it can make an altogether positive treatment effect (both on \emph{switchers} and \emph{always takers} at every period) look negative.
@@ -8632,13 +8632,13 @@ This is a very serious problem and the main reason why you want to be very caref
 This is actually what happens in Figure \ref{fig:PlotDIDRev2nd}: the change in treatment effect over time among the \emph{always treated} is very large (it is equal to 0.37) while the treatment effect is only equal to 0.3.
 As a consequence, the \(DID^r\) estimator is equal to -0.11 whereas every average treatment effect is positive: \(\hat{\Delta}^{y_A}_{TT}=\) 0.54 \(\hat{\Delta}^{y_B}_{TT}=\) 0.17, \(\hat{\Delta}^{y_A}_{TUT}=\) 0.3 and \(\hat{\Delta}^{y_B}_{TUT}=\) 0.17.
 
-Lemma \ref{lem:BiasDIDr} also explains why the \(DID^r\) estimator is biased for the effect of the treatment in the first period.
+Theorem \ref{thm:BiasDIDr} also explains why the \(DID^r\) estimator is biased for the effect of the treatment in the first period.
 This is because the effect of the treatment changes differently over time among \emph{switchers} and among \emph{always takers}.
 On Figure \ref{fig:PlotDIDRev2nd}, the average treatment effect on \emph{switchers} increases by 0.12, and it is not approximated well by the change in treatment effect among the \emph{always takers} (0.37).
 As a consequence, the \(DID^r\) estimator is equal to -0.11 while the average effect of the treatment on the \emph{switchers} in the first period is equal to: \(\hat{\Delta}^{y_B}_{TUT}=\) 0.17.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Let us now explore how the way Lemma \ref{lem:BiasDIDr} plays out in our data.
+\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Let us now explore how the way Theorem \ref{thm:BiasDIDr} plays out in our data.
 For that, we are going to first switch off the change in treatment effects that is specific to the \emph{always takers} in the second period.
 As a case in point, we are going to set \(\bar{\alpha}_{AT}=0\).
 \end{example}
@@ -8735,12 +8735,12 @@ First, the \(DID^r\) estimator is equal to 0.19, while the effect of the treatme
 So now, the bias of the \(DID^r\) is not so large as to make it reverse signs with respect to the true effect of the treatment.
 It is actually almost zero for the effect on the \emph{switchers} in the first period (\(\hat{B}^{Y_B}_{DID^r}=\) 0.01).
 This is because the condition for \(DID^r\) to capture the effect of the treatment on \emph{switchers} in the first period is almost fulfilled in the data.
-Lemma \ref{lem:BiasDIDr} shows that this bias is equal to the difference in the change in teatment effect over time between the \emph{switchers} and the \emph{always takers}.
+Theorem \ref{thm:BiasDIDr} shows that this bias is equal to the difference in the change in teatment effect over time between the \emph{switchers} and the \emph{always takers}.
 The change in treatment effect for the \emph{switchers} is equal to \(\hat{\Delta}^{Y_A}_{TUT}-\hat\Delta^{Y_B}_{TUT}=\) 0.12 and the change in treatment effect for the \emph{always takers} is equal to \(\hat{\Delta}^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\) 0.07.
 They are almost equal which makes \(DID^r\) almost unbiased for the effect of the treatment on \emph{switchers} in the first period.
 
 On the contrary, the condition for \(DID^r\) to capture the effect of the treatment on the \emph{switchers} in the second period is not fulfilled in the data, not even almost.
-Lemma \ref{lem:BiasDIDr} shows that the condition for \(DID^r\) to capture the effect of the treatment on the \emph{switchers} in the second period is that the treatment effect on \emph{always takers} be constant over time.
+Theorem \ref{thm:BiasDIDr} shows that the condition for \(DID^r\) to capture the effect of the treatment on the \emph{switchers} in the second period is that the treatment effect on \emph{always takers} be constant over time.
 This is unfortunately not the case in this data, since \(\hat{\Delta}^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\) 0.07.
 The bias of the \(DID^r\) estimator is thus large (and negative) for \(\hat{\Delta}^{Y_A}_{TUT}\): \(\hat{B}^{Y_A}_{DID^r}=\) -0.11.
 
@@ -8750,7 +8750,7 @@ The reasons why are left as an exercise.
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let us finally explore the last condition in Lemma \ref{lem:BiasDIDr} that makes \(DID^r\) unbiased for \(\Delta^{Y_A}_{TUT}\), the effect of the treatment on \emph{switchers} in the second period.
+\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let us finally explore the last condition in Theorem \ref{thm:BiasDIDr} that makes \(DID^r\) unbiased for \(\Delta^{Y_A}_{TUT}\), the effect of the treatment on \emph{switchers} in the second period.
 We are going to switch off the change in treatment effects that occurs over time in both groups: we are going to set \(\bar{\alpha}_{A}=\bar{\alpha}_{B}=0.1\).
 \end{example}
 
@@ -9375,15 +9375,19 @@ Before going through an example to illustrate all of these notions, let me intro
 
 Estimation of the various DID estimators that we have defined in the previous section can take several forms.
 The simplest form estimates the separate individual DID components using the methods seen in Section \ref{DIDbasic}, and then manually computes their weighted averages.
+I will detail this approach first.
+A very similar approach uses the estimates obtained with one reference period (in general \(\tau'=1\)) and combines them to obtain one treatment effect or a series of treatment effects around the treatment date.
 This approach has been proposed by \href{https://www.sciencedirect.com/science/article/pii/S030440762030378X}{Sun and Abraham (2021)} and by \href{https://www.sciencedirect.com/science/article/pii/S0304407620303948}{Callaway and Sant'Anna (2021)}.
 A more intricate approach uses an imputation model to derive the predicted counterfactual values for all treated observations and then averages them.
-This approach has been proposed by \href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)}.
-\href{https://www.aeaweb.org/articles?id=10.1257/aer.20181169}{de Chaisemartin and d'Haultfoeuille} propose to only use changes that occur around the treatment date.
-Finally, one could use the Two Way Fixed Effects model presented in Section \ref{DIDbasic}, combining all the time periods in a single estimator.
-Recent work by \href{https://www.sciencedirect.com/science/article/pii/S0304407621001445}{Goodman-Bacon} has shown that this approach is only valid under much more restrictive assumptions than the ones stated in Corollary \ref{cor:IdentDIDAgg}.
+This approach has been proposed by \href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)}, \href{http://arxiv.org/abs/2107.00856}{Liu, Wang and Xu (2021)} and \href{https://jrgcmu.github.io/2sdd_current.pdf}{Gardner (2021)}.
+\href{https://www.aeaweb.org/articles?id=10.1257/aer.20181169}{de Chaisemartin and d'Haultfoeuille (2020)} propose to only use changes that occur around the treatment date.
+Finally, one could use the Two Way Fixed Effects model presented in Section \ref{sec:DIDbasic}, combining all the time periods in a single estimator.
+Recent work by \href{https://www.sciencedirect.com/science/article/pii/S0304407621001445}{Goodman-Bacon (2021)} has shown that this approach is only valid under much more restrictive assumptions than the ones stated in Corollary \ref{cor:IdentDIDAgg}.
 The main reason for why is that the Two Way Fixed Effects estimator combines individual DID and \(DID^r\) estimates, thereby generating strong biases if the assumptions that ensure the validity of \(DID^r\) are not valid.
 An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
-It has been proposed by \href{https://academic.oup.com/qje/article/134/3/1405/5484905}{Cengiz, Dube, Lindner and Zipperer (2019)} and extended by \href{https://jrgcmu.github.io/2sdd_current.pdf}{Gardner (2021)} who also proposes an imputation estimator \emph{à la} Borusyak, Jaravel and Speiss.
+It has been proposed by \href{https://academic.oup.com/qje/article/134/3/1405/5484905}{Cengiz, Dube, Lindner and Zipperer (2019)} and extended by \href{https://jrgcmu.github.io/2sdd_current.pdf}{Gardner (2021)}.
+The \texttt{R} packages required to implement all of these estimators are listed on \href{https://asjadnaqvi.github.io/DiD/docs/02_R/}{Asjad Naqvi's DID webpage}.
+We are going to see how they perform on our data.
 
 \hypertarget{IndivDID}{%
 \paragraph{Using weighted averages of individual DID estimators}\label{IndivDID}}
@@ -9423,7 +9427,7 @@ Let us now choose some parameter values:
            \DecValTok{0}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.2}\NormalTok{,}\FloatTok{0.3}\NormalTok{,}
            \FloatTok{0.05}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.15}\NormalTok{,}\FloatTok{0.2}\NormalTok{,}
            \FloatTok{0.25}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.05}\NormalTok{,}\DecValTok{0}\NormalTok{,}
-           \FloatTok{0.75}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.25}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}
+           \FloatTok{1.5}\NormalTok{,}\FloatTok{1.25}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.75}\NormalTok{,}
            \FloatTok{0.5}\NormalTok{,}\DecValTok{0}\NormalTok{,}\SpecialCharTok{{-}}\FloatTok{0.5}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}
            \FloatTok{0.1}\NormalTok{,}\FloatTok{0.28}\NormalTok{,}\DecValTok{0}\NormalTok{)}
 \FunctionTok{names}\NormalTok{(param) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"barmu"}\NormalTok{,}\StringTok{"sigma2mu"}\NormalTok{,}\StringTok{"sigma2U"}\NormalTok{,}\StringTok{"barY"}\NormalTok{,}\StringTok{"rho"}\NormalTok{,}
@@ -9628,14 +9632,18 @@ Let us now plot the results for the DID estimates on group \(2\) using \(\tau'=1
 Figure \ref{fig:PlotDIDStaggeredGroup2} shows the \(\hat\Delta^{Y}_{DID}(d,d',\tau,\tau')\) estimates for \(d=2\) and \(\tau'=1\), varying both \(\tau\) and \(d'\).
 The treatment effects estimated using different reference groups are similar to each other when we can compare them.
 Moreover, the treatment effect grows with time, as expected from Figure \ref{fig:PlotDIDStaggered}.
-The true effects of the treatment on group 2 are, in our sample: \(\hat\Delta^{Y_{0}}_{TT_2}=\) 0.31, \(\hat\Delta^{Y_{1}}_{TT_2}=\) 0.81 and \(\hat\Delta^{Y_{2}}_{TT_2}=\) 1.36.
+The true effects of the treatment on group 2 are, in our sample: \(\hat\Delta^{Y_{0}}_{TT_2}=\) 0.31, \(\hat\Delta^{Y_{1}}_{TT_2}=\) 1.56 and \(\hat\Delta^{Y_{2}}_{TT_2}=\) 2.86.
 These are very close to our DID estimates.
 For example, \(\hat\Delta^{Y}_{DID}(2,99,0,1)=\) 0.37, while \(\hat\Delta^{Y}_{DID}(2,4,0,1)=\) 0.31 and \(\hat\Delta^{Y}_{DID}(2,3,0,1)=\) 0.3, which are all pretty close to \(\hat\Delta^{Y_{0}}_{TT_2}=\) 0.31.
-\(\hat\Delta^{Y}_{DID}(2,99,1,1)=\) 0.9, while \(\hat\Delta^{Y}_{DID}(2,4,1,1)=\) 0.82, which are also all pretty close to \(\hat\Delta^{Y_{1}}_{TT_2}=\) 0.81.
-Finally, \(\hat\Delta^{Y}_{DID}(2,99,2,1)=\) 1.49, while \(\hat\Delta^{Y_{2}}_{TT_2}=\) 1.36.
+\(\hat\Delta^{Y}_{DID}(2,99,1,1)=\) 1.65, while \(\hat\Delta^{Y}_{DID}(2,4,1,1)=\) 1.57, which are also all pretty close to \(\hat\Delta^{Y_{1}}_{TT_2}=\) 1.56.
+Finally, \(\hat\Delta^{Y}_{DID}(2,99,2,1)=\) 2.99, while \(\hat\Delta^{Y_{2}}_{TT_2}=\) 2.86.
 
 In order to aggregate the estimates presented in Figure \ref{fig:PlotDIDStaggeredGroup2}, we could for example use the proportion of each comparison group in the sample and average the treatment effects for each post treatment period \(\tau\) with these weights.
 We can do the same thing with groups 3 and 4 and see what happens.
+Note that with these two groups, I can also estimate a placebo test: that is the effect of the treatment before the treatment takes place.
+Such event study estimates have become standard in the DID literature.
+I will expand on these tests in Section \ref{sec:placebo}.
+For group 3, I can estimate the effect for \(\tau\in\{-2,0,1\}\) and for group 4, for \(\tau\in\{-3,-2,0\}\), when the benchmark group is the \emph{never treated} group.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -9643,11 +9651,11 @@ We can do the same thing with groups 3 and 4 and see what happens.
 \CommentTok{\# Run the regression and keep results}
 \CommentTok{\# D=99 as benchmark}
 \CommentTok{\# list of tau for d=3 and dprime=99 and tauprime=1}
-\NormalTok{tau.}\FloatTok{3.99} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\NormalTok{tau.}\FloatTok{3.99} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
 \NormalTok{DID.}\DecValTok{3}\NormalTok{.}\FloatTok{99.1} \OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(tau.}\FloatTok{3.99}\NormalTok{,StaggeredDID22,}\AttributeTok{y=}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{,}\AttributeTok{D=}\StringTok{\textquotesingle{}Ds\textquotesingle{}}\NormalTok{,}\AttributeTok{d=}\DecValTok{3}\NormalTok{,}\AttributeTok{dprime=}\DecValTok{99}\NormalTok{,}\AttributeTok{tauprime=}\DecValTok{1}\NormalTok{,}\AttributeTok{t=}\StringTok{"time"}\NormalTok{,}\AttributeTok{i=}\StringTok{"id"}\NormalTok{,}\AttributeTok{data=}\NormalTok{data) }
 \CommentTok{\# D=4 as a benchmark }
 \CommentTok{\# list of tau for d=3 and dprime=4 and tauprime=1}
-\NormalTok{tau.}\FloatTok{3.4} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{)}
+\NormalTok{tau.}\FloatTok{3.4} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{)}
 \NormalTok{DID.}\DecValTok{3}\NormalTok{.}\FloatTok{4.1} \OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(tau.}\FloatTok{3.4}\NormalTok{,StaggeredDID22,}\AttributeTok{y=}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{,}\AttributeTok{D=}\StringTok{\textquotesingle{}Ds\textquotesingle{}}\NormalTok{,}\AttributeTok{d=}\DecValTok{3}\NormalTok{,}\AttributeTok{dprime=}\DecValTok{4}\NormalTok{,}\AttributeTok{tauprime=}\DecValTok{1}\NormalTok{,}\AttributeTok{t=}\StringTok{"time"}\NormalTok{,}\AttributeTok{i=}\StringTok{"id"}\NormalTok{,}\AttributeTok{data=}\NormalTok{data) }
 
 \CommentTok{\# regroup results}
@@ -9661,7 +9669,7 @@ We can do the same thing with groups 3 and 4 and see what happens.
 \CommentTok{\# Run the regression and keep results}
 \CommentTok{\# D=99 as benchmark}
 \CommentTok{\# list of tau for d=4 and dprime=99 and tauprime=1}
-\NormalTok{tau.}\FloatTok{4.99} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{)}
+\NormalTok{tau.}\FloatTok{4.99} \OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{)}
 \NormalTok{DID.}\DecValTok{4}\NormalTok{.}\FloatTok{99.1} \OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(tau.}\FloatTok{4.99}\NormalTok{,StaggeredDID22,}\AttributeTok{y=}\StringTok{\textquotesingle{}y\textquotesingle{}}\NormalTok{,}\AttributeTok{D=}\StringTok{\textquotesingle{}Ds\textquotesingle{}}\NormalTok{,}\AttributeTok{d=}\DecValTok{4}\NormalTok{,}\AttributeTok{dprime=}\DecValTok{99}\NormalTok{,}\AttributeTok{tauprime=}\DecValTok{1}\NormalTok{,}\AttributeTok{t=}\StringTok{"time"}\NormalTok{,}\AttributeTok{i=}\StringTok{"id"}\NormalTok{,}\AttributeTok{data=}\NormalTok{data) }
 
 \CommentTok{\# true effects (in the sample)}
@@ -9688,7 +9696,7 @@ We can do the same thing with groups 3 and 4 and see what happens.
 \NormalTok{DID}\FloatTok{.1} \OtherTok{\textless{}{-}}\NormalTok{ DID}\FloatTok{.1} \SpecialCharTok{\%\textgreater{}\%}
           \FunctionTok{left\_join}\NormalTok{(prop.groups.DID,}\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"dprime"}\NormalTok{))}
 
-\CommentTok{\# generating the weighted averages by tau}
+\CommentTok{\# generating the weighted averages by tau }
 \NormalTok{DID.tau }\OtherTok{\textless{}{-}}\NormalTok{ DID}\FloatTok{.1} \SpecialCharTok{\%\textgreater{}\%}
             \FunctionTok{mutate}\NormalTok{(}
               \AttributeTok{w.ATT =}\NormalTok{ prop.group}\SpecialCharTok{*}\NormalTok{DIDest}
@@ -9704,7 +9712,14 @@ We can do the same thing with groups 3 and 4 and see what happens.
             \FunctionTok{select}\NormalTok{(d,tau,ATT.tau) }\SpecialCharTok{\%\textgreater{}\%}
             \FunctionTok{mutate}\NormalTok{(}
               \AttributeTok{d=}\FunctionTok{factor}\NormalTok{(d,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"2"}\NormalTok{,}\StringTok{"3"}\NormalTok{,}\StringTok{"4"}\NormalTok{))}
-\NormalTok{            )}
+\NormalTok{            ) }
+
+\CommentTok{\# adding the reference period}
+\NormalTok{DID.ref }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{rbind}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}\FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}\FunctionTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)))}
+\FunctionTok{colnames}\NormalTok{(DID.ref) }\OtherTok{\textless{}{-}} \FunctionTok{colnames}\NormalTok{(DID.tau)}
+\NormalTok{DID.ref}\SpecialCharTok{$}\NormalTok{d }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(DID.ref}\SpecialCharTok{$}\NormalTok{d,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"2"}\NormalTok{,}\StringTok{"3"}\NormalTok{,}\StringTok{"4"}\NormalTok{))}
+
+\NormalTok{DID.tau }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(DID.tau,DID.ref)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -9717,7 +9732,7 @@ Let us now plot the results for the DID estimates in groups \(2\), \(3\) and \(4
     \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
     \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
     \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time after treatment (tau)"}\NormalTok{) }\SpecialCharTok{+}
-    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
     \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
     \FunctionTok{scale\_colour\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
     \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
@@ -9737,15 +9752,15 @@ Let us now plot the results for the DID estimates in groups \(2\), \(3\) and \(4
 On Figure \ref{fig:PlotDIDStaggeredGroups}, we can see that all the estimators are comparable for each other at each time period \(\tau\), no matter the treatment group.
 We thus can aggregate the impacts at each period \(\tau\) across all treatment groups.
 There are two ways to do that: one is to use all the groups for which we observe the effect of the treatment at period \(\tau\).
-The drawback of this approach is that group composoition changes with \(\tau\).
+The drawback of this approach is that group composition changes with \(\tau\).
 For example, on Figure \ref{fig:PlotDIDStaggeredGroups}, we can see that the treatment group treated in the last period (for which \(D_i=4\)) contributes only to the computation of the effect of the treatment at period \(\tau=0\).
 This is because we cannot observe what happens to this group in later periods with our dataset.
 As a consequence, in period \(\tau=0\), all three groups--\(D_i=2\), \(D_i=3\) and \(D_i=4\)--contribute to the estimation of the effect of the treatment, whereas only groups with \(D_i=2\) and \(D_i=3\) contribute to the estimation of the effect at \(\tau=1\), and only \(D_i=2\) contributes to estimating the effect at \(\tau=2\).
 If treatment effects were heterogeneous across treatment groups, this change in group composition would confound actual changes in the magnitude of treatment effects.
 Since the effect of the treatment is rather homogenous across groups, this group comopsition problem will not matter in our application.
-Nevetheless, we are still going to estimate the effect of the treatment at \(\tau=0\) and \(\tau=1\) maintaining group composition constant (\(D_i=2\) and \(D_i=3\)).
+Nevertheless, we are still going to estimate the effect of the treatment at \(\tau=0\) and \(\tau=1\) maintaining group composition constant (\(D_i=2\) and \(D_i=3\)).
 In our application, both approaches will yield very similar results.
-The weigths we are going to use for our aggregation are the proportions of units belonging to each group.
+The weights we are going to use for our aggregation are the proportions of units belonging to each group.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -9799,7 +9814,7 @@ The weigths we are going to use for our aggregation are the proportions of units
 \end{Highlighting}
 \end{Shaded}
 
-Let's pot the resulting estimates.
+Let's plot the resulting estimates.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -9808,7 +9823,7 @@ Let's pot the resulting estimates.
     \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
     \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
     \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time after treatment (tau)"}\NormalTok{) }\SpecialCharTok{+}
-    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
     \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
     \FunctionTok{scale\_colour\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Group}\SpecialCharTok{\textbackslash{}n}\StringTok{composition"}\NormalTok{)}\SpecialCharTok{+}
     \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Group}\SpecialCharTok{\textbackslash{}n}\StringTok{composition"}\NormalTok{)}\SpecialCharTok{+}
@@ -9827,6 +9842,52 @@ Let's pot the resulting estimates.
 
 As expected, Figure \ref{fig:PlotDIDStaggeredAgg} confirms that group composition does not play an important role in treatment effect heterogeneity: there actually is a true heterogeneity along the time dimension: the treatment effect seems to increase linearly over time (as we suspected it would, since we parameterized our model just like it).
 
+Another plot that might prove very helpful is the one combining the aggregated estimates obtained in Figure \ref{fig:PlotDIDStaggeredAgg} with the estimates obtained on each subgroup.
+This plot helps understand the source of heterogeneity in the profile of the aggregated treatment effects by attributing it to true treatment effect heterogeneity or to changes in group composition.
+Let's go:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# building the dataset}
+\NormalTok{DID.tau.agg.tot.inter }\OtherTok{\textless{}{-}}\NormalTok{ DID.tau.agg.tot }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{filter}\NormalTok{(Composition}\SpecialCharTok{==}\StringTok{"Varying"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{select}\NormalTok{(tau,ATT.tau.agg) }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{rename}\NormalTok{(}
+                      \AttributeTok{ATT.tau=}\NormalTok{ATT.tau.agg}
+\NormalTok{                    ) }\SpecialCharTok{\%\textgreater{}\%}
+                    \FunctionTok{mutate}\NormalTok{(}
+                      \AttributeTok{d =} \StringTok{"Aggregate"}\NormalTok{,}
+                      \AttributeTok{prop.group=}\DecValTok{0}
+\NormalTok{                    )}
+
+\NormalTok{DID.tau }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(DID.tau,DID.tau.agg.tot.inter) }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{mutate}\NormalTok{(}
+              \AttributeTok{d=}\FunctionTok{factor}\NormalTok{(d,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"2"}\NormalTok{,}\StringTok{"3"}\NormalTok{,}\StringTok{"4"}\NormalTok{,}\StringTok{"Aggregate"}\NormalTok{))}
+\NormalTok{            )}
+
+\CommentTok{\# plotting the result}
+\FunctionTok{ggplot}\NormalTok{(DID.tau,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{tau,}\AttributeTok{y=}\NormalTok{ATT.tau,}\AttributeTok{colour=}\NormalTok{d,}\AttributeTok{linetype=}\NormalTok{d))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time after treatment (tau)"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Group}\SpecialCharTok{\textbackslash{}n}\StringTok{composition"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Group}\SpecialCharTok{\textbackslash{}n}\StringTok{composition"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStaggeredAll-1} 
+
+}
+
+\caption{DID estimates at various time periods after the treament aggregated across all treatment groups (reference period $\tau'=1$)}\label{fig:PlotDIDStaggeredAll}
+\end{figure}
+
 Finally, let us aggregate all treatment effects from all periods into one unique estimate.
 It is not an easy feat, especially in our current example which exhibits lots of treatment effect heterogeneity over \(\tau\).
 Should we simply aggregate all treatment effect estimates using equal weights for each period \(\tau\) or, rather, should we try to reflect the actual composition of treated groups and time periods in the sample?
@@ -9837,7 +9898,7 @@ Let's see what happens with both approaches.
 \begin{Highlighting}[]
 \CommentTok{\# aggregating by weighing equally each time period tau}
 \NormalTok{ATT.equal }\OtherTok{\textless{}{-}}\NormalTok{ DID.tau.agg.tot }\SpecialCharTok{\%\textgreater{}\%}
-                \FunctionTok{filter}\NormalTok{(Composition}\SpecialCharTok{==}\StringTok{"Varying"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+                \FunctionTok{filter}\NormalTok{(Composition}\SpecialCharTok{==}\StringTok{"Varying"}\NormalTok{,tau}\SpecialCharTok{\textgreater{}=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
                 \FunctionTok{summarize}\NormalTok{(}
                   \AttributeTok{ATT.equal =} \FunctionTok{mean}\NormalTok{(ATT.tau.agg)}
 \NormalTok{                ) }\SpecialCharTok{\%\textgreater{}\%}
@@ -9846,6 +9907,7 @@ Let's see what happens with both approaches.
 \CommentTok{\# aggregating by weighing as a proportion of time spent by each group in the treatment state }
 \NormalTok{ATT.varying }\OtherTok{\textless{}{-}}\NormalTok{ DID.tau }\SpecialCharTok{\%\textgreater{}\%}
             \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+            \FunctionTok{filter}\NormalTok{(d}\SpecialCharTok{!=}\StringTok{"Aggregate"}\NormalTok{,tau}\SpecialCharTok{\textgreater{}=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
             \FunctionTok{mutate}\NormalTok{(}
               \AttributeTok{w.ATT =}\NormalTok{ prop.group}\SpecialCharTok{*}\NormalTok{ATT.tau}
 \NormalTok{            ) }\SpecialCharTok{\%\textgreater{}\%}
@@ -9860,8 +9922,8 @@ Let's see what happens with both approaches.
 \end{Highlighting}
 \end{Shaded}
 
-The average effect of the treatment, giving equal weight to each time period \(\tau\in\{0,1,2\}\), is equal to \(\hat\Delta^{Y}_{TT}(e)=\) 0.84, where \(e\) stands for ``equal'' weights.
-The average effect of the treatment, giving weights proportional to group composition and time spent in the treatment is equal to \(\hat\Delta^{Y}_{TT}(v)=\) 0.61, where \(v\) stands for ``varying'' weights.
+The average effect of the treatment, giving equal weight to each time period \(\tau\in\{0,1,2\}\), is equal to \(\hat\Delta^{Y}_{TT}(e)=\) 1.59, where \(e\) stands for ``equal'' weights.
+The average effect of the treatment, giving weights proportional to group composition and time spent in the treatment is equal to \(\hat\Delta^{Y}_{TT}(v)=\) 1.06, where \(v\) stands for ``varying'' weights.
 
 \hypertarget{direct-weighting-using-one-reference-period-and-one-reference-group-sun-and-abraham}{%
 \paragraph{Direct weighting using one reference period and one reference group (Sun and Abraham)}\label{direct-weighting-using-one-reference-period-and-one-reference-group-sun-and-abraham}}
@@ -9870,8 +9932,8 @@ OK, so now, we know how to compute the various DID estimators by hand and how to
 Is there a way to obtain directly an aggregated estimate with an R package?
 Yes, actually, plenty of such estimator exist.
 They are listed on \href{https://asjadnaqvi.github.io/DiD/docs/02_R/}{Asjad Naqvi's DID webpage}.
-Let's start with the ones implementing the \href{https://www.sciencedirect.com/science/article/pii/S030440762030378X}{Sun and Abraham (2021)} estimator.
-\href{https://www.sciencedirect.com/science/article/pii/S030440762030378X}{Sun and Abraham (2021)}'s estimator start with estimating a Two Way Fixed Effect model with a rich dynamic specification:
+Let's start with the ones implementing the \href{https://doi.org/10.1016/j.jeconom.2020.09.006}{Sun and Abraham (2021)} estimator.
+\href{https://doi.org/10.1016/j.jeconom.2020.09.006}{Sun and Abraham (2021)}'s estimator start with estimating a Two Way Fixed Effect model with a rich dynamic specification:
 
 \begin{align*}
     Y_{i,t} &  = \mu_i + \delta_t + \sum_{d=2}^T\sum_{\tau\neq-1}\beta_{d,\tau}^{SA}\uns{D_{i}=d \land t=d+\tau}  + \epsilon^{SA}_{i,t},
@@ -9879,9 +9941,12 @@ Let's start with the ones implementing the \href{https://www.sciencedirect.com/s
 
 on the sample excluding the always treated individuals (\(D_i=1\)).
 In order to be consistent with previous estimators, we are going to start using the \texttt{fixest} package to obtain our estimator.
-In order to be able to estimate \href{https://www.sciencedirect.com/science/article/pii/S030440762030378X}{Sun and Abraham (2021)}'s estimator with \texttt{fixest}, we simply are going to add a \texttt{sunab(d,t)} term to the \texttt{feols} command, with the first term giving the treatment group and the second term the time fixed effect.
+In order to be able to estimate \href{https://doi.org/10.1016/j.jeconom.2020.09.006}{Sun and Abraham (2021)}'s estimator with \texttt{fixest}, we simply are going to add a \texttt{sunab(d,t)} term to the \texttt{feols} command, with the first term giving the treatment group and the second term the time fixed effect.
 We then can aggregate the estimated terms using \texttt{regexp} in order to detect the string patterns.
-Let's go:
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-208}{}{\label{exm:unnamed-chunk-208} }Let's go:
+\end{example}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -10036,16 +10101,29 @@ As a result, some dynamic changes in treatment effects might be driven by change
 This is the case in Figure \ref{fig:PlotDIDStaggeredDisAgg} between periods 1 and 2 where the acceleration in the growth of the aggregated treatment effect is due to the disappearance of group 3, which has a lower speed of increase of its average treatment effect, at period 2.
 As it is always tricky to interpret the aggregated result, I suggest to always plot the disaggregated results on the same graph, as in Figure \ref{fig:PlotDIDStaggeredDisAgg}.
 
+Let us finally compute the aggregated effect:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ATT.agg.SA }\OtherTok{\textless{}{-}} \FunctionTok{aggregate}\NormalTok{(reg.fixest.SA.Agg, }\FunctionTok{c}\NormalTok{(}\StringTok{"ATT"} \OtherTok{=} \StringTok{"time::[\^{}{-}]"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+The aggregated effect estimated using the Sun and Abraham approach as implemented in \texttt{fixest} is equal to 1.07 \(\pm\) 0.04
+
 \hypertarget{direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna}{%
 \paragraph{Direct weighting using one reference period and one reference group (Callaway and Sant'Anna)}\label{direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna}}
 
 \href{https://www.sciencedirect.com/science/article/pii/S0304407620303948}{Callaway and Sant'Anna (2021)} propose an alternative estimator to the one proposed by Sun and Abraham.
 They suggest using a doubly robust matching estimator to condition on observed covariates.
-We are only going to encouter these estimators in Section \ref(OM).
+We are only going to encouter these estimators in Section \ref{sec:OM}.
 In the absence of covariates, Callaway and Sant'Anna's estimator is equivalent to the Sun and Abraham estimator.
 Callaway and Sant'Anna have proposed the \texttt{did} package to implement their estimator.
 The main command is \texttt{att\_gt}, which computes all the estimates for each treatment group \(D_i=g\) and each time period \(t\).
-Let's see if we can make it work.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-209}{}{\label{exm:unnamed-chunk-209} }Let's see if we can make it work.
+\end{example}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -10118,20 +10196,33 @@ Let's plot the result:
 Figure \ref{fig:PlotDIDStaggeredDisAggCSA} shows a result that is very similar to the one obtained in Figure \ref{fig:PlotDIDStaggeredDisAgg} using Sun and Abraham's approch as implemented in \texttt{fixest}.
 The two approaches are indeed equivalent with the options that we have chosen.
 
+Let us finally compute the aggregated treatment effect:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ATT.agg.CSA }\OtherTok{\textless{}{-}} \FunctionTok{aggte}\NormalTok{(reg.CSA,}\AttributeTok{type=}\StringTok{"simple"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The aggregated effect estimated using the Sun and Abraham appraoch as implemented in \texttt{fixest} is equal to 1.07 \(\pm\) 0.06.
+
 \hypertarget{de-chaisemartin-and-dhaultfoeuille}{%
 \paragraph{De Chaisemartin and d'Haultfoeuille}\label{de-chaisemartin-and-dhaultfoeuille}}
 
 de Chaisemartin et d'Haultfoeuille propose two ways to deal with DID with differences in treatment timing.
-In de Chaisemartin et d'Haultfoeuille (2021a), they propose to estimate the effect of the treatment using only the periods where a change in treatment status occurs, by comparing the treated to the not yet treated at the same time periods.
-In de Chaisemartin et d'Haultfoeuille (2021b), they propose to estimate the dynamic effect of the treatment using a discounted sum of treatment effects over time.
-In its simplest form, with staggered designs, a discrete treatment and no covariates, de Chaisemartin et d'Haultfoeuille (2021b)'s estimator is equivalent to that of Sun and Abraham or Callaway and Sant'Anna.
+In \href{https://www.aeaweb.org/articles?id=10.1257/aer.20181169}{de Chaisemartin and d'Haultfoeuille (2020)}, they propose to estimate the effect of the treatment using only the periods where a change in treatment status occurs, by comparing the treated to the not yet treated at the same time periods.
+In \href{https://arxiv.org/abs/2007.04267}{de Chaisemartin et d'Haultfoeuille (2021)}, they propose to estimate the dynamic effect of the treatment using a discounted sum of treatment effects over time.
+In its simplest form, with staggered designs, a discrete treatment and no covariates, \href{https://arxiv.org/abs/2007.04267}{de Chaisemartin et d'Haultfoeuille (2021)}'s estimator is equivalent to that of Sun and Abraham or Callaway and Sant'Anna.
 Both estimators have been implemented in the \texttt{DIDmutiplegt} package with the \texttt{did\_multiplegt} function.
-Let's see how it works.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }Let's see how it works.
+\end{example}
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# regression}
-\NormalTok{reg.dCdH }\OtherTok{\textless{}{-}} \FunctionTok{did\_multiplegt}\NormalTok{(}\AttributeTok{Y=}\StringTok{"y"}\NormalTok{,}\AttributeTok{T=}\StringTok{"time"}\NormalTok{,}\AttributeTok{G=}\StringTok{"id"}\NormalTok{,}\AttributeTok{D=}\StringTok{"D"}\NormalTok{,}\AttributeTok{df=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{placebo=}\DecValTok{3}\NormalTok{,}\AttributeTok{dynamic=}\DecValTok{3}\NormalTok{,}\AttributeTok{average\_effect=}\StringTok{"prop\_number°switchers"}\NormalTok{)}
+\NormalTok{reg.dCdH }\OtherTok{\textless{}{-}} \FunctionTok{did\_multiplegt}\NormalTok{(}\AttributeTok{Y=}\StringTok{"y"}\NormalTok{,}\AttributeTok{T=}\StringTok{"time"}\NormalTok{,}\AttributeTok{G=}\StringTok{"id"}\NormalTok{,}\AttributeTok{D=}\StringTok{"D"}\NormalTok{,}\AttributeTok{df=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{placebo=}\DecValTok{3}\NormalTok{,}\AttributeTok{dynamic=}\DecValTok{3}\NormalTok{,}\AttributeTok{average\_effect=}\StringTok{"prop\_number\_switchers"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -10171,13 +10262,16 @@ Let us now pot the results:
 Figure \ref{fig:PlotDIDStaggeredDisAggdCdH} shows that the profile estimated using de Chaisemartin and d'Haultfoeuille's aprproach is similar but distinct from the one estimated by the other authors.
 Why is still to be determined.
 
+Finally, the aggregate efect of the treatment as estimated by the \href{https://www.aeaweb.org/articles?id=10.1257/aer.20181169}{de Chaisemartin and d'Haultfoeuille (2020)} approach is equal to 0.3.
+I have been unable to obtain standard errors for this estimator for now.
+
 \hypertarget{imputation-methods-borusyak-jaravel-and-speiss}{%
 \paragraph{Imputation methods: Borusyak, Jaravel and Speiss}\label{imputation-methods-borusyak-jaravel-and-speiss}}
 
-Borusyak, Jaravel and Speiss (2021) adopt a very differnet framework from the previous ones.
+\href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)} adopt a very differnet framework from the previous ones.
 They do not build from the individual DID estimators \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\), but instead propose to estimate the individual level treatment effects \(\hat\Delta^Y_{i,t}\) and then to aggregate them as one wishes to.
-In order to build an estimate of the individual level treatment effects \(\hat\Delta^Y_{i,t}\), Borusyak, Jaravel and Speiss (2021) propose to use an imputation estimator, \(\hat Y^0_{i,t}\), which predicts the value of \(Y^0_{i,t}\) for each treated unit.
-Borusyak, Jaravel and Speiss (2021)'s imputation estimator works as follows:
+In order to build an estimate of the individual level treatment effects \(\hat\Delta^Y_{i,t}\), \href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)} propose to use an imputation estimator, \(\hat Y^0_{i,t}\), which predicts the value of \(Y^0_{i,t}\) for each treated unit.
+\href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)}'s imputation estimator works as follows:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -10264,7 +10358,10 @@ An open question is whether a weigthed average of the individual DID estimates, 
 How does Borusyak, Jaravel and Speiss (2021)'s imputation estimator work in practice?
 Thanks to the amazing \href{https://kylebutts.com/}{Kyle Butts}, we have a package that computes Borusyak, Jaravel and Speiss (2021)'s imputation estimator, \texttt{didimputation}.
 The command is \texttt{did\_imputation}.
-Let's see how it works.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-215}{}{\label{exm:unnamed-chunk-215} }Let's see how it works.
+\end{example}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -10313,19 +10410,948 @@ Let us now plot the results:
 
 As Figure \ref{fig:PlotDIDStaggeredDisAggdBJS} shows, the dynamic profile of the treatment effect estimated using Borusyak, Jaravel and Speiss's procedure is very similar to the one obtained using Sun and Abraham and Callaway and Sant'Anna.
 
+Let us finally estimate the average treatment effect on the treated using Borusyak, Jaravel and Speiss's procedure:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regression}
+\NormalTok{reg.BJS.Agg }\OtherTok{\textless{}{-}} \FunctionTok{did\_imputation}\NormalTok{(}\AttributeTok{yname=}\StringTok{"y"}\NormalTok{,}\AttributeTok{tname=}\StringTok{"time"}\NormalTok{,}\AttributeTok{idname=}\StringTok{"id"}\NormalTok{,}\AttributeTok{gname=}\StringTok{"Group"}\NormalTok{,}\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+The treatment effect estimated using Borusyak, Jaravel and Speiss's estimator is equal to 1.08 \(\pm\) 0.04.
+
 \hypertarget{imputation-methods-gardner}{%
 \paragraph{Imputation methods: Gardner}\label{imputation-methods-gardner}}
 
 \href{https://jrgcmu.github.io/}{Gardner (2021)} proposes a two stage estimator very similar to the one by Borusyak, Jaravel and Speiss (2021).
+Gardner writes outcomes for individual \(i\) at time \(t\) as follows, with group and time fixed effects:
 
-\textbf{How to combine estimates, even with only one reference period, when there are several estimates for the same treatment effect (\(\tau\))?}
-\textbf{We should focus on the most efficient estimator: I think that's Borusyak's point}
+\begin{align*}
+    Y_{i,t} &  = \sum_{d=1}^{\infty}\lambda_d\uns{D_i=d} + \sum_{l=1}^T\delta_l\uns{l=t} + \sum_{d=1}^{\infty}\sum_{l=1}^T\beta^G_{d,l}\uns{D_i=d}\uns{l=t} + \epsilon^{G}_{i,t},
+\end{align*}
 
-\hypertarget{two-way-fixed-effects-estimation-goodman-bacons-decomposition}{%
-\paragraph{Two-Way Fixed Effects estimation: Goodman-Bacon's decomposition}\label{two-way-fixed-effects-estimation-goodman-bacons-decomposition}}
+where the groups are defined by the date at which they start receiving the treatment.
+In practice, Gardner's estimator works as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Estimate the following model using OLS on the sample of observations for which \(D_{i,t}=0\) (which excludes all the currently treated):
+\end{enumerate}
+
+\begin{align*}
+    Y_{i,t} &  = \sum_{d=2}^{\infty}\lambda_d\uns{D_i=d} + \sum_{l=1}^T\delta_l\uns{l=t} + \epsilon^{G}_{i,t}
+\end{align*}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Regress the adjusted outcomes \(Y_{i,t}-\sum_{d=2}^{\infty}\hat\lambda_d\uns{D_i=d}-\sum_{l=1}^T\hat\delta_l\uns{l=t}\) on \(D_{i,t}\) and retain the coefficient \(\hat\beta^G\).
+  Note as well that one can also estimate the average effect of the treatment around each treatment date by regressing the adjusted outcomes on a set of dummies taking value one when observation \(i\) at period \(t\) is \(\tau\) periods from the treatment (here, we omit the dummy for the never treated group and for one reference period, in general \(\tau=-1\)).
+\end{enumerate}
+
+Gardner shows that the coefficient on \(D_{i,t}\) in the second stage of this procedure (\(\hat\beta^G\)) identifies the average effect of the treatment on the treated under the usual parallel trends assumptions: \(\beta^G=\esp{\Delta^Y_{i,t}|D_{i,t}=1}\), where \(\Delta^Y_{i,t}=Y^1_{i,t}-Y^0_{i,t}\).
+What is pretty great is that Gardner, together with Kyle Butts, have provided an \texttt{R} package in order to perform the estimation: \texttt{did2s}.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's see how it works in our example.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regression}
+\NormalTok{reg.Gardner }\OtherTok{\textless{}{-}} \FunctionTok{did2s}\NormalTok{(}\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{yname =} \StringTok{"y"}\NormalTok{, }\AttributeTok{first\_stage =} \SpecialCharTok{\textasciitilde{}} \DecValTok{0} \SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time,}\AttributeTok{second\_stage =} \SpecialCharTok{\textasciitilde{}}\FunctionTok{i}\NormalTok{(D, }\AttributeTok{ref=}\ConstantTok{FALSE}\NormalTok{), }\AttributeTok{treatment =} \StringTok{"D"}\NormalTok{,}\AttributeTok{cluster\_var =} \StringTok{"id"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The overall estimated treatment effect is 1.08 \(\pm\) 0.06.
+This seems valid enough.
+Now, \texttt{did2s} also provides a way to estimate the effect at each time period relative the treatment date (\emph{a.k.a.} the event study estimates).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# generating a TimeToTreatment variable}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{TimeToTreatment =} \FunctionTok{if\_else}\NormalTok{(}\FunctionTok{abs}\NormalTok{(time}\SpecialCharTok{{-}}\NormalTok{Ds)}\SpecialCharTok{\textless{}}\DecValTok{90}\NormalTok{,time}\SpecialCharTok{{-}}\NormalTok{Ds,}\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{)}
+\NormalTok{          )}
+
+\CommentTok{\# regression}
+\NormalTok{reg.Gardner.event.study }\OtherTok{\textless{}{-}} \FunctionTok{did2s}\NormalTok{(}\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{yname =} \StringTok{"y"}\NormalTok{, }\AttributeTok{first\_stage =} \SpecialCharTok{\textasciitilde{}} \DecValTok{0} \SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time,}\AttributeTok{second\_stage =} \SpecialCharTok{\textasciitilde{}}\FunctionTok{i}\NormalTok{(TimeToTreatment, }\AttributeTok{ref=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{)), }\AttributeTok{treatment =} \StringTok{"D"}\NormalTok{,}\AttributeTok{cluster\_var =} \StringTok{"id"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the results:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# putting results into a dataframe}
+\NormalTok{resultsGardnerEventStudy }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(}\FunctionTok{coef}\NormalTok{(reg.Gardner.event.study),}\FunctionTok{se}\NormalTok{(reg.Gardner.event.study)))}
+\FunctionTok{colnames}\NormalTok{(resultsGardnerEventStudy) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Coef\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Se\textquotesingle{}}\NormalTok{)}
+\CommentTok{\# adding the time to treatment variable}
+\NormalTok{resultsGardnerEventStudy }\OtherTok{\textless{}{-}}\NormalTok{ resultsGardnerEventStudy }\SpecialCharTok{\%\textgreater{}\%}
+                              \FunctionTok{mutate}\NormalTok{(}
+                                \AttributeTok{TimeToTreatment =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)}
+\NormalTok{                              )}
+\CommentTok{\# adding the reference period}
+\NormalTok{resultsGardnerEventStudy }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(resultsGardnerEventStudy,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{))}
+
+\CommentTok{\#plot}
+\FunctionTok{ggplot}\NormalTok{(resultsGardnerEventStudy,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDID2SEventStudy-1} 
+
+}
+
+\caption{DID estimates around the treatment date estimated using Gardner's procedure (reference period $\tau'=1$)}\label{fig:PlotDID2SEventStudy}
+\end{figure}
+
+\hypertarget{imputation-methods-liu-wang-and-xu}{%
+\paragraph{Imputation methods: Liu, Wang and Xu}\label{imputation-methods-liu-wang-and-xu}}
+
+\href{http://arxiv.org/abs/2107.00856}{Liu, Wang and Xu (2021)} also propose a series of imputation estimators, with some very similar to the ones proposed by Borusyak, Jaravel and Speiss and by Gardner.
+Their Proposition 1 is very close to Theorem \ref{thm:IdentDIDAggBJS}, albeit they do not prove that their estimator is the most efficient among linear estimators.
+They also propose an \texttt{R} package to estimate their estimators, \texttt{fect}.
+I will come back to this package later, in Section \ref{sec:OM}, since most of the estimators they propose try to relax the parallel trends assumption.
 
 \hypertarget{stacked-did}{%
 \paragraph{Stacked DID}\label{stacked-did}}
+
+The stacked DID approach has been proposed by \href{https://academic.oup.com/qje/article/134/3/1405/5484905}{Cengiz, Dube, Lindner and Zipperer (2019)} and extended by \href{https://jrgcmu.github.io/2sdd_current.pdf}{Gardner (2021)}.
+For stacked DID, one creates a dataset for each group defined by its date of treatment, with all observations treated at that date and the ones that are not yet treated, one then stacks all these datasets together, and estimates a two-way fixed effects model with time \(\times\) dataset specific fixed effects and individual fixed effects.
+Gardner's Appendix A show that this procedure yields a weighted average of group and time specific treatment effects, with weights that do not generally correspond to the ones of the ATT estimate, but that are positive and sum to one.
+One issue I have with this approach is that it focuses only on cases where there are no \emph{never treated} observations.
+If we keep \emph{never treated} observations in the stacked DID approach, they are going to be used multiple times and one certainly needs to account for that when estimating precision.
+
+The way I'm choosing to implement this approach is by adding specific group \(\times\) time dummies for all the members of a given group defined by its date of first treatment and all the not-yet-treated observations at that same date.
+We are going to run a two-way fixed effects model on these fixed effects and on individual fixed effects as well as on treatment dummies.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }Let's see how it goes.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# generating the groups x time dummies}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{FE.1.1 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.1.2 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.1.3 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.1.4 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.2.1 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.2.2 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.2.3 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.2.4 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.3.1 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.3.2 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.3.3 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.3.4 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.4.1 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{1} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.4.2 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{2} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.4.3 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{3} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+            \AttributeTok{FE.4.4 =} \FunctionTok{if\_else}\NormalTok{(time }\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{\&}\NormalTok{ (Ds}\SpecialCharTok{==}\DecValTok{4} \SpecialCharTok{|}\NormalTok{ D}\SpecialCharTok{==}\DecValTok{0}\NormalTok{),}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{          )}
+
+\CommentTok{\# regression for individual parameter}
+\NormalTok{reg.stacked.aggregate }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ D }
+                                  \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.1} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.2} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.3} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.4}
+                                  \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.1} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.2} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.3} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.4}
+                                  \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{3.1} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{3.2} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{4.3} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{4.4}
+                               \SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time, }\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{))}
+
+\CommentTok{\# event study regression}
+\NormalTok{reg.stacked.event.study }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}} \FunctionTok{i}\NormalTok{(TimeToTreatment,}\AttributeTok{ref=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{))}
+                                  \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.1} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.2} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.3} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{1.4}
+                                  \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.1} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.2} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.3} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{2.4}
+                                  \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{3.1} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{3.2} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{4.3} \SpecialCharTok{+}\NormalTok{ FE.}\FloatTok{4.4}
+                               \SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time, }\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+The total estimate given by the stacked regression is of 1.86, which seems pretty large compared to the other estimators.
+Remember that the average effect of the treatment, giving equal weight to each time period \(\tau\in\{0,1,2\}\), is equal to \(\hat\Delta^{Y}_{TT}(e)=\) 1.59 while the average effect of the treatment, giving weights proportional to group composition and time spent in the treatment is equal to \(\hat\Delta^{Y}_{TT}(v)=\) 1.06.
+Let us plot the corresponding results of the event study regression.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# putting results into a dataframe}
+\NormalTok{resultsStackedDIDEventStudy }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(reg.stacked.event.study}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{],reg.stacked.event.study}\SpecialCharTok{$}\NormalTok{se[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{]))}
+\FunctionTok{colnames}\NormalTok{(resultsStackedDIDEventStudy) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Coef\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Se\textquotesingle{}}\NormalTok{)}
+\CommentTok{\# adding the time to treatment variable}
+\NormalTok{resultsStackedDIDEventStudy }\OtherTok{\textless{}{-}}\NormalTok{ resultsStackedDIDEventStudy }\SpecialCharTok{\%\textgreater{}\%}
+                              \FunctionTok{mutate}\NormalTok{(}
+                                \AttributeTok{TimeToTreatment =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)}
+\NormalTok{                              )}
+\CommentTok{\# adding the reference period}
+\NormalTok{resultsStackedDIDEventStudy }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(resultsStackedDIDEventStudy,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{))}
+
+\CommentTok{\#plot}
+\FunctionTok{ggplot}\NormalTok{(resultsStackedDIDEventStudy,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDStackedEventStudy-1} 
+
+}
+
+\caption{DID estimates around the treatment date estimated using Stacked DID (reference period $\tau'=1$)}\label{fig:PlotDIDStackedEventStudy}
+\end{figure}
+
+The results seem pretty nice and close to what we have obtained so far with the other methods we have used.
+
+\hypertarget{two-way-fixed-effects}{%
+\paragraph{Two-Way Fixed Effects}\label{two-way-fixed-effects}}
+
+Before we conclude, there is one last set of methods that we might have wanted to use: the methods based on the standard Two Way Fixed Effects model with time and unit-specific fixed effects that we have introduced in Sections \ref{sec:LSDV}, \ref{sec:Within} and \ref{sec:FastTWFE}, and which can be estimated using various types of methods (Least Squares Dummy Variables, Within regression or other fast methods).
+Methods based on the Two Way Fixed Effects model were actually the most used ones to estimate treatment effects and event study regressions in staggered designs before a string of results showed that they had severe issues.
+In this section, we will cover the basic issues that methods based on the Two Way Fixed Effects model face in a staggered design and we will state conditions under which they can be correct.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-218}{}{\label{exm:unnamed-chunk-218} }Before that, let us simply look at how the Two Way Fixed Effects model performs in our example.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# regression for individual parameter}
+\NormalTok{reg.TWFE.aggregate }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ D }\SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time, }\AttributeTok{data=}\NormalTok{data)}
+
+\CommentTok{\# event study regression}
+\NormalTok{reg.TWFE.event.study }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}} \FunctionTok{i}\NormalTok{(TimeToTreatment,}\AttributeTok{ref=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)) }\SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time, }\AttributeTok{data=}\NormalTok{data)}
+\end{Highlighting}
+\end{Shaded}
+
+The Two Way Fixed Effects-based estimate of the aggregate treatment effect on the treated is equal to -0.08 \(\pm\) 0.1, while the effect estimated the correct weighting of basic DID estimators giving weights proportional to group composition and time spent in the treatment is equal to \(\hat\Delta^{Y}_{TT}(v)=\) 1.06.
+Let us now plot the event study estimates obtained using Two Way Fixed Effects-based methods:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# putting results into a dataframe}
+\NormalTok{resultsTWFEEventStudy }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(reg.TWFE.event.study}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{],reg.TWFE.event.study}\SpecialCharTok{$}\NormalTok{se[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{]))}
+\FunctionTok{colnames}\NormalTok{(resultsTWFEEventStudy) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Coef\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Se\textquotesingle{}}\NormalTok{)}
+\CommentTok{\# adding the time to treatment variable}
+\NormalTok{resultsTWFEEventStudy }\OtherTok{\textless{}{-}}\NormalTok{ resultsTWFEEventStudy }\SpecialCharTok{\%\textgreater{}\%}
+                              \FunctionTok{mutate}\NormalTok{(}
+                                \AttributeTok{TimeToTreatment =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)}
+\NormalTok{                              )}
+\CommentTok{\# adding the reference period}
+\NormalTok{resultsTWFEEventStudy }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(resultsTWFEEventStudy,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{))}
+
+\CommentTok{\#plot}
+\FunctionTok{ggplot}\NormalTok{(resultsTWFEEventStudy,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDTWFEEventStudy-1} 
+
+}
+
+\caption{DID estimates around the treatment date estimated using TWFE (reference period $\tau'=1$)}\label{fig:PlotDIDTWFEEventStudy}
+\end{figure}
+
+Surprisingly, the profile of the event-study estimates does not seem to be too different from the ones we have estimated before.
+What has happened?
+Why would the aggregate estimate be so wrong and the event-study estimate correct?
+Let us dig into the technical properties of the Two Way Fixed Effects-based estimators in order to understand why.
+We are first going to look at the properties of the Two Way Fixed Effects-based estimators for the average effect of the treatment on the treated and then we will look at the properties of the event study estimates.
+
+\hypertarget{bias-of-the-two-way-fixed-effects-based-estimators-for-the-average-treatment-effect-on-the-treated}{%
+\subparagraph{Bias of the Two Way Fixed Effects-based estimators for the Average Treatment Effect on the Treated}\label{bias-of-the-two-way-fixed-effects-based-estimators-for-the-average-treatment-effect-on-the-treated}}
+
+The properties of the Two Way Fixed Effects-based estimators have been studied in detail by \href{https://doi.org/10.1016/j.jeconom.2021.03.014}{Goodman-Bacon (2021)}.
+In order to state Goodman-Bacon's main result, we are going to consider that there are only three time periods in the data: a \(t=pre\) time period, where no one is treated, a \(t=mid\) time period, where only early adopters are treated (those with \(D_i=mid\)) and finally a \(t=last\) time period, where a second group receives the treatment.
+We also allow for some units to be never treated, and we denote them with \(D_i=u\).
+We denote \(n_d=\frac{\sum_i\uns{D_i=d}}{N}\), with \(d\in\{u,mid,last\}\) the share of each treatment group in the sample and \(\bar{D}_d\) the share of time each group spends in the treament state.
+In this setting, \href{https://doi.org/10.1016/j.jeconom.2021.03.014}{Goodman-Bacon (2021)} proves the following theorem:
+
+\begin{theorem}[Goodman-Bacon Decomposition of Two Way Fixed Effects-based estimators]
+\protect\hypertarget{thm:GBDecomp}{}{\label{thm:GBDecomp} \iffalse (Goodman-Bacon Decomposition of Two Way Fixed Effects-based estimators) \fi{} }The parameter \(\hat\beta^{TWFE}\) estimated by Two Way Fixed Effects-based estimators can be written as follows:
+\begin{align*}
+  \hat\beta^{TWFE} & =            w^{TWFE}_u(mid)\Delta^Y_{DID}(mid,u,mid,pre) \\
+                  & \phantom{=} + w^{TWFE}_u(mid)\Delta^Y_{DID}(mid,u,last,pre) \\
+                  & \phantom{=} + w^{TWFE}_u(last)\Delta^Y_{DID}(last,u,last,pre) \\
+                  & \phantom{=} + w^{TWFE}_u(last)\Delta^Y_{DID}(last,u,last,mid) \\
+                  & \phantom{=} + w^{TWFE}_{last}(mid)\Delta^Y_{DID}(mid,last,mid,pre)\\
+                  & \phantom{=} + w^{TWFE}_r(last,mid)\Delta^Y_{DID^r}(last,mid,last,mid)
+\end{align*}
+with
+\begin{align*}
+  \Delta^Y_{DID}(d,d',\tau,\tau')  & = \esp{Y_{i,\tau}-Y_{i,\tau'}|D_i=d}-\esp{Y_{i,\tau}-Y_{i,\tau'}|D_i=d'}\\
+  w^{TWFE}_u(d) & = (n_{d}+n_{u})^2\frac{\hat V^{D}_{d,u}}{\hat V^{D}}\text{, }d\in\{mid,last\}\\
+  w^{TWFE}_{last}(mid) & = ((n_{last}+n_{mid})(1-\bar{D}_{last}))^2\frac{\hat V^{D}_{mid,last}}{\hat V^{D}}\\
+  w^{TWFE}_{r}(last,mid) & = ((n_{last}+n_{mid})\bar{D}_{mid}^2\frac{\hat V^{D}_{last,mid}}{\hat V^{D}}\\
+  \hat V^{D}_{d,u} & = n_{d,u}(1-n_{d,u})\bar{D}_{d}(1-\bar{D}_{d})\text{, }d\in\{mid,last\} \\
+  \hat V^{D}_{mid,last} & = n_{mid,last}(1-n_{mid,last})\frac{\bar{D}_{mid}-\bar{D}_{last}}{1-\bar{D}_{last}}\frac{1-\bar{D}_{mid}}{1-\bar{D}_{last}}\\
+  \hat V^{D}_{last,mid} & = n_{mid,last}(1-n_{mid,last})\frac{\bar{D}_{last}}{\bar{D}_{mid}}\frac{\bar{D}_{mid}-\bar{D}_{last}}{\bar{D}_{mid}}\\
+    n_{d,d'} & = \frac{n_d}{n_d+n_d'}
+\end{align*}
+and \(\sum_{d,d'}w^{TWFE}(d,d')=1\).
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}See \href{https://doi.org/10.1016/j.jeconom.2021.03.014}{Goodman-Bacon (2021)} Theorem 1.
+\end{proof}
+
+The beauty of Goodman-Bacon's theorem is that it relates directly the Two Way Fixed Effects-based estimators to the individual two-period DID estimators we have studied in Section \ref{sec:DIDbasic}.
+The key to understand the bias of the Two Way Fixed Effects-based estimators is that the \(DID^r\) estimator we studied in Section \ref{sec:DIDr} appears in Goodman-Bacon's decomposition.
+This is because units with \(D_i=mid\) become always treated observations for the last two periods.
+They are used as counterfactuals by the Two Way Fixed Effects-based estimators for the observations that enter in the last period.
+We have shown with Theorem \ref{thm:BiasDIDr} that, under the classical parallel trends assumption, the \(DID^r\) estimator is biased for the treatment effect on the treated after the treatment takes place.
+The bias is equal to minus the change over time in treatment effect on the treated.
+It means that if treatment effects increase over time, the \(DID^r\) estimator will introduce a negative bias in the Two Way Fixed Effects-based estimators.
+In our example, this bias is made even more severe by the fact that we have an always treated group, which is used at every period as a counterfactual.
+Since the effect for the always treated group increases very fast over time, the bias of the \(DID^r\) estimator becomes large and negative.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}If the treatment effects are constant over time (but possibly heterogeneous across groups), then the bias due to the \(DID^r\) disappears, as Lemma \ref{lem:ParallelTrendsCstTreatmentEffects} shows, and the Two Way Fixed Effects-based estimators recover a weighted average of treatment effects, with positive weights summing to one.
+The problem with the Two Way Fixed Effects-based estimators is still that the weights used to combine the various treatment effects are not easy to interpret.
+One probably prefers using tailor-made weights as in the estimators we have studied previously.
+\end{remark}
+
+\hypertarget{sec:BiasTWFEevent}{%
+\subparagraph{Bias of the Two Way Fixed Effects-based estimators for the event study estimates}\label{sec:BiasTWFEevent}}
+
+The properties of the Two Way Fixed Effects-based estimators for event study parameters have been studied in detail by \href{https://doi.org/10.1016/j.jeconom.2020.09.006}{Sun and Abraham (2021)}.
+They focus on the following Two Way Fixed Effects model of an event-study analysis:
+
+\begin{align*}
+    Y_{i,t} &  = \mu_i + \delta_t + \sum_{g\in\mathcal{G}}\beta_{\mathcal{g}}^{TWFE}\uns{t-D_{i}\in g} + \epsilon^{TWFE}_{i,t},
+\end{align*}
+
+where the set \(\mathcal{G}\) collects disjoint sets \(g\) of relative time periods \(\tau\in\{-T,\dots,T\}\), and excludes some of them.
+The excluded sets of time periods are collected in a set \(g_{excl}\).
+The most classical specification corresponding to the general case above uses as sets \(g\):
+
+\begin{itemize}
+\tightlist
+\item
+  Observations that are such that \(-K\leq t-D_i \leq-2\), with one specific indicator for each of the individual relative time periods \(\tau=t-D_i\),
+\item
+  Observations that are such that \(0\leq t-D_i \leq L\), with one specific indicator for each of the individual relative time periods,
+\item
+  All the observations that will be treated more than \(K\) periods in the future (\(t-D_{i}<-K\)),
+\item
+  All the observations that are such that \(t-D_i>L\).
+\end{itemize}
+
+In general, \(g_{excl}=\{-1,-\infty\}\), so that the reference period with respect to which all treatment effects are estimated is the period just before the treatment.
+By convention, \(\uns{t-D_{i}=-\infty}=0\).
+Note that this is the specification we have adopted in most of our numerical examples so far, without using the strategy of binning together far away observations on both sides of the treatment date.
+
+In this setting, Sun and Abraham prove the following result:
+
+\begin{theorem}[Sun and Abraham Decomposition of Two Way Fixed Effects-based event-study estimators]
+\protect\hypertarget{thm:SADecomp}{}{\label{thm:SADecomp} \iffalse (Sun and Abraham Decomposition of Two Way Fixed Effects-based event-study estimators) \fi{} }The parameter \(\beta_{g}^{TWFE}\) estimated by Two Way Fixed Effects-based event-study estimators can be written as follows:
+\begin{align*}
+  \beta_{g}^{TWFE} & = \sum_{\tau\in g}\sum_dw^{g}_{d,\tau}\Delta^Y_{DID}(d,\infty,\tau,-d+1) \\
+                             & \phantom{=} + \sum_{g'\neq g,g'\in g}\sum_{\tau\in g'}\sum_d w^{g}_{d,\tau}\Delta^Y_{DID}(d,\infty,\tau,-d+1) \\
+                             & \phantom{=} + \sum_{\tau\in g_{excl}}\sum_d w^{g}_{d,\tau}\Delta^Y_{DID}(d,\infty,\tau,-d+1),
+\end{align*}
+where the weights \(w^{g}_{d,\tau}\) are equal to the population regression coefficients on \(\uns{t-D_{i}\in g}\) from regressing \(\uns{t-D_{i}=\tau}\uns{D_{i}=d}\) on time and individual fixed effects and all bin indicators \(\{\uns{t-D_{i}\in g}\}_{g\in g}\)
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}See \href{https://doi.org/10.1016/j.jeconom.2020.09.006}{Sun and Abraham (2021)} Proposition 1.
+\end{proof}
+
+Theorem \ref{thm:SADecomp} shows that the coefficient \(\beta_{g}^{TWFE}\) in the TWFE event-study regression does not only capture the DID estimate at that period, but also the DID estimates at other periods \(g'\) and at the reference periods \(g_{excl}\).
+This is potentially a severe problem.
+For example, estimates of the effect pre-treatment can appear large and positive whereas the effect at these dates is actually zero.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }In our numerical example, we have already seen that the TWFE event-study estimator is not severely biased for the event study coefficients.
+We are going to use an example from \href{https://andrewcbaker.netlify.app/2020/06/27/how-to-create-relative-time-indicators/}{Andrew Baker} in order to illustrate the bias of the TWFE event-study estimator and try to understand its sources.
+\end{example}
+
+The data-generating process is:
+
+\begin{align*}
+  y_{i,t} & = \mu_i + \delta_t + \tau_{i,t} + \epsilon_{i,t},
+\end{align*}
+
+where \(\mu_i\sim\mathcal{N}(0,1)\), \(\delta_t\sim\mathcal{N}(0,1)\) and \(\epsilon_{i,t}\sim\mathcal{N}(0,0.25)\).
+
+The \(N=1000\) inits (firms) are randomly allocated to 40 states \(g\), and each state is randommly allocated to one of four treatment groups depending on the year in which it is treated (\(\tau_g\in\{1986,1992,1998,2004\}\)).
+For every unit incorporated in a treated state, we draw a unit specific treatment effect \(\tau_i\sim\mathcal{N}(0.3,(1/5)^2)\), and the cumulated treatment effect for unit \(i\) is \(\tau_{i,t}=\tau_i(t-\tau_g+1)\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# set seed}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{20200403}\NormalTok{)}
+\CommentTok{\# Fixed Effects {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\CommentTok{\# unit fixed effects}
+\NormalTok{unit }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}
+\AttributeTok{unit =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{1000}\NormalTok{, }
+\AttributeTok{unit\_fe =} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+\CommentTok{\# generate state}
+\AttributeTok{state =} \FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{40}\NormalTok{, }\DecValTok{1000}\NormalTok{, }\AttributeTok{replace =} \ConstantTok{TRUE}\NormalTok{),}
+\CommentTok{\# generate treatment effect}
+\AttributeTok{mu =} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.2}\NormalTok{))}
+
+\CommentTok{\# year fixed effects }
+\NormalTok{year }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}
+\AttributeTok{year =} \DecValTok{1980}\SpecialCharTok{:}\DecValTok{2010}\NormalTok{,}
+\AttributeTok{year\_fe =} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{31}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+
+\CommentTok{\# Trend Break {-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}{-}}
+\CommentTok{\# Put the states into treatment groups}
+\NormalTok{treat\_taus }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}
+  \CommentTok{\# sample the states randomly}
+  \AttributeTok{state =} \FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{40}\NormalTok{, }\DecValTok{40}\NormalTok{, }\AttributeTok{replace =} \ConstantTok{FALSE}\NormalTok{),}
+  \CommentTok{\# place the randomly sampled states into five treatment groups G\_g}
+  \AttributeTok{cohort\_year =} \FunctionTok{sort}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{1986}\NormalTok{, }\DecValTok{1992}\NormalTok{, }\DecValTok{1998}\NormalTok{, }\DecValTok{2004}\NormalTok{), }\DecValTok{10}\NormalTok{)))}
+
+\CommentTok{\# make main dataset}
+\CommentTok{\# full interaction of unit X year }
+\NormalTok{data.baker }\OtherTok{\textless{}{-}} \FunctionTok{expand\_grid}\NormalTok{(}\AttributeTok{unit =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{1000}\NormalTok{, }\AttributeTok{year =} \DecValTok{1980}\SpecialCharTok{:}\DecValTok{2010}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(., unit) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(., year) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(., treat\_taus) }\SpecialCharTok{\%\textgreater{}\%} 
+  \CommentTok{\# make error term and get treatment indicators and treatment effects}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{error =} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{31000}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FloatTok{0.5}\NormalTok{),}
+         \AttributeTok{treat =} \FunctionTok{ifelse}\NormalTok{(year }\SpecialCharTok{\textgreater{}=}\NormalTok{ cohort\_year, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{),}
+         \AttributeTok{tau =} \FunctionTok{ifelse}\NormalTok{(treat }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, mu, }\DecValTok{0}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \CommentTok{\# calculate cumulative treatment effects}
+  \FunctionTok{group\_by}\NormalTok{(unit) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{tau\_cum =} \FunctionTok{cumsum}\NormalTok{(tau)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \CommentTok{\# calculate the dep variable}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{dep\_var =}\NormalTok{ unit\_fe }\SpecialCharTok{+}\NormalTok{ year\_fe }\SpecialCharTok{+}\NormalTok{ tau\_cum }\SpecialCharTok{+}\NormalTok{ error)}
+\end{Highlighting}
+\end{Shaded}
+
+Let's plot the data now:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# plot}
+\NormalTok{plot }\OtherTok{\textless{}{-}}\NormalTok{ data.baker }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ year, }\AttributeTok{y =}\NormalTok{ dep\_var, }\AttributeTok{group =}\NormalTok{ unit)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{alpha =} \DecValTok{1}\SpecialCharTok{/}\DecValTok{8}\NormalTok{, }\AttributeTok{color =} \StringTok{"grey"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{data =}\NormalTok{ data.baker }\SpecialCharTok{\%\textgreater{}\%} 
+              \FunctionTok{group\_by}\NormalTok{(cohort\_year, year) }\SpecialCharTok{\%\textgreater{}\%} 
+              \FunctionTok{summarize}\NormalTok{(}\AttributeTok{dep\_var =} \FunctionTok{mean}\NormalTok{(dep\_var)),}
+            \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ year, }\AttributeTok{y =}\NormalTok{ dep\_var, }\AttributeTok{group =} \FunctionTok{factor}\NormalTok{(cohort\_year),}
+                \AttributeTok{color =} \FunctionTok{factor}\NormalTok{(cohort\_year)),}
+            \AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{""}\NormalTok{, }\AttributeTok{y =} \StringTok{"Value"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \DecValTok{1986}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}\#E41A1C\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \DecValTok{1992}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}\#377EB8\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \DecValTok{1998}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}\#4DAF4A\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \DecValTok{2004}\NormalTok{, }\AttributeTok{color =} \StringTok{\textquotesingle{}\#984EA3\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{scale\_color\_brewer}\NormalTok{(}\AttributeTok{palette =} \StringTok{\textquotesingle{}Set1\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{legend.position =} \StringTok{\textquotesingle{}bottom\textquotesingle{}}\NormalTok{,}
+        \AttributeTok{legend.title =} \FunctionTok{element\_blank}\NormalTok{(), }
+        \AttributeTok{axis.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{14}\NormalTok{),}
+        \AttributeTok{axis.text =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{12}\NormalTok{))}
+
+\NormalTok{plot}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDBaker-1} 
+
+}
+
+\caption{Average outcomes in Baker's dataset}\label{fig:PlotDIDBaker}
+\end{figure}
+
+Let's estimate an event-study regression on this data:
+
+\begin{align*}
+  y_{i,t} & = \mu_i + \delta_t + \sum_{k\neq -1}\beta_k1\{D^k_{i,t}=k\} + \epsilon_{i,t},
+\end{align*}
+
+where \(D^k_{i,t}\) measures the time to treatment.
+In practice, we bin together all the treated observations that are treated more than 5 time periods ahead and, in a separate dummy, all the observations that have been treated more than 5 time periods before.
+Let's run the regression (note that Andrew Baker uses the \texttt{felm} function of the \texttt{lfe} package instead of the \texttt{feols} function of the \texttt{fixest} package that we have prefentially used):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# variables we will use}
+\NormalTok{keepvars }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"\textasciigrave{}rel\_year\_{-}5\textasciigrave{}"}\NormalTok{,  }\StringTok{"\textasciigrave{}rel\_year\_{-}4\textasciigrave{}"}\NormalTok{,  }\StringTok{"\textasciigrave{}rel\_year\_{-}3\textasciigrave{}"}\NormalTok{,  }\StringTok{"\textasciigrave{}rel\_year\_{-}2\textasciigrave{}"}\NormalTok{,}
+               \StringTok{"rel\_year\_0"}\NormalTok{, }\StringTok{"rel\_year\_1"}\NormalTok{, }\StringTok{"rel\_year\_2"}\NormalTok{, }\StringTok{"rel\_year\_3"}\NormalTok{, }\StringTok{"rel\_year\_4"}\NormalTok{, }\StringTok{"rel\_year\_5"}\NormalTok{)}
+
+\CommentTok{\# make dummy columns}
+\NormalTok{data.baker }\OtherTok{\textless{}{-}}\NormalTok{ data.baker }\SpecialCharTok{\%\textgreater{}\%} 
+    \CommentTok{\# make dummies}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{rel\_year =}\NormalTok{ year }\SpecialCharTok{{-}}\NormalTok{ cohort\_year) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{dummy\_cols}\NormalTok{(}\AttributeTok{select\_columns =} \StringTok{"rel\_year"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+    \CommentTok{\# generate pre and post dummies}
+     \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Pre =} \FunctionTok{ifelse}\NormalTok{(rel\_year }\SpecialCharTok{\textless{}} \SpecialCharTok{{-}}\DecValTok{5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{),}
+            \AttributeTok{Post =} \FunctionTok{ifelse}\NormalTok{(rel\_year }\SpecialCharTok{\textgreater{}} \DecValTok{5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{))}
+  
+\CommentTok{\# estimate the model}
+\NormalTok{mod }\OtherTok{\textless{}{-}} \FunctionTok{felm}\NormalTok{(dep\_var }\SpecialCharTok{\textasciitilde{}}\NormalTok{ Pre }\SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_{-}5}\StringTok{\textasciigrave{}} \SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_{-}4}\StringTok{\textasciigrave{}} \SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_{-}3}\StringTok{\textasciigrave{}} \SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_{-}2}\StringTok{\textasciigrave{}} \SpecialCharTok{+} 
+                \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_0}\StringTok{\textasciigrave{}} \SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_1}\StringTok{\textasciigrave{}} \SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_2}\StringTok{\textasciigrave{}} \SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_3}\StringTok{\textasciigrave{}} \SpecialCharTok{+} \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_4}\StringTok{\textasciigrave{}} \SpecialCharTok{+} 
+                \StringTok{\textasciigrave{}}\AttributeTok{rel\_year\_5}\StringTok{\textasciigrave{}} \SpecialCharTok{+}\NormalTok{ Post }\SpecialCharTok{|}\NormalTok{ unit }\SpecialCharTok{+}\NormalTok{ year }\SpecialCharTok{|} \DecValTok{0} \SpecialCharTok{|}\NormalTok{ state, }\AttributeTok{data =}\NormalTok{ data.baker, }\AttributeTok{exactDOF =} \ConstantTok{TRUE}\NormalTok{)}
+  
+\CommentTok{\# grab the obs we need}
+\NormalTok{DIDBakerEstimTWFEBinned }\OtherTok{\textless{}{-}}\NormalTok{ broom}\SpecialCharTok{::}\FunctionTok{tidy}\NormalTok{(mod) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{filter}\NormalTok{(term }\SpecialCharTok{\%in\%}\NormalTok{ keepvars) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{t =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{5}\SpecialCharTok{:{-}}\DecValTok{2}\NormalTok{, }\DecValTok{0}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{select}\NormalTok{(t, estimate,std.error) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{bind\_rows}\NormalTok{(}\FunctionTok{tibble}\NormalTok{(}\AttributeTok{t =} \SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\AttributeTok{estimate =} \DecValTok{0}\NormalTok{, }\AttributeTok{std.error =} \DecValTok{0}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{true\_tau =} \FunctionTok{ifelse}\NormalTok{(t }\SpecialCharTok{\textgreater{}=} \DecValTok{0}\NormalTok{, (t }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}\SpecialCharTok{*}\NormalTok{.}\DecValTok{3}\NormalTok{, }\DecValTok{0}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the results estimates:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t, }\AttributeTok{y =}\NormalTok{ estimate),}\AttributeTok{data=}\NormalTok{DIDBakerEstimTWFEBinned) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_linerange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ estimate}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{std.error, }\AttributeTok{ymax =}\NormalTok{ estimate}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{std.error), }\AttributeTok{color =} \StringTok{\textquotesingle{}darkgrey\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{color =} \StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{4}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t, }\AttributeTok{y =}\NormalTok{ true\_tau), }\AttributeTok{color =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks =} \SpecialCharTok{{-}}\DecValTok{5}\SpecialCharTok{:}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Relative Time"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Estimate"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{14}\NormalTok{),}
+        \AttributeTok{axis.text =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{12}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDBakerEstimTWFEBinned-1} 
+
+}
+
+\caption{Binned Two Way Fixed Effects estimator in Baker's dataset}\label{fig:PlotDIDBakerEstimTWFEBinned}
+\end{figure}
+
+The true estimates (in red) appear to have been severely misestimated by the TWFE binned estimator.
+The pre-trends, which are parallel in the generated data, appear to be affected by a downward slope with the Two Way Fixed Effects estimator.
+The treatment effects do not increase continuously over time, as they should, and they are most of the time biased downwards.
+
+There are two main problems with the event-study model estimated with the TWFE estimator on the data plotted in Figure \ref{fig:PlotDIDBaker}:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The binned treatment groups, especially the post treatment group, that regroups all observations that have been in the treatment for more than 5 years, does not move after once has entered it.
+  It thus serves as a control group for the more recently treated, which generates a reverse DID estimator, which is biased when treatment effects grow over time.
+\item
+  Post 2003, all groups are treated and there thus are no untreated observations to serve as a control group, except for the post treatment binned group.
+  This exacerbates the first problem.
+\end{enumerate}
+
+The cures for this issues seem to:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Never bin observations post-treatment, so that they are never used in a reverse DID design.
+\item
+  Never include time periods without any control group in the data.
+\end{enumerate}
+
+Let's see what happens when we stop binning our post-treatment observations, we drop all treatment years for which there are no controls and we replace the time-to-treatment indicator by a constant for the never treated group (so that it is not used to build the time to treatment indicators, but only as a control group, to estimate the time fixed effects).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data.baker }\OtherTok{\textless{}{-}}\NormalTok{ data.baker }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(year }\SpecialCharTok{\textless{}=} \DecValTok{2003}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{cohort\_year =} \FunctionTok{ifelse}\NormalTok{(cohort\_year }\SpecialCharTok{==} \DecValTok{2004}\NormalTok{, }\DecValTok{0}\NormalTok{, cohort\_year)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \CommentTok{\# make relative year indicator}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{rel\_year =}\NormalTok{ year }\SpecialCharTok{{-}}\NormalTok{ cohort\_year)}
+  
+\CommentTok{\# get the minimum relative year {-} we need this to reindex}
+\NormalTok{min\_year }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(data.baker }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(cohort\_year }\SpecialCharTok{!=} \DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(rel\_year))}
+  
+\CommentTok{\# reindex the relative years}
+\NormalTok{data.baker }\OtherTok{\textless{}{-}}\NormalTok{ data.baker }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{rel\_year =}\NormalTok{ rel\_year }\SpecialCharTok{{-}}\NormalTok{ min\_year) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{dummy\_cols}\NormalTok{(}\AttributeTok{select\_columns =} \StringTok{"rel\_year"}\NormalTok{)}
+  
+\CommentTok{\# make regression formula }
+\NormalTok{indics }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\StringTok{"rel\_year"}\NormalTok{, (}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{max}\NormalTok{(data.baker }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(cohort\_year }\SpecialCharTok{!=} \DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{pull}\NormalTok{(rel\_year)))[}\SpecialCharTok{{-}}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ min\_year)], }\AttributeTok{sep =} \StringTok{"\_"}\NormalTok{, }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)}
+\NormalTok{keepvars }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\StringTok{"rel\_year"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{5}\SpecialCharTok{:{-}}\DecValTok{2}\NormalTok{, }\DecValTok{0}\SpecialCharTok{:}\DecValTok{5}\NormalTok{) }\SpecialCharTok{{-}}\NormalTok{ min\_year, }\AttributeTok{sep =} \StringTok{"\_"}\NormalTok{)  }
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"dep\_var \textasciitilde{}"}\NormalTok{, indics, }\StringTok{"| unit + year | 0 | state"}\NormalTok{))}
+  
+\CommentTok{\# run mod}
+\NormalTok{mod }\OtherTok{\textless{}{-}} \FunctionTok{felm}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ data.baker, }\AttributeTok{exactDOF =} \ConstantTok{TRUE}\NormalTok{)}
+  
+\CommentTok{\# grab the obs we need}
+\NormalTok{DIDBakerEstimTWFECorrect }\OtherTok{\textless{}{-}}\NormalTok{ broom}\SpecialCharTok{::}\FunctionTok{tidy}\NormalTok{(mod) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{filter}\NormalTok{(term }\SpecialCharTok{\%in\%}\NormalTok{ keepvars) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{t =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{5}\SpecialCharTok{:{-}}\DecValTok{2}\NormalTok{, }\DecValTok{0}\SpecialCharTok{:}\DecValTok{5}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{select}\NormalTok{(t, estimate, std.error) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{bind\_rows}\NormalTok{(}\FunctionTok{tibble}\NormalTok{(}\AttributeTok{t =} \SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\AttributeTok{estimate =} \DecValTok{0}\NormalTok{, }\AttributeTok{std.error=}\DecValTok{0}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{true\_tau =} \FunctionTok{ifelse}\NormalTok{(t }\SpecialCharTok{\textgreater{}=} \DecValTok{0}\NormalTok{, (t }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}\SpecialCharTok{*}\NormalTok{.}\DecValTok{3}\NormalTok{, }\DecValTok{0}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the data:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t, }\AttributeTok{y =}\NormalTok{ estimate),}\AttributeTok{data=}\NormalTok{DIDBakerEstimTWFECorrect) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_linerange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin =}\NormalTok{ estimate}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{std.error, }\AttributeTok{ymax =}\NormalTok{ estimate}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{std.error), }\AttributeTok{color =} \StringTok{\textquotesingle{}darkgrey\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{color =} \StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{4}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ t, }\AttributeTok{y =}\NormalTok{ true\_tau), }\AttributeTok{color =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{, }\AttributeTok{size =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks =} \SpecialCharTok{{-}}\DecValTok{5}\SpecialCharTok{:}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Relative Time"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Estimate"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{14}\NormalTok{),}
+        \AttributeTok{axis.text =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{12}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDBakerEstimTWFECorrect-1} 
+
+}
+
+\caption{Corrected Two Way Fixed Effects estimator in Baker's dataset}\label{fig:PlotDIDBakerEstimTWFECorrect}
+\end{figure}
+
+So, in general, Sun and Abraham bias seems to come from a misleading binning of treated observations post treatment and the absence of a never treated group.
+Let us check whether this would generate weird results for the Two-Way Fixed Effects estimator in our dataset as well.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let us check whether binning the post-treatment observations together (let's say the last two) generates bias for the event study estimator in our original dataset.
+We distinguish between an estimator using the data from the always takers and an estimator not using these observations.
+\end{example}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# generating the binned indicator}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{TimeToTreatmentBinned =} \FunctionTok{if\_else}\NormalTok{(TimeToTreatment}\SpecialCharTok{\textless{}=}\DecValTok{0}\NormalTok{,TimeToTreatment,}\DecValTok{1}\NormalTok{)}
+\NormalTok{          )}
+
+\CommentTok{\# event study regression}
+\CommentTok{\# without the always treated}
+\NormalTok{reg.TWFE.event.study.binned.No1 }\OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}} \FunctionTok{i}\NormalTok{(TimeToTreatmentBinned,}\AttributeTok{ref=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)) }\SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time, }\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{))}
+\CommentTok{\# with the always treated}
+\NormalTok{reg.TWFE.event.study.binned}\FloatTok{.1} \OtherTok{\textless{}{-}} \FunctionTok{feols}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}} \FunctionTok{i}\NormalTok{(TimeToTreatmentBinned,}\AttributeTok{ref=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{99}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)) }\SpecialCharTok{|}\NormalTok{ id }\SpecialCharTok{+}\NormalTok{ time, }\AttributeTok{data=}\NormalTok{data)}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the event study estimates obtained using Two Way Fixed Effects-based methods with binned data:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# putting results into a dataframe}
+\NormalTok{resultsTWFEEventStudyBinned }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{rbind}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(reg.TWFE.event.study.binned.No1}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{],reg.TWFE.event.study.binned.No1}\SpecialCharTok{$}\NormalTok{se[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{]),}
+                                                  \FunctionTok{cbind}\NormalTok{(reg.TWFE.event.study.binned}\FloatTok{.1}\SpecialCharTok{$}\NormalTok{coefficients[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{],reg.TWFE.event.study.binned}\FloatTok{.1}\SpecialCharTok{$}\NormalTok{se[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{])))}
+\FunctionTok{colnames}\NormalTok{(resultsTWFEEventStudyBinned) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Coef\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Se\textquotesingle{}}\NormalTok{)}
+\CommentTok{\# adding the time to treatment variable}
+\NormalTok{resultsTWFEEventStudyBinned }\OtherTok{\textless{}{-}}\NormalTok{ resultsTWFEEventStudyBinned }\SpecialCharTok{\%\textgreater{}\%}
+                              \FunctionTok{mutate}\NormalTok{(}
+                                \AttributeTok{TimeToTreatment =} \FunctionTok{rep}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{),}\DecValTok{2}\NormalTok{)}
+\NormalTok{                              )}
+\CommentTok{\# adding the reference periods}
+\NormalTok{resultsTWFEEventStudyBinned }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(resultsTWFEEventStudyBinned,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{))}
+\NormalTok{resultsTWFEEventStudyBinned }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(resultsTWFEEventStudyBinned,}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{))}
+
+\CommentTok{\# adding the method dummy}
+\NormalTok{resultsTWFEEventStudyBinned }\OtherTok{\textless{}{-}}\NormalTok{ resultsTWFEEventStudyBinned }\SpecialCharTok{\%\textgreater{}\%}
+                              \FunctionTok{mutate}\NormalTok{(}
+                                \AttributeTok{Method =} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\StringTok{"Without Always Treated"}\NormalTok{,}\DecValTok{4}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\StringTok{"With Always Treated"}\NormalTok{,}\DecValTok{4}\NormalTok{),}\FunctionTok{c}\NormalTok{(}\StringTok{"Without Always Treated"}\NormalTok{,}\StringTok{"With Always Treated"}\NormalTok{))}
+\NormalTok{                              )}
+
+\CommentTok{\#plot}
+\FunctionTok{ggplot}\NormalTok{(resultsTWFEEventStudyBinned,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef,}\AttributeTok{color=}\NormalTok{Method,}\AttributeTok{linetype=}\NormalTok{Method))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDTWFEEventStudyBinned-1} 
+
+}
+
+\caption{DID estimates around the treatment date estimated using the Binned TWFE estimator (reference period $\tau'=1$)}\label{fig:PlotDIDTWFEEventStudyBinned}
+\end{figure}
+
+Figure \ref{fig:PlotDIDTWFEEventStudyBinned} confirms the analysis based on \href{https://andrewcbaker.netlify.app/2020/06/27/how-to-create-relative-time-indicators/}{Andrew Baker}'s data presented in Figure \ref{fig:PlotDIDBakerEstimTWFEBinned}.
+Binning the data post-treatment severely biases the event study graph estimated using a Two-Way Fixed Effects estimator, especially if one keeps the \emph{always treated} observations in the dataset.
+
+\hypertarget{summary}{%
+\paragraph{Summary}\label{summary}}
+
+Let us regroup all the event study estimates and all the aggregated estimates of the TT together in order to compare them with the true estimator.
+Let us start with the event study estimates first.
+
+\hypertarget{event-study-estimates}{%
+\subparagraph{Event study estimates}\label{event-study-estimates}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# let us first combine all the estimators together}
+\NormalTok{DID.event.study.all }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}
+\NormalTok{                          DID.tau }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(d}\SpecialCharTok{==}\StringTok{"Aggregate"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(tau,ATT.tau) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Weighted DID"}\NormalTok{,}\AttributeTok{Se=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{(}\AttributeTok{TimeToTreatment=}\NormalTok{tau,}\AttributeTok{Coef=}\NormalTok{ATT.tau),}
+\NormalTok{                          disaggregate.SA }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(Group}\SpecialCharTok{==}\StringTok{"Aggregate"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(TimeToTreatment,Coef,Se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Sun \& Abraham"}\NormalTok{),}
+\NormalTok{                          DID.CSA }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(Group}\SpecialCharTok{==}\StringTok{"Aggregate"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(TimeToTreatment,Coef,Se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Callaway \& SantAnna"}\NormalTok{),}
+\NormalTok{                          DID.dCdH }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"de Chaisemartin \& d\textquotesingle{}Haultfoeuille"}\NormalTok{),}
+\NormalTok{                          DID.BJS }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(TimeToTreatment,Coef,Se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Borusyak, Jaravel \& Speiss"}\NormalTok{),}
+\NormalTok{                          resultsGardnerEventStudy }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(TimeToTreatment,Coef,Se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Gardner"}\NormalTok{),}
+\NormalTok{                          resultsStackedDIDEventStudy }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(TimeToTreatment,Coef,Se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Stacked DID"}\NormalTok{),}
+\NormalTok{                          resultsTWFEEventStudy }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(TimeToTreatment,Coef,Se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"TWFE"}\NormalTok{)}
+\NormalTok{                        ) }
+
+\CommentTok{\# Let us now add the true value of the treatment effect in the sample.}
+\CommentTok{\# it is not easy to estimate }
+\CommentTok{\# we are going to use variable weights and the meriod {-}1 as reference (taking its treatment effect our of all treatment effect estimates)}
+\NormalTok{DID.truth }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{mutate}\NormalTok{(}
+                \AttributeTok{alpha =} \FunctionTok{if\_else}\NormalTok{(D}\SpecialCharTok{==}\DecValTok{1}\NormalTok{,y1}\SpecialCharTok{{-}}\NormalTok{y0,}\DecValTok{0}\NormalTok{)}
+\NormalTok{              ) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{filter}\NormalTok{(Group}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{group\_by}\NormalTok{(TimeToTreatment) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{summarize}\NormalTok{(}
+                \AttributeTok{Coef=}\FunctionTok{if\_else}\NormalTok{(TimeToTreatment}\SpecialCharTok{\textgreater{}=}\DecValTok{0}\NormalTok{,}\FunctionTok{mean}\NormalTok{(alpha),}\DecValTok{0}\NormalTok{)}
+\NormalTok{              ) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{mutate}\NormalTok{(}
+                \AttributeTok{Method=}\StringTok{"Truth"}\NormalTok{,}
+                \AttributeTok{Se=}\DecValTok{0}
+\NormalTok{              ) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{filter}\NormalTok{(TimeToTreatment}\SpecialCharTok{\textless{}}\DecValTok{3}\NormalTok{) }
+
+\CommentTok{\# regrouping}
+\NormalTok{DID.event.study.all }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(DID.event.study.all,DID.truth) }\SpecialCharTok{\%\textgreater{}\%}
+                        \FunctionTok{mutate}\NormalTok{(}
+                          \AttributeTok{Method=}\FunctionTok{factor}\NormalTok{(Method,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Truth"}\NormalTok{,}\StringTok{"Weighted DID"}\NormalTok{,}\StringTok{"Sun \& Abraham"}\NormalTok{,}\StringTok{"Callaway \& SantAnna"}\NormalTok{,}\StringTok{"de Chaisemartin \& d\textquotesingle{}Haultfoeuille"}\NormalTok{,}\StringTok{"Borusyak, Jaravel \& Speiss"}\NormalTok{,}\StringTok{"Gardner"}\NormalTok{,}\StringTok{"Stacked DID"}\NormalTok{,}\StringTok{"TWFE"}\NormalTok{))}
+\NormalTok{                        )}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the data:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# plot}
+\FunctionTok{ggplot}\NormalTok{(DID.event.study.all,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef,}\AttributeTok{colour=}\NormalTok{Method,}\AttributeTok{linetype=}\NormalTok{Method,}\AttributeTok{shape=}\NormalTok{Method))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_colour\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{scale\_linetype\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{scale\_shape\_discrete}\NormalTok{(}\AttributeTok{name=}\StringTok{"Treatment}\SpecialCharTok{\textbackslash{}n}\StringTok{group"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDEventStudyAll-1} 
+
+}
+
+\caption{Event study estimates around the treatment date with various methods (reference period $\tau'=1$)}\label{fig:PlotDIDEventStudyAll}
+\end{figure}
+
+Note that all estimators are pretty similar.
+There is a dip 3 periods before treatment for some estimators.
+It is actually a true dip due to time varying selection bias at the first period which is embedded in the model.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Another approach to compare all estimators would be to use directly the \texttt{did2s} package.
+The command \texttt{event\_study} uses almost all the commands already presented and integrates them into one unique analysis.
+Let's see how this works.
+\end{remark}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# modifying the name of the control group variable to 0}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{Ds=}\FunctionTok{if\_else}\NormalTok{(Ds}\SpecialCharTok{==}\DecValTok{99}\NormalTok{,}\DecValTok{0}\NormalTok{,Ds)}
+\NormalTok{          )}
+\CommentTok{\# regression}
+\NormalTok{reg.event.study.all }\OtherTok{\textless{}{-}} \FunctionTok{event\_study}\NormalTok{(}\AttributeTok{data=}\FunctionTok{filter}\NormalTok{(data,Ds}\SpecialCharTok{!=}\DecValTok{1}\NormalTok{),}\AttributeTok{yname =} \StringTok{"y"}\NormalTok{, }\AttributeTok{idname=}\StringTok{"id"}\NormalTok{, }\AttributeTok{tname =} \StringTok{"time"}\NormalTok{,}\AttributeTok{gname=}\StringTok{"Ds"}\NormalTok{)}
+
+\CommentTok{\# modifying the name of the control group variable back to 99}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{Ds=}\FunctionTok{if\_else}\NormalTok{(Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{99}\NormalTok{,Ds)}
+\NormalTok{          )}
+\end{Highlighting}
+\end{Shaded}
+
+Let's now plot the results.
+It is made super easy by the command \texttt{plot\_event\_study} but we could also use the same \texttt{ggplot} command that we have used so far.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# using the plot\_event\_study command (not super nice, so not shown)}
+\CommentTok{\# plot\_event\_study(reg.event.study.all,seperate = F)}
+
+\CommentTok{\# preparing data }
+\NormalTok{reg.event.study.all }\OtherTok{\textless{}{-}}\NormalTok{ reg.event.study.all }\SpecialCharTok{\%\textgreater{}\%}
+                        \FunctionTok{mutate}\NormalTok{(}
+                          \AttributeTok{estimator=}\FunctionTok{factor}\NormalTok{(estimator,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Sun and Abraham (2020)"}\NormalTok{,}\StringTok{"Callaway and Sant\textquotesingle{}Anna (2020)"}\NormalTok{,}\StringTok{"Borusyak, Jaravel, Spiess (2021)"}\NormalTok{,}\StringTok{"Gardner (2021)"}\NormalTok{,}\StringTok{"TWFE"}\NormalTok{,}\StringTok{"Roth and Sant\textquotesingle{}Anna (2021)"}\NormalTok{))}
+\NormalTok{                        ) }\SpecialCharTok{\%\textgreater{}\%}
+                        \FunctionTok{rename}\NormalTok{(}
+                          \AttributeTok{Method=}\NormalTok{estimator,}
+                          \AttributeTok{Coef=}\NormalTok{estimate,}
+                          \AttributeTok{Se=}\NormalTok{std.error,}
+                          \AttributeTok{TimeToTreatment=}\NormalTok{term}
+\NormalTok{                        )}
+
+\CommentTok{\# using classical ggplot}
+\FunctionTok{ggplot}\NormalTok{(reg.event.study.all,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{TimeToTreatment,}\AttributeTok{y=}\NormalTok{Coef,}\AttributeTok{group=}\NormalTok{Method,}\AttributeTok{color=}\NormalTok{Method))}\SpecialCharTok{+}
+    \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Time relative to treatment"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDID2SEventStudyAll-1} 
+
+}
+
+\caption{DID estimates around the treatment date estimated using various procedures (reference period $\tau'=1$)}\label{fig:PlotDID2SEventStudyAll}
+\end{figure}
+
+There is a problem here, let's hope we can find a way to solve it.
+
+\hypertarget{aggregate-treatment-on-the-treated-estimates}{%
+\subparagraph{Aggregate Treatment on the Treated Estimates}\label{aggregate-treatment-on-the-treated-estimates}}
+
+Let us now see what happens to the average effect of the treatment on the treated.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# let us first combine all the estimators together}
+\NormalTok{DID.TT.all }\OtherTok{\textless{}{-}}\NormalTok{ DID.event.study.all }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}
+                          \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Coef=}\FunctionTok{c}\NormalTok{(ATT.equal),}\AttributeTok{Se=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Weighted DID Equal"}\NormalTok{,}\AttributeTok{Se=}\DecValTok{0}\NormalTok{),}
+                          \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Coef=}\FunctionTok{c}\NormalTok{(ATT.varying),}\AttributeTok{Se=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Weighted DID Varying"}\NormalTok{,}\AttributeTok{Se=}\DecValTok{0}\NormalTok{),}
+                          \FunctionTok{as.data.frame}\NormalTok{(ATT.agg.SA) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{(}\AttributeTok{Coef=}\NormalTok{Estimate,}\AttributeTok{Se=}\FunctionTok{colnames}\NormalTok{(ATT.agg.SA)[[}\DecValTok{2}\NormalTok{]]) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(Coef,Se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Sun \& Abraham"}\NormalTok{),}
+                          \FunctionTok{as.data.frame}\NormalTok{(ATT.agg.CSA[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{2}\NormalTok{]) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{(}\AttributeTok{Coef=}\NormalTok{overall.att,}\AttributeTok{Se=}\NormalTok{overall.se) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Callaway \& SantAnna"}\NormalTok{),}
+                          \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Coef=}\FunctionTok{c}\NormalTok{(reg.dCdH}\SpecialCharTok{$}\NormalTok{effect),}\AttributeTok{Se=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"de Chaisemartin \& d\textquotesingle{}Haultfoeuille"}\NormalTok{),}
+\NormalTok{                          reg.BJS.Agg[}\DecValTok{2}\SpecialCharTok{:}\DecValTok{3}\NormalTok{] }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{(}\AttributeTok{Coef=}\NormalTok{estimate,}\AttributeTok{Se=}\NormalTok{std.error) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Borusyak, Jaravel \& Speiss"}\NormalTok{),}
+                          \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Coef=}\FunctionTok{coef}\NormalTok{(reg.Gardner)[[}\DecValTok{1}\NormalTok{]],}\AttributeTok{Se=}\FunctionTok{se}\NormalTok{(reg.Gardner)[[}\DecValTok{1}\NormalTok{]]) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Gardner"}\NormalTok{),}
+                          \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Coef=}\FunctionTok{coef}\NormalTok{(reg.stacked.aggregate)[[}\DecValTok{1}\NormalTok{]],}\AttributeTok{Se=}\FunctionTok{se}\NormalTok{(reg.stacked.aggregate)[[}\DecValTok{1}\NormalTok{]]) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"Stacked DID"}\NormalTok{),}
+                          \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Coef=}\NormalTok{reg.TWFE.aggregate}\SpecialCharTok{$}\NormalTok{coefficients[[}\DecValTok{1}\NormalTok{]],}\AttributeTok{Se=}\NormalTok{reg.TWFE.aggregate}\SpecialCharTok{$}\NormalTok{se[[}\DecValTok{1}\NormalTok{]]) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Method=}\StringTok{"TWFE"}\NormalTok{)}
+\NormalTok{                        ) }
+
+\CommentTok{\# Let us now add the true value of the treatment effect in the sample.}
+\NormalTok{ATT.truth }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{filter}\NormalTok{(Group}\SpecialCharTok{\textgreater{}}\DecValTok{1}\NormalTok{,D}\SpecialCharTok{==}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{mutate}\NormalTok{(}
+                 \AttributeTok{alpha =}\NormalTok{ y1}\SpecialCharTok{{-}}\NormalTok{y0}
+\NormalTok{               ) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{summarize}\NormalTok{(}
+                \AttributeTok{Coef=}\FunctionTok{mean}\NormalTok{(alpha)}
+\NormalTok{              ) }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{mutate}\NormalTok{(}
+                \AttributeTok{Method=}\StringTok{"Truth"}\NormalTok{,}
+                \AttributeTok{Se=}\DecValTok{0}
+\NormalTok{              ) }
+
+\CommentTok{\# regrouping}
+\NormalTok{DID.TT.all }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(DID.TT.all,ATT.truth) }\SpecialCharTok{\%\textgreater{}\%}
+                        \FunctionTok{mutate}\NormalTok{(}
+                          \AttributeTok{Method=}\FunctionTok{factor}\NormalTok{(Method,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"Truth"}\NormalTok{,}\StringTok{"Weighted DID Equal"}\NormalTok{,}\StringTok{"Weighted DID Varying"}\NormalTok{,}\StringTok{"Sun \& Abraham"}\NormalTok{,}\StringTok{"Callaway \& SantAnna"}\NormalTok{,}\StringTok{"de Chaisemartin \& d\textquotesingle{}Haultfoeuille"}\NormalTok{,}\StringTok{"Borusyak, Jaravel \& Speiss"}\NormalTok{,}\StringTok{"Gardner"}\NormalTok{,}\StringTok{"Stacked DID"}\NormalTok{,}\StringTok{"TWFE"}\NormalTok{))}
+\NormalTok{                        )}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the results:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# plot}
+\FunctionTok{ggplot}\NormalTok{(DID.TT.all,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{Method,}\AttributeTok{y=}\NormalTok{Coef))}\SpecialCharTok{+}
+    \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{ymin=}\NormalTok{Coef}\FloatTok{{-}1.96}\SpecialCharTok{*}\NormalTok{Se,}\AttributeTok{ymax=}\NormalTok{Coef}\FloatTok{+1.96}\SpecialCharTok{*}\NormalTok{Se)) }\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"Method"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{expand\_limits}\NormalTok{(}\AttributeTok{y=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{coord\_flip}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDATTAll-1} 
+
+}
+
+\caption{Average treatment effect on the treated estimates with various methods (reference period $\tau'=1$)}\label{fig:PlotDIDATTAll}
+\end{figure}
+
+Figure \ref{fig:PlotDIDATTAll} shows that the true effect of the treatment in the sample (with weights proportional to actual exposure to the treatment) is correctly estimated by the Weighted DID estimator using weights varying with exposure, but also by the correct estimators of Sun and Abraham, Callaway and Sant'Anna, Borusyak, Jaravel and Speiss and Gardner.
+The Two-Way fixed Effect estimator finds a negative treatment effect whereas all treatment effects are positive.
+The Stacked DID estimator finds too large a treatment effect, probably because it gives too much weight to later treatment periods.
+The de Chaisemartin and d'Haultfoeuille estimator used here only aims at estimating the effect of the treatment in the first time period, for which it is consistent.
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Several open questions remain after this section.
+They are mostly cosmetic since thay are questions about properties of the Two-Way Fixed Effects estimator, and thus do not affect the properties of the correct estimators that we have studied:
+\end{remark}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Does the Two Way Fixed Effect estimator recover a correct treatment effect (that is only with positive weights) when the equivalent to Assumption \ref{hyp:ParallelTrendsy1} holds?
+\item
+  Does the event-study Two Way Fixed Effect estimator recover the correct dynamics of treatment effects when there is no binning of the treated observations past some date, and there is a never treated group that is used to estimate the time fixed effects?
+  Our example in Section \ref{sec:BiasTWFEevent} seems to suggest that it is so, while the slightly different results of that estimator with respect to the correct ones in the summary of results above seems to suggest otherwise.
+  An example where the event-study Two Way Fixed Effect estimator fails but these conditions hold would be very useful to understand the scope of Theorem \ref{thm:SADecomp} better.
+\item
+  Does the gain in efficiency obtained by the imputation estimator is still present when combining all the DID estimates from all the possible comparison groups, as in the weigthed DID estimator we have proposed?
+\end{enumerate}
 
 \hypertarget{inference-1}{%
 \subsubsection{Inference}\label{inference-1}}
@@ -10335,8 +11361,8 @@ As Figure \ref{fig:PlotDIDStaggeredDisAggdBJS} shows, the dynamic profile of the
 \hypertarget{difference-in-differences-with-instrumental-variables}{%
 \subsection{Difference In Differences with Instrumental Variables}\label{difference-in-differences-with-instrumental-variables}}
 
-\hypertarget{OM}{%
-\chapter{Observational Methods}\label{OM}}
+\hypertarget{sec:OM}{%
+\chapter{Observational Methods}\label{sec:OM}}
 
 \hypertarget{imputation-methods}{%
 \section{Imputation methods}\label{imputation-methods}}
@@ -10462,8 +11488,8 @@ The authors do not evidence of an effect of being surveyed on the subsequent dec
 \hypertarget{Power}{%
 \chapter{Power Analysis}\label{Power}}
 
-\hypertarget{Placebo}{%
-\chapter{Placebo Tests}\label{Placebo}}
+\hypertarget{sec:placebo}{%
+\chapter{Placebo Tests}\label{sec:placebo}}
 
 \hypertarget{cluster}{%
 \chapter{Clustering}\label{cluster}}
@@ -10533,7 +11559,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-214}{}{\label{exm:unnamed-chunk-214} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -10794,7 +11820,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-220}{}{\label{exm:unnamed-chunk-220} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-234}{}{\label{exm:unnamed-chunk-234} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -10938,7 +11964,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-236}{}{\label{exm:unnamed-chunk-236} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -11061,7 +12087,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-237}{}{\label{exm:unnamed-chunk-237} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -11123,7 +12149,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-238}{}{\label{exm:unnamed-chunk-238} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -11164,7 +12190,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-227}{}{\label{exm:unnamed-chunk-227} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-241}{}{\label{exm:unnamed-chunk-241} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is NA.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -11199,7 +12225,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-229}{}{\label{exm:unnamed-chunk-229} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-243}{}{\label{exm:unnamed-chunk-243} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -11314,7 +12340,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-230}{}{\label{exm:unnamed-chunk-230} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-244}{}{\label{exm:unnamed-chunk-244} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -11505,7 +12531,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-231}{}{\label{exm:unnamed-chunk-231} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-245}{}{\label{exm:unnamed-chunk-245} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -11602,7 +12628,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-232}{}{\label{exm:unnamed-chunk-232} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-246}{}{\label{exm:unnamed-chunk-246} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11722,7 +12748,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-234}{}{\label{exm:unnamed-chunk-234} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-248}{}{\label{exm:unnamed-chunk-248} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -11801,7 +12827,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-235}{}{\label{exm:unnamed-chunk-235} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-249}{}{\label{exm:unnamed-chunk-249} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -11944,7 +12970,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-236}{}{\label{exm:unnamed-chunk-236} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-250}{}{\label{exm:unnamed-chunk-250} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -12048,7 +13074,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-237}{}{\label{exm:unnamed-chunk-237} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-251}{}{\label{exm:unnamed-chunk-251} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -12386,7 +13412,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-238}{}{\label{exm:unnamed-chunk-238} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-252}{}{\label{exm:unnamed-chunk-252} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -12545,7 +13571,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-239}{}{\label{exm:unnamed-chunk-239} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-253}{}{\label{exm:unnamed-chunk-253} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -12835,7 +13861,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-246}{}{\label{exm:unnamed-chunk-246} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-260}{}{\label{exm:unnamed-chunk-260} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -13088,7 +14114,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-253}{}{\label{exm:unnamed-chunk-253} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-267}{}{\label{exm:unnamed-chunk-267} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
