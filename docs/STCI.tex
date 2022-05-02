@@ -132,7 +132,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-03-25}
+\date{2022-05-02}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -2563,24 +2563,24 @@ One way to ensure that this assumption holds is to use a RCT.
 
 In order to be able to form the \(WW\) estimator in the sample, we also need that there is at least one treated and one untreated in the sample:
 
-\begin{definition}[Full rank]
-\protect\hypertarget{def:fullrank}{}{\label{def:fullrank} \iffalse (Full rank) \fi{} }We assume that there is at least one observation in the sample that receives the treatment and one observation that does not receive it:
+\begin{hypothesis}[Full rank]
+\protect\hypertarget{hyp:fullrank}{}{\label{hyp:fullrank} \iffalse (Full rank) \fi{} }We assume that there is at least one observation in the sample that receives the treatment and one observation that does not receive it:
 \begin{align*}
 \exists i,j\leq N \text{ such that } & D_i=1 \& D_j=0.
 \end{align*}
-\end{definition}
+\end{hypothesis}
 
 One way to ensure that this assumption holds is to sample treated and untreated units.
 
 In order to be able to estimate the variance of the estimator easily, we assume that the observations come from random sampling and are i.i.d.:
 
-\begin{definition}[i.i.d. sampling]
-\protect\hypertarget{def:iid}{}{\label{def:iid} \iffalse (i.i.d. sampling) \fi{} }We assume that the observations in the sample are identically and independently distributed:
+\begin{hypothesis}[i.i.d. sampling]
+\protect\hypertarget{hyp:iid}{}{\label{hyp:iid} \iffalse (i.i.d. sampling) \fi{} }We assume that the observations in the sample are identically and independently distributed:
 \begin{align*}
 \forall i,j\leq N\text{, }i\neq j\text{, } & (Y_i,D_i)\Ind(Y_j,D_j),\\
                                            & (Y_i,D_i)\&(Y_j,D_j)\sim F_{Y,D}.
 \end{align*}
-\end{definition}
+\end{hypothesis}
 
 We have to assume something on how the observations are related to each other and to the population.
 Identical sampling is natural in the sense that we are OK to assume that the observations stem from the same population model.
@@ -2601,9 +2601,9 @@ We will address both sources of failure of the independence assumption in future
 
 Finally, in order for all our derivations to make sense, we need to assume that the outcomes in both groups have finite variances, otherwise sampling noise is going to be too extreme to be able to estimate it using the methods developed in this lecture:
 
-\begin{definition}[Finite variance of $\hat{\Delta^Y_{WW}}$]
-\protect\hypertarget{def:finitevar}{}{\label{def:finitevar} \iffalse (Finite variance of \(\hat{\Delta^Y_{WW}}\)) \fi{} }We assume that \(\var{Y^1|D_i=1}\) and \(\var{Y^0|D_i=0}\) are finite.
-\end{definition}
+\begin{hypothesis}[Finite variance of $\hat{\Delta^Y_{WW}}$]
+\protect\hypertarget{hyp:finitevar}{}{\label{hyp:finitevar} \iffalse (Finite variance of \(\hat{\Delta^Y_{WW}}\)) \fi{} }We assume that \(\var{Y^1|D_i=1}\) and \(\var{Y^0|D_i=0}\) are finite.
+\end{hypothesis}
 
 \hypertarget{sec:cheb}{%
 \subsection{Using Chebyshev's inequality}\label{sec:cheb}}
@@ -2635,7 +2635,7 @@ As a result, \(1-\delta\leq\var{\hat{\theta}}/\epsilon^2\), hence the result in 
 Using Chebyshev's inequality, we can obtain an upper bound on the sampling noise of the \(WW\) estimator:
 
 \begin{theorem}[Upper bound on the sampling noise of $\hat{WW}$]
-\protect\hypertarget{thm:uppsampnoise}{}{\label{thm:uppsampnoise} \iffalse (Upper bound on the sampling noise of \(\hat{WW}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank} and \ref{def:iid}, for a given confidence level \(\delta\), the sampling noise of the \(\hat{WW}\) estimator is bounded from above:
+\protect\hypertarget{thm:uppsampnoise}{}{\label{thm:uppsampnoise} \iffalse (Upper bound on the sampling noise of \(\hat{WW}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{hyp:fullrank} and \ref{hyp:iid}, for a given confidence level \(\delta\), the sampling noise of the \(\hat{WW}\) estimator is bounded from above:
 
 \begin{align*}
 2\epsilon \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}\right)}\equiv 2\bar{\epsilon}.
@@ -2832,7 +2832,7 @@ The idea is for you to be aware of how the main approximations that we are going
 Let me now state the main result of this section:
 
 \begin{theorem}[Asymptotic Estimate of Sampling Noise of WW]
-\protect\hypertarget{thm:asympnoiseWW}{}{\label{thm:asympnoiseWW} \iffalse (Asymptotic Estimate of Sampling Noise of WW) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{def:iid} and \ref{def:finitevar}, for a given confidence level \(\delta\) and sample size \(N\), the sampling noise of \(\hat{WW}\) can be approximated as follows:
+\protect\hypertarget{thm:asympnoiseWW}{}{\label{thm:asympnoiseWW} \iffalse (Asymptotic Estimate of Sampling Noise of WW) \fi{} }Under Assumptions \ref{def:noselb}, \ref{hyp:fullrank}, \ref{hyp:iid} and \ref{hyp:finitevar}, for a given confidence level \(\delta\) and sample size \(N\), the sampling noise of \(\hat{WW}\) can be approximated as follows:
 
 \begin{align*}
 2\epsilon & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}.
@@ -3103,7 +3103,7 @@ Let's define \(E^*_{\frac{1-\delta}{2}}\) and \(E^*_{\frac{1+\delta}{2}}\) as th
 The bootstrapped sampling noise using the percentile method is simply the distance between these two quantities.
 
 \begin{theorem}[Bootstrapped Estimate of Sampling Noise of WW]
-\protect\hypertarget{thm:bootnoiseWW}{}{\label{thm:bootnoiseWW} \iffalse (Bootstrapped Estimate of Sampling Noise of WW) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{def:iid} and \ref{def:finitevar}, for a given confidence level \(\delta\) and sample size \(N\), the sampling noise of \(\hat{WW}\) can be approximated as follows:
+\protect\hypertarget{thm:bootnoiseWW}{}{\label{thm:bootnoiseWW} \iffalse (Bootstrapped Estimate of Sampling Noise of WW) \fi{} }Under Assumptions \ref{def:noselb}, \ref{hyp:fullrank}, \ref{hyp:iid} and \ref{hyp:finitevar}, for a given confidence level \(\delta\) and sample size \(N\), the sampling noise of \(\hat{WW}\) can be approximated as follows:
 
 \begin{align*}
 2\epsilon & \approx E^*_{\frac{1+\delta}{2}}-E^*_{\frac{1-\delta}{2}} \equiv 2\tilde{\epsilon}^b.
@@ -3117,7 +3117,7 @@ The bootstrapped sampling noise using the percentile method is simply the distan
 \hat{\Delta^Y_{WW}} & = \frac{1}{N}\sum_{i=1}^N\frac{\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)^2}.
 \end{align*}
 
-Using Lemma \ref{lem:asymWW}, we know that the \(WW\) estimator is asymptotically normal under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{def:iid} and \ref{def:finitevar}.
+Using Lemma \ref{lem:asymWW}, we know that the \(WW\) estimator is asymptotically normal under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{hyp:iid} and \ref{def:finitevar}.
 Using Theorem \ref{thm:mammen92} proves the result.
 \end{proof}
 
@@ -7673,7 +7673,7 @@ In the Before period, the treatment is unavailable, so that we get to observe th
 These two very specific requirements of DID are encoded in the following way:
 
 \begin{hypothesis}[No Treatment in the Before Period]
-\protect\hypertarget{hyp:NoTreatmentFirst}{}{\label{hyp:NoTreatmentFirst} \iffalse (No Treatment in the Before Period) \fi{} }We assume that no unit in the population receives the treatment in the Before period: \(D_{i,B}=0\), \(\forall i\).
+\protect\hypertarget{hyp:NoTreatmentFirst}{}{\label{hyp:NoTreatmentFirst} \iffalse (No Treatment in the Before Period) \fi{} }We assume that no unit in the population receives the treatment in the Before period: \(D_{i,B}=0\), \(\forall i\) and not all units receive the program in the After period, but some units receive it: \(0<\Pr(D_{i,A}=1)<1\).
 \end{hypothesis}
 
 Under Assumption \ref{hyp:NoTreatmentFirst}, and without loss of generality, we are going to write \(D_i=D_{i,A}\).
@@ -7843,7 +7843,7 @@ Here, we use the distribution of \((\alpha_i,U_i^B,\mu_i+U_i^B+V_i)\) which is n
 \NormalTok{upper.cut.D1 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\ConstantTok{Inf}\NormalTok{,}\ConstantTok{Inf}\NormalTok{,}\FunctionTok{log}\NormalTok{(param[}\StringTok{\textquotesingle{}barY\textquotesingle{}}\NormalTok{]))}
 
 \CommentTok{\# means }
-\NormalTok{TT }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.UB.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.UB.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.D1,}\AttributeTok{upper=}\NormalTok{upper.cut.D1,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{1}\NormalTok{]]}
+\NormalTok{TT.pop }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.UB.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.UB.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.D1,}\AttributeTok{upper=}\NormalTok{upper.cut.D1,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{1}\NormalTok{]]}
 \NormalTok{mean.UB.D0 }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.UB.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.UB.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.D0,}\AttributeTok{upper=}\NormalTok{upper.cut.D0,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{2}\NormalTok{]]}
 \NormalTok{mean.UB.D1 }\OtherTok{\textless{}{-}} \FunctionTok{mtmvnorm}\NormalTok{(}\AttributeTok{mean=}\NormalTok{mean.alpha.UB.yBV,}\AttributeTok{sigma=}\NormalTok{cov.alpha.UB.yBV,}\AttributeTok{lower=}\NormalTok{lower.cut.D1,}\AttributeTok{upper=}\NormalTok{upper.cut.D1,}\AttributeTok{doComputeVariance=}\ConstantTok{FALSE}\NormalTok{)[[}\DecValTok{1}\NormalTok{]][[}\DecValTok{2}\NormalTok{]]}
 \NormalTok{B.DID }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{param[}\StringTok{\textquotesingle{}rho\textquotesingle{}}\NormalTok{])}\SpecialCharTok{*}\NormalTok{(mean.UB.D1}\SpecialCharTok{{-}}\NormalTok{mean.UB.D0)}
@@ -7851,7 +7851,7 @@ Here, we use the distribution of \((\alpha_i,U_i^B,\mu_i+U_i^B+V_i)\) which is n
 \end{Shaded}
 
 In our example, the population \(TT\) is equal to \(\Delta^y_{TT}=\) 0.173.
-The DID estimator is equal to \(\Delta^y_{DID}=\) 0.219.
+The DID estimator is equal to \(\Delta^y_{DID}=\) 0.211.
 As a consequence, the bias of the DID estimator is equal to \(\Delta^y_{B(DID)}=\) 0.046.
 
 In order to make the DID estimator consistent for the \(TT\) parameter, we need to impose that \(\rho=1\).
@@ -7927,7 +7927,7 @@ The After With/Without estimator is equal to \(\hat{\Delta}^{y}_{WW}=\) -1.2.
 The DID estimator is thus equal to \(\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=\) -1.2 \(-(\) -1.361 \()=\) 0.161.
 This is not too far from the true effect of the treatment in the sample which is equal to \(\hat{\Delta}^{y}_{TT}=\) 0.165.
 In the population, the \(TT\) parameter has not changed, since its computation does not involve \(\rho\).
-We still have \(\Delta^y_{TT}=\) 0.165.
+We still have \(\Delta^y_{TT}=\) 0.173.
 
 \hypertarget{using-the-least-squares-pooling-did-estimator}{%
 \paragraph{Using the Least Squares pooling DID estimator}\label{using-the-least-squares-pooling-did-estimator}}
@@ -8246,12 +8246,300 @@ A key difference is whether we have access to panel data or not.
 Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affected by sampling noise stemming from the fixed effects.
 This is not going to be the case with panel data, since all the estimators based on the TWFE estimator differentiate out the individual fixed effects.
 
-\textbf{Do the simulations}
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }Let's first start with the case of panel data:
+\end{example}
 
-\hypertarget{inference}{%
-\subsubsection{Inference}\label{inference}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# let us write a function that generates a DID estimate out of each sample of a given size}
+\NormalTok{monte.carlo.did.panel }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(s,N,param)\{}
+  \FunctionTok{set.seed}\NormalTok{(s)}
+\NormalTok{  mu }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,param[}\StringTok{"barmu"}\NormalTok{],}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{  UB }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  yB }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{ UB }
+\NormalTok{  YB }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(yB)}
+\NormalTok{  Ds }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N)}
+\NormalTok{  Ds[YB}\SpecialCharTok{\textless{}=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{]] }\OtherTok{\textless{}{-}} \DecValTok{1} 
+\NormalTok{  epsilon }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{  eta}\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{  U0 }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{UB }\SpecialCharTok{+}\NormalTok{ epsilon}
+\NormalTok{  y0 }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{  U0 }\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{  alpha }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralpha"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"theta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta}
+\NormalTok{  y1 }\OtherTok{\textless{}{-}}\NormalTok{ y0}\SpecialCharTok{+}\NormalTok{alpha}
+\NormalTok{  Y0 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0)}
+\NormalTok{  Y1 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1)}
+\NormalTok{  y }\OtherTok{\textless{}{-}}\NormalTok{ y1}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+\NormalTok{  Y }\OtherTok{\textless{}{-}}\NormalTok{ Y1}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{Y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+\NormalTok{  delta.y.did }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(y[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(y[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[Ds}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+  \FunctionTok{return}\NormalTok{(delta.y.did)}
+\NormalTok{\}}
 
-\textbf{Derive the distribution of the estimators with repeated cross sections and panels}
+\NormalTok{simuls.did.panel.N }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+\NormalTok{  simuls.did.panel }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(}\FunctionTok{lapply}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{Nsim,monte.carlo.did.panel,}\AttributeTok{N=}\NormalTok{N,}\AttributeTok{param=}\NormalTok{param)),}\AttributeTok{nrow=}\NormalTok{Nsim,}\AttributeTok{ncol=}\DecValTok{1}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
+  \FunctionTok{colnames}\NormalTok{(simuls.did.panel) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}DID\textquotesingle{}}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(simuls.did.panel)}
+\NormalTok{\}}
+
+\NormalTok{sf.simuls.did.panel.N }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+  \FunctionTok{sfInit}\NormalTok{(}\AttributeTok{parallel=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{cpus=}\DecValTok{8}\NormalTok{)}
+\NormalTok{  sim }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(}\FunctionTok{sfLapply}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{Nsim,monte.carlo.did.panel,}\AttributeTok{N=}\NormalTok{N,}\AttributeTok{param=}\NormalTok{param)),}\AttributeTok{nrow=}\NormalTok{Nsim,}\AttributeTok{ncol=}\DecValTok{1}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
+  \FunctionTok{sfStop}\NormalTok{()}
+  \FunctionTok{colnames}\NormalTok{(sim) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}DID\textquotesingle{}}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(sim)}
+\NormalTok{\}}
+
+\NormalTok{Nsim }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\CommentTok{\#Nsim \textless{}{-} 10}
+\NormalTok{N.sample }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{,}\DecValTok{1000}\NormalTok{,}\DecValTok{10000}\NormalTok{,}\DecValTok{100000}\NormalTok{)}
+\CommentTok{\#N.sample \textless{}{-} c(100,1000,10000)}
+\CommentTok{\#N.sample \textless{}{-} c(100,1000)}
+\CommentTok{\#N.sample \textless{}{-} c(100)}
+
+\NormalTok{simuls.did.panel }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(N.sample,sf.simuls.did.panel.N,}\AttributeTok{Nsim=}\NormalTok{Nsim,}\AttributeTok{param=}\NormalTok{param)}
+\FunctionTok{names}\NormalTok{(simuls.did.panel) }\OtherTok{\textless{}{-}}\NormalTok{ N.sample}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the results of the simulations:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(simuls.did.panel))\{}
+  \FunctionTok{hist}\NormalTok{(simuls.did.panel[[i]][,}\StringTok{\textquotesingle{}DID\textquotesingle{}}\NormalTok{],}\AttributeTok{breaks=}\DecValTok{30}\NormalTok{,}\AttributeTok{main=}\FunctionTok{paste}\NormalTok{(}\StringTok{\textquotesingle{}N=\textquotesingle{}}\NormalTok{,}\FunctionTok{as.character}\NormalTok{(N.sample[i])),}\AttributeTok{xlab=}\FunctionTok{expression}\NormalTok{(}\FunctionTok{hat}\NormalTok{(Delta}\SpecialCharTok{\^{}}\NormalTok{yDID)),}\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.15}\NormalTok{,}\FloatTok{0.55}\NormalTok{))}
+  \FunctionTok{abline}\NormalTok{(}\AttributeTok{v=}\NormalTok{TT.pop,}\AttributeTok{col=}\StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/DIDPanelSimulPlot-1} 
+
+}
+
+\caption{Distribution of the DID estimator over replications of panels of different sizes}\label{fig:DIDPanelSimulPlot}
+\end{figure}
+
+Figure \ref{fig:DIDPanelSimulPlot} shows that the DID estimator converges pretty fast to the true treatment effect as sample size grows large.
+Let us now wee what happens with a repeated cross section:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monte.carlo.did.cross }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(s,N,param)\{}
+\NormalTok{  N.tot }\OtherTok{\textless{}{-}} \DecValTok{2}\SpecialCharTok{*}\NormalTok{N}
+  \FunctionTok{set.seed}\NormalTok{(s)}
+\NormalTok{  mu }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N.tot,param[}\StringTok{"barmu"}\NormalTok{],}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2mu"}\NormalTok{]))}
+\NormalTok{  UB }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N.tot,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2U"}\NormalTok{]))}
+\NormalTok{  yB }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{ UB }
+\NormalTok{  YB }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(yB)}
+\NormalTok{  Ds }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,N.tot)}
+\NormalTok{  Ds[YB}\SpecialCharTok{\textless{}=}\NormalTok{param[}\StringTok{"barY"}\NormalTok{]] }\OtherTok{\textless{}{-}} \DecValTok{1} 
+\NormalTok{  epsilon }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N.tot,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2epsilon"}\NormalTok{]))}
+\NormalTok{  eta}\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(N.tot,}\DecValTok{0}\NormalTok{,}\FunctionTok{sqrt}\NormalTok{(param[}\StringTok{"sigma2eta"}\NormalTok{]))}
+\NormalTok{  U0 }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"rho"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{UB }\SpecialCharTok{+}\NormalTok{ epsilon}
+\NormalTok{  y0 }\OtherTok{\textless{}{-}}\NormalTok{ mu }\SpecialCharTok{+}\NormalTok{  U0 }\SpecialCharTok{+}\NormalTok{ param[}\StringTok{"delta"}\NormalTok{]}
+\NormalTok{  alpha }\OtherTok{\textless{}{-}}\NormalTok{ param[}\StringTok{"baralpha"}\NormalTok{]}\SpecialCharTok{+}\NormalTok{  param[}\StringTok{"theta"}\NormalTok{]}\SpecialCharTok{*}\NormalTok{mu }\SpecialCharTok{+}\NormalTok{ eta}
+\NormalTok{  y1 }\OtherTok{\textless{}{-}}\NormalTok{ y0}\SpecialCharTok{+}\NormalTok{alpha}
+\NormalTok{  Y0 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y0)}
+\NormalTok{  Y1 }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(y1)}
+\NormalTok{  y }\OtherTok{\textless{}{-}}\NormalTok{ y1}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+\NormalTok{  Y }\OtherTok{\textless{}{-}}\NormalTok{ Y1}\SpecialCharTok{*}\NormalTok{Ds}\SpecialCharTok{+}\NormalTok{Y0}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Ds)}
+  \CommentTok{\# first cross section: 1{-}N}
+\NormalTok{  first }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{,N)}
+  \CommentTok{\# second cross section: 1001{-}2000}
+\NormalTok{  second }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{,N.tot)}
+  \CommentTok{\# repeated cross section DID}
+\NormalTok{  delta.y.did.cross }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(y[second][Ds[second]}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(y[second][Ds[second]}\SpecialCharTok{==}\DecValTok{0}\NormalTok{])}\SpecialCharTok{{-}}\NormalTok{(}\FunctionTok{mean}\NormalTok{(yB[first][Ds[first]}\SpecialCharTok{==}\DecValTok{1}\NormalTok{])}\SpecialCharTok{{-}}\FunctionTok{mean}\NormalTok{(yB[first][Ds[first]}\SpecialCharTok{==}\DecValTok{0}\NormalTok{]))}
+  \FunctionTok{return}\NormalTok{(delta.y.did.cross)}
+\NormalTok{\}}
+
+\NormalTok{simuls.did.cross.N }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+\NormalTok{  simuls.did.cross }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(}\FunctionTok{lapply}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{Nsim,monte.carlo.did.cross,}\AttributeTok{N=}\NormalTok{N,}\AttributeTok{param=}\NormalTok{param)),}\AttributeTok{nrow=}\NormalTok{Nsim,}\AttributeTok{ncol=}\DecValTok{1}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
+  \FunctionTok{colnames}\NormalTok{(simuls.did.cross) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}DID\textquotesingle{}}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(simuls.did.cross)}
+\NormalTok{\}}
+
+\NormalTok{sf.simuls.did.cross.N }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(N,Nsim,param)\{}
+  \FunctionTok{sfInit}\NormalTok{(}\AttributeTok{parallel=}\ConstantTok{TRUE}\NormalTok{,}\AttributeTok{cpus=}\DecValTok{8}\NormalTok{)}
+\NormalTok{  sim }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{unlist}\NormalTok{(}\FunctionTok{sfLapply}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{Nsim,monte.carlo.did.cross,}\AttributeTok{N=}\NormalTok{N,}\AttributeTok{param=}\NormalTok{param)),}\AttributeTok{nrow=}\NormalTok{Nsim,}\AttributeTok{ncol=}\DecValTok{1}\NormalTok{,}\AttributeTok{byrow=}\ConstantTok{TRUE}\NormalTok{)}
+  \FunctionTok{sfStop}\NormalTok{()}
+  \FunctionTok{colnames}\NormalTok{(sim) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}DID\textquotesingle{}}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(sim)}
+\NormalTok{\}}
+
+\NormalTok{Nsim }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\CommentTok{\#Nsim \textless{}{-} 10}
+\NormalTok{N.sample }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{,}\DecValTok{1000}\NormalTok{,}\DecValTok{10000}\NormalTok{,}\DecValTok{100000}\NormalTok{)}
+\CommentTok{\#N.sample \textless{}{-} c(100,1000,10000)}
+\CommentTok{\#N.sample \textless{}{-} c(100,1000)}
+\CommentTok{\#N.sample \textless{}{-} c(100)}
+
+\NormalTok{simuls.did.cross }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(N.sample,sf.simuls.did.cross.N,}\AttributeTok{Nsim=}\NormalTok{Nsim,}\AttributeTok{param=}\NormalTok{param)}
+\FunctionTok{names}\NormalTok{(simuls.did.cross) }\OtherTok{\textless{}{-}}\NormalTok{ N.sample}
+\end{Highlighting}
+\end{Shaded}
+
+Let us now plot the results:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(simuls.did.cross))\{}
+  \FunctionTok{hist}\NormalTok{(simuls.did.cross[[i]][,}\StringTok{\textquotesingle{}DID\textquotesingle{}}\NormalTok{],}\AttributeTok{breaks=}\DecValTok{30}\NormalTok{,}\AttributeTok{main=}\FunctionTok{paste}\NormalTok{(}\StringTok{\textquotesingle{}N=\textquotesingle{}}\NormalTok{,}\FunctionTok{as.character}\NormalTok{(N.sample[i])),}\AttributeTok{xlab=}\FunctionTok{expression}\NormalTok{(}\FunctionTok{hat}\NormalTok{(Delta}\SpecialCharTok{\^{}}\NormalTok{yDID)),}\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.15}\NormalTok{,}\FloatTok{0.55}\NormalTok{))}
+  \FunctionTok{abline}\NormalTok{(}\AttributeTok{v=}\NormalTok{TT.pop,}\AttributeTok{col=}\StringTok{"red"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/DIDCrossSectionSimulPlot-1} 
+
+}
+
+\caption{Distribution of the DID estimator over replications of repeated cross sections of different sizes}\label{fig:DIDCrossSectionSimulPlot}
+\end{figure}
+
+Relative to Figure \ref{fig:DIDPanelSimulPlot}, Figure \ref{fig:DIDCrossSectionSimulPlot} shows that sampling noise is larger at each sample size with a repeated cross section estimator.
+Let's see how we can estimate these below using the Central Limit Theorem.
+
+\hypertarget{estimation-of-sampling-noise-1}{%
+\subsubsection{Estimation of sampling noise}\label{estimation-of-sampling-noise-1}}
+
+It is especially important to understand the properties of sampling noise for treatment effect estimators in DID designs because it can serve as a basis for power analysis, but also to understand the sources of improvements or loss of precision when moving from the simple with/without comparison to the DID estimator.
+Let us first look at the sampling noise of the simpler \(2\times 2\) DID estimator in a panel data with only two time periods.
+We will then move to the sampling noise of the simpler \(2\times 2\) DID estimator in a repeated cross section.
+
+\hypertarget{estimating-sampling-noise-in-panel-settings}{%
+\paragraph{Estimating sampling noise in panel settings}\label{estimating-sampling-noise-in-panel-settings}}
+
+When we estimate DID in a panel of two time periods, Theorem \ref{thm:EstimDID} shows that all possible DID estimators are equivalent.
+We can thus use the most convenient one in order to derive the Central Limit Theorem-based approximation to its distribution, and use it to estimate sampling noise.
+The most convenient estimator, to me, is the First Difference estimator.
+We indeed know that it is formulated as an OLS estimator, regressing the change in outcomes over time to the treatment dummy.
+The First Difference estimator is thus simply a With/Without estimator where the outcomes are replaced by the changes in outcomes over time.
+And we already know how to derive an Central Limit Theorem-based estimate of the sampling noise of the With/Without estimator.
+In order to use these results, we need some assumptions:
+
+\begin{hypothesis}[i.i.d. sampling in First Difference]
+\protect\hypertarget{hyp:iidDID}{}{\label{hyp:iidDID} \iffalse (i.i.d. sampling in First Difference) \fi{} }We assume that the observations in the sample are identically and independently distributed in First Differences:
+\begin{align*}
+\forall i,j\leq N\text{, }i\neq j\text{, } & (Y_{i,A}-Y_{i,B},D_i)\Ind(Y_{j,A}-Y_{j,B},D_j),\\
+                                           & (Y_{i,A}-Y_{i,B},D_i)\&(Y_{j,A}-Y_{j,B},D_j)\sim F_{Y_A-Y_B,D}.
+\end{align*}
+\end{hypothesis}
+
+Assumption \ref{hyp:iidDID} imposes that the changes in outcome over time are not correlated across units.
+This is not a strong assumption.
+It is actually much weaker than imposing that the levels of outcomes are distributed i.i.d. in the sample.
+That would require that the outcomes of the same unit are not correlated over time, which is wrong if there are unit fixed effects \(\mu_i\) or if the error terms are correlated across time (which is possible if shocks are persistent).
+Assumption \ref{hyp:iidDID} rules out spatial correlation between units, be it in the changes in outcomes or in receiving the treatment.
+This is very restrictive.
+
+We also need to assume that the changes in outcomes in both groups have finite variances:
+
+\begin{hypothesis}[Finite variance of $\hat{\Delta^Y_{WW}}$]
+\protect\hypertarget{hyp:finitevarDID}{}{\label{hyp:finitevarDID} \iffalse (Finite variance of \(\hat{\Delta^Y_{WW}}\)) \fi{} }We assume that \(\var{Y^1_A-Y^0_B|D_i=1}\) and \(\var{Y^0_A-Y^0_B|D_i=0}\) are finite.
+\end{hypothesis}
+
+We now can state the following theorem:
+
+\begin{theorem}[Asymptotic Estimate of Sampling Noise of DID]
+\protect\hypertarget{thm:asympnoiseDID}{}{\label{thm:asympnoiseDID} \iffalse (Asymptotic Estimate of Sampling Noise of DID) \fi{} }Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDID} and \ref{hyp:finitevarDID}, for a given confidence level \(\delta\) and sample size \(N\), the sampling noise of \(\hat{\Delta}^Y_{DID}\) can be approximated as follows:
+
+\begin{align*}
+2\epsilon^{panel}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_{i,A}^1-Y_{i,B}^0|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_{i,A}^0-Y_{i,B}^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}^{panel}_{DID}.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, Theorem \ref{thm:EstimDID} proves that \(\hat{\Delta}^Y_{DID}=\hat{\beta}^{FD}\).
+\(\hat{\beta}^{FD}\) is obtained as the OLS estimator of the coefficient in front of \(D_i\) in a regression of \(Y_{i,A}-Y_{i,B}\) on \(D_i\) and a constant.
+Lemma \ref{lem:WWOLS} shows that, in such a regression, this coefficient is also a WW estimator, so that \(\hat{\beta}^{FD}=\hat{\Delta}^{Y_{A}-Y_{B}}_{WW}\).
+Using Theorem \ref{thm:asympnoiseWW} proves the result.
+\end{proof}
+
+Theorem \ref{thm:asympnoiseDID} shows that the precision of the DID estimator in panel settings depends on the variance of the changes in outcomes over time in the treated and control group.
+Since outcomes for a given individual are generally correlated over time, the variance of the DID estimator will in general be lower than the variance of the WW estimator.
+A case in point is when there are individual fixed effects in the equation generating outcomes: in that case, differencing outcomes over time gets rid of the individual fixed effects and thus the variance of the differences out outcomes is lower than the variance of outcomes in levels, since it misses the part due to the individual fixed effects.
+So, in most cases (but not all of them), we can expect an increase in precision when moving from WW to DID.
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-182}{}{\label{exm:unnamed-chunk-182} }Let's see how our estimator of sampling noise performs in the data.
+\end{example}
+
+The true level of 99\% sampling noise in the \(N=\) 1000 sample is estimated from the simulations to be equal to 0.12, while the estimated level of 99\% sampling noise using the formula from Theorem \ref{thm:asympnoiseDID} is equal to 0.1.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the First Difference regression using OLS is equal to 0.11.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the DID regression using OLS is equal to 0.34.
+It is much larger, because it assumes that we only have access to a repeated cross section, and thus it does not take into account the fact that we have more precision thanks to the panel data.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the Within regression using OLS is equal to 0.08.
+The \texttt{plm} package corrects all standard errors for the panel nature of the data (irrespective of the type of estimator), and thus returns an estimate of 99\% sampling noise equal to 0.11 for the Within estimator, 0.11 for the First Difference estimator and 0.11 for the pooled DID estimator.
+Neither \texttt{lfe} nor \texttt{fixest} seem compatible with \texttt{vcovHC}, which enables the estimation of heteroskedasticity-robust standard errors.
+The \texttt{lfe} package seems not to take into account heteroskedasticity by default: its estimate of 99\% sampling noise is equal to 0.1.
+The \texttt{fixest} package seems to take into account heteroskedasticity by default: its estimate of 99\% sampling noise is equal to 0.11.
+
+\hypertarget{estimating-sampling-noise-in-repeated-cross-sections}{%
+\paragraph{Estimating sampling noise in repeated cross sections}\label{estimating-sampling-noise-in-repeated-cross-sections}}
+
+When we do not have access to panel data, a lot of the estimators we have studied here are infeasible.
+This is the case of the First Difference estimator (we cannot build the difference in out comes over time for the same unit since we observe each unit only once).
+The Within estimator is also compromised (we cannot build the average outcome over time for each observation, since, again, we only observe each observation only once).
+The Least Squares Dummy Variables estimator is also infeasible, for the same reason: we need to observe each observation at least twice in order for the treatment dummy to not be collinear with the unit and time fixed effects.
+
+But, both the basic DID formula and the Least Squares pooling estimator can still be computed with repeated cross sections.
+As Figure \ref{fig:DIDCrossSectionSimulPlot} has shown, the DID estimator is much more variable in repeated cross section: the level of 99\% sampling noise in the \(N=\) 1000 sample is estimated from the simulations to be equal to 0.28, while it is of 0.12 with panel data of the same size.
+Let's see how the Central-Limit Theorem can help us estimate this variance and shed some light on why we lose so much precision when moving from panel to cross section estimators.
+It is unfortunately much more work to derive the CLT-based estimate of sampling noise with repeated cross-sections than with panel data.
+We first need to respecify an i.i.d. assumption adapted to repeated cross sections:
+
+\begin{hypothesis}[i.i.d. sampling in Repeated Cross Sections]
+\protect\hypertarget{hyp:iidDIDCross}{}{\label{hyp:iidDIDCross} \iffalse (i.i.d. sampling in Repeated Cross Sections) \fi{} }We assume that the observations in the sample are identically and independently distributed:
+\begin{align*}
+\forall i,j\leq N_t\text{, }i\neq j\text{, }, \forall t,t'\in\{A,B\}\text{, }t\neq t'\text{, } & (Y_{i,t},D_i)\Ind(Y_{j,t'},D_j),\\
+                                           & (Y_{i,t},D_i)\&(Y_{j,t'},D_j)\sim F_{Y,D}. 
+\end{align*}
+\end{hypothesis}
+
+Assumption \ref{hyp:iidDIDCross} imposes that outcomes are not correlated across units nor across time.
+This is not a strong assumption in a repeated cross section, as long as the same units are not observed at both periods.
+We now can state the following theorem:
+
+\begin{theorem}[Asymptotic Estimate of Sampling Noise of DID in Repeated Cross Sections]
+\protect\hypertarget{thm:asympnoiseDIDCross}{}{\label{thm:asympnoiseDIDCross} \iffalse (Asymptotic Estimate of Sampling Noise of DID in Repeated Cross Sections) \fi{} }Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDIDCross} and \ref{hyp:finitevar}, for a given confidence level \(\delta\), the sampling noise of \(\hat{\Delta}^Y_{DID}\) in repeated cross sections of total size \(N\) can be approximated as follows:
+
+\begin{align*}
+2\epsilon^{cross}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{
+                            \frac{\var{Y^0_{i,B}|D_i=0}}{(1-p)(1-p_A)}
+                            +\frac{\var{Y^0_{i,B}|D_i=1}}{p(1-p_A)}
+                            +\frac{\var{Y^0_{i,A}|D_i=0}}{(1-p)p_A}
+                            +\frac{\var{Y^1_{i,A}|D_i=1}}{pp_A}} \\
+                        & \equiv 2\tilde{\epsilon}^{cross}_{DID}.
+\end{align*}
+
+where \(p=\Pr(D_i=1)\) and \(p_A\) is the proportion of observations belonging to the After period.
+\end{theorem}
+
+\begin{proof}
+\iffalse{} {Proof. } \fi{}See Section \ref{proofasympnoiseDIDCross}.
+\end{proof}
+
+\begin{remark}
+\iffalse{} {Remark. } \fi{}Note that the difference between the amount of sampling noise of the DID estimator in panel data \textit{vs} in repeated cross sections is present whatever the estimator (in panel data, all the estimators are equivalent).
+It is not differencing or taking the within transformation that gets rid of sampling noise, it is collecting data on the same observations twice.
+Differencing only helps the OLS estimator of the standard errors to understand that we have panel data and to reflect it in its estimate of precision.
+The DID estimator is always more precise in panel data (in our example).
+The CLT-based estimator of precision does not always reflect that fact, because we have not correctly specified it.
+\end{remark}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-185}{}{\label{exm:unnamed-chunk-185} }Let's see how our estimator of sampling noise performs in the data.
+\end{example}
+
+The true level of 99\% sampling noise in the \(N=\) 1000 sample is estimated from the simulations to be equal to 0.28, while the estimated level of 99\% sampling noise using the formula from Theorem \ref{thm:asympnoiseDIDCross} is equal to 0.34.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the DID regression using OLS is equal to 0.34.
+The \texttt{plm} package returns an estimate of 99\% sampling noise equal to 0.11 for the pooled DID estimator.
 
 \hypertarget{sec:DIDr}{%
 \subsection{Reverse Difference In Differences designs with two time periods}\label{sec:DIDr}}
@@ -8284,7 +8572,7 @@ We are going to choose an estimator that compares the change in outcomes among i
 Note that \(\Delta^Y_{DID^r}\) is the opposite of the more usual DID estimator \(\Delta^Y_{DID}\), hence the name of reverse DID.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-180}{}{\label{exm:unnamed-chunk-180} }Let us generate data in our example model that complies with Assumption \ref{hyp:AllTreatmentSecond}.
+\protect\hypertarget{exm:unnamed-chunk-186}{}{\label{exm:unnamed-chunk-186} }Let us generate data in our example model that complies with Assumption \ref{hyp:AllTreatmentSecond}.
 \end{example}
 
 \begin{align*}
@@ -8638,7 +8926,7 @@ On Figure \ref{fig:PlotDIDRev2nd}, the average treatment effect on \emph{switche
 As a consequence, the \(DID^r\) estimator is equal to -0.11 while the average effect of the treatment on the \emph{switchers} in the first period is equal to: \(\hat{\Delta}^{y_B}_{TUT}=\) 0.17.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-193}{}{\label{exm:unnamed-chunk-193} }Let us now explore how the way Theorem \ref{thm:BiasDIDr} plays out in our data.
+\protect\hypertarget{exm:unnamed-chunk-199}{}{\label{exm:unnamed-chunk-199} }Let us now explore how the way Theorem \ref{thm:BiasDIDr} plays out in our data.
 For that, we are going to first switch off the change in treatment effects that is specific to the \emph{always takers} in the second period.
 As a case in point, we are going to set \(\bar{\alpha}_{AT}=0\).
 \end{example}
@@ -8750,7 +9038,7 @@ The reasons why are left as an exercise.
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-195}{}{\label{exm:unnamed-chunk-195} }Let us finally explore the last condition in Theorem \ref{thm:BiasDIDr} that makes \(DID^r\) unbiased for \(\Delta^{Y_A}_{TUT}\), the effect of the treatment on \emph{switchers} in the second period.
+\protect\hypertarget{exm:unnamed-chunk-201}{}{\label{exm:unnamed-chunk-201} }Let us finally explore the last condition in Theorem \ref{thm:BiasDIDr} that makes \(DID^r\) unbiased for \(\Delta^{Y_A}_{TUT}\), the effect of the treatment on \emph{switchers} in the second period.
 We are going to switch off the change in treatment effects that occurs over time in both groups: we are going to set \(\bar{\alpha}_{A}=\bar{\alpha}_{B}=0.1\).
 \end{example}
 
@@ -8965,7 +9253,7 @@ where the second equality follows from Assumptions \ref{hyp:AllTreatmentFirst}, 
 \end{proof}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-201}{}{\label{exm:unnamed-chunk-201} }Let us generate data in our example model that complies with Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:NoEffectsAfterExit}.
+\protect\hypertarget{exm:unnamed-chunk-207}{}{\label{exm:unnamed-chunk-207} }Let us generate data in our example model that complies with Assumptions \ref{hyp:AllTreatmentFirst} and \ref{hyp:NoEffectsAfterExit}.
 \end{example}
 
 \begin{align*}
@@ -9075,7 +9363,7 @@ The bias of the DID estimator for the effect of the treatment on the \emph{switc
 Following Lemma \ref{lem:BiasDID}, it is close to the change in treatment effect over time among the \emph{switchers} (\(\hat\Delta^{Y_A}_{TT}-\hat\Delta^{Y_B}_{TT}=\) 0.54 \(-\) 0.17 \(=\) 0.37).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-202}{}{\label{exm:unnamed-chunk-202} }What happens if we enforce the fact that treatment effects vary in the same way among \emph{always takers} and \emph{switchers}.
+\protect\hypertarget{exm:unnamed-chunk-208}{}{\label{exm:unnamed-chunk-208} }What happens if we enforce the fact that treatment effects vary in the same way among \emph{always takers} and \emph{switchers}.
 Let's find out.
 \end{example}
 
@@ -9374,7 +9662,7 @@ Before going through an example to illustrate all of these notions, let me intro
 \subsubsection{Estimation}\label{estimation-2}}
 
 Estimation of the various DID estimators that we have defined in the previous section can take several forms.
-The simplest form estimates the separate individual DID components using the methods seen in Section \ref{DIDbasic}, and then manually computes their weighted averages.
+The simplest form estimates the separate individual DID components using the methods seen in Section \ref{sec:DIDbasic}, and then manually computes their weighted averages.
 I will detail this approach first.
 A very similar approach uses the estimates obtained with one reference period (in general \(\tau'=1\)) and combines them to obtain one treatment effect or a series of treatment effects around the treatment date.
 This approach has been proposed by \href{https://www.sciencedirect.com/science/article/pii/S030440762030378X}{Sun and Abraham (2021)} and by \href{https://www.sciencedirect.com/science/article/pii/S0304407620303948}{Callaway and Sant'Anna (2021)}.
@@ -9383,7 +9671,7 @@ This approach has been proposed by \href{http://arxiv.org/abs/2108.12419}{Borusy
 \href{https://www.aeaweb.org/articles?id=10.1257/aer.20181169}{de Chaisemartin and d'Haultfoeuille (2020)} propose to only use changes that occur around the treatment date.
 Finally, one could use the Two Way Fixed Effects model presented in Section \ref{sec:DIDbasic}, combining all the time periods in a single estimator.
 Recent work by \href{https://www.sciencedirect.com/science/article/pii/S0304407621001445}{Goodman-Bacon (2021)} has shown that this approach is only valid under much more restrictive assumptions than the ones stated in Corollary \ref{cor:IdentDIDAgg}.
-The main reason for why is that the Two Way Fixed Effects estimator combines individual DID and \(DID^r\) estimates, thereby generating strong biases if the assumptions that ensure the validity of \(DID^r\) are not valid.
+The main reason for why it is so is that the Two Way Fixed Effects estimator combines individual DID and \(DID^r\) estimates, thereby generating strong biases if the assumptions that ensure the validity of \(DID^r\) are not valid.
 An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
 It has been proposed by \href{https://academic.oup.com/qje/article/134/3/1405/5484905}{Cengiz, Dube, Lindner and Zipperer (2019)} and extended by \href{https://jrgcmu.github.io/2sdd_current.pdf}{Gardner (2021)}.
 The \texttt{R} packages required to implement all of these estimators are listed on \href{https://asjadnaqvi.github.io/DiD/docs/02_R/}{Asjad Naqvi's DID webpage}.
@@ -9398,7 +9686,7 @@ The key to this section is to illustrate how to operationalize this approach in 
 Let's go.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-207}{}{\label{exm:unnamed-chunk-207} }The key here is first to generate some data.
+\protect\hypertarget{exm:unnamed-chunk-213}{}{\label{exm:unnamed-chunk-213} }The key here is first to generate some data.
 \end{example}
 We are going to have four successive time periods, \(1\), \(2\), \(3\), and \(4\).
 At each of these time periods, some units start receiving the treatment, generating four treatment groups: \(D_i\in\{1,2,3,4\}\).
@@ -9945,7 +10233,7 @@ In order to be able to estimate \href{https://doi.org/10.1016/j.jeconom.2020.09.
 We then can aggregate the estimated terms using \texttt{regexp} in order to detect the string patterns.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-208}{}{\label{exm:unnamed-chunk-208} }Let's go:
+\protect\hypertarget{exm:unnamed-chunk-214}{}{\label{exm:unnamed-chunk-214} }Let's go:
 \end{example}
 
 \begin{Shaded}
@@ -10122,7 +10410,7 @@ Callaway and Sant'Anna have proposed the \texttt{did} package to implement their
 The main command is \texttt{att\_gt}, which computes all the estimates for each treatment group \(D_i=g\) and each time period \(t\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-209}{}{\label{exm:unnamed-chunk-209} }Let's see if we can make it work.
+\protect\hypertarget{exm:unnamed-chunk-215}{}{\label{exm:unnamed-chunk-215} }Let's see if we can make it work.
 \end{example}
 
 \begin{Shaded}
@@ -10204,7 +10492,7 @@ Let us finally compute the aggregated treatment effect:
 \end{Highlighting}
 \end{Shaded}
 
-The aggregated effect estimated using the Sun and Abraham appraoch as implemented in \texttt{fixest} is equal to 1.07 \(\pm\) 0.06.
+The aggregated effect estimated using the Callaway and Sant'Anna approach as implemented in \texttt{did} is equal to 1.07 \(\pm\) 0.06.
 
 \hypertarget{de-chaisemartin-and-dhaultfoeuille}{%
 \paragraph{De Chaisemartin and d'Haultfoeuille}\label{de-chaisemartin-and-dhaultfoeuille}}
@@ -10216,7 +10504,7 @@ In its simplest form, with staggered designs, a discrete treatment and no covari
 Both estimators have been implemented in the \texttt{DIDmutiplegt} package with the \texttt{did\_multiplegt} function.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-210}{}{\label{exm:unnamed-chunk-210} }Let's see how it works.
+\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's see how it works.
 \end{example}
 
 \begin{Shaded}
@@ -10268,7 +10556,7 @@ I have been unable to obtain standard errors for this estimator for now.
 \hypertarget{imputation-methods-borusyak-jaravel-and-speiss}{%
 \paragraph{Imputation methods: Borusyak, Jaravel and Speiss}\label{imputation-methods-borusyak-jaravel-and-speiss}}
 
-\href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)} adopt a very differnet framework from the previous ones.
+\href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)} adopt a very different framework from the previous ones.
 They do not build from the individual DID estimators \(\Delta^{Y}_{DID}(d,d',\tau,\tau')\), but instead propose to estimate the individual level treatment effects \(\hat\Delta^Y_{i,t}\) and then to aggregate them as one wishes to.
 In order to build an estimate of the individual level treatment effects \(\hat\Delta^Y_{i,t}\), \href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)} propose to use an imputation estimator, \(\hat Y^0_{i,t}\), which predicts the value of \(Y^0_{i,t}\) for each treated unit.
 \href{http://arxiv.org/abs/2108.12419}{Borusyak, Jaravel and Speiss (2021)}'s imputation estimator works as follows:
@@ -10360,7 +10648,7 @@ Thanks to the amazing \href{https://kylebutts.com/}{Kyle Butts}, we have a packa
 The command is \texttt{did\_imputation}.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-215}{}{\label{exm:unnamed-chunk-215} }Let's see how it works.
+\protect\hypertarget{exm:unnamed-chunk-221}{}{\label{exm:unnamed-chunk-221} }Let's see how it works.
 \end{example}
 
 \begin{Shaded}
@@ -10458,7 +10746,7 @@ Gardner shows that the coefficient on \(D_{i,t}\) in the second stage of this pr
 What is pretty great is that Gardner, together with Kyle Butts, have provided an \texttt{R} package in order to perform the estimation: \texttt{did2s}.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-216}{}{\label{exm:unnamed-chunk-216} }Let's see how it works in our example.
+\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }Let's see how it works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10542,7 +10830,7 @@ The way I'm choosing to implement this approach is by adding specific group \(\t
 We are going to run a two-way fixed effects model on these fixed effects and on individual fixed effects as well as on treatment dummies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-217}{}{\label{exm:unnamed-chunk-217} }Let's see how it goes.
+\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let's see how it goes.
 \end{example}
 
 \begin{Shaded}
@@ -10632,7 +10920,7 @@ Methods based on the Two Way Fixed Effects model were actually the most used one
 In this section, we will cover the basic issues that methods based on the Two Way Fixed Effects model face in a staggered design and we will state conditions under which they can be correct.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-218}{}{\label{exm:unnamed-chunk-218} }Before that, let us simply look at how the Two Way Fixed Effects model performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-224}{}{\label{exm:unnamed-chunk-224} }Before that, let us simply look at how the Two Way Fixed Effects model performs in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10741,6 +11029,8 @@ The problem with the Two Way Fixed Effects-based estimators is still that the we
 One probably prefers using tailor-made weights as in the estimators we have studied previously.
 \end{remark}
 
+\textbf{Add corollary showing that TWFE is consistent under constant treatment effects over time}
+
 \hypertarget{sec:BiasTWFEevent}{%
 \subparagraph{Bias of the Two Way Fixed Effects-based estimators for the event study estimates}\label{sec:BiasTWFEevent}}
 
@@ -10792,7 +11082,7 @@ This is potentially a severe problem.
 For example, estimates of the effect pre-treatment can appear large and positive whereas the effect at these dates is actually zero.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-222}{}{\label{exm:unnamed-chunk-222} }In our numerical example, we have already seen that the TWFE event-study estimator is not severely biased for the event study coefficients.
+\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }In our numerical example, we have already seen that the TWFE event-study estimator is not severely biased for the event study coefficients.
 We are going to use an example from \href{https://andrewcbaker.netlify.app/2020/06/27/how-to-create-relative-time-indicators/}{Andrew Baker} in order to illustrate the bias of the TWFE event-study estimator and try to understand its sources.
 \end{example}
 
@@ -11049,7 +11339,7 @@ So, in general, Sun and Abraham bias seems to come from a misleading binning of 
 Let us check whether this would generate weird results for the Two-Way Fixed Effects estimator in our dataset as well.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-223}{}{\label{exm:unnamed-chunk-223} }Let us check whether binning the post-treatment observations together (let's say the last two) generates bias for the event study estimator in our original dataset.
+\protect\hypertarget{exm:unnamed-chunk-229}{}{\label{exm:unnamed-chunk-229} }Let us check whether binning the post-treatment observations together (let's say the last two) generates bias for the event study estimator in our original dataset.
 We distinguish between an estimator using the data from the always takers and an estimator not using these observations.
 \end{example}
 
@@ -11353,10 +11643,11 @@ They are mostly cosmetic since thay are questions about properties of the Two-Wa
   Does the gain in efficiency obtained by the imputation estimator is still present when combining all the DID estimates from all the possible comparison groups, as in the weigthed DID estimator we have proposed?
 \end{enumerate}
 
-\hypertarget{inference-1}{%
-\subsubsection{Inference}\label{inference-1}}
+\hypertarget{estimation-of-sampling-noise-2}{%
+\subsubsection{Estimation of sampling noise}\label{estimation-of-sampling-noise-2}}
 
 \textbf{Simple estimators use the Delta method with an appropriate weighting matrix}
+\textbf{Write the formula}
 
 \hypertarget{difference-in-differences-with-instrumental-variables}{%
 \subsection{Difference In Differences with Instrumental Variables}\label{difference-in-differences-with-instrumental-variables}}
@@ -11559,7 +11850,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-228}{}{\label{exm:unnamed-chunk-228} }Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-234}{}{\label{exm:unnamed-chunk-234} }Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -11820,7 +12111,7 @@ In order to obtain an estimator \(\hat{\sigma}^2\) of the variance of the meta-a
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-234}{}{\label{exm:unnamed-chunk-234} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-240}{}{\label{exm:unnamed-chunk-240} }Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
 A very simple way to implement such an estimator in R is to use the \texttt{rma} command of the \texttt{metafor} package.
@@ -11964,7 +12255,7 @@ with
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-236}{}{\label{exm:unnamed-chunk-236} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-242}{}{\label{exm:unnamed-chunk-242} }Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -12087,7 +12378,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-237}{}{\label{exm:unnamed-chunk-237} }Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-243}{}{\label{exm:unnamed-chunk-243} }Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -12149,7 +12440,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-238}{}{\label{exm:unnamed-chunk-238} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-244}{}{\label{exm:unnamed-chunk-244} }In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.\\
 \end{example}
 The \(Q\) statistic in our example has value 12.71, with associated p-value 0.85.
@@ -12190,7 +12481,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-241}{}{\label{exm:unnamed-chunk-241} }Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-247}{}{\label{exm:unnamed-chunk-247} }Let's see how Hedges estimator performs in our example.
 \end{example}
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is NA.
 The main problem with Hedges' estimator when treatment effects are heterogeneous is that very large effects for the more precise estimators dramatically affect the estimate.
@@ -12225,7 +12516,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-243}{}{\label{exm:unnamed-chunk-243} }For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-249}{}{\label{exm:unnamed-chunk-249} }For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -12340,7 +12631,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-244}{}{\label{exm:unnamed-chunk-244} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-250}{}{\label{exm:unnamed-chunk-250} }Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
 
@@ -12531,7 +12822,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-245}{}{\label{exm:unnamed-chunk-245} }Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-251}{}{\label{exm:unnamed-chunk-251} }Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -12628,7 +12919,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-246}{}{\label{exm:unnamed-chunk-246} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-252}{}{\label{exm:unnamed-chunk-252} }Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -12748,7 +13039,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-248}{}{\label{exm:unnamed-chunk-248} }What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-254}{}{\label{exm:unnamed-chunk-254} }What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -12827,7 +13118,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-249}{}{\label{exm:unnamed-chunk-249} }Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-255}{}{\label{exm:unnamed-chunk-255} }Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -12970,7 +13261,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-250}{}{\label{exm:unnamed-chunk-250} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-256}{}{\label{exm:unnamed-chunk-256} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -13074,7 +13365,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-251}{}{\label{exm:unnamed-chunk-251} }Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-257}{}{\label{exm:unnamed-chunk-257} }Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -13412,7 +13703,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-252}{}{\label{exm:unnamed-chunk-252} }Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-258}{}{\label{exm:unnamed-chunk-258} }Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -13571,7 +13862,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-253}{}{\label{exm:unnamed-chunk-253} }Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-259}{}{\label{exm:unnamed-chunk-259} }Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -13861,7 +14152,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-260}{}{\label{exm:unnamed-chunk-260} }Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-266}{}{\label{exm:unnamed-chunk-266} }Let's see how this approach works in our example.
 \end{example}
 Let's start with the homogeneous treatment effect case
 
@@ -14114,7 +14405,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-267}{}{\label{exm:unnamed-chunk-267} }Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-273}{}{\label{exm:unnamed-chunk-273} }Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
@@ -14265,7 +14556,7 @@ In order to use Theorem \ref{thm:cheb} for studying the behavior of \(\hat{\Delt
 Let's first prove that the \(WW\) estimator is an unbiased estimator of \(TT\):
 
 \begin{lemma}[Unbiasedness of $\hat{\Delta^Y_{WW}}$]
-\protect\hypertarget{lem:unbiasww}{}{\label{lem:unbiasww} \iffalse (Unbiasedness of \(\hat{\Delta^Y_{WW}}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank} and \ref{def:iid},
+\protect\hypertarget{lem:unbiasww}{}{\label{lem:unbiasww} \iffalse (Unbiasedness of \(\hat{\Delta^Y_{WW}}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{hyp:fullrank} and \ref{hyp:iid},
 
 \begin{align*}
 \esp{\hat{\Delta^Y_{WW}}}& = \Delta^Y_{TT}.
@@ -14295,7 +14586,7 @@ This trick simplifies derivations a lot and is really natural: think first of al
 The first equality uses the Law of Iterated Expectations (LIE).
 The second and fourth equalities use the linearity of conditional expectations.
 The third equality uses the fact that, conditional on \(\mathbf{D}\), the number of treated and untreated is a constant.
-The fifth equality uses Assumption \ref{def:iid}.
+The fifth equality uses Assumption \ref{hyp:iid}.
 The sixth equality uses the fact that \(\esp{Y_iD_i|D_i}=D_i\esp{Y_i*1|D_i=1}+(1-D_i)\esp{Y_i*0|D_i=0}\).
 The seventh and ninth equalities use the fact that \(\esp{Y_i|D_i=1}\) is a constant.
 The last equality uses Assumption \ref{def:noselb}.
@@ -14304,7 +14595,7 @@ The last equality uses Assumption \ref{def:noselb}.
 Let's now compute the variance of the \(WW\) estimator:
 
 \begin{lemma}[Variance of $\hat{\Delta^Y_{WW}}$]
-\protect\hypertarget{lem:varww}{}{\label{lem:varww} \iffalse (Variance of \(\hat{\Delta^Y_{WW}}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank} and \ref{def:iid},
+\protect\hypertarget{lem:varww}{}{\label{lem:varww} \iffalse (Variance of \(\hat{\Delta^Y_{WW}}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank} and \ref{hyp:iid},
 
 \begin{align*}
 \var{{\hat{\Delta^Y_{WW}}}} & = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
@@ -14328,10 +14619,10 @@ Let's now compute the variance of the \(WW\) estimator:
 
 The first equality stems from the LTV.
 The second and third equalities stems from the definition of the \(WW\) estimator and of the variance of a sum of random variables.
-The fourth equality stems from Assumption \ref{def:iid}, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
-The fifth and sixth equalities stems from Assumption \ref{def:iid} and from \(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\).
+The fourth equality stems from Assumption \ref{hyp:iid}, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
+The fifth and sixth equalities stems from Assumption \ref{hyp:iid} and from \(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\).
 The seventh equality stems from \(\var{Y_i|D_i=1}\) and \(\var{Y_i|D_i=0}\) being constant.
-The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case under Assumption \ref{def:fullrank}.
+The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case under Assumption \ref{hyp:fullrank}.
 \end{proof}
 
 Using Theorem \ref{thm:cheb}, we have:
@@ -14350,7 +14641,7 @@ This proves the result.
 Before proving Theorem \ref{thm:asympnoiseWW}, let me state a very useful result: \(\hat{WW}\) can be computed using OLS:
 
 \begin{lemma}[WW is OLS]
-\protect\hypertarget{lem:WWOLS}{}{\label{lem:WWOLS} \iffalse (WW is OLS) \fi{} }Under Assumption \ref{def:fullrank}, the OLS coefficient \(\beta\) in the following regression:
+\protect\hypertarget{lem:WWOLS}{}{\label{lem:WWOLS} \iffalse (WW is OLS) \fi{} }Under Assumption \ref{hyp:fullrank}, the OLS coefficient \(\beta\) in the following regression:
 
 \begin{align*}
         Y_i &  = \alpha +  \beta D_i + U_i
@@ -14438,7 +14729,7 @@ which proves the result.
 Now, let me state the most important lemma behind the result in Theorem \ref{thm:asympnoiseWW}:
 
 \begin{lemma}[Asymptotic Distribution of the OLS Estimator]
-\protect\hypertarget{lem:asympOLS}{}{\label{lem:asympOLS} \iffalse (Asymptotic Distribution of the OLS Estimator) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{def:iid} and \ref{def:finitevar}, we have:
+\protect\hypertarget{lem:asympOLS}{}{\label{lem:asympOLS} \iffalse (Asymptotic Distribution of the OLS Estimator) \fi{} }Under Assumptions \ref{def:noselb}, \ref{hyp:fullrank}, \ref{hyp:iid} and \ref{hyp:finitevar}, we have:
 
 \begin{align*}
   \sqrt{N}(\hat{\Theta}_{OLS}-\Theta) &  \stackrel{d}{\rightarrow}
@@ -14466,6 +14757,11 @@ with
 \end{align*}
 
 Using Slutsky's Theorem, we can study both terms separately.
+
+Before stating Slutsky's Theorem, we need to define a new term: convergence in probability (this is a simpler version of convergence in distribution).
+We say that a sequence \(X_N\) converges in probability to the constant \(x\) if, \(\forall\epsilon>0\), \(\lim_{N\rightarrow\infty}\Pr(|X_N-x|>\epsilon)=0\).\\
+We denote \(X_N\stackrel{p}{\rightarrow}x\) or \(\text{plim}(X_N)=x\).
+
 Slutsky's Theorem states that if \(Y_N\stackrel{d}{\rightarrow}y\) and \(\text{plim}(X_N)=x\), then:
 
 \begin{enumerate}
@@ -14490,7 +14786,7 @@ Where \(\sigma_{XX}^{-1}\) is a matrix of constants and \(xu\) is a random varia
 Let's begin with \(\frac{\sqrt{N}}{N}X'U\stackrel{d}{\rightarrow}xu\):
 
 \begin{align*}
-\frac{\sqrt{N}}{N}X'U & = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum^{i=1}_{N}U_i\\  \frac{1}{N}\sum^{i=1}_{N}D_iU_i\end{array}\right)
+\frac{\sqrt{N}}{N}X'U & = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum_{i=1}^{N}U_i\\  \frac{1}{N}\sum_{i=1}^{N}D_iU_i\end{array}\right)
 \end{align*}
 
 In order to determine the asymptotic distribution of \(\frac{\sqrt{N}}{N}X'U\), we are going to use the vector version of the CLT:
@@ -14574,7 +14870,7 @@ The results follows from that and from the symmetry of \(\sigma_{XX}^{-1}\).
 A last lemma uses the previous result to derive the asymptotic distribution of \(\hat{WW}\):
 
 \begin{lemma}[Asymptotic Distribution of $\hat{WW}$]
-\protect\hypertarget{lem:asymWW}{}{\label{lem:asymWW} \iffalse (Asymptotic Distribution of \(\hat{WW}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{def:fullrank}, \ref{def:iid} and \ref{def:finitevar}, we have:
+\protect\hypertarget{lem:asymWW}{}{\label{lem:asymWW} \iffalse (Asymptotic Distribution of \(\hat{WW}\)) \fi{} }Under Assumptions \ref{def:noselb}, \ref{hyp:fullrank}, \ref{hyp:iid} and \ref{hyp:finitevar}, we have:
 
 \begin{align*}
   \sqrt{N}(\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}) &  \stackrel{d}{\rightarrow}
@@ -15455,5 +15751,389 @@ The second equality uses the fact that \(\bar{Y}_A-\bar{Y}_B=(1-\bar{D})(\bar{Y}
 This proves the result.
 
 \textbf{To Do: the AP and LC estimators}
+
+\hypertarget{proofasympnoiseDIDCross}{%
+\subsection{Proof of Theorem \ref{thm:asympnoiseDIDCross}}\label{proofasympnoiseDIDCross}}
+
+The DID model in repeated cross sections can be written in the following matrix form:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B} \\    \vdots \\   Y_{N_B,B} \\Y_{1,A} \\  \vdots \\   Y_{N_A,A} \end{array}\right)}_{Y} & =
+    \underbrace{\left(\begin{array}{cccc}   1 & D^B_{1} & T_{1,B} & D^B_{1}T_{1,B}\\    \vdots & \vdots & \vdots & \vdots\\ 1 & D^B_{N_B} & T_{N_B,B} & D^B_{N_B}T_{N_B,B} \\
+                                        1 & D^A_{1} & T_{1,A} & D^A_{1}T_{1,A}\\    \vdots & \vdots & \vdots & \vdots\\ 1 & D^A_{N_A} & T_{N_A,A} & D^A_{N_A}T_{N_A,A}\end{array}\right)}_{X}
+  \underbrace{\left(\begin{array}{c}    \alpha \\ \mu \\ \delta \\  \beta \end{array}\right)}_{\Theta} +
+  \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N_B,B} \\ \epsilon_{1,A} \\   \vdots \\   \epsilon_{N_A,A} \end{array}\right),}_{\epsilon}
+\end{align*}
+
+where \(D^B_{i}\) and \(D^A_{i}\) denote the actual treatment status in period \(A\) of individuals observed in periods \(B\) and \(A\) respectively and \(N_B\) and \(N_A\) are the numbers of units observed in periods \(B\) and \(A\) respectively.
+
+Using the beginning of the proof of Lemma \ref{lem:asympOLS}, we know that: \(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X'X)^{-1}\frac{\sqrt{N}}{N}X'\epsilon\).
+Using Slutsky's Theorem, we know that we can study both terms separately (see the same proof of Lemma \ref{lem:asympOLS}).
+Let's start with \(N(X'X)^{-1}\).
+Using the fact that \(T_{i,B}=0\) and \(T_{i,A}=1\), \(\forall i\), we can write matrix \(X\) as follows:
+
+\begin{align*}
+  X & = \left(\begin{array}{cccc}   1 & D^B_{1} & 0 & 0\\   \vdots & \vdots & \vdots & \vdots\\ 1 & D^B_{N_B} & 0 & 0 \\
+                                        1 & D^A_{1} & 1 & D^A_{1}\\ \vdots & \vdots & \vdots & \vdots\\ 1 & D^A_{N_A} & 1 & D^A_{N_A}\end{array}\right)
+\end{align*}
+
+Doing some matrix multiplication, we have:
+
+\begin{align*}
+  X'X & = N_A\underbrace{\left(\begin{array}{cccc}
+                    k+1 & k\bar{D}_B+\bar{D}_A & 1 & \bar{D}_A\\
+                    k\bar{D}_B+\bar{D}_A & k\bar{D}_B+\bar{D}_A & \bar{D}_A & \bar{D}_A \\
+                    1 & \bar{D}_A & 1 & \bar{D}_A\\
+                    \bar{D}_A & \bar{D}_A & \bar{D}_A & \bar{D}_A
+            \end{array}\right)}_{x'x}
+\end{align*}
+
+with \(\bar{D}_t=\frac{1}{N_t}\sum_{i=1}^{N_t}D^t_i\), \(k=\frac{N_B}{N_A}\), and using the fact that \((D^t_i)^2=D^t_i\) since \(D^t_i\in\left\{0,1\right\}\).
+Using results on the inverse of a 4 by 4 matrix presented \href{https://semath.info/src/inverse-cofactor-ex4.html}{here} and collecting terms patiently, we find that the determinant of \(x'x\) is equal to:
+
+\begin{align*}
+  \det(x'x) & = k^2\pi\bar{D}_A^2(1-\bar{D}_A)(1-\pi\bar{D}_A),
+\end{align*}
+with \(\pi=\frac{\bar{D}_B}{\bar{D}_A}\), and its adjugate is equal to:
+
+\begin{align*}
+  \tilde{x'x} & = k\pi\bar{D}_A(1-\bar{D}_A)
+                  \left(\begin{array}{cccc}
+                    \bar{D}_A & -\bar{D}_A & -\bar{D}_A & \bar{D}_A\\
+                    -\bar{D}_A & \frac{1}{\pi} & \bar{D}_A & -\frac{1}{\pi} \\
+                    -\bar{D}_A & \bar{D}_A & \bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} & -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\\
+                    \bar{D}_A & -\frac{1}{\pi} & -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} & k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi}
+            \end{array}\right)
+\end{align*}
+
+We finally have that \(N_A(X'X)^{-1}=\frac{1}{\det(x'x)}\tilde{x'x}\).
+Taking the \(\text{plim}\) with respect to \(N_A\), we have that:
+
+\begin{align*}
+  \text{plim}N_A(X'X)^{-1} & = \frac{1}{kp(1-p)}
+                  \left(\begin{array}{cccc}
+                    p & -p & -p & p\\
+                    -p & 1 & p & -1 \\
+                    -p & p & p(k+1) & -p(k+1)\\
+                    p & -1 & -p(k+1) & k+1
+            \end{array}\right)
+\end{align*}
+
+The result comes from \(\text{plim}\bar{D}_B=\text{plim}\bar{D}_A=\Pr(D_i=1)=p\), according to the Law of Large Numbers, and thus, using Slutsky's Theorem, \(\text{plim}\pi=1\).
+
+Let us now derive the asymptotic distribution of \(\frac{\sqrt{N}}{N}X'\epsilon\).
+In order to do that, we need to know the coefficients of the OLS DID model in repeated cross sections of different sizes.
+They probably are the same that with a panel, but we still need to check.
+We have that:
+
+\begin{align*}
+  X'Y & = N_A\left(\begin{array}{c}
+              k\bar{Y}_B+\bar{Y}_A \\
+              \bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)\\
+              \bar{Y}_A \\
+              \bar{D}_A\bar{Y}^1_A
+            \end{array}\right)
+\end{align*}
+
+Using the fact that \(\bar{Y}_t = \bar{D}_t\bar{Y}^1_t+(1-\bar{D}_t)\bar{Y}^0_t\), we have that:
+
+\begin{align*}
+  X'Y & = N_A\left(\begin{array}{c}
+              \underbrace{k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A)}_{\mathbf{A}} \\
+              \underbrace{\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)}_{\mathbf{B}}\\
+              \underbrace{\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A)}_{\mathbf{C}} \\
+              \underbrace{\bar{D}_A\bar{Y}^1_A}_{\mathbf{D}}
+            \end{array}\right)
+\end{align*}
+
+Using the fact that \((X'X)^{-1}=\frac{1}{N_A}\frac{\tilde{x'x}}{\det(x'x)}\), we have:
+
+\begin{align*}
+  \hat{\Theta}^{OLS} & = (X'X)^{-1}X'Y \\
+         & = \frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}
+            \left(\begin{array}{c}
+              \bar{D}_A(\mathbf{A}-\mathbf{B}-\mathbf{C}+\mathbf{D}) \\
+              -\bar{D}_A\mathbf{A}+\frac{\mathbf{B}}{\pi}+\bar{D}_A\mathbf{C}-\frac{\mathbf{D}}{\pi} \\
+              \bar{D}_A(-\mathbf{A}+\mathbf{B}+\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\mathbf{C}-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\mathbf{D})\\
+              \bar{D}_A\mathbf{A}-\frac{\mathbf{B}}{\pi}-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\bar{D}_A\mathbf{C}+(k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi})\mathbf{D}
+            \end{array}\right)
+\end{align*}
+
+Let's take each term in turn:
+
+\begin{align*}
+  \hat{\alpha}^{OLS} & = \frac{1}{k(1-\pi\bar{D}_A)}
+            \left(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A) - \bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)\right.\\
+                  & \phantom{\frac{1}{k(1-\pi\bar{D}_A)}\left(\right.}
+                  \left. - \bar{Y}^0_A-\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A)+\bar{D}_A\bar{Y}^1_A\right)\\
+                  & = \frac{1}{k(1-\pi\bar{D}_A)}
+            \left(\bar{Y}^0_B(k-k\pi\bar{D}_A)+
+                  \bar{Y}^0_A(1-\bar{D}_A-1+\bar{D}_A)+
+                  \bar{Y}^1_B(k\pi\bar{D}_A-k\pi\bar{D}_A)+ \right.\\
+                  & \phantom{\frac{1}{k(1-\pi\bar{D}_A)}\left(\right.}\left. \bar{Y}^1_A(\bar{D}_A-\bar{D}_A-\bar{D}_A+\bar{D}_A)\right) \\
+                  & = \bar{Y}^0_Bk\frac{1-\pi\bar{D}_A}{k(1-\pi\bar{D}_A)}\\
+                  & = \bar{Y}^0_B
+\end{align*}
+
+\begin{align*}
+  \hat{\mu}^{OLS} & = \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}
+            \left(-\bar{D}_A(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A))\right.\\
+            & \phantom{= \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}}
+            \left.+\frac{\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)}{\pi}+\bar{D}_A(\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A))-\frac{\bar{D}_A\bar{Y}^1_A}{\pi}\right)\\
+            & = \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}
+            \left(-\bar{D}_Ak\bar{Y}^0_B(1-\pi\bar{D}_A)-\bar{Y}^0_A\bar{D}_A(1-\bar{D}_A-1+\bar{D}_A)\right.\\
+            & \phantom{= \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}}
+            \left.+\bar{D}_Ak\bar{Y}^1_B(1-\pi\bar{D}_A)+\bar{Y}^1_A(-\bar{D}_A^2+\frac{\bar{D}_A}{\pi}+\bar{D}_A^2-\frac{\bar{D}_A}{\pi})\right) \\
+            & = \frac{k\bar{D}_A(1-\pi\bar{D}_A)}{k\bar{D}_A(1-\pi\bar{D}_A)}(\bar{Y}^1_B-\bar{Y}^0_B)\\
+            & = \bar{Y}^1_B-\bar{Y}^0_B
+\end{align*}
+
+\begin{align*}
+  \hat{\delta}^{OLS} & = \frac{1}{k(1-\pi\bar{D}_A)}\left(-(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A))\right. \\
+                    & \phantom{=\frac{1}{k(1-\pi\bar{D}_A)}}+\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)+\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}(\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A))\\
+                    & \phantom{=\frac{1}{k(1-\pi\bar{D}_A)}}\left.-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\bar{D}_A\bar{Y}^1_A\right) \\
+                    & = \frac{1}{k(1-\pi\bar{D}_A)}\left(-\bar{Y}^0_Bk(1-\pi\bar{D}_A)-\bar{Y}^0_A(1-\bar{D}_A-(k+1-\bar{D}_A(k\pi+1)))\right.\\
+                    & \phantom{=\frac{1}{k(1-\pi\bar{D}_A)}}\left.+\bar{Y}^1_B(-k\pi\bar{D}_A+k\pi\bar{D}_A)+\bar{Y}^1_A(-\bar{D}_A+\bar{D}_A+\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}(\bar{D}_A-\bar{D}_A))\right)\\
+                    & = \frac{1}{k(1-\pi\bar{D}_A)}\left(-\bar{Y}^0_Bk(1-\pi\bar{D}_A)+\bar{Y}^0_Ak(1-\pi\bar{D}_A)\right)\\
+                    & = \bar{Y}^0_A-\bar{Y}^0_B
+\end{align*}
+
+\begin{align*}
+  \hat{\beta}^{OLS} & =\frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}\left(\bar{D}_A(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A))-\frac{\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)}{\pi}\right.\\
+                    & \phantom{ =\frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}}\left.-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\bar{D}_A(\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A))+(k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi})\bar{D}_A\bar{Y}^1_A\right) \\
+                    & = \frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}\left(\bar{Y}^0_B\bar{D}_Ak(1-\pi\bar{D}_A)+\bar{Y}^0_A\bar{D}_A(1-\bar{D}_A-(k+1-\bar{D}_A(k\pi+1)))-\bar{Y}^1_B\bar{D}_Ak(1-\pi\bar{D}_A)\right.\\
+                    & \phantom{= \frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}}\left.+\bar{Y}^1_A\bar{D}_A(\bar{D}_A-\frac{1}{\pi}-\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}+k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi})\right)\\
+                    & = \frac{1}{k(1-\pi\bar{D}_A)}\left(-k(1-\pi\bar{D}_A)(\bar{Y}^1_B-\bar{Y}^0_B)-k(1-\pi\bar{D}_A)\bar{Y}^0_A+  k(1-\pi\bar{D}_A)\bar{Y}^1_A\right)\\
+                    & = \bar{Y}^1_A-\bar{Y}^0_A-(\bar{Y}^1_B-\bar{Y}^0_B).
+\end{align*}
+
+So it is confirmed that OLS estimation of the DID model in repeated cross sections of different sizes estimates the same parameters than in panel data.
+Thanks to the Law of Large Numbers, we know that:
+
+\begin{align*}
+  \text{plim}\hat\Theta^{OLS} & =\left(\begin{array}{c}
+              \esp{Y^0_{i,B}|D_i=0}\\
+              \esp{Y^0_{i,B}|D_i=1}-\esp{Y^0_{i,B}|D_i=1}\\
+              \esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0}\\
+              \esp{Y^1_{i,A}-Y^0_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0}
+            \end{array}\right),
+\end{align*}
+
+where the \(\text{plim}\) is taken over \(N=N_A+N_B\).
+
+In order to study more easily the DID model as estimated by OLS, we are going to rewrite it as a pure cross sectional model:
+
+\begin{align*}
+  Y_j & = \alpha + \mu D_j + \delta T_j + \beta D_jT_j + \epsilon_j,
+\end{align*}
+
+where \(j=i\) when \(t=B\) and \(j=N_B+i\) when \(t=A\), \(D_j=D_i^t\), \(T_j=T_{i,t}\) and \(Y_j=Y_{i,t}\).
+In that case, we are assuming that \(T_i\) is a random variable, whereas in real life, the sample is stratified with respect to \(T_i\).
+We will treat this case in the stratification section.
+For now, assuming that time is sampled as a usual random variable is a useful simplification.
+
+From what we have proven above, we know that:
+
+\begin{align*}
+  \epsilon_{j} & = Y_{j}-\left(\esp{Y^0_{j}|D_j=0,T_j=0}+D_j(\esp{Y^0_{j}|D_j=1,T_j=0}-\esp{Y^0_{j}|D_j=0,T_j=0})\right.\\
+                & \phantom{=Y_{j}-\left(\right.}+T_j(\esp{Y^0_{j}|D_j=0,T_j=1}-\esp{Y^0_{j}|D_j=0,T_j=0})\\
+                  & \phantom{=Y_{j}-\left(\right.}+D_jT_j(\esp{Y^1_{j}|D_j=1,T_j=1}-\esp{Y^0_{j}|D_j=1,T_j=0}\\
+                  & \phantom{=Y_{j}-\left(\right.+D_jT_j}\left.-(\esp{Y^0_{j}|D_j=0,T_j=1}-\esp{Y^0_{j}|D_j=0,T_j=0}))\right)
+\end{align*}
+
+With this notation, and \(N=N_A+N_B\), we have:
+
+\begin{align*}
+  \frac{\sqrt{N}}{N}X'\epsilon & =\sqrt{N}\left(\begin{array}{c}
+              \frac{1}{N}\sum_{i=1}^N\epsilon_{j} \\
+              \frac{1}{N}\sum_{i=1}^ND_j\epsilon_{j} \\
+              \frac{1}{N}\sum_{i=1}^NT_j\epsilon_{j} \\
+              \frac{1}{N}\sum_{i=1}^ND_jT_j\epsilon_{j} 
+            \end{array}\right).
+\end{align*}
+
+In order to be able to use the vector CLT in order to study the distribution of these quantities, we need first to compute the expectation of these variables.
+Let us first start with \(\esp{D_jT_j\epsilon_{j}}\):
+
+\begin{align*}
+  \esp{D_jT_j\epsilon_{j}} & =\esp{\epsilon_{j}|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+                          & = 0,
+\end{align*}
+
+where the first equality follows from Bayes' Law and the second equality from the definition of \(\epsilon_{j}\).
+Using the same reasoning, we have:
+
+\begin{align*}
+  \esp{D_j\epsilon_{j}} & =\esp{\epsilon_{j}|D_j=1,T_j=1}\Pr(T_j=1|D_j=1)+\esp{\epsilon_{j}|D_j=1,T_j=0}\Pr(T_j=0|D_j=1)\\
+                          & = 0\\
+  \esp{T_j\epsilon_{j}} & =\esp{\epsilon_{j}|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)+\esp{\epsilon_{j}|D_j=0,T_j=1}\Pr(D_j=0|T_j=1)\\
+                          & = 0\\
+  \esp{\epsilon_{j}} & =\esp{\epsilon_{j}|T_j=1}\Pr(T_j=1)+\esp{\epsilon_{j}|T_j=0}\Pr(T_j=0)\\
+                          & = (\esp{\epsilon_{j}|T_j=0,D_j=1}\Pr(D_j=1|T_j=0)+\esp{\epsilon_{j}|T_j=0,D_j=0}\Pr(D_j=0|T_j=0))\Pr(T_j=0)\\
+                          & = 0.
+\end{align*}
+
+Using the vector version of the CLT that we have already invoked in the proof of Lemma \ref{lem:asympOLS}, we have that \(\sqrt{N}\frac{X'\epsilon}{N}\sim\mathcal{N}((0,0,0,0),\mathbf{V_{x\epsilon}})\) with:
+
+\begin{align*}
+  \mathbf{V_{x\epsilon}} & = \esp{\left(\begin{array}{c}  \epsilon_i  \\    \epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)
+                                  \left(\begin{array}{cccc} \epsilon_i &    \epsilon_iD_i &  \epsilon_iT_i &  \epsilon_iD_iT_i \end{array}\right)}
+                  - \esp{\left(\begin{array}{c}  \epsilon_i  \\ \epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)}
+                    \esp{\left(\begin{array}{cccc}  \epsilon_i &    \epsilon_iD_i &  \epsilon_iT_i &  \epsilon_iD_iT_i \end{array}\right)}\\
+                & = \esp{\epsilon_i^2\left(\begin{array}{cccc}
+                                              1 & D_i & T_i & D_iT_i \\
+                                              D_i & D_i &   D_iT_i & D_iT_i \\
+                                              T_i & D_iT_i &    T_i & D_iT_i \\
+                                              D_iT_i & D_iT_i & D_iT_i & D_iT_i
+                                            \end{array}\right)},
+\end{align*}
+
+where we made use of the fact that \(T_i^2=T_i\) and \(D_i^2=D_i\).
+
+Before we can use the Delta Method to derive the distribution of the OLS DID estimator, we need to compute \(\text{plim}N(X'X)-1\) as a function of \(N\) and not \(N_A\), as we did before.
+In order to obtain that without redoing the matrix inversion all over again (which is pretty awful without the trick of factoring \(N_A\)), we are going to use the fact that the proportion of observations belonging to period \(A\) is equal to \(\bar{T}_A=\frac{N_A}{N}=\sum_{j=1}^NT_j\), and the proportion of observations belonging to period \(B\) is equal to \(1-\bar{T}_A\).
+We also have that \(k=\frac{N_B}{N_A}=\frac{(1-\bar{T}_A)N}{\bar{T}_AN}=\frac{1-\bar{T}_A}{\bar{T}_A}\).
+Finally, note that \(\pi=\frac{\bar{D}_B}{\bar{D}_A}\).
+As a consequence of that and of our previous computations, we have that:
+
+\begin{align*}
+  (X'X)^{-1} & = \frac{1}{N_A}\frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}
+                  \left(\begin{array}{cccc}
+                    \bar{D}_A & -\bar{D}_A & -\bar{D}_A & \bar{D}_A\\
+                    -\bar{D}_A & \frac{1}{\pi} & \bar{D}_A & -\frac{1}{\pi} \\
+                    -\bar{D}_A & \bar{D}_A & \bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} & -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\\
+                    \bar{D}_A & -\frac{1}{\pi} & -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} & k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi}
+            \end{array}\right) \\
+          & =   \frac{1}{N\bar{T}_A}\frac{1}{\frac{1-\bar{T}_A}{\bar{T}_A}\bar{D}_A(1-\frac{\bar{D}_B}{\bar{D}_A}\bar{D}_A)}\\
+          & \phantom{=}
+                  \left(\begin{array}{cccc}
+                    \bar{D}_A & -\bar{D}_A & -\bar{D}_A & \bar{D}_A\\
+                    -\bar{D}_A & \frac{\bar{D}_A}{\bar{D}_B} & \bar{D}_A & -\frac{\bar{D}_A}{\bar{D}_B} \\
+                    -\bar{D}_A & \bar{D}_A & \bar{D}_A\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A} & -\bar{D}_A\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A}\\
+                    \bar{D}_A & -\frac{\bar{D}_A}{\bar{D}_B} & -\bar{D}_A\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A} & \frac{1-\bar{T}_A}{\bar{T}_A}\frac{1-\frac{\bar{D}_B}{\bar{D}_A}\bar{D}_A}{1-\bar{D}_A}+\frac{\bar{D}_A}{\bar{D}_B}
+            \end{array}\right) \\
+           & =   \frac{1}{N}\frac{1}{(1-\bar{T}_A)(1-\bar{D}_B)}\\
+          & \phantom{=}
+                  \left(\begin{array}{cccc}
+                    1 & -1 & -1 & 1\\
+                    -1 & \frac{1}{\bar{D}_B} & 1 & -\frac{1}{\bar{D}_B} \\
+                    -1 & 1 & \frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)} & -\frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)}\\
+                    1 & -\frac{1}{\bar{D}_B} & -\frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)} & \frac{1}{\bar{D}_A}\frac{1-\bar{T}_A}{\bar{T}_A}\frac{1-\bar{D}_B}{1-\bar{D}_A}+\frac{1}{\bar{D}_B}
+            \end{array}\right),
+\end{align*}
+
+because:
+
+\begin{align*}
+\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A} & = \frac{1+\frac{1-\bar{T}_A}{\bar{T}_A}-\frac{1-\bar{T}_A}{\bar{T}_A}\bar{D}_B+ \bar{D}_A}{1-\bar{D}_A} \\
+= & \frac{\bar{T}_A+1-\bar{T}_A-\bar{D}_B+\bar{T}_A\bar{D}_B+ \bar{D}_A\bar{T}_A}{\bar{T}_A(1-\bar{D}_A)}\\
+= & \frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)}.
+\end{align*}
+
+As a consequence, we have:
+
+\begin{align*}
+  \text{plim}N(X'X)^{-1} & = \frac{1}{(1-p_A)(1-p)}
+                  \left(\begin{array}{cccc}
+                    1 & -1 & -1 & 1\\
+                    -1 & \frac{1}{p} & 1 & -\frac{1}{p} \\
+                    -1 & 1 & \frac{1}{p_A} & -\frac{1}{p_A} \\
+                    1 & -\frac{1}{p} & -\frac{1}{p_A}  & \frac{1}{pp_A}
+            \end{array}\right),
+\end{align*}
+
+using the Law of Large Numbers, Slutsky's Theorem and the fact that \(\text{plim}\bar{T}_A=p_A\), the proportion of observations stemming from the After period, \(\text{plim}\bar{D}_A=\text{plim}\bar{D}_B=p\) and the fact that \(\frac{1}{p}\frac{1-p_A}{p_A}+\frac{1}{p}=\frac{1}{pp_A}\).
+
+Now, we can derive the asympotic distribution of \(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X'X)^{-1}\frac{\sqrt{N}}{N}X'\epsilon\).
+Using the Delta Method, we have that \(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)\stackrel{d}{\rightarrow}\mathcal{N}\left((0,0,0,0),\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\right)\).
+So we're in for a treat: deriving the lower diagonal term in the quadratic form \(\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\).
+
+Let us start.
+We first need the four terms on the last line of \((1-p_A)^2(1-p)^2\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}=(\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D})\) (the squared terms in the beginning are accounting for the constant terms in the matrix multiplication):
+
+\begin{align*}
+  \mathbf{A}& = \esp{\epsilon_j^2} -\frac{1}{p}\esp{\epsilon_j^2D_j} -\frac{1}{p_A}\esp{\epsilon_j^2T_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            & =  \esp{\epsilon_j^2|D_j=0,T_j=0}\Pr(D_j=0|T_j=0)\Pr(T_j=0)+\esp{\epsilon_j^2|D_j=1,T_j=0}\Pr(D_j=1|T_j=0)\Pr(T_j=0)\\
+            & \phantom{=}+\esp{\epsilon_j^2|D_j=0,T_j=1}\Pr(D_j=0|T_j=1)\Pr(T_j=1)+\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1) \\
+            & \phantom{=}-\frac{1}{p}\esp{\epsilon_j^2|D_j=1}\Pr(D_j=1) -\frac{1}{p_A}\esp{\epsilon_j^2|T_j=1}\Pr(T_j=1) \\
+            & \phantom{=}+ \frac{1}{pp_A}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+            & =  \esp{\epsilon_j^2|D_j=0,T_j=0}(1-p)(1-p_A)+\esp{\epsilon_j^2|D_j=1,T_j=0}p(1-p_A)\\
+            & \phantom{=}+\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)p_A+\esp{\epsilon_j^2|D_j=1,T_j=1}pp_A \\
+            & \phantom{=}-\esp{\epsilon_j^2|D_j=1} -\esp{\epsilon_j^2|T_j=1} \\
+            & \phantom{=}+ \esp{\epsilon_j^2|D_j=1,T_j=1}\\
+            & =  \esp{\epsilon_j^2|D_j=0,T_j=0}(1-p)(1-p_A)+\esp{\epsilon_j^2|D_j=1,T_j=0}p(1-p_A)\\
+            & \phantom{=}+\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)p_A+\esp{\epsilon_j^2|D_j=1,T_j=1}pp_A \\
+            & \phantom{=}-\esp{\epsilon_j^2|D_j=1,T_j=0}(1-p_A)-\esp{\epsilon_j^2|D_j=1,T_j=1}p_A\\
+            & \phantom{=}-\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)-\esp{\epsilon_j^2|D_j=1,T_j=1}p \\
+            & \phantom{=}+ \esp{\epsilon_j^2|D_j=1,T_j=1}\\
+            & =  \esp{\epsilon_j^2|D_j=0,T_j=0}(1-p)(1-p_A)\\
+            & \phantom{=}-\esp{\epsilon_j^2|D_j=1,T_j=0}(1-p)(1-p_A)\\
+            & \phantom{=}-\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)(1-p_A)\\
+            & \phantom{=}+\esp{\epsilon_j^2|D_j=1,T_j=1}(1-p)(1-p_A)\\
+            & = (1-p)(1-p_A)(\sigma_{\epsilon_{0,0}}^2-\sigma_{\epsilon_{1,0}}^2-\sigma_{\epsilon_{0,1}}^2+\sigma_{\epsilon_{1,1}}^2)\\
+  \mathbf{B}& = \esp{\epsilon_j^2D_j} -\frac{1}{p}\esp{\epsilon_j^2D_j} -\frac{1}{p_A}\esp{\epsilon_j^2D_jT_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            & = \esp{\epsilon_j^2D_j}(1-\frac{1}{p})+\esp{\epsilon_j^2D_jT_j}\frac{1}{p_A}(\frac{1}{p}-1) \\
+            & = (1-\frac{1}{p})\esp{\epsilon_j^2|D_j=1}\Pr(D_j=1)+\frac{1}{p_A}(\frac{1}{p}-1)\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1) \\
+            & = p(1-\frac{1}{p})\left(\esp{\epsilon_j^2|D_j=1,T_j=0}\Pr(T_j=0|D_j=1)+\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(T_j=1|D_j=1)\right)\\
+            & \phantom{=}+\frac{1}{p_A}(\frac{1}{p}-1)\sigma_{\epsilon_{1,1}}^2pp_A\\
+            & = p(1-\frac{1}{p})\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+\frac{1}{p_A}(\frac{1}{p}-1)\sigma_{\epsilon_{1,1}}^2pp_A\\
+            & = -(1-p)\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+(1-p)\sigma_{\epsilon_{1,1}}^2\\
+            & = (1-p)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2(1-p_A)-\sigma_{\epsilon_{1,1}}^2p_A\right)\\
+            & = (1-p)(1-p_A)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2\right)
+  \mathbf{C}& = \esp{\epsilon_j^2T_j} -\frac{1}{p}\esp{\epsilon_j^2D_jT_j} -\frac{1}{p_A}\esp{\epsilon_j^2T_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            & = \esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)-\frac{1}{p}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+            & \phantom{=}-\frac{1}{p_A}\esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)+\frac{1}{pp_A}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+            & = -(1-p_A)(\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)+\esp{\epsilon_j^2|D_j=0,T_j=1}\Pr(D_j=0|T_j=1))\\
+            & \phantom{=}+\esp{\epsilon_j^2|D_j=1,T_j=1}(1-p_A)\\
+            & = (1-p_A)(\sigma_{\epsilon_{1,1}}^2(1-p)-(1-p)\sigma_{\epsilon_{0,1}}^2)\\
+            & = (1-p)(1-p_A)(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{0,1}}^2)\\
+  \mathbf{D}& = \esp{\epsilon_j^2D_jT_j} -\frac{1}{p}\esp{\epsilon_j^2D_jT_j} -\frac{1}{p_A}\esp{\epsilon_j^2D_jT_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            & = \esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)(1-\frac{1}{p}-\frac{1}{p_A}+\frac{1}{pp_A})\\
+            & = \sigma_{\epsilon_{1,1}}^2(pp_A-p_A-p+1)\\
+            & = (1-p)(1-p_A)\sigma_{\epsilon_{1,1}}^2
+\end{align*}
+
+since \(1-p-p_A+pp_A=(1-p)(1-p_A)\), and where \(\sigma_{\epsilon_{d,t}}^2=\esp{\epsilon_j^2|D_j=d,T_j=t}\).
+We also make use of the fact that \(\Pr(D_j=d|T_j=t)=\Pr(D_j=d)\) and \(\Pr(T_j=t|D_j=d)=\Pr(T_j=t)\), that is that the participants and non participants are sampled exactly in the same proportion in both periods.
+
+Let us now obtain \(\var{\hat{\beta}^{OLS}}\), the variance of the \(\hat{\beta}^{OLS}\) parameter.
+It is the last diagonal term of the matrix \(\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\).
+We know that:
+
+\begin{align*}
+  \var{\hat{\beta}^{OLS}} & = \frac{1}{(1-p)^2(1-p_A)^2}\left(\mathbf{A}-\frac{1}{p}\mathbf{B}-\frac{1}{p_A}\mathbf{C}+\frac{1}{pp_A}\mathbf{D}\right)\\
+                          & = \frac{1}{(1-p)(1-p_A)}\left(\sigma_{\epsilon_{0,0}}^2-\sigma_{\epsilon_{1,0}}^2-\sigma_{\epsilon_{0,1}}^2+\sigma_{\epsilon_{1,1}}^2
+                                                          -\frac{1}{p}(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2) \right.\\
+                          & \phantom{= \frac{1}{(1-p)(1-p_A)}\left(\right.}\left.
+                                                          -\frac{1}{p_A}(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{0,1}}^2)+ \frac{1}{pp_A}\sigma_{\epsilon_{1,1}}^2\right)\\
+                          & = \frac{1}{(1-p)(1-p_A)}\left(\sigma_{\epsilon_{0,0}}^2+\sigma_{\epsilon_{1,0}}^2(-1+\frac{1}{p})+\sigma_{\epsilon_{0,1}}^2(-1+\frac{1}{p_A})+\sigma_{\epsilon_{1,1}}^2(1-\frac{1}{p}-\frac{1}{p_A}+\frac{1}{pp_A})\right)\\
+                          & = \frac{1}{(1-p)(1-p_A)}\left(\sigma_{\epsilon_{0,0}}^2+\sigma_{\epsilon_{1,0}}^2\frac{1-p}{p}+\sigma_{\epsilon_{0,1}}^2(\frac{1-p_A}{p_A}+\sigma_{\epsilon_{1,1}}^2\frac{pp_A-p_A-p+1}{pp_A}\right)\\
+                          & = \frac{\sigma_{\epsilon_{0,0}}^2}{(1-p)(1-p_A)}+\frac{\sigma_{\epsilon_{1,0}}^2}{p(1-p_A)}+\frac{\sigma_{\epsilon_{0,1}}^2}{(1-p)p_A}+\frac{\sigma_{\epsilon_{1,1}}^2}{pp_A},
+\end{align*}
+
+using again the fact that \(1-p-p_A+pp_A=(1-p)(1-p_A)\).
+
+Finally, using the formula for \(\epsilon_j\), we have:
+
+\begin{align*}
+ \sigma_{\epsilon_{0,0}}^2 & = \esp{\epsilon_j^2|D_j=0,T_j=0} \\
+                          & = \esp{(Y_j-\esp{Y^0_j|D_j=0,T_j=0})^2|D_j=0,T_j=0}\\
+                          & = \esp{(Y^0_{i,B}-\esp{Y^0_{i,B}|D_i=0)^2}|D_i=0}\\
+                          & = \var{Y^0_{i,B}|D_i=0}\\
+ \sigma_{\epsilon_{1,0}}^2 & = \esp{\epsilon_j^2|D_j=1,T_j=0} \\
+                          & = \esp{(Y_j-\esp{Y^0_j|D_j=1,T_j=0})^2|D_j=1,T_j=0}\\
+                          & = \esp{(Y^0_{i,B}-\esp{Y^0_{i,B}|D_i=1)^2}|D_i=1}\\
+                          & = \var{Y^0_{i,B}|D_i=1}\\
+ \sigma_{\epsilon_{0,1}}^2 & = \esp{\epsilon_j^2|D_j=0,T_j=1} \\
+                          & = \esp{(Y_j-\esp{Y^0_j|D_j=0,T_j=1})^2|D_j=0,T_j=1}\\
+                          & = \esp{(Y^0_{i,A}-\esp{Y^0_{i,A}|D_i=0)^2}|D_i=0}\\
+                          & = \var{Y^0_{i,A}|D_i=0}\\
+ \sigma_{\epsilon_{1,1}}^2 & = \esp{\epsilon_j^2|D_j=1,T_j=1} \\
+                          & = \esp{(Y_j-\esp{Y^1_j|D_j=1,T_j=1})^2|D_j=1,T_j=1}\\
+                          & = \esp{(Y^1_{i,A}-\esp{Y^1_{i,A}|D_i=1)^2}|D_i=1}\\
+                          & = \var{Y^1_{i,A}|D_i=1}
+\end{align*}
+
+This proves the result.
 
 \end{document}

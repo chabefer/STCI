@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-03-25" />
+<meta name="date" content="2022-05-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -319,6 +319,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A.3" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refne"><i class="fa fa-check"></i><b>A.3</b> Proofs of results in Chapter @ref(NE)</a>
 <ul>
 <li class="chapter" data-level="A.3.1" data-path="proofs.html"><a href="proofs.html#proofEstimDID"><i class="fa fa-check"></i><b>A.3.1</b> Proof of Theorem @ref(thm:EstimDID)</a></li>
+<li class="chapter" data-level="A.3.2" data-path="proofs.html"><a href="proofs.html#proofasympnoiseDIDCross"><i class="fa fa-check"></i><b>A.3.2</b> Proof of Theorem @ref(thm:asympnoiseDIDCross)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -1151,8 +1152,8 @@ The main assumptions that we need are that the estimator identifies the true eff
 One way to ensure that this assumption holds is to use a RCT.</p>
 <p>In order to be able to form the <span class="math inline">\(WW\)</span> estimator in the sample, we also need that there is at least one treated and one untreated in the sample:</p>
 
-<div class="definition">
-<span id="def:fullrank" class="definition"><strong>Definition 2.3  (Full rank)  </strong></span>We assume that there is at least one observation in the sample that receives the treatment and one observation that does not receive it:
+<div class="hypothesis">
+<span id="hyp:fullrank" class="hypothesis"><strong>Hypothesis 2.1  (Full rank)  </strong></span>We assume that there is at least one observation in the sample that receives the treatment and one observation that does not receive it:
 <span class="math display">\[\begin{align*}
 \exists i,j\leq N \text{ such that } &amp; D_i=1 \&amp; D_j=0.
 \end{align*}\]</span>
@@ -1160,8 +1161,8 @@ One way to ensure that this assumption holds is to use a RCT.</p>
 <p>One way to ensure that this assumption holds is to sample treated and untreated units.</p>
 <p>In order to be able to estimate the variance of the estimator easily, we assume that the observations come from random sampling and are i.i.d.:</p>
 
-<div class="definition">
-<span id="def:iid" class="definition"><strong>Definition 2.4  (i.i.d. sampling)  </strong></span>We assume that the observations in the sample are identically and independently distributed:
+<div class="hypothesis">
+<span id="hyp:iid" class="hypothesis"><strong>Hypothesis 2.2  (i.i.d. sampling)  </strong></span>We assume that the observations in the sample are identically and independently distributed:
 <span class="math display">\[\begin{align*}
 \forall i,j\leq N\text{, }i\neq j\text{, } &amp; (Y_i,D_i)\Ind(Y_j,D_j),\\
                                            &amp; (Y_i,D_i)\&amp;(Y_j,D_j)\sim F_{Y,D}.
@@ -1179,8 +1180,8 @@ This rules out two empirically relevant scenarios:</p>
 <p>We will address both sources of failure of the independence assumption in future lectures.</p>
 <p>Finally, in order for all our derivations to make sense, we need to assume that the outcomes in both groups have finite variances, otherwise sampling noise is going to be too extreme to be able to estimate it using the methods developed in this lecture:</p>
 
-<div class="definition">
-<span id="def:finitevar" class="definition"><strong>Definition 2.5  (Finite variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>We assume that <span class="math inline">\(\var{Y^1|D_i=1}\)</span> and <span class="math inline">\(\var{Y^0|D_i=0}\)</span> are finite.
+<div class="hypothesis">
+<span id="hyp:finitevar" class="hypothesis"><strong>Hypothesis 2.3  (Finite variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>We assume that <span class="math inline">\(\var{Y^1|D_i=1}\)</span> and <span class="math inline">\(\var{Y^0|D_i=0}\)</span> are finite.
 </div>
 </div>
 <div id="sec:cheb" class="section level3" number="2.2.2">
@@ -1208,7 +1209,7 @@ As a result, <span class="math inline">\(1-\delta\leq\var{\hat{\theta}}/\epsilon
 <p>Using Chebyshev’s inequality, we can obtain an upper bound on the sampling noise of the <span class="math inline">\(WW\)</span> estimator:</p>
 
 <div class="theorem">
-<p><span id="thm:uppsampnoise" class="theorem"><strong>Theorem 2.3  (Upper bound on the sampling noise of <span class="math inline">\(\hat{WW}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a> and <a href="FPSI.html#def:iid">2.4</a>, for a given confidence level <span class="math inline">\(\delta\)</span>, the sampling noise of the <span class="math inline">\(\hat{WW}\)</span> estimator is bounded from above:</p>
+<p><span id="thm:uppsampnoise" class="theorem"><strong>Theorem 2.3  (Upper bound on the sampling noise of <span class="math inline">\(\hat{WW}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#hyp:fullrank">2.1</a> and <a href="FPSI.html#hyp:iid">2.2</a>, for a given confidence level <span class="math inline">\(\delta\)</span>, the sampling noise of the <span class="math inline">\(\hat{WW}\)</span> estimator is bounded from above:</p>
 <span class="math display">\[\begin{align*}
 2\epsilon \leq 2\sqrt{\frac{1}{N(1-\delta)}\left(\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}\right)}\equiv 2\bar{\epsilon}.
 \end{align*}\]</span>
@@ -1356,7 +1357,7 @@ The idea is for you to be aware of how the main approximations that we are going
 <p>Let me now state the main result of this section:</p>
 
 <div class="theorem">
-<p><span id="thm:asympnoiseWW" class="theorem"><strong>Theorem 2.5  (Asymptotic Estimate of Sampling Noise of WW)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>, for a given confidence level <span class="math inline">\(\delta\)</span> and sample size <span class="math inline">\(N\)</span>, the sampling noise of <span class="math inline">\(\hat{WW}\)</span> can be approximated as follows:</p>
+<p><span id="thm:asympnoiseWW" class="theorem"><strong>Theorem 2.5  (Asymptotic Estimate of Sampling Noise of WW)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#hyp:fullrank">2.1</a>, <a href="FPSI.html#hyp:iid">2.2</a> and <a href="FPSI.html#hyp:finitevar">2.3</a>, for a given confidence level <span class="math inline">\(\delta\)</span> and sample size <span class="math inline">\(N\)</span>, the sampling noise of <span class="math inline">\(\hat{WW}\)</span> can be approximated as follows:</p>
 <p><span class="math display">\[\begin{align*}
 2\epsilon &amp; \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}.
 \end{align*}\]</span></p>
@@ -1558,7 +1559,7 @@ Let’s define <span class="math inline">\(E^*_{\frac{1-\delta}{2}}\)</span> and
 The bootstrapped sampling noise using the percentile method is simply the distance between these two quantities.</p>
 
 <div class="theorem">
-<p><span id="thm:bootnoiseWW" class="theorem"><strong>Theorem 2.7  (Bootstrapped Estimate of Sampling Noise of WW)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>, for a given confidence level <span class="math inline">\(\delta\)</span> and sample size <span class="math inline">\(N\)</span>, the sampling noise of <span class="math inline">\(\hat{WW}\)</span> can be approximated as follows:</p>
+<p><span id="thm:bootnoiseWW" class="theorem"><strong>Theorem 2.7  (Bootstrapped Estimate of Sampling Noise of WW)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#hyp:fullrank">2.1</a>, <a href="FPSI.html#hyp:iid">2.2</a> and <a href="FPSI.html#hyp:finitevar">2.3</a>, for a given confidence level <span class="math inline">\(\delta\)</span> and sample size <span class="math inline">\(N\)</span>, the sampling noise of <span class="math inline">\(\hat{WW}\)</span> can be approximated as follows:</p>
 <span class="math display">\[\begin{align*}
 2\epsilon &amp; \approx E^*_{\frac{1+\delta}{2}}-E^*_{\frac{1-\delta}{2}} \equiv 2\tilde{\epsilon}^b.
 \end{align*}\]</span>
@@ -1569,7 +1570,7 @@ The bootstrapped sampling noise using the percentile method is simply the distan
 <p><span class="math display">\[\begin{align*}
 \hat{\Delta^Y_{WW}} &amp; = \frac{1}{N}\sum_{i=1}^N\frac{\left(Y_i-\frac{1}{N}\sum_{i=1}^NY_i\right)\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)}{\frac{1}{N}\sum_{i=1}^N\left(D_i-\frac{1}{N}\sum_{i=1}^ND_i\right)^2}.
 \end{align*}\]</span></p>
-Using Lemma <a href="proofs.html#lem:asymWW">A.5</a>, we know that the <span class="math inline">\(WW\)</span> estimator is asymptotically normal under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>.
+Using Lemma <a href="proofs.html#lem:asymWW">A.5</a>, we know that the <span class="math inline">\(WW\)</span> estimator is asymptotically normal under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="#def:fullrank"><strong>??</strong></a>, <a href="FPSI.html#hyp:iid">2.2</a> and <a href="#def:finitevar"><strong>??</strong></a>.
 Using Theorem <a href="FPSI.html#thm:mammen92">2.6</a> proves the result.
 </div>
 

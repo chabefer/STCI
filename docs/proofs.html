@@ -24,7 +24,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-03-25" />
+<meta name="date" content="2022-05-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -319,6 +319,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A.3" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refne"><i class="fa fa-check"></i><b>A.3</b> Proofs of results in Chapter @ref(NE)</a>
 <ul>
 <li class="chapter" data-level="A.3.1" data-path="proofs.html"><a href="proofs.html#proofEstimDID"><i class="fa fa-check"></i><b>A.3.1</b> Proof of Theorem @ref(thm:EstimDID)</a></li>
+<li class="chapter" data-level="A.3.2" data-path="proofs.html"><a href="proofs.html#proofasympnoiseDIDCross"><i class="fa fa-check"></i><b>A.3.2</b> Proof of Theorem @ref(thm:asympnoiseDIDCross)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -351,7 +352,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 Let’s first prove that the <span class="math inline">\(WW\)</span> estimator is an unbiased estimator of <span class="math inline">\(TT\)</span>:</p>
 
 <div class="lemma">
-<p><span id="lem:unbiasww" class="lemma"><strong>Lemma A.1  (Unbiasedness of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a> and <a href="FPSI.html#def:iid">2.4</a>,</p>
+<p><span id="lem:unbiasww" class="lemma"><strong>Lemma A.1  (Unbiasedness of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#hyp:fullrank">2.1</a> and <a href="FPSI.html#hyp:iid">2.2</a>,</p>
 <p><span class="math display">\[\begin{align*}
 \esp{\hat{\Delta^Y_{WW}}}&amp; = \Delta^Y_{TT}.
 \end{align*}\]</span></p>
@@ -378,7 +379,7 @@ This trick simplifies derivations a lot and is really natural: think first of al
 The first equality uses the Law of Iterated Expectations (LIE).
 The second and fourth equalities use the linearity of conditional expectations.
 The third equality uses the fact that, conditional on <span class="math inline">\(\mathbf{D}\)</span>, the number of treated and untreated is a constant.
-The fifth equality uses Assumption <a href="FPSI.html#def:iid">2.4</a>.
+The fifth equality uses Assumption <a href="FPSI.html#hyp:iid">2.2</a>.
 The sixth equality uses the fact that <span class="math inline">\(\esp{Y_iD_i|D_i}=D_i\esp{Y_i*1|D_i=1}+(1-D_i)\esp{Y_i*0|D_i=0}\)</span>.
 The seventh and ninth equalities use the fact that <span class="math inline">\(\esp{Y_i|D_i=1}\)</span> is a constant.
 The last equality uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.
@@ -386,7 +387,7 @@ The last equality uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.
 <p>Let’s now compute the variance of the <span class="math inline">\(WW\)</span> estimator:</p>
 
 <div class="lemma">
-<p><span id="lem:varww" class="lemma"><strong>Lemma A.2  (Variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a> and <a href="FPSI.html#def:iid">2.4</a>,</p>
+<p><span id="lem:varww" class="lemma"><strong>Lemma A.2  (Variance of <span class="math inline">\(\hat{\Delta^Y_{WW}}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="#def:fullrank"><strong>??</strong></a> and <a href="FPSI.html#hyp:iid">2.2</a>,</p>
 <p><span class="math display">\[\begin{align*}
 \var{{\hat{\Delta^Y_{WW}}}} &amp; = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
 \end{align*}\]</span></p>
@@ -407,10 +408,10 @@ The last equality uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.
 \end{align*}\]</span></p>
 The first equality stems from the LTV.
 The second and third equalities stems from the definition of the <span class="math inline">\(WW\)</span> estimator and of the variance of a sum of random variables.
-The fourth equality stems from Assumption <a href="FPSI.html#def:iid">2.4</a>, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
-The fifth and sixth equalities stems from Assumption <a href="FPSI.html#def:iid">2.4</a> and from <span class="math inline">\(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\)</span>.
+The fourth equality stems from Assumption <a href="FPSI.html#hyp:iid">2.2</a>, which means that the covariance across observations is zero, and from the formula for a variance of a random variable multiplied by a constant.
+The fifth and sixth equalities stems from Assumption <a href="FPSI.html#hyp:iid">2.2</a> and from <span class="math inline">\(\var{Y_iD_i|D_i}=D_i\var{Y_i*1|D_i=1}+(1-D_i)\var{Y_i*0|D_i=0}\)</span>.
 The seventh equality stems from <span class="math inline">\(\var{Y_i|D_i=1}\)</span> and <span class="math inline">\(\var{Y_i|D_i=0}\)</span> being constant.
-The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case under Assumption <a href="FPSI.html#def:fullrank">2.3</a>.
+The last equality stems from the formula for the expectation of the inverse of a sum of Bernoulli random variables with at least one of them taking value one which is the case under Assumption <a href="FPSI.html#hyp:fullrank">2.1</a>.
 </div>
 <p>Using Theorem <a href="FPSI.html#thm:cheb">2.2</a>, we have:</p>
 <p><span class="math display">\[\begin{align*}
@@ -425,7 +426,7 @@ This proves the result.</p>
 <p>Before proving Theorem <a href="FPSI.html#thm:asympnoiseWW">2.5</a>, let me state a very useful result: <span class="math inline">\(\hat{WW}\)</span> can be computed using OLS:</p>
 
 <div class="lemma">
-<p><span id="lem:WWOLS" class="lemma"><strong>Lemma A.3  (WW is OLS)  </strong></span>Under Assumption <a href="FPSI.html#def:fullrank">2.3</a>, the OLS coefficient <span class="math inline">\(\beta\)</span> in the following regression:</p>
+<p><span id="lem:WWOLS" class="lemma"><strong>Lemma A.3  (WW is OLS)  </strong></span>Under Assumption <a href="FPSI.html#hyp:fullrank">2.1</a>, the OLS coefficient <span class="math inline">\(\beta\)</span> in the following regression:</p>
 <p><span class="math display">\[\begin{align*}
         Y_i &amp;  = \alpha +  \beta D_i + U_i
     \end{align*}\]</span></p>
@@ -497,7 +498,7 @@ which proves the result.
 <p>Now, let me state the most important lemma behind the result in Theorem <a href="FPSI.html#thm:asympnoiseWW">2.5</a>:</p>
 
 <div class="lemma">
-<p><span id="lem:asympOLS" class="lemma"><strong>Lemma A.4  (Asymptotic Distribution of the OLS Estimator)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>, we have:</p>
+<p><span id="lem:asympOLS" class="lemma"><strong>Lemma A.4  (Asymptotic Distribution of the OLS Estimator)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#hyp:fullrank">2.1</a>, <a href="FPSI.html#hyp:iid">2.2</a> and <a href="FPSI.html#hyp:finitevar">2.3</a>, we have:</p>
 <p><span class="math display">\[\begin{align*}
   \sqrt{N}(\hat{\Theta}_{OLS}-\Theta) &amp;  \stackrel{d}{\rightarrow}
   \mathcal{N}\left(\begin{array}{c} 0\\ 0\end{array},
@@ -521,8 +522,11 @@ which proves the result.
                                     &amp; = \sqrt{N}(X&#39;X)^{-1}X&#39;U \\
                                     &amp; = N(X&#39;X)^{-1}\frac{\sqrt{N}}{N}X&#39;U
 \end{align*}\]</span></p>
-<p>Using Slutsky’s Theorem, we can study both terms separately.
-Slutsky’s Theorem states that if <span class="math inline">\(Y_N\stackrel{d}{\rightarrow}y\)</span> and <span class="math inline">\(\text{plim}(X_N)=x\)</span>, then:</p>
+<p>Using Slutsky’s Theorem, we can study both terms separately.</p>
+<p>Before stating Slutsky’s Theorem, we need to define a new term: convergence in probability (this is a simpler version of convergence in distribution).
+We say that a sequence <span class="math inline">\(X_N\)</span> converges in probability to the constant <span class="math inline">\(x\)</span> if, <span class="math inline">\(\forall\epsilon&gt;0\)</span>, <span class="math inline">\(\lim_{N\rightarrow\infty}\Pr(|X_N-x|&gt;\epsilon)=0\)</span>.<br />
+We denote <span class="math inline">\(X_N\stackrel{p}{\rightarrow}x\)</span> or <span class="math inline">\(\text{plim}(X_N)=x\)</span>.</p>
+<p>Slutsky’s Theorem states that if <span class="math inline">\(Y_N\stackrel{d}{\rightarrow}y\)</span> and <span class="math inline">\(\text{plim}(X_N)=x\)</span>, then:</p>
 <ol style="list-style-type: decimal">
 <li><span class="math inline">\(X_N+Y_N\stackrel{d}{\rightarrow}x+y\)</span></li>
 <li><span class="math inline">\(X_NY_N\stackrel{d}{\rightarrow}xy\)</span></li>
@@ -535,7 +539,7 @@ Slutsky’s Theorem states that if <span class="math inline">\(Y_N\stackrel{d}{\
 <p>Where <span class="math inline">\(\sigma_{XX}^{-1}\)</span> is a matrix of constants and <span class="math inline">\(xu\)</span> is a random variable.</p>
 <p>Let’s begin with <span class="math inline">\(\frac{\sqrt{N}}{N}X&#39;U\stackrel{d}{\rightarrow}xu\)</span>:</p>
 <p><span class="math display">\[\begin{align*}
-\frac{\sqrt{N}}{N}X&#39;U &amp; = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum^{i=1}_{N}U_i\\  \frac{1}{N}\sum^{i=1}_{N}D_iU_i\end{array}\right)
+\frac{\sqrt{N}}{N}X&#39;U &amp; = \sqrt{N}\left(\begin{array}{c}  \frac{1}{N}\sum_{i=1}^{N}U_i\\  \frac{1}{N}\sum_{i=1}^{N}D_iU_i\end{array}\right)
 \end{align*}\]</span></p>
 <p>In order to determine the asymptotic distribution of <span class="math inline">\(\frac{\sqrt{N}}{N}X&#39;U\)</span>, we are going to use the vector version of the CLT:</p>
 <p>If <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span> are two i.i.d. random variables with finite first and second moments, we have:</p>
@@ -602,7 +606,7 @@ The results follows from that and from the symmetry of <span class="math inline"
 <p>A last lemma uses the previous result to derive the asymptotic distribution of <span class="math inline">\(\hat{WW}\)</span>:</p>
 
 <div class="lemma">
-<p><span id="lem:asymWW" class="lemma"><strong>Lemma A.5  (Asymptotic Distribution of <span class="math inline">\(\hat{WW}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#def:fullrank">2.3</a>, <a href="FPSI.html#def:iid">2.4</a> and <a href="FPSI.html#def:finitevar">2.5</a>, we have:</p>
+<p><span id="lem:asymWW" class="lemma"><strong>Lemma A.5  (Asymptotic Distribution of <span class="math inline">\(\hat{WW}\)</span>)  </strong></span>Under Assumptions <a href="FPCI.html#def:noselb">1.7</a>, <a href="FPSI.html#hyp:fullrank">2.1</a>, <a href="FPSI.html#hyp:iid">2.2</a> and <a href="FPSI.html#hyp:finitevar">2.3</a>, we have:</p>
 <span class="math display">\[\begin{align*}
   \sqrt{N}(\hat{\Delta^Y_{WW}}-\Delta^Y_{TT}) &amp;  \stackrel{d}{\rightarrow}
   \mathcal{N}\left(0,\frac{\var{Y_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_i^0|D_i=0}}{1-\Pr(D_i=1)}\right).
@@ -1328,6 +1332,332 @@ First:</p>
 <p>The second equality uses the fact that <span class="math inline">\(\bar{Y}_A-\bar{Y}_B=(1-\bar{D})(\bar{Y}^0_A-\bar{Y}^0_B)+\bar{D}(\bar{Y}_A^1-\bar{Y}_B^1)\)</span>.
 This proves the result.</p>
 <p><strong>To Do: the AP and LC estimators</strong></p>
+</div>
+<div id="proofasympnoiseDIDCross" class="section level3" number="16.3.2">
+<h3><span class="header-section-number">A.3.2</span> Proof of Theorem <a href="NE.html#thm:asympnoiseDIDCross">4.7</a></h3>
+<p>The DID model in repeated cross sections can be written in the following matrix form:</p>
+<p><span class="math display">\[\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1,B} \\    \vdots \\   Y_{N_B,B} \\Y_{1,A} \\  \vdots \\   Y_{N_A,A} \end{array}\right)}_{Y} &amp; =
+    \underbrace{\left(\begin{array}{cccc}   1 &amp; D^B_{1} &amp; T_{1,B} &amp; D^B_{1}T_{1,B}\\    \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\ 1 &amp; D^B_{N_B} &amp; T_{N_B,B} &amp; D^B_{N_B}T_{N_B,B} \\
+                                        1 &amp; D^A_{1} &amp; T_{1,A} &amp; D^A_{1}T_{1,A}\\    \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\ 1 &amp; D^A_{N_A} &amp; T_{N_A,A} &amp; D^A_{N_A}T_{N_A,A}\end{array}\right)}_{X}
+  \underbrace{\left(\begin{array}{c}    \alpha \\ \mu \\ \delta \\  \beta \end{array}\right)}_{\Theta} +
+  \underbrace{\left(\begin{array}{c}    \epsilon_{1,B} \\   \vdots \\   \epsilon_{N_B,B} \\ \epsilon_{1,A} \\   \vdots \\   \epsilon_{N_A,A} \end{array}\right),}_{\epsilon}
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(D^B_{i}\)</span> and <span class="math inline">\(D^A_{i}\)</span> denote the actual treatment status in period <span class="math inline">\(A\)</span> of individuals observed in periods <span class="math inline">\(B\)</span> and <span class="math inline">\(A\)</span> respectively and <span class="math inline">\(N_B\)</span> and <span class="math inline">\(N_A\)</span> are the numbers of units observed in periods <span class="math inline">\(B\)</span> and <span class="math inline">\(A\)</span> respectively.</p>
+<p>Using the beginning of the proof of Lemma <a href="proofs.html#lem:asympOLS">A.4</a>, we know that: <span class="math inline">\(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X&#39;X)^{-1}\frac{\sqrt{N}}{N}X&#39;\epsilon\)</span>.
+Using Slutsky’s Theorem, we know that we can study both terms separately (see the same proof of Lemma <a href="proofs.html#lem:asympOLS">A.4</a>).
+Let’s start with <span class="math inline">\(N(X&#39;X)^{-1}\)</span>.
+Using the fact that <span class="math inline">\(T_{i,B}=0\)</span> and <span class="math inline">\(T_{i,A}=1\)</span>, <span class="math inline">\(\forall i\)</span>, we can write matrix <span class="math inline">\(X\)</span> as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  X &amp; = \left(\begin{array}{cccc}   1 &amp; D^B_{1} &amp; 0 &amp; 0\\   \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\ 1 &amp; D^B_{N_B} &amp; 0 &amp; 0 \\
+                                        1 &amp; D^A_{1} &amp; 1 &amp; D^A_{1}\\ \vdots &amp; \vdots &amp; \vdots &amp; \vdots\\ 1 &amp; D^A_{N_A} &amp; 1 &amp; D^A_{N_A}\end{array}\right)
+\end{align*}\]</span></p>
+<p>Doing some matrix multiplication, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  X&#39;X &amp; = N_A\underbrace{\left(\begin{array}{cccc}
+                    k+1 &amp; k\bar{D}_B+\bar{D}_A &amp; 1 &amp; \bar{D}_A\\
+                    k\bar{D}_B+\bar{D}_A &amp; k\bar{D}_B+\bar{D}_A &amp; \bar{D}_A &amp; \bar{D}_A \\
+                    1 &amp; \bar{D}_A &amp; 1 &amp; \bar{D}_A\\
+                    \bar{D}_A &amp; \bar{D}_A &amp; \bar{D}_A &amp; \bar{D}_A
+            \end{array}\right)}_{x&#39;x}
+\end{align*}\]</span></p>
+<p>with <span class="math inline">\(\bar{D}_t=\frac{1}{N_t}\sum_{i=1}^{N_t}D^t_i\)</span>, <span class="math inline">\(k=\frac{N_B}{N_A}\)</span>, and using the fact that <span class="math inline">\((D^t_i)^2=D^t_i\)</span> since <span class="math inline">\(D^t_i\in\left\{0,1\right\}\)</span>.
+Using results on the inverse of a 4 by 4 matrix presented <a href="https://semath.info/src/inverse-cofactor-ex4.html">here</a> and collecting terms patiently, we find that the determinant of <span class="math inline">\(x&#39;x\)</span> is equal to:</p>
+<p><span class="math display">\[\begin{align*}
+  \det(x&#39;x) &amp; = k^2\pi\bar{D}_A^2(1-\bar{D}_A)(1-\pi\bar{D}_A),
+\end{align*}\]</span>
+with <span class="math inline">\(\pi=\frac{\bar{D}_B}{\bar{D}_A}\)</span>, and its adjugate is equal to:</p>
+<p><span class="math display">\[\begin{align*}
+  \tilde{x&#39;x} &amp; = k\pi\bar{D}_A(1-\bar{D}_A)
+                  \left(\begin{array}{cccc}
+                    \bar{D}_A &amp; -\bar{D}_A &amp; -\bar{D}_A &amp; \bar{D}_A\\
+                    -\bar{D}_A &amp; \frac{1}{\pi} &amp; \bar{D}_A &amp; -\frac{1}{\pi} \\
+                    -\bar{D}_A &amp; \bar{D}_A &amp; \bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} &amp; -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\\
+                    \bar{D}_A &amp; -\frac{1}{\pi} &amp; -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} &amp; k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi}
+            \end{array}\right)
+\end{align*}\]</span></p>
+<p>We finally have that <span class="math inline">\(N_A(X&#39;X)^{-1}=\frac{1}{\det(x&#39;x)}\tilde{x&#39;x}\)</span>.
+Taking the <span class="math inline">\(\text{plim}\)</span> with respect to <span class="math inline">\(N_A\)</span>, we have that:</p>
+<p><span class="math display">\[\begin{align*}
+  \text{plim}N_A(X&#39;X)^{-1} &amp; = \frac{1}{kp(1-p)}
+                  \left(\begin{array}{cccc}
+                    p &amp; -p &amp; -p &amp; p\\
+                    -p &amp; 1 &amp; p &amp; -1 \\
+                    -p &amp; p &amp; p(k+1) &amp; -p(k+1)\\
+                    p &amp; -1 &amp; -p(k+1) &amp; k+1
+            \end{array}\right)
+\end{align*}\]</span></p>
+<p>The result comes from <span class="math inline">\(\text{plim}\bar{D}_B=\text{plim}\bar{D}_A=\Pr(D_i=1)=p\)</span>, according to the Law of Large Numbers, and thus, using Slutsky’s Theorem, <span class="math inline">\(\text{plim}\pi=1\)</span>.</p>
+<p>Let us now derive the asymptotic distribution of <span class="math inline">\(\frac{\sqrt{N}}{N}X&#39;\epsilon\)</span>.
+In order to do that, we need to know the coefficients of the OLS DID model in repeated cross sections of different sizes.
+They probably are the same that with a panel, but we still need to check.
+We have that:</p>
+<p><span class="math display">\[\begin{align*}
+  X&#39;Y &amp; = N_A\left(\begin{array}{c}
+              k\bar{Y}_B+\bar{Y}_A \\
+              \bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)\\
+              \bar{Y}_A \\
+              \bar{D}_A\bar{Y}^1_A
+            \end{array}\right)
+\end{align*}\]</span></p>
+<p>Using the fact that <span class="math inline">\(\bar{Y}_t = \bar{D}_t\bar{Y}^1_t+(1-\bar{D}_t)\bar{Y}^0_t\)</span>, we have that:</p>
+<p><span class="math display">\[\begin{align*}
+  X&#39;Y &amp; = N_A\left(\begin{array}{c}
+              \underbrace{k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A)}_{\mathbf{A}} \\
+              \underbrace{\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)}_{\mathbf{B}}\\
+              \underbrace{\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A)}_{\mathbf{C}} \\
+              \underbrace{\bar{D}_A\bar{Y}^1_A}_{\mathbf{D}}
+            \end{array}\right)
+\end{align*}\]</span></p>
+<p>Using the fact that <span class="math inline">\((X&#39;X)^{-1}=\frac{1}{N_A}\frac{\tilde{x&#39;x}}{\det(x&#39;x)}\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\Theta}^{OLS} &amp; = (X&#39;X)^{-1}X&#39;Y \\
+         &amp; = \frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}
+            \left(\begin{array}{c}
+              \bar{D}_A(\mathbf{A}-\mathbf{B}-\mathbf{C}+\mathbf{D}) \\
+              -\bar{D}_A\mathbf{A}+\frac{\mathbf{B}}{\pi}+\bar{D}_A\mathbf{C}-\frac{\mathbf{D}}{\pi} \\
+              \bar{D}_A(-\mathbf{A}+\mathbf{B}+\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\mathbf{C}-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\mathbf{D})\\
+              \bar{D}_A\mathbf{A}-\frac{\mathbf{B}}{\pi}-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\bar{D}_A\mathbf{C}+(k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi})\mathbf{D}
+            \end{array}\right)
+\end{align*}\]</span></p>
+<p>Let’s take each term in turn:</p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\alpha}^{OLS} &amp; = \frac{1}{k(1-\pi\bar{D}_A)}
+            \left(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A) - \bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)\right.\\
+                  &amp; \phantom{\frac{1}{k(1-\pi\bar{D}_A)}\left(\right.}
+                  \left. - \bar{Y}^0_A-\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A)+\bar{D}_A\bar{Y}^1_A\right)\\
+                  &amp; = \frac{1}{k(1-\pi\bar{D}_A)}
+            \left(\bar{Y}^0_B(k-k\pi\bar{D}_A)+
+                  \bar{Y}^0_A(1-\bar{D}_A-1+\bar{D}_A)+
+                  \bar{Y}^1_B(k\pi\bar{D}_A-k\pi\bar{D}_A)+ \right.\\
+                  &amp; \phantom{\frac{1}{k(1-\pi\bar{D}_A)}\left(\right.}\left. \bar{Y}^1_A(\bar{D}_A-\bar{D}_A-\bar{D}_A+\bar{D}_A)\right) \\
+                  &amp; = \bar{Y}^0_Bk\frac{1-\pi\bar{D}_A}{k(1-\pi\bar{D}_A)}\\
+                  &amp; = \bar{Y}^0_B
+\end{align*}\]</span></p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\mu}^{OLS} &amp; = \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}
+            \left(-\bar{D}_A(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A))\right.\\
+            &amp; \phantom{= \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}}
+            \left.+\frac{\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)}{\pi}+\bar{D}_A(\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A))-\frac{\bar{D}_A\bar{Y}^1_A}{\pi}\right)\\
+            &amp; = \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}
+            \left(-\bar{D}_Ak\bar{Y}^0_B(1-\pi\bar{D}_A)-\bar{Y}^0_A\bar{D}_A(1-\bar{D}_A-1+\bar{D}_A)\right.\\
+            &amp; \phantom{= \frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}}
+            \left.+\bar{D}_Ak\bar{Y}^1_B(1-\pi\bar{D}_A)+\bar{Y}^1_A(-\bar{D}_A^2+\frac{\bar{D}_A}{\pi}+\bar{D}_A^2-\frac{\bar{D}_A}{\pi})\right) \\
+            &amp; = \frac{k\bar{D}_A(1-\pi\bar{D}_A)}{k\bar{D}_A(1-\pi\bar{D}_A)}(\bar{Y}^1_B-\bar{Y}^0_B)\\
+            &amp; = \bar{Y}^1_B-\bar{Y}^0_B
+\end{align*}\]</span></p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\delta}^{OLS} &amp; = \frac{1}{k(1-\pi\bar{D}_A)}\left(-(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A))\right. \\
+                    &amp; \phantom{=\frac{1}{k(1-\pi\bar{D}_A)}}+\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)+\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}(\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A))\\
+                    &amp; \phantom{=\frac{1}{k(1-\pi\bar{D}_A)}}\left.-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\bar{D}_A\bar{Y}^1_A\right) \\
+                    &amp; = \frac{1}{k(1-\pi\bar{D}_A)}\left(-\bar{Y}^0_Bk(1-\pi\bar{D}_A)-\bar{Y}^0_A(1-\bar{D}_A-(k+1-\bar{D}_A(k\pi+1)))\right.\\
+                    &amp; \phantom{=\frac{1}{k(1-\pi\bar{D}_A)}}\left.+\bar{Y}^1_B(-k\pi\bar{D}_A+k\pi\bar{D}_A)+\bar{Y}^1_A(-\bar{D}_A+\bar{D}_A+\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}(\bar{D}_A-\bar{D}_A))\right)\\
+                    &amp; = \frac{1}{k(1-\pi\bar{D}_A)}\left(-\bar{Y}^0_Bk(1-\pi\bar{D}_A)+\bar{Y}^0_Ak(1-\pi\bar{D}_A)\right)\\
+                    &amp; = \bar{Y}^0_A-\bar{Y}^0_B
+\end{align*}\]</span></p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\beta}^{OLS} &amp; =\frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}\left(\bar{D}_A(k\bar{Y}^0_B+\bar{Y}^0_A+\bar{D}_A(k\pi(\bar{Y}^1_B-\bar{Y}^0_B)+\bar{Y}^1_A-\bar{Y}^0_A))-\frac{\bar{D}_A(k\pi\bar{Y}^1_B+\bar{Y}^1_A)}{\pi}\right.\\
+                    &amp; \phantom{ =\frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}}\left.-\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\bar{D}_A(\bar{Y}^0_A+\bar{D}_A(\bar{Y}^1_A-\bar{Y}^0_A))+(k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi})\bar{D}_A\bar{Y}^1_A\right) \\
+                    &amp; = \frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}\left(\bar{Y}^0_B\bar{D}_Ak(1-\pi\bar{D}_A)+\bar{Y}^0_A\bar{D}_A(1-\bar{D}_A-(k+1-\bar{D}_A(k\pi+1)))-\bar{Y}^1_B\bar{D}_Ak(1-\pi\bar{D}_A)\right.\\
+                    &amp; \phantom{= \frac{1}{\bar{D}_Ak(1-\pi\bar{D}_A)}}\left.+\bar{Y}^1_A\bar{D}_A(\bar{D}_A-\frac{1}{\pi}-\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}+k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi})\right)\\
+                    &amp; = \frac{1}{k(1-\pi\bar{D}_A)}\left(-k(1-\pi\bar{D}_A)(\bar{Y}^1_B-\bar{Y}^0_B)-k(1-\pi\bar{D}_A)\bar{Y}^0_A+  k(1-\pi\bar{D}_A)\bar{Y}^1_A\right)\\
+                    &amp; = \bar{Y}^1_A-\bar{Y}^0_A-(\bar{Y}^1_B-\bar{Y}^0_B).
+\end{align*}\]</span></p>
+<p>So it is confirmed that OLS estimation of the DID model in repeated cross sections of different sizes estimates the same parameters than in panel data.
+Thanks to the Law of Large Numbers, we know that:</p>
+<p><span class="math display">\[\begin{align*}
+  \text{plim}\hat\Theta^{OLS} &amp; =\left(\begin{array}{c}
+              \esp{Y^0_{i,B}|D_i=0}\\
+              \esp{Y^0_{i,B}|D_i=1}-\esp{Y^0_{i,B}|D_i=1}\\
+              \esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0}\\
+              \esp{Y^1_{i,A}-Y^0_{i,B}|D_i=1}-\esp{Y^0_{i,A}-Y^0_{i,B}|D_i=0}
+            \end{array}\right),
+\end{align*}\]</span></p>
+<p>where the <span class="math inline">\(\text{plim}\)</span> is taken over <span class="math inline">\(N=N_A+N_B\)</span>.</p>
+<p>In order to study more easily the DID model as estimated by OLS, we are going to rewrite it as a pure cross sectional model:</p>
+<p><span class="math display">\[\begin{align*}
+  Y_j &amp; = \alpha + \mu D_j + \delta T_j + \beta D_jT_j + \epsilon_j,
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(j=i\)</span> when <span class="math inline">\(t=B\)</span> and <span class="math inline">\(j=N_B+i\)</span> when <span class="math inline">\(t=A\)</span>, <span class="math inline">\(D_j=D_i^t\)</span>, <span class="math inline">\(T_j=T_{i,t}\)</span> and <span class="math inline">\(Y_j=Y_{i,t}\)</span>.
+In that case, we are assuming that <span class="math inline">\(T_i\)</span> is a random variable, whereas in real life, the sample is stratified with respect to <span class="math inline">\(T_i\)</span>.
+We will treat this case in the stratification section.
+For now, assuming that time is sampled as a usual random variable is a useful simplification.</p>
+<p>From what we have proven above, we know that:</p>
+<p><span class="math display">\[\begin{align*}
+  \epsilon_{j} &amp; = Y_{j}-\left(\esp{Y^0_{j}|D_j=0,T_j=0}+D_j(\esp{Y^0_{j}|D_j=1,T_j=0}-\esp{Y^0_{j}|D_j=0,T_j=0})\right.\\
+                &amp; \phantom{=Y_{j}-\left(\right.}+T_j(\esp{Y^0_{j}|D_j=0,T_j=1}-\esp{Y^0_{j}|D_j=0,T_j=0})\\
+                  &amp; \phantom{=Y_{j}-\left(\right.}+D_jT_j(\esp{Y^1_{j}|D_j=1,T_j=1}-\esp{Y^0_{j}|D_j=1,T_j=0}\\
+                  &amp; \phantom{=Y_{j}-\left(\right.+D_jT_j}\left.-(\esp{Y^0_{j}|D_j=0,T_j=1}-\esp{Y^0_{j}|D_j=0,T_j=0}))\right)
+\end{align*}\]</span></p>
+<p>With this notation, and <span class="math inline">\(N=N_A+N_B\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  \frac{\sqrt{N}}{N}X&#39;\epsilon &amp; =\sqrt{N}\left(\begin{array}{c}
+              \frac{1}{N}\sum_{i=1}^N\epsilon_{j} \\
+              \frac{1}{N}\sum_{i=1}^ND_j\epsilon_{j} \\
+              \frac{1}{N}\sum_{i=1}^NT_j\epsilon_{j} \\
+              \frac{1}{N}\sum_{i=1}^ND_jT_j\epsilon_{j} 
+            \end{array}\right).
+\end{align*}\]</span></p>
+<p>In order to be able to use the vector CLT in order to study the distribution of these quantities, we need first to compute the expectation of these variables.
+Let us first start with <span class="math inline">\(\esp{D_jT_j\epsilon_{j}}\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+  \esp{D_jT_j\epsilon_{j}} &amp; =\esp{\epsilon_{j}|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+                          &amp; = 0,
+\end{align*}\]</span></p>
+<p>where the first equality follows from Bayes’ Law and the second equality from the definition of <span class="math inline">\(\epsilon_{j}\)</span>.
+Using the same reasoning, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  \esp{D_j\epsilon_{j}} &amp; =\esp{\epsilon_{j}|D_j=1,T_j=1}\Pr(T_j=1|D_j=1)+\esp{\epsilon_{j}|D_j=1,T_j=0}\Pr(T_j=0|D_j=1)\\
+                          &amp; = 0\\
+  \esp{T_j\epsilon_{j}} &amp; =\esp{\epsilon_{j}|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)+\esp{\epsilon_{j}|D_j=0,T_j=1}\Pr(D_j=0|T_j=1)\\
+                          &amp; = 0\\
+  \esp{\epsilon_{j}} &amp; =\esp{\epsilon_{j}|T_j=1}\Pr(T_j=1)+\esp{\epsilon_{j}|T_j=0}\Pr(T_j=0)\\
+                          &amp; = (\esp{\epsilon_{j}|T_j=0,D_j=1}\Pr(D_j=1|T_j=0)+\esp{\epsilon_{j}|T_j=0,D_j=0}\Pr(D_j=0|T_j=0))\Pr(T_j=0)\\
+                          &amp; = 0.
+\end{align*}\]</span></p>
+<p>Using the vector version of the CLT that we have already invoked in the proof of Lemma <a href="proofs.html#lem:asympOLS">A.4</a>, we have that <span class="math inline">\(\sqrt{N}\frac{X&#39;\epsilon}{N}\sim\mathcal{N}((0,0,0,0),\mathbf{V_{x\epsilon}})\)</span> with:</p>
+<p><span class="math display">\[\begin{align*}
+  \mathbf{V_{x\epsilon}} &amp; = \esp{\left(\begin{array}{c}  \epsilon_i  \\    \epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)
+                                  \left(\begin{array}{cccc} \epsilon_i &amp;    \epsilon_iD_i &amp;  \epsilon_iT_i &amp;  \epsilon_iD_iT_i \end{array}\right)}
+                  - \esp{\left(\begin{array}{c}  \epsilon_i  \\ \epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)}
+                    \esp{\left(\begin{array}{cccc}  \epsilon_i &amp;    \epsilon_iD_i &amp;  \epsilon_iT_i &amp;  \epsilon_iD_iT_i \end{array}\right)}\\
+                &amp; = \esp{\epsilon_i^2\left(\begin{array}{cccc}
+                                              1 &amp; D_i &amp; T_i &amp; D_iT_i \\
+                                              D_i &amp; D_i &amp;   D_iT_i &amp; D_iT_i \\
+                                              T_i &amp; D_iT_i &amp;    T_i &amp; D_iT_i \\
+                                              D_iT_i &amp; D_iT_i &amp; D_iT_i &amp; D_iT_i
+                                            \end{array}\right)},
+\end{align*}\]</span></p>
+<p>where we made use of the fact that <span class="math inline">\(T_i^2=T_i\)</span> and <span class="math inline">\(D_i^2=D_i\)</span>.</p>
+<p>Before we can use the Delta Method to derive the distribution of the OLS DID estimator, we need to compute <span class="math inline">\(\text{plim}N(X&#39;X)-1\)</span> as a function of <span class="math inline">\(N\)</span> and not <span class="math inline">\(N_A\)</span>, as we did before.
+In order to obtain that without redoing the matrix inversion all over again (which is pretty awful without the trick of factoring <span class="math inline">\(N_A\)</span>), we are going to use the fact that the proportion of observations belonging to period <span class="math inline">\(A\)</span> is equal to <span class="math inline">\(\bar{T}_A=\frac{N_A}{N}=\sum_{j=1}^NT_j\)</span>, and the proportion of observations belonging to period <span class="math inline">\(B\)</span> is equal to <span class="math inline">\(1-\bar{T}_A\)</span>.
+We also have that <span class="math inline">\(k=\frac{N_B}{N_A}=\frac{(1-\bar{T}_A)N}{\bar{T}_AN}=\frac{1-\bar{T}_A}{\bar{T}_A}\)</span>.
+Finally, note that <span class="math inline">\(\pi=\frac{\bar{D}_B}{\bar{D}_A}\)</span>.
+As a consequence of that and of our previous computations, we have that:</p>
+<p><span class="math display">\[\begin{align*}
+  (X&#39;X)^{-1} &amp; = \frac{1}{N_A}\frac{1}{k\bar{D}_A(1-\pi\bar{D}_A)}
+                  \left(\begin{array}{cccc}
+                    \bar{D}_A &amp; -\bar{D}_A &amp; -\bar{D}_A &amp; \bar{D}_A\\
+                    -\bar{D}_A &amp; \frac{1}{\pi} &amp; \bar{D}_A &amp; -\frac{1}{\pi} \\
+                    -\bar{D}_A &amp; \bar{D}_A &amp; \bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} &amp; -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A}\\
+                    \bar{D}_A &amp; -\frac{1}{\pi} &amp; -\bar{D}_A\frac{k+1-\bar{D}_A(k\pi+1)}{1-\bar{D}_A} &amp; k\frac{1-\pi\bar{D}_A}{1-\bar{D}_A}+\frac{1}{\pi}
+            \end{array}\right) \\
+          &amp; =   \frac{1}{N\bar{T}_A}\frac{1}{\frac{1-\bar{T}_A}{\bar{T}_A}\bar{D}_A(1-\frac{\bar{D}_B}{\bar{D}_A}\bar{D}_A)}\\
+          &amp; \phantom{=}
+                  \left(\begin{array}{cccc}
+                    \bar{D}_A &amp; -\bar{D}_A &amp; -\bar{D}_A &amp; \bar{D}_A\\
+                    -\bar{D}_A &amp; \frac{\bar{D}_A}{\bar{D}_B} &amp; \bar{D}_A &amp; -\frac{\bar{D}_A}{\bar{D}_B} \\
+                    -\bar{D}_A &amp; \bar{D}_A &amp; \bar{D}_A\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A} &amp; -\bar{D}_A\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A}\\
+                    \bar{D}_A &amp; -\frac{\bar{D}_A}{\bar{D}_B} &amp; -\bar{D}_A\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A} &amp; \frac{1-\bar{T}_A}{\bar{T}_A}\frac{1-\frac{\bar{D}_B}{\bar{D}_A}\bar{D}_A}{1-\bar{D}_A}+\frac{\bar{D}_A}{\bar{D}_B}
+            \end{array}\right) \\
+           &amp; =   \frac{1}{N}\frac{1}{(1-\bar{T}_A)(1-\bar{D}_B)}\\
+          &amp; \phantom{=}
+                  \left(\begin{array}{cccc}
+                    1 &amp; -1 &amp; -1 &amp; 1\\
+                    -1 &amp; \frac{1}{\bar{D}_B} &amp; 1 &amp; -\frac{1}{\bar{D}_B} \\
+                    -1 &amp; 1 &amp; \frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)} &amp; -\frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)}\\
+                    1 &amp; -\frac{1}{\bar{D}_B} &amp; -\frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)} &amp; \frac{1}{\bar{D}_A}\frac{1-\bar{T}_A}{\bar{T}_A}\frac{1-\bar{D}_B}{1-\bar{D}_A}+\frac{1}{\bar{D}_B}
+            \end{array}\right),
+\end{align*}\]</span></p>
+<p>because:</p>
+<p><span class="math display">\[\begin{align*}
+\frac{\frac{1-\bar{T}_A}{\bar{T}_A}+1-\bar{D}_A(\frac{1-\bar{T}_A}{\bar{T}_A}\frac{\bar{D}_B}{\bar{D}_A}+1)}{1-\bar{D}_A} &amp; = \frac{1+\frac{1-\bar{T}_A}{\bar{T}_A}-\frac{1-\bar{T}_A}{\bar{T}_A}\bar{D}_B+ \bar{D}_A}{1-\bar{D}_A} \\
+= &amp; \frac{\bar{T}_A+1-\bar{T}_A-\bar{D}_B+\bar{T}_A\bar{D}_B+ \bar{D}_A\bar{T}_A}{\bar{T}_A(1-\bar{D}_A)}\\
+= &amp; \frac{1-\bar{D}_B+\bar{T}_A(\bar{D}_B-\bar{D}_A)}{\bar{T}_A(1-\bar{D}_A)}.
+\end{align*}\]</span></p>
+<p>As a consequence, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  \text{plim}N(X&#39;X)^{-1} &amp; = \frac{1}{(1-p_A)(1-p)}
+                  \left(\begin{array}{cccc}
+                    1 &amp; -1 &amp; -1 &amp; 1\\
+                    -1 &amp; \frac{1}{p} &amp; 1 &amp; -\frac{1}{p} \\
+                    -1 &amp; 1 &amp; \frac{1}{p_A} &amp; -\frac{1}{p_A} \\
+                    1 &amp; -\frac{1}{p} &amp; -\frac{1}{p_A}  &amp; \frac{1}{pp_A}
+            \end{array}\right),
+\end{align*}\]</span></p>
+<p>using the Law of Large Numbers, Slutsky’s Theorem and the fact that <span class="math inline">\(\text{plim}\bar{T}_A=p_A\)</span>, the proportion of observations stemming from the After period, <span class="math inline">\(\text{plim}\bar{D}_A=\text{plim}\bar{D}_B=p\)</span> and the fact that <span class="math inline">\(\frac{1}{p}\frac{1-p_A}{p_A}+\frac{1}{p}=\frac{1}{pp_A}\)</span>.</p>
+<p>Now, we can derive the asympotic distribution of <span class="math inline">\(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X&#39;X)^{-1}\frac{\sqrt{N}}{N}X&#39;\epsilon\)</span>.
+Using the Delta Method, we have that <span class="math inline">\(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)\stackrel{d}{\rightarrow}\mathcal{N}\left((0,0,0,0),\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\right)\)</span>.
+So we’re in for a treat: deriving the lower diagonal term in the quadratic form <span class="math inline">\(\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\)</span>.</p>
+<p>Let us start.
+We first need the four terms on the last line of <span class="math inline">\((1-p_A)^2(1-p)^2\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}=(\mathbf{A},\mathbf{B},\mathbf{C},\mathbf{D})\)</span> (the squared terms in the beginning are accounting for the constant terms in the matrix multiplication):</p>
+<p><span class="math display">\[\begin{align*}
+  \mathbf{A}&amp; = \esp{\epsilon_j^2} -\frac{1}{p}\esp{\epsilon_j^2D_j} -\frac{1}{p_A}\esp{\epsilon_j^2T_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            &amp; =  \esp{\epsilon_j^2|D_j=0,T_j=0}\Pr(D_j=0|T_j=0)\Pr(T_j=0)+\esp{\epsilon_j^2|D_j=1,T_j=0}\Pr(D_j=1|T_j=0)\Pr(T_j=0)\\
+            &amp; \phantom{=}+\esp{\epsilon_j^2|D_j=0,T_j=1}\Pr(D_j=0|T_j=1)\Pr(T_j=1)+\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1) \\
+            &amp; \phantom{=}-\frac{1}{p}\esp{\epsilon_j^2|D_j=1}\Pr(D_j=1) -\frac{1}{p_A}\esp{\epsilon_j^2|T_j=1}\Pr(T_j=1) \\
+            &amp; \phantom{=}+ \frac{1}{pp_A}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+            &amp; =  \esp{\epsilon_j^2|D_j=0,T_j=0}(1-p)(1-p_A)+\esp{\epsilon_j^2|D_j=1,T_j=0}p(1-p_A)\\
+            &amp; \phantom{=}+\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)p_A+\esp{\epsilon_j^2|D_j=1,T_j=1}pp_A \\
+            &amp; \phantom{=}-\esp{\epsilon_j^2|D_j=1} -\esp{\epsilon_j^2|T_j=1} \\
+            &amp; \phantom{=}+ \esp{\epsilon_j^2|D_j=1,T_j=1}\\
+            &amp; =  \esp{\epsilon_j^2|D_j=0,T_j=0}(1-p)(1-p_A)+\esp{\epsilon_j^2|D_j=1,T_j=0}p(1-p_A)\\
+            &amp; \phantom{=}+\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)p_A+\esp{\epsilon_j^2|D_j=1,T_j=1}pp_A \\
+            &amp; \phantom{=}-\esp{\epsilon_j^2|D_j=1,T_j=0}(1-p_A)-\esp{\epsilon_j^2|D_j=1,T_j=1}p_A\\
+            &amp; \phantom{=}-\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)-\esp{\epsilon_j^2|D_j=1,T_j=1}p \\
+            &amp; \phantom{=}+ \esp{\epsilon_j^2|D_j=1,T_j=1}\\
+            &amp; =  \esp{\epsilon_j^2|D_j=0,T_j=0}(1-p)(1-p_A)\\
+            &amp; \phantom{=}-\esp{\epsilon_j^2|D_j=1,T_j=0}(1-p)(1-p_A)\\
+            &amp; \phantom{=}-\esp{\epsilon_j^2|D_j=0,T_j=1}(1-p)(1-p_A)\\
+            &amp; \phantom{=}+\esp{\epsilon_j^2|D_j=1,T_j=1}(1-p)(1-p_A)\\
+            &amp; = (1-p)(1-p_A)(\sigma_{\epsilon_{0,0}}^2-\sigma_{\epsilon_{1,0}}^2-\sigma_{\epsilon_{0,1}}^2+\sigma_{\epsilon_{1,1}}^2)\\
+  \mathbf{B}&amp; = \esp{\epsilon_j^2D_j} -\frac{1}{p}\esp{\epsilon_j^2D_j} -\frac{1}{p_A}\esp{\epsilon_j^2D_jT_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            &amp; = \esp{\epsilon_j^2D_j}(1-\frac{1}{p})+\esp{\epsilon_j^2D_jT_j}\frac{1}{p_A}(\frac{1}{p}-1) \\
+            &amp; = (1-\frac{1}{p})\esp{\epsilon_j^2|D_j=1}\Pr(D_j=1)+\frac{1}{p_A}(\frac{1}{p}-1)\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1) \\
+            &amp; = p(1-\frac{1}{p})\left(\esp{\epsilon_j^2|D_j=1,T_j=0}\Pr(T_j=0|D_j=1)+\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(T_j=1|D_j=1)\right)\\
+            &amp; \phantom{=}+\frac{1}{p_A}(\frac{1}{p}-1)\sigma_{\epsilon_{1,1}}^2pp_A\\
+            &amp; = p(1-\frac{1}{p})\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+\frac{1}{p_A}(\frac{1}{p}-1)\sigma_{\epsilon_{1,1}}^2pp_A\\
+            &amp; = -(1-p)\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+(1-p)\sigma_{\epsilon_{1,1}}^2\\
+            &amp; = (1-p)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2(1-p_A)-\sigma_{\epsilon_{1,1}}^2p_A\right)\\
+            &amp; = (1-p)(1-p_A)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2\right)
+  \mathbf{C}&amp; = \esp{\epsilon_j^2T_j} -\frac{1}{p}\esp{\epsilon_j^2D_jT_j} -\frac{1}{p_A}\esp{\epsilon_j^2T_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            &amp; = \esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)-\frac{1}{p}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+            &amp; \phantom{=}-\frac{1}{p_A}\esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)+\frac{1}{pp_A}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
+            &amp; = -(1-p_A)(\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)+\esp{\epsilon_j^2|D_j=0,T_j=1}\Pr(D_j=0|T_j=1))\\
+            &amp; \phantom{=}+\esp{\epsilon_j^2|D_j=1,T_j=1}(1-p_A)\\
+            &amp; = (1-p_A)(\sigma_{\epsilon_{1,1}}^2(1-p)-(1-p)\sigma_{\epsilon_{0,1}}^2)\\
+            &amp; = (1-p)(1-p_A)(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{0,1}}^2)\\
+  \mathbf{D}&amp; = \esp{\epsilon_j^2D_jT_j} -\frac{1}{p}\esp{\epsilon_j^2D_jT_j} -\frac{1}{p_A}\esp{\epsilon_j^2D_jT_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
+            &amp; = \esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)(1-\frac{1}{p}-\frac{1}{p_A}+\frac{1}{pp_A})\\
+            &amp; = \sigma_{\epsilon_{1,1}}^2(pp_A-p_A-p+1)\\
+            &amp; = (1-p)(1-p_A)\sigma_{\epsilon_{1,1}}^2
+\end{align*}\]</span></p>
+<p>since <span class="math inline">\(1-p-p_A+pp_A=(1-p)(1-p_A)\)</span>, and where <span class="math inline">\(\sigma_{\epsilon_{d,t}}^2=\esp{\epsilon_j^2|D_j=d,T_j=t}\)</span>.
+We also make use of the fact that <span class="math inline">\(\Pr(D_j=d|T_j=t)=\Pr(D_j=d)\)</span> and <span class="math inline">\(\Pr(T_j=t|D_j=d)=\Pr(T_j=t)\)</span>, that is that the participants and non participants are sampled exactly in the same proportion in both periods.</p>
+<p>Let us now obtain <span class="math inline">\(\var{\hat{\beta}^{OLS}}\)</span>, the variance of the <span class="math inline">\(\hat{\beta}^{OLS}\)</span> parameter.
+It is the last diagonal term of the matrix <span class="math inline">\(\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\)</span>.
+We know that:</p>
+<p><span class="math display">\[\begin{align*}
+  \var{\hat{\beta}^{OLS}} &amp; = \frac{1}{(1-p)^2(1-p_A)^2}\left(\mathbf{A}-\frac{1}{p}\mathbf{B}-\frac{1}{p_A}\mathbf{C}+\frac{1}{pp_A}\mathbf{D}\right)\\
+                          &amp; = \frac{1}{(1-p)(1-p_A)}\left(\sigma_{\epsilon_{0,0}}^2-\sigma_{\epsilon_{1,0}}^2-\sigma_{\epsilon_{0,1}}^2+\sigma_{\epsilon_{1,1}}^2
+                                                          -\frac{1}{p}(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2) \right.\\
+                          &amp; \phantom{= \frac{1}{(1-p)(1-p_A)}\left(\right.}\left.
+                                                          -\frac{1}{p_A}(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{0,1}}^2)+ \frac{1}{pp_A}\sigma_{\epsilon_{1,1}}^2\right)\\
+                          &amp; = \frac{1}{(1-p)(1-p_A)}\left(\sigma_{\epsilon_{0,0}}^2+\sigma_{\epsilon_{1,0}}^2(-1+\frac{1}{p})+\sigma_{\epsilon_{0,1}}^2(-1+\frac{1}{p_A})+\sigma_{\epsilon_{1,1}}^2(1-\frac{1}{p}-\frac{1}{p_A}+\frac{1}{pp_A})\right)\\
+                          &amp; = \frac{1}{(1-p)(1-p_A)}\left(\sigma_{\epsilon_{0,0}}^2+\sigma_{\epsilon_{1,0}}^2\frac{1-p}{p}+\sigma_{\epsilon_{0,1}}^2(\frac{1-p_A}{p_A}+\sigma_{\epsilon_{1,1}}^2\frac{pp_A-p_A-p+1}{pp_A}\right)\\
+                          &amp; = \frac{\sigma_{\epsilon_{0,0}}^2}{(1-p)(1-p_A)}+\frac{\sigma_{\epsilon_{1,0}}^2}{p(1-p_A)}+\frac{\sigma_{\epsilon_{0,1}}^2}{(1-p)p_A}+\frac{\sigma_{\epsilon_{1,1}}^2}{pp_A},
+\end{align*}\]</span></p>
+<p>using again the fact that <span class="math inline">\(1-p-p_A+pp_A=(1-p)(1-p_A)\)</span>.</p>
+<p>Finally, using the formula for <span class="math inline">\(\epsilon_j\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+ \sigma_{\epsilon_{0,0}}^2 &amp; = \esp{\epsilon_j^2|D_j=0,T_j=0} \\
+                          &amp; = \esp{(Y_j-\esp{Y^0_j|D_j=0,T_j=0})^2|D_j=0,T_j=0}\\
+                          &amp; = \esp{(Y^0_{i,B}-\esp{Y^0_{i,B}|D_i=0)^2}|D_i=0}\\
+                          &amp; = \var{Y^0_{i,B}|D_i=0}\\
+ \sigma_{\epsilon_{1,0}}^2 &amp; = \esp{\epsilon_j^2|D_j=1,T_j=0} \\
+                          &amp; = \esp{(Y_j-\esp{Y^0_j|D_j=1,T_j=0})^2|D_j=1,T_j=0}\\
+                          &amp; = \esp{(Y^0_{i,B}-\esp{Y^0_{i,B}|D_i=1)^2}|D_i=1}\\
+                          &amp; = \var{Y^0_{i,B}|D_i=1}\\
+ \sigma_{\epsilon_{0,1}}^2 &amp; = \esp{\epsilon_j^2|D_j=0,T_j=1} \\
+                          &amp; = \esp{(Y_j-\esp{Y^0_j|D_j=0,T_j=1})^2|D_j=0,T_j=1}\\
+                          &amp; = \esp{(Y^0_{i,A}-\esp{Y^0_{i,A}|D_i=0)^2}|D_i=0}\\
+                          &amp; = \var{Y^0_{i,A}|D_i=0}\\
+ \sigma_{\epsilon_{1,1}}^2 &amp; = \esp{\epsilon_j^2|D_j=1,T_j=1} \\
+                          &amp; = \esp{(Y_j-\esp{Y^1_j|D_j=1,T_j=1})^2|D_j=1,T_j=1}\\
+                          &amp; = \esp{(Y^1_{i,A}-\esp{Y^1_{i,A}|D_i=1)^2}|D_i=1}\\
+                          &amp; = \var{Y^1_{i,A}|D_i=1}
+\end{align*}\]</span></p>
+<p>This proves the result.</p>
 
 </div>
 </div>

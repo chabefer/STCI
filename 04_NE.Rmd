@@ -1190,7 +1190,7 @@ In the Before period, the treatment is unavailable, so that we get to observe th
 These two very specific requirements of DID are encoded in the following way:
 
 ```{hypothesis,NoTreatmentFirst,name="No Treatment in the Before Period"}
-We assume that no unit in the population receives the treatment in the Before period: $D_{i,B}=0$, $\forall i$.
+We assume that no unit in the population receives the treatment in the Before period: $D_{i,B}=0$, $\forall i$ and not all units receive the program in the After period, but some units receive it: $0<\Pr(D_{i,A}=1)<1$.
 ```
 
 Under Assumption \@ref(hyp:NoTreatmentFirst), and without loss of generality, we are going to write $D_i=D_{i,A}$.
@@ -1228,6 +1228,7 @@ Assumption \@ref(hyp:ParallelTrends) is equivalent to assuming that selection bi
 
 ```{proof}
 The proof follows immediately by adding $\esp{Y^0_{i,B}|D_i=1}-\esp{Y^0_{i,A}|D_i=0}$ to both sides of the equation in Assumption \@ref(hyp:ParallelTrends). 
+
 ```
 
 Under these assumptions, we are ready to state the main identification result of this section:
@@ -1269,6 +1270,7 @@ As a consequence, we have:
                 & = \esp{Y^1_{i,A}-Y^0_{i,A}|D_i=1}\\
                 & = \Delta^{Y_A}_{TT}.
 \end{align*}
+
 ```
 
 ```{example}
@@ -1360,13 +1362,13 @@ lower.cut.D1 <- c(-Inf,-Inf,-Inf)
 upper.cut.D1 <- c(Inf,Inf,log(param['barY']))
 
 # means 
-TT <- mtmvnorm(mean=mean.alpha.UB.yBV,sigma=cov.alpha.UB.yBV,lower=lower.cut.D1,upper=upper.cut.D1,doComputeVariance=FALSE)[[1]][[1]]
+TT.pop <- mtmvnorm(mean=mean.alpha.UB.yBV,sigma=cov.alpha.UB.yBV,lower=lower.cut.D1,upper=upper.cut.D1,doComputeVariance=FALSE)[[1]][[1]]
 mean.UB.D0 <- mtmvnorm(mean=mean.alpha.UB.yBV,sigma=cov.alpha.UB.yBV,lower=lower.cut.D0,upper=upper.cut.D0,doComputeVariance=FALSE)[[1]][[2]]
 mean.UB.D1 <- mtmvnorm(mean=mean.alpha.UB.yBV,sigma=cov.alpha.UB.yBV,lower=lower.cut.D1,upper=upper.cut.D1,doComputeVariance=FALSE)[[1]][[2]]
 B.DID <- -(1-param['rho'])*(mean.UB.D1-mean.UB.D0)
 ```
 
-In our example, the population $TT$ is equal to $\Delta^y_{TT}=$ `r round(TT,3)`.
+In our example, the population $TT$ is equal to $\Delta^y_{TT}=$ `r round(TT.pop,3)`.
 The DID estimator is equal to $\Delta^y_{DID}=$ `r round(TT+B.DID,3)`.
 As a consequence, the bias of the DID estimator is equal to $\Delta^y_{B(DID)}=$ `r round(B.DID,3)`.
 
@@ -1457,7 +1459,7 @@ The After With/Without estimator is equal to $\hat{\Delta}^{y}_{WW}=$ `r round(W
 The DID estimator is thus equal to $\hat{\Delta}^{y}_{DID}=\hat{\Delta}^{y}_{WW}-\hat{\Delta}^{y^B}_{WW}=$ `r round(WW.after,3)` $-($ `r round(WW.before,3)` $)=$ `r round(DID,3)`.
 This is not too far from the true effect of the treatment in the sample which is equal to $\hat{\Delta}^{y}_{TT}=$ `r round(TT,3)`.
 In the population, the $TT$ parameter has not changed, since its computation does not involve $\rho$.
-We still have $\Delta^y_{TT}=$ `r round(TT,3)`.
+We still have $\Delta^y_{TT}=$ `r round(TT.pop,3)`.
 
 ##### Using the Least Squares pooling DID estimator
 
@@ -1726,6 +1728,7 @@ Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects) 
 
 ```{proof}
 See Section \@ref(proofEstimDID).
+
 ```
 
 A corollary to Theorem \@ref(thm:EstimDID) shows that the coefficients in the Least Squares Pooling DID estimator all estimate some relevant parameters that help make sense of the DID estimator:
@@ -1743,6 +1746,7 @@ with $\bar{Y}^d_t=\frac{\sum_{i=1}^NY_{i,t}\uns{D_i=d}}{\sum_{i=1}^N\uns{D_i=d}}
 
 ```{proof}
 See Section \@ref(proofEstimDID), the proof for the OLS DID estimator.
+
 ```
 
 Corollary \@ref(cor:OLSDIDCoefs) shows that the constant in the OLS DID model $\hat{\alpha}^{OLS}$ estimates the average outcome for the untreated group in the period before the treatment date; the coefficient on the group dummy $D_i$ $\hat{\mu}^{OLS}$ estimates the difference between the average outcome for the treated group and the average outcome in the untreated group in the period before the treatment takes place; the coefficient on the time dummy $T_i$ $\hat{\delta}^{OLS}$ estimates the difference in average outcomes in the untreated group before and after the treatment takes place.
@@ -1754,11 +1758,308 @@ A key difference is whether we have access to panel data or not.
 Indeed, estimates from a repeated cross section are going to be more noisy since they are going to sample different people in different periods and thus are going to be affected by sampling noise stemming from the fixed effects. 
 This is not going to be the case with panel data, since all the estimators based on the TWFE estimator differentiate out the individual fixed effects.
 
-**Do the simulations**
+```{example}
+Let's first start with the case of panel data:
+```
 
-#### Inference
+```{r DIDPanelSimul,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+# let us write a function that generates a DID estimate out of each sample of a given size
+monte.carlo.did.panel <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  Ds[YB<=param["barY"]] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  delta.y.did <- mean(y[Ds==1])-mean(y[Ds==0])-(mean(yB[Ds==1])-mean(yB[Ds==0]))
+  return(delta.y.did)
+}
 
-**Derive the distribution of the estimators with repeated cross sections and panels**
+simuls.did.panel.N <- function(N,Nsim,param){
+  simuls.did.panel <- matrix(unlist(lapply(1:Nsim,monte.carlo.did.panel,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.did.panel) <- c('DID')
+  return(simuls.did.panel)
+}
+
+sf.simuls.did.panel.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.did.panel,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('DID')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.did.panel <- lapply(N.sample,sf.simuls.did.panel.N,Nsim=Nsim,param=param)
+names(simuls.did.panel) <- N.sample
+```
+
+Let us now plot the results of the simulations:
+
+```{r DIDPanelSimulPlot,dependson='DIDPanelSimul',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the DID estimator over replications of panels of different sizes',fig.align='center',out.width='50%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.did.panel)){
+  hist(simuls.did.panel[[i]][,'DID'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yDID)),xlim=c(-0.15,0.55))
+  abline(v=TT.pop,col="red")
+}
+```
+
+Figure \@ref(fig:DIDPanelSimulPlot) shows that the DID estimator converges pretty fast to the true treatment effect as sample size grows large.
+Let us now wee what happens with a repeated cross section:
+
+```{r DIDCrossSectionSimul,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.did.cross <- function(s,N,param){
+  N.tot <- 2*N
+  set.seed(s)
+  mu <- rnorm(N.tot,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N.tot,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N.tot)
+  Ds[YB<=param["barY"]] <- 1 
+  epsilon <- rnorm(N.tot,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N.tot,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  # first cross section: 1-N
+  first <- seq(1,N)
+  # second cross section: 1001-2000
+  second <- seq(N+1,N.tot)
+  # repeated cross section DID
+  delta.y.did.cross <- mean(y[second][Ds[second]==1])-mean(y[second][Ds[second]==0])-(mean(yB[first][Ds[first]==1])-mean(yB[first][Ds[first]==0]))
+  return(delta.y.did.cross)
+}
+
+simuls.did.cross.N <- function(N,Nsim,param){
+  simuls.did.cross <- matrix(unlist(lapply(1:Nsim,monte.carlo.did.cross,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.did.cross) <- c('DID')
+  return(simuls.did.cross)
+}
+
+sf.simuls.did.cross.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.did.cross,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('DID')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.did.cross <- lapply(N.sample,sf.simuls.did.cross.N,Nsim=Nsim,param=param)
+names(simuls.did.cross) <- N.sample
+```
+
+Let us now plot the results:
+
+```{r DIDCrossSectionSimulPlot,dependson='DIDCrossSectionSimul',eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the DID estimator over replications of repeated cross sections of different sizes',fig.align='center',out.width='50%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.did.cross)){
+  hist(simuls.did.cross[[i]][,'DID'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yDID)),xlim=c(-0.15,0.55))
+  abline(v=TT.pop,col="red")
+}
+```
+
+Relative to Figure \@ref(fig:DIDPanelSimulPlot), Figure \@ref(fig:DIDCrossSectionSimulPlot) shows that sampling noise is larger at each sample size with a repeated cross section estimator. 
+Let's see how we can estimate these below using the Central Limit Theorem.
+
+#### Estimation of sampling noise
+
+It is especially important to understand the properties of sampling noise for treatment effect estimators in DID designs because it can serve as a basis for power analysis, but also to understand the sources of improvements or loss of precision when moving from the simple with/without comparison to the DID estimator.
+Let us first look at the sampling noise of the simpler $2\times 2$ DID estimator in a panel data with only two time periods.
+We will then move to the sampling noise of the simpler $2\times 2$ DID estimator in a repeated cross section.
+
+##### Estimating sampling noise in panel settings
+
+When we estimate DID in a panel of two time periods, Theorem \@ref(thm:EstimDID) shows that all possible DID estimators are equivalent. 
+We can thus use the most convenient one in order to derive the Central Limit Theorem-based approximation to its distribution, and use it to estimate sampling noise. 
+The most convenient estimator, to me, is the First Difference estimator.
+We indeed know that it is formulated as an OLS estimator, regressing the change in outcomes over time to the treatment dummy.
+The First Difference estimator is thus simply a With/Without estimator where the outcomes are replaced by the changes in outcomes over time.
+And we already know how to derive an Central Limit Theorem-based estimate of the sampling noise of the With/Without estimator.
+In order to use these results, we need some assumptions:
+
+```{hypothesis,iidDID,name='i.i.d. sampling in First Difference'}
+We assume that the observations in the sample are identically and independently distributed in First Differences: 
+\begin{align*}
+\forall i,j\leq N\text{, }i\neq j\text{, } & (Y_{i,A}-Y_{i,B},D_i)\Ind(Y_{j,A}-Y_{j,B},D_j),\\
+                                           & (Y_{i,A}-Y_{i,B},D_i)\&(Y_{j,A}-Y_{j,B},D_j)\sim F_{Y_A-Y_B,D}.
+\end{align*}
+```
+
+Assumption \@ref(hyp:iidDID) imposes that the changes in outcome over time are not correlated across units. 
+This is not a strong assumption.
+It is actually much weaker than imposing that the levels of outcomes are distributed i.i.d. in the sample.
+That would require that the outcomes of the same unit are not correlated over time, which is wrong if there are unit fixed effects $\mu_i$ or if the error terms are correlated across time (which is possible if shocks are persistent).
+Assumption \@ref(hyp:iidDID) rules out spatial correlation between units, be it in the changes in outcomes or in receiving the treatment.
+This is very restrictive. 
+
+We also need to assume that the changes in outcomes in both groups have finite variances:
+
+```{hypothesis,finitevarDID,name='Finite variance of $\\hat{\\Delta^Y_{WW}}$'}
+We assume that $\var{Y^1_A-Y^0_B|D_i=1}$ and $\var{Y^0_A-Y^0_B|D_i=0}$ are finite.
+```
+
+We now can state the following theorem:
+
+```{theorem,asympnoiseDID,name="Asymptotic Estimate of Sampling Noise of DID"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDID) and \@ref(hyp:finitevarDID), for a given confidence level $\delta$ and sample size $N$, the sampling noise of $\hat{\Delta}^Y_{DID}$ can be approximated as follows:
+
+\begin{align*}
+2\epsilon^{panel}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_{i,A}^1-Y_{i,B}^0|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_{i,A}^0-Y_{i,B}^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}^{panel}_{DID}.
+\end{align*}
+
+```
+
+```{proof}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), Theorem \@ref(thm:EstimDID) proves that $\hat{\Delta}^Y_{DID}=\hat{\beta}^{FD}$.
+$\hat{\beta}^{FD}$ is obtained as the OLS estimator of the coefficient in front of $D_i$ in a regression of $Y_{i,A}-Y_{i,B}$ on $D_i$ and a constant. 
+Lemma \@ref(lem:WWOLS) shows that, in such a regression, this coefficient is also a WW estimator, so that $\hat{\beta}^{FD}=\hat{\Delta}^{Y_{A}-Y_{B}}_{WW}$.
+Using Theorem \@ref(thm:asympnoiseWW) proves the result.
+
+```
+
+Theorem \@ref(thm:asympnoiseDID) shows that the precision of the DID estimator in panel settings depends on the variance of the changes in outcomes over time in the treated and control group.
+Since outcomes for a given individual are generally correlated over time, the variance of the DID estimator will in general be lower than the variance of the WW estimator.
+A case in point is when there are individual fixed effects in the equation generating outcomes: in that case, differencing outcomes over time gets rid of the individual fixed effects and thus the variance of the differences out outcomes is lower than the variance of outcomes in levels, since it misses the part due to the individual fixed effects.
+So, in most cases (but not all of them), we can expect an increase in precision when moving from WW to DID.
+
+```{example}
+Let's see how our estimator of sampling noise performs in the data.
+```
+
+```{r DIDPanelNoise,eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide'}
+# True 99% sampling noise (from simulations)
+SN.DID.1000 <- 2*quantile(abs(simuls.did.panel[[2]][,'DID']-TT.pop),probs=c(0.99))
+# True 99% sampling noise fro repeated cross sections (from simulations)
+SN.DID.cross.1000 <- 2*quantile(abs(simuls.did.cross[[2]][,'DID']-TT.pop),probs=c(0.99))
+# estimate using plug in estimator directly from theorem
+SN.DID.estim.1000 <- 2*qnorm((.99+1)/2)*sqrt((var(y[Ds==1]-yB[Ds==1])/mean(Ds)-var(y[Ds==0]-yB[Ds==0])/(1-mean(Ds)))/N.sample[[2]])
+# estimate using the heteroskedasticity robust standard errors from the FD OLS regression
+SN.DID.estim.FD.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcovHC(reg.FD,type='HC2')))[[2]]
+# estimate using the heteroskedasticity robust standard errors from the DID OLS regression
+SN.DID.estim.OLS.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcovHC(reg.DID,type='HC2')))[[4]]
+# estimate using the heteroskedasticity robust standard errors from the Within OLS regression
+SN.DID.estim.W.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcovHC(reg.W,type='HC2')))[[1]]
+# estimate using the heteroskedasticity robust standard errors from the Within plm regression
+SN.DID.estim.W.plm.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcovHC(reg.W.plm,type='HC2')))[[1]]
+# estimate using the heteroskedasticity robust standard errors from the FD plm regression
+SN.DID.estim.FD.plm.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcovHC(reg.FD.plm,type='HC2')))[[2]]
+# estimate using the heteroskedasticity robust standard errors from the pooled plm regression
+SN.DID.estim.OLS.plm.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcovHC(reg.OLS.plm,type='HC2')))[[4]]
+# estimate using the default standard errors from the Within lfe regression
+SN.DID.estim.W.lfe.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcov(reg.W.lfe)))[[1]]
+# estimate using the default (but heteroskedasticity robust) standard errors from the Within fixest regression
+SN.DID.estim.W.fixest.1000 <- 2*qnorm((.99+1)/2)*sqrt(diag(vcov(reg.W.fixest)))[[1]]
+```
+
+The true level of 99\% sampling noise in the $N=$ `r N.sample[[2]]` sample is estimated from the simulations to be equal to `r round(SN.DID.1000,2)`, while the estimated level of 99\% sampling noise using the formula from Theorem \@ref(thm:asympnoiseDID) is equal to `r round(SN.DID.estim.1000,2)`.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the First Difference regression using OLS is equal to `r round(SN.DID.estim.FD.1000,2)`.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the DID regression using OLS is equal to `r round(SN.DID.estim.OLS.1000,2)`.
+It is much larger, because it assumes that we only have access to a repeated cross section, and thus it does not take into account the fact that we have more precision thanks to the panel data.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the Within regression using OLS is equal to `r round(SN.DID.estim.W.1000,2)`.
+The `plm` package corrects all standard errors for the panel nature of the data (irrespective of the type of estimator), and thus returns an estimate of 99\% sampling noise equal to `r round(SN.DID.estim.W.plm.1000,2)` for the Within estimator, `r round(SN.DID.estim.FD.plm.1000,2)` for the First Difference estimator and `r round(SN.DID.estim.OLS.plm.1000,2)` for the pooled DID estimator.
+Neither `lfe` nor `fixest` seem compatible with `vcovHC`, which enables the estimation of heteroskedasticity-robust standard errors.
+The `lfe` package seems not to take into account heteroskedasticity by default: its estimate of 99\% sampling noise is equal to `r round(SN.DID.estim.W.lfe.1000,2)`.
+The `fixest` package seems to take into account heteroskedasticity by default: its estimate of 99\% sampling noise is equal to `r round(SN.DID.estim.W.fixest.1000,2)`.
+
+##### Estimating sampling noise in repeated cross sections
+
+When we do not have access to panel data, a lot of the estimators we have studied here are infeasible.
+This is the case of the First Difference estimator (we cannot build the difference in out comes over time for the same unit since we observe each unit only once).
+The Within estimator is also compromised (we cannot build the average outcome over time for each observation, since, again, we only observe each observation only once).
+The Least Squares Dummy Variables estimator is also infeasible, for the same reason: we need to observe each observation at least twice in order for the treatment dummy to not be collinear with the unit and time fixed effects.
+
+But, both the basic DID formula and the Least Squares pooling estimator can still be computed with repeated cross sections.
+As Figure \@ref(fig:DIDCrossSectionSimulPlot) has shown, the DID estimator is much more variable in repeated cross section: the level of 99\% sampling noise in the $N=$ `r N.sample[[2]]` sample is estimated from the simulations to be equal to `r round(SN.DID.cross.1000,2)`, while it is of `r round(SN.DID.1000,2)` with panel data of the same size.
+Let's see how the Central-Limit Theorem can help us estimate this variance and shed some light on why we lose so much precision when moving from panel to cross section estimators.
+It is unfortunately much more work to derive the CLT-based estimate of sampling noise with repeated cross-sections than with panel data.
+We first need to respecify an i.i.d. assumption adapted to repeated cross sections:
+
+```{hypothesis,iidDIDCross,name='i.i.d. sampling in Repeated Cross Sections'}
+We assume that the observations in the sample are identically and independently distributed: 
+\begin{align*}
+\forall i,j\leq N_t\text{, }i\neq j\text{, }, \forall t,t'\in\{A,B\}\text{, }t\neq t'\text{, } & (Y_{i,t},D_i)\Ind(Y_{j,t'},D_j),\\
+                                           & (Y_{i,t},D_i)\&(Y_{j,t'},D_j)\sim F_{Y,D}. 
+\end{align*}
+```
+
+Assumption \@ref(hyp:iidDIDCross) imposes that outcomes are not correlated across units nor across time.
+This is not a strong assumption in a repeated cross section, as long as the same units are not observed at both periods.
+We now can state the following theorem:
+
+```{theorem,asympnoiseDIDCross,name="Asymptotic Estimate of Sampling Noise of DID in Repeated Cross Sections"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), for a given confidence level $\delta$, the sampling noise of $\hat{\Delta}^Y_{DID}$ in repeated cross sections of total size $N$ can be approximated as follows:
+
+\begin{align*}
+2\epsilon^{cross}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{
+                            \frac{\var{Y^0_{i,B}|D_i=0}}{(1-p)(1-p_A)}
+                            +\frac{\var{Y^0_{i,B}|D_i=1}}{p(1-p_A)}
+                            +\frac{\var{Y^0_{i,A}|D_i=0}}{(1-p)p_A}
+                            +\frac{\var{Y^1_{i,A}|D_i=1}}{pp_A}} \\
+                        & \equiv 2\tilde{\epsilon}^{cross}_{DID}.
+\end{align*}
+
+where $p=\Pr(D_i=1)$ and $p_A$ is the proportion of observations belonging to the After period.
+
+```
+
+```{proof}
+See Section \@ref(proofasympnoiseDIDCross).
+```
+
+```{remark}
+Note that the difference between the amount of sampling noise of the DID estimator in panel data \textit{vs} in repeated cross sections is present whatever the estimator (in panel data, all the estimators are equivalent).
+It is not differencing or taking the within transformation that gets rid of sampling noise, it is collecting data on the same observations twice.
+Differencing only helps the OLS estimator of the standard errors to understand that we have panel data and to reflect it in its estimate of precision.
+The DID estimator is always more precise in panel data (in our example).
+The CLT-based estimator of precision does not always reflect that fact, because we have not correctly specified it.
+```
+
+```{example}
+Let's see how our estimator of sampling noise performs in the data.
+```
+
+```{r DIDCrossNoise,eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide'}
+# poportion of observations in period After in total sample
+pA <- length(y)/(length(y)+length(yB))
+# poportion of treated observations
+p <- mean(Ds)
+# estimate using plug in estimator directly from theorem
+SN.DID.estim.cross.1000 <- 2*qnorm((.99+1)/2)*sqrt((var(y[Ds==1])/(p*pA)+var(yB[Ds==1])/(p*(1-pA))+var(y[Ds==0])/((1-p)*pA)+var(yB[Ds==0])/((1-p)*(1-pA)))/(length(y)+length(yB)))
+```
+
+The true level of 99\% sampling noise in the $N=$ `r N.sample[[2]]` sample is estimated from the simulations to be equal to `r round(SN.DID.cross.1000,2)`, while the estimated level of 99\% sampling noise using the formula from Theorem \@ref(thm:asympnoiseDIDCross) is equal to `r round(SN.DID.estim.cross.1000,2)`.
+The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the DID regression using OLS is equal to `r round(SN.DID.estim.OLS.1000,2)`.
+The `plm` package returns an estimate of 99\% sampling noise equal to `r round(SN.DID.estim.OLS.plm.1000,2)` for the pooled DID estimator.
 
 ### Reverse Difference In Differences designs with two time periods {#sec:DIDr}
 
@@ -2795,7 +3096,7 @@ Before going through an example to illustrate all of these notions, let me intro
 #### Estimation
 
 Estimation of the various DID estimators that we have defined in the previous section can take several forms.
-The simplest form estimates the separate individual DID components using the methods seen in Section \@ref(DIDbasic), and then manually computes their weighted averages. 
+The simplest form estimates the separate individual DID components using the methods seen in Section \@ref(sec:DIDbasic), and then manually computes their weighted averages. 
 I will detail this approach first.
 A very similar approach uses the estimates obtained with one reference period (in general $\tau'=1$) and combines them to obtain one treatment effect or a series of treatment effects around the treatment date.
 This approach has been proposed by [Sun and Abraham (2021)](https://www.sciencedirect.com/science/article/pii/S030440762030378X) and by [Callaway and Sant'Anna (2021)](https://www.sciencedirect.com/science/article/pii/S0304407620303948). 
@@ -2804,7 +3105,7 @@ This approach has been proposed by [Borusyak, Jaravel and Speiss (2021)](http://
 [de Chaisemartin and d'Haultfoeuille (2020)](https://www.aeaweb.org/articles?id=10.1257/aer.20181169) propose to only use changes that occur around the treatment date.
 Finally, one could use the Two Way Fixed Effects model presented in Section \@ref(sec:DIDbasic), combining all the time periods in a single estimator.
 Recent work by [Goodman-Bacon (2021)](https://www.sciencedirect.com/science/article/pii/S0304407621001445) has shown that this approach is only valid under much more restrictive assumptions than the ones stated in Corollary \@ref(cor:IdentDIDAgg).
-The main reason for why is that the Two Way Fixed Effects estimator combines individual DID and $DID^r$ estimates, thereby generating strong biases if the assumptions that ensure the validity of $DID^r$ are not valid. 
+The main reason for why it is so is that the Two Way Fixed Effects estimator combines individual DID and $DID^r$ estimates, thereby generating strong biases if the assumptions that ensure the validity of $DID^r$ are not valid. 
 An extension to the Two Way Fixed Effects estimator, the stacked DID estimator, restores its good properties.
 It has been proposed by [Cengiz, Dube, Lindner and Zipperer (2019)](https://academic.oup.com/qje/article/134/3/1405/5484905) and extended by [Gardner (2021)](https://jrgcmu.github.io/2sdd_current.pdf). 
 The `R` packages required to implement all of these estimators are listed on [Asjad Naqvi's DID webpage](https://asjadnaqvi.github.io/DiD/docs/02_R/).
@@ -3514,7 +3815,7 @@ Let us finally compute the aggregated treatment effect:
 ATT.agg.CSA <- aggte(reg.CSA,type="simple")
 ```
 
-The aggregated effect estimated using the Sun and Abraham appraoch as implemented in `fixest` is equal to `r round(ATT.agg.CSA[[1]],2)` $\pm$ `r round(1.96*ATT.agg.CSA[[2]],2)`.
+The aggregated effect estimated using the Callaway and Sant'Anna approach as implemented in `did` is equal to `r round(ATT.agg.CSA[[1]],2)` $\pm$ `r round(1.96*ATT.agg.CSA[[2]],2)`.
 
 ##### De Chaisemartin and d'Haultfoeuille 
 
@@ -3562,7 +3863,7 @@ I have been unable to obtain standard errors for this estimator for now.
 
 ##### Imputation methods: Borusyak, Jaravel and Speiss
 
-[Borusyak, Jaravel and Speiss (2021)](http://arxiv.org/abs/2108.12419) adopt a very differnet framework from the previous ones.
+[Borusyak, Jaravel and Speiss (2021)](http://arxiv.org/abs/2108.12419) adopt a very different framework from the previous ones.
 They do not build from the individual DID estimators $\Delta^{Y}_{DID}(d,d',\tau,\tau')$, but instead propose to estimate the individual level treatment effects $\hat\Delta^Y_{i,t}$ and then to aggregate them as one wishes to. 
 In order to build an estimate of the individual level treatment effects $\hat\Delta^Y_{i,t}$, [Borusyak, Jaravel and Speiss (2021)](http://arxiv.org/abs/2108.12419) propose to use an imputation estimator, $\hat Y^0_{i,t}$, which predicts the value of $Y^0_{i,t}$ for each treated unit.
 [Borusyak, Jaravel and Speiss (2021)](http://arxiv.org/abs/2108.12419)'s imputation estimator works as follows:
@@ -3951,6 +4252,8 @@ If the treatment effects are constant over time (but possibly heterogeneous acro
 The problem with the Two Way Fixed Effects-based estimators is still that the weights used to combine the various treatment effects are not easy to interpret.
 One probably prefers using tailor-made weights as in the estimators we have studied previously.
 ```
+
+**Add corollary showing that TWFE is consistent under constant treatment effects over time**
 
 ###### Bias of the Two Way Fixed Effects-based estimators for the event study estimates {#sec:BiasTWFEevent}
 
@@ -4446,9 +4749,10 @@ They are mostly cosmetic since thay are questions about properties of the Two-Wa
   An example where the event-study Two Way Fixed Effect estimator fails but these conditions hold would be very useful to understand the scope of Theorem \@ref(thm:SADecomp) better.
   3. Does the gain in efficiency obtained by the imputation estimator is still present when combining all the DID estimates from all the possible comparison groups, as in the weigthed DID estimator we have proposed?
 
-#### Inference
+#### Estimation of sampling noise
 
 **Simple estimators use the Delta method with an appropriate weighting matrix**
+**Write the formula**
 
 ### Difference In Differences with Instrumental Variables
 
