@@ -6,11 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 6 Threats to the validity of Causal Inference | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.26 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 6 Threats to the validity of Causal Inference | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
-  
   
   <meta property="og:description" content="This is an open source collaborative book." />
   <meta name="github-repo" content="chabefer/STCI" />
@@ -24,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-06-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,7 +32,6 @@
   
 <link rel="prev" href="sec:OM.html"/>
 <link rel="next" href="Power.html"/>
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -51,8 +49,9 @@
 
 
 
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
@@ -320,6 +319,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="A.3.1" data-path="proofs.html"><a href="proofs.html#proofEstimDID"><i class="fa fa-check"></i><b>A.3.1</b> Proof of Theorem @ref(thm:EstimDID)</a></li>
 <li class="chapter" data-level="A.3.2" data-path="proofs.html"><a href="proofs.html#proofasympnoiseDIDCross"><i class="fa fa-check"></i><b>A.3.2</b> Proof of Theorem @ref(thm:asympnoiseDIDCross)</a></li>
+<li class="chapter" data-level="A.3.3" data-path="proofs.html"><a href="proofs.html#proofEquivDIDSApop"><i class="fa fa-check"></i><b>A.3.3</b> Proof of Theorem @ref(thm:EquivDIDSApop)</a></li>
+<li class="chapter" data-level="A.3.4" data-path="proofs.html"><a href="proofs.html#proofEquivDIDSAsamp"><i class="fa fa-check"></i><b>A.3.4</b> Proof of Theorem @ref(thm:EquivDIDSAsamp)</a></li>
+<li class="chapter" data-level="A.3.5" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSACross"><i class="fa fa-check"></i><b>A.3.5</b> Proof of Theorem @ref(thm:asympnoiseSACross)</a></li>
+<li class="chapter" data-level="A.3.6" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSATTCross"><i class="fa fa-check"></i><b>A.3.6</b> Proof of Theorem @ref(thm:asympnoiseSATTCross)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -342,8 +345,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="threats" class="section level1" number="6">
-<h1><span class="header-section-number">Chapter 6</span> Threats to the validity of Causal Inference</h1>
+<div id="threats" class="section level1 hasAnchor" number="6">
+<h1><span class="header-section-number">Chapter 6</span> Threats to the validity of Causal Inference<a href="threats.html#threats" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>In this final section, I want to discuss more generally about the possible threats to the validity of methods of causaliInference.
 Most of these threast stem from the fact that, much as particles do when physicists try to measure their position and velocity, human beings react to our experimental devices in sometimes unexpected ways.
 It is classical to make a disctinction between two threat and one specific set of problems:</p>
@@ -354,29 +357,27 @@ They also include threats to the exclusion restriction assumption.</li>
 <li>Threats to external validity: these are the threats that make the extension of the results from one experiment to the same population at another period of to another population dubious.</li>
 <li>Ethical and political issues</li>
 </ol>
-<div id="threats-to-internal-validity" class="section level2" number="6.1">
-<h2><span class="header-section-number">6.1</span> Threats to internal validity</h2>
+<div id="threats-to-internal-validity" class="section level2 hasAnchor" number="6.1">
+<h2><span class="header-section-number">6.1</span> Threats to internal validity<a href="threats.html#threats-to-internal-validity" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Threats to internal validity are the problems that might make the results of the experiment not measure the effect of the treatment of interest in the ongoing sample.
 Let’s examine the most important ones in turn.</p>
-<div id="survey-bias" class="section level3" number="6.1.1">
-<h3><span class="header-section-number">6.1.1</span> Survey bias</h3>
+<div id="survey-bias" class="section level3 hasAnchor" number="6.1.1">
+<h3><span class="header-section-number">6.1.1</span> Survey bias<a href="threats.html#survey-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>There is survey bias if the mere fact of having to answer to a survey alters the outcomes of the surveyed individuals.
 For example, administering a health survey might make you pay more attention to your health and as a consequence improve it.
 Survey bias alters the measured impact of the treatment since it alters the behavior of the control group.
 As a result, the estimated effect of the treatment might be biased.</p>
-
 <div class="remark">
-<p> <span class="remark"><em>Remark. </em></span> Note that survey bias might affect all the estimators presented in this book, including natural experimental and observational estimators.
+<p><span id="unlabeled-div-138" class="remark"><em>Remark</em>. </span>Note that survey bias might affect all the estimators presented in this book, including natural experimental and observational estimators.
 All estimators rely on measuring something and thus might be affected by survey bias.</p>
-Actually, RCTs might be able to avoid survey bias whereas other methods generally cannot.
+<p>Actually, RCTs might be able to avoid survey bias whereas other methods generally cannot.
 Indeed, survey bias generally occurs with repeated sampling: surveying at baseline might trigger a response by individuals, and thus bias the measurement at the end of the experiment.
 RCTs can avoid this issue by bypassing the baseline survey, or at least collecting baseline information on a subsample of the experimental sample.
 Other estimators that might be able to avoid this problem are DID, where the repeated cross section estimator eschews survey bias, and RDD and IV, which generally use only cross sectional information.
-Matching in general requires observations for the same individual over time, so that avoiding possible survey bias is impossible.
+Matching in general requires observations for the same individual over time, so that avoiding possible survey bias is impossible.</p>
 </div>
-
 <div class="remark">
-<p> <span class="remark"><em>Remark. </em></span> Do we have evidence of the existence and extent of survey bias?
+<p><span id="unlabeled-div-139" class="remark"><em>Remark</em>. </span>Do we have evidence of the existence and extent of survey bias?
 A paper by <a href="https://www.pnas.org/content/108/5/1821.short">Zwane et al (2010)</a> shows that there is extensive survey bias in 2 out of 5 experiments.</p>
 <p>In the first example, the authors show that being surveyed more frequently (every two weeks <em>vs</em> every six months) for the extent of diarrhea prevalence and use of chlorine decontamination increases the use of chlorine, decreases diarrhea prevalence and decreases the effect of a spring protection program, to the extent that it becomes null in the frequent survey sample, whereas it is large and positive in the infrequent survey sample.
 The authors speculate that the frequent surveys act as a reminder for chlorinating water, which is a substitute for well protection.</p>
@@ -398,44 +399,44 @@ Sunbsequently, households had to decide whether or not to renew their loans from
 The authors do not evidence of an effect of being surveyed on the subsequent decision to renew the loan (-0.005 <span class="math inline">\(\pm\)</span> 0.026 from a baseline rate of 0.769).</p>
 </div>
 </div>
-<div id="experimenter-bias" class="section level3" number="6.1.2">
-<h3><span class="header-section-number">6.1.2</span> Experimenter bias</h3>
+<div id="experimenter-bias" class="section level3 hasAnchor" number="6.1.2">
+<h3><span class="header-section-number">6.1.2</span> Experimenter bias<a href="threats.html#experimenter-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 </div>
-<div id="substitution-bias" class="section level3" number="6.1.3">
-<h3><span class="header-section-number">6.1.3</span> Substitution bias</h3>
+<div id="substitution-bias" class="section level3 hasAnchor" number="6.1.3">
+<h3><span class="header-section-number">6.1.3</span> Substitution bias<a href="threats.html#substitution-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 </div>
-<div id="diffusion-bias" class="section level3" number="6.1.4">
-<h3><span class="header-section-number">6.1.4</span> Diffusion bias</h3>
-</div>
-</div>
-<div id="threats-to-the-measurement-of-precision" class="section level2" number="6.2">
-<h2><span class="header-section-number">6.2</span> Threats to the measurement of precision</h2>
-<div id="insufficient-precision" class="section level3" number="6.2.1">
-<h3><span class="header-section-number">6.2.1</span> Insufficient precision</h3>
-</div>
-<div id="clustering" class="section level3" number="6.2.2">
-<h3><span class="header-section-number">6.2.2</span> Clustering</h3>
+<div id="diffusion-bias" class="section level3 hasAnchor" number="6.1.4">
+<h3><span class="header-section-number">6.1.4</span> Diffusion bias<a href="threats.html#diffusion-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 </div>
 </div>
-<div id="threats-to-external-validity" class="section level2" number="6.3">
-<h2><span class="header-section-number">6.3</span> Threats to external validity</h2>
-<div id="randomization-bias" class="section level3" number="6.3.1">
-<h3><span class="header-section-number">6.3.1</span> Randomization bias</h3>
+<div id="threats-to-the-measurement-of-precision" class="section level2 hasAnchor" number="6.2">
+<h2><span class="header-section-number">6.2</span> Threats to the measurement of precision<a href="threats.html#threats-to-the-measurement-of-precision" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="insufficient-precision" class="section level3 hasAnchor" number="6.2.1">
+<h3><span class="header-section-number">6.2.1</span> Insufficient precision<a href="threats.html#insufficient-precision" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 </div>
-<div id="equilibrium-effects" class="section level3" number="6.3.2">
-<h3><span class="header-section-number">6.3.2</span> Equilibrium effects</h3>
+<div id="clustering" class="section level3 hasAnchor" number="6.2.2">
+<h3><span class="header-section-number">6.2.2</span> Clustering<a href="threats.html#clustering" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 </div>
-<div id="context-effects" class="section level3" number="6.3.3">
-<h3><span class="header-section-number">6.3.3</span> Context effects</h3>
 </div>
-<div id="site-selection-bias" class="section level3" number="6.3.4">
-<h3><span class="header-section-number">6.3.4</span> Site selection bias</h3>
+<div id="threats-to-external-validity" class="section level2 hasAnchor" number="6.3">
+<h2><span class="header-section-number">6.3</span> Threats to external validity<a href="threats.html#threats-to-external-validity" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="randomization-bias" class="section level3 hasAnchor" number="6.3.1">
+<h3><span class="header-section-number">6.3.1</span> Randomization bias<a href="threats.html#randomization-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 </div>
-<div id="publication-bias" class="section level3" number="6.3.5">
-<h3><span class="header-section-number">6.3.5</span> Publication bias</h3>
+<div id="equilibrium-effects" class="section level3 hasAnchor" number="6.3.2">
+<h3><span class="header-section-number">6.3.2</span> Equilibrium effects<a href="threats.html#equilibrium-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 </div>
-<div id="ethical-and-political-issues" class="section level3" number="6.3.6">
-<h3><span class="header-section-number">6.3.6</span> Ethical and political issues</h3>
+<div id="context-effects" class="section level3 hasAnchor" number="6.3.3">
+<h3><span class="header-section-number">6.3.3</span> Context effects<a href="threats.html#context-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+</div>
+<div id="site-selection-bias" class="section level3 hasAnchor" number="6.3.4">
+<h3><span class="header-section-number">6.3.4</span> Site selection bias<a href="threats.html#site-selection-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+</div>
+<div id="publication-bias" class="section level3 hasAnchor" number="6.3.5">
+<h3><span class="header-section-number">6.3.5</span> Publication bias<a href="threats.html#publication-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+</div>
+<div id="ethical-and-political-issues" class="section level3 hasAnchor" number="6.3.6">
+<h3><span class="header-section-number">6.3.6</span> Ethical and political issues<a href="threats.html#ethical-and-political-issues" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 
 </div>
 </div>

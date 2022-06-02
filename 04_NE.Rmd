@@ -697,9 +697,10 @@ Using Lemma \@ref(lem:IndepTreatEffectType), we have that:
 
 Because $T_i$ is a partition, we have $\Delta^Y_{ATE}=\Delta^Y_{c}\Pr(T_i=c)+\Delta^Y_{d}\Pr(T_i=d)+\Delta^Y_{at}\Pr(T_i=at)+\Delta^Y_{nt}\Pr(T_i=nt)=\Delta^Y_{c}$ (since $\Pr(T_i=c)+\Pr(T_i=d)+\Pr(T_i=at)+\Pr(T_i=nt)=1$).
 Finally, we also have that $\Delta^Y_{TT(1)}=\Delta^Y_{c}\Pr(T_i=c|D_i=1,Z_i=1)+\Delta^Y_{at}\Pr(T_i=at|D_i=1,Z_i=1)=\Delta^Y_{c}$ and $\Delta^Y_{TT(0)}=\Delta^Y_{d}\Pr(T_i=d|D_i=1,Z_i=0)+\Delta^Y_{at}\Pr(T_i=at|D_i=1,Z_i=0)=\Delta^Y_{c}$, since $(D_i=1)\cap(Z_i=1)\Rightarrow (T_i=c)\cup(T_i=at)$ and $(D_i=1)\cap(Z_i=0)\Rightarrow (T_i=d)\cup(T_i=at)$.
+
 ```
 
-We are now equioped to state the final result of this section:
+We are now equipped to state the final result of this section:
 
 ```{theorem,IdentIndepTreatEffect,name="Identification under Independent Treatment Effect"}
 Under Assumptions \@ref(hyp:FirstStage), \@ref(hyp:ExclusionRestriction), \@ref(hyp:Independence) and \@ref(hyp:IndepTreatEffect), the Wald estimator identifies the average effect of the Treatment on the Treated:
@@ -1930,11 +1931,12 @@ We assume that $\var{Y^1_A-Y^0_B|D_i=1}$ and $\var{Y^0_A-Y^0_B|D_i=0}$ are finit
 
 We now can state the following theorem:
 
-```{theorem,asympnoiseDID,name="Asymptotic Estimate of Sampling Noise of DID"}
-Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDID) and \@ref(hyp:finitevarDID), for a given confidence level $\delta$ and sample size $N$, the sampling noise of $\hat{\Delta}^Y_{DID}$ can be approximated as follows:
-
+```{theorem,asympnoiseDID,name="Asymptotic Distribution of the DID Estimator in Panel Data"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDID) and \@ref(hyp:finitevarDID), we have:
+  
 \begin{align*}
-2\epsilon^{panel}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_{i,A}^1-Y_{i,B}^0|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_{i,A}^0-Y_{i,B}^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}^{panel}_{DID}.
+\sqrt{N}(\hat{\Delta}^Y_{DID}-\Delta^Y_{DID}) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{\var{Y_{i,A}^1-Y_{i,B}^0|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_{i,A}^0-Y_{i,B}^0|D_i=0}}{1-\Pr(D_i=1)}\right).
 \end{align*}
 
 ```
@@ -2016,16 +2018,16 @@ Assumption \@ref(hyp:iidDIDCross) imposes that outcomes are not correlated acros
 This is not a strong assumption in a repeated cross section, as long as the same units are not observed at both periods.
 We now can state the following theorem:
 
-```{theorem,asympnoiseDIDCross,name="Asymptotic Estimate of Sampling Noise of DID in Repeated Cross Sections"}
-Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), for a given confidence level $\delta$, the sampling noise of $\hat{\Delta}^Y_{DID}$ in repeated cross sections of total size $N$ can be approximated as follows:
+```{theorem,asympnoiseDIDCross,name="Asymptotic Distribution of the DID Estimator in Repeated Cross Sections"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), we have:
 
 \begin{align*}
-2\epsilon^{cross}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{
-                            \frac{\var{Y^0_{i,B}|D_i=0}}{(1-p)(1-p_A)}
-                            +\frac{\var{Y^0_{i,B}|D_i=1}}{p(1-p_A)}
+\sqrt{N}(\hat{\Delta}^Y_{DID}-\Delta^Y_{DID}) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{\var{Y^0_{i,B}|D_i=0}}{(1-p)(1-p_A)}
+                            +\frac{\var{Y^0_{i,B}|D_i=1}}{p(1-p_A)}\right.\\
+                & \phantom{\stackrel{d}{\rightarrow}\mathcal{N}\left(0,\right.} \left.
                             +\frac{\var{Y^0_{i,A}|D_i=0}}{(1-p)p_A}
-                            +\frac{\var{Y^1_{i,A}|D_i=1}}{pp_A}} \\
-                        & \equiv 2\tilde{\epsilon}^{cross}_{DID}.
+                            +\frac{\var{Y^1_{i,A}|D_i=1}}{pp_A}\right).
 \end{align*}
 
 where $p=\Pr(D_i=1)$ and $p_A$ is the proportion of observations belonging to the After period.
@@ -2059,7 +2061,6 @@ SN.DID.estim.cross.1000 <- 2*qnorm((.99+1)/2)*sqrt((var(y[Ds==1])/(p*pA)+var(yB[
 
 The true level of 99\% sampling noise in the $N=$ `r N.sample[[2]]` sample is estimated from the simulations to be equal to `r round(SN.DID.cross.1000,2)`, while the estimated level of 99\% sampling noise using the formula from Theorem \@ref(thm:asympnoiseDIDCross) is equal to `r round(SN.DID.estim.cross.1000,2)`.
 The estimated level of 99\% sampling noise obtained using the heteroskedasticity robust standard errors from the DID regression using OLS is equal to `r round(SN.DID.estim.OLS.1000,2)`.
-The `plm` package returns an estimate of 99\% sampling noise equal to `r round(SN.DID.estim.OLS.plm.1000,2)` for the pooled DID estimator.
 
 ### Reverse Difference In Differences designs with two time periods {#sec:DIDr}
 
@@ -3736,7 +3737,52 @@ Let us finally compute the aggregated effect:
 ATT.agg.SA <- aggregate(reg.fixest.SA.Agg, c("ATT" = "time::[^-]"))
 ```
 
-The aggregated effect estimated using the Sun and Abraham approach as implemented in `fixest` is equal to `r round(ATT.agg.SA[[1]],2)` $\pm$ `r round(1.96*ATT.agg.SA[[2]],2)`
+The aggregated effect estimated using the Sun and Abraham approach as implemented in `fixest` is equal to `r round(ATT.agg.SA[[1]],2)` $\pm$ `r round(1.96*ATT.agg.SA[[2]],2)`.
+
+```{remark}
+Sun and Abraham's estimator can also be formulated in repeated cross sections by estimating the following model by OLS:
+```
+
+\begin{align*}
+  	Y_{i,t} &  = \alpha + \sum_{d=2}^T\mu_d\uns{D_{i}=d} + \sum_{\tau=2}^{T}\delta_{\tau}\uns{t=\tau} + \sum_{d=2}^T\sum_{\tau\neq-1}\beta_{d,\tau}^{SA}\uns{D_{i}=d \land t=d+\tau}  + \epsilon^{SA}_{i,t}.
+\end{align*}
+
+```{remark}
+We can also show that Sun and Abraham's estimator is equal to our individual DID estimators in the population:
+```
+
+```{theorem,EquivDIDSApop,name='Sun and Abraham estimator is equivalent to individual DID in the population'}
+In the population, Sun and Abraham's estimator (formulated in a panel and in a repeated cross section) is equal to the individual DID estimators using the never treated as the comparison group and the period just before receiving the treatment as the reference period: $\forall d\in\left\{2,\dots,T\right\}$, $\forall\tau\in\left\{-(T-1),\dots,T-2\right\}\setminus\left\{-1\right\}$,
+
+\begin{align*}
+  \beta_{d,\tau}^{SA} & = \Delta^{Y}_{DID}(d,\infty,\tau,d-1).
+\end{align*}
+```
+
+```{proof}
+See Section \@ref(proofEquivDIDSApop).
+```
+
+```{remark}
+We can also show that Sun and Abraham's estimator is equal to our individual DID estimators in the sample:
+```
+
+```{theorem,EquivDIDSAsamp,name='Sun and Abraham estimator is equivalent to individual DID in the sample'}
+In the sample, Sun and Abraham's estimator (estimated by OLS in repeated cross sections, by OLS using the Least Squares Dummy Variables model, or following the Within transformation or the First Difference transformation in panel data) is equal to the individual DID estimators using the never treated as the comparison group and the period just before receiving the treatment as the reference period: $\forall d\in\left\{2,\dots,T\right\}$, $\forall\tau\in\left\{-(T-1),\dots,T-2\right\}\setminus\left\{-1\right\}$,
+
+\begin{align*}
+  \hat{\beta}_{d,\tau}^{SA} & = \frac{\sum_{i=1}^{N_{d+\tau}}Y_{i,d+\tau}\uns{D_i=d}}{\sum_{i=1}^{N_{d+\tau}}\uns{D_i=d}}
+                                -\frac{\sum_{i=1}^{N_{d-1}}Y_{i,d-1}\uns{D_i=d}}{\sum_{i=1}^{N_{d-1}}\uns{D_i=d}} \\
+                            & \phantom{=}
+                                  - \left(\frac{\sum_{i=1}^{N_{d+\tau}}Y_{i,d+\tau}\uns{D_i=\infty}}{\sum_{i=1}^{N_{d+\tau}}\uns{D_i=\infty}}
+                                  -\frac{\sum_{i=1}^{N_{d-1}}Y_{i,d-1}\uns{D_i=\infty}}{\sum_{i=1}^{N_{d-1}}\uns{D_i=\infty}}\right)
+\end{align*}
+```
+
+```{proof}
+See Section \@ref(proofEquivDIDSAsamp).
+```
+
 
 ##### Direct weighting using one reference period and one reference group (Callaway and Sant'Anna)
 
@@ -4751,8 +4797,98 @@ They are mostly cosmetic since thay are questions about properties of the Two-Wa
 
 #### Estimation of sampling noise
 
-**Simple estimators use the Delta method with an appropriate weighting matrix**
-**Write the formula**
+We now need to derive the asymptotic distribution of our estimators in a staggered DID design.
+We are going to do that for the Sun and Abraham estimator, which is the simplest estimator that is estimated by OLS, Within, LSDV, First Difference or faster TWFE estimators and extends the simple DID estimators to staggered designs.
+There are two sets of parameters for which we might want to know their distribution: the parameter specific to each treated group and relative time to treatment $\hat\beta^{SA}_{d,\tau}$ and the aggregated treatment effect $\hat\delta^{Y}_TT(k)$ for some set of weights $w^k(d,d',\tau,\tau')$.
+Let's look at these parameters in turn.
+
+##### Estimation of sampling noise for the effect of the treatment on each group and at each time period
+
+We can estimate the $\hat\beta^{SA}_{d,\tau}$ with either repeated cross section data or panel data.
+Let us start with studying what happens with repeated cross sections before moving to panel data.
+
+###### Estimation of sampling noise for the effect of the treatment on each group and at each time period with repeated cross sections
+
+With repeated cross sections, we can only use the OLS DID estimator of the Sun and Abraham model.
+The following theorem derives its distribution:
+
+```{theorem,asympnoiseSACross,name="Asymptotic Distribution of Sun and Abraham Estimator in Repeated Cross Sections"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), we have:
+
+\begin{align*}
+\sqrt{N}(\hat\beta^{SA}_{d,\tau}-\beta^{SA}_{d,\tau}) & \stackrel{d}{\rightarrow}
+                             \mathcal{N}\left(0,\frac{1}{p^{d,\tau}}
+                             \left[\frac{\var{Y^0_{i,d-1}|D_i=\infty}}{(1-p^{d,\tau}_D)(1-p^{d,\tau}_A)}
+                            +\frac{\var{Y^0_{i,d-1}|D_i=d}}{p^{d,\tau}_D(1-p^{d,\tau}_A)}\right.\right. \\
+            & \phantom{\stackrel{d}{\rightarrow}\mathcal{N}\left(0,\frac{1}{p^{d,\tau}}\right.}\left.\left.
+                            +\frac{\var{Y^0_{i,d+\tau}|D_i=\infty}}{(1-p^{d,\tau}_D)p^{d,\tau}_A}
+                            +\frac{\var{Y^1_{i,d+\tau}|D_i=\infty}}{p^{d,\tau}_Dp^{d,\tau}_A}
+                            \right]\right)
+\end{align*}
+
+where $p^{d,\tau}=\Pr((D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))$, $p^{d,\tau}_D=\Pr(D_i=d|(D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))$ and $p^{d,\tau}_A=\Pr(T_i=d+\tau|(D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))$.
+```
+
+```{proof}
+See Section \@ref(proofasympnoiseSACross).
+```
+
+```{remark}
+Note that Theorem \@ref(thm:asympnoiseSACross) is very close to Theorem \@ref(thm:asympnoiseDIDCross).
+The only difference is the additional $p^{d,\tau}$ term which adjusts the sample size by the actual number of observations used in the estimation of $\hat\beta^{SA}_{d,\tau}$.
+```
+
+###### Estimation of sampling noise for the effect of the treatment on each group and at each time period with panel data
+
+With panel data, we can estimate $\hat\beta^{SA}_{d,\tau}$ using various sets of estimators: the OLS DID model, the within transformation of the Sun and Abraham model with individual dummies, the Least Squares Dummy Variables model estimated by OLS, the First Difference model and the enhanced estimators (Alternating Projections and Likelihood Concentration).
+
+##### Estimation of sampling noise for aggregate treatment effects
+
+The key now is to derive the distribution of the event study parameters and of the average treatment effect on the treated.
+We are going to use the Delta Method in order to do so, but that requires determining the covariance matrix of the $\hat\beta_{d,\tau}^{SA}$ parameters.
+Under Assumption \@ref(hyp:iidDID) for panel data or \@ref(hyp:iidDIDCross) in repeated cross sections, most of the $\hat\beta_{d,\tau}^{SA}$ parameters are independent from each other, except for the ones which make use of the same parts of the data.
+
+###### Estimation of sampling noise for aggregate treatment effects with repeated cross sections
+
+
+```{theorem,asympnoiseSATTCross,name="Asymptotic Distribution of Treatment of the Treated Estimated Using Sun and Abraham Estimator in Repeated Cross Sections"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), we have:
+
+\begin{align*}
+\sqrt{N}(\hat\Delta^{Y}_{TT_{SA}}(k)-\Delta^{Y}_{TT_{SA}}(k)) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\sum_d\sum_{\tau}V(\hat\beta^{SA}_{d,\tau})(w^k(d,d-1,\tau,\infty))^2 \right.\\
+        & \phantom{\stackrel{d}{\rightarrow}}\left.+\sum_{d\neq d'}\sum_{\tau\neq\tau'}\text{Cov}(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'})w^k(d,d-1,\tau,\infty)w^k(d',d'-1,\tau',\infty)\right),
+\end{align*}
+
+where:
+
+\begin{align*}
+V(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\tau}}\left[\frac{\var{Y^0_{i,d-1}|D_i=\infty}}{(1-p^{d,\tau}_D)(1-p^{d,\tau}_A)}
+                            +\frac{\var{Y^0_{i,d-1}|D_i=d}}{p^{d,\tau}_D(1-p^{d,\tau}_A)}\right. \\
+                          & \phantom{=}
+                            \left.+\frac{\var{Y^0_{i,d+\tau}|D_i=\infty}}{(1-p^{d,\tau}_D)p^{d,\tau}_A}
+                            +\frac{\var{Y^1_{i,d+\tau}|D_i=\infty}}{p^{d,\tau}_Dp^{d,\tau}_A}\right]\\
+\text{Cov}(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'}) & = \frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}}{p^{d,\tau}p^{d',\tau'}}
+            \left[\frac{\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \right.\\
+                & \phantom{=\frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}}{p^{d,\tau}p^{d',\tau'}}}\left.
+                +\frac{\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})p_D^{d,\tau}p_D^{d',\tau'}}\right] \text{ when } d=d'\\
+          & = \frac{p^{d,\tau,d',\tau'}p_{d+\tau}^{d,\tau,d',\tau'}\var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}\text{ when } d+\tau=d'+\tau' \\
+          & = -\frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}(1-p_A^{d,\tau})p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \text{ when } d-1=d'+\tau'\\
+          & = -\frac{p^{d,\tau,d',\tau'}p_{d'-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \text{ when } d+\tau=d'-1\\
+          & = 0 \text{ otherwise},
+\end{align*}
+```
+
+with $p^{d,\tau,d',\tau'}=\Pr(D_j^{d',\tau'}D_j^{d,\tau}=1)$, $p_{d+\tau}^{d,\tau,d',\tau'}=\Pr(T_j=d+\tau|D_j^{d',\tau'}D_j^{d,\tau}=1)$ and $p_D^{d,\tau,d',\tau'}=\Pr(D_j^{d'}=1\cup D_j^{d}=1|D_j^{d',\tau'}D_j^{d,\tau}=1)$.
+
+
+```{proof}
+See Section \@ref(proofasympnoiseSATTCross).
+```
+
+
+###### Estimation of sampling noise for aggregate treatment effects with panel data
+
 
 ### Difference In Differences with Instrumental Variables
 

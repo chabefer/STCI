@@ -6,11 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 1 Fundamental Problem of Causal Inference | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book." />
-  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.26 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 1 Fundamental Problem of Causal Inference | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
-  
   
   <meta property="og:description" content="This is an open source collaborative book." />
   <meta name="github-repo" content="chabefer/STCI" />
@@ -24,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-06-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -33,7 +32,6 @@
   
 <link rel="prev" href="introduction-the-two-fundamental-problems-of-inference.html"/>
 <link rel="next" href="FPSI.html"/>
-<script src="libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -51,8 +49,9 @@
 
 
 
-<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
@@ -320,6 +319,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="A.3.1" data-path="proofs.html"><a href="proofs.html#proofEstimDID"><i class="fa fa-check"></i><b>A.3.1</b> Proof of Theorem @ref(thm:EstimDID)</a></li>
 <li class="chapter" data-level="A.3.2" data-path="proofs.html"><a href="proofs.html#proofasympnoiseDIDCross"><i class="fa fa-check"></i><b>A.3.2</b> Proof of Theorem @ref(thm:asympnoiseDIDCross)</a></li>
+<li class="chapter" data-level="A.3.3" data-path="proofs.html"><a href="proofs.html#proofEquivDIDSApop"><i class="fa fa-check"></i><b>A.3.3</b> Proof of Theorem @ref(thm:EquivDIDSApop)</a></li>
+<li class="chapter" data-level="A.3.4" data-path="proofs.html"><a href="proofs.html#proofEquivDIDSAsamp"><i class="fa fa-check"></i><b>A.3.4</b> Proof of Theorem @ref(thm:EquivDIDSAsamp)</a></li>
+<li class="chapter" data-level="A.3.5" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSACross"><i class="fa fa-check"></i><b>A.3.5</b> Proof of Theorem @ref(thm:asympnoiseSACross)</a></li>
+<li class="chapter" data-level="A.3.6" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSATTCross"><i class="fa fa-check"></i><b>A.3.6</b> Proof of Theorem @ref(thm:asympnoiseSATTCross)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -342,8 +345,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="FPCI" class="section level1" number="1">
-<h1><span class="header-section-number">Chapter 1</span> Fundamental Problem of Causal Inference</h1>
+<div id="FPCI" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">Chapter 1</span> Fundamental Problem of Causal Inference<a href="FPCI.html#FPCI" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>In order to state the FPCI, we are going to describe the basic language to encode causality set up by Rubin, and named <a href="RCM.html">Rubin Causal Model (RCM)</a>.
 RCM being about partly observed random variables, it is hard to make these notions concrete with real data.
 That’s why we are going to use simulations from a simple model in order to make it clear how these variables are generated.
@@ -364,11 +367,11 @@ Second, we are most of the time much more interested in estimating the values of
 The population parameter, independent of sampling noise, gives a much better idea of the causal parameter for the population of interest than the parameter in the sample.
 In general, the estimator for both quantities will be the same, but the estimators for the effetc of sampling noise on these estimators will differ.
 Sampling noise for the population parameter will generally be larger, since it is affected by another source of variability (sample choice).</p>
-<div id="rubin-causal-model" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> Rubin Causal Model</h2>
+<div id="rubin-causal-model" class="section level2 hasAnchor" number="1.1">
+<h2><span class="header-section-number">1.1</span> Rubin Causal Model<a href="FPCI.html#rubin-causal-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>RCM is made of three distinct building blocks: a treatment allocation rule, that decides who receives the treatment; potential outcomes, that measure how each individual reacts to the treatment; the switching equation that relates potential outcomes to observed outcomes through the allocation rule.</p>
-<div id="treatment-allocation-rule" class="section level3" number="1.1.1">
-<h3><span class="header-section-number">1.1.1</span> Treatment allocation rule</h3>
+<div id="treatment-allocation-rule" class="section level3 hasAnchor" number="1.1.1">
+<h3><span class="header-section-number">1.1.1</span> Treatment allocation rule<a href="FPCI.html#treatment-allocation-rule" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The first building block of RCM is the treatment allocation rule.
 Throughout this class, we are going to be interested in inferring the causal effect of only one treatment with respect to a control condition.
 Extensions to multi-valued treatments are in general self-explanatory.</p>
@@ -389,8 +392,8 @@ Whether each individual receives the treatment partly depends on the level of he
 Let’s denote this variable <span class="math inline">\(Y^B_i\)</span>, with <span class="math inline">\(B\)</span> standing for “Before”.
 It can be the health status assessed by a professional before deciding to give a drug to a patient.
 It can be the poverty level of a household used to assess its eligibilty to a cash transfer program.</p>
-<div id="sharp-cutoff-rule" class="section level4" number="1.1.1.1">
-<h4><span class="header-section-number">1.1.1.1</span> Sharp cutoff rule</h4>
+<div id="sharp-cutoff-rule" class="section level4 hasAnchor" number="1.1.1.1">
+<h4><span class="header-section-number">1.1.1.1</span> Sharp cutoff rule<a href="FPCI.html#sharp-cutoff-rule" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>The sharp cutoff rule means that everyone below some threshold <span class="math inline">\(\bar{Y}\)</span> is going to receive the treatment.
 Everyone whose outcome before the treatment lies above <span class="math inline">\(\bar{Y}\)</span> does not receive the treatment.
 Such rules can be found in reality in a lot of situations.
@@ -400,11 +403,10 @@ One very simple way to model this rule is as follows:</p>
   D_i &amp; = \uns{Y_i^B\leq\bar{Y}},
 \end{align}\]</span></p>
 <p>where <span class="math inline">\(\uns{A}\)</span> is the indicator function, taking value <span class="math inline">\(1\)</span> when <span class="math inline">\(A\)</span> is true and <span class="math inline">\(0\)</span> otherwise.</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-1" class="example"><strong>Example 1.1  (Sharp cutoff rule)  </strong></span>Imagine that <span class="math inline">\(Y_i^B=\exp(y_i^B)\)</span>, with <span class="math inline">\(y_i^B=\mu_i+U_i^B\)</span>, <span class="math inline">\(\mu_i\sim\mathcal{N}(\bar{\mu},\sigma^2_{\mu})\)</span> and <span class="math inline">\(U_i^B\sim\mathcal{N}(0,\sigma^2_{U})\)</span>.
+<p><span id="exm:unnamed-chunk-1" class="example"><strong>Example 1.1  (Sharp cutoff rule) </strong></span>Imagine that <span class="math inline">\(Y_i^B=\exp(y_i^B)\)</span>, with <span class="math inline">\(y_i^B=\mu_i+U_i^B\)</span>, <span class="math inline">\(\mu_i\sim\mathcal{N}(\bar{\mu},\sigma^2_{\mu})\)</span> and <span class="math inline">\(U_i^B\sim\mathcal{N}(0,\sigma^2_{U})\)</span>.
 Now, let’s choose some values for these parameters so that we can generate a sample of individuals and allocate the treatment among them.
-I’m going to switch to R for that.
+I’m going to switch to R for that.</p>
 </div>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="FPCI.html#cb1-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>)</span>
 <span id="cb1-2"><a href="FPCI.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>)</span>
@@ -459,8 +461,8 @@ In order to see how many observations eventually receive the treatment with this
 </table>
 <p>We can see on Table <a href="FPCI.html#tab:tableDsharp">1.1</a> that there are 229 treated observations.</p>
 </div>
-<div id="fuzzy-cutoff-rule" class="section level4" number="1.1.1.2">
-<h4><span class="header-section-number">1.1.1.2</span> Fuzzy cutoff rule</h4>
+<div id="fuzzy-cutoff-rule" class="section level4 hasAnchor" number="1.1.1.2">
+<h4><span class="header-section-number">1.1.1.2</span> Fuzzy cutoff rule<a href="FPCI.html#fuzzy-cutoff-rule" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>This rule is less sharp than the sharp cutoff rule.
 Here, other criteria than <span class="math inline">\(Y_i^B\)</span> enter into the decision to allocate the treatment.
 The doctor might measure the health status of a patient following official guidelines, but he might also measure other factors that will also influence his decision of giving the drug to the patient.
@@ -474,8 +476,8 @@ A very simple way to model this rule is as follows:</p>
 <span class="math inline">\(V_i\)</span> is distributed according to a, for the moment, unspecified cumulative distribution function <span class="math inline">\(F_V\)</span>.
 When <span class="math inline">\(V_i\)</span> is degenerate ( it has only one point of support: it is a constant), the fuzzy cutoff rule becomes the sharp cutoff rule.</p>
 </div>
-<div id="eligibility-self-selection-rule" class="section level4" number="1.1.1.3">
-<h4><span class="header-section-number">1.1.1.3</span> Eligibility <span class="math inline">\(+\)</span> self-selection rule</h4>
+<div id="eligibility-self-selection-rule" class="section level4 hasAnchor" number="1.1.1.3">
+<h4><span class="header-section-number">1.1.1.3</span> Eligibility <span class="math inline">\(+\)</span> self-selection rule<a href="FPCI.html#eligibility-self-selection-rule" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>It is also possible that households, once they have been made eligible to the treatment, can decide whether they want to receive it or not.
 A patient might be able to refuse the drug that the doctor suggests she should take.
 A household might refuse to participate in a cash transfer program to which it has been made eligible.
@@ -490,30 +492,28 @@ We will be more explicit about <span class="math inline">\(D_i^*\)</span> in wha
 <p><strong>SIMULATIONS ARE MISSING FOR THESE LAST TWO RULES</strong></p>
 </div>
 </div>
-<div id="potential-outcomes" class="section level3" number="1.1.2">
-<h3><span class="header-section-number">1.1.2</span> Potential outcomes</h3>
+<div id="potential-outcomes" class="section level3 hasAnchor" number="1.1.2">
+<h3><span class="header-section-number">1.1.2</span> Potential outcomes<a href="FPCI.html#potential-outcomes" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The second main building block of RCM are potential outcomes.
 Let’s say that we are interested in the effect of a treatment on an outcome <span class="math inline">\(Y\)</span>.
 Each unit <span class="math inline">\(i\)</span> can thus be in two potential states: treated or non treated.
 Before the allocation of the treatment is decided, both of these states are feasible for each unit.</p>
-
 <div class="definition">
-<span id="def:unnamed-chunk-2" class="definition"><strong>Definition 1.1  (Potential outcomes)  </strong></span>For each unit <span class="math inline">\(i\)</span>, we define two potential outcomes:
+<p><span id="def:unnamed-chunk-2" class="definition"><strong>Definition 1.1  (Potential outcomes) </strong></span>For each unit <span class="math inline">\(i\)</span>, we define two potential outcomes:</p>
 </div>
 <ul>
 <li><span class="math inline">\(Y_i^1\)</span>: the outcome that unit <span class="math inline">\(i\)</span> is going to have if it receives the treatment,</li>
 <li><span class="math inline">\(Y_i^0\)</span>: the outcome that unit <span class="math inline">\(i\)</span> is going to have if it <strong>does not</strong> receive the treatment.</li>
 </ul>
-
 <div class="example">
-<span id="exm:unnamed-chunk-3" class="example"><strong>Example 1.2  </strong></span>Let’s choose functional forms for our potential outcomes.
+<p><span id="exm:unnamed-chunk-3" class="example"><strong>Example 1.2  </strong></span>Let’s choose functional forms for our potential outcomes.
 For simplicity, all lower case letters will denote log outcomes.
 <span class="math inline">\(y_i^0=\mu_i+\delta+U_i^0\)</span>, with <span class="math inline">\(\delta\)</span> a time shock common to all the observations and <span class="math inline">\(U_i^0=\rho U_i^B+\epsilon_i\)</span>, with <span class="math inline">\(|\rho|&lt;1\)</span>.
 In the absence of the treatment, part of the shocks <span class="math inline">\(U_i^B\)</span> that the individuals experienced in the previous period persist, while some part vanish.
 <span class="math inline">\(y_i^1=y_i^0+\bar{\alpha}+\theta\mu_i+\eta_i\)</span>.
 In order to generate the potential outcomes, one has to define the laws for the shocks and to choose parameter values.
 Let’s assume that <span class="math inline">\(\epsilon_i\sim\mathcal{N}(0,\sigma^2_{\epsilon})\)</span> and <span class="math inline">\(\eta_i\sim\mathcal{N}(0,\sigma^2_{\eta})\)</span>.
-Now let’s choose some parameter values:
+Now let’s choose some parameter values:</p>
 </div>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="FPCI.html#cb6-1" aria-hidden="true" tabindex="-1"></a>l <span class="ot">&lt;-</span> <span class="fu">length</span>(param)</span>
 <span id="cb6-2"><a href="FPCI.html#cb6-2" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">c</span>(param,<span class="fl">0.9</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.1</span>)</span>
@@ -544,8 +544,8 @@ Figure 1.2: Potential outcomes
 Those with a large potential outcome when untreated (<em>e.g.</em> in good health without the treatment) also have a positive health with the treatment.
 It is also true that individuals with bad health in the absence of the treatment also have bad health with the treatment.</p>
 </div>
-<div id="switching-equation" class="section level3" number="1.1.3">
-<h3><span class="header-section-number">1.1.3</span> Switching equation</h3>
+<div id="switching-equation" class="section level3 hasAnchor" number="1.1.3">
+<h3><span class="header-section-number">1.1.3</span> Switching equation<a href="FPCI.html#switching-equation" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The last building block of RCM is the switching equation.
 It links the observed outcome to the potential outcomes through the allocation rule:</p>
 <p><span class="math display" id="eq:switch">\[\begin{align}
@@ -557,9 +557,8 @@ It links the observed outcome to the potential outcomes through the allocation r
     \end{cases} \\
     &amp; = Y_i^1D_i + Y_i^0(1-D_i) \nonumber
 \end{align}\]</span></p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-4" class="example"><strong>Example 1.3  </strong></span>In order to generate observed outcomes in our numerical example, we simply have to enforce the switching equation:
+<p><span id="exm:unnamed-chunk-4" class="example"><strong>Example 1.3  </strong></span>In order to generate observed outcomes in our numerical example, we simply have to enforce the switching equation:</p>
 </div>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="FPCI.html#cb10-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> y1<span class="sc">*</span>Ds<span class="sc">+</span>y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span>
 <span id="cb10-2"><a href="FPCI.html#cb10-2" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> Y1<span class="sc">*</span>Ds<span class="sc">+</span>Y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span></code></pre></div>
@@ -571,25 +570,23 @@ Because the same individual cannot be at the same time in both groups, we can NE
 We say that it is a <strong>counterfactual</strong>.
 A counterfactual quantity is a quantity that is, according to Hume’s definition, contrary to the observed facts.
 A counterfactual cannot be observed, but it can be conceived by an effort of reason: it is the consequence of what would have happened had some action not been taken.</p>
-
 <div class="remark">
-<p> <span class="remark"><em>Remark. </em></span> One very nice way of visualising the switching equation has been proposed by Jerzy Neyman in a 1923 prescient paper.
+<p><span id="unlabeled-div-1" class="remark"><em>Remark</em>. </span>One very nice way of visualising the switching equation has been proposed by Jerzy Neyman in a 1923 prescient paper.
 Neyman proposes to imagine two urns, each one filled with <span class="math inline">\(N\)</span> balls.
 One urn is the treatment urn and contains balls with the id of the unit and the value of its potential outcome <span class="math inline">\(Y_i^1\)</span>.
 The other urn is the control urn, and it contains balls with the value of the potential outcome <span class="math inline">\(Y_i^0\)</span> for each unit <span class="math inline">\(i\)</span>.
 Following the allocation rule <span class="math inline">\(D_i\)</span>, we decide whether unit <span class="math inline">\(i\)</span> is in the treatment or control group.
 When unit <span class="math inline">\(i\)</span> is in the treatment group, we take the corresponding ball from the first urn and observe the potential outcome on it.
 But, at the same time, the urns are connected so that the corresponding ball with the potential outcome of unit <span class="math inline">\(i\)</span> in the control urn disappears as soon as we draw ball <span class="math inline">\(i\)</span> from the treatment urn.</p>
-The switching equation works a lot like Schrodinger’s cat paradox.
+<p>The switching equation works a lot like Schrodinger’s cat paradox.
 Schrodinger’s cat is placed in a sealed box and receives a dose of poison when an atom emits a radiation.
 As long as the box is sealed, there is no way we can know whether the cat is dead or alive.
 When we open the box, we observe either a dead cat or a living cat, but we cannot observe the cat both alive and dead at the same time.
-The switching equation is like opening the box, it collapses the observed outcome into one of the two potential ones.
+The switching equation is like opening the box, it collapses the observed outcome into one of the two potential ones.</p>
 </div>
-
 <div class="example">
-<span id="exm:unnamed-chunk-6" class="example"><strong>Example 1.4  </strong></span>One way to visualize the inner workings of the switching equation is to plot the potential outcomes along with the criteria driving the allocation rule.
-In our simple example, it simply amounts to plotting observed (<span class="math inline">\(y_i\)</span>) and potential outcomes (<span class="math inline">\(y_i^1\)</span> and <span class="math inline">\(y_i^0\)</span>) along <span class="math inline">\(y_i^B\)</span>.
+<p><span id="exm:unnamed-chunk-6" class="example"><strong>Example 1.4  </strong></span>One way to visualize the inner workings of the switching equation is to plot the potential outcomes along with the criteria driving the allocation rule.
+In our simple example, it simply amounts to plotting observed (<span class="math inline">\(y_i\)</span>) and potential outcomes (<span class="math inline">\(y_i^1\)</span> and <span class="math inline">\(y_i^0\)</span>) along <span class="math inline">\(y_i^B\)</span>.</p>
 </div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="FPCI.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(yB[Ds<span class="sc">==</span><span class="dv">0</span>],y0[Ds<span class="sc">==</span><span class="dv">0</span>],<span class="at">pch=</span><span class="dv">1</span>,<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">11</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">11</span>),<span class="at">xlab=</span><span class="st">&quot;yB&quot;</span>,<span class="at">ylab=</span><span class="st">&quot;Outcomes&quot;</span>)</span>
 <span id="cb11-2"><a href="FPCI.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(yB[Ds<span class="sc">==</span><span class="dv">1</span>],y1[Ds<span class="sc">==</span><span class="dv">1</span>],<span class="at">pch=</span><span class="dv">3</span>)</span>
@@ -624,22 +621,20 @@ Only one of the two potential outcomes is observed (the cross for the treated gr
 The observed sample in Figure <a href="FPCI.html#fig:plotyyB">1.4</a> only shows observed outcomes, and is thus silent on the values of the missing potential outcomes.</p>
 </div>
 </div>
-<div id="treatment-effects" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> Treatment effects</h2>
+<div id="treatment-effects" class="section level2 hasAnchor" number="1.2">
+<h2><span class="header-section-number">1.2</span> Treatment effects<a href="FPCI.html#treatment-effects" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>RCM enables the definition of causal effects at the individual level.
 In practice though, we generally focus on a summary measure: the effect of the treatment on the treated.</p>
-<div id="individual-level-treatment-effects" class="section level3" number="1.2.1">
-<h3><span class="header-section-number">1.2.1</span> Individual level treatment effects</h3>
+<div id="individual-level-treatment-effects" class="section level3 hasAnchor" number="1.2.1">
+<h3><span class="header-section-number">1.2.1</span> Individual level treatment effects<a href="FPCI.html#individual-level-treatment-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Potential outcomes enable us to define the central notion of causal inference: the causal effect, also labelled the treatment effect, which is the difference between the two potential outcomes.</p>
-
 <div class="definition">
-<span id="def:causaleff" class="definition"><strong>Definition 1.2  (Individual level treatment effect)  </strong></span>For each unit <span class="math inline">\(i\)</span>, the causal effect of the treatment on outcome <span class="math inline">\(Y\)</span> is: <span class="math inline">\(\Delta^Y_i=Y_i^1-Y_i^0\)</span>.
+<p><span id="def:causaleff" class="definition"><strong>Definition 1.2  (Individual level treatment effect) </strong></span>For each unit <span class="math inline">\(i\)</span>, the causal effect of the treatment on outcome <span class="math inline">\(Y\)</span> is: <span class="math inline">\(\Delta^Y_i=Y_i^1-Y_i^0\)</span>.</p>
 </div>
-
 <div class="example">
-<span id="exm:unnamed-chunk-7" class="example"><strong>Example 1.5  </strong></span>The individual level causal effect in log terms is: <span class="math inline">\(\Delta^y_i=\alpha_i=\bar{\alpha}+\theta\mu_i+\eta_i\)</span>.
+<p><span id="exm:unnamed-chunk-7" class="example"><strong>Example 1.5  </strong></span>The individual level causal effect in log terms is: <span class="math inline">\(\Delta^y_i=\alpha_i=\bar{\alpha}+\theta\mu_i+\eta_i\)</span>.
 The effect is the sum of a part common to all individuals, a part correlated with <span class="math inline">\(\mu_i\)</span>: the treatment might have a larger or a smaller effect depending on the unobserved permanent ability or health status of individuals, and a random shock.
-It is possible to make the effect of the treatment to depend on <span class="math inline">\(U_i^B\)</span> also, but it would complicate the model.
+It is possible to make the effect of the treatment to depend on <span class="math inline">\(U_i^B\)</span> also, but it would complicate the model.</p>
 </div>
 <p>In Figure <a href="FPCI.html#fig:ploty1y0yB">1.3</a>, the individual level treatment effects are the differences between each cross and its corresponding circle.
 For example, for observation 264, the two potential outcomes appear in green in Figure <a href="FPCI.html#fig:ploty1y0yB">1.3</a>.
@@ -658,11 +653,10 @@ The effect of a drug might depend on the genetic background of an individual.
 An education program might only work for children that already have sufficient non-cognitive skills, and thus might depend in turn on family background.
 An environmental regulation or a behavioral intervention might only trigger reactions by already environmentally aware individuals.
 A CCT might have a larger effect when indiviuals are credit-constrained or face shocks.</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-8" class="example"><strong>Example 1.6  </strong></span>In our numerical example, the distribution of <span class="math inline">\(\Delta^y_i=\alpha_i\)</span> is a normal: <span class="math inline">\(\alpha_i\sim\mathcal{N}(\bar{\alpha}+\theta\bar{\mu},\theta^2\sigma^2_{\mu}+\sigma^2_{\eta})\)</span>.
+<p><span id="exm:unnamed-chunk-8" class="example"><strong>Example 1.6  </strong></span>In our numerical example, the distribution of <span class="math inline">\(\Delta^y_i=\alpha_i\)</span> is a normal: <span class="math inline">\(\alpha_i\sim\mathcal{N}(\bar{\alpha}+\theta\bar{\mu},\theta^2\sigma^2_{\mu}+\sigma^2_{\eta})\)</span>.
 We would like to visualize treatment effect heterogeneity.
-For that, we can build a histogram of the individual level causal effect.
+For that, we can build a histogram of the individual level causal effect.</p>
 </div>
 <p>On top of the histogram, we can also draw the theoretical distribution of the treatment effect: a normal with mean 0.18 and variance 0.05.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="FPCI.html#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(alpha,<span class="at">main=</span><span class="st">&quot;&quot;</span>,<span class="at">prob=</span><span class="cn">TRUE</span>)</span>
@@ -677,15 +671,14 @@ Figure 1.5: Histogram of <span class="math inline">\(\Delta^y\)</span>
 We also see that the majority of the observations lies to the right of zero: most people experience a positive effect of the treatment.
 But there are some individuals that do not benefit from the treatment: the effect of the treatment on them is negative.</p>
 </div>
-<div id="average-treatment-effect-on-the-treated" class="section level3" number="1.2.2">
-<h3><span class="header-section-number">1.2.2</span> Average treatment effect on the treated</h3>
+<div id="average-treatment-effect-on-the-treated" class="section level3 hasAnchor" number="1.2.2">
+<h3><span class="header-section-number">1.2.2</span> Average treatment effect on the treated<a href="FPCI.html#average-treatment-effect-on-the-treated" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>We do not generally estimate individual-level treatment effects.
 We generally look for summary statistics of the effect of the treatment.
 By far the most widely reported causal parameter is the Treatment on the Treated parameter (TT).
 It can be defined in the sample at hand or in the population.</p>
-
 <div class="definition">
-<span id="def:TT" class="definition"><strong>Definition 1.3  (Average and expected treatment effects on the treated)  </strong></span>The Treatment on the Treated parameters for outcome <span class="math inline">\(Y\)</span> are:
+<p><span id="def:TT" class="definition"><strong>Definition 1.3  (Average and expected treatment effects on the treated) </strong></span>The Treatment on the Treated parameters for outcome <span class="math inline">\(Y\)</span> are:</p>
 </div>
 <ul>
 <li><p>The average Treatment effect on the Treated in the sample:</p>
@@ -704,9 +697,8 @@ For a drug or an anti-poverty program, it would mean giving the treatment to hea
 <p>TT does not say anything about how the effect of the treatment is distributed in the population or in the sample.
 TT does not account for the heterogneity of treatment effects.
 In Lecture 7, we will look at other parameters of interest that look more closely into how the effect of the treatment is distributed.</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-9" class="example"><strong>Example 1.7  </strong></span>The value of TT in our sample is:
+<p><span id="exm:unnamed-chunk-9" class="example"><strong>Example 1.7  </strong></span>The value of TT in our sample is:</p>
 </div>
 <p><span class="math display">\[
 \Delta^y_{TT_s}=0.168.
@@ -731,17 +723,15 @@ We can see that the values of TT in the sample and in the population differ slig
 This is because of sampling noise: the units in the sample are not perfectly representative of the units in the population.</p>
 </div>
 </div>
-<div id="fundamental-problem-of-causal-inference" class="section level2" number="1.3">
-<h2><span class="header-section-number">1.3</span> Fundamental problem of causal inference</h2>
+<div id="fundamental-problem-of-causal-inference" class="section level2 hasAnchor" number="1.3">
+<h2><span class="header-section-number">1.3</span> Fundamental problem of causal inference<a href="FPCI.html#fundamental-problem-of-causal-inference" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>At least in this lecture, causal inference is about trying to infer TT, either in the sample or in the population.
 The FPCI states that it is impossible to directly observe TT because one part of it remains fundamentally unobserved.</p>
-
 <div class="theorem">
-<span id="thm:FPCI" class="theorem"><strong>Theorem 1.1  (Fundamental problem of causal inference)  </strong></span>It is impossible to observe TT, either in the population or in the sample.
+<p><span id="thm:FPCI" class="theorem"><strong>Theorem 1.1  (Fundamental problem of causal inference) </strong></span>It is impossible to observe TT, either in the population or in the sample.</p>
 </div>
-
 <div class="proof">
-<p> <span class="proof"><em>Proof. </em></span> The proof of the FPCI is rather straightforward.
+<p><span id="unlabeled-div-2" class="proof"><em>Proof</em>. </span>The proof of the FPCI is rather straightforward.
 Let me start with the sample TT:</p>
 <p><span class="math display">\[\begin{align*}
   \Delta^Y_{TT_s} &amp; = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^N(Y_i^1-Y_i^0)D_i \\
@@ -755,17 +745,15 @@ The same is true for the population TT:</p>
                 &amp; = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
                 &amp; = \esp{Y_i|D_i=1}-\esp{Y_i^0|D_i=1}.
 \end{align*}\]</span></p>
-<span class="math inline">\(\esp{Y_i^0|D_i=1}\)</span> is unobserved, and so is <span class="math inline">\(\Delta^Y_{TT}\)</span>.
+<p><span class="math inline">\(\esp{Y_i^0|D_i=1}\)</span> is unobserved, and so is <span class="math inline">\(\Delta^Y_{TT}\)</span>.</p>
 </div>
 <p>The key insight in order to understand the FPCI is to see that the outcomes of the treated units had they not been treated are unobservable, and so is their average or expectation.
 We say that they are counterfactual, contrary to what has happened.</p>
-
 <div class="definition">
-<span id="def:counter" class="definition"><strong>Definition 1.4  (Couterfactual)  </strong></span>Both <span class="math inline">\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i\)</span> and <span class="math inline">\(\esp{Y_i^0|D_i=1}\)</span> are counterfactual quantities that we will never get to observe.
+<p><span id="def:counter" class="definition"><strong>Definition 1.4  (Couterfactual) </strong></span>Both <span class="math inline">\(\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_i^0D_i\)</span> and <span class="math inline">\(\esp{Y_i^0|D_i=1}\)</span> are counterfactual quantities that we will never get to observe.</p>
 </div>
-
 <div class="example">
-<span id="exm:unnamed-chunk-11" class="example"><strong>Example 1.8  </strong></span>The average counterfactual outcome of the treated is the mean of the red circles in the <span class="math inline">\(y\)</span> axis on Figure <a href="FPCI.html#fig:ploty1y0yB">1.3</a>:
+<p><span id="exm:unnamed-chunk-11" class="example"><strong>Example 1.8  </strong></span>The average counterfactual outcome of the treated is the mean of the red circles in the <span class="math inline">\(y\)</span> axis on Figure <a href="FPCI.html#fig:ploty1y0yB">1.3</a>:</p>
 </div>
 <p><span class="math display">\[
 \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^Ny_i^0D_i= 6.91.
@@ -789,8 +777,8 @@ In real life, this quantity is hopelessly unobserved.</p>
 <span id="cb15-7"><a href="FPCI.html#cb15-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>The population value of TT computed using this function is: <span class="math inline">\(\esp{y_i^0|D_i=1}=\)</span> 6.9.</p>
 </div>
-<div id="intuitive-estimators-confounding-factors-and-selection-bias" class="section level2" number="1.4">
-<h2><span class="header-section-number">1.4</span> Intuitive estimators, confounding factors and selection bias</h2>
+<div id="intuitive-estimators-confounding-factors-and-selection-bias" class="section level2 hasAnchor" number="1.4">
+<h2><span class="header-section-number">1.4</span> Intuitive estimators, confounding factors and selection bias<a href="FPCI.html#intuitive-estimators-confounding-factors-and-selection-bias" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In this section, we are going to examine the properties of two intuitive comparisons that laypeople, policymakers but also ourselves make in order to estimate causal effects: the with/wihtout comparison (<span class="math inline">\(WW\)</span>) and the before/after comparison (<span class="math inline">\(BA\)</span>).
 <span class="math inline">\(WW\)</span> compares the average outcomes of the treated individuals with those of the untreated individuals.
 <span class="math inline">\(BA\)</span> compares the average outcomes of the treated after taking the treatment to their average outcomes before they took the treatment.
@@ -804,56 +792,52 @@ The factors that bias the intuitive comparisons are generally called confouding 
 <p>The treatment effect measures the effect of a ceteris paribus change in treatment status, while the intuitive comparisons capture both the effect of this change and that of other correlated changes that spuriously contaminate the comparison.
 Intuitive comparisons measure correlations while treatment effects measure causality.
 The old motto “correlation is not causation” applies vehemently here.</p>
-
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> A funny anecdote about this expression “correlation is not causation”.
+<p><span id="unlabeled-div-3" class="remark"><em>Remark</em>. </span>A funny anecdote about this expression “correlation is not causation”.
 This expression is due to Karl Pearson, the father of modern statistics.
 He coined the phrase in his famous book “The Grammar of Science.”
 Pearson is famous for inventing the correlation coefficient.
 He actually thought that correlation was a much superior, much more rigorous term, than causation.
 In his book, he actually used the sentence to argue in favor of abandoning causation altogether and focusing on the much better-defined and measurable concept of correlation.
-Interesting turn of events that his sentence is now used to mean that correlation is weaker than causation, totally reverting the original intended meaning.
+Interesting turn of events that his sentence is now used to mean that correlation is weaker than causation, totally reverting the original intended meaning.</p>
 </div>
 <p>In this section, we are going to define both comparisons, study their biases and state the conditions under which they identify <span class="math inline">\(TT\)</span>.
 This will prove to be a very useful introduction to the notion of identification.
 It is also very important to be able to understand the sources of bias of comparisons that we use every day and that come very naturally to policy makers and lay people.</p>
-
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> In this section, we state the definitions and formulae in the population.
+<p><span id="unlabeled-div-4" class="remark"><em>Remark</em>. </span>In this section, we state the definitions and formulae in the population.
 This is for two reasons.
 First, it is simpler, and lighter in terms of notation.
 Second, it emphasizes that the problems with intuitive comparisons are independent of sampling noise.
 Most of the results stated here for the population extend to the sample, replacing the expectation operator by the average operator.
 I will nevertheless give examples in the sample, since it is so much simpler to compute.
-I will denote sample equivalents of population estimators with a hat.
+I will denote sample equivalents of population estimators with a hat.</p>
 </div>
-<div id="withwithout-comparison-selection-bias-and-cross-sectional-confounders" class="section level3" number="1.4.1">
-<h3><span class="header-section-number">1.4.1</span> With/Without comparison, selection bias and cross-sectional confounders</h3>
+<div id="withwithout-comparison-selection-bias-and-cross-sectional-confounders" class="section level3 hasAnchor" number="1.4.1">
+<h3><span class="header-section-number">1.4.1</span> With/Without comparison, selection bias and cross-sectional confounders<a href="FPCI.html#withwithout-comparison-selection-bias-and-cross-sectional-confounders" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The with/without comparison (<span class="math inline">\(WW\)</span>) is very intuitive: just compare the outcomes of the treated and untreated individuals in order to estimate the causal effect.
 This approach is nevertheless generally biased.
 We call the bias of <span class="math inline">\(WW\)</span> selection bias (<span class="math inline">\(SB\)</span>).
 Selection bias is due to unobserved confounders that are distributed differently in the treatment and control group and that generate differences in outcomes even in the absence of the treatment.
 In this section, I define the <span class="math inline">\(WW\)</span> estimator, derives its bias, introduces the confounders and states conditions under which it is unbiased.</p>
-<div id="withwithout-comparison" class="section level4" number="1.4.1.1">
-<h4><span class="header-section-number">1.4.1.1</span> With/Without comparison</h4>
+<div id="withwithout-comparison" class="section level4 hasAnchor" number="1.4.1.1">
+<h4><span class="header-section-number">1.4.1.1</span> With/Without comparison<a href="FPCI.html#withwithout-comparison" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>The with/without comparison (<span class="math inline">\(WW\)</span>) is very intuitive: just compare the outcomes of the treated and untreated individuals in order to estimate the causal effect.</p>
-
 <div class="definition">
-<p><span id="def:unnamed-chunk-14" class="definition"><strong>Definition 1.5  (With/without comparison)  </strong></span>The with/without comparison is the difference between the expected outcomes of the treated and the expected outcomes of the untreated:</p>
-<span class="math display">\[\begin{align*}
+<p><span id="def:unnamed-chunk-14" class="definition"><strong>Definition 1.5  (With/without comparison) </strong></span>The with/without comparison is the difference between the expected outcomes of the treated and the expected outcomes of the untreated:</p>
+<p><span class="math display">\[\begin{align*}
 \Delta^Y_{WW} &amp; =  \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
-
 <div class="example">
 <p><span id="exm:unnamed-chunk-15" class="example"><strong>Example 1.9  </strong></span>In the population, <span class="math inline">\(WW\)</span> can be computed using the traditional formula for the expectation of a truncated normal distribution:</p>
-<span class="math display">\[\begin{align*}
+<p><span class="math display">\[\begin{align*}
 \Delta^y_{WW} &amp; = \esp{y_i|D_i=1}-\esp{y_i|D_i=0} \\
               &amp; = \esp{y_i^1|D_i=1}-\esp{y^0_i|D_i=0} \\
               &amp; = \esp{\alpha_i|D_i=1}+\esp{\mu_i+\rho U_i^B|\mu_i+U_i^B\leq\bar{y}}-\esp{\mu_i+\rho U_i^B|\mu_i+U_i^B&gt;\bar{y}} \\
               &amp; = \bar{\alpha}+\theta\left(\bar{\mu}-\frac{\sigma^2_{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right)  
               -\frac{\sigma^2_{\mu}+\rho\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\left(\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}+\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{1-\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 <p>In order to compute this parameter, we are going to set up a R function.
 For reasons that will become clearer later, we will define two separate functions to compute the first and second part of the formula.
@@ -927,43 +911,39 @@ Remember that the value of <span class="math inline">\(TT\)</span> in the sample
 <p>Overall, <span class="math inline">\(WW\)</span> severely underestimates the effect of the treatment in our example.
 <span class="math inline">\(WW\)</span> suggests that the treatment has a negative effect on outcomes whereas we know by construction that it has a positive one.</p>
 </div>
-<div id="selection-bias" class="section level4" number="1.4.1.2">
-<h4><span class="header-section-number">1.4.1.2</span> Selection bias</h4>
+<div id="selection-bias" class="section level4 hasAnchor" number="1.4.1.2">
+<h4><span class="header-section-number">1.4.1.2</span> Selection bias<a href="FPCI.html#selection-bias" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>When we form the with/without comparison, we do not recover the <span class="math inline">\(TT\)</span> parameter.
 Instead, we recover <span class="math inline">\(TT\)</span> plus a bias term, called <strong>selection bias</strong>:</p>
 <p><span class="math display">\[\begin{align*}
 \Delta^Y_{WW} &amp; =\Delta^Y_{TT}+\Delta^Y_{SB}.
 \end{align*}\]</span></p>
-
 <div class="definition">
-<span id="def:SB" class="definition"><strong>Definition 1.6  (Selection bias)  </strong></span>Selection bias is the difference between the with/without comparison and the treatment on the treated parameter:
+<p><span id="def:SB" class="definition"><strong>Definition 1.6  (Selection bias) </strong></span>Selection bias is the difference between the with/without comparison and the treatment on the treated parameter:
 <span class="math display">\[\begin{align*}
 \Delta^Y_{SB} &amp; = \Delta^Y_{WW}-\Delta^Y_{TT}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 <p><span class="math inline">\(WW\)</span> tries to approximate the counterfactual expected outcome in the treated group by using <span class="math inline">\(\esp{Y_i^0|D_i=0}\)</span>, the expected outcome in the untreated group .
 Selection bias appears because this proxy is generally poor.
 It is very easy to see that selection bias is indeed directly due to this bad proxy problem:</p>
-
 <div class="theorem">
-<p><span id="thm:SBth" class="theorem"><strong>Theorem 1.2  (Selection bias and counterfactual)  </strong></span>Selection bias is the difference between the counterfactual expected potential outcome in the absence of the treatment among the treated and the expected potential outcome in the absence of the treatment among the untreated.</p>
+<p><span id="thm:SBth" class="theorem"><strong>Theorem 1.2  (Selection bias and counterfactual) </strong></span>Selection bias is the difference between the counterfactual expected potential outcome in the absence of the treatment among the treated and the expected potential outcome in the absence of the treatment among the untreated.</p>
 <p><span class="math display">\[\begin{align*}
 \Delta^Y_{SB} &amp; = \esp{Y_i^0|D_i=1}-\esp{Y_i^0|D_i=0}.
 \end{align*}\]</span></p>
 </div>
-
 <div class="proof">
-<p> <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
+<p><span id="unlabeled-div-5" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
 \Delta^Y_{SB} &amp; = \Delta^Y_{WW}-\Delta^Y_{TT} \\
               &amp; = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}-\esp{Y_i^1-Y_i^0|D_i=1}\\
               &amp; = \esp{Y_i^0|D_i=1}-\esp{Y_i^0|D_i=0}.
 \end{align*}\]</span></p>
-The first and second equalities stem only from the definition of both parameters.
-The third equality stems from using the switching equation: <span class="math inline">\(Y_i=Y_i^1D_i+Y_i^0(1-D_i)\)</span>, so that <span class="math inline">\(\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}\)</span> and <span class="math inline">\(\esp{Y_i|D_i=0}=\esp{Y_i^0|D_i=0}\)</span>.
+<p>The first and second equalities stem only from the definition of both parameters.
+The third equality stems from using the switching equation: <span class="math inline">\(Y_i=Y_i^1D_i+Y_i^0(1-D_i)\)</span>, so that <span class="math inline">\(\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}\)</span> and <span class="math inline">\(\esp{Y_i|D_i=0}=\esp{Y_i^0|D_i=0}\)</span>.</p>
 </div>
-
 <div class="example">
-<span id="exm:unnamed-chunk-17" class="example"><strong>Example 1.10  </strong></span>In the population, <span class="math inline">\(SB\)</span> is equal to
+<p><span id="exm:unnamed-chunk-17" class="example"><strong>Example 1.10  </strong></span>In the population, <span class="math inline">\(SB\)</span> is equal to</p>
 </div>
 <p><span class="math display">\[\begin{align*}
   \Delta^y_{SB} &amp; = \Delta^y_{WW}-\Delta^y_{TT} \\
@@ -983,27 +963,26 @@ Their difference is as expected equal to <span class="math inline">\(SB\)</span>
 <span class="math inline">\(\hat{\Delta^y_{SB}}=\)</span> 6.906 <span class="math inline">\(-\)</span> 8.383 <span class="math inline">\(=\)</span> -1.476.
 The counterfactual average outcome of the treated is much smaller than the average outcome of the untreated.
 On Figure <a href="FPCI.html#fig:ploty0y1yBD">1.6</a>, this is materialized by the fact that the plus sign is located much above the triangle.</p>
-
 <div class="remark">
-<p> <span class="remark"><em>Remark. </em></span> The concept of selection bias is related to but different from the concept of sample selection bias.
+<p><span id="unlabeled-div-6" class="remark"><em>Remark</em>. </span>The concept of selection bias is related to but different from the concept of sample selection bias.
 With sample selection bias, we worry that selection into the sample might bias the estimated effect of a treatment on outcomes.
 With selection bias, we worry that selection into the treatment itself might bias the effect of the treatment on outcomes.
 Both biases are due to unbserved covariates, but they do not play out in the same way.</p>
 <p>For example, estimating the effect of education on women’s wages raises both selection bias and sample selection bias issues.
 Selection bias stems from the fact that more educated women are more likely to be more dynamic and thus to have higher earnings even when less educated.
 Selection bias would be positive in that case, overestimating the effect of education on earnings.</p>
-Sample selection bias stems from the fact that we can only use a sample of working women in order to estimate the effect of education on wages, since we do not observe the wages on non working women.
+<p>Sample selection bias stems from the fact that we can only use a sample of working women in order to estimate the effect of education on wages, since we do not observe the wages on non working women.
 But, selection into the labor force might generate sample selection bias.
 More educated women participate more in the labor market, while less educated women participate less.
 As a consequence, less educated women that work are different from the overall sample of less educated women.
 They might be more dynamic and work-focused.
 As a consequence, their wages are higher than the average wages of the less educated women.
 Comparing the wages of less educated women that work to those of more educated women that work might understate the effect of education on earnings.
-Sample selection bias would generate a negative bias on the education coefficient.
+Sample selection bias would generate a negative bias on the education coefficient.</p>
 </div>
 </div>
-<div id="confounding-factors" class="section level4" number="1.4.1.3">
-<h4><span class="header-section-number">1.4.1.3</span> Confounding factors</h4>
+<div id="confounding-factors" class="section level4 hasAnchor" number="1.4.1.3">
+<h4><span class="header-section-number">1.4.1.3</span> Confounding factors<a href="FPCI.html#confounding-factors" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Confounding factors are the factors that generate differences between treated and untreated individuals even in the absence of the treatment.
 The confounding factors are thus responsible for selection bias.
 In general, the mere fact of being selected for receiving the treatment means that you have a host of characteristics that would differentiate you from the unselected individuals, even if you were not to receive the treatment eventually.</p>
@@ -1015,10 +994,9 @@ In that case, the with/without comparison is going to be null, whereas the true 
 Selection bias is negative in that case: in the absence of the treatment, the average health status of the treated individuals would have been smaller than that of the untreated individuals.
 The confounding factor is the health status of individuals when the decision to allocate the drug has been taken.
 It is correlated to both the allocation of the treatment (negatively) and to health in the absence of the treatment (positively).</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-19" class="example"><strong>Example 1.11  </strong></span>In our example, <span class="math inline">\(\mu_i\)</span> and <span class="math inline">\(U_i^B\)</span> are the confounding factors.
-Because the treatment is only given to individuals with pre-treament outcomes smaller than a threshold (<span class="math inline">\(y_i^B\leq\bar{y}\)</span>), participants tend to have smaller <span class="math inline">\(\mu_i\)</span> and <span class="math inline">\(U_i^B\)</span> than non participants, as we can see on Figure <a href="FPCI.html#fig:histmuD">1.7</a>.
+<p><span id="exm:unnamed-chunk-19" class="example"><strong>Example 1.11  </strong></span>In our example, <span class="math inline">\(\mu_i\)</span> and <span class="math inline">\(U_i^B\)</span> are the confounding factors.
+Because the treatment is only given to individuals with pre-treament outcomes smaller than a threshold (<span class="math inline">\(y_i^B\leq\bar{y}\)</span>), participants tend to have smaller <span class="math inline">\(\mu_i\)</span> and <span class="math inline">\(U_i^B\)</span> than non participants, as we can see on Figure <a href="FPCI.html#fig:histmuD">1.7</a>.</p>
 </div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:histmuD"></span>
 <img src="STCI_files/figure-html/histmuD-1.png" alt="Distribution of confounders in the treated and control group" width="60%" />
@@ -1053,36 +1031,33 @@ As a consequence, even in the absence of the treatment, participants have lower 
 <span id="cb18-12"><a href="FPCI.html#cb18-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>The contribution of <span class="math inline">\(\mu_i\)</span> to selection bias is -0.978 while that of <span class="math inline">\(U_i^0\)</span> is of -0.493.</p>
 </div>
-<div id="when-does-ww-identify-tt" class="section level4" number="1.4.1.4">
-<h4><span class="header-section-number">1.4.1.4</span> When does <span class="math inline">\(WW\)</span> identify <span class="math inline">\(TT\)</span>?</h4>
+<div id="when-does-ww-identify-tt" class="section level4 hasAnchor" number="1.4.1.4">
+<h4><span class="header-section-number">1.4.1.4</span> When does <span class="math inline">\(WW\)</span> identify <span class="math inline">\(TT\)</span>?<a href="FPCI.html#when-does-ww-identify-tt" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Are there conditions under which <span class="math inline">\(WW\)</span> identify <span class="math inline">\(TT\)</span>?
 The answer is yes: when there is no selection bias, the proxy used by <span class="math inline">\(WW\)</span> for the counterfactual quantity is actually valid.
 Formally, <span class="math inline">\(WW\)</span> identifies <span class="math inline">\(TT\)</span> when the following assumption holds:</p>
-
 <div class="definition">
-<span id="def:noselb" class="definition"><strong>Definition 1.7  (No selection bias)  </strong></span>We assume the following:
+<p><span id="def:noselb" class="definition"><strong>Definition 1.7  (No selection bias) </strong></span>We assume the following:
 <span class="math display">\[\begin{align*}
 \esp{Y_i^0|D_i=1} &amp; = \esp{Y_i^0|D_i=0}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 <p>Under Assumption <a href="FPCI.html#def:noselb">1.7</a>, the expected counterfactual outcome of the treated is equal to the expected potential outcome of the untreated in the absence of the treatment.
 This yields to the following result:</p>
-
 <div class="theorem">
-<span id="thm:wwtt" class="theorem"><strong>Theorem 1.3  </strong></span>Under Assumption <a href="FPCI.html#def:noselb">1.7</a>, <span class="math inline">\(WW\)</span> identifies the <span class="math inline">\(TT\)</span> parameter:
+<p><span id="thm:wwtt" class="theorem"><strong>Theorem 1.3  </strong></span>Under Assumption <a href="FPCI.html#def:noselb">1.7</a>, <span class="math inline">\(WW\)</span> identifies the <span class="math inline">\(TT\)</span> parameter:
 <span class="math display">\[\begin{align*}
 \Delta^Y_{WW} &amp; = \Delta^Y_{TT}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
-
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
+<p><span id="unlabeled-div-7" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
 \Delta^Y_{WW} &amp; = \esp{Y_i|D_i=1}-\esp{Y_i|D_i=0}\\
               &amp; = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=0}\\
               &amp; = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1} \\
               &amp; = \Delta^Y_{TT},
 \end{align*}\]</span>
-where the second equation uses the switching equation and the third uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.
+where the second equation uses the switching equation and the third uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.</p>
 </div>
 <p>So, under Assumption <a href="FPCI.html#def:noselb">1.7</a>, the <span class="math inline">\(WW\)</span> comparison actually identifies the <span class="math inline">\(TT\)</span> parameter.
 We say that Assumption <a href="FPCI.html#def:noselb">1.7</a> is an <strong>identification assumption</strong>: it serves to identify the parameter of interest using observed data.
@@ -1101,9 +1076,8 @@ For Assumption <a href="FPCI.html#def:noselb">1.7</a> to be credible, observed c
 A placebo test looks for an effect where there should be none, if we believe the identification assumptions.
 For example, under Assumption <a href="FPCI.html#def:noselb">1.7</a> it should be (even though it is not rigorously implied) that outcomes before the treatment are also mean-independent of the treatment allocation.
 And actually, since a future treatment cannot have an effect today (unless people anticipate the treatment, which we assume away here), the <span class="math inline">\(WW\)</span> comparison before the treatment should be null, therefore giving a zero effect of the placebo treatment “will receive the treatment in the future.”</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-21" class="example"><strong>Example 1.12  </strong></span>When the allocation rule defining <span class="math inline">\(D_i\)</span> is the eligibility rule that we have used so far, we have already seen that Assumption <a href="FPCI.html#def:noselb">1.7</a> does not hold and the placebo test should not pass either.
+<p><span id="exm:unnamed-chunk-21" class="example"><strong>Example 1.12  </strong></span>When the allocation rule defining <span class="math inline">\(D_i\)</span> is the eligibility rule that we have used so far, we have already seen that Assumption <a href="FPCI.html#def:noselb">1.7</a> does not hold and the placebo test should not pass either.</p>
 </div>
 <p>One way of generating Assumption <a href="FPCI.html#def:noselb">1.7</a> from the eligibility rule that we are using is to mute the persistence in outcome dynamics.
 For example, one could set <span class="math inline">\(\rho=0\)</span> and <span class="math inline">\(\sigma^2_{\mu}=0\)</span>.</p>
@@ -1128,10 +1102,9 @@ Another direct way to see this is to use the formula for selection bias that we 
 It is easy to see that with <span class="math inline">\(\rho=0\)</span> and <span class="math inline">\(\sigma^2_{\mu}=0\)</span>, <span class="math inline">\(\Delta^y_{SB}=0\)</span>.
 To be sure, we can compute <span class="math inline">\(\Delta^y_{SB}\)</span> with the new parameter values: <span class="math inline">\(\Delta^y_{SB}=\)</span> 0.
 As a consequence, <span class="math inline">\(\Delta^y_{TT}=\)</span> 0.18 <span class="math inline">\(=\)</span> 0.18 <span class="math inline">\(=\Delta^y_{WW}\)</span>.</p>
-
 <div class="remark">
- <span class="remark"><em>Remark. </em></span> You might have noticed that the value of <span class="math inline">\(\Delta^y_{TT}\)</span> is different than before.
-It is normal, since it depends on the values of parameters, and especially on <span class="math inline">\(\sigma_{\mu}^2\)</span> and <span class="math inline">\(\rho\)</span>.
+<p><span id="unlabeled-div-8" class="remark"><em>Remark</em>. </span>You might have noticed that the value of <span class="math inline">\(\Delta^y_{TT}\)</span> is different than before.
+It is normal, since it depends on the values of parameters, and especially on <span class="math inline">\(\sigma_{\mu}^2\)</span> and <span class="math inline">\(\rho\)</span>.</p>
 </div>
 <p>Let’s see how these quantities behave in the sample.</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="FPCI.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
@@ -1217,16 +1190,15 @@ As a consequence, <span class="math inline">\(WW\)</span> should be close to <sp
 The placebo test is also valid in that case: <span class="math inline">\(\hat{\esp{Y_i^B|D_i=1}}=\)</span> 7.95 <span class="math inline">\(\approx\)</span> 7.99 <span class="math inline">\(=\hat{\esp{Y_i^B|D_i=0}}\)</span>.</p>
 </div>
 </div>
-<div id="the-beforeafter-comparison-temporal-confounders-and-time-trend-bias" class="section level3" number="1.4.2">
-<h3><span class="header-section-number">1.4.2</span> The before/after comparison, temporal confounders and time trend bias</h3>
+<div id="the-beforeafter-comparison-temporal-confounders-and-time-trend-bias" class="section level3 hasAnchor" number="1.4.2">
+<h3><span class="header-section-number">1.4.2</span> The before/after comparison, temporal confounders and time trend bias<a href="FPCI.html#the-beforeafter-comparison-temporal-confounders-and-time-trend-bias" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The before/after comparison (<span class="math inline">\(BA\)</span>) is also very intuitive: it consists in looking at how the outcomes of the treated have changed over time and to attribute this change to the effect of the treatment.
 The problem is that other changes might have affected outcomes in the absence of the treatment, thereby biasing <span class="math inline">\(BA\)</span>.
 The bias of <span class="math inline">\(BA\)</span> is called time-trend bias.
 It is due to confounders that affect the outcomes of the treated over time.
 This section defines the <span class="math inline">\(BA\)</span> estimator, derives its bias, describes the role of the confounders and states conditions under which <span class="math inline">\(BA\)</span> identifies <span class="math inline">\(TT\)</span>.</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-23" class="example"><strong>Example 1.13  </strong></span>Before computing any estimates, we need to reset all our parameter values and generated sample it their usual values:
+<p><span id="exm:unnamed-chunk-23" class="example"><strong>Example 1.13  </strong></span>Before computing any estimates, we need to reset all our parameter values and generated sample it their usual values:</p>
 </div>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="FPCI.html#cb24-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>,.<span class="dv">5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>)</span>
 <span id="cb24-2"><a href="FPCI.html#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>)</span>
@@ -1251,26 +1223,24 @@ This section defines the <span class="math inline">\(BA\)</span> estimator, deri
 <span id="cb24-21"><a href="FPCI.html#cb24-21" aria-hidden="true" tabindex="-1"></a>Y1 <span class="ot">&lt;-</span> <span class="fu">exp</span>(y1)</span>
 <span id="cb24-22"><a href="FPCI.html#cb24-22" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> y1<span class="sc">*</span>Ds<span class="sc">+</span>y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span>
 <span id="cb24-23"><a href="FPCI.html#cb24-23" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> Y1<span class="sc">*</span>Ds<span class="sc">+</span>Y0<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>Ds)</span></code></pre></div>
-<div id="the-beforeafter-comparison" class="section level4" number="1.4.2.1">
-<h4><span class="header-section-number">1.4.2.1</span> The before/after comparison</h4>
+<div id="the-beforeafter-comparison" class="section level4 hasAnchor" number="1.4.2.1">
+<h4><span class="header-section-number">1.4.2.1</span> The before/after comparison<a href="FPCI.html#the-beforeafter-comparison" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>The before/after estimator (<span class="math inline">\(BA\)</span>) compares the outcomes of the treated after taking the treatment to the outcomes of the treated before taking the treatment.
 It is also sometimes called a “pre-post comparison.”</p>
-
 <div class="definition">
-<span id="def:unnamed-chunk-24" class="definition"><strong>Definition 1.8  (Before/after comparison)  </strong></span>The before/after comparison is the difference between the expected outcomes in the treated group after the treatment and the expected outcomes in the same group before the treatment:
+<p><span id="def:unnamed-chunk-24" class="definition"><strong>Definition 1.8  (Before/after comparison) </strong></span>The before/after comparison is the difference between the expected outcomes in the treated group after the treatment and the expected outcomes in the same group before the treatment:
 <span class="math display">\[\begin{align*}
 \Delta^Y_{BA} &amp; =  \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
-
 <div class="example">
-<span id="exm:unnamed-chunk-25" class="example"><strong>Example 1.14  </strong></span>In the population, the <span class="math inline">\(BA\)</span> estimator has the following shape:
+<p><span id="exm:unnamed-chunk-25" class="example"><strong>Example 1.14  </strong></span>In the population, the <span class="math inline">\(BA\)</span> estimator has the following shape:
 <span class="math display">\[\begin{align*}
   \Delta^y_{BA} &amp; = \esp{y_i|D_i=1}-\esp{y^B_i|D_i=1}\\
                 &amp; = \esp{y^1_i-y^B_i|D_i=1}\\
                 &amp; = \esp{\alpha_i|D_i=1} + \delta + (\rho-1)\esp{U_i^B|\mu_i+U_i^B\leq\bar{y}}\\
                 &amp; = \Delta^y_{TT} + \delta + (1-\rho)\left(\frac{\sigma^2_{U}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\frac{\phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}{\Phi\left(\frac{\bar{y}-\bar{\mu}}{\sqrt{\sigma^2_{\mu}+\sigma^2_{U}}}\right)}\right).
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 <p>In order to compute <span class="math inline">\(BA\)</span> in the population, we can again use a R function, combining the value of <span class="math inline">\(TT\)</span> and that of the second part of the formula, that we are going to denote <span class="math inline">\(TB\)</span> for reasons that are going to become clear in a bit.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="FPCI.html#cb25-1" aria-hidden="true" tabindex="-1"></a>delta.y.tb <span class="ot">&lt;-</span> <span class="cf">function</span>(param){</span>
@@ -1287,42 +1257,38 @@ Remember that the true value of <span class="math inline">\(TT\)</span> in the p
 In the sample, the value of <span class="math inline">\(BA\)</span> is <span class="math inline">\(\hat{\Delta^y_{BA}}=\)</span> 0.267.
 Remember that the value of <span class="math inline">\(TT\)</span> in the sample is <span class="math inline">\(\Delta^y_{TT_s}=\)</span> 0.168.</p>
 </div>
-<div id="time-trend-bias" class="section level4" number="1.4.2.2">
-<h4><span class="header-section-number">1.4.2.2</span> Time trend bias</h4>
+<div id="time-trend-bias" class="section level4 hasAnchor" number="1.4.2.2">
+<h4><span class="header-section-number">1.4.2.2</span> Time trend bias<a href="FPCI.html#time-trend-bias" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>When we form the before/after comparison, we do not recover the <span class="math inline">\(TT\)</span> parameter.
 Instead, we recover <span class="math inline">\(TT\)</span> plus a bias term, called <strong>time trend bias</strong>:</p>
 <p><span class="math display">\[\begin{align*}
 \Delta^Y_{BA} &amp; =\Delta^Y_{TT}+\Delta^Y_{TB}.
 \end{align*}\]</span></p>
-
 <div class="definition">
-<span id="def:unnamed-chunk-26" class="definition"><strong>Definition 1.9  (Time trend bias)  </strong></span>Time trend bias is the difference between the before/after comparison and the treatment on the treated parameter:
+<p><span id="def:unnamed-chunk-26" class="definition"><strong>Definition 1.9  (Time trend bias) </strong></span>Time trend bias is the difference between the before/after comparison and the treatment on the treated parameter:
 <span class="math display">\[\begin{align*}
 \Delta^Y_{TB} &amp; = \Delta^Y_{BA}-\Delta^Y_{TT} .
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 <p><span class="math inline">\(BA\)</span> uses the expected outcome in the treated group before the treatment as a proxy for the expected counterfactual outcome in the absence of the treatment in the same group.
 <span class="math inline">\(TB\)</span> is due to the fact that <span class="math inline">\(BA\)</span> uses an imperfect proxy for the counterfactual expected outcome of the treated:</p>
-
 <div class="theorem">
-<span id="thm:TB" class="theorem"><strong>Theorem 1.4  </strong></span>Time trend bias is the difference between the counterfactual expected potential outcome in the absence of the treatment among the treated and the expected outcome before the treatment in the same group.
+<p><span id="thm:TB" class="theorem"><strong>Theorem 1.4  </strong></span>Time trend bias is the difference between the counterfactual expected potential outcome in the absence of the treatment among the treated and the expected outcome before the treatment in the same group.
 <span class="math display">\[\begin{align*}
 \Delta^Y_{TB} &amp; = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
-
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
+<p><span id="unlabeled-div-9" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
 \Delta^Y_{TB} &amp; = \Delta^Y_{BA}-\Delta^Y_{TT} \\
               &amp; = \esp{Y_i|D_i=1}-\esp{Y^B_i|D_i=1}-\esp{Y_i^1-Y_i^0|D_i=1}\\
               &amp; = \esp{Y_i^0|D_i=1}-\esp{Y_i^B|D_i=1}.
 \end{align*}\]</span>
 The first and second equalities stem from the definition of both parameters.
-The third equality stems from using the switching equation: <span class="math inline">\(Y_i=Y_i^1D_i+Y_i^0(1-D_i)\)</span>, so that <span class="math inline">\(\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}\)</span>.
+The third equality stems from using the switching equation: <span class="math inline">\(Y_i=Y_i^1D_i+Y_i^0(1-D_i)\)</span>, so that <span class="math inline">\(\esp{Y_i|D_i=1}=\esp{Y^1_i|D_i=1}\)</span>.</p>
 </div>
-
 <div class="example">
-<span id="exm:unnamed-chunk-28" class="example"><strong>Example 1.15  </strong></span>In the population, <span class="math inline">\(TB\)</span> is equal to
+<p><span id="exm:unnamed-chunk-28" class="example"><strong>Example 1.15  </strong></span>In the population, <span class="math inline">\(TB\)</span> is equal to</p>
 </div>
 <p><span class="math inline">\(\Delta^y_{TB}=\Delta^y_{BA}-\Delta^y_{TT}=\)</span> 0.265 <span class="math inline">\(-\)</span> 0.172 <span class="math inline">\(=\)</span> 0.093.
 We could have computed this result using Theorem<a href="FPCI.html#thm:TB">1.4</a>:</p>
@@ -1339,55 +1305,51 @@ As a consequence, the <span class="math inline">\(BA\)</span> comparison overest
 <span class="math inline">\(TB\)</span> estimated using Theorem <a href="FPCI.html#thm:TB">1.4</a> is equal to: <span class="math inline">\(\hat{\Delta^y_{TB}}=\)</span> 6.906 <span class="math inline">\(-\)</span> 6.807 <span class="math inline">\(=\)</span> 0.099.
 This can be seen on Figure <a href="FPCI.html#fig:ploty0y1yBD">1.6</a>: the triangle in period 2 is higher than in period 1.</p>
 </div>
-<div id="temporal-confounders" class="section level4" number="1.4.2.3">
-<h4><span class="header-section-number">1.4.2.3</span> Temporal confounders</h4>
+<div id="temporal-confounders" class="section level4 hasAnchor" number="1.4.2.3">
+<h4><span class="header-section-number">1.4.2.3</span> Temporal confounders<a href="FPCI.html#temporal-confounders" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Temporal confounders make the outcomes of the treated change at the same time as the treatment status changes, thereby confounding the effect of the treatment.
 Temporal confounders are responsible for time trend bias.</p>
 <p>Over time, there are other things that change than the treatment status.
 For example, maybe sick individuals naturally recover, and thus their counterfactual health status is better than ther health status before taking the treatment.
 As a results, <span class="math inline">\(BA\)</span> might overstimate the effect of the treatment.
 It might also be that the overall level of health in the country has increased, because of increasing GDP, for example.</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-29" class="example"><strong>Example 1.16  </strong></span>In our example, <span class="math inline">\(\delta\)</span> and <span class="math inline">\(U_i^B\)</span> are the confounders.
+<p><span id="exm:unnamed-chunk-29" class="example"><strong>Example 1.16  </strong></span>In our example, <span class="math inline">\(\delta\)</span> and <span class="math inline">\(U_i^B\)</span> are the confounders.
 <span class="math inline">\(\delta\)</span> captures the overall changes in outcomes over time (business cycle, general improvement of health status).
 <span class="math inline">\(U^B_i\)</span> captures the fact that transitorily sicker individuals tend at the same time to receive the treatment and also to recover naturally.
 The <span class="math inline">\(BA\)</span> comparison incorrectly attributes both of these changes to the effect of the treatment.
-We can compute the relative contributions of both sources to the overall time-trend bias in the population.
+We can compute the relative contributions of both sources to the overall time-trend bias in the population.</p>
 </div>
 <p><span class="math inline">\(\delta\)</span> contributes for 0.05 while <span class="math inline">\(U^B_i\)</span> contributes for 0.043.</p>
 </div>
-<div id="when-does-ba-identify-tt" class="section level4" number="1.4.2.4">
-<h4><span class="header-section-number">1.4.2.4</span> When does <span class="math inline">\(BA\)</span> identify <span class="math inline">\(TT\)</span>?</h4>
+<div id="when-does-ba-identify-tt" class="section level4 hasAnchor" number="1.4.2.4">
+<h4><span class="header-section-number">1.4.2.4</span> When does <span class="math inline">\(BA\)</span> identify <span class="math inline">\(TT\)</span>?<a href="FPCI.html#when-does-ba-identify-tt" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Are there conditions under which <span class="math inline">\(BA\)</span> actually identifies <span class="math inline">\(TT\)</span>?
 The answer is yes, when there are no temporal confounders.
 When that is the case, the variation of outcomes over time is only due to the treatment and it identifies the treatment effect.</p>
 <p>More formally, we make the following assumption:</p>
-
 <div class="definition">
-<span id="def:notb" class="definition"><strong>Definition 1.10  (No time trend bias)  </strong></span>We assume the following:
+<p><span id="def:notb" class="definition"><strong>Definition 1.10  (No time trend bias) </strong></span>We assume the following:
 <span class="math display">\[\begin{align*}
 \esp{Y_i^0|D_i=1} &amp; = \esp{Y_i^B|D_i=1}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
 <p>Under Assumption <a href="FPCI.html#def:notb">1.10</a>, the expected counterfactual outcome of the treated is equal to the expected potential outcome of the untreated in the absence of the treatment.
 This yields to the following result:</p>
-
 <div class="theorem">
-<span id="thm:batt" class="theorem"><strong>Theorem 1.5  </strong></span>Under Assumption <a href="FPCI.html#def:notb">1.10</a>, <span class="math inline">\(BA\)</span> identifies the <span class="math inline">\(TT\)</span> parameter:
+<p><span id="thm:batt" class="theorem"><strong>Theorem 1.5  </strong></span>Under Assumption <a href="FPCI.html#def:notb">1.10</a>, <span class="math inline">\(BA\)</span> identifies the <span class="math inline">\(TT\)</span> parameter:
 <span class="math display">\[\begin{align*}
 \Delta^Y_{BA} &amp; = \Delta^Y_{TT}.
-\end{align*}\]</span>
+\end{align*}\]</span></p>
 </div>
-
 <div class="proof">
- <span class="proof"><em>Proof. </em></span> <span class="math display">\[\begin{align*}
+<p><span id="unlabeled-div-10" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
 \Delta^Y_{BA} &amp; = \esp{Y_i|D_i=1}-\esp{Y_i^B|D_i=1}\\
               &amp; = \esp{Y_i^1|D_i=1}-\esp{Y_i^B|D_i=1}\\
               &amp; = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1} \\
               &amp; = \Delta^Y_{TT},
 \end{align*}\]</span>
-where the second equation uses the switching equation and the third uses Assumption <a href="FPCI.html#def:notb">1.10</a>.
+where the second equation uses the switching equation and the third uses Assumption <a href="FPCI.html#def:notb">1.10</a>.</p>
 </div>
 <p>Under Assumption <a href="FPCI.html#def:notb">1.10</a> the outcomes of the treated before the treatment takes place are a good proxy for the counterfactual.
 As a consequence, <span class="math inline">\(BA\)</span> identifies <span class="math inline">\(TT\)</span>.
@@ -1400,9 +1362,8 @@ One placebo test would be to apply the <span class="math inline">\(BA\)</span> e
 A second placebo test would be to apply the <span class="math inline">\(BA\)</span> estimator to a group that does not receive the treatment.
 The untreated group is a perfectly suitable candidate for that.
 Assumption <a href="FPCI.html#def:notb">1.10</a> does not imply that there should be no change in the untreated outcomes, but detecting such a change would cast a serious doubt on the validity of Assumption <a href="FPCI.html#def:notb">1.10</a>.</p>
-
 <div class="example">
-<span id="exm:unnamed-chunk-31" class="example"><strong>Example 1.17  </strong></span>One way to generate a population in which Assumption <a href="FPCI.html#def:notb">1.10</a> holds is to shut down the two sources of confounders in our original model by setting both <span class="math inline">\(\delta=0\)</span> and <span class="math inline">\(\rho=1\)</span>.
+<p><span id="exm:unnamed-chunk-31" class="example"><strong>Example 1.17  </strong></span>One way to generate a population in which Assumption <a href="FPCI.html#def:notb">1.10</a> holds is to shut down the two sources of confounders in our original model by setting both <span class="math inline">\(\delta=0\)</span> and <span class="math inline">\(\rho=1\)</span>.</p>
 </div>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="FPCI.html#cb26-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>,<span class="fl">0.5</span>,.<span class="dv">28</span>,<span class="dv">1500</span>,<span class="dv">1</span>,<span class="fl">0.01</span>,<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="dv">0</span>,<span class="fl">0.1</span>)</span>
 <span id="cb26-2"><a href="FPCI.html#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;barmu&quot;</span>,<span class="st">&quot;sigma2mu&quot;</span>,<span class="st">&quot;sigma2U&quot;</span>,<span class="st">&quot;barY&quot;</span>,<span class="st">&quot;rho&quot;</span>,<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;sigma2epsilon&quot;</span>,<span class="st">&quot;sigma2eta&quot;</span>,<span class="st">&quot;delta&quot;</span>,<span class="st">&quot;baralpha&quot;</span>)</span>

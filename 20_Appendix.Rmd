@@ -1423,7 +1423,7 @@ Using the vector version of the CLT that we have already invoked in the proof of
 \begin{align*}
   \mathbf{V_{x\epsilon}} & = \esp{\left(\begin{array}{c}  \epsilon_i  \\	\epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)
                                   \left(\begin{array}{cccc}	\epsilon_i &	\epsilon_iD_i &  \epsilon_iT_i &  \epsilon_iD_iT_i \end{array}\right)}
-                  - \esp{\left(\begin{array}{c}  \epsilon_i  \\	\epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)}
+- \esp{\left(\begin{array}{c}  \epsilon_i  \\	\epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)}
                     \esp{\left(\begin{array}{cccc}	\epsilon_i &	\epsilon_iD_i &  \epsilon_iT_i &  \epsilon_iD_iT_i \end{array}\right)}\\
                 & = \esp{\epsilon_i^2\left(\begin{array}{cccc}
                                               1 & D_i &	T_i & D_iT_i \\
@@ -1489,7 +1489,7 @@ As a consequence, we have:
 
 using the Law of Large Numbers, Slutsky's Theorem and the fact that $\text{plim}\bar{T}_A=p_A$, the proportion of observations stemming from the After period, $\text{plim}\bar{D}_A=\text{plim}\bar{D}_B=p$ and the fact that $\frac{1}{p}\frac{1-p_A}{p_A}+\frac{1}{p}=\frac{1}{pp_A}$.
 
-Now, we can derive the asympotic distribution of $\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X'X)^{-1}\frac{\sqrt{N}}{N}X'\epsilon$.
+Now, we can derive the asymptotic distribution of $\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X'X)^{-1}\frac{\sqrt{N}}{N}X'\epsilon$.
 Using the Delta Method, we have that  $\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)\stackrel{d}{\rightarrow}\mathcal{N}\left((0,0,0,0),\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\right)$.
 So we're in for a treat: deriving the lower diagonal term in the quadratic form $\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}$.
 
@@ -1524,7 +1524,7 @@ We first need the four terms on the last line of $(1-p_A)^2(1-p)^2\sigma_{XX}^{-
             & = p(1-\frac{1}{p})\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+\frac{1}{p_A}(\frac{1}{p}-1)\sigma_{\epsilon_{1,1}}^2pp_A\\
             & = -(1-p)\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+(1-p)\sigma_{\epsilon_{1,1}}^2\\
             & = (1-p)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2(1-p_A)-\sigma_{\epsilon_{1,1}}^2p_A\right)\\
-            & = (1-p)(1-p_A)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2\right)
+            & = (1-p)(1-p_A)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2\right) \\
   \mathbf{C}& = \esp{\epsilon_j^2T_j} -\frac{1}{p}\esp{\epsilon_j^2D_jT_j} -\frac{1}{p_A}\esp{\epsilon_j^2T_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
             & = \esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)-\frac{1}{p}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
             & \phantom{=}-\frac{1}{p_A}\esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)+\frac{1}{pp_A}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
@@ -1580,3 +1580,460 @@ Finally, using the formula for $\epsilon_j$, we have:
 \end{align*}                          
 
 This proves the result.
+
+
+### Proof of Theorem \@ref(thm:EquivDIDSApop) {#proofEquivDIDSApop}
+
+The proof uses saturated models as [Angrist and Pischke(2009)](https://press.princeton.edu/books/paperback/9780691120355/mostly-harmless-econometrics).
+A saturated model is a model involving only categorical variables where the model has a separate parameter for each various sets of parameter values that
+the covariates can take. 
+We can check that Sun and Abraham's model is a saturated model. 
+Let's start with the model in repeated cross sections (with group fixed effects). 
+In the population, excluding the group of individuals that are always treated (adding this group would entail adding a separate dummy for
+each date at which they are observed, I leave that as an exercise), with $T=4$ (larger time series do not change the basic result):
+
+\begin{align*} 
+\esp{Y_{i,1}|D_i=\infty} & = \alpha \\ 
+\esp{Y_{i,2}|D_i=\infty} &= \alpha+\delta_2  \\ 
+\esp{Y_{i,3}|D_i=\infty} & = \alpha+\delta_3  \\
+\esp{Y_{i,4}|D_i=\infty} & = \alpha+\delta_4  \\ 
+\esp{Y_{i,1}|D_i=2} & = \alpha +\mu_2  \\ 
+\esp{Y_{i,2}|D_i=2} & = \alpha +\mu_2 +\delta_2 + \beta_{2,0}^{SA}\\ 
+\esp{Y_{i,3}|D_i=2} & = \alpha +\mu_2 +\delta_3 + \beta_{2,1}^{SA}  \\
+\esp{Y_{i,4}|D_i=2} & = \alpha +\mu_2 +\delta_4 + \beta_{2,2}^{SA}  \\
+\esp{Y_{i,1}|D_i=3} & = \alpha +\mu_3 +          \beta_{3,-2}^{SA}   \\
+\esp{Y_{i,2}|D_i=3} & = \alpha +\mu_3 + \delta_2   \\ 
+\esp{Y_{i,3}|D_i=3} & = \alpha +\mu_3 + \delta_3 + \beta_{3,0}^{SA}  \\ 
+\esp{Y_{i,4}|D_i=3} & = \alpha+\mu_3 + \delta_4 + \beta_{3,1}^{SA}  \\ 
+\esp{Y_{i,1}|D_i=4} & = \alpha +\mu_4 +\beta_{4,-3}^{SA}   \\ 
+\esp{Y_{i,2}|D_i=4} & = \alpha +\mu_4 + \delta_2+\beta_{4,-2}^{SA}   \\ 
+\esp{Y_{i,3}|D_i=4} & = \alpha +\mu_4 + \delta_3   \\
+\esp{Y_{i,4}|D_i=4} & = \alpha +\mu_4 + \delta_4 + \beta_{4,0}^{SA} 
+\end{align*}
+
+The model has 16 parameters to model the 16 different combinations of the regressors. 
+It is thus a saturated model.
+Let us now state the Linear Conditional Expectation Function Theorem:
+
+```{theorem,LinearCEF,name='Linear Conditional Expectation Function'} 
+Let $\esp{Y_i|X_i}=X_i'\Theta^*$ for a $K\times 1$ vector of coefficients $\Theta^*$. Then $\Theta^*=\esp{X_i'X_i}^{-1}\esp{X_i'Y_i}=\Theta^{OLS}$. 
+```
+
+Theorem \@ref(thm:LinearCEF) states that the coefficients of a model with a
+linear conditional expectation function can be obtained by using OLS. Applying
+Theorem \@ref(thm:LinearCEF) to Sun and Abraham's saturated model, we have that:
+
+\begin{align*} 
+\alpha & = \esp{Y_{i,1}|D_i=\infty}=\alpha^{OLS}  \\ 
+\delta_2 & =\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_2^{OLS}  \\ 
+\delta_3 &= \esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_3^{OLS}   \\ 
+\delta_4 & = \esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_4^{OLS}   \\ 
+\mu_2 & = \esp{Y_{i,1}|D_i=2}-\esp{Y_{i,1}|D_i=\infty}     =\mu_2^{OLS}   \\ 
+\mu_3 & = \esp{Y_{i,2}|D_i=3}-\esp{Y_{i,2}|D_i=\infty}     =\mu_3^{OLS}   \\ 
+\mu_4 & = \esp{Y_{i,3}|D_i=4}-\esp{Y_{i,3}|D_i=\infty}     =\mu_4^{OLS}   \\
+\beta_{2,0}^{SA} & = \esp{Y_{i,2}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}) =\beta_{2,0}^{OLS} \\ 
+\beta_{2,1}^{SA} & = \esp{Y_{i,3}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty})=\beta_{2,1}^{OLS} \\ 
+\beta_{2,2}^{SA} & = \esp{Y_{i,4}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty})=\beta_{2,2}^{OLS} \\ 
+\beta_{3,-2}^{SA} & =\esp{Y_{i,1}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,1}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,-2}^{OLS}\\ 
+\beta_{3,0}^{SA} & =\esp{Y_{i,3}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,0}^{OLS}\\ 
+\beta_{3,1}^{SA} & =\esp{Y_{i,4}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,1}^{OLS}\\ 
+\beta_{4,-3}^{SA} & =\esp{Y_{i,1}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,1}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,-3}^{OLS}\\ 
+\beta_{4,-2}^{SA} & =\esp{Y_{i,2}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,-2}^{OLS}\\ 
+\beta_{4,0}^{SA} & =\esp{Y_{i,4}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,0}^{OLS}
+\end{align*}
+
+This proves that Sun and Abraham's estimator is actually equal to the individual DID estimators $\beta_{d,\tau}^{SA}=\Delta^{Y}_{DID}(d,\infty,\tau,d-1)$ in the population, which completes the proof for the model with group fixed effects and
+$T=4$. 
+I leave generalizing this result to any $T$ and to the panel data model with individual fixed effects as an exercise.
+
+### Proof of Theorem \@ref(thm:EquivDIDSAsamp) {#proofEquivDIDSAsamp}
+
+Let us start with Sun and Abraham's model in repeated cross sections, with group fixed effects. 
+Here is how we can write this model with four time periods:
+
+\begin{align*} 
+Y & = X\Theta + \epsilon 
+\end{align*} 
+with 
+\begin{align*} 
+Y & =\left(\begin{array}{c}	Y_{1,1} \\ \vdots \\ Y_{N_1,1}\\ Y_{1,2} \\ \vdots \\Y_{N_2,2}\\ Y_{1,3} \\ \vdots \\ Y_{N_3,3}\\ Y_{1,4} \\ \vdots \\ Y_{N_4,4}
+\end{array}\right)  \\ 
+X & = \left(\begin{array}{cccccccccccccccc} 
+1 & D^2_1 & D^3_1 & D^4_1 & 0 & 0 & 0 & 0 & 0 & 0 & D^3_1 & 0 & 0 & D^4_1 & 0 & 0\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots &\vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_1} & D^3_{N_1} & D^4_{N_1} & 0 & 0 & 0 & 0 & 0 & 0 & D^3_{N_1} & 0 & 0 & D^4_{N_1} & 0 & 0\\ 
+1 & D^2_1 & D^3_1 & D^4_1 & 1 & 0 & 0 & D^2_1 & 0 & 0 & 0 & 0 & 0 & 0 & D^4_1 &0\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots &\vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_2} & D^3_{N_2} & D^4_{N_2} & 1 & 0 & 0 & D^2_{N_2} & 0 & 0 & 0 & 0 & 0 &0 & D^4_{N_2} & 0\\ 
+1 & D^2_1 & D^3_1 & D^4_1 & 0 & 1 & 0 & 0 & D^2_1 & 0 & 0 & D^3_1 & 0 & 0 & 0 & 0\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_3} & D^3_{N_3} & D^4_{N_3} & 0 & 1 & 0 & 0 & D^2_{N_3} & 0 & 0 & D^3_{N_3} & 0 & 0 & 0 & 0\\ 
+1 & D^2_1 & D^3_1 & D^4_1 & 0 & 0 & 1 & 0 & 0 & D^2_1 & 0 & 0 & D^3_1 & 0 & 0 & D^4_1\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_4} & D^3_{N_4} & D^4_{N_4} & 0 & 0 & 1 & 0 & 0 & D^2_{N_4} & 0 & 0 & D^3_{N_4} & 0 & 0 & D^4_{N_4} 
+\end{array}\right)\\ 
+\Theta & =\left(\begin{array}{c}	
+\alpha \\ \mu_2\\ \mu_3\\ \mu_4 \\ 
+\delta_2\\ \delta_3\\ \delta_4 \\	
+\beta^{SA}_{2,0}\\	\beta^{SA}_{2,1}\\	\beta^{SA}_{2,2}\\	
+\beta^{SA}_{3,-2}\\	\beta^{SA}_{3,0}\\	\beta^{SA}_{3,1}\\	
+\beta^{SA}_{4,-3}\\	\beta^{SA}_{4,-2}\\	\beta^{SA}_{4,0}
+\end{array}\right)\\ 
+\epsilon & =\left(\begin{array}{c}	
+\epsilon_{1,1} \\ \vdots \\\epsilon_{N_1,1}\\ \epsilon_{1,2} \\ \vdots \\ \epsilon_{N_2,2}\\ \epsilon_{1,3} \\ \vdots \\ \epsilon_{N_3,3}\\ \epsilon_{1,4} \\ \vdots \\ \epsilon_{N_4,4}
+\end{array}\right), 
+\end{align*}
+
+with $D^d_i=\uns{D_i=d}$ and $N_t$ the number of observations at time $t$. 
+If we are in a panel, each $i$ is the same across time periods. 
+If we are in a repeated cross section, the $i$ index refers to different individuals.
+This model is very difficult to solve by brute force, since its $X'X$ matrix is $16 \times 16$ and has no easy simplification on sight. 
+Here is the $X'X$ for panel data (which is slightly simpler), with $\bar{D^d}=\frac{1}{N}\sum_{i=1}^N\uns{D_i=d}$, and $N$ the number of individuals in the panel:
+
+\begin{align*} 
+X'X & = N\left(\begin{array}{cccccccccccccccc} 
+T & T\bar{D^2} & T\bar{D^3} & T\bar{D^4} & 1 & 1 & 1 & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^3} & \bar{D^3} & \bar{D^3} & \bar{D^4} & \bar{D^4} & \bar{D^4}\\
+T\bar{D^2} & T\bar{D^2} & 0           & 0          & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & 0         & 0         & 0 & 0 & 0 & 0 \\ 
+T\bar{D^3} & 0          & T\bar{D^3}  & 0          & \bar{D^3} & \bar{D^3} & \bar{D^3} & 0         & 0         & 0         & \bar{D^3} & \bar{D^3} & \bar{D^3}   & 0 & 0 & 0\\ 
+T\bar{D^4} & 0          & 0           & T\bar{D^4} & \bar{D^4} & \bar{D^4} & \bar{D^4} & 0         & 0         & 0 & 0    & 0    & 0   & \bar{D^4} & \bar{D^4} & \bar{D^4}\\ 
+1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 1         & 0         & 0         & \bar{D^2} & 0 & 0         & 0    & 0    & 0   & 0 & \bar{D^4} & 0 \\ 
+1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 0         & 1         & 0         & 0         & \bar{D^2} & 0         & 0   & \bar{D^3} & 0 & 0 & 0 & 0\\
+1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 0         & 0         & 1         & 0         & 0 & \bar{D^2} & 0   & 0          & \bar{D^3} & 0 & 0 & \bar{D^4}\\ 
+\bar{D^2} & \bar{D^2} & 0            & 0          & \bar{D^2} & 0         & 0         & \bar{D^2} & 0         & 0         & 0    & 0    & 0   & 0 & 0 & 0 \\ 
+\bar{D^2} & \bar{D^2} & 0            & 0          & 0         & \bar{D^2} & 0         & 0 & \bar{D^2} & 0         & 0    & 0    & 0   & 0 & 0 & 0\\ 
+\bar{D^2} & \bar{D^2} & 0            & 0          & 0         & 0         & \bar{D^2} & 0         & 0 & \bar{D^2} & 0    & 0    & 0   & 0 & 0 & 0 \\ 
+\bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & 0         & 0         & 0         & 0         &  0 & \bar{D^3} & 0    & 0   & 0 & 0 & 0  \\ 
+\bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & \bar{D^3} & 0         & 0         & 0         &  0 & 0         & \bar{D^3} & 0   & 0 & 0 & 0   \\ 
+\bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & 0         & \bar{D^3} & 0         & 0         &  0 & 0         & 0         & \bar{D^3} & 0 & 0 & 0 \\ 
+\bar{D^4} & 0         & 0            & \bar{D^4}  & 0         & 0         & 0         & 0         & 0         &  0 & 0         & 0         &  0        & \bar{D^4} & 0 & 0 \\ 
+\bar{D^4} & 0         & 0            & \bar{D^4}  & \bar{D^4} & 0         & 0         & 0         & 0         & 0        & 0         & 0         &  0        & 0 & \bar{D^4} & 0 \\ 
+\bar{D^4} & 0         & 0            & \bar{D^4}  & 0         & 0         & \bar{D^4} & 0         & 0         &  0        & 0         & 0         &  0        & 0 & 0 & \bar{D^4} 
+\end{array}\right) 
+\end{align*}
+
+The epiphany comes when you are able to write this model with a separate constant, time and group dummies for each separate treated group for which we want to estimate the DID model for. 
+We have 9 separate interaction parameters $\beta^{SA}_{d,\tau}$ to estimate. We are thus going to estimate $9 \times 4$ parameters total (*i.e.* run 9 separate regressions with four parameters, but all at once). 
+We thus have to write a $36 \times 36$ $X'X$ matrix. 
+The key is that this matrix is going to be block diagonal, with $4 \times 4$ blocks that are identical to the blocks of the $X'X$ matrix in the case of a simple OLS DID estimator with two time periods. 
+Also, the parameters that are redundant in this model (*i.e.* that appear several times at different places) will be estimated in exactly the same way, which shows that the two formulations of the model ($16 \times 16$ and $36 \times 36$) are equivalent and estimate the exact same set of
+16 parameters.
+In order to see how this works (and to prove the result), let's write the model for $\beta^{SA}_{2,0}$. 
+To be able to do that, we are going to order all the observations in each time period by the opposite of the treatment group to which they belong. 
+We also denote $N_t^{d}$ the number of observations of group $D_i=d$ in period $t$, $D^d_{i,t}=\uns{D_i=d}$ and $T^{d+\tau}_{i,t}=\uns{d+\tau=t}$. 
+With these notations, we have:
+
+\begin{align*} 
+\underbrace{\left(\begin{array}{c} 
+Y_{1,1} \\	\vdots \\	Y_{N_1^{\infty},1} \\Y_{N_1^{\infty}+1,1} \\	\vdots \\	Y_{N_1^{\infty}+N_1^{2},1} \\ Y_{1,2} \\	\vdots \\	Y_{N_2^{\infty},2} \\Y_{N_2^{\infty}+1,2} \\	\vdots \\	Y_{N_2^{\infty}+N_2^{2},2} 
+\end{array}\right)}_{Y_{2,0}} & = 
+\underbrace{\left(\begin{array}{cccc} 
+1 & D^2_{1,1} & T^2_{1,1} & D^2_{1,1}T^2_{1,1}\\ \vdots & \vdots & \vdots & \vdots\\
+1 & D^2_{N_1^{\infty},1} & T^2_{N_1^{\infty},1} & D^2_{N_1^{\infty},1}T^2_{N_1^{\infty},1} \\ 
+1 & D^2_{N_1^{\infty}+1,1} & T^2_{N_1^{\infty}+1,1} & D^2_{N_1^{\infty}+1,1}T^2_{N_1^{\infty}+1,1} \\ 
+\vdots & \vdots & \vdots & \vdots\\ 
+1 & D^2_{N_1^{\infty}+N_1^{2},1} & T^2_{N_1^{\infty}+N_1^{2},1} & D^2_{N_1^{\infty}+N_1^{2},1}T^2_{N_1^{\infty}+N_1^{2},1} \\ 
+1 & D^2_{1,2} & T^2_{1,2} & D^2_{1,2}T^2_{1,2}\\ \vdots & \vdots & \vdots & \vdots\\ 
+1 & D^2_{N_1^{\infty},2} & T^2_{N_1^{\infty},2} & D^2_{N_1^{\infty},2}T^2_{N_1^{\infty},2} \\ 
+1 & D^2_{N_1^{\infty}+1,2} & T^2_{N_1^{\infty}+1,2} & D^2_{N_1^{\infty}+1,2}T^2_{N_1^{\infty}+1,2} \\ 
+\vdots & \vdots & \vdots & \vdots\\ 1 & D^2_{N_1^{\infty}+N_1^{2},2} & T^2_{N_1^{\infty}+N_1^{2},2} & D^2_{N_1^{\infty}+N_1^{2},2}T^2_{N_1^{\infty}+N_1^{2},2} 
+\end{array}\right)}_{X_{2,0}}
+\underbrace{\left(\begin{array}{c}	
+\tilde\alpha_{2,0} \\ \tilde\mu_{2,0} \\ \tilde\delta_{2,0} \\	\beta^{SA}_{2,0} \end{array}\right)}_{\Theta_{2,0}} + 
+\underbrace{\left(\begin{array}{c} 
+\epsilon_{1,1} \\	\vdots \\	\epsilon_{N_1^{\infty},1} \\\epsilon_{N_1^{\infty}+1,1} \\	\vdots \\	\epsilon_{N_1^{\infty}+N_1^{2},1} \\ \epsilon_{1,2} \\	\vdots \\	\epsilon_{N_2^{\infty},2} \\\epsilon_{N_2^{\infty}+1,2} \\	\vdots \\	\epsilon_{N_2^{\infty}+N_2^{2},2} 
+\end{array}\right)}_{\epsilon_{2,0}}
+\end{align*}
+
+Now, we can write 9 such models, one for each $\beta^{SA}_{d,\tau}$. 
+If we stack the $Y_{d,\tau}$ on top of each other, starting with $d=2$ and $\tau=0$, and we stack in the same way the $\Theta_{d,\tau}$ vectors, and, finally, we regroup all the $X_{d,\tau}$ matrices in a block diagonal matrix, we have a new model
+$\tilde{Y}  = \tilde{X}\tilde{\Theta} + \tilde{\epsilon}$. 
+The stacked model has $4 \times 9=36$ parameters while the original model has 16 parameters. 
+For the two models to be identical, it has to be that there exists $36-16=20$ direct restrictions on the parameters of the stacked model. 
+Using the fact that some parts of the data set are duplicated in teh stack model, we can determine the link between the parameters in the stacked model and the ones in the original model. 
+For example, we know that $Y_{1,1}=\tilde{\alpha}_{2,0}+\epsilon_{1,1}=\tilde{\alpha}_{2,1}+\epsilon_{1,1}=\tilde{\alpha}_{2,2}+\epsilon_{1,1}=\alpha+\epsilon_{1,1}$.
+As a consequence, we have $\tilde{\alpha}_{2,0}=\tilde{\alpha}_{2,1}=\tilde{\alpha}_{2,2}=\alpha$. 
+Using similar sets of restrictions, we can also show that: $\tilde\delta_{2,0}=\delta_2$, $\tilde\delta_{2,1}=\delta_3$ and $\tilde\delta_{2,2}=\delta_4$; $\tilde{\mu}_{d,\tau}=\mu_d$, $\forall d,\tau$; $\tilde{\alpha}_{3,-2}=\tilde{\alpha}_{3,0}=\tilde{\alpha}_{3,1}=\alpha+\delta_2$;
+$\tilde{\alpha}_{4,-3}=\tilde{\alpha}_{4,-2}=\tilde{\alpha}_{4,0}=\alpha+\delta_3$; $\tilde\delta_{3,-2}=-\delta_2$; $\tilde\delta_{3,0}=\delta_3-\delta_2$; $\tilde\delta_{3,1}=\delta_4-\delta_2$; $\tilde\delta_{4,-3}=-\delta_3$; $\tilde\delta_{4,-2}=\delta_2-\delta_3$; $\tilde\delta_{4,0}=\delta_4-\delta_3$.
+We have thus shown that every single parameter in the stacked model can be derived from the parameters in the original model. What is left to check now is that the estimation of the stacked model by OLS abides by the constraints
+implied by these equalities.
+In order to complete the proof, we make use of the fact that [the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block](https://en.wikipedia.org/wiki/Block_matrix). 
+Using the proof of Theorem \@ref(thm:asympnoiseDIDCross) (especially the beginning of the proof, which derives the OLS DID estimator in repeated cross sections of different sizes), we can now show that:
+
+\begin{align*} 
+\hat{\tilde{\alpha}}^{OLS}_{d,\tau} & = \bar{Y}^{\infty}_{d-1}\\
+\hat{\tilde{\mu}}^{OLS}_{d,\tau} & = \bar{Y}^{d}_{d-1}-\bar{Y}^{\infty}_{d-1}\\
+\hat{\tilde{\delta}}^{OLS}_{d,\tau} & =
+\bar{Y}^{\infty}_{d+\tau}-\bar{Y}^{\infty}_{d-1}\\ \hat{\beta}^{SA}_{d,\tau} & =
+\bar{Y}^{d}_{d+\tau}-\bar{Y}^{d}_{d-1}-(\bar{Y}^{\infty}_{d+\tau}-\bar{Y}^{\infty}_{d-1}).
+\end{align*}
+
+These results show that all the constraints on the parameters of the stacked model are verified (I leave this as an exercise). 
+The last equality proves the result for the OLS DID model in repeated cross sections. 
+The proof for panel data and for the First Difference estimator, the Within estimator and the Least Squares Dummy Variables estimator follows similar lines: the models can be written such that the $\tilde{X}$ matrix is block diagonal. 
+Using Theorem \@ref(thm:EstimDID) then proves the result for four time periods. 
+I leave the generalization to an arbitrary number of time periods $T$ as an exercise.
+
+### Proof of Theorem \@ref(thm:asympnoiseSACross) {#proofasympnoiseSACross}
+
+Using the beginning of the proof of Lemma \@ref(lem:asympOLS), we know that: $\sqrt{N}(\hat{\tilde\Theta}_{OLS}-\tilde\Theta)=N(\tilde{X}'\tilde{X})^{-1}\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}$.
+Using Slutsky's Theorem, we know that we can study both terms separately (see the same proof of Lemma \@ref(lem:asympOLS)). 
+$N(\tilde{X}'\tilde{X})^{-1}$ can be derived rather directly from the fact that Sun and Abraham model can be written as a block diagonal matrix, as shown in the proof of Theorem \@ref(thm:EquivDIDSAsamp). 
+The most difficult part is going to be to derive the distribution of $\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}$.
+
+Let us start with $N(\tilde{X}'\tilde{X})^{-1}$.
+Let us define $N_{t,d}$ the number of observations observed in group $d$ at period $t$. 
+We also define $N^B_{d,\tau}=N_{d-1,\infty}+N_{d-1,d}$ the number of observations used to estimate $\hat{\beta}^{SA}_{d,\tau}$ that are observed in the reference (or before) period and $N^A_{d,\tau}=N_{d+\tau,\infty}+N_{d+\tau,d}$ the number of observations used to estimate $\hat{\beta}^{SA}_{d,\tau}$ that are observed in the after period. 
+We also define $N^{SA}_{d,\tau}=N^A_{d,\tau}+N^B_{d,\tau}$, the number of observations used to estimate $\hat{\beta}^{SA}_{d,\tau}$. 
+We also define $\bar{T}_A^{d,\tau}=\frac{N^A_{d,\tau}}{N^{SA}_{d,\tau}}$, $k^{d,\tau}=\frac{N^B_{d,\tau}}{N^{A}_{d,\tau}}=\frac{1-\bar{T}_A^{d,\tau}}{\bar{T}_A^{d,\tau}}$. 
+We let $\bar{D}_A^{d,\tau}$ and $\bar{D}_B^{d,\tau}$ denote the proportion of treated observations in the after and before periods used to estimate $\hat{\beta}^{SA}_{d,\tau}$. 
+We also define $\bar{P}^{d,\tau}=\frac{N^{SA}_{d,\tau}}{N}$ the proportion of observations used to estimate $\hat{\beta}^{SA}_{d,\tau}$. 
+We also have: $\text{plim}\bar{P}^{d,\tau}=p^{d,\tau}$, $\text{plim}\bar{D}_A^{d,\tau}=\text{plim}\bar{D}_B^{d,\tau}=p^{d,\tau}_D$ and $\text{plim}\bar{T}_A^{d,\tau}=p^{d,\tau}_A$. $p^{d,\tau}=\Pr(D^{d,\tau}_i=1)$, with $D^{d,\tau}_i=\uns{(D_i=d\lor D_i=\infty)\land(T_i=d-1\lor T_i=d+\tau)}$ a dummy indicating that a unit in the population belongs to the set of units used to identify $\beta^{SA}_{d,\tau}$. $p^{d,\tau}_D=\Pr(D_i=d|D^{d,\tau}_i=1)$ is the proportion of treated units among the set of units used to identify $\beta^{SA}_{d,\tau}$. 
+$p^{d,\tau}_A=\Pr(T_i=d+\tau|D^{d,\tau}_i=1)$ is the proportion of units belonging to the after period among the set of units used to identify $\beta^{SA}_{d,\tau}$. 
+Finally, let $(X'X)^{-1}_{d,\tau}$ denote the block of the matrix $(\tilde{X}'\tilde{X})^{-1}$ which is used to estimate $\hat{\beta}^{SA}_{d,\tau}$. 
+With all these definitions, we can now follow the proof of Theorem \@ref(thm:asympnoiseDIDCross) in order to derive the following result: 
+
+\begin{align*}
+\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau} &= \text{plim}N(X'X)^{-1}_{d,\tau} = \frac{1}{p^{d,\tau}(1-p^{d,\tau}_A)(1-p^{d,\tau}_D)}
+\left(\begin{array}{cccc}
+1 & -1 & -1 & 1\\
+-1 & \frac{1}{p^{d,\tau}_D} & 1 & -\frac{1}{p^{d,\tau}_D} \\
+-1 & 1 & \frac{1}{p^{d,\tau}_A} & -\frac{1}{p^{d,\tau}_A} \\
+1 & -\frac{1}{p^{d,\tau}_D} & -\frac{1}{p^{d,\tau}_A}  & \frac{1}{p^{d,\tau}_Dp^{d,\tau}_A}
+\end{array}\right)
+\end{align*}
+
+Using the fact that [the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block](https://en.wikipedia.org/wiki/Block_matrix), we now know
+$\text{plim}N(\tilde{X}'\tilde{X})^{-1}=\sigma_{\tilde{X}\tilde{X}}^{-1}$ is block diagonak matrix with blocks equal to $\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}$.
+
+Let us now turn to $\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}$. 
+In order to derive its distribution, we have to write Sun and Abraham model in a repeated cross section with the observations grouped by blocks corresponding to the parameters they help to estimate. 
+This model can be written as:
+
+\begin{align*}
+  Y_{j}D^{d,\tau}_j &  = \tilde\alpha^{d,\tau}D^{d,\tau}_j + \tilde\mu_{d,\tau}\uns{D_{j}=d}D^{d,\tau}_j + \tilde\delta_{d,\tau}\uns{T_j=d+\tau}D^{d,\tau}_j \\
+                    & \phantom{=}  +  \beta_{d,\tau}^{SA}\uns{D_{i}=d}\uns{T_j=d+\tau}D^{d,\tau}_j  + \tilde\epsilon_{j}D^{d,\tau}_j,
+\end{align*}
+
+with:
+
+\begin{align*}
+\tilde\epsilon_{j} & = Y_{j}-\left(\esp{Y^0_{j}|D_j=\infty,T_j=d-1}\right.\\
+                          & \phantom{=Y_{j}-\left(\right.}+\uns{D_j=d}(\esp{Y^0_{j}|D_j=d,T_j=d-1}-\esp{Y^0_{j}|D_j=\infty,T_j=d-1})
+                          & \phantom{=Y_{j}-\left(\right.}+\uns{T_j=d+\tau}(\esp{Y^0_{j}|D_j=\infty,T_j=d+\tau}-\esp{Y^0_{j}|D_j=\infty,T_j=d-1})\\
+                          & \phantom{=Y_{j}-\left(\right.}+\uns{D_{j}=d}\uns{T_j=d+\tau}(\esp{Y^1_{j}|D_j=d,T_j=d+\tau}-\esp{Y^0_{j}|D_j=d,T_j=d-1}\\
+                          & \phantom{=Y_{j}-\left(\right.+\uns{D_{j}=d}\uns{T_j=d+\tau}}\left.-(\esp{Y^0_{j}|D_j=\infty,T_j=d+\tau}-\esp{Y^0_{j}|D_j=\infty,T_j=d-1}))\right).
+\end{align*}
+
+It is pretty straightforward to prove that $\esp{\tilde\epsilon_{j}D^{d,\tau}_j}=0$.
+For that, note that $D^{d,\tau}_j=f(D_j,T_j)$ so that conditioning on $D^{d,\tau}_j$ is irrelevant when also conditioning on $(D_j,T_j)$.
+Then, check that $\esp{\tilde\epsilon_{j}D^{d,\tau}_j\uns{D_{j}=d}\uns{T_j=d+\tau}}=0$.
+The same thing holds for $\esp{\tilde\epsilon_{j}D^{d,\tau}_j\uns{T_j=d+\tau}}=0$ and for $\esp{\tilde\epsilon_{j}D^{d,\tau}_j\uns{D_{j}=d}}=0$, which proves the result.
+
+It can also be shown that $\esp{\tilde\epsilon_{j}D^{d,\tau}_jD^{d',\tau'}_j}=0$, with either $j\neq j'$ or $\tau\neq \tau'$ or both.
+If it is the case that $D^{d,\tau}_j\Ind D^{d',\tau'}_j$, then the term is zero.
+If $D^{d,\tau}_j$ and $D^{d',\tau'}_j$ are not independent, by definition of $D^{d,\tau}_j$, $\esp{\tilde\epsilon_{j}D^{d,\tau}_jD^{d',\tau'}_j}$ can only involve the following terms: $\esp{\tilde\epsilon_{j}|D_j=d,T_j=d+\tau}$, $\esp{\tilde\epsilon_{j}|D_j=d,T_j=d-1}$, $\esp{\tilde\epsilon_{j}|D_j=\infty,T_j=d+\tau}$ and $\esp{\tilde\epsilon_{j}|D_j=\infty,T_j=d-1}$, and all of these terms are equal to zero.
+
+Using the vector version of the Central Limit Theorem that we have already used in the proof of Theorem \@ref(thm:asympnoiseDIDCross), we thus have that $\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}\sim\mathcal{N}(\mathbf{0},\mathbf{V_{\tilde{x}\tilde{\epsilon}}})$.
+Using the Delta Method, we have that  $\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)\stackrel{d}{\rightarrow}\mathcal{N}\left(\mathbf{0},\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}\right)$.
+In order to prove the result, we simply need to derive the fourth term on the diagonal of each $4\times 4$ block of $\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}$.
+Since $\sigma_{\tilde{X}\tilde{X}}^{-1}$ is block diagonal, the $4\times 4$ blocks of $\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}$ are equal to $\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}\mathbf{V}^{d,\tau}_{\mathbf{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}$, with (following the proof of Theorem \@ref(thm:asympnoiseDIDCross)):
+
+\begin{align*}
+  \mathbf{V}^{d,\tau}_{\mathbf{\tilde{x}\tilde{\epsilon}}} & =
+                                        \esp{\epsilon_j^2D^{d,\tau}_j\left(\begin{array}{cccc}
+                                              1 & D^d_j &	T^{d,\tau}_j & D^d_jT^{d,\tau}_j \\
+                                              D^d_j & D^d_j &	D^d_jT^{d,\tau}_j & D^d_jT^{d,\tau}_j \\
+                                              T^{d,\tau}_j & D^d_jT^{d,\tau}_j &	T^{d,\tau}_j & D^d_jT^{d,\tau}_j \\
+                                              D^d_jT^{d,\tau}_j & D^d_jT^{d,\tau}_j &	D^d_jT^{d,\tau}_j & D^d_jT^{d,\tau}_j
+                                            \end{array}\right)},
+\end{align*}
+
+with $D^d_j=\uns{D_{j}=d}$ and $T_j^{d,\tau}=\uns{T_j=d+\tau}D^{d,\tau}_j$.
+Following the proof of Theorem \@ref(thm:asympnoiseDIDCross) proves the result.
+
+### Proof of Theorem \@ref(thm:asympnoiseSATTCross) {#proofasympnoiseSATTCross}
+
+The key to the proof relies on the covariance terms.
+The covariance terms come from the off-$4\times 4$-block-diagonal elements of the $\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}$ matrix.
+They are due to the fact that the same data are used repeatedly to estimate the $\beta^{SA}_{d,\tau}$ parameters.
+For example, the observations from the never treated group are used as benchmarks for the estimation of $\beta^{SA}_{2,0}$, $\beta^{SA}_{2,1}$ and $\beta^{SA}_{2,2}$.
+The same observations are used as post-treatment observations for the estimation of $\beta^{SA}_{2,0}$, $\beta^{SA}_{3,-2}$ and $\beta^{SA}_{4,-3}$.
+
+In order to rigorously derive these covariance terms, we need to derive the off-$4\times 4$-block-diagonal elements of the $\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}$ matrix in the proof of Theorem \@ref(thm:asympnoiseSACross).
+For two sets of observations used to estimate $\beta^{SA}_{d,\tau}$ and $\beta^{SA}_{d',\tau'}$, $d\neq d'$ or $\tau\neq\tau'$, we only need the last line of the off-$4\times 4$-block-diagonal covariance matrix of $\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}$.
+Indeed, using results in the proof of Theorem \@ref(thm:asympnoiseSACross), we can show that:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \frac{1}{p^{d,\tau}p^{d',\tau'}(1-p_A^{d,\tau})(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \\
+                & \phantom{=}  \left(\mathbf{A}_4-\frac{1}{p_D^{d,\tau}}\mathbf{B}_4-\frac{1}{p_A^{d,\tau}}\mathbf{C}_4+\frac{1}{p_A^{d,\tau}p_D^{d,\tau}}\mathbf{D}_4\right),
+\end{align*}
+
+with:
+
+\begin{align*}
+  \mathbf{A}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}}\\
+  \mathbf{B}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}\\
+  \mathbf{C}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}}\\
+\mathbf{D}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}}
+\end{align*}
+
+Let us start with $\mathbf{A}_4$'s first term, $\esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}}$.
+Note first that if $d=d'$, we have to have $\tau\neq\tau'$, otherwise the term would be on the diagonal.
+As a consequence, with $d=d'$, we can have only two configurations for which $D_j^{d',\tau'}D_j^{d,\tau}=1$, and they both correspond to a baseline observation ($T_j=d-1$) either for the control group ($D_j=\infty$) or for the treated group ($D_j=d$).
+In that case, we thus have:
+
+\begin{align*}
+\esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \left(\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})\right.\\
+                                            & \phantom{=}\left.+\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}\right)p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'},
+\end{align*}
+
+with $p_D^{d,\tau,d',\tau'}$ the proportion of treated individuals in the group such as $D_j^{d',\tau'}D_j^{d,\tau}=1$ and $p_{d-1}^{d,\tau,d',\tau'}$ is the proportion of observations observed in period $d-1$ among the observations such as $D_j^{d',\tau'}D_j^{d,\tau}=1$ and $p^{d,\tau,d',\tau'}$ the proportion of observations such as $D_j^{d',\tau'}D_j^{d,\tau}=1$.
+
+When $d\neq d'$, we have three possible cases: $d-1=d'+\tau'$, $d'-1=d+\tau$ or $d'+\tau'=d+\tau$.
+Because the treated groups are different in that case, the only possible correspondence in these cases is due to the control group, with the After period for one treated group being the Before period for another treated group or the After periods being the same for both groups.
+If $d-1=d'+\tau'$, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'},
+\end{align*}
+
+where $p_{d-1}^{d,\tau,d',\tau'}$ is the proportion of observations observed in period $d-1$ among the observations such as $D_j^{d',\tau'}D_j^{d,\tau}=1$.
+
+If $d'-1=d+\tau$, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Finally, if $d'+\tau'=d+\tau$, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Let us now look at the next term: $\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D_j^{d,\tau}}$.
+Here, there is only one case that yields a non zero term, when $d=d'$ (all the other configurations involve only the untreated group and thus have $D^{d'}_j=0$).
+In that case, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d'-1}|D_i=d'}p_D^{d,\tau,d',\tau'}p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Let us now look at the next term: $\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}}$.
+Here, there are two cases that yield a non zero term, when $d-1=d'+\tau'$ and when $d'+\tau'=d+\tau$ (all the other configurations involve only the Before period and thus have $T^{d',\tau'}_j=0$).
+In both case, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d'+\tau'}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'+\tau'}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Let us now look at the next term: $\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}}$.
+This term is equal to zero since there is no treated observation observed in a post-treatment period such that $D_j^{d',\tau'}D_j^{d,\tau}=1$.
+
+Let us now move on to $\mathbf{B}_4$.
+For $\esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}$ to be non zero, we have to have that $d=d'$ (otherwise, $D_j^d=0$).
+The only corresponding nonzero case corresponds to a baseline observation for the treated group:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} & = \var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+The next term ($\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}$) is the same since, with $d=d'$, $D_j^d=D_j^{d'}$.
+The last two terms of $\mathbf{B}_4$ are null everywhere.
+This is because it can only be that $d=d'$ (since $D_j^d=1$) and it cannot be a baseline observation (since $T^{d,\tau'}_j=1$).
+Since treated observations appear only once for each $d$, $\tau\neq\tau'\Rightarrow\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}=0$.
+
+Let us now move on to $\mathbf{C}_4$.
+For the first term $\esp{\epsilon_j^2D_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}}$, we cannot have nonzero terms when $d=d'$, since this case involves only baseline period variances and this contradicts $T^{d,\tau}_j=1$, and thus the term is null in that case.
+The only possible nonzero cases involve $d'-1=d+\tau$ or $d'+\tau'=d+\tau$.
+In that case, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+The next term in $\mathbf{C}_4$ is zero everywhere since it involves the same term as above plus the additional requirement that $D^{d'}_j=1$.
+Since this entails that observations have to belong to a treatment group, and the previous term only includes terms from the control group, this term has to be zero everywhere.
+
+The term $\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}}$ is non zero only when $d'+\tau'=d+\tau$ (it is the same as the first term in $\mathbf{C}_4$ with the added constraint that $T^{d',\tau'}_j=1$).
+We thus have:
+\begin{align*}
+  \esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+The last term in $\mathbf{C}_4$ everywhere since it is a subset of the second term, which is already zero.
+
+Finally, all the terms in $\mathbf{D}_4$ are equal to zero.
+This is because $T^{d,\tau}_jD^{d}_j=1$ implies that we cannot have $d=d'$ (because the only nonzero terms would then be the ones in the baseline period, which contradicts the fact that $T^{d,\tau}_j=1$).
+The remaining potential nonzero configurations only concern the control group, which runs counter $D^{d}_j=1$.
+Hence the result.
+
+Collecting terms, we now have, when $d=d'$:
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}\\
+             & \phantom{=}+\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p_D^{d',\tau'}})\\
+  \mathbf{B}_4 & = \var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p_D^{d',\tau'}})\\
+  \mathbf{C}_4 & = 0 \\
+\mathbf{D}_4 & = 0,
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}}{p^{d,\tau}p^{d',\tau'}} \left(\frac{\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \right.\\
+                & \phantom{=}\left.+\frac{\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})p_D^{d,\tau}p_D^{d',\tau'}}\right).
+\end{align*}
+
+Alternatively, when $d+\tau=d'+\tau'$, we have:
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p^{d',\tau'}_A}) \\
+  \mathbf{B}_4 & = 0\\
+  \mathbf{C}_4 & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p^{d',\tau'}_A})\\
+\mathbf{D}_4 & = 0
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \frac{p^{d,\tau,d',\tau'}p_{d+\tau}^{d,\tau,d',\tau'}\var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}
+\end{align*}
+
+Finally, when $d-1=d'+\tau'$, we have:
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p^{d',\tau'}_A})\\
+  \mathbf{B}_4 & = 0\\
+  \mathbf{C}_4 & = 0\\
+\mathbf{D}_4 & = 0
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = -\frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}(1-p_A^{d,\tau})p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}.
+\end{align*}
+
+And when $d'-1=d+\tau$, we have:
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'} \\
+  \mathbf{B}_4 & = 0\\
+  \mathbf{C}_4 & = \var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'} \\
+\mathbf{D}_4 & = 0
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = -\frac{p^{d,\tau,d',\tau'}p_{d'-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}
+\end{align*}
+
+This proves the result.
+
+
