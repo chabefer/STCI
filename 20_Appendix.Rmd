@@ -1769,9 +1769,90 @@ Using the proof of Theorem \@ref(thm:asympnoiseDIDCross) (especially the beginni
 
 These results show that all the constraints on the parameters of the stacked model are verified (I leave this as an exercise). 
 The last equality proves the result for the OLS DID model in repeated cross sections. 
-The proof for panel data and for the First Difference estimator, the Within estimator and the Least Squares Dummy Variables estimator follows similar lines: the models can be written such that the $\tilde{X}$ matrix is block diagonal. 
-Using Theorem \@ref(thm:EstimDID) then proves the result for four time periods. 
-I leave the generalization to an arbitrary number of time periods $T$ as an exercise.
+The proof for panel data follows exactly the same lines.
+
+Let us now turn to the First Difference estimator in panel data.
+The First Difference transformation of Sun and Abraham model which uses $d-1$ as the benchmark period can be written as follows (for $\tau\neq-1$):
+
+\begin{align*}
+  Y_{i,d+\tau} - Y_{i,d-1} & = \alpha_{d,\tau}^{FD} + \beta_{d,\tau}^{FD}\uns{D_i=d} + \epsilon^{FD}_{i,d+\tau},
+\end{align*}
+
+with:
+
+\begin{align*}
+  \alpha_{d,\tau}^{FD} & = \delta_{d+\tau} - \delta_{d-1}\\
+  \beta_{d,\tau}^{FD} & = \beta_{d,\tau}^{SA}\\
+  \epsilon^{FD}_{i,d+\tau} & = \epsilon^{SA}_{i,d+\tau}-\epsilon^{FD}_{i,d-1}.
+\end{align*}
+
+Using the same trick as for the model in repeated cross sections, we can rewrite this model as stacked model with a block diagonal matrix of covariates.
+Here is the block corresponding to the estimation of $\beta^{SA}_{2,0}$:
+
+\begin{align*} 
+\underbrace{\left(\begin{array}{c} 
+Y_{1,2}-Y_{1,1}  \\	\vdots \\	Y_{N^{\infty},2}-	Y_{N^{\infty},1} \\Y_{N^{\infty}+1,2}-Y_{N^{\infty}+1,1} \\	\vdots \\	Y_{N^{\infty}+N^{2},2} -Y_{N^{\infty}+N^{2},1}
+\end{array}\right)}_{\Delta Y_{2,0}} & = 
+\underbrace{\left(\begin{array}{cccc} 
+1 & 0 \\ 
+\vdots & \vdots\\ 
+1 & 0 \\ 
+1 & 1 \\ 
+\vdots & \vdots\\ 
+1 & 1 
+\end{array}\right)}_{\Delta X_{2,0}}
+\underbrace{\left(\begin{array}{c}	
+\alpha^{FD}_{2,0} \\ 	\beta^{FD}_{2,0} \end{array}\right)}_{\Theta^{FD}_{2,0}} + 
+\underbrace{\left(\begin{array}{c} 
+\epsilon^{FD}_{1,2} \\	\vdots \\	\epsilon^{FD}_{N^{\infty},2} \\\epsilon^{FD}_{N^{\infty}+1,2} \\	\vdots \\	\epsilon^{FD}_{N^{\infty}+N^{2},2} 
+\end{array}\right)}_{\epsilon^{FD}_{2,0}}
+\end{align*}
+
+Stacking all the vectors of outcomes, the vector of coefficients and the vector of residuals on top of each other, and organizing the matrices of covariates in a block diagonal matrix, we obtain the stacked Sun and Abraham model in first differences: $\Delta Y = \Delta X\Theta^{FD} + \epsilon^{FD}$.
+Using the fact that [the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block](https://en.wikipedia.org/wiki/Block_matrix) and the proof of Lemma \@ref(lem:WWOLS), we can show that $\hat\beta^{FD}_{d,\tau}$ is the with/without estimator applied to $Y_{i,d+\tau} - Y_{i,d-1}$.
+The result follows.
+
+Let us now study the Within estimator of Sun and Abraham model in panel data.
+The within mean of Sun and Abraham model depends on the group the observation belongs to.
+For $i$ such that $D_i=d$, we have:
+
+\begin{align*}
+  \underbrace{\frac{1}{T}\sum_{t=1}^TY_{i,t}}_{\bar{Y}_{i,.}} = \underbrace{\frac{1}{T}\sum_{t=1}^T\delta_{t}}_{\bar{\delta}}+ \underbrace{\frac{1}{T}\sum_{\tau\neq-1}^T\beta_{d,\tau}^{SA}}_{\bar{\beta}_d} \uns{D_i=d}+\underbrace{\frac{1}{T}\sum_{t=1}^T\epsilon_{i,t}}_{\bar{\epsilon}_{i,.}}.
+\end{align*}
+
+As a consequence, for $i$ such that $D_i=d$ or $D_i=\infty$, we can write the within transformation of Sun and Abraham model as follows:
+
+\begin{align*}
+  Y_{i,d+\tau}-\bar{Y}_{i,.} & = \underbrace{\delta_{d-1}-\bar{\delta}}_{\alpha_d^{FE}}+\underbrace{(\delta_{d+\tau}-\delta_{d-1})}_{\delta_{d+\tau}^{FE}}\uns{T_i=d+\tau}\underbrace{-\bar{\beta}_d}_{\mu_d^{FE}}\uns{D_i=d} +\beta_{d,\tau}^{SA}\uns{D_i=d}\uns{T_i=d+\tau}+\epsilon_{i,t}-\bar{\epsilon}_{i,.}.
+\end{align*}
+
+The within transformation of Sun and Abraham model is thus equivalent to the OLS DID model applied to the within-transformed outcomes $Y_{i,d+\tau}-\bar{Y}_{i,.}$.
+Building a stacked model of the within transformed Sun and Abraham model and using the fact that [the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block](https://en.wikipedia.org/wiki/Block_matrix) along with Theorem \@ref(thm:EstimDID) proves that:
+
+\begin{align*}
+\hat\beta_{d,\tau}^{SA} & = \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-\bar{Y}_{i,.}-(Y_{i,d-1}-\bar{Y}_{i,.}))\uns{D_i=d}}{\sum_{i=1}^{N}\uns{D_i=d}} \\
+                            & \phantom{=} - \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-\bar{Y}_{i,.}-(Y_{i,d-1}-\bar{Y}_{i,.}))\uns{D_i=\infty}}{\sum_{i=1}^{N}\uns{D_i=\infty}}\\
+                            & = \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-Y_{i,d-1})\uns{D_i=d}}{\sum_{i=1}^{N}\uns{D_i=d}} \\
+                            & \phantom{=} - \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-Y_{i,d-1})\uns{D_i=\infty}}{\sum_{i=1}^{N}\uns{D_i=\infty}},
+\end{align*}
+
+which proves the result.
+
+Let us finally look at the Least Squares Dummy Variables estimator.
+Let's denote $X_{\mu}$ the matrix of individual dummies in the LSDV estimator.
+We are going to apply Theorem \@ref(thm:FWL), *i.e.* Frish-Waugh-Lovell Theorem, partialling out these individual dummies from the list of regressors.
+First, we have $(X'_{\mu}X_{\mu})^{-1}=\frac{1}{T}I_N$ where $I_N$ is the identity matrix of dimension $N$ and $T$ is the total number of time periods in the panel.
+Second, we have that $M_{\mu}Y=X_{\mu}(X'_{\mu}X_{\mu})^{-1}X'_{\mu}Y=\left(\dots,Y_{i,t}-\bar{Y}_{i,.},\dots\right)$.
+For the time fixed effects, we have $M_{\mu}X_{-\mu,T}$ a matrix with $1-\frac{1}{T}$ where $T_{i,t}=1$ and $-\frac{1}{T}$ otherwise.
+For the interactive treatment dummies, we have $M_{\mu}X_{-\mu,DT}$ a matrix with $D^d_i(1-\frac{1}{T})$ where $D^d_i$ appeared in the original $X_{-\mu,DT}$ matrix (the last 9 columns of the $X$ matrix) and $-\frac{D^d_i}{T}$ otherwise.
+As a consequence of Theorem \@ref(thm:FWL), we can rewrite the LSDV model as follows:
+
+\begin{align*}
+  Y_{i,t} - \bar{Y}_{i,.} & = \delta_t-\bar\delta-\sum_d\bar\beta^{SA}_d\uns{D_i=d}+\sum_d\sum_{\tau\neq-1}\beta^{SA}_{d,\tau}\uns{D_i=d}\uns{t=d+\tau}+\epsilon^{LSDV}_{i,t} - \bar{\epsilon}^{LSDV}_{i,.}.
+\end{align*}
+
+This is the same formula as the one we have uncovered in the within transformation we have studied just above.
+Using the same approach proves the result.
 
 ### Proof of Theorem \@ref(thm:asympnoiseSACross) {#proofasympnoiseSACross}
 
@@ -1803,7 +1884,7 @@ With all these definitions, we can now follow the proof of Theorem \@ref(thm:asy
 \end{align*}
 
 Using the fact that [the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block](https://en.wikipedia.org/wiki/Block_matrix), we now know
-$\text{plim}N(\tilde{X}'\tilde{X})^{-1}=\sigma_{\tilde{X}\tilde{X}}^{-1}$ is block diagonak matrix with blocks equal to $\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}$.
+$\text{plim}N(\tilde{X}'\tilde{X})^{-1}=\sigma_{\tilde{X}\tilde{X}}^{-1}$ is block diagonal matrix with blocks equal to $\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}$.
 
 Let us now turn to $\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}$. 
 In order to derive its distribution, we have to write Sun and Abraham model in a repeated cross section with the observations grouped by blocks corresponding to the parameters they help to estimate. 
@@ -2035,5 +2116,51 @@ and thus:
 \end{align*}
 
 This proves the result.
+
+### Proof of Theorem \@ref(thm:asympnoiseSAPanel) {#proofasympnoiseSAPanel}
+
+The proof follows closely that of Theorem \@ref(thm:asympnoiseSACross), except that our stacked model is $\Delta Y = \Delta X\Theta^{FD} + \epsilon^{FD}$, as introduced in the proof of \@ref(thm:EquivDIDSAsamp).
+Using the beginning of the proof of Lemma \@ref(lem:asympOLS), we know that: $\sqrt{N}(\hat{\Theta}^{FD}-\Theta^{FD})=N(\Delta X'\Delta X)^{-1}\frac{\sqrt{N}}{N}\Delta X'\epsilon^{FD}$.
+Using Slutsky's Theorem, we know that we can study both terms separately (see the same proof of Lemma \@ref(lem:asympOLS)). 
+
+Let us start with $N(\Delta X'\Delta X)^{-1}$.
+Let's denote $N_{d,\infty}$ the number of observations that are such that $D_i=d$ or $D_i=\infty$ and $p^{d,\infty}=\text{plim}\frac{N_{d,\infty}}{N}$.
+Let's also denote $p^{d,\infty}_D=\Pr(D_i=d|D_i=d\cup D_i=\infty)$.
+Using the same reasoning as in the proof of Theorem \@ref(thm:asympnoiseSACross), and using the proof of Theorem \@ref(thm:asympnoiseWW), we can show that:
+
+\begin{align*}
+\sigma_{\Delta X \Delta X^{-1}}^{d,\tau} &= \text{plim}N(\Delta X'\Delta X)^{-1}_{d,\tau} = \frac{1}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}
+\left(\begin{array}{cc}
+p^{d,\infty}_D & -p^{d,\infty}_D\\
+-p^{d,\infty}_D &  1
+\end{array}\right)
+\end{align*}
+
+with $N(\Delta X'\Delta X)^{-1}_{d,\tau}$ the block of the $N(\Delta X'\Delta X)^{-1}$ matrix that is related to the estimation of $\hat{\beta}^{SA}_{d,\tau}$ and using the fact that [the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block](https://en.wikipedia.org/wiki/Block_matrix).
+The proof then follows the line of the proof of Theorem \@ref(thm:asympnoiseWW), replacing $Y_{i}$ by $Y_{i,d+\tau}-Y_{i,d-1}$.
+This proves the result.
+
+### Proof of Theorem \@ref(thm:asympnoiseSATTPanel) {#proofasympnoiseSATTPanel}
+
+The key to the proof lies in the covariance terms.
+They in turn depend on the product of the following matrix: $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$, where:
+
+\begin{align*}
+  \mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}} & =
+                                        \esp{\Delta\epsilon_j^2\left(\begin{array}{cccc}
+                                              D^{d,\tau}_j & D^d_jD^{d,\tau}_j &	D^{d,\tau}_jD^{d',\tau'}_j & D^{d'}_jD^{d,\tau}_jD^{d',\tau'}_j \\
+                                              D^d_jD^{d,\tau}_j & D^d_jD^{d,\tau}_j &	D^d_jD^{d,\tau}_jD^{d',\tau'}_j & D^{d'}_jD^d_jD^{d,\tau}_jD^{d',\tau'}_j \\
+                                              D^{d,\tau}_jD^{d',\tau'}_j  & D^d_jD^{d,\tau}_jD^{d',\tau'}_j  &	D^{d',\tau'}_j & D^{d'}_jD^{d',\tau'}_j \\
+                                              D^{d'}_jD^{d,\tau}_jD^{d',\tau'}_j & D^{d'}_jD^d_jD^{d,\tau}_jD^{d',\tau'}_j &	D^{d'}_jD^{d',\tau'}_j & D^{d'}_jD^{d',\tau'}_j
+                                            \end{array}\right)},
+\end{align*}
+
+and $\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ is the part of the $\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ matrix that relates to the estimators of $\beta^{SA}_{d,\tau}$ and $\beta^{SA}_{d',\tau'}$.
+We also have that $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$ is the blocks of the matrix $\sigma_{\Delta{X}\Delta{X}^{-1}}$ corresponding to the same estimation, with blocks formed by $\sigma_{\Delta X \Delta X^{-1}}^{d,\tau}$ and $\sigma_{\Delta X \Delta X^{-1}}^{d',\tau'}$.
+
+
+
+
+
 
 

@@ -3674,14 +3674,14 @@ disaggregate.SA <- disaggregate.SA %>%
 # adding reference period
 Group <- c('2','3','4')
 TimeToTreatment <- rep('-1',3)
-ref <- as.data.frame(cbind(Group,TimeToTreatment)) %>%
+ref.dis <- as.data.frame(cbind(Group,TimeToTreatment)) %>%
         mutate(
           Coef = 0,
           Se = 0,
           Group = factor(Group,levels=c('1','2','3','4','Aggregate')),
           TimeToTreatment = factor(TimeToTreatment,levels=c('-3','-2','-1','0','1','2'))
           )
-disaggregate.SA <- rbind(disaggregate.SA,ref) 
+disaggregate.SA <- rbind(disaggregate.SA,ref.dis) 
 
 # adding aggregate results
 # aggregate estimates
@@ -3768,7 +3768,7 @@ We can also show that Sun and Abraham's estimator is equal to our individual DID
 ```
 
 ```{theorem,EquivDIDSAsamp,name='Sun and Abraham estimator is equivalent to individual DID in the sample'}
-In the sample, Sun and Abraham's estimator (estimated by OLS in repeated cross sections, by OLS using the Least Squares Dummy Variables model, or following the Within transformation or the First Difference transformation in panel data) is equal to the individual DID estimators using the never treated as the comparison group and the period just before receiving the treatment as the reference period: $\forall d\in\left\{2,\dots,T\right\}$, $\forall\tau\in\left\{-(T-1),\dots,T-2\right\}\setminus\left\{-1\right\}$,
+In the sample, Sun and Abraham's estimator (estimated by OLS in repeated cross sections or in panel data or by OLS using the Least Squares Dummy Variables model, the Within transformation or the First Difference transformation relative to $d-1$ in panel data) is equal to the individual DID estimators using the never treated as the comparison group and the period just before receiving the treatment as the reference period: $\forall d\in\left\{2,\dots,T\right\}$, $\forall\tau\in\left\{-(T-1),\dots,T-2\right\}\setminus\left\{-1\right\}$,
 
 \begin{align*}
   \hat{\beta}_{d,\tau}^{SA} & = \frac{\sum_{i=1}^{N_{d+\tau}}Y_{i,d+\tau}\uns{D_i=d}}{\sum_{i=1}^{N_{d+\tau}}\uns{D_i=d}}
@@ -3783,6 +3783,101 @@ In the sample, Sun and Abraham's estimator (estimated by OLS in repeated cross s
 See Section \@ref(proofEquivDIDSAsamp).
 ```
 
+```{remark}
+The First Difference transformation of the Sun and Abraham model that is equivalent to the individual DID estimator is not a standard first difference where observations observed at date $t-1$ are subtracted from observations at $t$. 
+The correct First Difference transformation is relative to $d-1$: the OLS regression is performed on the following model, restricted to the sample where $D_i=d$ or $D_i=\infty$ and $T_i=t$ or $T_i=d-1$:
+```
+
+\begin{align*}
+  D_j^{d,\tau}(Y_{j,d+\tau} - Y_{j,d-1}) & = \alpha_{d,\tau}^{FD}D_j^{d,\tau} + \beta_{d,\tau}^{FD}\uns{D_j=d}D_j^{d,\tau} + \epsilon^{FD}_{j,t}D_j^{d,\tau},
+\end{align*}
+
+where $D_j^{d,\tau}$ takes value one when observation $j$ is used to estimate $\hat\beta^{SA}_{d,\tau}$.
+
+```{example}
+In order to see how Theorem \@ref(thm:EquivDIDSAsamp) works in practice, let us collect all the estimated effects obtained thanks to our separate individual DID estimators and compare them with the coefficients of Sun and Abraham's model.
+```
+We are going to compare the coefficients in the Sun and Abraham model to the DID estimates that compare each treated group to the never treated group, since the Sun and Abraham estimator do not use the observations belonging to groups that eventually get treated as controls when they are not yet treated.
+
+```{r DIDSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# reorganize the DID estimator
+DID.1.mod <- DID.1 %>%
+          filter(dprime=="99") %>% # keep only never treated as counterfactuals
+          rename(
+            TimeToTreatment=tau,
+             Group=d
+          ) %>%
+          mutate(
+            Group=factor(Group,levels=c("1","2","3","4","Aggregate")),
+            TimeToTreatment=as.numeric(TimeToTreatment)
+          ) %>%
+          select(DIDest,DIDse,Group,TimeToTreatment)
+
+# add reference period to DID estimator
+DID.1.mod <- rbind(DID.1.mod,ref.dis %>% rename(DIDest=Coef,DIDse=Se)) %>%
+          mutate(
+            TimeToTreatment=as.numeric(TimeToTreatment)
+          )
+
+# joining DID and SA estimates
+CompDIDSA <- DID.1.mod %>%
+              left_join(disaggregate.SA,by=c('Group','TimeToTreatment')) %>%
+                 mutate(
+                     TimeToTreatment = factor(TimeToTreatment,levels=c('-3','-2','-1','0','1','2'))
+                 )
+             
+```
+
+Let's now plot the results:
+
+```{r PlotDIDSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap=c("Comparison of treatment effects estimated using DID and Sun and Abraham estimator (reference period $\\tau'=1$)"),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+ggplot(CompDIDSA,aes(x=DIDest,y=Coef,shape=Group,color=TimeToTreatment))+
+    geom_point() +
+    geom_abline(slope=1,intercept=0,linetype="dotted",color="red")+
+    ylab("Sun and Abraham estimate") +
+    xlab("DID estimate") +
+    theme_bw()
+```
+
+As Figure \@ref(fig:PlotDIDSA) shows, the coefficients estimated through DID are identical to the coefficients estimated using Sun and Abraham approach (they all lone up on the 45 degree line).
+This is an illustration of the main result of Theorem \@ref(thm:EquivDIDSAsamp).
+
+Note that the estimated aggregated effect using DID with weights proportional to group composition and time spent in the treatment is equal to $\hat\Delta^{Y}_{TT}(v)=$ `r round(ATT.varying,2)`.
+The corresponding estimate using Sun and Abraham estimator is equal to `r round(ATT.agg.SA[[1]],2)` $\pm$ `r round(1.96*ATT.agg.SA[[2]],2)`.
+The two estimator are slightly different.
+This is because Sun and Abraham aggregate effects estimated using exclusively the never treated group as the control group while the DID estimator aggregates the same and effects estimated using the other treated groups before they receive the treatment.
+It should be the case that if we aggregate the DID estimates using only the never treated as the control group, we should obtain the same result as with Sun and Abraham estimator.
+Let's check.
+
+```{r DIDAggSA,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# joining the weights to the results
+DID.1.agg.SA <- DID.1 %>%
+                  filter(dprime=="99",tau>=0) %>%
+                  select(-prop.group) %>%
+                  mutate(
+                    d= factor(d,levels=c("99","4","3","2","1"))
+                  ) %>%
+                  left_join(prop.groups.DID,by=c("d"="dprime")) %>% 
+                  mutate(
+                    w.ATT = prop.group*DIDest
+                  ) %>%
+                  summarize(
+                    sum.w.ATT = sum(w.ATT),
+                    sum.w = sum(prop.group)
+                  ) %>% 
+                  mutate(
+                    ATT.varying.DID = sum.w.ATT/sum.w
+                  ) %>%
+                  pull(ATT.varying.DID)
+```
+
+The estimated aggregated effect using DID with weights proportional to group composition and time spent in the treatment, restricting the estimates to the ones obtained using the never treated as the control group is equal to $\hat\Delta^{Y}_{TT}(v)=$ `r round(DID.1.agg.SA,2)`, which is indeed equal to the aggregate estimate computed by the Sun and Abraham estimator in `fixest`.
+
+```{remark}
+What to do in pratice?
+Use only the never treated as controls?   
+It seems that using more groups as controls (if they are valid) should increase efficiency.
+```
 
 ##### Direct weighting using one reference period and one reference group (Callaway and Sant'Anna)
 
@@ -4799,7 +4894,7 @@ They are mostly cosmetic since thay are questions about properties of the Two-Wa
 
 We now need to derive the asymptotic distribution of our estimators in a staggered DID design.
 We are going to do that for the Sun and Abraham estimator, which is the simplest estimator that is estimated by OLS, Within, LSDV, First Difference or faster TWFE estimators and extends the simple DID estimators to staggered designs.
-There are two sets of parameters for which we might want to know their distribution: the parameter specific to each treated group and relative time to treatment $\hat\beta^{SA}_{d,\tau}$ and the aggregated treatment effect $\hat\delta^{Y}_TT(k)$ for some set of weights $w^k(d,d',\tau,\tau')$.
+There are two sets of parameters for which we might want to know their distribution: the parameter specific to each treated group and relative time to treatment $\hat\beta^{SA}_{d,\tau}$ and the aggregated treatment effect $\hat\Delta^{Y}_{TT}(k)$ for some set of weights $w^k(d,d',\tau,\tau')$.
 Let's look at these parameters in turn.
 
 ##### Estimation of sampling noise for the effect of the treatment on each group and at each time period
@@ -4813,7 +4908,7 @@ With repeated cross sections, we can only use the OLS DID estimator of the Sun a
 The following theorem derives its distribution:
 
 ```{theorem,asympnoiseSACross,name="Asymptotic Distribution of Sun and Abraham Estimator in Repeated Cross Sections"}
-Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), we have:
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), and with repeated cross sections of total size $N$, we have:
 
 \begin{align*}
 \sqrt{N}(\hat\beta^{SA}_{d,\tau}-\beta^{SA}_{d,\tau}) & \stackrel{d}{\rightarrow}
@@ -4841,6 +4936,25 @@ The only difference is the additional $p^{d,\tau}$ term which adjusts the sample
 ###### Estimation of sampling noise for the effect of the treatment on each group and at each time period with panel data
 
 With panel data, we can estimate $\hat\beta^{SA}_{d,\tau}$ using various sets of estimators: the OLS DID model, the within transformation of the Sun and Abraham model with individual dummies, the Least Squares Dummy Variables model estimated by OLS, the First Difference model and the enhanced estimators (Alternating Projections and Likelihood Concentration).
+Theorem \@ref(thm:EquivDIDSAsamp) implies that all these estiamtors are similar and identical to the individual DID estimators.
+We can thus use Theorem \@ref(thm:asympnoiseDID) in order to provide a CLT-based estimate the sampling noise of the Sun and Abraham estimator of the individual treatment effects in panel data.
+The following theorem derives its distribution:
+
+```{theorem,asympnoiseSAPanel,name="Asymptotic Distribution of Sun and Abraham Estimator in Panel Data"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDID) and \@ref(hyp:finitevarDID), and with panel data with $N$ units observed over $T$ periods, we have:
+
+\begin{align*}
+\sqrt{N}(\hat\beta^{SA}_{d,\tau}-\beta^{SA}_{d,\tau}) & \stackrel{d}{\rightarrow}
+                             \mathcal{N}\left(0,\frac{1}{p^{d,\infty}}\left(\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\tau}_D}+\frac{\var{Y_{i,d+\tau}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\tau}_D}\right)\right),
+\end{align*}
+
+where $p^{d,\infty}=\Pr(D_i=d\cup D_i=\infty)$.
+```
+
+```{proof}
+See Section \@ref(proofasympnoiseSAPanel).
+```
+
 
 ##### Estimation of sampling noise for aggregate treatment effects
 
@@ -4850,9 +4964,10 @@ Under Assumption \@ref(hyp:iidDID) for panel data or \@ref(hyp:iidDIDCross) in r
 
 ###### Estimation of sampling noise for aggregate treatment effects with repeated cross sections
 
+The following theorem derives the asymptotic distribution of the aggregated treatment on the treated parameter based on the individual DID estimates stemming from Sun and Abraham's estimator, in repeated cross sections.
 
 ```{theorem,asympnoiseSATTCross,name="Asymptotic Distribution of Treatment of the Treated Estimated Using Sun and Abraham Estimator in Repeated Cross Sections"}
-Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), we have:
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevar), and with repeated cross sections of total size $N$, we have:
 
 \begin{align*}
 \sqrt{N}(\hat\Delta^{Y}_{TT_{SA}}(k)-\Delta^{Y}_{TT_{SA}}(k)) & \stackrel{d}{\rightarrow}
@@ -4886,8 +5001,41 @@ with $p^{d,\tau,d',\tau'}=\Pr(D_j^{d',\tau'}D_j^{d,\tau}=1)$, $p_{d+\tau}^{d,\ta
 See Section \@ref(proofasympnoiseSATTCross).
 ```
 
+```{remark}
+Note that the covariance terms in Theorem \@ref(thm:asympnoiseSATTCross) make a lot of sense. 
+First, the proportions used to normalize the variance terms correspond exactly to the proportion of observations in the relevant groups.
+Second, the signs of the covariances are consistent with common sense.
+When $d=d'$, the individual components $\hat\beta^{SA}_{d,\tau}$ and $\hat\beta^{SA}_{d',\tau'}$ estimate the impact for the same treatment group.
+They thus share their baseline means (both for the treated and control group observed at period $d-1$).
+As a consequence, they are positively correlated. 
+When $d+\tau=d'+\tau'$, both groups share the same post-treatment period, and thus use the same observations from the control group to build the After period, thereby generating a positive correlation again.
+When $d-1=d'+\tau'$ or $d'-1=d+\tau$, both estimators share the same group of observations from the control group.
+One uses them as a reference period, while the other uses the same observations as the after treatment period.
+As a consequence, the estimators are negatively correlated in that case.
+```
 
 ###### Estimation of sampling noise for aggregate treatment effects with panel data
+
+Finally, we need to determine the asymptotic distribution of the aggregate average treatment effect on the treated $\Delta^Y_{TT}(k)$.
+
+```{theorem,asympnoiseSATTPanel,name="Asymptotic Distribution of Treatment of the Treated Estimated Using Sun and Abraham Estimator in Panel Data"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDID) and \@ref(hyp:finitevarDID), and with panel data containing a total of $N$ units, we have:
+
+\begin{align*}
+\sqrt{N}(\hat\Delta^{Y}_{TT_{SA}}(k)-\Delta^{Y}_{TT_{SA}}(k)) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\sum_d\sum_{\tau}V_P(\hat\beta^{SA}_{d,\tau})(w^k(d,d-1,\tau,\infty))^2\right),
+\end{align*}
+
+where:
+
+\begin{align*}
+V_P(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\tau}}\left(\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\tau}_D}+\frac{\var{Y_{i,d+\tau}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\tau}_D}\right).
+\end{align*}
+```
+
+```{proof}
+See Section \@ref(proofasympnoiseSATTPanel).
+```
 
 
 ### Difference In Differences with Instrumental Variables

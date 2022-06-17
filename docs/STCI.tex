@@ -133,7 +133,7 @@
 
 \title{Statistical Tools for Causal Inference}
 \author{Sylvain Chabé-Ferret}
-\date{2022-05-12}
+\date{2022-06-17}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[chapter]
@@ -8486,11 +8486,12 @@ We also need to assume that the changes in outcomes in both groups have finite v
 
 We now can state the following theorem:
 
-\begin{theorem}[Asymptotic Estimate of Sampling Noise of DID]
-\protect\hypertarget{thm:asympnoiseDID}{}\label{thm:asympnoiseDID}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDID} and \ref{hyp:finitevarDID}, for a given confidence level \(\delta\) and sample size \(N\), the sampling noise of \(\hat{\Delta}^Y_{DID}\) can be approximated as follows:
+\begin{theorem}[Asymptotic Distribution of the DID Estimator in Panel Data]
+\protect\hypertarget{thm:asympnoiseDID}{}\label{thm:asympnoiseDID}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDID} and \ref{hyp:finitevarDID}, we have:
 
 \begin{align*}
-2\epsilon^{panel}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{\frac{\var{Y_{i,A}^1-Y_{i,B}^0|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_{i,A}^0-Y_{i,B}^0|D_i=0}}{1-\Pr(D_i=1)}} \equiv 2\tilde{\epsilon}^{panel}_{DID}.
+\sqrt{N}(\hat{\Delta}^Y_{DID}-\Delta^Y_{DID}) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{\var{Y_{i,A}^1-Y_{i,B}^0|D_i=1}}{\Pr(D_i=1)}+\frac{\var{Y_{i,A}^0-Y_{i,B}^0|D_i=0}}{1-\Pr(D_i=1)}\right).
 \end{align*}
 \end{theorem}
 
@@ -8546,16 +8547,16 @@ Assumption \ref{hyp:iidDIDCross} imposes that outcomes are not correlated across
 This is not a strong assumption in a repeated cross section, as long as the same units are not observed at both periods.
 We now can state the following theorem:
 
-\begin{theorem}[Asymptotic Estimate of Sampling Noise of DID in Repeated Cross Sections]
-\protect\hypertarget{thm:asympnoiseDIDCross}{}\label{thm:asympnoiseDIDCross}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDIDCross} and \ref{hyp:finitevar}, for a given confidence level \(\delta\), the sampling noise of \(\hat{\Delta}^Y_{DID}\) in repeated cross sections of total size \(N\) can be approximated as follows:
+\begin{theorem}[Asymptotic Distribution of the DID Estimator in Repeated Cross Sections]
+\protect\hypertarget{thm:asympnoiseDIDCross}{}\label{thm:asympnoiseDIDCross}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDIDCross} and \ref{hyp:finitevar}, we have:
 
 \begin{align*}
-2\epsilon^{cross}_{DID} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{
-                            \frac{\var{Y^0_{i,B}|D_i=0}}{(1-p)(1-p_A)}
-                            +\frac{\var{Y^0_{i,B}|D_i=1}}{p(1-p_A)}
+\sqrt{N}(\hat{\Delta}^Y_{DID}-\Delta^Y_{DID}) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{\var{Y^0_{i,B}|D_i=0}}{(1-p)(1-p_A)}
+                            +\frac{\var{Y^0_{i,B}|D_i=1}}{p(1-p_A)}\right.\\
+                & \phantom{\stackrel{d}{\rightarrow}\mathcal{N}\left(0,\right.} \left.
                             +\frac{\var{Y^0_{i,A}|D_i=0}}{(1-p)p_A}
-                            +\frac{\var{Y^1_{i,A}|D_i=1}}{pp_A}} \\
-                        & \equiv 2\tilde{\epsilon}^{cross}_{DID}.
+                            +\frac{\var{Y^1_{i,A}|D_i=1}}{pp_A}\right).
 \end{align*}
 
 where \(p=\Pr(D_i=1)\) and \(p_A\) is the proportion of observations belonging to the After period.
@@ -10361,14 +10362,14 @@ Let's see how this works.
 \CommentTok{\# adding reference period}
 \NormalTok{Group }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{)}
 \NormalTok{TimeToTreatment }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\DecValTok{3}\NormalTok{)}
-\NormalTok{ref }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Group,TimeToTreatment)) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{ref.dis }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(Group,TimeToTreatment)) }\SpecialCharTok{\%\textgreater{}\%}
         \FunctionTok{mutate}\NormalTok{(}
           \AttributeTok{Coef =} \DecValTok{0}\NormalTok{,}
           \AttributeTok{Se =} \DecValTok{0}\NormalTok{,}
           \AttributeTok{Group =} \FunctionTok{factor}\NormalTok{(Group,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}4\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Aggregate\textquotesingle{}}\NormalTok{)),}
           \AttributeTok{TimeToTreatment =} \FunctionTok{factor}\NormalTok{(TimeToTreatment,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}{-}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}0\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{))}
 \NormalTok{          )}
-\NormalTok{disaggregate.SA }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(disaggregate.SA,ref) }
+\NormalTok{disaggregate.SA }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(disaggregate.SA,ref.dis) }
 
 \CommentTok{\# adding aggregate results}
 \CommentTok{\# aggregate estimates}
@@ -10437,7 +10438,160 @@ Let us finally compute the aggregated effect:
 \end{Highlighting}
 \end{Shaded}
 
-The aggregated effect estimated using the Sun and Abraham approach as implemented in \texttt{fixest} is equal to 1.07 \(\pm\) 0.04
+The aggregated effect estimated using the Sun and Abraham approach as implemented in \texttt{fixest} is equal to 1.07 \(\pm\) 0.04.
+
+\begin{remark}
+Sun and Abraham's estimator can also be formulated in repeated cross sections by estimating the following model by OLS:
+\end{remark}
+
+\begin{align*}
+    Y_{i,t} &  = \alpha + \sum_{d=2}^T\mu_d\uns{D_{i}=d} + \sum_{\tau=2}^{T}\delta_{\tau}\uns{t=\tau} + \sum_{d=2}^T\sum_{\tau\neq-1}\beta_{d,\tau}^{SA}\uns{D_{i}=d \land t=d+\tau}  + \epsilon^{SA}_{i,t}.
+\end{align*}
+
+\begin{remark}
+We can also show that Sun and Abraham's estimator is equal to our individual DID estimators in the population:
+\end{remark}
+
+\begin{theorem}[Sun and Abraham estimator is equivalent to individual DID in the population]
+\protect\hypertarget{thm:EquivDIDSApop}{}\label{thm:EquivDIDSApop}In the population, Sun and Abraham's estimator (formulated in a panel and in a repeated cross section) is equal to the individual DID estimators using the never treated as the comparison group and the period just before receiving the treatment as the reference period: \(\forall d\in\left\{2,\dots,T\right\}\), \(\forall\tau\in\left\{-(T-1),\dots,T-2\right\}\setminus\left\{-1\right\}\),
+
+\begin{align*}
+  \beta_{d,\tau}^{SA} & = \Delta^{Y}_{DID}(d,\infty,\tau,d-1).
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+See Section \ref{proofEquivDIDSApop}.
+\end{proof}
+
+\begin{remark}
+We can also show that Sun and Abraham's estimator is equal to our individual DID estimators in the sample:
+\end{remark}
+
+\begin{theorem}[Sun and Abraham estimator is equivalent to individual DID in the sample]
+\protect\hypertarget{thm:EquivDIDSAsamp}{}\label{thm:EquivDIDSAsamp}In the sample, Sun and Abraham's estimator (estimated by OLS in repeated cross sections or in panel data or by OLS using the Least Squares Dummy Variables model, the Within transformation or the First Difference transformation relative to \(d-1\) in panel data) is equal to the individual DID estimators using the never treated as the comparison group and the period just before receiving the treatment as the reference period: \(\forall d\in\left\{2,\dots,T\right\}\), \(\forall\tau\in\left\{-(T-1),\dots,T-2\right\}\setminus\left\{-1\right\}\),
+
+\begin{align*}
+  \hat{\beta}_{d,\tau}^{SA} & = \frac{\sum_{i=1}^{N_{d+\tau}}Y_{i,d+\tau}\uns{D_i=d}}{\sum_{i=1}^{N_{d+\tau}}\uns{D_i=d}}
+                                -\frac{\sum_{i=1}^{N_{d-1}}Y_{i,d-1}\uns{D_i=d}}{\sum_{i=1}^{N_{d-1}}\uns{D_i=d}} \\
+                            & \phantom{=}
+                                  - \left(\frac{\sum_{i=1}^{N_{d+\tau}}Y_{i,d+\tau}\uns{D_i=\infty}}{\sum_{i=1}^{N_{d+\tau}}\uns{D_i=\infty}}
+                                  -\frac{\sum_{i=1}^{N_{d-1}}Y_{i,d-1}\uns{D_i=\infty}}{\sum_{i=1}^{N_{d-1}}\uns{D_i=\infty}}\right)
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+See Section \ref{proofEquivDIDSAsamp}.
+\end{proof}
+
+\begin{remark}
+The First Difference transformation of the Sun and Abraham model that is equivalent to the individual DID estimator is not a standard first difference where observations observed at date \(t-1\) are subtracted from observations at \(t\).
+The correct First Difference transformation is relative to \(d-1\): the OLS regression is performed on the following model, restricted to the sample where \(D_i=d\) or \(D_i=\infty\) and \(T_i=t\) or \(T_i=d-1\):
+\end{remark}
+
+\begin{align*}
+  Y_{i,d+\tau} - Y_{i,d-1} & = \alpha_{d,\tau}^{FD} + \beta_{d,\tau}^{FD}\uns{D_i=d} + \epsilon^{FD}_{i,t}.
+\end{align*}
+
+\begin{example}
+\protect\hypertarget{exm:unnamed-chunk-221}{}\label{exm:unnamed-chunk-221}In order to see how Theorem \ref{thm:EquivDIDSAsamp} works in practice, let us collect all the estimated effects obtained thanks to our separate individual DID estimators and compare them with the coefficients of Sun and Abraham's model.
+\end{example}
+
+We are going to compare the coefficients in the Sun and Abraham model to the DID estimates that compare each treated group to the never treated group, since the Sun and Abraham estimator do not use the observations belonging to groups that eventually get treated as controls when they are not yet treated.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# reorganize the DID estimator}
+\NormalTok{DID.}\FloatTok{1.}\NormalTok{mod }\OtherTok{\textless{}{-}}\NormalTok{ DID}\FloatTok{.1} \SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{filter}\NormalTok{(dprime}\SpecialCharTok{==}\StringTok{"99"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\# keep only never treated as counterfactuals}
+          \FunctionTok{rename}\NormalTok{(}
+            \AttributeTok{TimeToTreatment=}\NormalTok{tau,}
+             \AttributeTok{Group=}\NormalTok{d}
+\NormalTok{          ) }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{Group=}\FunctionTok{factor}\NormalTok{(Group,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"1"}\NormalTok{,}\StringTok{"2"}\NormalTok{,}\StringTok{"3"}\NormalTok{,}\StringTok{"4"}\NormalTok{,}\StringTok{"Aggregate"}\NormalTok{)),}
+            \AttributeTok{TimeToTreatment=}\FunctionTok{as.numeric}\NormalTok{(TimeToTreatment)}
+\NormalTok{          ) }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{select}\NormalTok{(DIDest,DIDse,Group,TimeToTreatment)}
+
+\CommentTok{\# add reference period to DID estimator}
+\NormalTok{DID.}\FloatTok{1.}\NormalTok{mod }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(DID.}\FloatTok{1.}\NormalTok{mod,ref.dis }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{(}\AttributeTok{DIDest=}\NormalTok{Coef,}\AttributeTok{DIDse=}\NormalTok{Se)) }\SpecialCharTok{\%\textgreater{}\%}
+          \FunctionTok{mutate}\NormalTok{(}
+            \AttributeTok{TimeToTreatment=}\FunctionTok{as.numeric}\NormalTok{(TimeToTreatment)}
+\NormalTok{          )}
+
+\CommentTok{\# joining DID and SA estimates}
+\NormalTok{CompDIDSA }\OtherTok{\textless{}{-}}\NormalTok{ DID.}\FloatTok{1.}\NormalTok{mod }\SpecialCharTok{\%\textgreater{}\%}
+              \FunctionTok{left\_join}\NormalTok{(disaggregate.SA,}\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}Group\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}TimeToTreatment\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+                 \FunctionTok{mutate}\NormalTok{(}
+                     \AttributeTok{TimeToTreatment =} \FunctionTok{factor}\NormalTok{(TimeToTreatment,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}{-}3\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}2\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}{-}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}0\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}1\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}2\textquotesingle{}}\NormalTok{))}
+\NormalTok{                 )}
+\end{Highlighting}
+\end{Shaded}
+
+Let's now plot the results:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(CompDIDSA,}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{DIDest,}\AttributeTok{y=}\NormalTok{Coef,}\AttributeTok{shape=}\NormalTok{Group,}\AttributeTok{color=}\NormalTok{TimeToTreatment))}\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{slope=}\DecValTok{1}\NormalTok{,}\AttributeTok{intercept=}\DecValTok{0}\NormalTok{,}\AttributeTok{linetype=}\StringTok{"dotted"}\NormalTok{,}\AttributeTok{color=}\StringTok{"red"}\NormalTok{)}\SpecialCharTok{+}
+    \FunctionTok{ylab}\NormalTok{(}\StringTok{"Sun and Abraham estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{xlab}\NormalTok{(}\StringTok{"DID estimate"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_bw}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+
+{\centering \includegraphics[width=0.5\linewidth]{STCI_files/figure-latex/PlotDIDSA-1} 
+
+}
+
+\caption{Comparison of treatment effects estimated using DID and Sun and Abraham estimator (reference period $\tau'=1$)}\label{fig:PlotDIDSA}
+\end{figure}
+
+As Figure \ref{fig:PlotDIDSA} shows, the coefficients estimated through DID are identical to the coefficients estimated using Sun and Abraham approach (they all lone up on the 45 degree line).
+This is an illustration of the main result of Theorem \ref{thm:EquivDIDSAsamp}.
+
+Note that the estimated aggregated effect using DID with weights proportional to group composition and time spent in the treatment is equal to \(\hat\Delta^{Y}_{TT}(v)=\) 1.06.
+The corresponding estimate using Sun and Abraham estimator is equal to 1.07 \(\pm\) 0.04.
+The two estimator are slightly different.
+This is because Sun and Abraham aggregate effects estimated using exclusively the never treated group as the control group while the DID estimator aggregates the same and effects estimated using the other treated groups before they receive the treatment.
+It should be the case that if we aggregate the DID estimates using only the never treated as the control group, we should obtain the same result as with Sun and Abraham estimator.
+Let's check.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# joining the weights to the results}
+\NormalTok{DID.}\FloatTok{1.}\NormalTok{agg.SA }\OtherTok{\textless{}{-}}\NormalTok{ DID}\FloatTok{.1} \SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{filter}\NormalTok{(dprime}\SpecialCharTok{==}\StringTok{"99"}\NormalTok{,tau}\SpecialCharTok{\textgreater{}=}\DecValTok{0}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{prop.group) }\SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{mutate}\NormalTok{(}
+                    \AttributeTok{d=} \FunctionTok{factor}\NormalTok{(d,}\AttributeTok{levels=}\FunctionTok{c}\NormalTok{(}\StringTok{"99"}\NormalTok{,}\StringTok{"4"}\NormalTok{,}\StringTok{"3"}\NormalTok{,}\StringTok{"2"}\NormalTok{,}\StringTok{"1"}\NormalTok{))}
+\NormalTok{                  ) }\SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{left\_join}\NormalTok{(prop.groups.DID,}\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"d"}\OtherTok{=}\StringTok{"dprime"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+                  \FunctionTok{mutate}\NormalTok{(}
+                    \AttributeTok{w.ATT =}\NormalTok{ prop.group}\SpecialCharTok{*}\NormalTok{DIDest}
+\NormalTok{                  ) }\SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{summarize}\NormalTok{(}
+                    \AttributeTok{sum.w.ATT =} \FunctionTok{sum}\NormalTok{(w.ATT),}
+                    \AttributeTok{sum.w =} \FunctionTok{sum}\NormalTok{(prop.group)}
+\NormalTok{                  ) }\SpecialCharTok{\%\textgreater{}\%} 
+                  \FunctionTok{mutate}\NormalTok{(}
+                    \AttributeTok{ATT.varying.DID =}\NormalTok{ sum.w.ATT}\SpecialCharTok{/}\NormalTok{sum.w}
+\NormalTok{                  ) }\SpecialCharTok{\%\textgreater{}\%}
+                  \FunctionTok{pull}\NormalTok{(ATT.varying.DID)}
+\end{Highlighting}
+\end{Shaded}
+
+The estimated aggregated effect using DID with weights proportional to group composition and time spent in the treatment, restricting the estimates to the ones obtained using the never treated as the control group is equal to \(\hat\Delta^{Y}_{TT}(v)=\) 1.07, which is indeed equal to the aggregate estimate computed by the Sun and Abraham estimator in \texttt{fixest}.
+
+\begin{remark}
+What to do in pratice?
+Use only the never treated as controls?\\
+It seems that using more groups as controls (if they are valid) should increase efficiency.
+\end{remark}
 
 \hypertarget{direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna}{%
 \paragraph{Direct weighting using one reference period and one reference group (Callaway and Sant'Anna)}\label{direct-weighting-using-one-reference-period-and-one-reference-group-callaway-and-santanna}}
@@ -10450,7 +10604,7 @@ Callaway and Sant'Anna have proposed the \texttt{did} package to implement their
 The main command is \texttt{att\_gt}, which computes all the estimates for each treatment group \(D_i=g\) and each time period \(t\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-215}{}\label{exm:unnamed-chunk-215}Let's see if we can make it work.
+\protect\hypertarget{exm:unnamed-chunk-223}{}\label{exm:unnamed-chunk-223}Let's see if we can make it work.
 \end{example}
 
 \begin{Shaded}
@@ -10544,7 +10698,7 @@ In its simplest form, with staggered designs, a discrete treatment and no covari
 Both estimators have been implemented in the \texttt{DIDmutiplegt} package with the \texttt{did\_multiplegt} function.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-216}{}\label{exm:unnamed-chunk-216}Let's see how it works.
+\protect\hypertarget{exm:unnamed-chunk-224}{}\label{exm:unnamed-chunk-224}Let's see how it works.
 \end{example}
 
 \begin{Shaded}
@@ -10688,7 +10842,7 @@ Thanks to the amazing \href{https://kylebutts.com/}{Kyle Butts}, we have a packa
 The command is \texttt{did\_imputation}.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-221}{}\label{exm:unnamed-chunk-221}Let's see how it works.
+\protect\hypertarget{exm:unnamed-chunk-229}{}\label{exm:unnamed-chunk-229}Let's see how it works.
 \end{example}
 
 \begin{Shaded}
@@ -10786,7 +10940,7 @@ Gardner shows that the coefficient on \(D_{i,t}\) in the second stage of this pr
 What is pretty great is that Gardner, together with Kyle Butts, have provided an \texttt{R} package in order to perform the estimation: \texttt{did2s}.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-222}{}\label{exm:unnamed-chunk-222}Let's see how it works in our example.
+\protect\hypertarget{exm:unnamed-chunk-230}{}\label{exm:unnamed-chunk-230}Let's see how it works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -10870,7 +11024,7 @@ The way I'm choosing to implement this approach is by adding specific group \(\t
 We are going to run a two-way fixed effects model on these fixed effects and on individual fixed effects as well as on treatment dummies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-223}{}\label{exm:unnamed-chunk-223}Let's see how it goes.
+\protect\hypertarget{exm:unnamed-chunk-231}{}\label{exm:unnamed-chunk-231}Let's see how it goes.
 \end{example}
 
 \begin{Shaded}
@@ -10960,7 +11114,7 @@ Methods based on the Two Way Fixed Effects model were actually the most used one
 In this section, we will cover the basic issues that methods based on the Two Way Fixed Effects model face in a staggered design and we will state conditions under which they can be correct.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-224}{}\label{exm:unnamed-chunk-224}Before that, let us simply look at how the Two Way Fixed Effects model performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-232}{}\label{exm:unnamed-chunk-232}Before that, let us simply look at how the Two Way Fixed Effects model performs in our example.
 \end{example}
 
 \begin{Shaded}
@@ -11122,7 +11276,7 @@ This is potentially a severe problem.
 For example, estimates of the effect pre-treatment can appear large and positive whereas the effect at these dates is actually zero.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-228}{}\label{exm:unnamed-chunk-228}In our numerical example, we have already seen that the TWFE event-study estimator is not severely biased for the event study coefficients.
+\protect\hypertarget{exm:unnamed-chunk-236}{}\label{exm:unnamed-chunk-236}In our numerical example, we have already seen that the TWFE event-study estimator is not severely biased for the event study coefficients.
 We are going to use an example from \href{https://andrewcbaker.netlify.app/2020/06/27/how-to-create-relative-time-indicators/}{Andrew Baker} in order to illustrate the bias of the TWFE event-study estimator and try to understand its sources.
 \end{example}
 
@@ -11379,7 +11533,7 @@ So, in general, Sun and Abraham bias seems to come from a misleading binning of 
 Let us check whether this would generate weird results for the Two-Way Fixed Effects estimator in our dataset as well.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-229}{}\label{exm:unnamed-chunk-229}Let us check whether binning the post-treatment observations together (let's say the last two) generates bias for the event study estimator in our original dataset.
+\protect\hypertarget{exm:unnamed-chunk-237}{}\label{exm:unnamed-chunk-237}Let us check whether binning the post-treatment observations together (let's say the last two) generates bias for the event study estimator in our original dataset.
 We distinguish between an estimator using the data from the always takers and an estimator not using these observations.
 \end{example}
 
@@ -11686,118 +11840,160 @@ They are mostly cosmetic since thay are questions about properties of the Two-Wa
 \hypertarget{estimation-of-sampling-noise-2}{%
 \subsubsection{Estimation of sampling noise}\label{estimation-of-sampling-noise-2}}
 
-In all of our derivations of sampling noise for the estimators we have done so far, we have used the general formula for the OLS (or 2SLS) estimator(s) in the sample (\(\hat{\Theta}^{OLS}=(X'X)^{-1}X'Y\) and \(\hat{\Theta}^{IV}=(X'Z)^{-1}Z'Y\)) and we have derived first the actual formulas for the estimators in the sample and their distributions across sample repetitions.
-This strategy might be coming to an end.
-Indeed, the size of the \(X\) matrix needed to model Sun and Abraham's estimator in a 2SLS setting for example is going to be too large to be able to comfortably compute it by matrix inversion.
-What we need is a more general theorem that would give the general formulation, in the sample, of the different estimators following an OLS computation.
-It turns out that most of our estimators involving dummy variables (like a constant and the treatment) turn out to have parameters which are simply combinations of averages.
-This is true of the WW estimator and of the DID estimator.
-In both cases, the OLS estimator of a linear model with dummy variables has a nice a smooth interpretation in terms of averages and differences of averages.
-Could we generalize this result to a more general model based on dummy variables?
+We now need to derive the asymptotic distribution of our estimators in a staggered DID design.
+We are going to do that for the Sun and Abraham estimator, which is the simplest estimator that is estimated by OLS, Within, LSDV, First Difference or faster TWFE estimators and extends the simple DID estimators to staggered designs.
+There are two sets of parameters for which we might want to know their distribution: the parameter specific to each treated group and relative time to treatment \(\hat\beta^{SA}_{d,\tau}\) and the aggregated treatment effect \(\hat\Delta^{Y}_{TT}(k)\) for some set of weights \(w^k(d,d',\tau,\tau')\).
+Let's look at these parameters in turn.
 
-One promising direction is to use saturated models as \href{https://press.princeton.edu/books/paperback/9780691120355/mostly-harmless-econometrics}{Angrist and Pischke (2009)} do.
-A saturated model is a model involving only categorical variables where the model has a separate parameter for each various sets of parameter values that the covariates can take.
-Let's formulate Sun and Abraham's model as a saturated model:
+\hypertarget{estimation-of-sampling-noise-for-the-effect-of-the-treatment-on-each-group-and-at-each-time-period}{%
+\paragraph{Estimation of sampling noise for the effect of the treatment on each group and at each time period}\label{estimation-of-sampling-noise-for-the-effect-of-the-treatment-on-each-group-and-at-each-time-period}}
 
-\begin{align*}
-    Y_{i,t} &  = \alpha + \sum_{d=2}^T\mu_d\uns{D_{i}=d} + \sum_{\tau=2}^{T}\delta_{\tau}\uns{t=\tau} + \sum_{d=2}^T\sum_{\tau\neq-1}\beta_{d,\tau}^{SA}\uns{D_{i}=d \land t=d+\tau}  + \epsilon^{SA}_{i,t}.
-\end{align*}
+We can estimate the \(\hat\beta^{SA}_{d,\tau}\) with either repeated cross section data or panel data.
+Let us start with studying what happens with repeated cross sections before moving to panel data.
 
-Is that a saturated model?
-Let us check if that is the case, in the population, excluding the group of individuals that are always treated (adding this group would entail adding a separate dummy for each date at which they are observed, I leave that as an exercise), with \(T=4\):
+\hypertarget{estimation-of-sampling-noise-for-the-effect-of-the-treatment-on-each-group-and-at-each-time-period-with-repeated-cross-sections}{%
+\subparagraph{Estimation of sampling noise for the effect of the treatment on each group and at each time period with repeated cross sections}\label{estimation-of-sampling-noise-for-the-effect-of-the-treatment-on-each-group-and-at-each-time-period-with-repeated-cross-sections}}
 
-\begin{align*}
-  \esp{Y_{i,1}|D_i=\infty} & = \alpha \\
-  \esp{Y_{i,2}|D_i=\infty} & = \alpha+\delta_2  \\
-  \esp{Y_{i,3}|D_i=\infty} & = \alpha+\delta_3  \\
-  \esp{Y_{i,4}|D_i=\infty} & = \alpha+\delta_4  \\
-  \esp{Y_{i,1}|D_i=2} & = \alpha +\mu_2  \
-  \esp{Y_{i,2}|D_i=2} & = \alpha +\mu_2 +\delta_2 + \beta_{2,0}^{SA}  \\
-  \esp{Y_{i,3}|D_i=2} & = \alpha +\mu_2 +\delta_3 + \beta_{2,1}^{SA}  \\
-  \esp{Y_{i,4}|D_i=2} & = \alpha +\mu_2 +\delta_4 + \beta_{2,2}^{SA}  \\
-  \esp{Y_{i,1}|D_i=3} & = \alpha +\mu_3 +         + \beta_{3,-2}^{SA}   \\
-  \esp{Y_{i,2}|D_i=3} & = \alpha +\mu_3 + \delta_2   \\
-  \esp{Y_{i,3}|D_i=3} & = \alpha +\mu_3 + \delta_3 + \beta_{3,0}^{SA}  \\
-  \esp{Y_{i,4}|D_i=3} & = \alpha +\mu_3 + \delta_4 + \beta_{3,1}^{SA}  \\
-  \esp{Y_{i,1}|D_i=4} & = \alpha +\mu_4 +         + \beta_{4,-3}^{SA}   \\
-  \esp{Y_{i,2}|D_i=4} & = \alpha +\mu_4 + \delta_2+ \beta_{4,-2}^{SA}   \\
-  \esp{Y_{i,3}|D_i=4} & = \alpha +\mu_4 + \delta_3   \\
-  \esp{Y_{i,4}|D_i=4} & = \alpha +\mu_4 + \delta_4 + \beta_{4,0}^{SA} 
-\end{align*}
+With repeated cross sections, we can only use the OLS DID estimator of the Sun and Abraham model.
+The following theorem derives its distribution:
 
-The model has 16 parameters to model 16 different combinations of the regressors.
-It is thus a saturated model.
-
-Let us now state the Linear Conditional Expectation Function Theorem:
-
-\begin{theorem}[Linear Conditional Expectation Function]
-\protect\hypertarget{thm:LinearCEF}{}\label{thm:LinearCEF}Let \(\esp{Y_i|X_i}=X_i'\Theta^*\) for a \(K\times 1\) vector of coefficients \(\Theta^*\).
-Then \(\Theta^*=\esp{X_i'X_i}^{-1}\esp{X_i'Y_i}=\Theta^{OLS}\).
-\end{theorem}
-
-Theorem \ref{thm:LinearCEF} states that the coefficients of a model with a linear conditional expectation function can be obtained by using OLS.
-Applying Theorem \ref{thm:LinearCEF} to Sun and Abraham's saturated model, we have that:
+\begin{theorem}[Asymptotic Distribution of Sun and Abraham Estimator in Repeated Cross Sections]
+\protect\hypertarget{thm:asympnoiseSACross}{}\label{thm:asympnoiseSACross}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDIDCross} and \ref{hyp:finitevar}, and with repeated cross sections of total size \(N\), we have:
 
 \begin{align*}
-    \alpha & = \esp{Y_{i,1}|D_i=\infty}                         =\alpha^{OLS}  \\
-  \delta_2 & = \esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_2^{OLS}  \\
-  \delta_3 & = \esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_3^{OLS}   \\
-  \delta_4 & = \esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_4^{OLS}   \\
-     \mu_2 & = \esp{Y_{i,1}|D_i=2}-\esp{Y_{i,1}|D_i=\infty}     =\mu_2^{OLS}   \\
-     \mu_3 & = \esp{Y_{i,2}|D_i=3}-\esp{Y_{i,2}|D_i=\infty}     =\mu_3^{OLS}   \\
-     \mu_4 & = \esp{Y_{i,3}|D_i=4}-\esp{Y_{i,3}|D_i=\infty}     =\mu_4^{OLS}   \\
-  \beta_{2,0}^{SA} & = \esp{Y_{i,2}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}) =\beta_{2,0}^{OLS} \\
-  \beta_{2,1}^{SA} & = \esp{Y_{i,3}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}) =\beta_{2,1}^{OLS} \\
-  \beta_{2,2}^{SA} & = \esp{Y_{i,4}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}) =\beta_{2,2}^{OLS} \\
-  \beta_{3,-2}^{SA} & = \esp{Y_{i,1}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,1}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,-2}^{OLS}   \\
-   \beta_{3,0}^{SA} & = \esp{Y_{i,3}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,0}^{OLS}  \\
-   \beta_{3,1}^{SA} & = \esp{Y_{i,4}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,1}^{OLS}  \\
-  \beta_{4,-3}^{SA} & = \esp{Y_{i,1}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,1}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,-3}^{OLS} \\
-  \beta_{4,-2}^{SA} & = \esp{Y_{i,2}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,-2}^{OLS}   \\
-   \beta_{4,0}^{SA} & = \esp{Y_{i,4}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,0}^{OLS} 
+\sqrt{N}(\hat\beta^{SA}_{d,\tau}-\beta^{SA}_{d,\tau}) & \stackrel{d}{\rightarrow}
+                             \mathcal{N}\left(0,\frac{1}{p^{d,\tau}}
+                             \left[\frac{\var{Y^0_{i,d-1}|D_i=\infty}}{(1-p^{d,\tau}_D)(1-p^{d,\tau}_A)}
+                            +\frac{\var{Y^0_{i,d-1}|D_i=d}}{p^{d,\tau}_D(1-p^{d,\tau}_A)}\right.\right. \\
+            & \phantom{\stackrel{d}{\rightarrow}\mathcal{N}\left(0,\frac{1}{p^{d,\tau}}\right.}\left.\left.
+                            +\frac{\var{Y^0_{i,d+\tau}|D_i=\infty}}{(1-p^{d,\tau}_D)p^{d,\tau}_A}
+                            +\frac{\var{Y^1_{i,d+\tau}|D_i=\infty}}{p^{d,\tau}_Dp^{d,\tau}_A}
+                            \right]\right)
 \end{align*}
 
-What is nice with this Theorem is that it proves that Sun and Abraham's estimator is actually equal to the individual DID estimators \(\beta_{d,\tau}^{SA}=\Delta^{Y}_{DID}(d,\infty,\tau,d-1)\) in the population.
-Note though that this Theorem is true only in the population.
-It does not tell us what happens in the sample.
-\textbf{From the Law of Large Numbers, we know that if we use the sample equivalents to the population moments, they will converge to the correct estimator in the population.}
-\textbf{Are their asymptotic properties similar to those of the OLS estimator?}
-\textbf{Probably, but that remains to be shown.}
-\textbf{I do not know exactly how.}
-\textbf{I am going to act as if that were true for everything that follows.}
-\textbf{This whole in the reasoning need to be checked, either by brute matrix inversion or by another approach.}
-
-Using Theorem \ref{thm:asympnoiseDID} for panel data or Theorem \ref{thm:asympnoiseDIDCross} for repeated cross sections, we know the asymptotic distribution of each individual \(\hat\beta_{d,\tau}^{SA}\).
-The key now is to derive the distribution of the event study parameters and of the average treatment effect on the treated.
-We are going to use the Delta Method in order to do so, but that requires determining the covariance matrix of the \(\hat\beta_{d,\tau}^{SA}\) parameters.
-Under Assumption \ref{hyp:iidDID} for panel data or \ref{hyp:iidDIDCross} in repeated cross sections, most of the \(\hat\beta_{d,\tau}^{SA}\) parameters are independent from each other, except for the ones which make use of the same parts of the data.
-
-Finally, we have various sets of estimators available: the OLS DID model, the within transformation of the Sun and Abraham model with individual dummies, the Least Squares Dummy Variables model estimated by OLS, the First Difference model and the enhanced estimators (Alternating Projections and Likelihood Concentration).
-We first need to show that these estimators are equivalent and we then have to derive their asymptotic distributions, in panel and in repeated cross sections.
-
-\begin{theorem}[Asymptotic Estimate of Sampling Noise of the Sun and Abraham Estimator in Repeated Cross Sections]
-\protect\hypertarget{thm:asympnoiseSACross}{}\label{thm:asympnoiseSACross}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDIDCross} and \ref{hyp:finitevar}, for a given confidence level \(\delta\), the sampling noise of \(\hat{\Delta}^Y_{DID}\) in repeated cross sections of total size \(N\) can be approximated as follows:
-
-\begin{align*}
-2\epsilon^{cross}_{SA_{d,\tau}} & \approx 2\Phi^{-1}\left(\frac{\delta+1}{2}\right)\frac{1}{\sqrt{N}}\sqrt{
-                            \frac{\var{Y^0_{i,B}|D_i=0}}{(1-p)(1-p_A)}
-                            +\frac{\var{Y^0_{i,B}|D_i=1}}{p(1-p_A)}
-                            +\frac{\var{Y^0_{i,A}|D_i=0}}{(1-p)p_A}
-                            +\frac{\var{Y^1_{i,A}|D_i=1}}{pp_A}} \\
-                        & \equiv 2\tilde{\epsilon}^{cross}_{DID}.
-\end{align*}
-
-where \(p=\Pr(D_i=1)\) and \(p_A\) is the proportion of observations belonging to the After period.
+where \(p^{d,\tau}=\Pr((D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))\), \(p^{d,\tau}_D=\Pr(D_i=d|(D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))\) and \(p^{d,\tau}_A=\Pr(T_i=d+\tau|(D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))\).
 \end{theorem}
 
 \begin{proof}
 See Section \ref{proofasympnoiseSACross}.
 \end{proof}
 
-\textbf{There are two objects I am interested in: the event study coefficients and the aggregate treatment effect}
-\textbf{Both are combinations of individual DID estimates, some of them correlated because using the same reference period for example}
-\textbf{The proof could first show that saturated OLS is equal to mean comparisons (that would eschew the need to invert even larger matrices)}
-\textbf{Then, I could use the Delta Method to recover the distribution of both sets of parameters of interest}
+\begin{remark}
+Note that Theorem \ref{thm:asympnoiseSACross} is very close to Theorem \ref{thm:asympnoiseDIDCross}.
+The only difference is the additional \(p^{d,\tau}\) term which adjusts the sample size by the actual number of observations used in the estimation of \(\hat\beta^{SA}_{d,\tau}\).
+\end{remark}
+
+\hypertarget{estimation-of-sampling-noise-for-the-effect-of-the-treatment-on-each-group-and-at-each-time-period-with-panel-data}{%
+\subparagraph{Estimation of sampling noise for the effect of the treatment on each group and at each time period with panel data}\label{estimation-of-sampling-noise-for-the-effect-of-the-treatment-on-each-group-and-at-each-time-period-with-panel-data}}
+
+With panel data, we can estimate \(\hat\beta^{SA}_{d,\tau}\) using various sets of estimators: the OLS DID model, the within transformation of the Sun and Abraham model with individual dummies, the Least Squares Dummy Variables model estimated by OLS, the First Difference model and the enhanced estimators (Alternating Projections and Likelihood Concentration).
+Theorem \ref{thm:EquivDIDSAsamp} implies that all these estiamtors are similar and identical to the individual DID estimators.
+We can thus use Theorem \ref{thm:asympnoiseDID} in order to provide a CLT-based estimate the sampling noise of the Sun and Abraham estimator of the individual treatment effects in panel data.
+The following theorem derives its distribution:
+
+\begin{theorem}[Asymptotic Distribution of Sun and Abraham Estimator in Panel Data]
+\protect\hypertarget{thm:asympnoiseSAPanel}{}\label{thm:asympnoiseSAPanel}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDID} and \ref{hyp:finitevarDID}, and with panel data with \(N\) units observed over \(T\) periods, we have:
+
+\begin{align*}
+\sqrt{N}(\hat\beta^{SA}_{d,\tau}-\beta^{SA}_{d,\tau}) & \stackrel{d}{\rightarrow}
+                             \mathcal{N}\left(0,\frac{1}{p^{d,\infty}}\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\tau}_D}+\frac{\var{Y_{i,d+\tau}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\tau}_D}\right),
+\end{align*}
+
+where \(p^{d,\infty}=\Pr(D_i=d\cup D_i=\infty)\).
+\end{theorem}
+
+\begin{proof}
+See Section \ref{proofasympnoiseSAPanel}.
+\end{proof}
+
+\hypertarget{estimation-of-sampling-noise-for-aggregate-treatment-effects}{%
+\paragraph{Estimation of sampling noise for aggregate treatment effects}\label{estimation-of-sampling-noise-for-aggregate-treatment-effects}}
+
+The key now is to derive the distribution of the event study parameters and of the average treatment effect on the treated.
+We are going to use the Delta Method in order to do so, but that requires determining the covariance matrix of the \(\hat\beta_{d,\tau}^{SA}\) parameters.
+Under Assumption \ref{hyp:iidDID} for panel data or \ref{hyp:iidDIDCross} in repeated cross sections, most of the \(\hat\beta_{d,\tau}^{SA}\) parameters are independent from each other, except for the ones which make use of the same parts of the data.
+
+\hypertarget{estimation-of-sampling-noise-for-aggregate-treatment-effects-with-repeated-cross-sections}{%
+\subparagraph{Estimation of sampling noise for aggregate treatment effects with repeated cross sections}\label{estimation-of-sampling-noise-for-aggregate-treatment-effects-with-repeated-cross-sections}}
+
+The following theorem derives the asymptotic distribution of the aggregated treatment on the treated parameter based on the individual DID estimates stemming from Sun and Abraham's estimator, in repeated cross sections.
+
+\begin{theorem}[Asymptotic Distribution of Treatment of the Treated Estimated Using Sun and Abraham Estimator in Repeated Cross Sections]
+\protect\hypertarget{thm:asympnoiseSATTCross}{}\label{thm:asympnoiseSATTCross}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDIDCross} and \ref{hyp:finitevar}, and with repeated cross sections of total size \(N\), we have:
+
+\begin{align*}
+\sqrt{N}(\hat\Delta^{Y}_{TT_{SA}}(k)-\Delta^{Y}_{TT_{SA}}(k)) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\sum_d\sum_{\tau}V(\hat\beta^{SA}_{d,\tau})(w^k(d,d-1,\tau,\infty))^2 \right.\\
+        & \phantom{\stackrel{d}{\rightarrow}}\left.+\sum_{d\neq d'}\sum_{\tau\neq\tau'}\text{Cov}(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'})w^k(d,d-1,\tau,\infty)w^k(d',d'-1,\tau',\infty)\right),
+\end{align*}
+
+where:
+
+\begin{align*}
+V(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\tau}}\left[\frac{\var{Y^0_{i,d-1}|D_i=\infty}}{(1-p^{d,\tau}_D)(1-p^{d,\tau}_A)}
+                            +\frac{\var{Y^0_{i,d-1}|D_i=d}}{p^{d,\tau}_D(1-p^{d,\tau}_A)}\right. \\
+                          & \phantom{=}
+                            \left.+\frac{\var{Y^0_{i,d+\tau}|D_i=\infty}}{(1-p^{d,\tau}_D)p^{d,\tau}_A}
+                            +\frac{\var{Y^1_{i,d+\tau}|D_i=\infty}}{p^{d,\tau}_Dp^{d,\tau}_A}\right]\\
+\text{Cov}(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'}) & = \frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}}{p^{d,\tau}p^{d',\tau'}}
+            \left[\frac{\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \right.\\
+                & \phantom{=\frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}}{p^{d,\tau}p^{d',\tau'}}}\left.
+                +\frac{\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})p_D^{d,\tau}p_D^{d',\tau'}}\right] \text{ when } d=d'\\
+          & = \frac{p^{d,\tau,d',\tau'}p_{d+\tau}^{d,\tau,d',\tau'}\var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}\text{ when } d+\tau=d'+\tau' \\
+          & = -\frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}(1-p_A^{d,\tau})p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \text{ when } d-1=d'+\tau'\\
+          & = -\frac{p^{d,\tau,d',\tau'}p_{d'-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \text{ when } d+\tau=d'-1\\
+          & = 0 \text{ otherwise},
+\end{align*}
+\end{theorem}
+
+with \(p^{d,\tau,d',\tau'}=\Pr(D_j^{d',\tau'}D_j^{d,\tau}=1)\), \(p_{d+\tau}^{d,\tau,d',\tau'}=\Pr(T_j=d+\tau|D_j^{d',\tau'}D_j^{d,\tau}=1)\) and \(p_D^{d,\tau,d',\tau'}=\Pr(D_j^{d'}=1\cup D_j^{d}=1|D_j^{d',\tau'}D_j^{d,\tau}=1)\).
+
+\begin{proof}
+See Section \ref{proofasympnoiseSATTCross}.
+\end{proof}
+
+\begin{remark}
+Note that the covariance terms in Theorem \ref{thm:asympnoiseSATTCross} make a lot of sense.
+First, the proportions used to normalize the variance terms correspond exactly to the proportion of observations in the relevant groups.
+Second, the signs of the covariances are consistent with common sense.
+When \(d=d'\), the individual components \(\hat\beta^{SA}_{d,\tau}\) and \(\hat\beta^{SA}_{d',\tau'}\) estimate the impact for the same treatment group.
+They thus share their baseline means (both for the treated and control group observed at period \(d-1\)).
+As a consequence, they are positively correlated.
+When \(d+\tau=d'+\tau'\), both groups share the same post-treatment period, and thus use the same observations from the control group to build the After period, thereby generating a positive correlation again.
+When \(d-1=d'+\tau'\) or \(d'-1=d+\tau\), both estimators share the same group of observations from the control group.
+One uses them as a reference period, while the other uses the same observations as the after treatment period.
+As a consequence, the estimators are negatively correlated in that case.
+\end{remark}
+
+\hypertarget{estimation-of-sampling-noise-for-aggregate-treatment-effects-with-panel-data}{%
+\subparagraph{Estimation of sampling noise for aggregate treatment effects with panel data}\label{estimation-of-sampling-noise-for-aggregate-treatment-effects-with-panel-data}}
+
+Finally, we need to determine the asymptotic distribution of the aggregate average treatment effect on the treated \(\Delta^Y_{TT}(k)\).
+
+\begin{theorem}[Asymptotic Distribution of Treatment of the Treated Estimated Using Sun and Abraham Estimator in Panel Data]
+\protect\hypertarget{thm:asympnoiseSATTPanel}{}\label{thm:asympnoiseSATTPanel}Under Assumptions \ref{hyp:NoTreatmentFirst}, \ref{hyp:NoAnticipationEffects}, \ref{hyp:ParallelTrends}, \ref{hyp:iidDID} and \ref{hyp:finitevarDID}, and with panel data containing a total of \(N\) units, we have:
+
+\begin{align*}
+\sqrt{N}(\hat\Delta^{Y}_{TT_{SA}}(k)-\Delta^{Y}_{TT_{SA}}(k)) & \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\sum_d\sum_{\tau}V_P(\hat\beta^{SA}_{d,\tau})(w^k(d,d-1,\tau,\infty))^2 \right.\\
+        & \phantom{\stackrel{d}{\rightarrow}}\left.+\sum_{d\neq d'}\sum_{\tau\neq\tau'}\text{Cov}_P(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'})w^k(d,d-1,\tau,\infty)w^k(d',d'-1,\tau',\infty)\right),
+\end{align*}
+
+where:
+
+\begin{align*}
+V_P(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\tau}}\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\tau}_D}+\frac{\var{Y_{i,d+\tau}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\tau}_D}\\
+\text{Cov}_P(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'}) & = \text{ when } d=d'\\
+          & =\text{ when } d+\tau=d'+\tau' \\
+          & = \text{ when } d-1=d'+\tau'\\
+          & = \text{ when } d+\tau=d'-1\\
+          & = 0 \text{ otherwise},
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+See Section \ref{proofasympnoiseSATTPanel}.
+\end{proof}
 
 \hypertarget{difference-in-differences-with-instrumental-variables}{%
 \subsection{Difference In Differences with Instrumental Variables}\label{difference-in-differences-with-instrumental-variables}}
@@ -12000,7 +12196,7 @@ In general, one tries to choose standardized estimates such as the effect size (
 After all this process, we should end up with a dataset like: \(\left\{(\hat{\theta}_k,\hat{\sigma}_k)\right\}_{k=1}^N\), with \(\hat{\theta}_k\) the estimated effect size, \(\hat{\sigma}_k\) its estimated standard error, and \(N\) the number of included studies.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-235}{}\label{exm:unnamed-chunk-235}Let's see how such a dataset would look like?
+\protect\hypertarget{exm:unnamed-chunk-248}{}\label{exm:unnamed-chunk-248}Let's see how such a dataset would look like?
 Let's build one from our simulations.
 \end{example}
 
@@ -12261,7 +12457,7 @@ According to Hedges and Olkin, the weighted meta-analytic estimator is the most 
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-241}{}\label{exm:unnamed-chunk-241}Let's use our meta-analytic estimator to estimate the effect size of our treatment.
+\protect\hypertarget{exm:unnamed-chunk-254}{}\label{exm:unnamed-chunk-254}Let's use our meta-analytic estimator to estimate the effect size of our treatment.
 \end{example}
 
 The estimated treatment effect size with our sample is 0.19 \(\pm\) 0.02.
@@ -12406,7 +12602,7 @@ Hedges actually uses the unbiased estimator adapted to small samples and thus re
 \end{remark}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-243}{}\label{exm:unnamed-chunk-243}Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-256}{}\label{exm:unnamed-chunk-256}Let's compute Hedges' esimator for \(\tau^2\) in our numerical example.
 \end{example}
 
 Let's first define a few functions to compute each part:
@@ -12529,7 +12725,7 @@ An estimator for \(S^2\) is:
 \(ICC\) and \(I^2\) are related by the following very simple relation: \(I^2=ICC*100\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-244}{}\label{exm:unnamed-chunk-244}Let's see how these three estimators look like in our example.
+\protect\hypertarget{exm:unnamed-chunk-257}{}\label{exm:unnamed-chunk-257}Let's see how these three estimators look like in our example.
 The cool thing is that \texttt{rma} computes these estimators by default, so that a simple call to \texttt{summary()} is going to show them.
 The default random effects estimator is \texttt{REML}, which is deemed to be the best of them all according to simulations \href{https://journals.sagepub.com/doi/abs/10.3102/10769986030003261}{(Viechtbauer, 2002)}.
 \end{example}
@@ -12591,7 +12787,7 @@ One statistics that does that is the \(Q\) statistic where the variation in trea
 What is great with the \(Q\) statistic is that, under the Null hypothesis that all the treatment effects are equal to the same constant, it is distributed asymptotically as a \(\chi^2\) distribution with \(N-1\) degrees of freedom, and thus it can directly be used to test for the hypothesis of homogeneous treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-245}{}\label{exm:unnamed-chunk-245}In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
+\protect\hypertarget{exm:unnamed-chunk-258}{}\label{exm:unnamed-chunk-258}In our example, we have already computed the \(Q\) statistic when we have used the \texttt{rma} function in the \texttt{metafor} package.
 In order to access it, we just need to extract it using \texttt{meta.example.FE\$QE} for the \(Q\) statistic and \texttt{meta.example.FE\$QEp} for its p-value.
 \end{example}
 
@@ -12633,7 +12829,7 @@ Hedges proposes a new estimator for the average effect of the treatment, an esti
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-248}{}\label{exm:unnamed-chunk-248}Let's see how Hedges estimator performs in our example.
+\protect\hypertarget{exm:unnamed-chunk-261}{}\label{exm:unnamed-chunk-261}Let's see how Hedges estimator performs in our example.
 \end{example}
 
 Hedges' estimates of the average effect size is equal to 0.3 and 0.65 respectively, while the true value is NA.
@@ -12669,7 +12865,7 @@ I'll detail how they work later.
 \textbf{\textsc{Detail other estimators of tau.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-250}{}\label{exm:unnamed-chunk-250}For the moment, let's see how they perform in our numerical example.
+\protect\hypertarget{exm:unnamed-chunk-263}{}\label{exm:unnamed-chunk-263}For the moment, let's see how they perform in our numerical example.
 \end{example}
 
 \begin{Shaded}
@@ -12784,7 +12980,7 @@ In the presence of treatment effect heterogeneity, the fixed effect estimator fa
 \end{enumerate}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-251}{}\label{exm:unnamed-chunk-251}Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
+\protect\hypertarget{exm:unnamed-chunk-264}{}\label{exm:unnamed-chunk-264}Let's see how big a difference using random versus fixed effects does to the estimation of treatment effects.
 \end{example}
 
 Let's plot the two forest plots for the example with \(\tau=\) 0.25.
@@ -12976,7 +13172,7 @@ One correct estimator under that assumption is the Huber-White sandwich estimato
 \end{align*}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-252}{}\label{exm:unnamed-chunk-252}Let's see how all of these estimators work in our example.
+\protect\hypertarget{exm:unnamed-chunk-265}{}\label{exm:unnamed-chunk-265}Let's see how all of these estimators work in our example.
 In order to run a regression, I first need a covariate.
 I'm going to use the exact value of the noise that I've added to the regressions, so that I should be able to perfectly capture the heterogeneity in treatment effects.
 Let's see how this works.
@@ -13073,7 +13269,7 @@ Moreover, restrospectively, it helps us to assess when we would have reached eno
 The way constantly updated meta-analysis works is simply by performing a new meta-analysis each time a new results pops up.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-253}{}\label{exm:unnamed-chunk-253}Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
+\protect\hypertarget{exm:unnamed-chunk-266}{}\label{exm:unnamed-chunk-266}Figure \ref{fig:cumWMAE} shows how constantly updated meta-analysis works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -13193,7 +13389,7 @@ Well, among imprecisely estimated effects, only the largest ones are going to re
 They key trade-off is whether the resulting bias is very large or not.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-255}{}\label{exm:unnamed-chunk-255}What does publication bias look like in our example?
+\protect\hypertarget{exm:unnamed-chunk-268}{}\label{exm:unnamed-chunk-268}What does publication bias look like in our example?
 Let's assume that only statistically significant effects are published.
 Would it change our estimate?
 In order to see whether that is the case, let's build Figure \ref{fig:confintervalESCLT} with the addition of fixed effects estimator using all results and using only statistically significant results.
@@ -13272,7 +13468,7 @@ As a conclusion of Figure \ref{fig:PubBias}, publication bias biases the true ef
 With random effects, this behavior becomes even more severe, since only the sites at which the program has worked are going to appear in the published record, thereby biasing downards the true heterogeneity in treatment effects.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-256}{}\label{exm:unnamed-chunk-256}Here is how that impacts the truth in our example:
+\protect\hypertarget{exm:unnamed-chunk-269}{}\label{exm:unnamed-chunk-269}Here is how that impacts the truth in our example:
 \end{example}
 
 \begin{Shaded}
@@ -13415,7 +13611,7 @@ They will be concentrated on the lower left part of the plot, were standard erro
 Missing results generate an asymetric funnel plot.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-257}{}\label{exm:unnamed-chunk-257}Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-270}{}\label{exm:unnamed-chunk-270}Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -13519,7 +13715,7 @@ Rejecting the null means that there is evidence of a true effect.
 The PEESE estimates the bias-corrected effect size by using \(\hat{\beta}_1\).
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-258}{}\label{exm:unnamed-chunk-258}Let's see in practice how FAT, PET and PEESE work in our example.
+\protect\hypertarget{exm:unnamed-chunk-271}{}\label{exm:unnamed-chunk-271}Let's see in practice how FAT, PET and PEESE work in our example.
 We are going first to run the regressions on the sample with homogeneous treatment effects, and thus we are going to use the simple Weighted Least Squares approach.
 \end{example}
 
@@ -13861,7 +14057,7 @@ FAT-PET approximate this function linearly instead.
 One way to see how this operates is to add the FAT-PET and PEESE estimates to the funnel plots.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-259}{}\label{exm:unnamed-chunk-259}Let's see how the funnel plot works in our example.
+\protect\hypertarget{exm:unnamed-chunk-272}{}\label{exm:unnamed-chunk-272}Let's see how the funnel plot works in our example.
 \end{example}
 
 \begin{Shaded}
@@ -14020,7 +14216,7 @@ It uses non-central distributions to compute the pp-values.
 \textbf{\textsc{Code the additional pp-value test.}}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-260}{}\label{exm:unnamed-chunk-260}Let's see how these tests work in our example.
+\protect\hypertarget{exm:unnamed-chunk-273}{}\label{exm:unnamed-chunk-273}Let's see how these tests work in our example.
 \end{example}
 
 We first have to compute the p-values for each statistically significant effect.
@@ -14310,7 +14506,7 @@ Let's write the functions to compute just that:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-267}{}\label{exm:unnamed-chunk-267}Let's see how this approach works in our example.
+\protect\hypertarget{exm:unnamed-chunk-280}{}\label{exm:unnamed-chunk-280}Let's see how this approach works in our example.
 \end{example}
 
 Let's start with the homogeneous treatment effect case
@@ -14564,7 +14760,7 @@ Let's write an R function that maximizes this log likelihood:
 \end{Shaded}
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-274}{}\label{exm:unnamed-chunk-274}Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-287}{}\label{exm:unnamed-chunk-287}Let's see how this works in our example.
 Let's first prepare the sample.
 We are going to simulate two procedures of censoring: one with \(p_1=0.5\) and one with \(p_1=0\).
 \end{example}
@@ -14742,7 +14938,7 @@ with:
 Here again, the decomposition will be unique if there are no interactions between the treatment and the mediator variable.
 
 \begin{example}
-\protect\hypertarget{exm:unnamed-chunk-275}{}\label{exm:unnamed-chunk-275}Let's see how this works in our example.
+\protect\hypertarget{exm:unnamed-chunk-288}{}\label{exm:unnamed-chunk-288}Let's see how this works in our example.
 \end{example}
 
 The first order of business is to set up a model:
@@ -16275,12 +16471,12 @@ Using the same reasoning, we have:
                           & = 0.
 \end{align*}
 
-Using the vector version of the CLT that we have already invoked in the proof of Lemma \ref{lem:asympOLS}, we have that \(\sqrt{N}\frac{X'\epsilon}{N}\stackrel{d}{\rightarrow}\mathcal{N}((0,0,0,0),\mathbf{V_{x\epsilon}})\) with:
+Using the vector version of the CLT that we have already invoked in the proof of Lemma \ref{lem:asympOLS}, we have that \(\sqrt{N}\frac{X'\epsilon}{N}\sim\mathcal{N}((0,0,0,0),\mathbf{V_{x\epsilon}})\) with:
 
 \begin{align*}
   \mathbf{V_{x\epsilon}} & = \esp{\left(\begin{array}{c}  \epsilon_i  \\    \epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)
                                   \left(\begin{array}{cccc} \epsilon_i &    \epsilon_iD_i &  \epsilon_iT_i &  \epsilon_iD_iT_i \end{array}\right)}
-                  - \esp{\left(\begin{array}{c}  \epsilon_i  \\ \epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)}
+- \esp{\left(\begin{array}{c}  \epsilon_i  \\   \epsilon_iD_i \\ \epsilon_iT_i \\ \epsilon_iD_iT_i \end{array}\right)}
                     \esp{\left(\begin{array}{cccc}  \epsilon_i &    \epsilon_iD_i &  \epsilon_iT_i &  \epsilon_iD_iT_i \end{array}\right)}\\
                 & = \esp{\epsilon_i^2\left(\begin{array}{cccc}
                                               1 & D_i & T_i & D_iT_i \\
@@ -16292,8 +16488,8 @@ Using the vector version of the CLT that we have already invoked in the proof of
 
 where we made use of the fact that \(T_i^2=T_i\) and \(D_i^2=D_i\).
 
-Before we can use the Delta Method to derive the distribution of the OLS DID estimator, we need to compute \(\text{plim}N(X'X)^{-1}\) as a function of \(N\) and not \(N_A\), as we did before.
-In order to obtain that without redoing the matrix inversion all over again (which is pretty awful without the trick of factoring \(N_A\)), we are going to use the fact that the proportion of observations belonging to period \(A\) is equal to \(\bar{T}_A=\frac{N_A}{N}=\frac{1}{N}\sum_{j=1}^NT_j\), and the proportion of observations belonging to period \(B\) is equal to \(1-\bar{T}_A\).
+Before we can use the Delta Method to derive the distribution of the OLS DID estimator, we need to compute \(\text{plim}N(X'X)-1\) as a function of \(N\) and not \(N_A\), as we did before.
+In order to obtain that without redoing the matrix inversion all over again (which is pretty awful without the trick of factoring \(N_A\)), we are going to use the fact that the proportion of observations belonging to period \(A\) is equal to \(\bar{T}_A=\frac{N_A}{N}=\sum_{j=1}^NT_j\), and the proportion of observations belonging to period \(B\) is equal to \(1-\bar{T}_A\).
 We also have that \(k=\frac{N_B}{N_A}=\frac{(1-\bar{T}_A)N}{\bar{T}_AN}=\frac{1-\bar{T}_A}{\bar{T}_A}\).
 Finally, note that \(\pi=\frac{\bar{D}_B}{\bar{D}_A}\).
 As a consequence of that and of our previous computations, we have that:
@@ -16346,7 +16542,7 @@ As a consequence, we have:
 
 using the Law of Large Numbers, Slutsky's Theorem and the fact that \(\text{plim}\bar{T}_A=p_A\), the proportion of observations stemming from the After period, \(\text{plim}\bar{D}_A=\text{plim}\bar{D}_B=p\) and the fact that \(\frac{1}{p}\frac{1-p_A}{p_A}+\frac{1}{p}=\frac{1}{pp_A}\).
 
-Now, we can derive the asympotic distribution of \(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X'X)^{-1}\frac{\sqrt{N}}{N}X'\epsilon\).
+Now, we can derive the asymptotic distribution of \(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)=N(X'X)^{-1}\frac{\sqrt{N}}{N}X'\epsilon\).
 Using the Delta Method, we have that \(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)\stackrel{d}{\rightarrow}\mathcal{N}\left((0,0,0,0),\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\right)\).
 So we're in for a treat: deriving the lower diagonal term in the quadratic form \(\sigma_{XX}^{-1}\mathbf{V_{x\epsilon}}\sigma_{XX}^{-1}\).
 
@@ -16381,7 +16577,7 @@ We first need the four terms on the last line of \((1-p_A)^2(1-p)^2\sigma_{XX}^{
             & = p(1-\frac{1}{p})\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+\frac{1}{p_A}(\frac{1}{p}-1)\sigma_{\epsilon_{1,1}}^2pp_A\\
             & = -(1-p)\left(\sigma_{\epsilon_{1,0}}^2(1-p_A)+\sigma_{\epsilon_{1,1}}^2p_A\right)+(1-p)\sigma_{\epsilon_{1,1}}^2\\
             & = (1-p)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2(1-p_A)-\sigma_{\epsilon_{1,1}}^2p_A\right)\\
-            & = (1-p)(1-p_A)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2\right)
+            & = (1-p)(1-p_A)\left(\sigma_{\epsilon_{1,1}}^2-\sigma_{\epsilon_{1,0}}^2\right) \\
   \mathbf{C}& = \esp{\epsilon_j^2T_j} -\frac{1}{p}\esp{\epsilon_j^2D_jT_j} -\frac{1}{p_A}\esp{\epsilon_j^2T_j} + \frac{1}{pp_A}\esp{\epsilon_j^2D_jT_j}\\
             & = \esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)-\frac{1}{p}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
             & \phantom{=}-\frac{1}{p_A}\esp{\epsilon_j^2|T_j=1}\Pr(T_j=1)+\frac{1}{pp_A}\esp{\epsilon_j^2|D_j=1,T_j=1}\Pr(D_j=1|T_j=1)\Pr(T_j=1)\\
@@ -16438,82 +16634,570 @@ Finally, using the formula for \(\epsilon_j\), we have:
 
 This proves the result.
 
-\hypertarget{proofasympnoiseSACross}{%
-\section{Proof of Theorem \ref{thm:asympnoiseSACross}}\label{proofasympnoiseSACross}}
+\hypertarget{proofEquivDIDSApop}{%
+\subsection{Proof of Theorem \ref{thm:EquivDIDSApop}}\label{proofEquivDIDSApop}}
 
-The difficulty with estimating the distribution of the Sun and Abraham DID estimator is the sheer size of the task.
-Here is how we can write the model with group indicators:
+The proof uses saturated models as \href{https://press.princeton.edu/books/paperback/9780691120355/mostly-harmless-econometrics}{Angrist and Pischke(2009)}.
+A saturated model is a model involving only categorical variables where the model has a separate parameter for each various sets of parameter values that
+the covariates can take.
+We can check that Sun and Abraham's model is a saturated model.
+Let's start with the model in repeated cross sections (with group fixed effects).
+In the population, excluding the group of individuals that are always treated (adding this group would entail adding a separate dummy for
+each date at which they are observed, I leave that as an exercise), with \(T=4\) (larger time series do not change the basic result):
 
-\begin{align*}
-  Y & = X\Theta + \epsilon
+\begin{align*} 
+\esp{Y_{i,1}|D_i=\infty} & = \alpha \\ 
+\esp{Y_{i,2}|D_i=\infty} &= \alpha+\delta_2  \\ 
+\esp{Y_{i,3}|D_i=\infty} & = \alpha+\delta_3  \\
+\esp{Y_{i,4}|D_i=\infty} & = \alpha+\delta_4  \\ 
+\esp{Y_{i,1}|D_i=2} & = \alpha +\mu_2  \\ 
+\esp{Y_{i,2}|D_i=2} & = \alpha +\mu_2 +\delta_2 + \beta_{2,0}^{SA}\\ 
+\esp{Y_{i,3}|D_i=2} & = \alpha +\mu_2 +\delta_3 + \beta_{2,1}^{SA}  \\
+\esp{Y_{i,4}|D_i=2} & = \alpha +\mu_2 +\delta_4 + \beta_{2,2}^{SA}  \\
+\esp{Y_{i,1}|D_i=3} & = \alpha +\mu_3 +          \beta_{3,-2}^{SA}   \\
+\esp{Y_{i,2}|D_i=3} & = \alpha +\mu_3 + \delta_2   \\ 
+\esp{Y_{i,3}|D_i=3} & = \alpha +\mu_3 + \delta_3 + \beta_{3,0}^{SA}  \\ 
+\esp{Y_{i,4}|D_i=3} & = \alpha+\mu_3 + \delta_4 + \beta_{3,1}^{SA}  \\ 
+\esp{Y_{i,1}|D_i=4} & = \alpha +\mu_4 +\beta_{4,-3}^{SA}   \\ 
+\esp{Y_{i,2}|D_i=4} & = \alpha +\mu_4 + \delta_2+\beta_{4,-2}^{SA}   \\ 
+\esp{Y_{i,3}|D_i=4} & = \alpha +\mu_4 + \delta_3   \\
+\esp{Y_{i,4}|D_i=4} & = \alpha +\mu_4 + \delta_4 + \beta_{4,0}^{SA} 
+\end{align*}
+
+The model has 16 parameters to model the 16 different combinations of the regressors.
+It is thus a saturated model.
+Let us now state the Linear Conditional Expectation Function Theorem:
+
+\begin{theorem}[Linear Conditional Expectation Function]
+\protect\hypertarget{thm:LinearCEF}{}\label{thm:LinearCEF}Let \(\esp{Y_i|X_i}=X_i'\Theta^*\) for a \(K\times 1\) vector of coefficients \(\Theta^*\). Then \(\Theta^*=\esp{X_i'X_i}^{-1}\esp{X_i'Y_i}=\Theta^{OLS}\).
+\end{theorem}
+
+Theorem \ref{thm:LinearCEF} states that the coefficients of a model with a
+linear conditional expectation function can be obtained by using OLS. Applying
+Theorem \ref{thm:LinearCEF} to Sun and Abraham's saturated model, we have that:
+
+\begin{align*} 
+\alpha & = \esp{Y_{i,1}|D_i=\infty}=\alpha^{OLS}  \\ 
+\delta_2 & =\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_2^{OLS}  \\ 
+\delta_3 &= \esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_3^{OLS}   \\ 
+\delta_4 & = \esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}=\delta_4^{OLS}   \\ 
+\mu_2 & = \esp{Y_{i,1}|D_i=2}-\esp{Y_{i,1}|D_i=\infty}     =\mu_2^{OLS}   \\ 
+\mu_3 & = \esp{Y_{i,2}|D_i=3}-\esp{Y_{i,2}|D_i=\infty}     =\mu_3^{OLS}   \\ 
+\mu_4 & = \esp{Y_{i,3}|D_i=4}-\esp{Y_{i,3}|D_i=\infty}     =\mu_4^{OLS}   \\
+\beta_{2,0}^{SA} & = \esp{Y_{i,2}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty}) =\beta_{2,0}^{OLS} \\ 
+\beta_{2,1}^{SA} & = \esp{Y_{i,3}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty})=\beta_{2,1}^{OLS} \\ 
+\beta_{2,2}^{SA} & = \esp{Y_{i,4}|D_i=2}-\esp{Y_{i,1}|D_i=2}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,1}|D_i=\infty})=\beta_{2,2}^{OLS} \\ 
+\beta_{3,-2}^{SA} & =\esp{Y_{i,1}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,1}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,-2}^{OLS}\\ 
+\beta_{3,0}^{SA} & =\esp{Y_{i,3}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,3}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,0}^{OLS}\\ 
+\beta_{3,1}^{SA} & =\esp{Y_{i,4}|D_i=3}-\esp{Y_{i,2}|D_i=3}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,2}|D_i=\infty})=\beta_{3,1}^{OLS}\\ 
+\beta_{4,-3}^{SA} & =\esp{Y_{i,1}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,1}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,-3}^{OLS}\\ 
+\beta_{4,-2}^{SA} & =\esp{Y_{i,2}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,2}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,-2}^{OLS}\\ 
+\beta_{4,0}^{SA} & =\esp{Y_{i,4}|D_i=4}-\esp{Y_{i,3}|D_i=4}-(\esp{Y_{i,4}|D_i=\infty}-\esp{Y_{i,3}|D_i=\infty})=\beta_{4,0}^{OLS}
+\end{align*}
+
+This proves that Sun and Abraham's estimator is actually equal to the individual DID estimators \(\beta_{d,\tau}^{SA}=\Delta^{Y}_{DID}(d,\infty,\tau,d-1)\) in the population, which completes the proof for the model with group fixed effects and
+\(T=4\).
+I leave generalizing this result to any \(T\) and to the panel data model with individual fixed effects as an exercise.
+
+\hypertarget{proofEquivDIDSAsamp}{%
+\subsection{Proof of Theorem \ref{thm:EquivDIDSAsamp}}\label{proofEquivDIDSAsamp}}
+
+Let us start with Sun and Abraham's model in repeated cross sections, with group fixed effects.
+Here is how we can write this model with four time periods:
+
+\begin{align*} 
+Y & = X\Theta + \epsilon 
 \end{align*}
 with
-\begin{align*}
-  X\Theta & = \left(\begin{array}{cccccccccccccccc}
-                                          1 & D^2_1 & D^3_1 & D^4_1 & 0 & 0 & 0 & 0 & 0 & 0 & D^3_1 & 0 & 0 & D^4_1 & 0 & 0\\
-                                     \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\
-                                          1 & D^2_N & D^3_N & D^4_N & 0 & 0 & 0 & 0 & 0 & 0 & D^3_N & 0 & 0 & D^4_N & 0 & 0\\
-                                          1 & D^2_1 & D^3_1 & D^4_1 & 1 & 0 & 0 & D^2_1 & 0 & 0 & 0 & 0 & 0 & 0 & D^4_1 & 0\\
-                                     \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\
-                                          1 & D^2_N & D^3_N & D^4_N & 1 & 0 & 0 & D^2_N & 0 & 0 & 0 & 0 & 0 & 0 & D^4_N & 0\\
-                                          1 & D^2_1 & D^3_1 & D^4_1 & 0 & 1 & 0 & 0 & D^2_1 & 0 & 0 & D^3_1 & 0 & 0 & 0 & 0\\
-                                     \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\
-                                          1 & D^2_N & D^3_N & D^4_N & 0 & 1 & 0 & 0 & D^2_N & 0 & 0 & D^3_N & 0 & 0 & 0 & 0\\
-                                          1 & D^2_1 & D^3_1 & D^4_1 & 0 & 0 & 1 & 0 & 0 & D^2_1 & 0 & 0 & D^3_1 & 0 & 0 & D^4_1\\
-                                      \vdots & \vdots & \vdots & \vdots\\
-                                          1 & D^2_N & D^3_N & D^4_N & 0 & 0 & 1 & 0 & 0 & D^2_N & 0 & 0 & D^3_N & 0 & 0 & D^4_N\\
-                                          \end{array}\right)
-            \left(\begin{array}{c}  \alpha \\ \mu_2\\ \mu_3\\ \mu_4 \\ \delta_2\\ \delta_3\\ \delta_4 \\    \beta^{SA}_{2,0}\\  \beta^{SA}_{2,1}\\  \beta^{SA}_{2,2} \\ \beta^{SA}_{3,-2}\\ \beta^{SA}_{3,0}\\  \beta^{SA}_{3,1}\\  \beta^{SA}_{4,-3}\\ \beta^{SA}_{4,-2}\\ \beta^{SA}_{4,0}\end{array}\right)  
+\begin{align*} 
+Y & =\left(\begin{array}{c} Y_{1,1} \\ \vdots \\ Y_{N_1,1}\\ Y_{1,2} \\ \vdots \\Y_{N_2,2}\\ Y_{1,3} \\ \vdots \\ Y_{N_3,3}\\ Y_{1,4} \\ \vdots \\ Y_{N_4,4}
+\end{array}\right)  \\ 
+X & = \left(\begin{array}{cccccccccccccccc} 
+1 & D^2_1 & D^3_1 & D^4_1 & 0 & 0 & 0 & 0 & 0 & 0 & D^3_1 & 0 & 0 & D^4_1 & 0 & 0\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots &\vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_1} & D^3_{N_1} & D^4_{N_1} & 0 & 0 & 0 & 0 & 0 & 0 & D^3_{N_1} & 0 & 0 & D^4_{N_1} & 0 & 0\\ 
+1 & D^2_1 & D^3_1 & D^4_1 & 1 & 0 & 0 & D^2_1 & 0 & 0 & 0 & 0 & 0 & 0 & D^4_1 &0\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots &\vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_2} & D^3_{N_2} & D^4_{N_2} & 1 & 0 & 0 & D^2_{N_2} & 0 & 0 & 0 & 0 & 0 &0 & D^4_{N_2} & 0\\ 
+1 & D^2_1 & D^3_1 & D^4_1 & 0 & 1 & 0 & 0 & D^2_1 & 0 & 0 & D^3_1 & 0 & 0 & 0 & 0\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_3} & D^3_{N_3} & D^4_{N_3} & 0 & 1 & 0 & 0 & D^2_{N_3} & 0 & 0 & D^3_{N_3} & 0 & 0 & 0 & 0\\ 
+1 & D^2_1 & D^3_1 & D^4_1 & 0 & 0 & 1 & 0 & 0 & D^2_1 & 0 & 0 & D^3_1 & 0 & 0 & D^4_1\\ 
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots& \vdots & \vdots & \vdots & \vdots \\ 
+1 & D^2_{N_4} & D^3_{N_4} & D^4_{N_4} & 0 & 0 & 1 & 0 & 0 & D^2_{N_4} & 0 & 0 & D^3_{N_4} & 0 & 0 & D^4_{N_4} 
+\end{array}\right)\\ 
+\Theta & =\left(\begin{array}{c}    
+\alpha \\ \mu_2\\ \mu_3\\ \mu_4 \\ 
+\delta_2\\ \delta_3\\ \delta_4 \\   
+\beta^{SA}_{2,0}\\  \beta^{SA}_{2,1}\\  \beta^{SA}_{2,2}\\  
+\beta^{SA}_{3,-2}\\ \beta^{SA}_{3,0}\\  \beta^{SA}_{3,1}\\  
+\beta^{SA}_{4,-3}\\ \beta^{SA}_{4,-2}\\ \beta^{SA}_{4,0}
+\end{array}\right)\\ 
+\epsilon & =\left(\begin{array}{c}  
+\epsilon_{1,1} \\ \vdots \\\epsilon_{N_1,1}\\ \epsilon_{1,2} \\ \vdots \\ \epsilon_{N_2,2}\\ \epsilon_{1,3} \\ \vdots \\ \epsilon_{N_3,3}\\ \epsilon_{1,4} \\ \vdots \\ \epsilon_{N_4,4}
+\end{array}\right), 
 \end{align*}
 
-with four treatment periods, ignoring the group treated in the first period (as they are always treated) and denoting \(D^d_i=\uns{D_i=d}\).
+with \(D^d_i=\uns{D_i=d}\) and \(N_t\) the number of observations at time \(t\).
 If we are in a panel, each \(i\) is the same across time periods.
-If we are in a repeated cross section, the \(i\) refer to different individuals.
-Let's first look at what happens in a panel.
-We have:
+If we are in a repeated cross section, the \(i\) index refers to different individuals.
+This model is very difficult to solve by brute force, since its \(X'X\) matrix is \(16 \times 16\) and has no easy simplification on sight.
+Here is the \(X'X\) for panel data (which is slightly simpler), with \(\bar{D^d}=\frac{1}{N}\sum_{i=1}^N\uns{D_i=d}\), and \(N\) the number of individuals in the panel:
+
+\begin{align*} 
+X'X & = N\left(\begin{array}{cccccccccccccccc} 
+T & T\bar{D^2} & T\bar{D^3} & T\bar{D^4} & 1 & 1 & 1 & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^3} & \bar{D^3} & \bar{D^3} & \bar{D^4} & \bar{D^4} & \bar{D^4}\\
+T\bar{D^2} & T\bar{D^2} & 0           & 0          & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & 0         & 0         & 0 & 0 & 0 & 0 \\ 
+T\bar{D^3} & 0          & T\bar{D^3}  & 0          & \bar{D^3} & \bar{D^3} & \bar{D^3} & 0         & 0         & 0         & \bar{D^3} & \bar{D^3} & \bar{D^3}   & 0 & 0 & 0\\ 
+T\bar{D^4} & 0          & 0           & T\bar{D^4} & \bar{D^4} & \bar{D^4} & \bar{D^4} & 0         & 0         & 0 & 0    & 0    & 0   & \bar{D^4} & \bar{D^4} & \bar{D^4}\\ 
+1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 1         & 0         & 0         & \bar{D^2} & 0 & 0         & 0    & 0    & 0   & 0 & \bar{D^4} & 0 \\ 
+1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 0         & 1         & 0         & 0         & \bar{D^2} & 0         & 0   & \bar{D^3} & 0 & 0 & 0 & 0\\
+1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 0         & 0         & 1         & 0         & 0 & \bar{D^2} & 0   & 0          & \bar{D^3} & 0 & 0 & \bar{D^4}\\ 
+\bar{D^2} & \bar{D^2} & 0            & 0          & \bar{D^2} & 0         & 0         & \bar{D^2} & 0         & 0         & 0    & 0    & 0   & 0 & 0 & 0 \\ 
+\bar{D^2} & \bar{D^2} & 0            & 0          & 0         & \bar{D^2} & 0         & 0 & \bar{D^2} & 0         & 0    & 0    & 0   & 0 & 0 & 0\\ 
+\bar{D^2} & \bar{D^2} & 0            & 0          & 0         & 0         & \bar{D^2} & 0         & 0 & \bar{D^2} & 0    & 0    & 0   & 0 & 0 & 0 \\ 
+\bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & 0         & 0         & 0         & 0         &  0 & \bar{D^3} & 0    & 0   & 0 & 0 & 0  \\ 
+\bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & \bar{D^3} & 0         & 0         & 0         &  0 & 0         & \bar{D^3} & 0   & 0 & 0 & 0   \\ 
+\bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & 0         & \bar{D^3} & 0         & 0         &  0 & 0         & 0         & \bar{D^3} & 0 & 0 & 0 \\ 
+\bar{D^4} & 0         & 0            & \bar{D^4}  & 0         & 0         & 0         & 0         & 0         &  0 & 0         & 0         &  0        & \bar{D^4} & 0 & 0 \\ 
+\bar{D^4} & 0         & 0            & \bar{D^4}  & \bar{D^4} & 0         & 0         & 0         & 0         & 0        & 0         & 0         &  0        & 0 & \bar{D^4} & 0 \\ 
+\bar{D^4} & 0         & 0            & \bar{D^4}  & 0         & 0         & \bar{D^4} & 0         & 0         &  0        & 0         & 0         &  0        & 0 & 0 & \bar{D^4} 
+\end{array}\right) 
+\end{align*}
+
+The epiphany comes when you are able to write this model with a separate constant, time and group dummies for each separate treated group for which we want to estimate the DID model for.
+We have 9 separate interaction parameters \(\beta^{SA}_{d,\tau}\) to estimate. We are thus going to estimate \(9 \times 4\) parameters total (\emph{i.e.} run 9 separate regressions with four parameters, but all at once).
+We thus have to write a \(36 \times 36\) \(X'X\) matrix.
+The key is that this matrix is going to be block diagonal, with \(4 \times 4\) blocks that are identical to the blocks of the \(X'X\) matrix in the case of a simple OLS DID estimator with two time periods.
+Also, the parameters that are redundant in this model (\emph{i.e.} that appear several times at different places) will be estimated in exactly the same way, which shows that the two formulations of the model (\(16 \times 16\) and \(36 \times 36\)) are equivalent and estimate the exact same set of
+16 parameters.
+In order to see how this works (and to prove the result), let's write the model for \(\beta^{SA}_{2,0}\).
+To be able to do that, we are going to order all the observations in each time period by the opposite of the treatment group to which they belong.
+We also denote \(N_t^{d}\) the number of observations of group \(D_i=d\) in period \(t\), \(D^d_{i,t}=\uns{D_i=d}\) and \(T^{d+\tau}_{i,t}=\uns{d+\tau=t}\).
+With these notations, we have:
+
+\begin{align*} 
+\underbrace{\left(\begin{array}{c} 
+Y_{1,1} \\  \vdots \\   Y_{N_1^{\infty},1} \\Y_{N_1^{\infty}+1,1} \\    \vdots \\   Y_{N_1^{\infty}+N_1^{2},1} \\ Y_{1,2} \\    \vdots \\   Y_{N_2^{\infty},2} \\Y_{N_2^{\infty}+1,2} \\    \vdots \\   Y_{N_2^{\infty}+N_2^{2},2} 
+\end{array}\right)}_{Y_{2,0}} & = 
+\underbrace{\left(\begin{array}{cccc} 
+1 & D^2_{1,1} & T^2_{1,1} & D^2_{1,1}T^2_{1,1}\\ \vdots & \vdots & \vdots & \vdots\\
+1 & D^2_{N_1^{\infty},1} & T^2_{N_1^{\infty},1} & D^2_{N_1^{\infty},1}T^2_{N_1^{\infty},1} \\ 
+1 & D^2_{N_1^{\infty}+1,1} & T^2_{N_1^{\infty}+1,1} & D^2_{N_1^{\infty}+1,1}T^2_{N_1^{\infty}+1,1} \\ 
+\vdots & \vdots & \vdots & \vdots\\ 
+1 & D^2_{N_1^{\infty}+N_1^{2},1} & T^2_{N_1^{\infty}+N_1^{2},1} & D^2_{N_1^{\infty}+N_1^{2},1}T^2_{N_1^{\infty}+N_1^{2},1} \\ 
+1 & D^2_{1,2} & T^2_{1,2} & D^2_{1,2}T^2_{1,2}\\ \vdots & \vdots & \vdots & \vdots\\ 
+1 & D^2_{N_1^{\infty},2} & T^2_{N_1^{\infty},2} & D^2_{N_1^{\infty},2}T^2_{N_1^{\infty},2} \\ 
+1 & D^2_{N_1^{\infty}+1,2} & T^2_{N_1^{\infty}+1,2} & D^2_{N_1^{\infty}+1,2}T^2_{N_1^{\infty}+1,2} \\ 
+\vdots & \vdots & \vdots & \vdots\\ 1 & D^2_{N_1^{\infty}+N_1^{2},2} & T^2_{N_1^{\infty}+N_1^{2},2} & D^2_{N_1^{\infty}+N_1^{2},2}T^2_{N_1^{\infty}+N_1^{2},2} 
+\end{array}\right)}_{X_{2,0}}
+\underbrace{\left(\begin{array}{c}  
+\tilde\alpha_{2,0} \\ \tilde\mu_{2,0} \\ \tilde\delta_{2,0} \\  \beta^{SA}_{2,0} \end{array}\right)}_{\Theta_{2,0}} + 
+\underbrace{\left(\begin{array}{c} 
+\epsilon_{1,1} \\   \vdots \\   \epsilon_{N_1^{\infty},1} \\\epsilon_{N_1^{\infty}+1,1} \\  \vdots \\   \epsilon_{N_1^{\infty}+N_1^{2},1} \\ \epsilon_{1,2} \\  \vdots \\   \epsilon_{N_2^{\infty},2} \\\epsilon_{N_2^{\infty}+1,2} \\  \vdots \\   \epsilon_{N_2^{\infty}+N_2^{2},2} 
+\end{array}\right)}_{\epsilon_{2,0}}
+\end{align*}
+
+Now, we can write 9 such models, one for each \(\beta^{SA}_{d,\tau}\).
+If we stack the \(Y_{d,\tau}\) on top of each other, starting with \(d=2\) and \(\tau=0\), and we stack in the same way the \(\Theta_{d,\tau}\) vectors, and, finally, we regroup all the \(X_{d,\tau}\) matrices in a block diagonal matrix, we have a new model
+\(\tilde{Y} = \tilde{X}\tilde{\Theta} + \tilde{\epsilon}\).
+The stacked model has \(4 \times 9=36\) parameters while the original model has 16 parameters.
+For the two models to be identical, it has to be that there exists \(36-16=20\) direct restrictions on the parameters of the stacked model.
+Using the fact that some parts of the data set are duplicated in teh stack model, we can determine the link between the parameters in the stacked model and the ones in the original model.
+For example, we know that \(Y_{1,1}=\tilde{\alpha}_{2,0}+\epsilon_{1,1}=\tilde{\alpha}_{2,1}+\epsilon_{1,1}=\tilde{\alpha}_{2,2}+\epsilon_{1,1}=\alpha+\epsilon_{1,1}\).
+As a consequence, we have \(\tilde{\alpha}_{2,0}=\tilde{\alpha}_{2,1}=\tilde{\alpha}_{2,2}=\alpha\).
+Using similar sets of restrictions, we can also show that: \(\tilde\delta_{2,0}=\delta_2\), \(\tilde\delta_{2,1}=\delta_3\) and \(\tilde\delta_{2,2}=\delta_4\); \(\tilde{\mu}_{d,\tau}=\mu_d\), \(\forall d,\tau\); \(\tilde{\alpha}_{3,-2}=\tilde{\alpha}_{3,0}=\tilde{\alpha}_{3,1}=\alpha+\delta_2\);
+\(\tilde{\alpha}_{4,-3}=\tilde{\alpha}_{4,-2}=\tilde{\alpha}_{4,0}=\alpha+\delta_3\); \(\tilde\delta_{3,-2}=-\delta_2\); \(\tilde\delta_{3,0}=\delta_3-\delta_2\); \(\tilde\delta_{3,1}=\delta_4-\delta_2\); \(\tilde\delta_{4,-3}=-\delta_3\); \(\tilde\delta_{4,-2}=\delta_2-\delta_3\); \(\tilde\delta_{4,0}=\delta_4-\delta_3\).
+We have thus shown that every single parameter in the stacked model can be derived from the parameters in the original model. What is left to check now is that the estimation of the stacked model by OLS abides by the constraints
+implied by these equalities.
+In order to complete the proof, we make use of the fact that \href{https://en.wikipedia.org/wiki/Block_matrix}{the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block}.
+Using the proof of Theorem \ref{thm:asympnoiseDIDCross} (especially the beginning of the proof, which derives the OLS DID estimator in repeated cross sections of different sizes), we can now show that:
+
+\begin{align*} 
+\hat{\tilde{\alpha}}^{OLS}_{d,\tau} & = \bar{Y}^{\infty}_{d-1}\\
+\hat{\tilde{\mu}}^{OLS}_{d,\tau} & = \bar{Y}^{d}_{d-1}-\bar{Y}^{\infty}_{d-1}\\
+\hat{\tilde{\delta}}^{OLS}_{d,\tau} & =
+\bar{Y}^{\infty}_{d+\tau}-\bar{Y}^{\infty}_{d-1}\\ \hat{\beta}^{SA}_{d,\tau} & =
+\bar{Y}^{d}_{d+\tau}-\bar{Y}^{d}_{d-1}-(\bar{Y}^{\infty}_{d+\tau}-\bar{Y}^{\infty}_{d-1}).
+\end{align*}
+
+These results show that all the constraints on the parameters of the stacked model are verified (I leave this as an exercise).
+The last equality proves the result for the OLS DID model in repeated cross sections.
+The proof for panel data follows exactly the same lines.
+
+Let us now turn to the First Difference estimator in panel data.
+The First Difference transformation of Sun and Abraham model which uses \(d-1\) as the benchmark period can be written as follows (for \(\tau\neq-1\)):
 
 \begin{align*}
-  X'X & = N\left(\begin{array}{cccccccccccccccc}
-           T & T\bar{D^2} &  T\bar{D^3} & T\bar{D^4} & 1 & 1 & 1 & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^3} & \bar{D^3} & \bar{D^3} & \bar{D^4} & \bar{D^4} & \bar{D^4}\\
-  T\bar{D^2} & T\bar{D^2} & 0           & 0          & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & \bar{D^2} & 0         & 0         & 0           & 0 & 0 & 0 \\
-  T\bar{D^3} & 0          & T\bar{D^3}  & 0          & \bar{D^3} & \bar{D^3} & \bar{D^3} & 0         & 0         & 0         & \bar{D^3} & \bar{D^3} & \bar{D^3}   & 0 & 0 & 0\\
-  T\bar{D^4} & 0          & 0           & T\bar{D^4} & \bar{D^4} & \bar{D^4} & \bar{D^4} & 0         & 0         & 0         & 0    & 0    & 0   & \bar{D^4} & \bar{D^4} & \bar{D^4}\\
-           1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 1         & 0         & 0         & \bar{D^2} & 0         & 0         & 0    & 0    & 0   & 0 & \bar{D^4} & 0 \\
-           1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 0         & 1         & 0         & 0         & \bar{D^2} & 0         & 0   & \bar{D^3} & 0 & 0 & 0 & 0\\
-           1 & \bar{D^2}  & \bar{D^3}   & \bar{D^4}  & 0         & 0         & 1         & 0         & 0         & \bar{D^2} & 0   & 0          & \bar{D^3} & 0 & 0 & \bar{D^4}\\
-   \bar{D^2} & \bar{D^2} & 0            & 0          & \bar{D^2} & 0         & 0         & \bar{D^2} & 0         & 0         & 0    & 0    & 0   & 0 & 0 & 0 \\
-   \bar{D^2} & \bar{D^2} & 0            & 0          & 0         & \bar{D^2} & 0         & 0         & \bar{D^2} & 0         & 0    & 0    & 0   & 0 & 0 & 0\\
-   \bar{D^2} & \bar{D^2} & 0            & 0          & 0         & 0         & \bar{D^2} & 0         & 0         & \bar{D^2} & 0    & 0    & 0   & 0 & 0 & 0 \\
-   \bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & 0         & 0         & 0         & 0         &  0        & \bar{D^3} & 0    & 0   & 0 & 0 & 0  \\
-   \bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & \bar{D^3} & 0         & 0         & 0         &  0        & 0         & \bar{D^3} & 0   & 0 & 0 & 0   \\
-   \bar{D^3} & 0         & \bar{D^3}    & 0          & 0         & 0         & \bar{D^3} & 0         & 0         &  0        & 0         & 0         & \bar{D^3} & 0 & 0 & 0 \\
-   \bar{D^4} & 0         & 0            & \bar{D^4}  & 0         & 0         & 0         & 0         & 0         &  0        & 0         & 0         &  0        & \bar{D^4} & 0 & 0 \\
-   \bar{D^4} & 0         & 0            & \bar{D^4}  & \bar{D^4} & 0         & 0         & 0         & 0         &  0        & 0         & 0         &  0        & 0 & \bar{D^4} & 0 \\
-   \bar{D^4} & 0         & 0            & \bar{D^4}  & 0         & 0         & \bar{D^4} & 0         & 0         &  0        & 0         & 0         &  0        & 0 & 0 & \bar{D^4}\\
+  Y_{i,d+\tau} - Y_{i,d-1} & = \alpha_{d,\tau}^{FD} + \beta_{d,\tau}^{FD}\uns{D_i=d} + \epsilon^{FD}_{i,d+\tau},
+\end{align*}
+
+with:
+
+\begin{align*}
+  \alpha_{d,\tau}^{FD} & = \delta_{d+\tau} - \delta_{d-1}\\
+  \beta_{d,\tau}^{FD} & = \beta_{d,\tau}^{SA}\\
+  \epsilon^{FD}_{i,d+\tau} & = \epsilon^{SA}_{i,d+\tau}-\epsilon^{FD}_{i,d-1}.
+\end{align*}
+
+Using the same trick as for the model in repeated cross sections, we can rewrite this model as stacked model with a block diagonal matrix of covariates.
+Here is the block corresponding to the estimation of \(\beta^{SA}_{2,0}\):
+
+\begin{align*} 
+\underbrace{\left(\begin{array}{c} 
+Y_{1,2}-Y_{1,1}  \\ \vdots \\   Y_{N^{\infty},2}-   Y_{N^{\infty},1} \\Y_{N^{\infty}+1,2}-Y_{N^{\infty}+1,1} \\ \vdots \\   Y_{N^{\infty}+N^{2},2} -Y_{N^{\infty}+N^{2},1}
+\end{array}\right)}_{\Delta Y_{2,0}} & = 
+\underbrace{\left(\begin{array}{cccc} 
+1 & 0 \\ 
+\vdots & \vdots\\ 
+1 & 0 \\ 
+1 & 1 \\ 
+\vdots & \vdots\\ 
+1 & 1 
+\end{array}\right)}_{\Delta X_{2,0}}
+\underbrace{\left(\begin{array}{c}  
+\alpha^{FD}_{2,0} \\    \beta^{FD}_{2,0} \end{array}\right)}_{\Theta^{FD}_{2,0}} + 
+\underbrace{\left(\begin{array}{c} 
+\epsilon^{FD}_{1,2} \\  \vdots \\   \epsilon^{FD}_{N^{\infty},2} \\\epsilon^{FD}_{N^{\infty}+1,2} \\    \vdots \\   \epsilon^{FD}_{N^{\infty}+N^{2},2} 
+\end{array}\right)}_{\epsilon^{FD}_{2,0}}
+\end{align*}
+
+Stacking all the vectors of outcomes, the vector of coefficients and the vector of residuals on top of each other, and organizing the matrices of covariates in a block diagonal matrix, we obtain the stacked Sun and Abraham model in first differences: \(\Delta Y = \Delta X\Theta^{FD} + \epsilon^{FD}\).
+Using the fact that \href{https://en.wikipedia.org/wiki/Block_matrix}{the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block} and the proof of Lemma \ref{lem:WWOLS}, we can show that \(\hat\beta^{FD}_{d,\tau}\) is the with/without estimator applied to \(Y_{i,d+\tau} - Y_{i,d-1}\).
+The result follows.
+
+Let us now study the Within estimator of Sun and Abraham model in panel data.
+The within mean of Sun and Abraham model depends on the group the observation belongs to.
+For \(i\) such that \(D_i=d\), we have:
+
+\begin{align*}
+  \underbrace{\frac{1}{T}\sum_{t=1}^TY_{i,t}}_{\bar{Y}_{i,.}} = \underbrace{\frac{1}{T}\sum_{t=1}^T\delta_{t}}_{\bar{\delta}}+ \underbrace{\frac{1}{T}\sum_{\tau\neq-1}^T\beta_{d,\tau}^{SA}}_{\bar{\beta}_d} \uns{D_i=d}+\underbrace{\frac{1}{T}\sum_{t=1}^T\epsilon_{i,t}}_{\bar{\epsilon}_{i,.}}.
+\end{align*}
+
+As a consequence, for \(i\) such that \(D_i=d\) or \(D_i=\infty\), we can write the within transformation of Sun and Abraham model as follows:
+
+\begin{align*}
+  Y_{i,d+\tau}-\bar{Y}_{i,.} & = \underbrace{\delta_{d-1}-\bar{\delta}}_{\alpha_d^{FE}}+\underbrace{(\delta_{d+\tau}-\delta_{d-1})}_{\delta_{d+\tau}^{FE}}\uns{T_i=d+\tau}\underbrace{-\bar{\beta}_d}_{\mu_d^{FE}}\uns{D_i=d} +\beta_{d,\tau}^{SA}\uns{D_i=d}\uns{T_i=d+\tau}+\epsilon_{i,t}-\bar{\epsilon}_{i,.}.
+\end{align*}
+
+The within transformation of Sun and Abraham model is thus equivalent to the OLS DID model applied to the within-transformed outcomes \(Y_{i,d+\tau}-\bar{Y}_{i,.}\).
+Building a stacked model of the within transformed Sun and Abraham model and using the fact that \href{https://en.wikipedia.org/wiki/Block_matrix}{the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block} along with Theorem \ref{thm:EstimDID} proves that:
+
+\begin{align*}
+\hat\beta_{d,\tau}^{SA} & = \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-\bar{Y}_{i,.}-(Y_{i,d-1}-\bar{Y}_{i,.}))\uns{D_i=d}}{\sum_{i=1}^{N}\uns{D_i=d}} \\
+                            & \phantom{=} - \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-\bar{Y}_{i,.}-(Y_{i,d-1}-\bar{Y}_{i,.}))\uns{D_i=\infty}}{\sum_{i=1}^{N}\uns{D_i=\infty}}\\
+                            & = \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-Y_{i,d-1})\uns{D_i=d}}{\sum_{i=1}^{N}\uns{D_i=d}} \\
+                            & \phantom{=} - \frac{\sum_{i=1}^{N}(Y_{i,d+\tau}-Y_{i,d-1})\uns{D_i=\infty}}{\sum_{i=1}^{N}\uns{D_i=\infty}},
+\end{align*}
+
+which proves the result.
+
+Let us finally look at the Least Squares Dummy Variables estimator.
+Let's denote \(X_{\mu}\) the matrix of individual dummies in the LSDV estimator.
+We are going to apply Theorem \ref{thm:FWL}, \emph{i.e.} Frish-Waugh-Lovell Theorem, partialling out these individual dummies from the list of regressors.
+First, we have \((X'_{\mu}X_{\mu})^{-1}=\frac{1}{T}I_N\) where \(I_N\) is the identity matrix of dimension \(N\) and \(T\) is the total number of time periods in the panel.
+Second, we have that \(M_{\mu}Y=X_{\mu}(X'_{\mu}X_{\mu})^{-1}X'_{\mu}Y=\left(\dots,Y_{i,t}-\bar{Y}_{i,.},\dots\right)\).
+For the time fixed effects, we have \(M_{\mu}X_{-\mu,T}\) a matrix with \(1-\frac{1}{T}\) where \(T_{i,t}=1\) and \(-\frac{1}{T}\) otherwise.
+For the interactive treatment dummies, we have \(M_{\mu}X_{-\mu,DT}\) a matrix with \(D^d_i(1-\frac{1}{T})\) where \(D^d_i\) appeared in the original \(X_{-\mu,DT}\) matrix (the last 9 columns of the \(X\) matrix) and \(-\frac{D^d_i}{T}\) otherwise.
+As a consequence of Theorem \ref{thm:FWL}, we can rewrite the LSDV model as follows:
+
+\begin{align*}
+  Y_{i,t} - \bar{Y}_{i,.} & = \delta_t-\bar\delta-\sum_d\bar\beta^{SA}_d\uns{D_i=d}+\sum_d\sum_{\tau\neq-1}\beta^{SA}_{d,\tau}\uns{D_i=d}\uns{t=d+\tau}+\epsilon^{LSDV}_{i,t} - \bar{\epsilon}^{LSDV}_{i,.}.
+\end{align*}
+
+This is the same formula as the one we have uncovered in the within transformation we have studied just above.
+Using the same approach proves the result.
+
+\hypertarget{proofasympnoiseSACross}{%
+\subsection{Proof of Theorem \ref{thm:asympnoiseSACross}}\label{proofasympnoiseSACross}}
+
+Using the beginning of the proof of Lemma \ref{lem:asympOLS}, we know that: \(\sqrt{N}(\hat{\tilde\Theta}_{OLS}-\tilde\Theta)=N(\tilde{X}'\tilde{X})^{-1}\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}\).
+Using Slutsky's Theorem, we know that we can study both terms separately (see the same proof of Lemma \ref{lem:asympOLS}).
+\(N(\tilde{X}'\tilde{X})^{-1}\) can be derived rather directly from the fact that Sun and Abraham model can be written as a block diagonal matrix, as shown in the proof of Theorem \ref{thm:EquivDIDSAsamp}.
+The most difficult part is going to be to derive the distribution of \(\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}\).
+
+Let us start with \(N(\tilde{X}'\tilde{X})^{-1}\).
+Let us define \(N_{t,d}\) the number of observations observed in group \(d\) at period \(t\).
+We also define \(N^B_{d,\tau}=N_{d-1,\infty}+N_{d-1,d}\) the number of observations used to estimate \(\hat{\beta}^{SA}_{d,\tau}\) that are observed in the reference (or before) period and \(N^A_{d,\tau}=N_{d+\tau,\infty}+N_{d+\tau,d}\) the number of observations used to estimate \(\hat{\beta}^{SA}_{d,\tau}\) that are observed in the after period.
+We also define \(N^{SA}_{d,\tau}=N^A_{d,\tau}+N^B_{d,\tau}\), the number of observations used to estimate \(\hat{\beta}^{SA}_{d,\tau}\).
+We also define \(\bar{T}_A^{d,\tau}=\frac{N^A_{d,\tau}}{N^{SA}_{d,\tau}}\), \(k^{d,\tau}=\frac{N^B_{d,\tau}}{N^{A}_{d,\tau}}=\frac{1-\bar{T}_A^{d,\tau}}{\bar{T}_A^{d,\tau}}\).
+We let \(\bar{D}_A^{d,\tau}\) and \(\bar{D}_B^{d,\tau}\) denote the proportion of treated observations in the after and before periods used to estimate \(\hat{\beta}^{SA}_{d,\tau}\).
+We also define \(\bar{P}^{d,\tau}=\frac{N^{SA}_{d,\tau}}{N}\) the proportion of observations used to estimate \(\hat{\beta}^{SA}_{d,\tau}\).
+We also have: \(\text{plim}\bar{P}^{d,\tau}=p^{d,\tau}\), \(\text{plim}\bar{D}_A^{d,\tau}=\text{plim}\bar{D}_B^{d,\tau}=p^{d,\tau}_D\) and \(\text{plim}\bar{T}_A^{d,\tau}=p^{d,\tau}_A\). \(p^{d,\tau}=\Pr(D^{d,\tau}_i=1)\), with \(D^{d,\tau}_i=\uns{(D_i=d\lor D_i=\infty)\land(T_i=d-1\lor T_i=d+\tau)}\) a dummy indicating that a unit in the population belongs to the set of units used to identify \(\beta^{SA}_{d,\tau}\). \(p^{d,\tau}_D=\Pr(D_i=d|D^{d,\tau}_i=1)\) is the proportion of treated units among the set of units used to identify \(\beta^{SA}_{d,\tau}\).
+\(p^{d,\tau}_A=\Pr(T_i=d+\tau|D^{d,\tau}_i=1)\) is the proportion of units belonging to the after period among the set of units used to identify \(\beta^{SA}_{d,\tau}\).
+Finally, let \((X'X)^{-1}_{d,\tau}\) denote the block of the matrix \((\tilde{X}'\tilde{X})^{-1}\) which is used to estimate \(\hat{\beta}^{SA}_{d,\tau}\).
+With all these definitions, we can now follow the proof of Theorem \ref{thm:asympnoiseDIDCross} in order to derive the following result:
+
+\begin{align*}
+\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau} &= \text{plim}N(X'X)^{-1}_{d,\tau} = \frac{1}{p^{d,\tau}(1-p^{d,\tau}_A)(1-p^{d,\tau}_D)}
+\left(\begin{array}{cccc}
+1 & -1 & -1 & 1\\
+-1 & \frac{1}{p^{d,\tau}_D} & 1 & -\frac{1}{p^{d,\tau}_D} \\
+-1 & 1 & \frac{1}{p^{d,\tau}_A} & -\frac{1}{p^{d,\tau}_A} \\
+1 & -\frac{1}{p^{d,\tau}_D} & -\frac{1}{p^{d,\tau}_A}  & \frac{1}{p^{d,\tau}_Dp^{d,\tau}_A}
 \end{array}\right)
 \end{align*}
 
-And
+Using the fact that \href{https://en.wikipedia.org/wiki/Block_matrix}{the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block}, we now know
+\(\text{plim}N(\tilde{X}'\tilde{X})^{-1}=\sigma_{\tilde{X}\tilde{X}}^{-1}\) is block diagonal matrix with blocks equal to \(\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}\).
+
+Let us now turn to \(\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}\).
+In order to derive its distribution, we have to write Sun and Abraham model in a repeated cross section with the observations grouped by blocks corresponding to the parameters they help to estimate.
+This model can be written as:
 
 \begin{align*}
-  X'Y & = \left(\begin{array}{c}
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
-  \\
+  Y_{j}D^{d,\tau}_j &  = \tilde\alpha^{d,\tau}D^{d,\tau}_j + \tilde\mu_{d,\tau}\uns{D_{j}=d}D^{d,\tau}_j + \tilde\delta_{d,\tau}\uns{T_j=d+\tau}D^{d,\tau}_j \\
+                    & \phantom{=}  +  \beta_{d,\tau}^{SA}\uns{D_{i}=d}\uns{T_j=d+\tau}D^{d,\tau}_j  + \tilde\epsilon_{j}D^{d,\tau}_j,
+\end{align*}
+
+with:
+
+\begin{align*}
+\tilde\epsilon_{j} & = Y_{j}-\left(\esp{Y^0_{j}|D_j=\infty,T_j=d-1}\right.\\
+                          & \phantom{=Y_{j}-\left(\right.}+\uns{D_j=d}(\esp{Y^0_{j}|D_j=d,T_j=d-1}-\esp{Y^0_{j}|D_j=\infty,T_j=d-1})
+                          & \phantom{=Y_{j}-\left(\right.}+\uns{T_j=d+\tau}(\esp{Y^0_{j}|D_j=\infty,T_j=d+\tau}-\esp{Y^0_{j}|D_j=\infty,T_j=d-1})\\
+                          & \phantom{=Y_{j}-\left(\right.}+\uns{D_{j}=d}\uns{T_j=d+\tau}(\esp{Y^1_{j}|D_j=d,T_j=d+\tau}-\esp{Y^0_{j}|D_j=d,T_j=d-1}\\
+                          & \phantom{=Y_{j}-\left(\right.+\uns{D_{j}=d}\uns{T_j=d+\tau}}\left.-(\esp{Y^0_{j}|D_j=\infty,T_j=d+\tau}-\esp{Y^0_{j}|D_j=\infty,T_j=d-1}))\right).
+\end{align*}
+
+It is pretty straightforward to prove that \(\esp{\tilde\epsilon_{j}D^{d,\tau}_j}=0\).
+For that, note that \(D^{d,\tau}_j=f(D_j,T_j)\) so that conditioning on \(D^{d,\tau}_j\) is irrelevant when also conditioning on \((D_j,T_j)\).
+Then, check that \(\esp{\tilde\epsilon_{j}D^{d,\tau}_j\uns{D_{j}=d}\uns{T_j=d+\tau}}=0\).
+The same thing holds for \(\esp{\tilde\epsilon_{j}D^{d,\tau}_j\uns{T_j=d+\tau}}=0\) and for \(\esp{\tilde\epsilon_{j}D^{d,\tau}_j\uns{D_{j}=d}}=0\), which proves the result.
+
+It can also be shown that \(\esp{\tilde\epsilon_{j}D^{d,\tau}_jD^{d',\tau'}_j}=0\), with either \(j\neq j'\) or \(\tau\neq \tau'\) or both.
+If it is the case that \(D^{d,\tau}_j\Ind D^{d',\tau'}_j\), then the term is zero.
+If \(D^{d,\tau}_j\) and \(D^{d',\tau'}_j\) are not independent, by definition of \(D^{d,\tau}_j\), \(\esp{\tilde\epsilon_{j}D^{d,\tau}_jD^{d',\tau'}_j}\) can only involve the following terms: \(\esp{\tilde\epsilon_{j}|D_j=d,T_j=d+\tau}\), \(\esp{\tilde\epsilon_{j}|D_j=d,T_j=d-1}\), \(\esp{\tilde\epsilon_{j}|D_j=\infty,T_j=d+\tau}\) and \(\esp{\tilde\epsilon_{j}|D_j=\infty,T_j=d-1}\), and all of these terms are equal to zero.
+
+Using the vector version of the Central Limit Theorem that we have already used in the proof of Theorem \ref{thm:asympnoiseDIDCross}, we thus have that \(\frac{\sqrt{N}}{N}\tilde{X}'\tilde{\epsilon}\sim\mathcal{N}(\mathbf{0},\mathbf{V_{\tilde{x}\tilde{\epsilon}}})\).
+Using the Delta Method, we have that \(\sqrt{N}(\hat{\Theta}_{OLS}-\Theta)\stackrel{d}{\rightarrow}\mathcal{N}\left(\mathbf{0},\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}\right)\).
+In order to prove the result, we simply need to derive the fourth term on the diagonal of each \(4\times 4\) block of \(\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}\).
+Since \(\sigma_{\tilde{X}\tilde{X}}^{-1}\) is block diagonal, the \(4\times 4\) blocks of \(\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}\) are equal to \(\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}\mathbf{V}^{d,\tau}_{\mathbf{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}^{-1}}^{d,\tau}\), with (following the proof of Theorem \ref{thm:asympnoiseDIDCross}):
+
+\begin{align*}
+  \mathbf{V}^{d,\tau}_{\mathbf{\tilde{x}\tilde{\epsilon}}} & =
+                                        \esp{\epsilon_j^2D^{d,\tau}_j\left(\begin{array}{cccc}
+                                              1 & D^d_j &   T^{d,\tau}_j & D^d_jT^{d,\tau}_j \\
+                                              D^d_j & D^d_j &   D^d_jT^{d,\tau}_j & D^d_jT^{d,\tau}_j \\
+                                              T^{d,\tau}_j & D^d_jT^{d,\tau}_j &    T^{d,\tau}_j & D^d_jT^{d,\tau}_j \\
+                                              D^d_jT^{d,\tau}_j & D^d_jT^{d,\tau}_j &   D^d_jT^{d,\tau}_j & D^d_jT^{d,\tau}_j
+                                            \end{array}\right)},
+\end{align*}
+
+with \(D^d_j=\uns{D_{j}=d}\) and \(T_j^{d,\tau}=\uns{T_j=d+\tau}D^{d,\tau}_j\).
+Following the proof of Theorem \ref{thm:asympnoiseDIDCross} proves the result.
+
+\hypertarget{proofasympnoiseSATTCross}{%
+\subsection{Proof of Theorem \ref{thm:asympnoiseSATTCross}}\label{proofasympnoiseSATTCross}}
+
+The key to the proof relies on the covariance terms.
+The covariance terms come from the off-\(4\times 4\)-block-diagonal elements of the \(\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}\) matrix.
+They are due to the fact that the same data are used repeatedly to estimate the \(\beta^{SA}_{d,\tau}\) parameters.
+For example, the observations from the never treated group are used as benchmarks for the estimation of \(\beta^{SA}_{2,0}\), \(\beta^{SA}_{2,1}\) and \(\beta^{SA}_{2,2}\).
+The same observations are used as post-treatment observations for the estimation of \(\beta^{SA}_{2,0}\), \(\beta^{SA}_{3,-2}\) and \(\beta^{SA}_{4,-3}\).
+
+In order to rigorously derive these covariance terms, we need to derive the off-\(4\times 4\)-block-diagonal elements of the \(\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}\) matrix in the proof of Theorem \ref{thm:asympnoiseSACross}.
+For two sets of observations used to estimate \(\beta^{SA}_{d,\tau}\) and \(\beta^{SA}_{d',\tau'}\), \(d\neq d'\) or \(\tau\neq\tau'\), we only need the last line of the off-\(4\times 4\)-block-diagonal covariance matrix of \(\sigma_{\tilde{X}\tilde{X}}^{-1}\mathbf{V_{\tilde{x}\tilde{\epsilon}}}\sigma_{\tilde{X}\tilde{X}}^{-1}\).
+Indeed, using results in the proof of Theorem \ref{thm:asympnoiseSACross}, we can show that:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \frac{1}{p^{d,\tau}p^{d',\tau'}(1-p_A^{d,\tau})(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \\
+                & \phantom{=}  \left(\mathbf{A}_4-\frac{1}{p_D^{d,\tau}}\mathbf{B}_4-\frac{1}{p_A^{d,\tau}}\mathbf{C}_4+\frac{1}{p_A^{d,\tau}p_D^{d,\tau}}\mathbf{D}_4\right),
+\end{align*}
+
+with:
+
+\begin{align*}
+  \mathbf{A}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}}\\
+  \mathbf{B}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}\\
+  \mathbf{C}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}}\\
+\mathbf{D}_4 & = \esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p_D^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}} -\frac{1}{p^{d',\tau'}_A}\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}} \\
+                & \phantom{=} + \frac{1}{p_D^{d',\tau'}p_A^{d',\tau'}}\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jT^{d,\tau}_jD_j^{d,\tau}}
+\end{align*}
+
+Let us start with \(\mathbf{A}_4\)'s first term, \(\esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}}\).
+Note first that if \(d=d'\), we have to have \(\tau\neq\tau'\), otherwise the term would be on the diagonal.
+As a consequence, with \(d=d'\), we can have only two configurations for which \(D_j^{d',\tau'}D_j^{d,\tau}=1\), and they both correspond to a baseline observation (\(T_j=d-1\)) either for the control group (\(D_j=\infty\)) or for the treated group (\(D_j=d\)).
+In that case, we thus have:
+
+\begin{align*}
+\esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \left(\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})\right.\\
+                                            & \phantom{=}\left.+\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}\right)p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'},
+\end{align*}
+
+with \(p_D^{d,\tau,d',\tau'}\) the proportion of treated individuals in the group such as \(D_j^{d',\tau'}D_j^{d,\tau}=1\) and \(p_{d-1}^{d,\tau,d',\tau'}\) is the proportion of observations observed in period \(d-1\) among the observations such as \(D_j^{d',\tau'}D_j^{d,\tau}=1\) and \(p^{d,\tau,d',\tau'}\) the proportion of observations such as \(D_j^{d',\tau'}D_j^{d,\tau}=1\).
+
+When \(d\neq d'\), we have three possible cases: \(d-1=d'+\tau'\), \(d'-1=d+\tau\) or \(d'+\tau'=d+\tau\).
+Because the treated groups are different in that case, the only possible correspondence in these cases is due to the control group, with the After period for one treated group being the Before period for another treated group or the After periods being the same for both groups.
+If \(d-1=d'+\tau'\), we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'},
+\end{align*}
+
+where \(p_{d-1}^{d,\tau,d',\tau'}\) is the proportion of observations observed in period \(d-1\) among the observations such as \(D_j^{d',\tau'}D_j^{d,\tau}=1\).
+
+If \(d'-1=d+\tau\), we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Finally, if \(d'+\tau'=d+\tau\), we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Let us now look at the next term: \(\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D_j^{d,\tau}}\).
+Here, there is only one case that yields a non zero term, when \(d=d'\) (all the other configurations involve only the untreated group and thus have \(D^{d'}_j=0\)).
+In that case, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d'-1}|D_i=d'}p_D^{d,\tau,d',\tau'}p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Let us now look at the next term: \(\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}}\).
+Here, there are two cases that yield a non zero term, when \(d-1=d'+\tau'\) and when \(d'+\tau'=d+\tau\) (all the other configurations involve only the Before period and thus have \(T^{d',\tau'}_j=0\)).
+In both case, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}} & = \var{Y^0_{i,d'+\tau'}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'+\tau'}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+Let us now look at the next term: \(\esp{\epsilon_j^2D^{d'}_jT^{d',\tau'}_jD_j^{d',\tau'}D_j^{d,\tau}}\).
+This term is equal to zero since there is no treated observation observed in a post-treatment period such that \(D_j^{d',\tau'}D_j^{d,\tau}=1\).
+
+Let us now move on to \(\mathbf{B}_4\).
+For \(\esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}\) to be non zero, we have to have that \(d=d'\) (otherwise, \(D_j^d=0\)).
+The only corresponding nonzero case corresponds to a baseline observation for the treated group:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}D^{d}_jD_j^{d,\tau}} & = \var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+The next term (\(\esp{\epsilon_j^2D^{d'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}\)) is the same since, with \(d=d'\), \(D_j^d=D_j^{d'}\).
+The last two terms of \(\mathbf{B}_4\) are null everywhere.
+This is because it can only be that \(d=d'\) (since \(D_j^d=1\)) and it cannot be a baseline observation (since \(T^{d,\tau'}_j=1\)).
+Since treated observations appear only once for each \(d\), \(\tau\neq\tau'\Rightarrow\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}D^{d}_jD_j^{d,\tau}}=0\).
+
+Let us now move on to \(\mathbf{C}_4\).
+For the first term \(\esp{\epsilon_j^2D_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}}\), we cannot have nonzero terms when \(d=d'\), since this case involves only baseline period variances and this contradicts \(T^{d,\tau}_j=1\), and thus the term is null in that case.
+The only possible nonzero cases involve \(d'-1=d+\tau\) or \(d'+\tau'=d+\tau\).
+In that case, we have:
+
+\begin{align*}
+  \esp{\epsilon_j^2D_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+The next term in \(\mathbf{C}_4\) is zero everywhere since it involves the same term as above plus the additional requirement that \(D^{d'}_j=1\).
+Since this entails that observations have to belong to a treatment group, and the previous term only includes terms from the control group, this term has to be zero everywhere.
+
+The term \(\esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}}\) is non zero only when \(d'+\tau'=d+\tau\) (it is the same as the first term in \(\mathbf{C}_4\) with the added constraint that \(T^{d',\tau'}_j=1\)).
+We thus have:
+\begin{align*}
+  \esp{\epsilon_j^2T^{d',\tau'}_jD_j^{d',\tau'}T^{d,\tau}_jD_j^{d,\tau}} & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}.
+\end{align*}
+
+The last term in \(\mathbf{C}_4\) everywhere since it is a subset of the second term, which is already zero.
+
+Finally, all the terms in \(\mathbf{D}_4\) are equal to zero.
+This is because \(T^{d,\tau}_jD^{d}_j=1\) implies that we cannot have \(d=d'\) (because the only nonzero terms would then be the ones in the baseline period, which contradicts the fact that \(T^{d,\tau}_j=1\)).
+The remaining potential nonzero configurations only concern the control group, which runs counter \(D^{d}_j=1\).
+Hence the result.
+
+Collecting terms, we now have, when \(d=d'\):
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}\\
+             & \phantom{=}+\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p_D^{d',\tau'}})\\
+  \mathbf{B}_4 & = \var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p_D^{d',\tau'}})\\
+  \mathbf{C}_4 & = 0 \\
+\mathbf{D}_4 & = 0,
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}}{p^{d,\tau}p^{d',\tau'}} \left(\frac{\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \right.\\
+                & \phantom{=}\left.+\frac{\var{Y^0_{i,d-1}|D_i=d}p_D^{d,\tau,d',\tau'}}{(1-p_A^{d,\tau})(1-p_A^{d',\tau'})p_D^{d,\tau}p_D^{d',\tau'}}\right).
+\end{align*}
+
+Alternatively, when \(d+\tau=d'+\tau'\), we have:
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p^{d',\tau'}_A}) \\
+  \mathbf{B}_4 & = 0\\
+  \mathbf{C}_4 & = \var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d+\tau}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p^{d',\tau'}_A})\\
+\mathbf{D}_4 & = 0
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \frac{p^{d,\tau,d',\tau'}p_{d+\tau}^{d,\tau,d',\tau'}\var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}
+\end{align*}
+
+Finally, when \(d-1=d'+\tau'\), we have:
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'}(1-\frac{1}{p^{d',\tau'}_A})\\
+  \mathbf{B}_4 & = 0\\
+  \mathbf{C}_4 & = 0\\
+\mathbf{D}_4 & = 0
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = -\frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}(1-p_A^{d,\tau})p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}.
+\end{align*}
+
+And when \(d'-1=d+\tau\), we have:
+
+\begin{align*}
+  \mathbf{A}_4 & = \var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'} \\
+  \mathbf{B}_4 & = 0\\
+  \mathbf{C}_4 & = \var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})p_{d'-1}^{d,\tau,d',\tau'}p^{d,\tau,d',\tau'} \\
+\mathbf{D}_4 & = 0
+\end{align*}
+
+and thus:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = -\frac{p^{d,\tau,d',\tau'}p_{d'-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}
+\end{align*}
+
+This proves the result.
+
+\hypertarget{proofasympnoiseSAPanel}{%
+\subsection{Proof of Theorem \ref{thm:asympnoiseSAPanel}}\label{proofasympnoiseSAPanel}}
+
+The proof follows closely that of Theorem \ref{thm:asympnoiseSACross}, except that our stacked model is \(\Delta Y = \Delta X\Theta^{FD} + \epsilon^{FD}\), as introduced in the proof of \ref{thm:EquivDIDSAsamp}.
+Using the beginning of the proof of Lemma \ref{lem:asympOLS}, we know that: \(\sqrt{N}(\hat{\Theta}^{FD}-\Theta^{FD})=N(\Delta X'\Delta X)^{-1}\frac{\sqrt{N}}{N}\Delta X'\epsilon^{FD}\).
+Using Slutsky's Theorem, we know that we can study both terms separately (see the same proof of Lemma \ref{lem:asympOLS}).
+
+Let us start with \(N(\Delta X'\Delta X)^{-1}\).
+Let's denote \(N_{d,\infty}\) the number of observations that are such that \(D_i=d\) or \(D_i=\infty\) and \(p^{d,\infty}=\text{plim}\frac{N_{d,\infty}}{N}\).
+Let's also denote \(p^{d,\infty}_D=\Pr(D_i=d|D_i=d\cup D_i=\infty)\).
+Using the same reasoning as in the proof of Theorem \ref{thm:asympnoiseSACross}, and using the proof of Theorem \ref{thm:asympnoiseWW}, we can show that:
+
+\begin{align*}
+\sigma_{\Delta X \Delta X^{-1}}^{d,\tau} &= \text{plim}N(\Delta X'\Delta X)^{-1}_{d,\tau} = \frac{1}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}
+\left(\begin{array}{cc}
+p^{d,\infty}_D & -p^{d,\infty}_D\\
+-p^{d,\infty}_D &  1
 \end{array}\right)
 \end{align*}
+
+with \(N(\Delta X'\Delta X)^{-1}_{d,\tau}\) the block of the \(N(\Delta X'\Delta X)^{-1}\) matrix that is related to the estimation of \(\hat{\beta}^{SA}_{d,\tau}\) and using the fact that \href{https://en.wikipedia.org/wiki/Block_matrix}{the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block}.
+The proof then follows the line of the proof of Theorem \ref{thm:asympnoiseWW}, replacing \(Y_{i}\) by \(Y_{i,d+\tau}-Y_{i,d-1}\).
+This proves the result.
+
+\hypertarget{proofasympnoiseSATTPanel}{%
+\subsection{Proof of Theorem \ref{thm:asympnoiseSATTPanel}}\label{proofasympnoiseSATTPanel}}
 
 \end{document}
