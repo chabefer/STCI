@@ -5037,6 +5037,937 @@ V_P(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\tau}}\left(\frac{\var{Y_{i,d+\tau
 See Section \@ref(proofasympnoiseSATTPanel).
 ```
 
-
 ### Difference In Differences with Instrumental Variables
+
+Sometimes, the Parallel Trends Assumption (Assumption \@ref(hyp:ParallelTrends) or Assumption \@ref(hyp:ParallelTrendsTime) with staggered designs) does not hold.
+This might be because individuals select into the treatment based on unobservables correlated with the dynamics of outcomes in the absence of the treatment.
+One of the most famous cases in point is [the dip in earnings that future participants experience before entering a Job Training Program](https://www.jstor.org/stable/2565708).
+In that case, one might be able to reframe the Parallel Trends Assumption to hold not with respect to treatment participation, but with respect to an instrumental variable that affects participation in the treatment.
+In such a case, we say that we have a Difference In Differences design with Instrumental Variables or DID-IV for short.
+In this section, we are going to study how to identify treatment effects in this design and how to estimate them and their precision.
+
+In DID-IV designs, a key distinction is between a strong first stage and a weak first stage.
+In a strong first stage, observations with a low level of the instrumental variable do not access the program, while in a weak first stage, they can.
+In a world of heterogeneous treatment effects, this distinction turns out to be crucial.
+We will first delineate identification and estimation in the case of a strong first stage, and then move on to what happens in the more complex case of a weak first stage.
+
+#### DID-IV with a strong first stage
+
+Let us first examine what is happening with DID-IV under a strong first stage.
+We are going to consider identification, estimation and estimation of sampling noise.
+
+##### Identification under strong first stage DID-IV
+
+We need some assumptions first.
+We are going to go back to the case where there are only two time periods, one before ($t=B$) and one after ($t=A$).
+We are going to keep making Assumptions \@ref(hyp:NoTreatmentFirst) and \@ref(hyp:NoAnticipationEffects) of absence of treatment in period $t=B$ and of absence of anticipation effects. 
+On top of these assumptions, we are first going to assume that there is a random variable $Z_i$ taking two values ($Z_i=1$ and $Z_i=0$) such that the parallel trends assumption holds for this variable:
+
+```{hypothesis,ParallelTrendsIV,name="Parallel Trends with Instrumental Variables"}
+We assume that the trends in the potential outcomes in the absence the treatment are the same, independent of the value of the instrumental variable:
+
+\begin{align*}
+    \esp{Y^0_{i,A}|Z_i=1} - \esp{Y^0_{i,B}|Z_i=1} & =   \esp{Y^0_{i,A}|Z_i=0} - \esp{Y^0_{i,B}|Z_i=0}.
+\end{align*}
+```
+
+We also assume that the instrumental variables alters the probability that a unit receives the treatment: 
+
+```{hypothesis,StrongFirstStageDIDIV,name="Strong First Stage"}
+The probability of receiving the treatment is strictly positive when $Z_i=1$ and is zero when $Z_i=0$:
+
+\begin{align*}
+\Pr(D_i=1|Z_i=1)>\Pr(D_i=1|Z_i=0)=0.
+\end{align*}
+
+```
+
+```{remark}
+Assumption \@ref(hyp:StrongFirstStageDIDIV) is really strong.
+Combined with Assumption \@ref(hyp:NoTreatmentFirst), it implies that the only group which is able to receive the treament is the group with $Z_i=1$ in the After period.
+```
+
+Equipped with these assumptions, we can now prove the following theorem:
+
+```{theorem,IdentTTDIDIVStrongFS,name="Indentification of TT with DID-IV and a Strong First Stage"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV) and \@ref(hyp:StrongFirstStageDIDIV), TT is identified by the Wald-DID estimator:
+
+\begin{align*}
+  \Delta^Y_{WaldDID} & = \Delta^{Y_A}_{TT},
+\end{align*}
+
+with:
+\begin{align*}
+  \Delta^Y_{WaldDID} & = \frac{\esp{Y_{i,A}|Z_i=1}-\esp{Y_{i,A}|Z_i=0}-(\esp{Y_{i,B}|Z_i=1}-\esp{Y_{i,B}|Z_i=0})}{\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,A}=1|Z_i=0)-(\Pr(D_{i,B}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=0))}.
+\end{align*}
+```
+
+```{proof}
+Under Assumption \@ref(hyp:ParallelTrendsIV), we have:
+
+\begin{align*}
+  \esp{Y^0_{i,A}|Z_i=1} & = \esp{Y^0_{i,A}|Z_i=0} + (\esp{Y^0_{i,B}|Z_i=1}-\esp{Y^0_{i,B}|Z_i=0})
+\end{align*}
+
+As a consequence, the numerator of the Wald-DID estimator is:
+
+\begin{align*}
+\esp{Y_{i,A}|Z_i=1} & -\esp{Y_{i,A}|Z_i=0}-(\esp{Y_{i,B}|Z_i=1}-\esp{Y_{i,B}|Z_i=0}) \\
+                    & = \esp{Y_{i,A}|Z_i=1} - \esp{Y^0_{i,A}|Z_i=1} \\
+                    & = \esp{Y^1_{i,A}|D_i=1,Z_i=1}\Pr(D_i=1|Z_i=1)+\esp{Y^0_{i,A}|D_i=0,Z_i=1}\Pr(D_i=0|Z_i=1)\\
+                    &\phantom{=}-\esp{Y^0_{i,A}|D_i=1,Z_i=1}\Pr(D_i=1|Z_i=1)+\esp{Y^0_{i,A}|D_i=0,Z_i=1}\Pr(D_i=0|Z_i=1)\\
+                    & = \left(\esp{Y^1_{i,A}|D_i=1,Z_i=1}-\esp{Y^0_{i,A}|D_i=1,Z_i=1}\right)\Pr(D_i=1|Z_i=1)\\
+                    & = \Delta^{Y_A}_{TT}\Pr(D_i=1|Z_i=1),
+\end{align*}
+
+where the last equality uses the fact that $D_i=1$ is a subset of $Z_i=1$.
+Using Assumption \@ref(hyp:StrongFirstStageDIDIV) proves that the denominator of the Wald-DID estimator is equal to $\Pr(D_i=1|Z_i=1)$, which proves the result.
+```
+
+```{example}
+Let's see how this approach works in our example.
+We are going to assume that there are 50 states and that the treatment is only available in half of them.
+This state indicator is going to be our instrumental variable.
+In our model, states fixed effects are going to be correlated with treatment intake (and even with $Z_i$) but $Z_i$ wil not be correlated with indiosyncratic shocks to outcomes that make people enter the treatment.
+```
+
+\begin{align*}
+  \mu_i & = \mu^S_i + \mu^U_i + \bar{\mu} \\
+  \mu^S_i & \sim\mathcal{N}(0,\frac{1}{3}\sigma_{\mu}^2)\\
+  \mu^U_i & \sim\mathcal{N}(0,\frac{2}{3}\sigma_{\mu}^2)\\
+  Z _i & = 
+    \begin{cases}
+      1 & \text{ if } \mu^S_i\leq 0 \\
+      0 & \text{ if } \mu^S_i> 0
+    \end{cases}\\
+  D_i & = \uns{y_i^B\leq\bar{y} \land Z_i=1}.
+\end{align*}
+
+Let us first respecify the parameter vector:
+
+```{r paramDIDIV,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB")
+```
+
+Let's simulate that dataset.
+
+```{r SimulDIDIVStrong,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+set.seed(1234)
+N <-1000
+param["rho"] <- 0.9
+# I am going to draw a state fixed effect for 50 states with variance 1/3 of the total variance of mu
+Nstates <- 50
+muS <- rnorm(Nstates,0,sqrt(param["sigma2mu"]/3))
+muS <- rep(muS,each=N/Nstates)
+# I draw an individual fixed effect with the remaining variance
+muU <- rnorm(N,0,sqrt(param["sigma2mu"]*2/3))
+mu <- param["barmu"] + muS + muU 
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+
+# Z=1 if states have lower muS than 0
+Z <- ifelse(muS<=0,1,0)
+Ds <- ifelse(YB<=param["barY"] & Z==1,1,0)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+Let us know look at how Assumption \@ref(hyp:StrongFirstStageDIDIV) holds:
+
+```{r PlotSimulDIDIVStrong,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap='Illustration of the DID-IV assumptions: Strong First Stage',fig.align='center',out.width='50%',fig.pos='htbp'}
+# preparing the means of participants proportions
+means.did.iv <- c(mean(Ds[Z==0]),mean(Ds[Z==1]),mean(y0[Z==0]),mean(y0[Z==1]),mean(y[Z==0]),mean(y[Z==1]),mean(yB[Z==0]),mean(yB[Z==1]),0,1)
+means.did.iv <- matrix(means.did.iv,nrow=2,ncol=5,byrow=FALSE,dimnames=list(c('Z=0','Z=1'),c('D','y0','y','yB','Z')))
+means.did.iv <- as.data.frame(means.did.iv)
+# plotting the result
+ggplot(means.did.iv, aes(x=as.factor(Z), y=D)) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black')+
+  xlab('Z')+
+  ylab('Pr(D=1|Z)')+
+  theme_bw()
+```
+
+Figure \@ref(fig:PlotSimulDIDIVStrong) shows that no unit with $Z_i=0$ receives the treatment.
+We also have that $\hat{\Pr}(D_i=1|Z_i=1)=$ `r round(mean(Ds[Z==1]),2)`. 
+
+A key feature of the simulated dataset is that the parallel trends assumption does not hold for $D_i$ but it does for $Z_i$.
+Let's check.
+We indeed have that $\hatesp{y^0_{i}|D_i=1}-\hatesp{y^B_{i}|D_i=1}=$ `r round(mean(y0[Ds==1])-mean(yB[Ds==1]),2)` and $\hatesp{y^0_{i}|D_i=0}-\hatesp{y^B_{i}|D_i=0}=$ `r round(mean(y0[Ds==0])-mean(yB[Ds==0]),2)`. 
+We also have $\hatesp{y^0_{i}|Z_i=1}-\hatesp{y^B_{i}|Z_i=1}=$ `r round(mean(y0[Z==1])-mean(yB[Z==1]),2)` and $\hatesp{y^0_{i}|Z_i=0}-\hatesp{y^B_{i}|Z_i=0}=$ `r round(mean(y0[Z==0])-mean(yB[Z==0]),2)`.
+
+The true effect of the treatment in our model is:
+
+\begin{align*}
+  \Delta^y_{TT} & = \bar{\alpha}+ \theta\esp{\mu_i|\mu_i+U_i^B\leq\bar{y} \land \mu_i^S\leq0}
+\end{align*}
+
+To compute the expectation of a this censored normal, I use the package `tmvtnorm`:
+
+```{r TTDIDIIV,eval=TRUE,echo=FALSE}
+# value of TT in the population 
+mean.mu.yB.muS <- c(param['barmu'],param['barmu'],0)
+cov.mu.yB.muS <- matrix(c(param['sigma2mu'],param["sigma2mu"],param["sigma2mu"]/3,
+                          param["sigma2mu"],param['sigma2mu']+param['sigma2U'],param['sigma2mu']/3,
+                          param['sigma2mu']/3,param['sigma2mu']/3,param['sigma2mu']/3),3,3,byrow=TRUE)
+lower.cut <- c(-Inf,-Inf,-Inf)
+upper.cut <- c(Inf,log(param['barY']),0)
+moments.cut <- mtmvnorm(mean=mean.mu.yB.muS,sigma=cov.mu.yB.muS,lower=lower.cut,upper=upper.cut)
+delta.y.tt <- param['baralpha']+ param['theta']*moments.cut$tmean[1]
+
+# value of TT in the sample
+delta.y.tt.sample <- mean(y1[Ds==1])-mean(y0[Ds==1])
+
+# value of DID in the sample
+DID.sample <- mean(y[Ds==1])-mean(yB[Ds==1])-(mean(y[Ds==0])-mean(yB[Ds==0]))
+
+# value of WaldDID
+WaldDID.sample <- (mean(y[Z==1])-mean(yB[Z==1])-(mean(y[Z==0])-mean(yB[Z==0])))/(mean(Ds[Z==1]))
+```
+
+The value of $\Delta^y_{TT}$ in the population is thus `r round(delta.y.tt,2)` and in the sample `r round(delta.y.tt.sample,2)`.
+Simple DID would not be a correct estimate of $TT$.
+Indeed, the value of the DID estimator in the sample is `r round(DID.sample,2)`.
+The Wald DID estimator should be closer to the truth.
+In the sample, it is equal to `r round(WaldDID.sample,2)`.
+
+##### Estimation 
+
+Estimation of the DID-IV estimator can be conducted using several approaches. 
+Let's review them in turn.
+
+###### Using the direct Wald estimator
+
+The most direct way to compute the DID-IV estimator in a sample is simply to compute its sample equivalent:
+
+\begin{gather*}
+  \hat{\Delta}^Y_{WaldDID}=  \\
+  \frac{\frac{1}{\sum_{i=1}^{N}Z_i}\sum_{i=1}^{N}Y_{i,A}Z_i - \frac{1}{\sum_{i=1}^{N}(1-Z_i)}\sum_{i=1}^{N}Y_{i,A}(1-Z_i)
+  -\left(\frac{1}{\sum_{i=1}^{N}Z_i}\sum_{i=1}^{N}Y_{i,B}Z_i - \frac{1}{\sum_{i=1}^{N}(1-Z_i)}\sum_{i=1}^{N}Y_{i,B}(1-Z_i)\right)}
+  {\frac{1}{\sum_{i=1}^{N}Z_i}\sum_{i=1}^{N}D_{i,A}Z_i - \frac{1}{\sum_{i=1}^{N}(1-Z_i)}\sum_{i=1}^{N}D_{i,A}(1-Z_i)
+  -\left(\frac{1}{\sum_{i=1}^{N}Z_i}\sum_{i=1}^{N}D_{i,B}Z_i - \frac{1}{\sum_{i=1}^{N}(1-Z_i)}\sum_{i=1}^{N}D_{i,B}(1-Z_i)\right)}.
+\end{gather*}
+
+```{remark}
+Under Assumption \@ref(hyp:StrongFirstStageDIDIV), the denominator simplifies to $\frac{1}{\sum_{i=1}^{N}Z_i}\sum_{i=1}^{N}D_{i}Z_i$.
+```
+
+```{example}
+Let's see how this estimator works in our example.
+```
+As we have already seen, in our example, the Wald DID estimator is equal to `r round(WaldDID.sample,2)`.
+Remember that the value of $\Delta^y_{TT}$ in the population is `r round(delta.y.tt,2)` and in the sample `r round(delta.y.tt.sample,2)`.
+
+###### Using the pooled 2SLS DID estimator
+
+In repeated cross-sections, one can estimate the Wald estimator estimating the following model with the 2SLS estimator:
+
+\begin{align*}
+ Y_i & = \alpha + \delta t_i + \gamma D_i + \beta t_iD_i + U_i,
+\end{align*}
+
+with $t_iZ_i$ as an instrument for $t_iD_i$ and $Z_i$ as an instrument for $D_i$.
+$\hat{\beta}_{2SLS}$ in the previous regression is the Pooled 2SLS DID estimator.
+
+```{example}
+Let's estimate that model in our example.
+```
+
+```{r DIDIVPooled,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# regrouping data
+y.pool <- c(y,yB)
+Ds.pool <- c(Ds,Ds)
+Z.pool <- c(Z,Z)
+t <- c(rep(1,N),rep(0,N))
+t.D <- t*Ds.pool
+t.Z <- t*Z.pool
+
+# IV regression
+reg.iv.did.pooled.2sls <- ivreg(y.pool ~ t + Ds.pool + t.D | t + Z.pool + t.Z)
+```
+
+In our example, $\hat{\beta}_{2SLS}=$ `r round(reg.iv.did.pooled.2sls$coef[4],2)`.
+
+###### Using the within 2SLS DID estimator
+
+Estimating the following equation with $t_iZ_i$ as an instrument for $t_iD_i$:
+
+\begin{align*}
+ Y_{i,t} & = \mu_i + \delta_t + \beta t_iD_i + U_i
+\end{align*}
+
+$\hat{\beta}_{IVFE}$ in the previous regression is the Fixed Effects DID-IV estimator.
+
+```{example}
+Let's estimate this model in our example.
+```
+
+```{r iv.did.fixed.effects,eval=TRUE,echo=TRUE,results='hide'}
+data.panel <- cbind(c(seq(1,N),seq(1,N)),t,y.pool,Ds.pool,t.D,t.Z,Z.pool)
+colnames(data.panel) <- c('Individual','time','y','Ds','t.D','t.Z','Z')
+data.panel <- as.data.frame(data.panel)
+reg.iv.did.fe <- plm(y ~ time + t.D | time + t.Z,data=data.panel,index=c('Individual','time'),model='within')
+```
+
+In our illustration, $\hat{\beta}_{IVFE}=$ `r round(reg.iv.did.fe$coef[2],2)`.
+
+###### Using the first-differenced 2SLS DID estimator
+
+Estimate the following equation with $Z_i$ as an instrument for $D_i$:
+
+\begin{align*}
+ Y_{i,A}-Y_{i,B} & = \delta + \beta D_i + U_i
+\end{align*}
+
+$\hat{\beta}_{IVFD}$ in the previous regression estimated by 2SLS is the First Difference DID estimator.
+
+```{example}
+Let's see how this works in our example.
+```
+
+```{r iv.did.first.difference,eval=TRUE,echo=TRUE,results='hide'}
+reg.iv.did.fd <- plm(y ~ time + t.D | time + t.Z,data=data.panel,index=c('Individual','time'),model='fd')
+```
+
+In our illustration, $\hat{\beta}_{IVFD}=$ `r round(reg.iv.did.fd$coef[2],2)`.
+
+###### Equivalence result
+
+```{theorem,DIDIVEq,name="Equivalence of DID-IV Estimators"}
+With panel data and  two periods of observation, we have:
+
+\begin{align*}
+  \hat{\Delta}^{Y}_{WaldDID} & = \hat{\beta}_{2SLS} = \hat{\beta}_{IVFE} = \hat{\beta}_{IVFD}.
+\end{align*}
+```
+
+```{proof}
+To do.
+Seems pretty straightforward for $IVFD$.
+```
+
+```{example}
+Let's finally see how our estimators perform over sampling repetitions.
+```
+
+Let us study panel data first.
+
+```{r monte.carlo.iv.did.panel,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.iv.did.panel <- function(s,N,Nstates,param){
+  set.seed(s)
+  muS <- rnorm(Nstates,0,sqrt(param["sigma2mu"]/3))
+  muS <- rep(muS,each=N/Nstates)
+  # I draw an individual fixed effect with the remaining variance
+  muU <- rnorm(N,0,sqrt(param["sigma2mu"]*2/3))
+  mu <- param["barmu"] + muS + muU 
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  # Z=1 if states have lower muS than 0
+  Z <- ifelse(muS<=0,1,0)
+  Ds <- ifelse(YB<=param["barY"] & Z==1,1,0)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  delta.y.iv.did <- (mean(y[Z==1])-mean(y[Z==0])-(mean(yB[Z==1])-mean(yB[Z==0])))/mean(Ds[Z==1])
+  return(delta.y.iv.did)
+}
+
+simuls.iv.did.panel.N <- function(N,Nstates,Nsim,param){
+  simuls.iv.did.panel <- matrix(unlist(lapply(1:Nsim,monte.carlo.iv.did.panel,N=N,Nstates=Nstates,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.iv.did.panel) <- c('DID-IV')
+  return(simuls.iv.did.panel)
+}
+
+sf.simuls.iv.did.panel.N <- function(N,Nstates,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.iv.did.panel,N=N,Nstates=Nstates,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('DID-IV')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.iv.did.panel <- lapply(N.sample,sf.simuls.iv.did.panel.N,Nstates=Nstates,Nsim=Nsim,param=param)
+names(simuls.iv.did.panel) <- N.sample
+```
+
+Let us now plot the resulting estimates:
+
+```{r monte.carlo.hist.iv.did.panel,dependson='monte.carlo.iv.did.panel',eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the DID-IV estimator over replications of panels of different sizes',fig.align='center',out.width='50%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.iv.did.panel)){
+  hist(simuls.iv.did.panel[[i]][,'DID-IV'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yDIDIV)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt,col="red")
+}
+```
+
+Let us now look at repeated cross sections data
+
+```{r monte.carlo.iv.did.cross.sections,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.iv.did.cross <- function(s,N,Nstates,param){
+  set.seed(s)
+  N.tot <- 2*N
+  muS <- rnorm(Nstates,0,sqrt(param["sigma2mu"]/3))
+  muS <- rep(muS,each=N/Nstates)
+  muS <- c(muS,muS)
+  # I draw an individual fixed effect with the remaining variance
+  muU <- rnorm(N.tot,0,sqrt(param["sigma2mu"]*2/3))
+  mu <- param["barmu"] + muS + muU 
+  UB <- rnorm(N.tot,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  epsilon <- rnorm(N.tot,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N.tot,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"]
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  # Z=1 if states have lower muS than 0
+  Z <- ifelse(muS<=0,1,0)
+  Ds <- ifelse(YB<=param["barY"] & Z==1,1,0)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  # first cross section: 1-N
+  first <- seq(1,N)
+  # second cross section: 1001-2000
+  second <- seq(N+1,N.tot)
+  # repeated cross section DID-IV
+  delta.y.iv.did.cross <- (mean(y[second][Z[second]==1])-mean(y[second][Z[second]==0])-(mean(yB[first][Z[first]==1])-mean(yB[first][Z[first]==0])))/mean(Ds[second][Z[second]==1])
+  return(delta.y.iv.did.cross)
+}
+
+simuls.iv.did.cross.N <- function(N,Nstates,Nsim,param){
+  simuls.iv.did.cross <- matrix(unlist(lapply(1:Nsim,monte.carlo.iv.did.cross,N=N,Nstates=Nstates,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.iv.did.cross) <- c('DID-IV')
+  return(simuls.iv.did.cross)
+}
+
+sf.simuls.iv.did.cross.N <- function(N,Nstates,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.iv.did.cross,N=N,Nstates=Nstates,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('DID-IV')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.iv.did.cross <- lapply(N.sample,sf.simuls.iv.did.cross.N,Nstates=Nstates,Nsim=Nsim,param=param)
+names(simuls.iv.did.cross) <- N.sample
+```
+
+Let us now plot the result:
+```{r monte.carlo.hist.iv.did.cross.sections,dependson='monte.carlo.iv.did.cross.sections',eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the DID-IV estimator over replications of repeated cross sections of different sizes',fig.align='center',out.width='50%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.iv.did.cross)){
+  hist(simuls.iv.did.cross[[i]][,'DID-IV'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yDIDIV)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt,col="red")
+}
+```
+
+##### Estimation of sampling noise
+
+What we need is to derive an estimator for the asymptotic variance of the DID-IV estimator in repeated cross sections and in panel data.
+
+###### Estimating sampling noise with DID-IV in repeated cross sections
+
+```{theorem,asympnoiseDIDIVCross,name="Asymptotic Distribution of DID-IV in Repeated Cross Sections"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV), \@ref(hyp:iidDIDCross) and \@ref(hyp:finitevarDIDCross), we have:
+
+\begin{align*}
+\sqrt{N}(\hat\Delta^Y_{DIDIV}-\Delta^Y_TT) & \stackrel{d}{\rightarrow}
+                             \mathcal{N}\left(0,\right).
+\end{align*}
+```
+
+```{proof}
+To do.
+```
+
+###### Estimating sampling noise with DID-IV in panel data
+
+```{theorem,asympnoiseDIDIVPanel,name="Asymptotic Distribution of DID-IV in Panel Data"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV), \@ref(hyp:iidDID) and \@ref(hyp:finitevarDID), we have:
+
+\begin{align*}
+\sqrt{N}(\hat\Delta^Y_{DIDIV}-\Delta^Y_TT) & \stackrel{d}{\rightarrow}
+                             \mathcal{N}\left(0,\right).
+\end{align*}
+```
+
+```{proof}
+To do.
+```
+
+```{example}
+Let's see how estimators of sampling noise perform in practice.
+```
+
+In panel data, true 99\% sampling noise (from the simulations) is `r round(2*quantile(abs(simuls.iv.did.panel[[2]][,'DID-IV']-delta.y.tt),probs=c(0.99)),2)`.
+99\% sampling noise estimated using default FE standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.iv.did.fe)[2,2]),2)``. 
+99\% sampling noise estimated using heteroskedasticity robust FE standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.iv.did.fe,type='HC2')[2,2]),2)`.
+
+In repeated cross sections, true 99\% sampling noise (from the simulations) is `r round(2*quantile(abs(simuls.iv.did.cross[[2]][,'DID-IV']-delta.y.tt),probs=c(0.99)),2)`.
+99\% sampling noise estimated using default OLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.iv.did.pooled.2sls)[2,2]),2)`.
+99\% sampling noise estimated using heteroskedasticity robust OLS standard errors is `r round(2*qnorm((.99+1)/2)*sqrt(vcovHC(reg.iv.did.pooled.2sls,type='HC2')[2,2]),2)`.
+
+#### DID-IV with a weak first stage
+
+With a weak first stage, DID-IV has positive probability of receiving the treatment in the Before period and in the group with $Z_i=0$.
+The main requirement of the weak first stage DID-IV is that the probability of receiving the treatment increases more over time in the group with $Z_i=1$ compared to what happens in the group with $Z_i=0$. 
+We are going to codify this assumption next and see which effects can be identified under which supplementary assumptions, then talk about estimation and estimation of sampling noise.
+
+##### Identification
+
+We are going to examine several sets of assumptions under which we can try to recover some average treatment effect of the treatment in a DID-IV design with a weak first stage.
+As you'll see, there is not much hope unfortunately.
+
+###### Identification under weak first stage DID-IV
+
+The main assumption on a weak first stage DID-IV is as follows:
+
+```{hypothesis,WeakFirstStageDIDIV,name="Weak First Stage"}
+The treatment is available in both periods $B$ and $A$, but its takeover increases disproportionately among those with $Z_i=1$:
+
+\begin{align*}
+\Pr(D_{i,A}=1|Z_i=1)& -\Pr(D_{i,B}=1|Z_i=1)\\
+ & >\Pr(D_{i,A}=1|Z_i=0)-\Pr(D_{i,B}=1|Z_i=0).
+\end{align*}
+
+```
+
+```{remark}
+A great example of Assumption \@ref(hyp:WeakFirstStageDIDIV) is [Esther Duflo's paper in education expansion in Indonesia](https://www.jstor.org/stable/2677813). 
+In this paper, the states that invest in education are the ones for which education levels were the lowest initially.
+And the states with lower investments in education ($Z_i=0$) nevertheless saw some progress in education levels over time.
+But, the states with higher investments ($Z_i=1$) saw stronger improvements and caught up.
+Also, all states had some education in the baseline period.
+This is characteristic of a weak first stage DID-IV design.
+```
+
+```{example}
+Let us now see how we can model this in our example.
+```
+
+We are going to introduce an eligibility rule that changes over time as a function of state and district fixed effects:
+
+\begin{align*}
+  \mu_i & = \mu^S_i + \mu^d_i + \mu^U_i + \bar{\mu} \\
+  \mu^S_i & \sim\mathcal{N}(0,\frac{1}{3}\sigma_{\mu}^2)\\
+  \mu^d_i & \sim\mathcal{N}(0,\frac{1}{3}\sigma_{\mu}^2)\\
+  \mu^U_i & \sim\mathcal{N}(0,\frac{1}{3}\sigma_{\mu}^2)\\
+  E_{i,B} & = 
+    \begin{cases}
+      1 & \text{ if } \mu^d_i\leq -0.5 \land Z_i=1 \\
+      1 & \text{ if } \mu^d_i\leq 0.25\land Z_i=0
+    \end{cases}\\
+  E_{i,A} & = 
+    \begin{cases}
+      1 & \text{ if } \mu^d_i\leq 0 \land Z_i=1 \\
+      1 & \text{ if } \mu^d_i\leq 0.85\land Z_i=0
+    \end{cases}\\
+  D_{i,t} & = \uns{y_{i,BB}\leq\bar{y} \land E_{i,t}=1}.
+\end{align*}
+
+The rest of the model is as follows, with a third period $BB$ that is Before Before:
+
+\begin{align*}
+y^0_{i,A} & =\mu_i+\delta+U_{i,A}^0 \\
+y_{i,A}^1 & =\mu_i(1+\theta)+\bar{\alpha}+\delta+U_{i,A}^0+\eta_i \\
+y_{i,BB} & =\mu_i+U_{i,BB} \\
+U_{i,B}^0 & =\rho U_{i,BB}+\epsilon_{i,B} \\
+U_{i,A}^0 & =\rho U_{i,B}+\epsilon_{i,A} \\
+U_{i,BB} & \sim\mathcal{N}(0,\sigma^2_{U})\\
+\epsilon_{i,t} & \sim\mathcal{N}(0,\sigma^2_{\epsilon})\\
+\eta_i & \sim\mathcal{N}(0,\sigma^2_{\eta})
+\end{align*}
+
+Here is the simulation:
+
+```{r simul.did.iv.weak,eval=TRUE,echo=FALSE,results='hide'}
+set.seed(1234)
+# I am going to draw a state fixed effect for 50 states with variance 1/3 of the total variance of mu
+Nstates <- 50
+muS <- rnorm(Nstates,0,sqrt(param["sigma2mu"]/3))
+muS <- rep(muS,each=N/Nstates)
+# I am going to draw a district fixed effect with variance 1/3 of the total variance of mu
+Ndistricts <- 5*Nstates
+mud <- rnorm(Ndistricts,0,sqrt(param["sigma2mu"]/3))
+mud <- rep(mud,each=N/Ndistricts)
+# I draw an individual fixed effect with the remaining variance
+muU <- rnorm(N,0,sqrt(param["sigma2mu"]*2/3))
+mu <- param["barmu"] + muS + mud + muU 
+UBB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yBB <- mu + UBB 
+YBB <- exp(yBB)
+epsilonB <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+U0B <- param["rho"]*UBB + epsilonB
+y0B <- mu +  U0B 
+epsilonA <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+U0A <- param["rho"]*U0B + epsilonA
+y0A <- mu +  U0A + param["delta"]
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1B <- y0B+alpha
+y1A <- y0A+alpha
+
+# Z=1 if states have lower muS than 0
+Z <- ifelse(muS<=0,1,0)
+
+# E depend on district fixed effect
+EB <- ifelse((Z==1 & mud<=-0.5) | (Z==0 & mud<=0.25),1,0)
+EA <- ifelse((Z==1 & mud<=0) | (Z==0 & mud<=0.85),1,0)
+DsB <- ifelse(YB<=param["barY"] & EB==1,1,0)
+DsA <- ifelse(YB<=param["barY"] & EA==1,1,0)
+
+yB <- y1B*DsB+y0B*(1-DsB)
+yA <- y1A*DsA+y0A*(1-DsA)
+```
+
+Let us now see how the model generates a time varying proportion of participants:
+
+```{r GraphIllusDIDIIVWeak,eval=TRUE,echo=FALSE,results='hide',warning=FALSE,error=FALSE,message=FALSE,fig.cap='Illustration of the DID-IV assumptions: Weak First Stage',fig.align='center',out.width='50%',fig.pos='htbp'}
+# means over time
+means.did.iv.weak <- c(mean(DsA[Z==0]),mean(DsA[Z==1]),mean(DsB[Z==0]),mean(DsB[Z==1]),0,1,0,1,1,1,0,0)
+means.did.iv.weak <- matrix(means.did.iv.weak,nrow=4,ncol=3,byrow=FALSE,dimnames=list(1:4,c('D','Z','time')))
+means.did.iv.weak <- as.data.frame(means.did.iv.weak)
+
+# plot
+ggplot(means.did.iv.weak, aes(x=as.factor(Z), y=D ,fill=as.factor(time))) +
+  geom_bar(position=position_dodge(), stat="identity", colour='black')+
+  xlab('Z')+
+  ylab('Pr(D=1|Z)')
+
+```
+
+We thus see that the change over time in treatment uptake is equal to `r round(mean(DsA[Z==1])-mean(DsB[Z==1]),2)` when $Z_i=1$ and to `r round(mean(DsA[Z==0])-mean(DsB[Z==0]),2)` when $Z_i=0$.
+
+###### Identification with independent treatment effects
+
+Under constant treatment effects, the classical Wald DID estimator still identifies the effect of the treatment on the treated:
+
+```{hypothesis,IndTE,name="Independent Treatment Effects"}
+The average effect of the treatment on the treated is independent of $Z_i$: 
+
+\begin{align*}
+\esp{Y_{i,t}^1-Y_{i,t}^0|D_i=1,Z_i=1} & = \esp{Y_{i,t}^1-Y_{i,t}^0|D_i=1,Z_i=0}.
+\end{align*}
+
+```
+
+Under Assumption \@ref(hyp:IndTE), we can show that the Wald DID estimator recovers the average effect of the treatment on the treated:
+
+```{theorem,IdentTTDIDIVWeakFSIndTE,name="Indentification of TT with DID-IV, a Weak First Stage and Independent Treatment Effects"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV), \@ref(hyp:WeakFirstStageDIDIV) and \@ref(hyp:IndTE), TT is identified by the Wald-DID estimator:
+
+\begin{align*}
+  \Delta^Y_{WaldDID} & = \Delta^{Y_A}_{TT}.
+\end{align*}
+```
+
+```{proof}
+We have, for $t\in\left\{ A,B \right\}$ and $d\in\left\{ 0,1 \right\}$:
+
+\begin{align*}
+\esp{Y_{i,t}|Z_i=d} & = \esp{Y^0_{i,t}|Z_i=d} + \esp{Y^1_{i,t}-Y^0_{i,t}|D_{i,t}=1,Z_i=d}\Pr(D_{i,t}=1|Z_i=d)
+\end{align*}
+
+Under Assumption \@ref(hyp:IndTE), $\esp{Y^1_{i,t}-Y^0_{i,t}|D_{i,t}=1,Z_i=d}=\Delta^Y_{TT}$.
+As a consequence, the numerator of the Wald-DID estimator writes as follows:
+
+\begin{align*}
+\esp{Y_{i,A}|Z_i=1} & -\esp{Y_{i,A}|Z_i=0}-(\esp{Y_{i,B}|Z_i=1}-\esp{Y_{i,B}|Z_i=0}) \\
+                    & = \esp{Y^0_{i,A}-Y^0_{i,B}|Z_i=1}+ \Delta^Y_{TT}\left(\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=1)\right)\\
+                    & \phantom{=} -\esp{Y^0_{i,A}-Y^0_{i,B}|Z_i=0}-\Delta^Y_{TT}\left(\Pr(D_{i,A}=1|Z_i=0)-\Pr(D_{i,B}=1|Z_i=0)\right).
+\end{align*}
+
+Using the Assumption \@ref(hyp:ParallelTrendsIV) and dividing by the denominator of the Wald-DID estimator (which is non null under Assumption \@ref(hyp:WeakFirstStageDIDIV)) yields the result.
+```
+
+###### Identification under constant treatment effects over time
+
+The problem with DID-IV stems when treatment effects are not independent from $Z_i$ conditional on $D_i=1$.
+We can get an inkling of the problem at hand by deriving the Wald estimator without Assumption \@ref(hyp:IndTE), but under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV) and \@ref(hyp:WeakFirstStageDIDIV).
+Let's get some notation first.
+We denote $\Delta^D_{DID}=\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=1)-(\Pr(D_{i,A}=1|Z_i=0)-\Pr(D_{i,B}=1|Z_i=0))$, the denominator of the Wald estimator.
+We also denote $p^{AB}_{11}=\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=1)$ and $p^{AB}_{10}=\Pr(D_{i,A}=1|Z_i=0)-\Pr(D_{i,B}=1|Z_i=0)$.
+We finally denote $\Delta^{Y_A}_{TT_1}=\esp{Y_{i,t}^1-Y_{i,t}^0|D_i=1,Z_i=1}$ and $\Delta^{Y_A}_{TT_0}=\esp{Y_{i,t}^1-Y_{i,t}^0|D_i=1,Z_i=0}$.
+We can now prove the following corollary to Theorem \@ref(thm:IdentTTDIDIVWeakFSIndTE):
+
+```{corollary,IdentTTDIDIVWeakFS,name="DID-Wald Estimator Without Independent Treatment Effects"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV) and \@ref(hyp:WeakFirstStageDIDIV), the DID-Wald estimator is a weighted average of treatment effects with possibly negative weights:
+
+\begin{align*}
+  \Delta^Y_{WaldDID} & = \Delta^{Y_A}_{TT_1}\frac{p^{AB}_{11}}{\Delta^D_{DID}}-\Delta^{Y_A}_{TT_0}\frac{p^{AB}_{10}}{\Delta^D_{DID}}.
+\end{align*}
+
+```
+
+```{proof}
+Using the proof of Theorem \@ref(thm:IdentTTDIDIVWeakFSIndTE) proves the result.
+```
+
+Corollary \@ref(cor:IdentTTDIDIVWeakFS) shows that, when the proportion of treated in the group with $Z_i=0$ increases over time, the impact of the treatment on those with $Z_i=0$ enters negatively in the Wald-DID estimator. 
+It is thus possible that positive treatment effects for every unit in the population generates a negative Wald-DID estimator.
+
+We can even get a deeper understanding of what's going on with the DID-IV estimator if we follow the classic treatment of this issue by [de Chaisemartin and d'Haultfoeuille (2015)](https://academic.oup.com/restud/article-abstract/85/2/999/4096388?redirectedFrom=fulltext).
+Let us first define four types of individuals:
+
+  - *always takers*: the individuals which have $D_{i,A}=D_{i,B}=1$, which we denote $T_i=at$,
+  - *never takers*: the individuals which have $D_{i,A}=D_{i,B}=0$, which we denote $T_i=nt$,
+  - *switchers*: the individuals which have $D_{i,A}=1$ and $D_{i,B}=0$, which we denote $T_i=s$,
+  - *anti-switchers*: the individuals which have $D_{i,A}=0$ and $D_{i,B}=1$, which we denote $T_i=as$.
+  
+For now, we are going to assume away anti-switchers for simplicity.   
+Assumption \@ref(hyp:WeakFirstStageDIDIV) amounts to assuming that $\Pr(T_i=s|Z_i=1) > \Pr(T_i=s|Z_i=0)$.
+We can now prove the following theorem:
+
+```{theorem,IdentTTDIDIVWeakFSDecomp,name="Numerator of the DID-Wald Estimator Without Independent Treatment Effects and Without Anti-Switchers"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV) and \@ref(hyp:WeakFirstStageDIDIV), and in the absence of anti-switchers ($\Pr(T_i=as)=0$), the numerator of the DID-Wald estimator can be written as follows:
+
+\begin{align*}
+  \Delta^Y_{WaldDID}\Delta^D_{DID} & = \esp{Y^1_{i,A}-Y^1_{i,B}|T_i=at,Z_i=1}\Pr(T_i=at|Z_i=1)\\
+                                  & \phantom{=} +\esp{Y^0_{i,A}-Y^0_{i,B}|T_i=nt,Z_i=1}\Pr(T_i=nt|Z_i=1)\\
+                                  & \phantom{=} +\esp{Y^1_{i,A}-Y^0_{i,B}|T_i=s,Z_i=1}\Pr(T_i=s|Z_i=1)\\
+                                  & \phantom{=} -(\esp{Y^1_{i,A}-Y^1_{i,B}|T_i=at,Z_i=0}\Pr(T_i=at|Z_i=0))\\
+                                  & \phantom{=} -(\esp{Y^0_{i,A}-Y^0_{i,B}|T_i=nt,Z_i=0}\Pr(T_i=nt|Z_i=0))\\
+                                  & \phantom{=} -(\esp{Y^1_{i,A}-Y^0_{i,B}|T_i=s,Z_i=0}\Pr(T_i=s|Z_i=0)).
+\end{align*}
+```
+
+```{proof}
+The result follows from the formula for the DID-Wald estimator and the fact that $T_i$ is a partition of the population. 
+```
+
+So, the numerator of the Wald-DID estimator is a combination of the changes in outcomes over time of each type in the group with $Z_i=1$ minus the changes the outcomes of each type in the group with $Z_i=0$.
+The units with the same type are not the same in each group defined by $Z_i$ so that their proportions differ and their changes in outcome differ as well.
+One useful simplification can still happen using Assumption \@ref(hyp:ParallelTrendsIV).
+Let $\Delta^{Y_A}_{\text{type},z}=\esp{Y_{i,t}^1-Y_{i,t}^0|T_i=\text{type},Z_i=z}$, for $\text{type}\in\left\{at,nt,s\right\}$ and $z\in\left\{0,1\right\}$.
+Let also $p_{\text{type},z}=\Pr(T_i=\text{type}|Z_i=z)$.
+The following corollary proves that:
+
+```{corollary,IdentTTDIDIVWeakFSDecompGeneral,name="DID-Wald Estimator Without Independent Treatment Effects"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV) and \@ref(hyp:WeakFirstStageDIDIV), the DID-Wald estimator can be decomposed as follows:
+
+\begin{align*}
+  \Delta^Y_{WaldDID}\Delta^D_{DID} & = \Delta^{Y_A}_{s,1}p_{s,1}-\Delta^{Y_A}_{s,0}p_{s,0}+(\Delta^{Y_A}_{at,1}-\Delta^{Y_B}_{at,1})p_{at,1}-(\Delta^{Y_A}_{at,0}-\Delta^{Y_B}_{at,0})p_{at,0}.
+\end{align*}
+
+```
+
+```{proof}
+Using Theorem \@ref(thm:IdentTTDIDIVWeakFSDecomp), we can now add and subtract $\esp{Y^0_{i,A}-Y^0_{i,B}|T_i=at,Z_i=1}\Pr(T_i=at|Z_i=1)$, $\esp{Y^0_{i,A}-Y^0_{i,B}|T_i=at,Z_i=0}\Pr(T_i=at|Z_i=0)$, $\esp{Y^0_{i,A}|T_i=s,Z_i=1}\Pr(T_i=s|Z_i=1)$ and $\esp{Y^0_{i,A}|T_i=s,Z_i=0}\Pr(T_i=s|Z_i=0)$ to the right hand side of the expression, and use the fact that $T_i$ is a partition and then invoke Assumption \@ref(hyp:ParallelTrendsIV) to obtain the result. 
+```
+
+Corollary \@ref(cor:IdentTTDIDIVWeakFSDecompGeneral) shows that the Wald-DID estimator is a weighted average of the effect of the treatment on the switchers in the group with $Z_i=1$, minus the effect of the treatment on the switchers in the group with $Z_i=0$, and the change in the treatment effect over time among always takers in the group with $Z_i=1$ minus the change in treatment effect over time among always takers in the group with $Z_i=0$.
+So, one way to get rid of the issue is to assume constant treatment effects over time for both groups of always takers.
+Let's make this assumption and see where it takes us:
+
+```{hypothesis,ConsdTETime,name="Constant Treatment Effects Over Time"}
+We assume that average effect of the treatment on the always takers is independent of time, conditional on $Z_i$: $\forall z \in \left\{0,1\right\}$:
+
+\begin{align*}
+\Delta^{Y_A}_{at,z}& = \Delta^{Y_B}_{at,z}
+\end{align*}
+```
+
+We can now prove the following Theorem:
+
+```{theorem,IdentTTDIDIVWeakFSCstTETime,name="DID-Wald Estimator With Constant Treatment Effects Over Time"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrendsIV), \@ref(hyp:WeakFirstStageDIDIV) and \@ref(hyp:ConsdTETime), the DID-Wald estimator can be decomposed as follows:
+
+\begin{align*}
+  \Delta^Y_{WaldDID} & =
+  \begin{cases}
+  \Delta^{Y_A}_{s,1} \text{ if }p_{s,0}=0\\
+  \alpha\Delta^{Y_A}_{s,1}-(1-\alpha)\Delta^{Y_A}_{s,0}\text{, }0<\alpha<1 \text{ if } p_{s,0}<0\\
+  \alpha\Delta^{Y_A}_{s,1}-(1-\alpha)\Delta^{Y_A}_{s,0}\text{, }\alpha>1 \text{ if } p_{s,0}>0.
+  \end{cases}
+\end{align*}
+
+```
+
+```{proof}
+Using Corollary \@ref(cor:IdentTTDIDIVWeakFSDecompGeneral) and the fact that $\Delta^D_{DID}=p_{s,1}-p_{s,0}$ proves the result. 
+```
+
+Note that Theorem \@ref(thm:IdentTTDIDIVWeakFSCstTETime) still does not get rid of the issue of negative weights in the case when the proportion of treated units increases in the control group.
+
+###### Identification under parallel trends by type
+
+[de Chaisemartin and d'Haultfoeuille (2015)](https://academic.oup.com/restud/article-abstract/85/2/999/4096388?redirectedFrom=fulltext) propose an alternative to Assumption \@ref(hyp:ConsdTETime). 
+This approach requires that there are no shifters in the group with $Z_i=0$, and thus that the proportion of treated units does not change over time in this group.
+This is thus very close to a DID-IV design with Strong First Stage.
+Finally, their approach requires an alternative parallel trends assumption over groups. 
+Let is state all of these assumptions:
+
+```{hypothesis,StrongWeakFirstStageDIDIV,name="Strong Weak First Stage"}
+We assume that the proportion of treated stays constant in the group with $Z_i=0$: $p_{s,0}=0$.
+```
+
+```{hypothesis,StrongParallelTrends,name="Conditional Parallel Trends"}
+We assume that the trends in potential outcomes among groups defined by $D_{i,B}$ does not depend on $Z_i$:
+  
+\begin{align*}
+    \esp{Y^d_{i,A}-Y^d_{i,B}|D_{i,B}=d,Z_i=1} & = \esp{Y^d_{i,A}-Y^d_{i,B}|D_{i,B}=d,Z_i=0}.
+\end{align*}
+```
+
+```{remark}
+Assumption \@ref(hyp:StrongParallelTrends) is very strong.
+It assumes away part of the time-varying selection bias that the instrumental variable procedure is trying to undo.
+```
+
+[de Chaisemartin and d'Haultfoeuille (2015)](https://academic.oup.com/restud/article-abstract/85/2/999/4096388?redirectedFrom=fulltext) prove that a $Wald_{TC}$, a *time-corrected* Wald estimator, is able to recover the average effect of the treatment on the shifters under these assumptions:
+
+```{theorem,IdentTTTCWald,name="Time-corrected Wald Estimator With Conditional Parallel Trends"}
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:StrongWeakFirstStageDIDIV) and \@ref(hyp:StrongParallelTrends), the *time-corrected* Wald estimator identifies the average effect of the treatment on the shifters:
+
+\begin{align*}
+  \Delta^Y_{Wald_{TC}} & = \Delta^{Y_A}_{s,1},
+\end{align*}
+
+with:
+
+\begin{align*}
+  \Delta^Y_{Wald_{TC}} & = \frac{\esp{Y_{i,A}|Z_i=1}-\esp{Y_{i,B}+D_{i,B}\delta_1+(1-D_{i,B})\delta_0|Z_i=1}}{\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=1)}\\
+  \delta_1 & = \esp{Y_{i,A}-Y_{i,B}|D_{i,B}=1,Z_i=0}\\
+  \delta_0 & = \esp{Y_{i,A}-Y_{i,B}|D_{i,B}=0,Z_i=0}.
+\end{align*}
+```
+
+```{proof}
+Note that:
+
+\begin{align*}
+\esp{Y_{i,A}|Z_i=1} & = \esp{Y_{i,A}|D_{i,B}=1,Z_i=1}\Pr(D_{i,B}=1|Z_i=1)\\
+                    & \phantom{=}+\esp{Y_{i,A}|D_{i,B}=0,Z_i=1}\Pr(D_{i,B}=0|Z_i=1)\\
+\esp{Y_{i,B}|Z_i=1} & = \esp{Y_{i,B}|D_{i,B}=1,Z_i=1}\Pr(D_{i,B}=1|Z_i=1)\\
+                    & \phantom{=}+\esp{Y_{i,B}|D_{i,B}=0,Z_i=1}\Pr(D_{i,B}=0|Z_i=1)\\
+\esp{D_{i,B}\delta_1|Z_i=1} & = \esp{Y_{i,A}-Y_{i,B}|D_{i,B}=1,Z_i=0}\Pr(D_{i,B}=1|Z_i=1)\\
+\esp{(1-D_{i,B})\delta_0|Z_i=1} & = \esp{Y_{i,A}-Y_{i,B}|D_{i,B}=0,Z_i=0}\Pr(D_{i,B}=0|Z_i=1).
+\end{align*}
+
+With $D_{i,B}=1$, we know that $Y_{i,A}=Y^1_{i,A}$ and $Y_{i,B}=Y^1_{i,B}$.
+As a consequence, using Assumption \@ref(hyp:StrongParallelTrends), we have:
+
+\begin{align*}
+  \Delta^Y_{Wald_{TC}} & = \frac{(\esp{Y_{i,A}-Y_{i,B}|D_{i,B}=0,Z_i=1}-\esp{Y_{i,A}-Y_{i,B}|D_{i,B}=0,Z_i=0})\Pr(D_{i,B}=0|Z_i=1)}{\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=1)}.
+\end{align*}
+
+Using the fact that, conditional on $Z_i=1$, the population with $D_{i,B}=0$ can be split totally into $T_i=s$ and $T_i=nt$, we can write the following equality (after adding and subtracting $\esp{Y^0_{i,A}|T_i=s,Z_i=1}$):
+
+\begin{align*}
+  \esp{Y_{i,A}-Y_{i,B}|D_{i,B}=0,Z_i=1} & = \Delta^{Y_A}_{s,1}\Pr(T_i=s|D_{i,B}=0,Z_i=1)+\esp{Y^0_{i,A}-Y^0_{i,B}|D_{i,B}=0,Z_i=1}.
+\end{align*}
+
+Using Assumption \@ref(hyp:StrongWeakFirstStageDIDIV), with $D_{i,B}=0$ and $Z_i=0$, we know that $Y_{i,A}=Y^0_{i,A}$ and $Y_{i,B}=Y^0_{i,B}$.
+Using Assumption \@ref(hyp:StrongParallelTrends) again, we have:
+
+\begin{align*}
+  \Delta^Y_{Wald_{TC}} & = \frac{\Delta^{Y_A}_{s,1}\Pr(T_i=s|D_{i,B}=0,Z_i=1)\Pr(D_{i,B}=0|Z_i=1)}{\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=1)}.
+\end{align*}
+
+Note that $T_i=s\Rightarrow D_{i,B}=0|Z_i=1$, so that $\Pr(T_i=s|D_{i,B}=0,Z_i=1)\Pr(D_{i,B}=0|Z_i=1)=\Pr(T_i=s|Z_i=1)$.
+Under Assumption \@ref(hyp:StrongWeakFirstStageDIDIV), $\Pr(T_i=s|Z_i=1)=\Pr(D_{i,A}=1|Z_i=1)-\Pr(D_{i,B}=1|Z_i=1)$, which proves the result.
+```  
+  
+```{remark}
+The problem with Theorem \@ref(thm:IdentTTDIDIVWeakFSCstTETime) is that it relies on Assumption \@ref(hyp:StrongWeakFirstStageDIDIV): there are no changes in the proportion of units receiving the treatment in the group with $Z_i=0$.
+This assumption might very often be untrue.
+Fortunately, [de Chaisemartin and d'Haultfoeuille (2015)](https://academic.oup.com/restud/article-abstract/85/2/999/4096388?redirectedFrom=fulltext) show that you can relax that assumption and still bound the treatment effect if your outcome is bounded.
+We will present this estimator in Section \@ref(bounds).
+```
+
+##### Estimation
+
+We are going to look at how to estimate the Time-Corrected Wald estimator of [de Chaisemartin and d'Haultfoeuille (2015)](https://academic.oup.com/restud/article-abstract/85/2/999/4096388?redirectedFrom=fulltext). 
+The formula for the estimator is pretty straightforward:
+
+\begin{align*}
+  \hat\Delta^Y_{Wald_{TC}} & = \frac{\frac{\sum_{i=1}^NY_{i,A}Z_i}{\sum_{i=1}^NZ_i}-\frac{\sum_{i=1}^NY_{i,B}Z_i}{\sum_{i=1}^NZ_i}-\hat\delta_1\frac{\sum_{i=1}^ND_{i,B}(1-Z_i)}{\sum_{i=1}^N(1-Z_i)}-\hat\delta_0\frac{\sum_{i=1}^N(1-D_{i,B})(1-Z_i)}{\sum_{i=1}^N(1-Z_i)}}{\frac{\sum_{i=1}^ND_{i,A}Z_i}{\sum_{i=1}^NZ_i}-\frac{\sum_{i=1}^ND_{i,B}Z_i}{\sum_{i=1}^NZ_i}}\\
+  \hat\delta_1 & = \frac{\sum_{i=1}^NY_{i,A}D_{i,B}(1-Z_i)}{\sum_{i=1}^ND_{i,B}(1-Z_i)}-\frac{\sum_{i=1}^NY_{i,B}D_{i,B}(1-Z_i)}{\sum_{i=1}^ND_{i,B}(1-Z_i)}\\
+  \hat\delta_0 & = \frac{\sum_{i=1}^NY_{i,A}(1-D_{i,B})(1-Z_i)}{\sum_{i=1}^N(1-D_{i,B})(1-Z_i)}-\frac{\sum_{i=1}^NY_{i,B}(1-D_{i,B})(1-Z_i)}{\sum_{i=1}^N(1-D_{i,B})(1-Z_i)}.
+\end{align*}
+
+
+```{example}
+Let us now look at how the Wald-TC estimator and the more traditional Wald-DID estimator work in our example.
+Let's compute them both:
+```
+
+```{r WaldIVWaldTC,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
+# Wald DID estimator
+# changes in mean outcomes over time
+DeltaYZ1 <- mean(y[Z==1])-mean(yB[Z==1])
+DeltaYZ0 <- mean(y[Z==0])-mean(yB[Z==0])
+DeltaDZ1 <- mean(DsA[Z==1])-mean(DsB[Z==1])
+DeltaDZ0 <- mean(DsA[Z==0])-mean(DsB[Z==0])
+WaldDID <- (DeltaYZ1-DeltaYZ0)/(DeltaDZ1-DeltaDZ0)
+
+# Wald TC estimator
+DeltaYDZ10 <- mean(y[DsB==1&Z==0])-mean(yB[DsB==1&Z==0])
+DeltaYDZ00 <- mean(y[DsB==0&Z==0])-mean(yB[DsB==0&Z==0])
+MeanDBZ0 <- mean(DsB[Z==0])
+WaldTC <- (DeltaYZ1-MeanDBZ0*DeltaYDZ10-(1-MeanDBZ0)*DeltaYDZ00)/(DeltaDZ1)
+
+# true effect on switchers in the sample
+DeltaYAs1Sample <- mean(y1A[DsB==0&DsA==1&Z==1])-mean(y0A[DsB==0&DsA==1&Z==1])
+DeltaYAs0Sample <- mean(y1A[DsB==0&DsA==1&Z==0])-mean(y0A[DsB==0&DsA==1&Z==0])
+DeltaYBs1Sample <- mean(y1B[DsB==0&DsA==1&Z==1])-mean(y0B[DsB==0&DsA==1&Z==1])
+DeltaYBs0Sample <- mean(y1B[DsB==0&DsA==1&Z==0])-mean(y0B[DsB==0&DsA==1&Z==0])
+DeltaYAat1Sample <- mean(y1A[DsB==1&DsA==1&Z==1])-mean(y0A[DsB==1&DsA==1&Z==1])
+DeltaYAat0Sample <- mean(y1A[DsB==1&DsA==1&Z==0])-mean(y0A[DsB==1&DsA==1&Z==0])
+DeltaYBat1Sample <- mean(y1B[DsB==1&DsA==1&Z==1])-mean(y0B[DsB==1&DsA==1&Z==1])
+DeltaYBat0Sample <- mean(y1B[DsB==1&DsA==1&Z==0])-mean(y0B[DsB==1&DsA==1&Z==0])
+
+# checking PTA
+DeltaY0BAZ1 <- mean(y0A[Z==1])-mean(y0B[Z==1])
+DeltaY0BAZ0 <- mean(y0A[Z==0])-mean(y0B[Z==0])
+DeltaY1atBAZ1 <- mean(y1A[DsB==1&DsA==1&Z==1])-mean(y1B[DsB==1&DsA==1&Z==1])
+DeltaY1atBAZ0 <- mean(y1A[DsB==1&DsA==1&Z==0])-mean(y1B[DsB==1&DsA==1&Z==0])
+
+# alpha
+alpha.shifters <- DeltaDZ1/(DeltaDZ1-DeltaDZ0)
+
+# weighted average of shifters impacts
+DeltaYAsSample <- DeltaYAs1Sample*alpha.shifters+(1-alpha.shifters)*DeltaYAs0Sample
+```
+
+The Wald-DID estimator in our example is equal to `r round(WaldDID,2)` while the true average effect of the treatment on the shifters in the group with $Z_i=1$ is equal to `r round(DeltaYAs1Sample,2)` in the sample. 
+The Time-corrected Wald estimator is equal to `r round(WaldTC,2)`.
+It is hard to say why these estimators are too big in our example.
+The Wald-DID estimator should not be too biased since Assumption \@ref(hyp:ConsdTETime) holds in our dataset, and the bias stemming from the failure of Assumption \@ref(hyp:StrongWeakFirstStageDIDIV) is not too severe.
+Indeed, using Theorem \@ref(thm:IdentTTDIDIVWeakFSCstTETime), we know that Wald-DID estimator should converge to the weighted average of the effect on shifters, which is equal to `r round(DeltaYAsSample,2)` in the sample.
+As always with Wald estimators, I suspect that the denominator is slightly too small, and that the proportion of switchers is underestimated.
 
