@@ -1,38 +1,39 @@
 # Mediation Analysis 
 
 ```{r librariesBis,echo=FALSE,message=FALSE,error=FALSE,warning=FALSE}
-# library(MASS)
-# library(RColorBrewer)
-# library(gplots)
-# library(ggplot2)
-# library(snowfall)
-# library(cowplot)
-# library(sandwich)
-# library(ggpubr)
-# library(dplyr)
-# library(metafor)
-# library(stats)
-# library(tmvtnorm)
-# library(AER)
-# library(stargazer)
-# library(plm)
-# library(lfe)
-# library(fixest)
-# library(tidyr)
-# library(purrr)
-# library(stringr)
-# library(did)
-# library(DIDmultiplegt)
-# library(didimputation)
-# library(did2s)
-# library(recipes)
-# library(tidyverse)
-# library(ggthemes)
-# library(fastDummies)
+library(MASS)
+library(RColorBrewer)
+library(gplots)
+library(ggplot2)
+library(snowfall)
+library(cowplot)
+library(sandwich)
+library(ggpubr)
+library(dplyr)
+library(metafor)
+library(stats)
+library(tmvtnorm)
+library(AER)
+library(stargazer)
+library(plm)
+library(lfe)
+library(fixest)
+library(tidyr)
+library(purrr)
+library(stringr)
+library(did)
+library(DIDmultiplegt)
+library(didimputation)
+library(did2s)
+library(recipes)
+library(tidyverse)
+library(ggthemes)
+library(fastDummies)
+library(ggdag)
 ```
 
 When we have estimated the treatment effect of a program, we sometimes wonder by which channels the program impact has been obtained.
-For example, has a Job Training Program been successful because it has increases the human capital of an agent, or simply by signalling to employers her motivation?
+For example, has a Job Training Program been successful because it has increased the human capital of an agent, or simply by signalling to employers her motivation?
 The question of separating between the various channels into which a program impact can be decomposed becomes especially important when a program has several components, and we wish to ascertain which one is the more important. 
 Another reason why we might be interested in which channel precisely is responsible for the program impact is because which channel dominates might give us indications about which theoretical mechanism is at play.
 
@@ -42,8 +43,28 @@ Then, I am going to present the fundamental problem of mediation analysis (which
 ## Mediation analysis: a framework
 
 Mediation analysis posits the existence of a mediator, $M_i$, which is driving part or the totality of the effect of the treatment on outcome $Y_i$. 
+One way to understand how a mediator works is to draw a Direct Acyclic Graph or DAG which represents the relationship between the variables.
+The `ggdag` package helps to draw a DAG easily.
+Let's give it a try:
+
+```{r DAGMediation,eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='DAG of the impact of D on Y partially mediated through M',fig.align='center',out.width='50%',fig.pos='htbp'}
+# structure of DAG
+our_dag <- ggdag::dagify(M ~ D,
+                         Y ~ D,
+                         Y ~ M,
+                         coords=list(x = c(D = 0, M = 1, Y = 2),
+                                     y = c(D = 0, M = 1, Y = 0))
+                        )
+# plotting DAG
+ggdag::ggdag(our_dag) + theme_void()
+```
+
+We are first going to define mediated and unmediated treatment effects and see how they work in our example and we'll then try to understand better how exactly mediation works and the mechanisms that are behind these treatment effects.
+
+### Defining mediated and unmediated treatment effects
+
 Let's start with a binary mediator, in order to keep things simple: $M_i\in\left\{0,1\right\}$.
-We can thus define four potential outcomes $Y_i^{d,d'}$, $(d,d')\in\left\{0,1\right\}^2$.
+We can define four potential outcomes $Y_i^{d,m}$, $(d,m)\in\left\{0,1\right\}^2$.
 We can also define two potential outcomes for the mediator: $M^d_i$, $d\in\left\{0,1\right\}$.
 
 The switching equation can now be written as follows:
@@ -59,15 +80,15 @@ The switching equation can now be written as follows:
     & = Y_i^{1,1}D_iM_i + Y_i^{0,1}(1-D_i)M_i  + Y_i^{1,0}D_i(1-M_i)+ Y_i^{0,0}(1-D_i)(1-M_i).
 \end{align*}
 
-We are now equipped to define two sets of causal mediation effects: the indirect (or mediated) effect and the direct (or unmediated) effect (we follow [Imai, Keene and Tingley (2010)](https://doi.org/10.1037/a0020761)):
+We are now equipped to define two sets of causal mediation effects: the mediated (or indirect) effect and the unmediated (or direct) effect (we follow [Imai, Keene and Tingley (2010)](https://imai.fas.harvard.edu/research/files/BaronKenny.pdf)):
 
 \begin{align*}
   \Delta^{Y_{m(d)}}_{i} & = Y_i^{d,M_i^1}-Y_i^{d,M_i^0}\\
   \Delta^{Y_{u(d)}}_{i} & = Y_i^{1,M_i^d}-Y_i^{0,M_i^d}.
 \end{align*}
 
-$\Delta^{Y_{m(d)}}_{i}$ is the causal effect of the treatment on the outcome acting through the mediator only, while keeping the value of the treatment status fixed at $d$.
-$\Delta^{Y_{u(m)}}_{i}$ is the causal effect of the treatment on the outcome acting through the treatment only, while keeping the value of the mediator fixed at $M_i(d)$.
+$\Delta^{Y_{m(d)}}_{i}$ is the causal effect of the treatment on the outcome acting through the mediator only, while keeping the direct effect of the treatment fixed at $d$.
+$\Delta^{Y_{u(d)}}_{i}$ is the causal effect of the treatment on the outcome acting through the treatment only, while keeping the value of the mediator fixed at $M_i(d)$.
 In the absence of interaction effects between the treatment and the mediator, we have $\Delta^{Y_{m(0)}}_{i}=\Delta^{Y_{m(1)}}_{i}=\Delta^{Y_{m}}_{i}$ and $\Delta^{Y_{u(0)}}_{i}=\Delta^{Y_{u(1)}}_{i}=\Delta^{Y_{u}}_{i}$.
 
 The individual effect of the treatment can be decomposed in two components:
@@ -155,8 +176,8 @@ y00 <- mu +  U0 + param["delta"]
 y01 <- mu +  U0 + param['tau0']+ param["delta"]
 y10 <- y00+alpha
 y11 <- y00+alpha+param['tau1']
-y1 <- y11*M+y10*(1-M)
-y0 <- y01*M+y00*(1-M)
+y1 <- y11*M1+y10*(1-M1)
+y0 <- y01*M0+y00*(1-M0)
 y1M1 <- y00+alpha+param['tau1']*M1
 y1M0 <- y00+alpha+param['tau1']*M0
 y0M1 <- y00 + param['tau0']*M1
@@ -175,11 +196,332 @@ TTm0 <- mean(y0M1[Ds==1]-y0M0[Ds==1])
 # unmediated treatment effects
 TTu1 <- mean(y1M1[Ds==1]-y0M1[Ds==1])
 TTu0 <- mean(y1M0[Ds==1]-y0M0[Ds==1])
+
+# preparing graph
+mediation.example <- data.frame(TT=c(TTm1,TTu0,TTm0,TTu1),Effect=c("TTm1","TTu0","TTm0","TTu1"),Type=c("Mediated","Unmediated","Mediated","Unmediated"),Decomposition=c("m1u0","m1u0","m0u1","m0u1")) %>%
+                      mutate(
+                        Effect=factor(Effect,levels=c("TTm1","TTu0","TTm0","TTu1")),
+                        Type=factor(Type,levels=c("Mediated","Unmediated")),
+                        Decomposition=factor(Decomposition,levels=c("m1u0","m0u1"))
+                      )
 ```
 
-Pb here with mediation.
+The average effect of the treatment on the treated is equal to `r round(TT,3)`.
+It can be decomposed in two ways.
+First, the impact mediated through the mediator $M_i$ when $D_i$ is fixed at 1 (`r round(TTm1,3)`) and the effect not mediated through $M_i$ (with $M_i$ fixed at $M_i^0$) (`r round(TTu0,3)`).
+Second, the impact mediated through the mediator $M_i$ when $D_i$ is fixed at 0 (`r round(TTm0,3)`) and the effect not mediated through $M_i$ (with $M_i$ fixed at $M_i^1$) (`r round(TTu1,3)`).
+Let us plot the results:
+
+```{r PlotMediationExample,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap="Decomposition of the Average Treatment Effect on the Treated in Mediated and Unmediated Effect",fig.align='center',out.width='50%',fig.pos='htbp'}
+# plotting the result
+ggplot(mediation.example, aes(x=Decomposition, y=TT,fill=Type)) +
+  geom_bar(stat="identity")+
+  theme_bw()
+```
+As Figure \@ref(fig:PlotMediationExample) shows, most of the effect of the treatment on the outcome is not mediated through $M_i$ in our example.
+We can also see that there seems to be limited interaction between the treatment and the mediator since both decompositions yield similar quantities.
+
+### Decomposing mediated and unmediated effects
+
+In order to understand better how mediation works, it is very useful to decompose the mediated and unmediated effects using the classical typology of [Imbens and Angrist (1994)](https://www.jstor.org/stable/2951620).
+Let's define four types by the reactions of their mediators to the treatment:
+
+  - **Always takers**, who always have the mediator set to 1: $M_i^{1}=M_i^{0}=1$.
+  I denote them $T_i=a$.
+  - **Never takers**, who always have the mediator set to 0: $M_i^{1}=M_i^{0}=0$.
+  I denote them $T_i=n$.
+  - **Compliers**, whose value of the mediator moves from 0 to 1 when the value of the treatment variable changes from 0 to 1: $M_i^{1}=1$ and $M_i^{0}=0$.
+  I denote them $T_i=c$.
+  - **Defiers**, whose value of the mediator switches from 1 to 0 when the value of the treatment variable changes from 0 to 1: $M_i^{1}=0$ and $M_i^{0}=1$.
+  I denote them $T_i=d$.
+
+$T_i$ spans all the potential reactions of the mediator to the treatment, and thus $\cup_{t\in\{a,n,c,d\}}\{T_i=t\}$ is a partition of the sampling space.
+It is very interesting to decompose both the full treatment effect on the treated but also the mediated and unmediated treatment effects on the treated in terms of the $T_i$ variable.
+Let's go.
+The Treatment on the Treated parameter first:
+
+\begin{align*}
+  \Delta^Y_{TT} & = \esp{Y_i^{1,M_i^1}-Y_i^{0,M_i^0}|D_i=1}\\
+                & = \sum_{t\in\{a,n,c,d\}}\esp{Y_i^{1,M_i^1}-Y_i^{0,M_i^0}|T_i=t,D_i=1}\Pr(T_i=t|D_i=1)\\
+                & = \esp{Y_i^{1,1}-Y_i^{0,1}|T_i=a,D_i=1}\Pr(T_i=a|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,0}-Y_i^{0,0}|T_i=n,D_i=1}\Pr(T_i=n|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,1}-Y_i^{0,0}|T_i=c,D_i=1}\Pr(T_i=c|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,0}-Y_i^{0,1}|T_i=d,D_i=1}\Pr(T_i=d|D_i=1).
+\end{align*}
+
+Let us now look at the average mediated effect on the treated:
+
+\begin{align*}
+\Delta^{Y_{m(1)}}_{TT} & = \esp{Y_i^{1,M_i^1}-Y_i^{1,M_i^0}|D_i=1}\\
+                & = \sum_{t\in\{a,n,c,d\}}\esp{Y_i^{1,M_i^1}-Y_i^{1,M_i^0}|T_i=t,D_i=1}\Pr(T_i=t|D_i=1)\\
+                & = \esp{Y_i^{1,1}-Y_i^{1,1}|T_i=a,D_i=1}\Pr(T_i=a|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,0}-Y_i^{1,0}|T_i=n,D_i=1}\Pr(T_i=n|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,1}-Y_i^{1,0}|T_i=c,D_i=1}\Pr(T_i=c|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,0}-Y_i^{1,1}|T_i=d,D_i=1}\Pr(T_i=d|D_i=1)\\
+                & = \esp{Y_i^{1,1}-Y_i^{1,0}|T_i=c,D_i=1}\Pr(T_i=c|D_i=1)\\
+                & \phantom{=}-\esp{Y_i^{1,1}-Y_i^{1,0}|T_i=d,D_i=1}\Pr(T_i=d|D_i=1).
+\end{align*}
+
+The result above is very useful and provides several fruitful insights.
+First, the average mediated effect on the treated only involves the effects on the compliers and the defiers.
+That is, only units whose value of the mediator is affected by the treatment are part of the mediated treatment effect.
+Second, their importance in the mediated treatment effect depends on their proportion in the (treated) population.
+That is, if few units have their value of the mediator affected by the treatment, the size of the mediated treatment effect decreases.
+Finally, the impact of the mediator on the defiers enters with a negative weight in the definition of the mediated treatment effect.
+This makes sense, since the treatment makes these units experience lower values of the mediator.
+
+Finally, let us decompose the unmediated treatment effect on the treated:
+
+\begin{align*}
+\Delta^{Y_{u(0)}}_{TT} & = \esp{Y_i^{1,M_i^0}-Y_i^{0,M_i^0}|D_i=1}\\
+                & = \sum_{t\in\{a,n,c,d\}}\esp{Y_i^{1,M_i^0}-Y_i^{0,M_i^0}|T_i=t,D_i=1}\Pr(T_i=t|D_i=1)\\
+                & = \esp{Y_i^{1,1}-Y_i^{0,1}|T_i=a,D_i=1}\Pr(T_i=a|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,0}-Y_i^{0,0}|T_i=n,D_i=1}\Pr(T_i=n|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,0}-Y_i^{0,0}|T_i=c,D_i=1}\Pr(T_i=c|D_i=1)\\
+                & \phantom{=}+\esp{Y_i^{1,1}-Y_i^{0,1}|T_i=d,D_i=1}\Pr(T_i=d|D_i=1).
+\end{align*}
+
+The unmediated treatment effect on the treated is equal to the direct effect of the treatment on each of the types multiplied by their proportion in the (treated) population, keeping the value of the mediator at its default value when the treatment is equalm to 0.
 
 ## The Fundamental Problem of Mediation Analysis
+
+In this section, we state the Fundamental Problem of Mediation Analysis (FPMA) and we then move on to examining the biases of intuitive comparisons that could be used to recover the mediated and unmediated effects of the treatment.
+
+### The Fundamental Problem of Mediation Analysis
+
+Mediation analysis is hard.
+It is even harder than identification and estimation of treatment effects.
+The following theorem shows formally why this is the case:
+
+```{theorem,FPMA,name="Fundamental Problem of Mediation Analysis"}
+The mediated and unmediated treatment effects are fundamentally unobservable.
+```
+
+```{proof}
+Let's look at the mediated treatment effect first.
+It can be decomposed as follows:
+
+\begin{align*}
+  \Delta^{Y_{m(1)}}_{TT} & = \esp{Y_i^{1,M_i^1}-Y_i^{1,M_i^0}|D_i=1}\\
+                        &  = \esp{Y_i^{1,M_i^1}-Y_i^{1,M_i^0}|D_i=1,M_i=1}\Pr(M_i=1|D_i=1)\\
+                        & \phantom{=} + \esp{Y_i^{1,M_i^1}-Y_i^{1,M_i^0}|D_i=1,M_i=0}\Pr(M_i=0|D_i=1)\\
+                        & = \esp{Y^{1,1}_i-Y_i^{1,M_i^0}|D_i=1,M_i=1}\Pr(M_i=1|D_i=1)\\
+                        & \phantom{=} + \esp{Y^{1,0}_i-Y_i^{1,M_i^0}|D_i=1,M_i=0}\Pr(M_i=0|D_i=1)\\
+                        & = (\esp{Y_i|D_i=1,M_i=1}-\esp{Y_i^{1,M_i^0}|D_i=1,M_i=1})\Pr(M_i=1|D_i=1)\\
+                        & \phantom{=} + (\esp{Y_i|D_i=1,M_i=0}-\esp{Y_i^{1,M_i^0}|D_i=1,M_i=0})\Pr(M_i=0|D_i=1),
+\end{align*}
+
+where the second and third inequalities follows from the switching equation.
+Note that both $\esp{Y_i^{1,M_i^0}|D_i=1,M_i=1}$ and $\esp{Y_i^{1,M_i^0}|D_i=1,M_i=0}$ are counterfactual values that cannot be observed (they depend on the value of the mediator when $D_i=0$, which is unobserved when $D_i=1$).
+
+Let us look at the unmediated treatment effect now:
+
+\begin{align*}
+  \Delta^{Y_{u(1)}}_{TT} & = \esp{Y_i^{1,M_i^1}-Y_i^{0,M_i^1}|D_i=1}\\
+                         &  = \esp{Y_i^{1,M_i^1}-Y_i^{0,M_i^1}|D_i=1,M_i=1}\Pr(M_i=1|D_i=1)\\
+                        & \phantom{=} + \esp{Y_i^{1,M_i^1}-Y_i^{0,M_i^1}|D_i=1,M_i=0}\Pr(M_i=0|D_i=1)\\
+                        & = \esp{Y^{1,1}_i-Y_i^{0,M_i^1}|D_i=1,M_i=1}\Pr(M_i=1|D_i=1)\\
+                        & \phantom{=} + \esp{Y^{1,0}_i-Y_i^{0,M_i^1}|D_i=1,M_i=0}\Pr(M_i=0|D_i=1)\\
+                        & = (\esp{Y_i|D_i=1,M_i=1}-\esp{Y_i^{0,M_i^1}|D_i=1,M_i=1})\Pr(M_i=1|D_i=1)\\
+                        & \phantom{=} + (\esp{Y_i|D_i=1,M_i=0}-\esp{Y_i^{0,M_i^1}|D_i=1,M_i=0})\Pr(M_i=0|D_i=1),
+\end{align*}
+
+Note that both $\esp{Y_i^{0,M_i^1}|D_i=1,M_i=1}$ and $\esp{Y_i^{0,M_i^1}|D_i=1,M_i=0}$ are counterfactual values that cannot be observed (they depend on the value of the outcome when $D_i=0$, which is unobserved when $D_i=1$).
+
+```
+
+```{remark}
+The key to understanding Theorem \@ref(thm:FPMA) is to see that the potential value of the mediator is unknown and this combines with the fact that the potential value of the outcome had the mediator or the treatment changed value is also unobserved.
+```
+
+### Biases of Intuitive Comparisons
+
+Usual intuitive proxies for the mediated and unmediated effects are usually biased because of confounders.
+We can visualize the problem in a DAG, with the arcs indicating the existence of confounders between two variables:
+
+```{r DAGMediationConfounded,eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='DAG of a confounded mediating relationship',fig.align='center',out.width='50%',fig.pos='htbp'}
+# structure of DAG
+our_dag <- ggdag::dagify(M ~ D,
+                         Y ~ D,
+                         Y ~ M,
+                         M ~~ D,
+                         Y ~~ D,
+                         Y ~~ M,
+                         coords=list(x = c(D = 0, M = 1, Y = 2),
+                                     y = c(D = 0, M = 1, Y = 0))
+                        )
+# plotting DAG
+ggdag::ggdag(our_dag) + 
+  theme_void()
+```
+The most obvious intuitive comparison that could try to recover mediated and unmediated treatment effects is the conditional With/Without comparison:
+
+\begin{align*}
+  \Delta^Y_{WW|D_i=d} & = \esp{Y_i|D_i=d,M_i=1}-\esp{Y_i|D_i=d,M_i=0}\\
+  \Delta^Y_{WW|M_i=d} & = \esp{Y_i|D_i=1,M_i=d}-\esp{Y_i|D_i=0,M_i=d}.
+\end{align*}
+
+Our hope is that $\Delta^Y_{WW|D_i=d}$ recovers the mediated treatment effect and $\Delta^Y_{WW|M_i=d}$ recovers the unmediated treatment effect.
+Unfortunately, that is not generally the case.
+The following theorem makes this point clear:
+
+```{theorem,WWBiasMed,name="Bias of the Conditional With/Without Comparisons"}
+The conditional With/Without comparisons are biased estimators of the mediated and unmediated average effects of the treatment on the treated:
+  
+\begin{align*}
+  \Delta^Y_{WW|D_i=1} & = \Delta^{Y_{m(1)}}_{TT|M_i=1}+\Delta^{Y^{1,0}}_{SB^{m(1)}|D_i=1}\\
+  \Delta^Y_{WW|M_i=1} & = \Delta^{Y_{u(1)}}_{TT|M_i=1}+\Delta^{Y^{0,1}}_{SB^{u(1)}|M_i=1}.
+\end{align*}
+
+with 
+
+\begin{align*}
+  \Delta^{Y_{m(1)}}_{TT|M_i=1} & = \esp{Y_i^{1,1}-Y_i^{1,0}|D_i=1,M_i=1}\\
+  \Delta^{Y^{1,0}}_{SB^{m(1)}|D_i=1} & = \esp{Y^{1,0}_i|D_i=1,M_i=1}-\esp{Y^{1,0}_i|D_i=1,M_i=0}\\
+  \Delta^{Y_{u(1)}}_{TT|M_i=1} & = \esp{Y_i^{1,1}-Y_i^{0,1}|D_i=1,M_i=1}\\
+  \Delta^{Y^{0,1}}_{SB^{u(1)}|M_i=1} & = \esp{Y^{0,1}_i|D_i=1,M_i=1}-\esp{Y^{0,1}_i|D_i=0,M_i=0}.
+\end{align*}
+
+```
+
+```{proof}
+The proof is straightforward using the switching equation and adding and subtracting the counterfactual part of the treatment effects.
+
+```
+
+According to Theorem \@ref(thm:WWBiasMed), Selection Bias biases the conditional With/Without estimators of the mediated and unmediated treatment effects.
+As Figure \@(ref:DAGMediationConfounded) suggests, this is because confounders are correlated with both treatment, mediator and outcome.
+The most important confounder in our example is $\mu_i$, which is correlated with all three variables.
+
+```{remark}
+Note that Theorem \@ref(thm:WWBiasMed) shows the bias for the mediated and unmediated treatment effects conditional on $M_i=1$. 
+The same results with the unconditional version of the treatment effects would be somewhat more intricate since it would involve weights.
+```
+
+```{remark}
+Note also that Theorem \@ref(thm:WWBiasMed) shows the bias for the mediated and unmediated treatment effects with $m(1)$ and $u(1)$ as indices. 
+The same results with $m(0)$ and $u(0)$ are similar.
+```
+
+```{example}
+Let's see how that works our in our example.
+```
+
+```{r BiasWWMed,eval=TRUE,echo=TRUE,results='hide'}
+# mediated treatment effect for M=1
+TTm1M1 <- mean(y11[Ds==1&M==1])-mean(y10[Ds==1&M==1])
+# unmediated treatment effect for M==1
+TTu1M1 <- mean(y11[Ds==1&M==1])-mean(y01[Ds==1&M==1])
+
+# selection bias for the mediated treatment effect
+SBm1D1 <- mean(y10[Ds==1&M==1])-mean(y10[Ds==1&M==0])
+# selection bias for the unmediated treatment effect
+SBu1M1 <- mean(y01[Ds==1&M==1])-mean(y01[Ds==0&M==1])
+
+# with/without comparison for the mediated treatment effect for M=1
+WWD1 <- mean(y[Ds==1&M==1])-mean(y[Ds==1&M==0])
+# unmediated treatment effect for M==1
+WWM1 <- mean(y[Ds==1&M==1])-mean(y[Ds==0&M==1])
+```
+
+In our example, the With/Without estimator of the mediated treatment effect is equal to `r round(WWD1,3)` (for $D_i=1$).
+The true mediated treatment effect for $D_i=1$ and $M_i=1$ is equal to `r round(TTm1M1,3)`.
+Selection bias for the mediated treatment effect for $D_i=1$ is thus equal to `r round(SBm1D1,3)`.
+The With/Without estimator of the unmediated treatment effect is equal to `r round(WWM1,3)` (for $M_i=1$).
+The true unmediated treatment effect for $D_i=1$ and $M_i=1$ is equal to `r round(TTu1M1,3)`.
+Selection bias for the unmediated treatment effect for $M_i=1$ is thus equal to `r round(SBu1M1,3)`.
+
+## Mediation analysis with experimental data
+
+[Imai, Tingleu and Yamamoto (2013)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x) propose two experimental designs to recover the mediated and unmediated treatment effects: the parallel design and the crossover design.
+We are going to also study identification in a Sequential Self-Selection design, which I find slightly simpler. 
+Let's examine these approaches in turn.
+
+### Mediation analysis in the parallel design
+
+In the parallel design, we run a three-step experiment.
+In the first step, we randomly allocate units either to the first or the second arm of the experiment.
+We denote $R^1_i=0$ the first arm and $R^1_i=1$ the second arm.
+
+In the first arm, we randomly allocate the treatment among units and we let the mediator take the corresponding value without interferring.
+We denote $R^2_i=1$ when unit $i$ is assigned to the treatment and $R^2_i=0$ when unit $i$ us not assigned to the treatment. 
+In this design, we assume that units fully comply with the assignment.
+One way to do that is to run the whole parallel design only on units that are selected into the treatment ($D_i=1$).
+
+In the second arm, we run a two-step experiment.
+In the first step, we randomly allocate units either to the treatment or to the 
+
+### Mediation analysis in the Sequential Self-Selection design
+
+In a Sequential Self-Selection design, researchers run a Randomized Controlled Trial (RCT) in two-steps.
+In the first step, the treatment is randomized among those who applied for it.
+In the second step, the mediator is randomized among those who applied for it. 
+We thus have two random variables $R_i^1$ and $R_i^2$ which take values zero or one for observations for which $D_i=1$ for the first and $D_i=1$ and $M_i=1$ for the second.
+
+Let us formalize how the Sequential Self-Selection design works.
+
+```{hypothesis,seqindepss,name='Sequential Independence Among Self-Selected'}
+We assume that the sequential randomized allocation of the program among applicants is well done: 
+
+\begin{align*}
+  R^1_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|D_i=1\\
+  R^2_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|M_i=1,D_i=1
+\end{align*}
+
+```
+
+We need a second assumption:
+
+```{hypothesis,seqrassval,name='Validity of the Sequential Self-Selection design'}
+We assume that the sequential randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:
+
+\begin{align*}
+Y_i & = 
+  \begin{cases}
+    Y_i^{11} & \text{ if } (D_i=1 \text{ and } R^1_i=1 \text{ and } M_i=1 \text{ and } R^2_i=1)   \\
+    Y_i^{10} & \text{ if } ((D_i=1 \text{ and } R^1_i=1) \text{ and } ((M_i=1 \text{ and } R^2_i=0) \text{ or } M_i=0))    \\
+    Y_i^{01} & \text{ if } (D_i=1 \text{ and } R^1_i=0 \text{ and } M_i=1 \text{ and } R^2_i=1)   \\
+    Y_i^{00} & \text{ if } ((D_i=1 \text{ and } R^1_i=0) \text{ and } ((M_i=1 \text{ and } R^2_i=0) \text{ or } M_i=0))   
+  \end{cases}\\
+M_i & = 
+  \begin{cases}
+    M_i^{1} & \text{ if } D_i=1 \text{ and } R^1_i=1\\
+    M_i^{0} & \text{ if } D_i=1 \text{ and } R^1_i=0
+  \end{cases}
+\end{align*}
+```
+
+with $(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)$ the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.
+
+Under these assumptions, we have the following result:
+
+```{theorem,idrassMed,name='Identification of Total, Mediated and Unmediated Effects in a Sequential Self-Selection design'}
+Under Assumptions \@ref(def:indepss) and \@ref(def:rassval), the WW estimator among the self-selected identifies TT:
+
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \Delta^Y_{TT},
+\end{align*}
+
+```
+
+with:
+
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1}.
+\end{align*}
+
+```{proof}
+\begin{align*}
+  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1} \\
+                    & = \esp{Y^1_i|R_i=1,D_i=1} - \esp{Y^0_i|R_i=0,D_i=1} \\
+                    & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
+                    & = \esp{Y_i^1-Y_i^0|D_i=1},
+\end{align*}
+where the second equality uses Assummption\@ref(def:rassval), the third equality Assumption \@ref(def:indepss) and the last equality the linearity of the expectation operator.
+```
+
+
+
 
 ## Mediation analysis under unconfoundedness
 
