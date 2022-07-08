@@ -281,7 +281,7 @@ Finally, let us decompose the unmediated treatment effect on the treated:
                 & \phantom{=}+\esp{Y_i^{1,1}-Y_i^{0,1}|T_i=d,D_i=1}\Pr(T_i=d|D_i=1).
 \end{align*}
 
-The unmediated treatment effect on the treated is equal to the direct effect of the treatment on each of the types multiplied by their proportion in the (treated) population, keeping the value of the mediator at its default value when the treatment is equalm to 0.
+The unmediated treatment effect on the treated is equal to the direct effect of the treatment on each of the types multiplied by their proportion in the (treated) population, keeping the value of the mediator at its default value when the treatment is equal to 0.
 
 ## The Fundamental Problem of Mediation Analysis
 
@@ -311,7 +311,7 @@ It can be decomposed as follows:
                         & \phantom{=} + (\esp{Y_i|D_i=1,M_i=0}-\esp{Y_i^{1,M_i^0}|D_i=1,M_i=0})\Pr(M_i=0|D_i=1),
 \end{align*}
 
-where the second and third inequalities follows from the switching equation.
+where the second and third inequalities follow from the switching equation.
 Note that both $\esp{Y_i^{1,M_i^0}|D_i=1,M_i=1}$ and $\esp{Y_i^{1,M_i^0}|D_i=1,M_i=0}$ are counterfactual values that cannot be observed (they depend on the value of the mediator when $D_i=0$, which is unobserved when $D_i=1$).
 
 Let us look at the unmediated treatment effect now:
@@ -358,7 +358,7 @@ The most obvious intuitive comparison that could try to recover mediated and unm
 
 \begin{align*}
   \Delta^Y_{WW|D_i=d} & = \esp{Y_i|D_i=d,M_i=1}-\esp{Y_i|D_i=d,M_i=0}\\
-  \Delta^Y_{WW|M_i=d} & = \esp{Y_i|D_i=1,M_i=d}-\esp{Y_i|D_i=0,M_i=d}.
+  \Delta^Y_{WW|M_i=m} & = \esp{Y_i|D_i=1,M_i=m}-\esp{Y_i|D_i=0,M_i=m}.
 \end{align*}
 
 Our hope is that $\Delta^Y_{WW|D_i=d}$ recovers the mediated treatment effect and $\Delta^Y_{WW|M_i=d}$ recovers the unmediated treatment effect.
@@ -437,7 +437,7 @@ Selection bias for the unmediated treatment effect for $M_i=1$ is thus equal to 
 We are going to also study identification in a Sequential Self-Selection design, which I find slightly simpler. 
 Let's examine these approaches in turn.
 
-### Mediation analysis in the parallel design
+### Mediation analysis in the Parallel design
 
 In the parallel design, we run a three-step experiment.
 In the first step, we randomly allocate units either to the first or the second arm of the experiment.
@@ -449,7 +449,138 @@ In this design, we assume that units fully comply with the assignment.
 One way to do that is to run the whole parallel design only on units that are selected into the treatment ($D_i=1$).
 
 In the second arm, we run a two-step experiment.
-In the first step, we randomly allocate units either to the treatment or to the 
+In the first step, we randomly allocate units either to the treatment or to the control.
+We denote $R_i^2=1$ when unit $i$ is assigned to the treatment and $R_i^2=0$ when it is assigned to the control.
+In the second step, we randomly allocate units to the mediator. 
+We denote $R_i^3=1$ when unit $i$ is assigned to the mediator value $M_i=1$ and $R_i^3=0$ when unit $i$ is assigned to the mediator value of $M_i=0$.
+
+In order to recover the treatment effect on the treated, we are going to assume that the experiment takes place among the units selected to participate in the treatment, *i.e.* among units with $D_i=1$.
+If we abstract from this, the parameter we recover is the average effect of the treatment, ATE.
+
+Let us formalize the assumptions we make on the Parallel design
+
+```{hypothesis,parindepss,name='Sequential Independence in the Parallel Design'}
+We assume that the sequential randomized allocation of the program among applicants is well done: 
+
+\begin{align*}
+  R^1_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|D_i=1\\
+  R^2_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|R_i^1,D_i=1\\
+  R^3_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|R_i^2,R_i^1=1,D_i=1.
+\end{align*}
+
+```
+
+We need a second assumption:
+
+```{hypothesis,parrassval,name='Validity of the Sequential Parallel Design'}
+We assume that the sequential randomized allocation of the program does not interfere with how potential outcomes and potential treatment and mediator choices are generated:
+
+\begin{align*}
+Y_i & = 
+  \begin{cases}
+    Y_i^{11} & \text{ if } D_i=1 \text{ and } ((R^1_i=0 \text{ and } R^2_i=1 \text{ and } M_i=1) \text{ or } (R^1_i=1 \text{ and } R^2_i=1 \text{ and } R^3_i=1))   \\
+    Y_i^{10} & \text{ if } D_i=1 \text{ and } ((R^1_i=0 \text{ and } R^2_i=1 \text{ and } M_i=0) \text{ or } (R^1_i=1 \text{ and } R^2_i=1 \text{ and } R^3_i=0))   \\
+    Y_i^{01} & \text{ if } D_i=1 \text{ and } ((R^1_i=0 \text{ and } R^2_i=0 \text{ and } M_i=1) \text{ or } (R^1_i=1 \text{ and } R^2_i=0 \text{ and } R^3_i=1))   \\
+    Y_i^{00} & \text{ if } D_i=1 \text{ and } ((R^1_i=0 \text{ and } R^2_i=0 \text{ and } M_i=0) \text{ or } (R^1_i=1 \text{ and } R^2_i=0 \text{ and } R^3_i=0))   \\
+  \end{cases}\\
+M_i & = 
+  \begin{cases}
+    M_i^{1} & \text{ if } D_i=1 \text{ and }R^1_i=0\text{ and } R^2_i=1\\
+    M_i^{0} & \text{ if } D_i=1 \text{ and }R^1_i=0\text{ and } R^2_i=0
+  \end{cases},
+\end{align*}
+
+with $(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)$ the same potential outcomes and potential treatment and mediator choices as in a routine allocation of the treatment.
+```
+
+```{remark}
+Assumption \@ref(hyp:parrassval) imposes that the experimental setting does not alter the treatment, mediator and outcomes of the agents.
+```
+
+For identification of the mediated and unmediated effects to go through, we need a final (strong) assumption: the absence of interaction effects:
+
+```{hypothesis,ParNoInteract,name='Absence of Interaction Effects'}
+We assume that the treatment and the mediator do not interact: $Y_i^{d,m}-Y_i^{d,m'}=Y_i^{d',m}-Y_i^{d',m'}$, $\forall (d,m,d'm')\in\{0,1\}^4$, $d\neq d'$, $m\neq m'$.
+```
+
+```{remark}
+Assumption \@ref(hyp:ParNoInteract) is actually too strong for our result.
+We only need that the assumption holds for the average effects on the *never takers*, *defiers* and *compliers*.
+```
+
+```{remark}
+Under Assumption \@ref(hyp:ParNoInteract), $\Delta^{Y_{u(1)}}_{TT}=\Delta^{Y_{u(0)}}_{TT}$, which we denote $\Delta^{Y_{u(d)}}_{TT}$ and $\Delta^{Y_{m(1)}}_{TT}=\Delta^{Y_{m(0)}}_{TT}$, which we denote $\Delta^{Y_{m(d)}}_{TT}$.
+```
+
+Under these assumptions, we have the following result:
+
+```{theorem,idParMed,name='Identification of Total, Mediated and Unmediated Effects in the Parallel Design'}
+Under Assumptions \@ref(hyp:parindepss), \@ref(hyp:parrassval) and \@ref(hyp:ParNoInteract), the treatment effect on the treated and the mediated and unmediated effects on the treated are identified in the Parallel Design:
+
+\begin{align*}
+  \Delta^Y_{TT} & = \esp{Y_i|D_i=1,R^1_i=0,R_i^2=1}-\esp{Y_i|D_i=1,R^1_i=0,R_i^2=0}\\
+  \Delta^{Y_{u(d)}}_{TT} & = \esp{Y_i|D_i=1,R^1_i=1,R_i^2=1,R_i^3=1}-\esp{Y_i|D_i=1,R^1_i=1,R_i^2=0,R_i^3=1}\\
+                        & =\esp{Y_i|D_i=1,R^1_i=1,R_i^2=1,R_i^3=0}-\esp{Y_i|D_i=1,R^1_i=1,R_i^2=0,R_i^3=0}\\
+  \Delta^{Y_{m(d)}}_{TT} & = \esp{Y_i|D_i=1,R^1_i=0,R_i^2=1}-\esp{Y_i|D_i=1,R^1_i=0,R_i^2=0}\\
+                        & \phantom{=}-\esp{Y_i|D_i=1,R^1_i=1,R_i^2=1,R_i^3=1}-\esp{Y_i|D_i=1,R^1_i=1,R_i^2=0,R_i^3=1}\\
+                         & = \esp{Y_i|D_i=1,R^1_i=0,R_i^2=1}-\esp{Y_i|D_i=1,R^1_i=0,R_i^2=0}\\
+                        & \phantom{=}-\esp{Y_i|D_i=1,R^1_i=1,R_i^2=1,R_i^3=0}-\esp{Y_i|D_i=1,R^1_i=1,R_i^2=0,R_i^3=0}.
+\end{align*}
+```
+
+```{proof}
+I omit conditioning on $D_i=1$ to save notation.
+Let us start with the total effect: $\esp{Y_i|R^1_i=0,R_i^2=1}-\esp{Y_i|R^1_i=0,R_i^2=0}$ is a With/Without estimator where the treatment has been randomized among a random sample of the units selected to receive the treatment. 
+Theorem \@ref(thm:idrass) proves that it identifies $\Delta^Y_{TT}$ under Assumptions \@ref(hyp:parindepss) and \@ref(hyp:parrassval).
+The unmediated treatment effect can be recovered as follows:
+
+\begin{align*}
+\esp{Y_i|R^1_i=1,R_i^2=1,R_i^3=1} & -\esp{Y_i|R^1_i=1,R_i^2=0,R_i^3=1} \\
+                        & = \sum_{t\in\{a,n,c,d\}}\esp{Y_i^{1,1}-Y_i^{0,1}|T_i=t}\Pr(T_i=t)\\
+\esp{Y_i|R^1_i=1,R_i^2=1,R_i^3=0} & -\esp{Y_i|R^1_i=1,R_i^2=0,R_i^3=0} \\
+                        & = \sum_{t\in\{a,n,c,d\}}\esp{Y_i^{1,0}-Y_i^{0,0}|T_i=t}\Pr(T_i=t),
+\end{align*}
+
+using Assumptions \@ref(hyp:parindepss) and \@ref(hyp:parrassval).
+Using the decomposition of $\Delta^Y_{TT}$ in the effects on each type, we have:
+
+\begin{align*}
+\esp{Y_i|R^1_i=0,R_i^2=1} & -\esp{Y_i|R^1_i=0,R_i^2=0}\\
+  & - (\esp{Y_i|R^1_i=1,R_i^2=1,R_i^3=1} -\esp{Y_i|R^1_i=1,R_i^2=0,R_i^3=1}) \\
+  & = \esp{Y_i^{0,1}-Y_i^{0,0}|T_i=c}\Pr(T_i=c) \\
+  & \phantom{=}-\esp{Y_i^{1,1}-Y_i^{1,0}|T_i=d}\Pr(T_i=d)\\
+  & \phantom{=}+(\esp{Y_i^{1,0}-Y_i^{0,0}|T_i=n}-\esp{Y_i^{1,1}-Y_i^{0,1}|T_i=n})\Pr(T_i=n).
+\end{align*}
+
+and 
+
+\begin{align*}
+\esp{Y_i|R^1_i=0,R_i^2=1} & -\esp{Y_i|R^1_i=0,R_i^2=0}\\
+  & - (\esp{Y_i|R^1_i=1,R_i^2=1,R_i^3=0} -\esp{Y_i|R^1_i=1,R_i^2=0,R_i^3=0}) \\
+  & = \esp{Y_i^{1,1}-Y_i^{1,0}|T_i=c}\Pr(T_i=c) \\
+  & \phantom{=}-\esp{Y_i^{0,1}-Y_i^{0,0}|T_i=d}\Pr(T_i=d)\\
+  & \phantom{=}+(\esp{Y_i^{1,1}-Y_i^{0,1}|T_i=a}-\esp{Y_i^{1,0}-Y_i^{0,0}|T_i=a})\Pr(T_i=a).
+\end{align*}
+
+Using Assumption \@ref(hyp:ParNoInteract) and the decomposition formulae for the mediated and unmediated treatment effects on the treated gives the result.
+
+```
+
+```{remark}
+The proof of Theorem \@ref(thm:idParMed) is more detailed and explanatory than the one in [Imai, Tingleu and Yamamoto (2013)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x).
+We understand why we need Assumption \@ref(hyp:ParNoInteract): the effects on the *always takers* and on the *never takers* estimated in the two treatment arms do not cancel out and the effects of the mediator on the *compliers* and *defiers* are not the correct combination in both comparisons unless we make Assumption \@ref(hyp:ParNoInteract).
+```
+
+```{remark}
+Note that the model is overidentified under Assumptions \@ref(hyp:parindepss), \@ref(hyp:parrassval) and \@ref(hyp:ParNoInteract).
+There are two different ways to estimate the unmediated treatment effect and thus one can test Assumption \@ref(hyp:ParNoInteract) by comparing these two estimates.
+```
+
+```{remark}
+Since the model is overidentified under Assumptions \@ref(hyp:parindepss), \@ref(hyp:parrassval) and \@ref(hyp:ParNoInteract), one wonders what can exactly be identified on the mediated and unmediated treatment effects under these assumptions.
+Maybe  it is possible to bound the treatment effects.
+This is, to my knowledge, still an open question.
+```
 
 ### Mediation analysis in the Sequential Self-Selection design
 
@@ -465,7 +596,7 @@ We assume that the sequential randomized allocation of the program among applica
 
 \begin{align*}
   R^1_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|D_i=1\\
-  R^2_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|M_i=1,D_i=1
+  R^2_i & \Ind(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)|R^1_i,M_i=1,D_i=1
 \end{align*}
 
 ```
@@ -493,31 +624,98 @@ M_i & =
 
 with $(Y_i^{00},Y_i^{01},Y_i^{10},Y_i^{11},M^1_i,M^0_i)$ the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.
 
+We finally need a monotonicity assumption:
+
+```{hypothesis,seqMono,name='Monotonicity of the Effect of the Treatment on the Mediator'}
+We assume that the effect of the treatment on the mediator is monotonous:
+
+\begin{align*}
+  \Pr(M_i^1-M_i^0<0) & =0.
+\end{align*}
+```
+
+```{remark}
+Clearly, Assumption \@ref(hyp:seqMono) is equivalent to the absence of *defiers*: $\Pr(T_i=d)=0$.
+```
+
 Under these assumptions, we have the following result:
 
 ```{theorem,idrassMed,name='Identification of Total, Mediated and Unmediated Effects in a Sequential Self-Selection design'}
-Under Assumptions \@ref(def:indepss) and \@ref(def:rassval), the WW estimator among the self-selected identifies TT:
+Under Assumptions \@ref(hyp:seqindepss), \@ref(hyp:seqrassval) and \@ref(hyp:seqMono), the treatment effect on the treated and the mediated and unmediated effects are identified in a Sequential Self-Selection Design:
 
 \begin{align*}
-  \Delta^Y_{WW|D=1} & = \Delta^Y_{TT},
+  \Delta^Y_{TT} & = \esp{Y_i|D_i=1,R_i^1=1,M_i=1,R_i^2=1}\Pr(M_i=1|D_i=1,R_i^1=1)\\
+                & \phantom{=}+\esp{Y_i|D_i=1,R_i^1=1,M_i=0}\Pr(M_i=0|D_i=1,R_i^1=1)\\
+                & \phantom{=}-\left(\esp{Y_i|D_i=1,R_i^1=0,M_i=1,R_i^2=1}\Pr(M_i=1|D_i=1,R_i^1=0)\right.\\
+                & \phantom{=-(}\left.+\esp{Y_i|D_i=1,R_i^1=0,M_i=0}\Pr(M_i=0|D_i=1,R_i^1=0)\right)\\
+   \Delta^{Y_{m(1)}}_{TT} & =\left(\esp{Y_i|D_i=1,R_i^1=1,M_i=1,R_i^2=1}\right.\\
+                          &\phantom{=-(}\left.-\esp{Y_i|D_i=1,R_i^1=1,M_i=1,R_i^2=0}\right)\Pr(M_i=1|D_i=1,R_i^1=1)\\
+                          & \phantom{=}-\left(\esp{Y_i|D_i=1,R_i^1=0,M_i=1,R_i^2=1}\right.\\
+                          &\phantom{=-(}\left.-\esp{Y_i|D_i=1,R_i^1=0,M_i=1,R_i^2=0}\right)\Pr(M_i=1|D_i=1,R_i^1=0)\\
+   \Delta^{Y_{u(0)}}_{TT} & =\Delta^Y_{TT}-\Delta^{Y_{m(1)}}_{TT}.
 \end{align*}
 
 ```
 
-with:
-
-\begin{align*}
-  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1}.
-\end{align*}
-
 ```{proof}
-\begin{align*}
-  \Delta^Y_{WW|D=1} & = \esp{Y_i|R_i=1,D_i=1} - \esp{Y_i|R_i=0,D_i=1} \\
-                    & = \esp{Y^1_i|R_i=1,D_i=1} - \esp{Y^0_i|R_i=0,D_i=1} \\
-                    & = \esp{Y_i^1|D_i=1}-\esp{Y_i^0|D_i=1}\\
-                    & = \esp{Y_i^1-Y_i^0|D_i=1},
+I omit conditioning on $D_i=1$ all along to save on notation.
+Note that:
+
+\begin{align*}  
+  \esp{Y_i|R_i^1=1,M_i=1,R_i^2=1} & = \esp{Y^{1,M_i^1}_i|R_i^1=1,M^1_i=1,R_i^2=1}\\
+                                  & = \esp{Y^{1,M_i^1}_i|M^1_i=1}\\
+  \esp{Y_i|R_i^1=1,M_i=0} & = \esp{Y^{1,M_i^1}_i|M^1_i=0}\\
+  \esp{Y_i|R_i^1=0,M_i=1,R_i^2=1} & = \esp{Y^{0,M_i^0}_i|M^0_i=1}\\
+  \esp{Y_i|R_i^1=0,M_i=0} & = \esp{Y^{0,M_i^0}_i|M^0_i=0}\\
+  \Pr(M_i=1|R_i^1=1) & = \Pr(M^1_i=1)\\
+  \Pr(M_i=0|R_i^1=1) & = \Pr(M^1_i=0)\\
+  \Pr(M_i=1|R_i^1=0) & = \Pr(M^0_i=1)\\
+  \Pr(M_i=0|R_i^1=0) & = \Pr(M^0_i=0),
 \end{align*}
-where the second equality uses Assummption\@ref(def:rassval), the third equality Assumption \@ref(def:indepss) and the last equality the linearity of the expectation operator.
+
+using Assumptions \@ref(hyp:seqindepss) and \@ref(hyp:seqrassval).
+Because $M_i^1$ and $M_i^0$ are both partitions of the sampling space, we can use the Law of Iterated Expectations to find:
+  
+\begin{align*}
+  \esp{Y^{1,M_i^1}_i} &=  \esp{Y^{1,M_i^1}_i|M^1_i=1}\Pr(M^1_i=1)+\esp{Y^{1,M_i^1}_i|M^1_i=1}\Pr(M^1_i=0)\\
+  \esp{Y^{0,M_i^0}_i} &=  \esp{Y^{0,M_i^0}_i|M^0_i=1}\Pr(M^0_i=1)+\esp{Y^{0,M_i^0}_i|M^1_i=1}\Pr(M^0_i=0)
+\end{align*}
+  
+The difference between the two terms is the definition of $\Delta^Y_{TT}$.
+This proves the first part of the theorem.
+
+Note that, under Assumptions \@ref(hyp:seqindepss), \@ref(hyp:seqrassval) and especially \@ref(hyp:seqMono):
+
+\begin{align*}
+  \esp{Y_i|R_i^1=1,M_i=1,R_i^2=1} & -\esp{Y_i|R_i^1=1,M_i=1,R_i^2=0}\\
+     & =  \esp{Y^{11}_i|M^1_i=1} -\esp{Y^{10}_i|M^1_i=1}\\
+     & =  \esp{Y^{11}_i|T_i=a}\Pr(T_i=a|M_i^1=1)+\esp{Y^{11}_i|T_i=c}\Pr(T_i=c|M_i^1=1)\\
+      & \phantom{=}-\esp{Y^{10}_i|T_i=a}\Pr(T_i=a|M^1_i=1)-\esp{Y^{10}_i|T_i=c}\Pr(T_i=c|M^1_i=1)\\
+     & =  \esp{Y^{11}_i-Y^{10}_i|T_i=a}\Pr(T_i=a|M_i^1=1)\\
+      & \phantom{=}+\esp{Y^{11}_i-Y^{10}_i|T_i=c}\Pr(T_i=c|M_i^1=1).
+\end{align*}
+
+By the same reasoning, we also have:
+  
+\begin{align*}
+  \esp{Y_i|R_i^1=0,M_i=1,R_i^2=1} & -\esp{Y_i|R_i^1=0,M_i=1,R_i^2=0}\\
+     & =  \esp{Y^{11}_i|M^0_i=1} -\esp{Y^{10}_i|M^0_i=1}\\
+     & =  \esp{Y^{11}_i-Y^{10}_i|T_i=a}.
+\end{align*}
+  
+Finally, using Bayes Law and the fact that:
+  
+\begin{align*}
+  \Pr(M_i=1|R_i^1=1) & = \Pr(M^1_i=1) = \Pr(T_i=a)+\Pr(T_i=c)\\
+  \Pr(M_i=1|R_i^1=0) & = \Pr(M^0_i=1) = \Pr(T_i=a),
+\end{align*}
+
+we have that $\Pr(T_i=a|M_i^1=1)=\frac{\Pr(T_i=a)}{\Pr(T_i=a)+\Pr(T_i=c)}$ and  $\Pr(T_i=c|M_i^1=1)=\frac{\Pr(T_i=c)}{\Pr(T_i=a)+\Pr(T_i=c)}$.
+Combining the results with the decomposition of $\Delta^{Y_{m(1)}}_{TT}$ under Assumption \@ref(hyp:seqMono) proves the identification of $\Delta^{Y_{m(1)}}_{TT}$. 
+
+The identification of $\Delta^{Y_{u(0)}}_{TT}$ comes directly from the decompositions of $\Delta^Y_{TT}$, $\Delta^{Y_{m(1)}}_{TT}$ and $\Delta^{Y_{u(0)}}_{TT}$ under Assumption \@ref(hyp:seqMono).
+This proves the result.
+
 ```
 
 
