@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-07-08" />
+<meta name="date" content="2022-08-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -236,9 +236,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.3.4" data-path="NE.html"><a href="NE.html#difference-in-differences-with-instrumental-variables"><i class="fa fa-check"></i><b>4.3.4</b> Difference In Differences with Instrumental Variables</a></li>
 </ul></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="sec:OM.html"><a href="sec:OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a>
+<li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a>
 <ul>
-<li class="chapter" data-level="5.1" data-path="sec:OM.html"><a href="sec:OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.1</b> Imputation methods</a></li>
+<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.1</b> Imputation methods</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="threats.html"><a href="threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a>
 <ul>
@@ -309,6 +309,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="15.3.1" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-in-the-parallel-design"><i class="fa fa-check"></i><b>15.3.1</b> Mediation analysis in the Parallel design</a></li>
 <li class="chapter" data-level="15.3.2" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-in-the-sequential-self-selection-design"><i class="fa fa-check"></i><b>15.3.2</b> Mediation analysis in the Sequential Self-Selection design</a></li>
+<li class="chapter" data-level="15.3.3" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-in-the-crossover-design"><i class="fa fa-check"></i><b>15.3.3</b> Mediation analysis in the Crossover design</a></li>
 </ul></li>
 <li class="chapter" data-level="15.4" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-under-unconfoundedness"><i class="fa fa-check"></i><b>15.4</b> Mediation analysis under unconfoundedness</a></li>
 <li class="chapter" data-level="15.5" data-path="mediation-analysis.html"><a href="mediation-analysis.html#mediation-analysis-with-panel-data"><i class="fa fa-check"></i><b>15.5</b> Mediation analysis with panel data</a></li>
@@ -803,6 +804,10 @@ There are two different ways to estimate the unmediated treatment effect and thu
 Maybe it is possible to bound the treatment effects.
 This is, to my knowledge, still an open question.</p>
 </div>
+<div class="remark">
+<p><span id="unlabeled-div-194" class="remark"><em>Remark</em>. </span><a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x">Imai, Tingleu and Yamamoto (2013)</a> also discuss a Parallel Encouragement design where units are not forced to take the assigned value of the mediator but can be randomly encouraged to do so.
+They derive sharp bounds on the mediated effect on the compliers in that design.</p>
+</div>
 </div>
 <div id="mediation-analysis-in-the-sequential-self-selection-design" class="section level3 hasAnchor" number="15.3.2">
 <h3><span class="header-section-number">15.3.2</span> Mediation analysis in the Sequential Self-Selection design<a href="mediation-analysis.html#mediation-analysis-in-the-sequential-self-selection-design" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -845,7 +850,7 @@ M_i &amp; =
 \end{align*}\]</span></p>
 </div>
 <div class="remark">
-<p><span id="unlabeled-div-194" class="remark"><em>Remark</em>. </span>Clearly, Assumption <a href="mediation-analysis.html#hyp:seqMono">15.6</a> is equivalent to the absence of <em>defiers</em>: <span class="math inline">\(\Pr(T_i=d)=0\)</span>.</p>
+<p><span id="unlabeled-div-195" class="remark"><em>Remark</em>. </span>Assumption <a href="mediation-analysis.html#hyp:seqMono">15.6</a> is equivalent to the absence of <em>defiers</em>: <span class="math inline">\(\Pr(T_i=d)=0\)</span>.</p>
 </div>
 <p>Under these assumptions, we have the following result:</p>
 <div class="theorem">
@@ -863,7 +868,7 @@ M_i &amp; =
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-195" class="proof"><em>Proof</em>. </span>I omit conditioning on <span class="math inline">\(D_i=1\)</span> all along to save on notation.
+<p><span id="unlabeled-div-196" class="proof"><em>Proof</em>. </span>I omit conditioning on <span class="math inline">\(D_i=1\)</span> all along to save on notation.
 Note that:</p>
 <p><span class="math display">\[\begin{align*}  
   \esp{Y_i|R_i^1=1,M_i=1,R_i^2=1} &amp; = \esp{Y^{1,M_i^1}_i|R_i^1=1,M^1_i=1,R_i^2=1}\\
@@ -905,9 +910,105 @@ This proves the first part of the theorem.</p>
   \Pr(M_i=1|R_i^1=0) &amp; = \Pr(M^0_i=1) = \Pr(T_i=a),
 \end{align*}\]</span></p>
 <p>we have that <span class="math inline">\(\Pr(T_i=a|M_i^1=1)=\frac{\Pr(T_i=a)}{\Pr(T_i=a)+\Pr(T_i=c)}\)</span> and <span class="math inline">\(\Pr(T_i=c|M_i^1=1)=\frac{\Pr(T_i=c)}{\Pr(T_i=a)+\Pr(T_i=c)}\)</span>.
-Combining the results with the decomposition of <span class="math inline">\(\Delta^{Y_{m(1)}}_{TT}\)</span> under Assumption <a href="mediation-analysis.html#hyp:seqMono">15.6</a> proves the identification of <span class="math inline">\(\Delta^{Y_{m(1)}}_{TT}\)</span>.</p>
-<p>The identification of <span class="math inline">\(\Delta^{Y_{u(0)}}_{TT}\)</span> comes directly from the decompositions of <span class="math inline">\(\Delta^Y_{TT}\)</span>, <span class="math inline">\(\Delta^{Y_{m(1)}}_{TT}\)</span> and <span class="math inline">\(\Delta^{Y_{u(0)}}_{TT}\)</span> under Assumption <a href="mediation-analysis.html#hyp:seqMono">15.6</a>.
+Combining the results with the decomposition of <span class="math inline">\(\Delta^{Y_{m(1)}}_{TT}\)</span> under Assumption <a href="mediation-analysis.html#hyp:seqMono">15.6</a> proves the identification of <span class="math inline">\(\Delta^{Y_{m(1)}}_{TT}\)</span>.
+The identification of <span class="math inline">\(\Delta^{Y_{u(0)}}_{TT}\)</span> comes directly from the decompositions of <span class="math inline">\(\Delta^Y_{TT}\)</span>, <span class="math inline">\(\Delta^{Y_{m(1)}}_{TT}\)</span> and <span class="math inline">\(\Delta^{Y_{u(0)}}_{TT}\)</span> under Assumption <a href="mediation-analysis.html#hyp:seqMono">15.6</a>.
 This proves the result.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-197" class="remark"><em>Remark</em>. </span>Intuitively, Theorem <a href="mediation-analysis.html#thm:idrassMed">15.4</a> works by using what happens in the voluntary parts of both experimental arms (the parts where the mediator value chosen by the units is given to them) to recover the treatment effect on the treated.
+Then, the With/Without estimators using <span class="math inline">\(R_i^2\)</span> in each arm give the effect of the mediator, on the <em>always treated</em> and the <em>compliers</em> in the arm where <span class="math inline">\(R_i^1=1\)</span> and on the compliers alone in the arm where <span class="math inline">\(R_i^1=0\)</span>.
+Taking the difference between these two estimators, appropriately reweighted, gives the effect of the mediator on the compliers times their proportion among the treated, which is equal to the mediated effect of the treatment on the treated.</p>
+</div>
+</div>
+<div id="mediation-analysis-in-the-crossover-design" class="section level3 hasAnchor" number="15.3.3">
+<h3><span class="header-section-number">15.3.3</span> Mediation analysis in the Crossover design<a href="mediation-analysis.html#mediation-analysis-in-the-crossover-design" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>The Crossover Design has been proposed by <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x">Imai, Tingleu and Yamamoto (2013)</a>.
+In the Crossover Design, each experimental unit is exposed both to the treatment and control conditions sequentially, over two periods, <span class="math inline">\(t\in\{1,2\}\)</span>.
+The experimenter first randomly chooses the order in which each unit is assigned to the treatment and control conditions with <span class="math inline">\(R_i=1\)</span> when the treatment is given in the first period and <span class="math inline">\(R_i=0\)</span> when the treatment is given in the second period.
+After measuring the value of the mediator and of the outcome in the first period, each unit is assigned in the second period to the treatment status value opposite to the one they had in the first period but to the same mediator value that they had in the first period.
+Let’s see how this design identifies the effects of interest.</p>
+<p>Let us formalize how the Crossover design works.</p>
+<div class="hypothesis">
+<p><span id="hyp:CrossOverIndep" class="hypothesis"><strong>Hypothesis 15.7  (Independence in the Crossover Design) </strong></span>We assume that the randomized allocation of the program among applicants is well done:</p>
+<p><span class="math display">\[\begin{align*}
+  R_i &amp; \Ind\left(\left\{Y_{i,t}^{00},Y_{i,t}^{01},Y_{i,t}^{10},Y_{i,t}^{11},M^1_{i,t},M^0_{i,t}\right\}_{t\in\{1,2\}}\right)|D_i=1.
+\end{align*}\]</span></p>
+</div>
+<p>We need a second assumption:</p>
+<div class="hypothesis">
+<p><span id="hyp:CrossOverVal" class="hypothesis"><strong>Hypothesis 15.8  (Validity of the Crossover Design) </strong></span>We assume that the randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:</p>
+<p><span class="math display">\[\begin{align*}
+Y_{i,t} &amp; =
+  \begin{cases}
+    Y_{i,t}^{11} &amp; \text{ if } D_i=1 \text{ and } R_i=1 \text{ and } M_{i}=1   \\
+    Y_{i,t}^{10} &amp; \text{ if } D_i=1 \text{ and } R_i=1 \text{ and } M_{i}=0    \\
+    Y_{i,t}^{01} &amp; \text{ if } D_i=1 \text{ and } R_i=0 \text{ and } M_{i}=1  \\
+    Y_{i,t}^{00} &amp; \text{ if } D_i=1 \text{ and } R_i=0 \text{ and } M_{i}=0
+  \end{cases}\\
+M_{i} &amp; =
+  \begin{cases}
+    M_{i,1}^{1} &amp; \text{ if } D_i=1 \text{ and } R_i=1\\
+    M_{i,1}^{0} &amp; \text{ if } D_i=1 \text{ and } R_i=0.
+  \end{cases}
+\end{align*}\]</span></p>
+</div>
+<p>with <span class="math inline">\((Y_{i,t}^{00},Y_{i,t}^{01},Y_{i,t}^{10},Y_{i,t}^{11},M^1_{i,t},M^0_{i,t})\)</span> the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.</p>
+<div class="remark">
+<p><span id="unlabeled-div-198" class="remark"><em>Remark</em>. </span>Note that Assumption <a href="mediation-analysis.html#hyp:CrossOverVal">15.8</a> implicitely assumes that the potential outcomes are period <span class="math inline">\(t\)</span> only depend on the treatment and mediator value at period <span class="math inline">\(t\)</span>.
+This is a huge assumption that there are no persistent effects of either the treatment or the mediator value over time.</p>
+</div>
+<p>We finally need a third assumption:</p>
+<div class="hypothesis">
+<p><span id="hyp:NoTimeChange" class="hypothesis"><strong>Hypothesis 15.9  (No Changes in Potential Outcomes Over Time) </strong></span>We assume that time does not not interfere with how potential outcomes are generated:</p>
+<p><span class="math display">\[\begin{align*}
+\esp{Y_{i,1}^{d,m}|D_i=1} &amp; = \esp{Y_{i,2}^{d,m}|D_i=1}\text{, }\forall (d,m)\in\{0,1\}^2.
+\end{align*}\]</span></p>
+</div>
+<p>We can now prove identification under these assumptions:</p>
+<div class="theorem">
+<p><span id="thm:idCrossOver" class="theorem"><strong>Theorem 15.5  (Identification of Total, Mediated and Unmediated Effects in a Crossover design) </strong></span>Under Assumptions <a href="mediation-analysis.html#hyp:CrossOverIndep">15.7</a>, <a href="mediation-analysis.html#hyp:CrossOverVal">15.8</a> and <a href="mediation-analysis.html#hyp:NoTimeChange">15.9</a>, the treatment effect on the treated and the mediated and unmediated effects are identified in a Crossover Design:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta^Y_{TT} &amp; = \esp{Y_{i,1}|D_i=1,R_i=1}-\esp{Y_{i,1}|D_i=1,R_i=0}\\
+   \Delta^{Y_{m(1)}}_{TT} &amp; =\esp{Y_{i,1}|D_i=1,R_i=1}-\esp{Y_{i,2}|D_i=1,R_i=0}\\
+   \Delta^{Y_{u(0)}}_{TT} &amp; =\esp{Y_{i,2}|D_i=1,R_i=0}-\esp{Y_{i,1}|D_i=1,R_i=0}.
+\end{align*}\]</span></p>
+</div>
+<div class="proof">
+<p><span id="unlabeled-div-199" class="proof"><em>Proof</em>. </span>I omit the conditioning on <span class="math inline">\(D_i=1\)</span> for simplicity.
+Let us start with the first result:</p>
+<p><span class="math display">\[\begin{align*}
+\esp{Y_{i,1}|R_i=1}-\esp{Y_{i,1}|R_i=0} &amp; = \esp{Y^{1,M_{i,1}^1}_{i,1}|R_i=1}-\esp{Y^{0,M_{i,1}^0}_{i,1}|R_i=0} \\
+                                        &amp; = \esp{Y^{1,M_{i,1}^1}_{i,1}-Y^{0,M_{i,1}^0}_{i,1}} \\
+                                        &amp; = \Delta^{Y_1}_{TT}
+                                        &amp; = \Delta^{Y}_{TT},
+\end{align*}\]</span></p>
+<p>where the first equality uses Assumption <a href="mediation-analysis.html#hyp:CrossOverVal">15.8</a>, the second uses Assumption <a href="mediation-analysis.html#hyp:CrossOverIndep">15.7</a> and the third uses Assumption <a href="mediation-analysis.html#hyp:NoTimeChange">15.9</a>.
+Let us now move on to the second result:</p>
+<p><span class="math display">\[\begin{align*}
+\esp{Y_{i,1}|R_i=1}-\esp{Y_{i,2}|R_i=0} &amp; = \esp{Y^{1,M_{i,1}^1}_{i,1}|R_i=1}-\esp{Y^{1,M_{i,1}^0}_{i,2}|R_i=0} \\
+                                        &amp; = \esp{Y^{1,M_{i,1}^1}_{i,1}-Y^{1,M_{i,1}^0}_{i,1}} \\
+                                        &amp; = \Delta^{Y_{m(1)}}_{TT},
+\end{align*}\]</span></p>
+<p>where the first equality uses Assumption <a href="mediation-analysis.html#hyp:CrossOverVal">15.8</a> and the second uses Assumptions <a href="mediation-analysis.html#hyp:CrossOverIndep">15.7</a> and <a href="mediation-analysis.html#hyp:NoTimeChange">15.9</a>.
+Let us now move on to the third result:</p>
+<p><span class="math display">\[\begin{align*}
+\esp{Y_{i,2}|R_i=0}-\esp{Y_{i,1}|R_i=0} &amp; = \esp{Y^{1,M_{i,1}^0}_{i,2}|R_i=0}-\esp{Y^{0,M_{i,1}^0}_{i,1}|R_i=0} \\
+                                        &amp; = \esp{Y^{1,M_{i,1}^0}_{i,1}-Y^{0,M_{i,1}^0}_{i,1}} \\
+                                        &amp; = \Delta^{Y_{i(0)}}_{TT},
+\end{align*}\]</span>
+where the first equality uses Assumption <a href="mediation-analysis.html#hyp:CrossOverVal">15.8</a> and the second uses Assumptions <a href="mediation-analysis.html#hyp:CrossOverIndep">15.7</a> and <a href="mediation-analysis.html#hyp:NoTimeChange">15.9</a>.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-200" class="remark"><em>Remark</em>. </span>There seems to be some sense of a Brute Force design in the Crossover design.
+Indeed, this designs imposes the value of the mediator in the second period, contrary to the one some units would have chosen if left to their own choice.
+There does not seem to be another way of obtaining the mediated and unmediated effects.
+Note that this is similar to randomizing the mediator value in the Sequential Self-Selection Design.
+<a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x">Imai, Tingleu and Yamamoto (2013)</a> propose an Crossover Encouragement design to allow for only encouraging the units to change their value of the mediator.
+In that case, they prove identification of the mediated treatment effect for a subpopulation of  units.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-201" class="remark"><em>Remark</em>. </span><a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x">Imai, Tingleu and Yamamoto (2013)</a> offer a nice discussion of how the Crossover design could be used to help identify the effect of race not mediated through qualifications in audit studies.
+They also discuss an application of the Crossover Encouragement design to frmaing effects on preferences for immigration.</p>
 </div>
 </div>
 </div>

@@ -582,6 +582,11 @@ Maybe  it is possible to bound the treatment effects.
 This is, to my knowledge, still an open question.
 ```
 
+```{remark}
+[Imai, Tingleu and Yamamoto (2013)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x) also discuss a Parallel Encouragement design where units are not forced to take the assigned value of the mediator but can be randomly encouraged to do so. 
+They derive sharp bounds on the mediated effect on the compliers in that design.
+```
+
 ### Mediation analysis in the Sequential Self-Selection design
 
 In a Sequential Self-Selection design, researchers run a Randomized Controlled Trial (RCT) in two-steps.
@@ -635,7 +640,7 @@ We assume that the effect of the treatment on the mediator is monotonous:
 ```
 
 ```{remark}
-Clearly, Assumption \@ref(hyp:seqMono) is equivalent to the absence of *defiers*: $\Pr(T_i=d)=0$.
+Assumption \@ref(hyp:seqMono) is equivalent to the absence of *defiers*: $\Pr(T_i=d)=0$.
 ```
 
 Under these assumptions, we have the following result:
@@ -712,16 +717,135 @@ Finally, using Bayes Law and the fact that:
 
 we have that $\Pr(T_i=a|M_i^1=1)=\frac{\Pr(T_i=a)}{\Pr(T_i=a)+\Pr(T_i=c)}$ and  $\Pr(T_i=c|M_i^1=1)=\frac{\Pr(T_i=c)}{\Pr(T_i=a)+\Pr(T_i=c)}$.
 Combining the results with the decomposition of $\Delta^{Y_{m(1)}}_{TT}$ under Assumption \@ref(hyp:seqMono) proves the identification of $\Delta^{Y_{m(1)}}_{TT}$. 
-
 The identification of $\Delta^{Y_{u(0)}}_{TT}$ comes directly from the decompositions of $\Delta^Y_{TT}$, $\Delta^{Y_{m(1)}}_{TT}$ and $\Delta^{Y_{u(0)}}_{TT}$ under Assumption \@ref(hyp:seqMono).
 This proves the result.
 
 ```
 
+```{remark}
+Intuitively, Theorem \@ref(thm:idrassMed) works by using what happens in the voluntary parts of both experimental arms (the parts where the mediator value chosen by the units is given to them) to recover the treatment effect on the treated.
+Then, the With/Without estimators using $R_i^2$ in each arm give the effect of the mediator, on the *always treated* and the *compliers* in the arm where $R_i^1=1$ and on the compliers alone in the arm where $R_i^1=0$.
+Taking the difference between these two estimators, appropriately reweighted, gives the effect of the mediator on the compliers times their proportion among the treated, which is equal to the mediated effect of the treatment on the treated.
+```
 
+### Mediation analysis in the Crossover design
 
+The Crossover Design has been proposed by [Imai, Tingleu and Yamamoto (2013)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x).
+In the Crossover Design, each experimental unit is exposed both to the treatment and control conditions sequentially, over two periods, $t\in\{1,2\}$.
+The experimenter first randomly chooses the order in which each unit is assigned to the treatment and control conditions with $R_i=1$ when the treatment is given in the first period and $R_i=0$ when the treatment is given in the second period.
+After measuring the value of the mediator and of the outcome in the first period, each unit is assigned in the second period to the treatment status value opposite to the one they had in the first period but to the same mediator value that they had in the first period.
+Let's see how this design identifies the effects of interest.
+
+Let us formalize how the Crossover design works.
+
+```{hypothesis,CrossOverIndep,name='Independence in the Crossover Design'}
+We assume that the randomized allocation of the program among applicants is well done: 
+
+\begin{align*}
+  R_i & \Ind\left(\left\{Y_{i,t}^{00},Y_{i,t}^{01},Y_{i,t}^{10},Y_{i,t}^{11},M^1_{i,t},M^0_{i,t}\right\}_{t\in\{1,2\}}\right)|D_i=1.
+\end{align*}
+
+```
+
+We need a second assumption:
+
+```{hypothesis,CrossOverVal,name='Validity of the Crossover Design'}
+We assume that the randomized allocation of the program does not interfere with how potential outcomes and self-selection are generated:
+
+\begin{align*}
+Y_{i,t} & =
+  \begin{cases}
+    Y_{i,t}^{11} & \text{ if } D_i=1 \text{ and } R_i=1 \text{ and } M_{i}=1   \\
+    Y_{i,t}^{10} & \text{ if } D_i=1 \text{ and } R_i=1 \text{ and } M_{i}=0    \\
+    Y_{i,t}^{01} & \text{ if } D_i=1 \text{ and } R_i=0 \text{ and } M_{i}=1  \\
+    Y_{i,t}^{00} & \text{ if } D_i=1 \text{ and } R_i=0 \text{ and } M_{i}=0
+  \end{cases}\\
+M_{i} & =
+  \begin{cases}
+    M_{i,1}^{1} & \text{ if } D_i=1 \text{ and } R_i=1\\
+    M_{i,1}^{0} & \text{ if } D_i=1 \text{ and } R_i=0.
+  \end{cases}
+\end{align*}
+```
+
+with $(Y_{i,t}^{00},Y_{i,t}^{01},Y_{i,t}^{10},Y_{i,t}^{11},M^1_{i,t},M^0_{i,t})$ the same potential outcomes and self-selection decisions as in a routine allocation of the treatment.
+
+```{remark}
+Note that Assumption \@ref(hyp:CrossOverVal) implicitely assumes that the potential outcomes are period $t$ only depend on the treatment and mediator value at period $t$. 
+This is a huge assumption that there are no persistent effects of either the treatment or the mediator value over time. 
+```
+
+We finally need a third assumption:
+
+```{hypothesis,NoTimeChange,name='No Changes in Potential Outcomes Over Time'}
+We assume that time does not not interfere with how potential outcomes are generated:
+
+\begin{align*}
+\esp{Y_{i,1}^{d,m}|D_i=1} & = \esp{Y_{i,2}^{d,m}|D_i=1}\text{, }\forall (d,m)\in\{0,1\}^2.
+\end{align*}
+```
+
+We can now prove identification under these assumptions:
+
+```{theorem,idCrossOver,name='Identification of Total, Mediated and Unmediated Effects in a Crossover design'}
+Under Assumptions \@ref(hyp:CrossOverIndep), \@ref(hyp:CrossOverVal) and \@ref(hyp:NoTimeChange), the treatment effect on the treated and the mediated and unmediated effects are identified in a Crossover Design:
+
+\begin{align*}
+  \Delta^Y_{TT} & = \esp{Y_{i,1}|D_i=1,R_i=1}-\esp{Y_{i,1}|D_i=1,R_i=0}\\
+   \Delta^{Y_{m(1)}}_{TT} & =\esp{Y_{i,1}|D_i=1,R_i=1}-\esp{Y_{i,2}|D_i=1,R_i=0}\\
+   \Delta^{Y_{u(0)}}_{TT} & =\esp{Y_{i,2}|D_i=1,R_i=0}-\esp{Y_{i,1}|D_i=1,R_i=0}.
+\end{align*}
+```
+
+```{proof}
+I omit the conditioning on $D_i=1$ for simplicity.
+Let us start with the first result:
+
+\begin{align*}
+\esp{Y_{i,1}|R_i=1}-\esp{Y_{i,1}|R_i=0} & = \esp{Y^{1,M_{i,1}^1}_{i,1}|R_i=1}-\esp{Y^{0,M_{i,1}^0}_{i,1}|R_i=0} \\
+                                        & = \esp{Y^{1,M_{i,1}^1}_{i,1}-Y^{0,M_{i,1}^0}_{i,1}} \\
+                                        & = \Delta^{Y_1}_{TT}
+                                        & = \Delta^{Y}_{TT},
+\end{align*}
+
+where the first equality uses Assumption \@ref(hyp:CrossOverVal), the second uses Assumption \@ref(hyp:CrossOverIndep) and the third uses Assumption \@ref(hyp:NoTimeChange).
+Let us now move on to the second result:
+  
+\begin{align*}
+\esp{Y_{i,1}|R_i=1}-\esp{Y_{i,2}|R_i=0} & = \esp{Y^{1,M_{i,1}^1}_{i,1}|R_i=1}-\esp{Y^{1,M_{i,1}^0}_{i,2}|R_i=0} \\
+                                        & = \esp{Y^{1,M_{i,1}^1}_{i,1}-Y^{1,M_{i,1}^0}_{i,1}} \\
+                                        & = \Delta^{Y_{m(1)}}_{TT},
+\end{align*}
+
+where the first equality uses Assumption \@ref(hyp:CrossOverVal) and the second uses Assumptions \@ref(hyp:CrossOverIndep) and \@ref(hyp:NoTimeChange).
+Let us now move on to the third result:
+  
+\begin{align*}
+\esp{Y_{i,2}|R_i=0}-\esp{Y_{i,1}|R_i=0} & = \esp{Y^{1,M_{i,1}^0}_{i,2}|R_i=0}-\esp{Y^{0,M_{i,1}^0}_{i,1}|R_i=0} \\
+                                        & = \esp{Y^{1,M_{i,1}^0}_{i,1}-Y^{0,M_{i,1}^0}_{i,1}} \\
+                                        & = \Delta^{Y_{i(0)}}_{TT},
+\end{align*}
+where the first equality uses Assumption \@ref(hyp:CrossOverVal) and the second uses Assumptions \@ref(hyp:CrossOverIndep) and \@ref(hyp:NoTimeChange).
+
+```
+
+```{remark}
+There seems to be some sense of a Brute Force design in the Crossover design.
+Indeed, this designs imposes the value of the mediator in the second period, contrary to the one some units would have chosen if left to their own choice.
+There does not seem to be another way of obtaining the mediated and unmediated effects.
+Note that this is similar to randomizing the mediator value in the Sequential Self-Selection Design.
+[Imai, Tingleu and Yamamoto (2013)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x) propose an Crossover Encouragement design to allow for only encouraging the units to change their value of the mediator.
+In that case, they prove identification of the mediated treatment effect for a subpopulation of \emph{pliable} units.
+```
+
+```{remark}
+[Imai, Tingleu and Yamamoto (2013)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-985X.2012.01032.x) offer a nice discussion of how the Crossover design could be used to help identify the effect of race not mediated through qualifications in audit studies.
+They also discuss an application of the Crossover Encouragement design to frmaing effects on preferences for immigration.
+```
 
 ## Mediation analysis under unconfoundedness
+
+
 
 ## Mediation analysis with panel data
 
