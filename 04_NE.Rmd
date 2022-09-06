@@ -241,7 +241,7 @@ means.IV <- matrix(means.IV,nrow=2,ncol=4,byrow=FALSE,dimnames=list(c('Z=0','Z=1
 means.IV <- as.data.frame(means.IV)
 ```
 
-```{r IVFirstStage,eval=TRUE,echo=FALSE,results='hide',echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Proportion of participants as a function of $Z_i$',fig.align='center',out.width=cst,fig.pos='htbp'}
+```{r IVFirstStage,eval=TRUE,echo=FALSE,results='hide',echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,fig.cap='Proportion of participants as a function of $Z_i$',fig.align='center',out.width='65%',fig.pos='htbp'}
 ggplot(means.IV, aes(x=as.factor(Z), y=D)) +
   geom_bar(position=position_dodge(), stat="identity", colour='black')+
   xlab('Z')+
@@ -1071,7 +1071,1065 @@ When Assumption \@ref(hyp:FirstStage) does not hold and the impact on the instru
 
 ## Regression Discontinuity Designs
 
-**To do**
+Regression Discontinuity Designs emerge in situations where there is a discontinuity in the probability of receiving the treatment.
+If there is also a discontinuity in outcomes, it is interpreted as the effect of the treatment.
+We distinguish two RD Designs:
+
+  - Sharp Designs (the probability of receiving the treatment moves from 0 to 1 at the discontinuity,
+  - Fuzzy Designs (the probability of receiving the treatment moves from values strictly between 0 and 1 at the discontinuity.
+
+Let's examine both of these configurations in turn.
+
+### Sharp Regression Discontinuity Designs
+
+In Sharp Regression Discontinuity Designs, the following condition holds:
+
+```{hypothesis,SharpRDD,name="Sharp RDD Design"}
+There exists a running variable $Z_i$ and a threshold $\bar{z}$ such that:
+
+\begin{align*}
+  D_i=\uns{Z_i\leq\bar{z}}.
+\end{align*}
+```
+
+```{example}
+Let us illustrate this assumption in our example (it is easy since our basic selection rule has a discontinuous feature).
+```
+
+Let's first choose parameter values and compute a function for the TT parameter:
+
+```{r param.RDD,eval=TRUE,echo=TRUE}
+param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha")
+delta.y.tt <- function(param){
+  return(param["baralpha"]+param["theta"]*param["barmu"]-param["theta"]*((param["sigma2mu"]*dnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))/(sqrt(param["sigma2mu"]+param["sigma2U"])*pnorm((log(param["barY"])-param["barmu"])/(sqrt(param["sigma2mu"]+param["sigma2U"]))))))
+}
+```
+
+Let us now simulate the data:
+
+```{r SharpRDDSample,eval=TRUE,echo=TRUE}
+set.seed(1234)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+Ds[YB<=param["barY"]] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"]
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+Let us now illustrate the resulting dataset:
+
+```{r PlotSharpRDD,eval=TRUE,echo=TRUE,fig.cap='Sharp RDD Design',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mar=c(5,4,4,5))
+plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y[Ds==1],pch=3,col='blue')
+abline(v=log(param["barY"]),col='red')
+text(x=c(log(param["barY"])),y=c(5),labels=c(expression(bar('y'))),pos=c(2),col=c('red'))
+legend(5,10.5,c('y0|D=0','y1|D=1','D'),pch=c(1,3,2),col=c('black','blue','red'),ncol=1)
+par(new=TRUE)
+plot(yB,Ds,pch=2,col='red',xlim=c(5,11),xaxt="n",yaxt="n",xlab="",ylab="")
+axis(4)
+mtext("D",side=4,line=3)
+```
+
+Figure \@ref(fig:PlotSharpRDD) shows that there is a sharp decrease in treatment intake when moving above $y_i^B=\bar{y}$.
+
+#### Identification
+
+The main assumption we need on top of Assumption \@ref(hyp:SharpRDD) is that outcomes are continuous around the threshold:
+
+```{hypothesis,ContinuousOutcomes,name="Continuity of Expected Potential Outcomes"}
+For $d\in\left\{0,1\right\}$,
+
+\begin{align*}
+  \lim_{e\rightarrow 0^{+}}\esp{Y_i^d|Z_i=\bar{z}-e} & = \lim_{e\rightarrow 0^{+}}\esp{Y_i^d|Z_i=\bar{z}+e}.
+\end{align*}
+```
+
+```{example}
+Let us see how this assumption works in our example.
+```
+
+We are going to use a linear conditional expectation to link $y^d_i$ and $y_i^B$, which is consistent since they are jointly normally distributed in our example.
+We fit the linear conditional expectation using OLS.
+
+```{r ContinuitySharpRDD,eval=TRUE,echo=TRUE}
+reg.ols.00 <- lm(y0[Ds==0]~yB[Ds==0])
+reg.ols.01 <- lm(y0[Ds==1]~yB[Ds==1])
+reg.ols.10 <- lm(y1[Ds==0]~yB[Ds==0])
+reg.ols.11 <- lm(y1[Ds==1]~yB[Ds==1])
+```
+
+Let us now illustrate how these expectations look.
+
+```{r PlotContinuousRDD,eval=TRUE,echo=TRUE,fig.cap='Continuity of potential outcomes',fig.subcap=c('$y^1$','$y^0$'),fig.align='center',out.width='45%',fig.pos='htbp'}
+# plot for y1
+plot(yB[Ds==0],y1[Ds==0],pch=3,xlim=c(5,11),ylim=c(5,11),col='red',xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y1[Ds==1],pch=3)
+points(yB[Ds==0],reg.ols.10$fitted.values,col='blue',pch=3)
+points(yB[Ds==1],reg.ols.11$fitted.values,col='blue',pch=3)
+abline(v=log(param["barY"]),col='red')
+text(x=c(log(param["barY"])),y=c(5),labels=c(expression(bar('y'))),pos=c(2),col=c('red'))
+legend(5,11,c('y1|D=0','y1|D=1','E[y1|yB]'),pch=c(3,3,3),col=c('red','black','blue'),ncol=2)
+
+# plot for y0
+plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),col='black',xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y0[Ds==1],pch=1,col='red')
+points(yB[Ds==0],reg.ols.00$fitted.values,col='blue',pch=1)
+points(yB[Ds==1],reg.ols.01$fitted.values,col='blue',pch=1)
+abline(v=log(param["barY"]),col='red')
+text(x=c(log(param["barY"])),y=c(5),labels=c(expression(bar('y'))),pos=c(2),col=c('red'))
+legend(5,11,c('y0|D=0','y0|D=1','E[y0|yB]'),pch=c(1,1,1),col=c('black','red','blue'),ncol=2)
+```
+
+As we can see on Figure \@ref(fig:PlotContinuousRDD), at $\bar{y}$, both $\esp{y_i^1|y_i^B=y}$ and $\esp{y_i^0|y_i^B=y}$ are continuous.
+
+Under Assumptions \@ref(hyp:SharpRDD) and \@ref(hyp:ContinuousOutcomes), we can prove identification of a local versino of the Treatment on the Treated parameter:
+
+```{theorem,IdentSharpRDD,name="Identification in a Sharp RDD Design"}
+Under Assumptions \@ref(hyp:SharpRDD) and \@ref(hyp:ContinuousOutcomes), the Treatment Effect on the Treated is identified at $Z_i=\bar{z}$:
+
+\begin{align*}
+ \Delta^Y_{TT}(\bar{z}) & = \lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}-e}-\lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}+e},
+\end{align*}
+
+where $\Delta^Y_{TT}(\bar{z})=\esp{\Delta^Y_i|Z_i=\bar{z}}$.
+```
+
+```{proof}
+\begin{align*}
+ \lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}-e} -\lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}+e} 
+  & = \lim_{e\rightarrow 0^{+}}\esp{Y^1_i|Z_i=\bar{z}-e} -\lim_{e\rightarrow 0^{+}}\esp{Y^0_i|Z_i=\bar{z}+e} \\
+  & = \esp{Y^1_i|Z_i=\bar{z}} - \esp{Y^0_i|Z_i=\bar{z}} \\
+  & = \esp{Y^1_i-Y^0_i|Z_i=\bar{z}} \\
+  & = \Delta^Y_{TT}(\bar{z}),
+\end{align*}
+
+where the first equality uses Assumption \@ref(hyp:SharpRDD) and the second equality uses Assumption \@ref(hyp:ContinuousOutcomes).
+```
+
+```{example}
+Let us try to illustrate how identification works in our numerical example.
+```
+
+```{r IdentificationSharpOLS,eval=TRUE,echo=TRUE,fig.cap='Identification in a sharp RDD design',fig.align='center',out.width='65%',fig.pos='htbp'}
+plot(yB[Ds==0],y[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y[Ds==1],pch=3)
+points(yB[Ds==0],reg.ols.00$fitted.values,col='blue',pch=1)
+points(yB[Ds==1],reg.ols.11$fitted.values,col='blue',pch=3)
+abline(v=log(param["barY"]),col='black')
+text(x=c(log(param["barY"])),y=c(5),labels=c(expression(bar('y'))),pos=c(2),col=c('black'))
+legend(5,11,c('y0|D=0','y1|D=1',expression(hat('y0')),expression(hat('y1'))),pch=c(1,3,1,3),col=c('black','black','blue','blue'),ncol=2)
+```
+On Figure \@ref(fig:IdentificationSharpOLS), we can see a small decrease in the fitted lines just when we cross $y_i=\bar{y}$.
+This decrease is due to the positive effect of the treatment, since moving from above to below $\bar{y}$ swtiches the treatment on. 
+
+#### Estimation in a Sharp RD Design
+
+For estimating the treatment effect in a Sharp RD Design, we can use OLS, if we are willing to assume that expected potential outcomes are a linear function of the running variable.
+This is obviously a huge assumption.
+In order to relax it, we can use non-parametric methods, and among them the ones that are unbiased when applied at a boundary of the parameter space.
+The best method in that case is the Local Linear Regression.
+
+##### Estimation using OLS
+
+Using OLS to estimate the treatment effect in a sharp RD Design works as follows.
+We fit two linear models, one on the left and one on the right of the discontinuity:
+
+\begin{align*}
+  \esp{Y_i|D_i=1,Z_i=z} & = \alpha_1+\beta_1z\\
+  \esp{Y_i|D_i=0,Z_i=z} & = \alpha_0+\beta_0z.
+\end{align*}
+
+We then estimate the treatment effect by taking the difference in predicted outcomes at $Z_i=z$:
+
+\begin{align*}
+  \hat{\Delta}^Y_{TT}(z) & = \hatesp{Y_i|D_i=1,Z_i=z}-\hatesp{Y_i|D_i=0,Z_i=z}\\
+                        & = \hat\alpha_1+\hat\beta_1z-\hat\alpha_0-\hat\beta_0z.
+\end{align*}
+
+```{example}
+Let's see how this works in our example.
+```
+First, we need to compute the predicted values and the value of our estimated parameter:
+
+```{r olsRegPredRDDSharp,eval=TRUE,echo=TRUE}
+# Predicted values
+y0.bary.pred <- reg.ols.00$coef[[1]]+reg.ols.00$coef[[2]]*log(param['barY'])
+y1.bary.pred <- reg.ols.11$coef[[1]]+reg.ols.11$coef[[2]]*log(param['barY'])
+# estimated treatment effect
+delta.y.rddols <- y1.bary.pred-y0.bary.pred
+```
+
+In order to be able to compare our estimate to the truth, let's compute the true value of our target parameter:
+
+\begin{align*}
+\Delta^y_{TT}(\bar{z}) & = \bar{\alpha} + \theta\bar{\mu}+\theta\frac{\sigma^2_{\mu}}{\sigma^2_{\mu}+\sigma^2_{U}}(\bar{y}-\bar{\mu}).
+\end{align*}
+
+Let's write a function to compute this formula:
+
+```{r delta.y.tt.z,eval=TRUE,echo=TRUE}
+delta.y.tt.z <- function(param){
+  return(param["baralpha"]+param["theta"]*param["barmu"]+param["theta"]*(log(param["barY"])-param["barmu"])*param["sigma2mu"]/(param["sigma2mu"]+param["sigma2U"]))
+}
+delta.y.tt.z.pop <- delta.y.tt.z(param)
+```
+
+Our estimate of the treatment effect using OLS is thus `r round(delta.y.rddols,2)` while the true value of our target parameter is `r round(delta.y.tt.z.pop,2)`.
+
+##### Bias of the OLS RDD estimator when conditional expectations are nonlinear
+
+The problem with the OLS approach to implement the RDD estimator is that it is highly dependent on the assumption that the conditional expectation functions $\esp{Y_i|D_i=d,Z_i=z}$ are linear.
+That might generate a strong functional form bias, as the following example shows.
+
+```{example}
+Let's simulate some data in order to visualize the issue with OLS when the conditional expectation functions are non linear.
+In order to do that, we need to add some non linearity in the way potential outcomes are generated.
+We choose to make the equation for $y_i^0$ nonlinear in $y_i^B$:
+```
+
+\begin{align*}
+  y_i^0 & = \mu_i+\delta+U_i^0 +\gamma*(y_i^B-\bar{y_i^B})^2.
+\end{align*}
+
+Let's choose some parameter values and simulate the data before seeing wht it looks like:
+
+```{r param.nonlin,eval=TRUE,echo=TRUE}
+# parameters
+param <- c(param,0.1,7.98)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB")
+
+# simulations
+set.seed(1234)
+N <-1000
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+Ds[YB<=param["barY"]] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"] + param["gamma"]*(yB-param["baryB"])^2
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+
+# linear regressions
+reg.ols.00 <- lm(y0[Ds==0]~yB[Ds==0])
+reg.ols.01 <- lm(y0[Ds==1]~yB[Ds==1])
+reg.ols.10 <- lm(y1[Ds==0]~yB[Ds==0])
+reg.ols.11 <- lm(y1[Ds==1]~yB[Ds==1])
+
+# predicted values and estimated treatment effect using lienar OLS
+y0.bary.pred <- reg.ols.00$coef[[1]]+reg.ols.00$coef[[2]]*log(param['barY'])
+y1.bary.pred <- reg.ols.11$coef[[1]]+reg.ols.11$coef[[2]]*log(param['barY'])
+delta.y.rddols <- y1.bary.pred-y0.bary.pred
+
+```
+
+Let's take a look at the data now:
+
+```{r PlotSharpRDDOLSNonlin,eval=TRUE,echo=TRUE,results='hide',fig.cap='OLS estimates of sharp RDD with non linear conditional expectations',fig.align='center',out.width='65%',fig.pos='htbp'}
+plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y1[Ds==1],pch=3,col='black')
+points(yB[Ds==0],reg.ols.00$fitted.values,col='blue',pch=1)
+points(yB[Ds==1],reg.ols.11$fitted.values,col='blue',pch=3)
+abline(v=log(param["barY"]),col='black')
+legend(5,11,c('y|D=0','y|D=1',expression(hat('y0')),expression(hat('y1'))),pch=c(1,3,1,3),col=c('black','black','blue','blue'),ncol=2)
+```
+Our estimate of the treatment effect using OLS is now `r round(delta.y.rddols,2)` while the true value of our target parameter is still `r round(delta.y.tt.z.pop,2)`.
+The reason wy the estimate is too large with respect to the truth is because the linear estimate of the conditional expectation $\hatesp{y_i^0|y_i^B=\bar{y}}$ is biased downwards: it should start curving upwards when approaching $\bar{y}$ but it does not, as we can see on Figure \@ref(fig:PlotSharpRDDOLSNonlin).
+
+##### Estimation using Local Linear Regression
+
+The reason the OLS RDD estimator fails when conditional expectations are nonlinear (as in Figure \@ref(fig:PlotSharpRDDOLSNonlin)) is because the OLS estimate of the conditional expectation function is mispecified.
+What we need to replace OLS is an approach that is going to be well-specified under the assumption of continuous conditional expectations.
+We also want an estimator that behaves well (for example, is not biased) when operating at a boundary: note that we try to predict the value of the two conditional expectation functions just at the point after which they stop being defined.
+This second requirement is actually pretty harsh.
+
+The most robust estimator that complies with these requirements is the Local Linear Regression estimator, or LLR.
+It is a basically just weighted OLS but only applied locally within a tiny window around the prediction point, with weights decreasing as they get further away from the prediction point.
+The weigths are generated by a kernel function.
+Which exact kernel function is used does not matter much in practice.
+What matters much more for LLR is the choice of the bandwidth, the width of the small window around the prediction point.
+Cross-validation (a form of leave-one-out assessment of goodness of fit) is generally used to choose the optimal bandwidth.
+
+In short, the LLR RDD estimator works as follows:
+
+  - Estimate $\hatesp{Y^1_i|D_i=1,Z_i=\bar{z}}$ using LLR on the treated side of the threshold.
+  - Estimate $\hatesp{Y_i^0|D_i=0,Z_i=\bar{z}}$ using LLR on the untreated side of the threshold.
+  - $\hat\Delta^{y}_{RDDLLR}=\hatesp{Y^1_i|D_i=1,Z_i=\bar{z}}-\hatesp{Y^0_i|D_i=0,Z_i=\bar{z}}$.
+  - Bandwidth choice: use cross-validation on each side.
+
+```{example}
+Let's see how all of this works in our example.
+First, let us code the LLR function and the cross validation function.
+```
+
+```{r LLR,eval=TRUE,echo=TRUE}
+llr <- function(y,x,gridx,bw,kernel){
+  if (kernel=='uniform'){
+    K <- function(u){
+      K.u <- 0
+      if (abs(u)<=.5){K.u <- 1}
+      return(K.u)
+    }
+  }
+  if (kernel=='triangular'){
+    K <- function(u){
+      K.u <- 0
+      if (abs(u)<=.5){K.u <- 2*(1-2*abs(u))}
+      return(K.u)
+    }
+  }
+  if (kernel=='epanechnikov'){
+    K <- function(u){
+      K.u <- 0
+      if (abs(u)<=.5){K.u <- (3/2)*(1-4*u^2)}
+      return(K.u)
+    }
+  }
+  if (kernel=='quartic'){
+    K <- function(u){
+      K.u <- 0
+      if (abs(u)<=.5){K.u <- (15/8)*(1-4*u^2)^2}
+      return(K.u)
+    }
+  }
+  if (kernel=='gaussian'){
+    K <- function(u){
+      return(exp(-0.5*u^2)/(sqrt(2*pi)))
+    }
+  }
+  K.vec <- Vectorize(K)
+  y0.hat <- rep(0,length(gridx))  
+  for (i in (1:length(gridx))){
+    x.i <- gridx[i]-x
+    weights.i <- K.vec((x.i)/bw)
+    ols.i <- lm(y~x.i,weights=weights.i)
+    y0.hat[i] <- ols.i$coefficients[1]
+  }
+  return(y0.hat)
+}
+
+MSE.llr <- function(bw,y,D,x,kernel,d){
+  MSE <- 0
+  for (i in (1:length(y[D==d]))){
+    MSE <- MSE + (y[D==d][i]-llr(y[D==d][-i],x[D==d][-i],x[D==d][i],bw=bw,kernel=kernel))^2
+  }
+  return(MSE)
+}
+```
+
+We can now use these two functions to choose the optimal bandwidth on each side of the cut-off point:
+
+```{r LLRbw,eval=TRUE,echo=TRUE,cache=TRUE}
+kernel <- 'gaussian'
+bw <- 0.5
+
+MSE.grid <- seq(0.1,1,by=.1)
+MSE.llr.0 <- sapply(MSE.grid,MSE.llr,y=y,D=Ds,x=yB,kernel=kernel,d=0)
+MSE.llr.1 <- sapply(MSE.grid,MSE.llr,y=y,D=Ds,x=yB,kernel=kernel,d=1)
+bw0 <- MSE.grid[MSE.llr.0==min(MSE.llr.0)]
+bw1 <- MSE.grid[MSE.llr.1==min(MSE.llr.1)]
+
+```
+
+Let us see what the results of this computation look like:
+
+```{r PlotRDDLLRcv,eval=TRUE,echo=TRUE,results='hide',fig.cap='Cross Validation Results',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mar=c(5,4,4,5))
+plot(MSE.grid,MSE.llr.0,xlab='Bandwidth',ylab='MSE (y|D=0)')
+legend(0.8,50,c('y|D=0','y|D=1'),pch=c(1,3),col=c('black','black'),ncol=1)
+par(new=TRUE)
+plot(MSE.grid,MSE.llr.1,pch=3,xaxt="n",yaxt="n",xlab="",ylab="")
+axis(4)
+mtext("MSE (y|D=1)",side=4,line=3)
+```
+As Figure \@ref(fig:PlotRDDLLRcv) shows, the optimal bandwidth is equal to `r round(bw0,2)` on the right of the threshold and to `r round(bw1,2)` on the left.
+
+We can now proceed with the estimation of the whole conditional expectations (in order to visualize them) and the estimated treatment effect using these optimal bandwidth levels:
+
+```{r LLRRDDestimates,eval=TRUE,echo=TRUE}
+# whole conditional expectations at each sample point
+y0.llr <- llr(y[Ds==0],yB[Ds==0],yB[Ds==0],bw=bw0,kernel=kernel)    
+y1.llr <- llr(y[Ds==1],yB[Ds==1],yB[Ds==1],bw=bw1,kernel=kernel)    
+
+# estimation of the treatment effect
+y0.bary.llr.pred <- llr(y[Ds==0],yB[Ds==0],c(log(param['barY'])),bw=bw0,kernel=kernel) 
+y1.bary.llr.pred <- llr(y[Ds==1],yB[Ds==1],c(log(param['barY'])),bw=bw1,kernel=kernel)
+delta.y.rdd.llr <- y1.bary.llr.pred-y0.bary.llr.pred
+```
+
+Let us plot the resulting estimates:
+
+```{r PlotSharpRDDLLRNonlin,eval=TRUE,echo=TRUE,results='hide',fig.cap='LLR estimates of sharp RDD with non linear conditional expectations',fig.align='center',out.width='65%',fig.pos='htbp'}
+plot(yB[Ds==0],y[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y[Ds==1],pch=3)
+points(yB[Ds==0],y0.llr,col='blue',pch=1)
+points(yB[Ds==1],y1.llr,col='blue',pch=3)
+abline(v=log(param["barY"]),col='black')
+text(x=c(log(param["barY"])),y=c(5),labels=c(expression(bar('y'))),pos=c(2),col=c('black'))
+legend(5,11,c('y|D=0','y|D=1',expression(hat('y0')),expression(hat('y1'))),pch=c(1,3,1,3),col=c('black','black','blue','blue'),ncol=2)
+```
+
+Our estimate of the treatment effect using LLR is `r round(delta.y.rdd.llr,2)` while the true value of our target parameter is still `r round(delta.y.tt.z.pop,2)`.
+The reason why the LLR estimate is an improvement over the OLS estimate is because the LLR estimate of the conditional expectation $\hatesp{y_i^0|y_i^B=\bar{y}}$ curves upwards when approaching $\bar{y}$ as it should (as Figure \@ref(fig:PlotSharpRDDLLRNonlin) shows) while the linear prediction using OLS does not (see Figure \@ref(fig:PlotSharpRDDOLSNonlin)).
+
+Let us finally see how sampling noise moves that estimator around as sample size increases.
+I am first going to ignore the noise stemming from estimating the optimal bandwidth, because it increases computation time exponentially.
+I am going to stick with the bandwidths optimal for the test sample ($N=1000$).
+They are going to be too large for the large samples, and as a consequence, they are going to generate a biased estimator there.
+Let's see how severe that is:
+
+```{r monte.carlo.rdd.llr.bw,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.rdd.llr.bw <- function(s,N,param,bw1,bw0,kernel){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  Ds[YB<=param["barY"]] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"] + param["gamma"]*(yB-param["baryB"])^2
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  y0.bary.llr <- llr(y[Ds==0],yB[Ds==0],c(log(param['barY'])),bw=bw0,kernel=kernel)    
+  y1.bary.llr <- llr(y[Ds==1],yB[Ds==1],c(log(param['barY'])),bw=bw1,kernel=kernel)    
+  delta.y.rdd.llr <- y1.bary.llr-y0.bary.llr
+  return(delta.y.rdd.llr)
+}
+
+simuls.rdd.llr.bw.N <- function(N,Nsim,param,bw0,bw1,kernel){
+  simuls.rdd.llr.bw <- matrix(unlist(lapply(1:Nsim,monte.carlo.rdd.llr.bw,N=N,param=param,bw1=bw1,bw0=bw0,kernel=kernel)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.rdd.llr.bw) <- c('RDD LLR')
+  return(simuls.rdd.llr.bw)
+}
+
+sf.simuls.rdd.llr.bw.N <- function(N,Nsim,param,bw0,bw1,kernel){
+  sfInit(parallel=TRUE,cpus=8)
+  sfExport('llr','MSE.llr','param')
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.rdd.llr.bw,N=N,param=param,bw1=bw1,bw0=bw0,kernel=kernel)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('RDD LLR')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(1000)
+
+simuls.rdd.llr.bw <- lapply(N.sample,sf.simuls.rdd.llr.bw.N,Nsim=Nsim,param=param,bw1=bw1,bw0=bw0,kernel=kernel)
+names(simuls.rdd.llr.bw) <- N.sample
+```
+
+Let us now plot the results:
+
+```{r MonteCarloHistRDDLLRbw,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the RDD LLR estimator over replications of samples of different sizes',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.rdd.llr.bw)){
+  hist(simuls.rdd.llr.bw[[i]][,'RDD LLR'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yRDDLLR)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt.z(param),col="red")
+}
+```
+
+As expected, there is a small downward bias for the sample sizes.
+
+In order to see how much sampling noise estimates are affected by the computation of the optimal bandwidth, let's run simulations including optimal bandwidth choice.
+Because of computational costs, I only run them for the smallest sample size for now.
+
+```{r monte.carlo.rdd.llr,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.rdd.llr <- function(s,N,param){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  Ds[YB<=param["barY"]] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"] + param["gamma"]*(yB-param["baryB"])^2
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  MSE.llr.0 <- sapply(MSE.grid,MSE.llr,y=y,D=Ds,x=yB,kernel=kernel,d=0)
+  MSE.llr.1 <- sapply(MSE.grid,MSE.llr,y=y,D=Ds,x=yB,kernel=kernel,d=1)
+  y0.bary.llr <- llr(y[Ds==0],yB[Ds==0],c(log(param['barY'])),bw=MSE.grid[MSE.llr.0==min(MSE.llr.0)],kernel=kernel)    
+  y1.bary.llr <- llr(y[Ds==1],yB[Ds==1],c(log(param['barY'])),bw=MSE.grid[MSE.llr.1==min(MSE.llr.1)],kernel=kernel)    
+  delta.y.rdd.llr <- y1.bary.llr-y0.bary.llr
+  return(delta.y.rdd.llr)
+}
+
+simuls.rdd.llr.N <- function(N,Nsim,param){
+  simuls.rdd.llr <- matrix(unlist(lapply(1:Nsim,monte.carlo.rdd.llr,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.rdd.llr) <- c('RDD LLR')
+  return(simuls.rdd.llr)
+}
+
+sf.simuls.rdd.llr.N <- function(N,Nsim,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sfExport('llr','MSE.llr','param','MSE.grid','kernel','bw')
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.rdd.llr,N=N,param=param)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('RDD LLR')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+#N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+N.sample <- c(100)
+
+simuls.rdd.llr <- lapply(N.sample,sf.simuls.rdd.llr.N,Nsim=Nsim,param=param)
+names(simuls.rdd.llr) <- N.sample
+```
+
+Let's plot the resulting estimate:
+
+```{r MonteCarloHistRDDLLR,eval=TRUE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the RDD LLR estimator over replications of samples of different sizes, with optimal bandwidth choice',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.rdd.llr)){
+  hist(simuls.rdd.llr[[i]][,'RDD LLR'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yRDDLLR)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt.z(param),col="red")
+}
+```
+
+The results are broadly comparable.
+For $N=100$, 99\% sampling noise of LLR estimated by Monte Carlo simulations is `r round(quantile(abs(simuls.rdd.llr.bw[[1]][,'RDD LLR']-delta.y.tt.z(param)),probs=c(0.99)),2)` when keeping the bandwidth fixed while it is equal to `r round(quantile(abs(simuls.rdd.llr[[1]][,'RDD LLR']-delta.y.tt.z(param)),probs=c(0.99)),2)` when the bandwidth is optimized at each run.
+
+##### Simplified estimator of Lee and Lemieux
+
+[Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091) propose a simplified version of the RDD LLR estimator. 
+$\hat{\delta}$ estimated by OLS on the sample of observations such as $\bar{z}-h\leq Z_i\leq\bar{z}+h$ is an estimate of $TT(z)$:
+
+\begin{align*}
+  Y_i & = \alpha + \beta (Z_i-\bar{z})(1-D_i) + \gamma(Z_i-\bar{z})D_i + \delta D_i + \epsilon_i
+\end{align*}
+
+It is actually equal to the LLR estimate with uniform kernel and identical bandwidth on each side of the threshold.
+
+```{example}
+Lets run the simplified LLR estimator in our example.
+```
+
+```{r rdd.local.ols.precision,eval=TRUE,echo=TRUE,results='hide'}
+bw <- 0.25
+y.h <- y[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+Ds.h <- Ds[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+yB.l <- (yB[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]-log(param['barY']))*Ds[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+yB.r <- (yB[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]-log(param['barY']))*(1-Ds[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw])
+
+reg.rdd.local.ols <- lm(y.h ~ Ds.h + yB.l + yB.r)
+reg.rdd.local.ols$coef[2]
+```
+
+The estimated value of TT(z) by simplified LLR is `r round(reg.rdd.local.ols$coef[[2]],2)` while the true value of our target parameter is still `r round(delta.y.tt.z.pop,2)`.
+
+#### Estimating sampling noise
+
+Several approaches are available to estimate sampling noise of the RDD LLR estimator in a sharp design:
+
+  - [Hahn, Todd and van der Klaauw (2001)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1468-0262.00183) derive general CLT results
+  - [Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091) simplify the CLT results and propose a plug-in estimator
+  - [Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091) propose to use the robust variance OLS estimator
+  - We can always use the Bootstrap. It should be valid.
+
+Let us first look at some CLT results:
+
+```{theorem,CLTSharpRDDLLR,name='Asymptotic Variance of the LLR Estimator in a Sharp RDD'}
+Under standard assumptions, the variance of the simplified LLR Estimator in a Sharp Design can be approximated by:
+
+\begin{align*}
+ \var{\hat{\Delta}_{LLRRDD}} & \approx \frac{1}{\sqrt{Nh}}\frac{4}{f_{Z}(\bar{z})}\left(\lim_{e\rightarrow 0^{\text{+}}}\var{Y_i|Z_i=\bar{z}-e}+\lim_{e\rightarrow 0^{\text{+}}}\var{Y_i|Z_i=\bar{z}+e}\right),
+\end{align*}
+
+\normalsize
+with $f_{Z}$ the density of $Z_i$.
+```
+
+```{proof}
+See [Hahn, Todd and van der Klaauw (2001)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1468-0262.00183) and [Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091).
+```
+
+```{example}
+Let's see what happens when using the the robust variance estimator in the simplified LLR estimator proposed by Imbens and Lemieux (2008).
+```
+
+The estimated 99\% sampling noise using this approach is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.rdd.local.ols)[2,2]),2)` while the true 99\% sampling noise of LLR estimated by Monte Carlo simulations is equal to `r round(quantile(abs(simuls.rdd.llr.bw[[1]][,'RDD LLR']-delta.y.tt.z(param)),probs=c(0.99)),2)`. 
+
+### Fuzzy Regression Discontinuity Designs
+
+We say that a Regression Discontinuity Design is fuzzy when the probability of obtaining the treatment does not move from $0$ to $1$ when moving across the threshold of the running variable, but moves from some probability to a different one, when both are strictly positive and strictly smaller than one.
+This means that there is some event that discontinuously affects the enrollment of some people but not the enrollment of others.
+We thus are going to see **compliers**, **always takers** and **never takers**, as we did with Instrumental Variables.
+In this section, we are going to study the identification, estimation and estimation of sampling noise of treatment effects in the Fuzzy Regression Discontinuity Design.
+
+#### Identification
+
+The first assumption characterizing the Fuzzy Regression Discontinuity Design is the asumption that the probability of receiving treatment is discontinuous:
+
+```{hypothesis,FuzzyRDD,name='Fuzzy RDD Design'}
+There exists a running variable $Z_i$ and a threshold $\bar{z}$ such that:
+
+\begin{align*}
+  \lim_{e\rightarrow 0^{+}}\Pr(D_i=1|Z_i=\bar{z}-e) & \neq \lim_{e\rightarrow 0^{+}}\Pr(D_i=1|Z_i=\bar{z}+e).
+\end{align*}
+```
+
+```{example}
+Let's see how this plays in our example.
+Let's first simulate some data:
+```
+
+\begin{align*}
+y_i^1 & = y_i^0+\bar{\alpha}+\theta\mu_i+\eta_i \\
+y_i^0 & = \mu_i+\delta+U_i^0+\gamma(y_i^B-\bar{y})^2  \\
+U_i^0 & = \rho U_i^B+\epsilon_i \\
+y_i^B & =\mu_i+U_i^B \\
+U_i^B & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+D_i   & = \uns{y_i^B\leq\bar{y} \land V_i\leq\kappa \lor y_i^B>\bar{y} \land V_i>\kappa} \\
+(\eta_i,\omega_i,V_i) & \sim\mathcal{N}(0,0,0,\sigma^2_{\eta},\sigma^2_{\omega},\sigma^2_{\mu}+\sigma^2_{U},0,0,0).
+\end{align*}
+
+```{r simul.com.supp,eval=TRUE,echo=TRUE}
+param <- c(param,1)
+names(param)[[length(param)]] <- "kappa"
+N <- 1000
+set.seed(123)
+mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+yB <- mu + UB 
+YB <- exp(yB)
+Ds <- rep(0,N)
+V <- rnorm(N,0,sqrt(param["sigma2mu"]+param["sigma2U"]))
+Ds[((yB<=log(param["barY"])) & (V<=param["kappa"])) | ((yB>log(param["barY"])) & (V>param["kappa"])) ] <- 1 
+epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+U0 <- param["rho"]*UB + epsilon
+y0 <- mu +  U0 + param["delta"] + param["gamma"]*(yB-param["baryB"])^2
+alpha <- param["baralpha"]+  param["theta"]*mu + eta
+y1 <- y0+alpha
+Y0 <- exp(y0)
+Y1 <- exp(y1)
+y <- y1*Ds+y0*(1-Ds)
+Y <- Y1*Ds+Y0*(1-Ds)
+```
+
+Let us now plot the corresponding data:
+
+```{r PlotFuzzyRDD,eval=TRUE,echo=TRUE,results='hide',fig.cap='Fuzzy RDD',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mar=c(5,4,4,5))
+plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y[Ds==1],pch=3,col='black')
+abline(v=log(param["barY"]),col='red')
+legend(5,10.5,c('y0|D=0','y1|D=1','D'),pch=c(1,3,2),col=c('black','black','red'),ncol=1)
+par(new=TRUE)
+plot(yB,Ds,pch=2,col='red',xlim=c(5,11),xaxt="n",yaxt="n",xlab="",ylab="")
+axis(4)
+mtext("D",side=4,line=3)
+```
+
+As you can see on Figure \@ref(fig:PlotFuzzyRDD), there are untreated individuals below $\bar{y}$ and treated individual above $\bar{y}$.
+This is why the design is not sharp.
+But Figure \@ref(fig:PlotFuzzyRDD) fails to convey that the design still exhibits a discontinuity in the proportion of treated.
+In order to see it, we need to compute an estimate of the probability of being treated conditional on the running variable ($y_i^B$): $\Pr(D_i=1|y_i^B=y)$.
+It turns out that this quantity is simply the expected value of $D_i$ conditional on $y_i^B$.
+We've just learned a cool way to estimate a conditional expectation: Local Linear Regression.
+Let's put it to work, using $D_i$ as the outcome variable now:
+
+```{r LLR.fuzzy.pscore,eval=TRUE,echo=TRUE,cache=TRUE}
+kernel <- 'gaussian'
+MSE.grid <- seq(0.1,1,by=.1)
+# the instrument in our case is the position relative to the threshoold (or side, hence S)
+S <- rep(0,length(yB))
+S[yB<=log(param['barY'])] <- 1
+
+# computing optimal bandwidth using Cross Validation
+MSE.pr.llr.0 <- sapply(MSE.grid,MSE.llr,y=Ds,D=S,x=yB,kernel=kernel,d=0)
+MSE.pr.llr.1 <- sapply(MSE.grid,MSE.llr,y=Ds,D=S,x=yB,kernel=kernel,d=1)
+bwD0 <- MSE.grid[MSE.pr.llr.0==min(MSE.pr.llr.0)]
+bwD1 <- MSE.grid[MSE.pr.llr.1==min(MSE.pr.llr.1)]
+
+# LLR estoimate of conditional expectation of D on yB
+Pr.D0.llr <- llr(Ds[S==0],yB[S==0],yB[S==0],bw=bwD0,kernel=kernel)    
+Pr.D1.llr <- llr(Ds[S==1],yB[S==1],yB[S==1],bw=bwD1,kernel=kernel)    
+```
+
+Let's now plot the resulting estimate:
+
+```{r PlotFuzzyRDDCondExp,eval=TRUE,echo=TRUE,results='hide',fig.cap='Fuzzy RDD with probability of being treated as a function of the running variable',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mar=c(5,4,4,5))
+plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y[Ds==1],pch=3,col='black')
+abline(v=log(param["barY"]),col='red')
+legend(5,10.5,c('y0|D=0','y1|D=1','D','Pr(D=1|S=1,yB)','Pr(D=1|S=0,yB)'),pch=c(1,3,2,3,1),col=c('black','black','red','red','red'),ncol=1)
+par(new=TRUE)
+plot(yB,Ds,pch=2,col='red',xlim=c(5,11),xaxt="n",yaxt="n",xlab="",ylab="")
+points(yB[S==0],Pr.D0.llr,col='red')
+points(yB[S==1],Pr.D1.llr,col='red',pch=3)
+axis(4)
+mtext("D",side=4,line=3)
+```
+
+Figure \@ref(fig:PlotFuzzyRDD) now clearly shows that the probability of receiving the treatment decreases discontinuously when crossing the threshold $\bar{y}$.
+The decrease is not a move from $1$ to $0$ and hence is a clear case of a Fuzzy Regression Discontinuity Design.
+
+Identification in a Fuzzy Regression Discontinuity Design proceeds along the same lines as with Instrumental Variables: either we assume that treatment effects are somewhat independent from Types or we impose that there are no defiers (though some more options are feasible, as we saw in the section on Instrumental Variables).
+
+##### Identification under Independence of treatment effects from Types
+
+Let us first define the types in a Fuzzy Regression Discontinuity Design.
+For that, we define $D_i(z)$ as the potential outcome of individual $i$ when $Z_i=z$.
+We have (as seems natural now) four possible types of individuals depending on how they react when exogenously moved from one side of the threshold to the other:
+
+- **Always takers** ($T^{\bar{z}}_i=a$) are such that $\lim_{z\rightarrow \bar{z}^+}D_i(z)=\lim_{z\rightarrow \bar{z}^-}D_i(z)=1$.
+- **Never takers** ($T^{\bar{z}}_i=n$) are such that $\lim_{z\rightarrow \bar{z}^+}D_i(z)=\lim_{z\rightarrow \bar{z}^-}D_i(z)=0$.
+- **Compliers** ($T^{\bar{z}}_i=c$) are such that $\lim_{z\rightarrow \bar{z}^+}D_i(z)-\lim_{z\rightarrow \bar{z}^-}D_i(z)=1$.
+- **Defiers** ($T^{\bar{z}}_i=d$) are such that $\lim_{z\rightarrow \bar{z}^+}D_i(z)-\lim_{z\rightarrow \bar{z}^-}D_i(z)=-1$.
+
+We can now encode the assumption of independent treatment effects:
+
+```{hypothesis,IndTERDD,name='Independence of Treatment Effects from Types'}
+We assume that treatment effects are independent of Types at the discontinuity:
+  
+\begin{align*}
+  \Delta^Y_i\Ind T^{\bar{z}}_i|Z_i=z.
+\end{align*}
+```
+
+We are now equipped to prove identification in the Fuzzy Regression Discontinuity Design under Independence of Treatment Effects from Types:
+
+```{theorem,IdentFRDDIndep,name='Identification of TT(z) in Fuzzy RDD under Independence'}
+Under Assumptions \@ref(hyp:ContinuousOutcomes) and \@ref(hyp:IndTERDD), we have:
+  
+\begin{align*}
+  \Delta^Y_{RDDWALD} & = \Delta^Y_{TT}(z),
+\end{align*}
+
+with 
+
+\begin{align*}
+  \Delta^Y_{RDDWALD} & = \frac{\lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}-e}
+                                    - \lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}+e}}
+                                      {\lim_{e\rightarrow 0^{+}}\Pr(D_i=1|Z_i=\bar{z}-e)
+                                      - \lim_{e\rightarrow 0^{+}}\Pr(D_i=1|Z_i=\bar{z}+e)}
+\end{align*}
+```
+
+```{proof}
+Using the switching equation and Assumption \@ref(hyp:ContinuousOutcomes), we can decompose the numerator of the Local Wald estimator as follows:
+
+\begin{align*}
+  \lim_{z\rightarrow \bar{z}^+}\esp{Y_i|Z_i=z}&=\esp{Y_i^1|Z_i=\bar{z},T^{\bar{z}}_i=a}\Pr(T_i=a|Z_i=\bar{z})\\
+  			& \phantom{=}+\esp{Y_i^1|Z_i=\bar{z},T^{\bar{z}}_i=c}\Pr(T_i=c|Z_i=\bar{z})\\
+				& \phantom{=}+\esp{Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=d}\Pr(T_i=d|Z_i=\bar{z})\\
+				& \phantom{=}+\esp{Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=n}\Pr(T_i=n|Z_i=\bar{z})\\
+  \lim_{z\rightarrow \bar{z}^-}\esp{Y_i|Z_i=z}&=\esp{Y_i^1|Z_i=\bar{z},T^{\bar{z}}_i=a}\Pr(T_i=a|Z_i=\bar{z})\\
+				& \phantom{=}+\esp{Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=c}\Pr(T_i=c|Z_i=\bar{z})\\
+				& \phantom{=}+\esp{Y_i^1|Z_i=\bar{z},T^{\bar{z}}_i=d}\Pr(T_i=d|Z_i=\bar{z})\\
+				& \phantom{=}+\esp{Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=n}\Pr(T_i=n|Z_i=\bar{z})\\
+  N_{\bar{z}}&= \lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}-e}- \lim_{e\rightarrow 0^{+}}\esp{Y_i|Z_i=\bar{z}+e}\\
+          & = \esp{Y_i^1-Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=c}\Pr(T_i=c|Z_i=\bar{z})\\
+					& \phantom{=}-\esp{Y_i^1-Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=d}\Pr(T_i=d|Z_i=\bar{z})			
+\end{align*}
+
+We also have that the denominator of the Local Wald estimator is equal to:
+  
+\begin{align*}
+  D_{\bar{z}}& =\lim_{z\rightarrow \bar{z}^+}\Pr(D_i=1|Z_i=z)-\lim_{z\rightarrow \bar{z}^-}\Pr(D_i=1|Z_i=z)\\
+					& = \lim_{z\rightarrow \bar{z}^+}\left(\Pr(T_i^z=a|Z_i=z)+\Pr(T_i^z=c|Z_i=z)\right)\\
+					& \phantom{=}-\lim_{z\rightarrow \bar{z}^-}\left(\Pr(T_i^z=a|Z_i=z)+\Pr(T_i^z=d|Z_i=z)\right)\\
+					& = \Pr(T_i^{\bar{z}}=c|Z_i=\bar{z})-\Pr(T_i^{\bar{z}}=d|Z_i=\bar{z})
+\end{align*}
+
+Under Assumption \@ref(hyp:IndTERDD), we have that $\esp{Y_i^1-Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=c}=\esp{Y_i^1-Y_i^0|Z_i=\bar{z},T^{\bar{z}}_i=d}=\esp{Y_i^1-Y_i^0|Z_i=\bar{z}}$.
+This proves the result.
+
+```
+
+##### Identification under Monotonicity
+
+We can weaken Assumption \@ref(hyp:IndTERDD) and allow for treatment effects correlated with types (which seems highly likely) if we are willing to make stronger assumptions on the distribution of types.
+As we have seen before with Instrumental Variables, assuming away defiers enables the identification of a Local Average Treatment Effect.
+Let's see how this works:
+
+```{hypothesis,MonoRDD,name='Monotonicity in a Fuzzy Regression Discontinuity Design'}
+$D_i(z)$ is non-decreasing at $z=\bar{z}$ (or $\Pr(T^{\bar{z}}_i=d|Z_i=\bar{z})=0$).
+```
+
+We can now prove identification of the local average treatment effect:
+
+```{theorem,IdentFRDDMono,name='Identification of TT(z) in Fuzzy RDD under Monotonicity'}
+Under Assumptions \@ref(hyp:ContinuousOutcomes) and \@ref(hyp:MonoRDD), we have:
+  
+\begin{align*}
+  \Delta^Y_{RDDWALD} & = \Delta^Y_{LATE}(z),
+\end{align*}
+
+with 
+
+\begin{align*}
+  \Delta^Y_{LATE}(z) & = \esp{y_i^1-Y_i^0|T_i^{\bar{z}}=c,Z_i=\bar{z}}.
+\end{align*}
+```
+
+```{proof}
+The proof essentially follows the proof of Theorem \@ref(thm:IdentFRDDIndep) up to its penultimate step.
+Under Assumption \@ref(hyp:MonoRDD), we have that $\Pr(T^{\bar{z}}_i=d|Z_i=\bar{z})=0$.
+This proves the result.
+```
+
+#### Estimation 
+
+For estimation, we can either use the Local Linear Regression Wald estimator or use a simplified version proposed by Imbens and Lemieux (2008).
+Let's see how both of them work in practice.
+
+##### Estimation using Local Linear Regression
+
+The Wald LLR estimator can be formed as follows, with $S_i=1$ when $Z_i\geq\bar{z}$ and $S_i=0$ when $Z_i<\bar{z}$ (in the case where $\lim_{e\rightarrow 0^{+}}\Pr(D_i=1|Z_i=\bar{z}-e) < \lim_{e\rightarrow 0^{+}}\Pr(D_i=1|Z_i=\bar{z}+e))$ (simply revert the values of $S_i$ if the converse is true)):
+
+  - Estimate $\hatesp{Y^1_i|S_i=1,Z_i=\bar{z}}$ and $\hatesp{D_i|S_i=1,Z_i=\bar{z}}$ using LLR on the right of $\bar{z}$.
+  - Estimate $\hatesp{Y^0_i|S_i=0,Z_i=\bar{z}}$ and $\hatesp{D_i|S_i=0,Z_i=\bar{z}}$ using LLR on the left of $\bar{z}$.
+  - $\hat\Delta^{Y}_{WaldRDDLLR}=\frac{\hatesp{Y^1_i|S_i=1,Z_i=\bar{z}}-\hatesp{Y^0_i|S_i=0,Z_i=\bar{z}}}{\hatesp{D_i|S_i=1,Z_i=\bar{z}}-\hatesp{D_i|S_i=0,Z_i=\bar{z}}}$.
+  - For bandwidth choice: use cross-validation for each estimation.
+
+```{example}
+Let's see how this works in our example.
+Note that we have to revert the definition of $S_i$ since the highest treatment probability is below $\bar{y}$.
+```
+
+```{r LLRfuzzyY,eval=TRUE,echo=TRUE,results='hide',cache=TRUE}
+# bandwidth choice
+MSE.llr.S0 <- sapply(MSE.grid,MSE.llr,y=y,D=S,x=yB,kernel=kernel,d=0)
+MSE.llr.S1 <- sapply(MSE.grid,MSE.llr,y=y,D=S,x=yB,kernel=kernel,d=1)
+bwyS0 <- MSE.grid[MSE.llr.S0==min(MSE.llr.S0)]
+bwyS1 <- MSE.grid[MSE.llr.S1==min(MSE.llr.S1)]
+
+# LLR estimation
+y.S0.llr <- llr(y[S==0],yB[S==0],yB[S==0],bw=bwyS0,kernel=kernel)    
+y.S1.llr <- llr(y[S==1],yB[S==1],yB[S==1],bw=bwyS1,kernel=kernel)    
+
+# Wald estimator
+Pr.D0.llr.ybar <- llr(Ds[S==0],yB[S==0],c(log(param['barY'])),bw=bwD0,kernel=kernel)    
+Pr.D1.llr.ybar <- llr(Ds[S==1],yB[S==1],c(log(param['barY'])),bw=bwD1,kernel=kernel)    
+y.S0.llr.ybar <- llr(y[S==0],yB[S==0],c(log(param['barY'])),bw=bwyS0,kernel=kernel)    
+y.S1.llr.ybar <- llr(y[S==1],yB[S==1],c(log(param['barY'])),bw=bwyS1,kernel=kernel)    
+num.Wald.RDD.llr <- y.S1.llr.ybar-y.S0.llr.ybar
+denom.Wald.RDD.llr <- Pr.D1.llr.ybar-Pr.D0.llr.ybar
+wald.rdd.llr <- (num.Wald.RDD.llr)/(denom.Wald.RDD.llr)
+
+```
+
+Let us now plot the resulting estimate:
+
+```{r PlotFuzzyRDDYD,eval=TRUE,echo=FALSE,results='hide',fig.cap='Fuzzy RDD estimation with LLR',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mar=c(5,4,4,5))
+plot(yB[Ds==0],y0[Ds==0],pch=1,xlim=c(5,11),ylim=c(5,11),xlab="yB",ylab="Outcomes")
+points(yB[Ds==1],y[Ds==1],pch=3,col='black')
+points(yB[S==0],y.S0.llr,col='blue')
+points(yB[S==1],y.S1.llr,col='blue',pch=3)
+abline(v=log(param["barY"]),col='red')
+legend(5,10.5,c('y0|D=0','y1|D=1','D'),pch=c(1,3,2),col=c('black','blue','red'),ncol=1)
+par(new=TRUE)
+plot(yB,Ds,pch=2,col='red',xlim=c(5,11),xaxt="n",yaxt="n",xlab="",ylab="")
+points(yB[S==0],Pr.D0.llr,col='red')
+points(yB[S==1],Pr.D1.llr,col='red',pch=3)
+axis(4)
+mtext("D",side=4,line=3)
+```
+It is difficult to see the reduced form estimate on Figure \@ref(fig:PlotFuzzyRDDYD). 
+The numerator of the Wald estimator is equal to `r round(num.Wald.RDD.llr,2)`.
+The Wald estimator of our local average treatment effect is equal to `r round(wald.rdd.llr,2)`.
+The true value of our target parameter (the average treatment effect on the complier at $y_i^B=\bar{y}$) is equal to `r round(delta.y.tt.z.pop,2)`, which is the same value as in our example with the Sharp RDD, since the added noise in the participation equation, $V_i$, is independent from potential outcomes, and thus, Assumption \@ref(hyp:IndTERDD) holds in our example.
+
+```{remark}
+Making $V_i$ correlated with $\eta_i$ or $\mu_i$ in our example would generate a model in which treatment effects are not independent from types (*i.e.* Assumption \@ref(hyp:IndTERDD) would not hold).
+LATE would be different from the treatment on the treated parameter.
+The formula for the LATE would be: $\Delta^Y_{LATE}(z)=\esp{\alpha_i|yi^B=\bar{y},V_i=0}$. 
+The proof is left as an exercise.
+```
+
+
+##### Estimation using the simplified IV estimator of Imbens and Lemieux
+
+[Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091) propose the following simplified version of the WALD LLR estimator: 
+$\hat{\delta}$ estimated by 2SLS using $\uns{Z_i\leq\bar{z}}$ as an instrument on the sample of observations such as $\bar{z}-h\leq Z_i\leq\bar{z}+h$ is an estimate of $LATE(z)$:
+
+\begin{align*}
+  Y_i & = \alpha + \beta (Z_i-\bar{z})\uns{Z_i\leq\bar{z}} + \gamma(Z_i-\bar{z})\uns{Z_i>\bar{z}} + \delta D_i + \epsilon_i
+\end{align*}
+
+It is actually equal to the Wald LLR estimate with uniform kernel and identical bandwidth on each side of the threshold.
+The bandwidth can be chosen as to be the minimum of the four LLR bandwidths.
+
+```{example}
+Let's see how this works in our example.
+```
+
+```{r rdd.fuzzy.local.iv,eval=TRUE,echo=TRUE,results='hide'}
+bw <- min(bwD0,bwD1,bwyS0,bwyS1)
+#bw <- 0.4
+
+y.h <- y[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+Ds.h <- Ds[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+yB.l <- (yB[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]-log(param['barY']))*S[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+yB.r <- (yB[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]-log(param['barY']))*(1-S[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw])
+S.h <- S[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+
+reg.fuzzy.rdd.local.iv <- ivreg(y.h  ~ Ds.h + yB.l + yB.r | S.h + yB.l + yB.r)
+delta.rdd.fuzzy.il <- reg.fuzzy.rdd.local.iv$coef[2]
+delta.y.tt.rdd.fuzzy <- delta.y.tt.z(param)
+```
+
+With this estimator and using the minimum of the four bandwidths, we estimate the effect of the treatment to be equal to `r round(delta.rdd.fuzzy.il,2)`, while the true effect in the population is equal to `r round(delta.y.tt.rdd.fuzzy,2)`.
+
+Let's see how this estimator behaves around sampling replications:
+
+```{r monte.carlo.fuzzy.rdd.llr.bw,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',cache=TRUE}
+monte.carlo.fuzzy.rdd.llr.bw <- function(s,N,param,bw){
+  set.seed(s)
+  mu <- rnorm(N,param["barmu"],sqrt(param["sigma2mu"]))
+  UB <- rnorm(N,0,sqrt(param["sigma2U"]))
+  yB <- mu + UB 
+  YB <- exp(yB)
+  Ds <- rep(0,N)
+  V <- rnorm(N,0,sqrt(param["sigma2mu"]+param["sigma2U"]))
+  Ds[((yB<=log(param["barY"])) & (V<=param["kappa"])) | ((yB>log(param["barY"])) & (V>param["kappa"])) ] <- 1 
+  epsilon <- rnorm(N,0,sqrt(param["sigma2epsilon"]))
+  eta<- rnorm(N,0,sqrt(param["sigma2eta"]))
+  U0 <- param["rho"]*UB + epsilon
+  y0 <- mu +  U0 + param["delta"] + param["gamma"]*(yB-param["baryB"])^2
+  alpha <- param["baralpha"]+  param["theta"]*mu + eta
+  y1 <- y0+alpha
+  Y0 <- exp(y0)
+  Y1 <- exp(y1)
+  y <- y1*Ds+y0*(1-Ds)
+  Y <- Y1*Ds+Y0*(1-Ds)
+  Z <- ifelse(yB<=log(param['barY']),1,0)
+  y.h <- y[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+  Ds.h <- Ds[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+  yB.l <- (yB[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]-log(param['barY']))*Z[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+  yB.r <- (yB[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]-log(param['barY']))*(1-Z[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw])
+  Z.h <- Z[log(param['barY'])-bw<yB & yB<log(param['barY'])+bw]
+  reg.fuzzy.rdd.local.iv <- ivreg(y.h  ~ Ds.h + yB.l + yB.r | Z.h + yB.l + yB.r)
+  delta.rdd.fuzzy.il <- reg.fuzzy.rdd.local.iv$coef[2]
+  return(delta.rdd.fuzzy.il)
+}
+
+simuls.fuzzy.rdd.llr.bw.N <- function(N,Nsim,param,bw){
+  simuls.fuzzy.rdd.llr.bw <- matrix(unlist(lapply(1:Nsim,monte.carlo.fuzzy.rdd.llr.bw,N=N,param=param,bw=bw)),nrow=Nsim,ncol=1,byrow=TRUE)
+  colnames(simuls.fuzzy.rdd.llr.bw) <- c('RDD LLR')
+  return(simuls.fuzzy.rdd.llr.bw)
+}
+
+sf.simuls.fuzzy.rdd.llr.bw.N <- function(N,Nsim,param,bw){
+  sfInit(parallel=TRUE,cpus=8)
+  sfExport('llr','MSE.llr','param')
+  sfLibrary(AER)
+  sim <- matrix(unlist(sfLapply(1:Nsim,monte.carlo.fuzzy.rdd.llr.bw,N=N,param=param,bw=bw)),nrow=Nsim,ncol=1,byrow=TRUE)
+  sfStop()
+  colnames(sim) <- c('RDD LLR')
+  return(sim)
+}
+
+Nsim <- 1000
+#Nsim <- 10
+N.sample <- c(100,1000,10000,100000)
+#N.sample <- c(100,1000,10000)
+#N.sample <- c(100,1000)
+#N.sample <- c(100)
+
+simuls.fuzzy.rdd.llr.bw <- lapply(N.sample,sf.simuls.fuzzy.rdd.llr.bw.N,Nsim=Nsim,param=param,bw=bw)
+names(simuls.fuzzy.rdd.llr.bw) <- N.sample
+```
+
+Let's plot the resulting estimates:
+
+```{r MCHistWaldLLRRDD,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide',fig.cap='Distribution of the $IV RDD LLR$ estimator over replications of samples of different sizes',fig.align='center',out.width='65%',fig.pos='htbp'}
+par(mfrow=c(2,2))
+for (i in 1:length(simuls.fuzzy.rdd.llr.bw)){
+  hist(simuls.fuzzy.rdd.llr.bw[[i]][,'RDD LLR'],breaks=30,main=paste('N=',as.character(N.sample[i])),xlab=expression(hat(Delta^yIVRDDLLR)),xlim=c(-0.15,0.55))
+  abline(v=delta.y.tt.z(param),col="red")
+}
+```
+
+#### Estimation of sampling noise 
+
+We can use several approaches to estimate the sampling noise of the Wald RDDLLR eestimator:
+
+  - [Hahn, Todd and van der Klaauw (2001)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1468-0262.00183) derive general CLT results
+  - [Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091) simplify the CLT results and propose a plug-in estimator
+  - [Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091) propose to use the robust variance of the 2SLS estimator
+  - Bootstrap should be valid.
+
+The following theorem derives the CLT-based variance of the simplified Wald RDDLLR estimator:
+
+```{theorem,AsymWaldRDDLLR,name='Asymptotic Variance of the LLR-IV Estimator'}
+The variance of the simplified LLR-IV Estimator in a Fuzzy Design can be approximated by:
+
+\begin{align*}
+ \var{\hat{\Delta}_{LLRRDDIV}} & \approx \frac{1}{\sqrt{Nh}}\left(\frac{1}{\tau^2_{D}}V_{\tau_Y}+\frac{\tau^2_{Y}}{\tau^4_{D}}V_{\tau_D}-2\frac{\tau_{Y}}{\tau^3_{D}}C_{\tau_Y,\tau_D}\right),
+\end{align*}
+
+with
+
+\begin{align*}
+ \tau_{D} & = \lim_{e\rightarrow 0^{+}}\esp{D_i|Z_i=\bar{z}+e}-\lim_{e\rightarrow 0^{+}}\esp{D_i|Z_i=\bar{z}-e}\\
+ V_{\tau_Y} & = \frac{4}{f_Z(\bar{z})}\left(\sigma^2_{Y^r}+\sigma^2_{Y^l}\right) \qquad
+ V_{\tau_D}  = \frac{4}{f_Z(\bar{z})}\left(\sigma^2_{D^r}+\sigma^2_{D^l}\right)\\
+ C_{\tau_Y,\tau_D}& = \frac{4}{f_Z(\bar{z})}\left(C_{YD^r}+C_{YD^l}\right) \qquad
+ \sigma^2_{Y^r}  = \lim_{e\rightarrow 0^{+}}\var{Y_i|Z_i=\bar{z}+e} \\
+ C_{YD^r} & = \lim_{e\rightarrow 0^{+}}\cov{Y_i,D_i|Z_i=\bar{z}+e} 
+\end{align*}
+```
+
+```{proof}
+[Hahn, Todd and van der Klaauw (2001)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1468-0262.00183) and [Imbens and Lemieux (2008)](https://www.sciencedirect.com/science/article/abs/pii/S0304407607001091).
+```
+
+Another way is tu simply use the robust standard errors from the 2SLS estimator.
+
+```{example}
+Let's see what happens with this estimator of sampling noise in our example. 
+```
+
+The estimated 99\% sampling noise the robust standard errors from the 2SLS estimator is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.fuzzy.rdd.local.iv)[2,2]),2)`.
+The true 99\% sampling noise of Wald RDDLLR estimated by Monte Carlo simulations is `r round(2*quantile(abs(simuls.fuzzy.rdd.llr.bw[[2]][,'RDD LLR']-delta.y.tt.z(param)),probs=c(0.99)),2)`.
 
 ## Difference In Differences
 
@@ -1109,6 +2167,11 @@ D_i   & = \uns{y_i^B+ V_i\leq\bar{y}} \\
 V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})
 \end{align*}
+
+```{r param.DID,eval=TRUE,echo=TRUE,results='hide'}
+param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.28,0)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB","sigma2omega","rhoetaomega")
+```
 
 ```{r SimulDID,eval=TRUE,echo=FALSE,results='hide'}
 set.seed(1234)
