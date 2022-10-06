@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -58,12 +58,14 @@ $$
 \newcommand{\hatesp}[1]{\hat{\mathbf{E}}[ #1 ]}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
 \newcommand{\var}[1]{\mathbf{V}[ #1 ]}
+\newcommand{\hatvar}[1]{\hat{\mathbf{V}}[ #1 ]}
 \newcommand{\cov}[1]{\mathbf{C}[ #1 ]}
 \newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
 \newcommand{\plims}{\text{plim}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\partdersq}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\asym}{Asym}
 $$
 
 
@@ -198,6 +200,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="3.1.1" data-path="RCT.html"><a href="RCT.html#identification"><i class="fa fa-check"></i><b>3.1.1</b> Identification</a></li>
 <li class="chapter" data-level="3.1.2" data-path="RCT.html"><a href="RCT.html#estimating-ate"><i class="fa fa-check"></i><b>3.1.2</b> Estimating ATE</a></li>
+<li class="chapter" data-level="3.1.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise"><i class="fa fa-check"></i><b>3.1.3</b> Estimating Sampling Noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Self-Selection design</a>
 <ul>
@@ -242,7 +245,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a>
 <ul>
-<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.1</b> Imputation methods</a></li>
+<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#parametric-methods"><i class="fa fa-check"></i><b>5.1</b> Parametric methods</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="OM.html"><a href="OM.html#assuming-espy_i0x_i-is-known"><i class="fa fa-check"></i><b>5.1.1</b> Assuming <span class="math inline">\(\esp{Y_i^0|X_i}\)</span> is known</a></li>
+<li class="chapter" data-level="5.1.2" data-path="OM.html"><a href="OM.html#assuming-espy_i1x_i-is-known"><i class="fa fa-check"></i><b>5.1.2</b> Assuming <span class="math inline">\(\esp{Y_i^1|X_i}\)</span> is known</a></li>
+<li class="chapter" data-level="5.1.3" data-path="OM.html"><a href="OM.html#BiasOLS"><i class="fa fa-check"></i><b>5.1.3</b> Properties of the OLS estimator under Conditional Independence</a></li>
+<li class="chapter" data-level="5.1.4" data-path="OM.html"><a href="OM.html#problems-with-parametric-methods"><i class="fa fa-check"></i><b>5.1.4</b> Problems with parametric methods</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="OM.html"><a href="OM.html#nonparametric-methods"><i class="fa fa-check"></i><b>5.2</b> Nonparametric methods</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="OM.html"><a href="OM.html#identification-12"><i class="fa fa-check"></i><b>5.2.1</b> Identification</a></li>
+<li class="chapter" data-level="5.2.2" data-path="OM.html"><a href="OM.html#estimation-8"><i class="fa fa-check"></i><b>5.2.2</b> Estimation</a></li>
+<li class="chapter" data-level="5.2.3" data-path="OM.html"><a href="OM.html#estimating-precision-2"><i class="fa fa-check"></i><b>5.2.3</b> Estimating precision</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.3</b> Imputation methods</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="threats.html"><a href="threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a>
 <ul>
@@ -269,7 +285,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="part"><span><b>III Additional Topics</b></span></li>
-<li class="chapter" data-level="7" data-path="Power.html"><a href="Power.html"><i class="fa fa-check"></i><b>7</b> Power Analysis</a></li>
+<li class="chapter" data-level="7" data-path="Power.html"><a href="Power.html"><i class="fa fa-check"></i><b>7</b> Power Analysis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="Power.html"><a href="Power.html#traditional-power-analysis-using-test-statistics"><i class="fa fa-check"></i><b>7.1</b> Traditional power analysis using test statistics</a></li>
+</ul></li>
 <li class="chapter" data-level="8" data-path="sec:placebo.html"><a href="sec:placebo.html"><i class="fa fa-check"></i><b>8</b> Placebo Tests</a></li>
 <li class="chapter" data-level="9" data-path="cluster.html"><a href="cluster.html"><i class="fa fa-check"></i><b>9</b> Clustering</a></li>
 <li class="chapter" data-level="10" data-path="LaLonde.html"><a href="LaLonde.html"><i class="fa fa-check"></i><b>10</b> LaLonde Tests</a></li>
@@ -347,6 +366,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A.3.6" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSATTCross"><i class="fa fa-check"></i><b>A.3.6</b> Proof of Theorem @ref(thm:asympnoiseSATTCross)</a></li>
 <li class="chapter" data-level="A.3.7" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSAPanel"><i class="fa fa-check"></i><b>A.3.7</b> Proof of Theorem @ref(thm:asympnoiseSAPanel)</a></li>
 <li class="chapter" data-level="A.3.8" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSATTPanel"><i class="fa fa-check"></i><b>A.3.8</b> Proof of Theorem @ref(thm:asympnoiseSATTPanel)</a></li>
+</ul></li>
+<li class="chapter" data-level="A.4" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refom"><i class="fa fa-check"></i><b>A.4</b> Proofs of results in Chapter @ref(OM)</a>
+<ul>
+<li class="chapter" data-level="A.4.1" data-path="proofs.html"><a href="proofs.html#proofAsympWWOLS10"><i class="fa fa-check"></i><b>A.4.1</b> Proof of Theorem @ref(thm:AsympWWOLS10)</a></li>
 </ul></li>
 </ul></li>
 <li class="divider"></li>
@@ -712,8 +735,9 @@ I have to run simulations with a non linear relation between outcomes and contro
 If you do not like the linearity assumption, you can always use any of the nonparametric observational methods presented in Chapter <a href="#sec:OM"><strong>??</strong></a>.</p>
 </div>
 </div>
-<div id="estimating-sampling-noise" class="section level4 hasAnchor" number="3.1.2.4">
-<h4><span class="header-section-number">3.1.2.4</span> Estimating Sampling Noise<a href="RCT.html#estimating-sampling-noise" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+</div>
+<div id="estimating-sampling-noise" class="section level3 hasAnchor" number="3.1.3">
+<h3><span class="header-section-number">3.1.3</span> Estimating Sampling Noise<a href="RCT.html#estimating-sampling-noise" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>In order to estimate sampling noise, you can either use the CLT-based approach or resampling, either using the bootstrap or randomization inference.
 In Section <a href="FPSI.html#sec:estimsampnoise">2.2</a>, we have already discussed how to estimate sampling noise when using the WW estimator that we are using here.
 We are going to use the default and heteroskedasticity-robust standard errors from OLS, which are both CLT-based.
@@ -733,7 +757,7 @@ The 99% sampling noise estimated using default OLS standard errors is 0.294.</p>
 <div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="RCT.html#cb81-1" aria-hidden="true" tabindex="-1"></a>sn.BF.simuls.yB <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">quantile</span>(<span class="fu">abs</span>(simuls.brute.force.ww.yB[[<span class="st">&#39;1000&#39;</span>]][,<span class="st">&#39;WW&#39;</span>]<span class="sc">-</span><span class="fu">delta.y.ate</span>(param)),<span class="at">probs=</span><span class="fu">c</span>(<span class="fl">0.99</span>))</span>
 <span id="cb81-2"><a href="RCT.html#cb81-2" aria-hidden="true" tabindex="-1"></a>sn.BF.OLS.hetero.yB <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((delta<span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span><span class="fu">sqrt</span>(<span class="fu">vcovHC</span>(reg.y.R.ols.yB,<span class="at">type=</span><span class="st">&#39;HC2&#39;</span>)[<span class="dv">2</span>,<span class="dv">2</span>])</span>
 <span id="cb81-3"><a href="RCT.html#cb81-3" aria-hidden="true" tabindex="-1"></a>sn.BF.OLS.homo.yB <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((delta<span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span><span class="fu">sqrt</span>(<span class="fu">vcov</span>(reg.y.R.ols.yB)[<span class="dv">2</span>,<span class="dv">2</span>])</span></code></pre></div>
-<p>The true value of the 99% sampling noise with a sample size of 1000 and no control variables is stemming from the simulations is 0.088.
+<p>The true value of the 99% sampling noise with a sample size of 1000 and with control variables stemming from the simulations is 0.088.
 The 99% sampling noise estimated using heteroskedasticity robust OLS standard errors is 0.092.
 The 99% sampling noise estimated using default OLS standard errors is 0.091.</p>
 <p>Let’s see how all of this works on average.
@@ -859,7 +883,6 @@ Figure 3.3: Distribution of the CLT approximation of sampling noise in the Brute
 <p class="caption">
 Figure 3.4: CLT-based confidence intervals of <span class="math inline">\(\hat{WW}\)</span> and <span class="math inline">\(\hat{OLSX}\)</span> for <span class="math inline">\(\delta=\)</span> 0.99 over sample replications for various sample sizes (true confidence intervals in red)
 </p>
-</div>
 </div>
 </div>
 </div>

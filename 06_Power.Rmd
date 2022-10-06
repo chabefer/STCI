@@ -1,3 +1,118 @@
 # (PART) Additional Topics {-}
 
 # Power Analysis {#Power}
+
+In this chapter, we are going to study how to choose the size of our sample and how to gauge the size of sampling noise before conducting a study.
+This is important because we might decide not to conduct a study if it is not going to bring us precise enough information on the impact in view of its anticipated size.
+
+In practice, there are two ways to run a power analysis:
+
+  1. Using test statistics (power study per se)
+  2. Gauging sampling noise or choosing sample size to reach a given sampling noise
+
+Let me first start by describing the usual approach before moving to my more personal proposal.
+
+## Traditional power analysis using test statistics
+
+Intuitively, the approach to power analysis based on test statistics computes the sample size required so that a test of a given size $\alpha$ (in general $\alpha=0.05$) can reject the null of a true effect $\beta_A$ in a pre-specified proportion of samples $\kappa$ (in general $\kappa=0.8$).
+$\kappa$ is called the **power** of the test and $\beta_A$ the **Minimum Detectable Effect** (MDE).
+Let's define these quantities more formally:
+
+```{definition,power,name='Power'}
+Power $\kappa$ is the probability of rejecting the null hypothesis of a negative or null (for a one-sided test) or null (for a two-sided test) average treatment effect when the true effect is of at least $\beta_A$ applying a test of size $\alpha$ to an estimator $\hat{E}$ with a sample of size $N$. $\beta_A$ is called the Minimum Detectable Effect (MDE).
+
+  - for a One-Sided Test: $H_0$: $E\leq0$ \textit{vs} $H_A$: $E=\beta_A>0$
+  - For a Two-Sided Test: $H_0$: $E=0$ \textit{vs} $H_A$: $E=\beta_A\neq0$
+```
+
+Now, if we can assume that the distribution of our estimator $\hat{E}$ can be well approximated by a normal distribution (which is the case of most estimators we have seen so far) and that moreover they are $\sqrt{N}$-consistent (that is that their variance is of the same magnitude as $\sqrt{N}$), we can derive useful formulae for the power parameter, the MDE and the minimum sample size.
+Let's first state our assumption:
+
+```{hypothesis,AsymNE,name='Asymptotically Normal Estimator'}
+We assume that the estimator $\hat{E}$ is such that there exists a constant (independent of $N$) $C(\hat{E})$ such that:
+
+\begin{align*}
+  \lim_{N\rightarrow\infty}\Pr\left(\frac{\hat{E}-E}{\sqrt{\var{\hat{E}}}}\leq u\right) & = \Phi\left(u\right),
+\end{align*}
+
+with $\var{\hat{E}}=\frac{C(\hat{E})}{N}$.
+```
+
+Equipped with Assumption \@ref(hyp:AsymNE), we can now derive a closed-form formula for power $\kappa$:
+
+```{theorem,PowerE,name='Power with a Normal Estimator'}
+With $\hat{E}$ complying with Assumption \@ref(hyp:AsymNE), we have:
+```
+
+  - For a One-Sided Test: $H_0$: $E\leq0$ \textit{vs} $H_A$: $E=\beta_A>0$
+  
+\begin{align*}
+  \kappa & \approx \Phi\left(\frac{\beta_A}{\sqrt{\var{\hat{E}}}}-\Phi^{-1}\left(1-\alpha\right)\right),
+\end{align*}
+
+  - For a Two-Sided Test: $H_0$: $E=0$ \textit{vs} $H_A$: $E=\beta_A\neq0$
+  
+\begin{align*}
+  \kappa & \approx \Phi\left(\frac{\beta_A}{\sqrt{\var{\hat{E}}}}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right).
+\end{align*}
+
+```{proof}
+Let us start with a one-sided test first.
+We want to build a test statistic $t$ such that, under $H_0$, $\Pr(\hat{E}\geq t)=\alpha$.
+Under $H_0$ and using Assumption \@ref(hyp:AsymNE), we have:
+
+\begin{align*}
+ \Pr(\hat{E}\geq t) & = \Pr\left(\frac{\hat{E}-0}{\sqrt{\var{\hat{E}}}}\geq\frac{t-0}{\sqrt{\var{\hat{E}}}}\right) 
+                      \approx 1-\Phi\left(\frac{t}{\sqrt{\var{\hat{E}}}}\right) 
+\end{align*}
+
+As a consequence of $\Pr(\hat{E}\geq t)=\alpha$, we have:
+
+\begin{align*}    
+ t & \approx\Phi^{-1}\left(1-\alpha\right)\sqrt{\var{\hat{E}}}.
+\end{align*}
+ 
+Power is $\Pr(\hat{E}\geq t)$ under $H_A$.
+Using Assumption \@ref(hyp:AsymNE) again:
+
+\begin{align*}
+ \Pr(\hat{E}\geq t) & = \Pr\left(\frac{\hat{E}-\beta_A}{\sqrt{\var{\hat{E}}}}\geq\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right)
+                    \approx 1-\Phi\left(\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right) 
+                    = \Phi\left(\frac{\beta_A-t}{\sqrt{\var{\hat{E}}}}\right),
+\end{align*}
+
+which proves the first part of the result.
+
+With a two-sided test, we want a test statistic $t$ such that, under $H_0$, $\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)=\alpha$.
+Because the events are disjoint, under $H_0$ and using Assumption \@ref(hyp:AsymNE), we have:
+
+\begin{align*}
+\Pr(\hat{E}\leq -t\lor\hat{E}\geq t) & = \Pr(\hat{E}\leq -t) + \Pr(\hat{E}\geq t) \\
+                                      & = \Pr\left(\frac{\hat{E}-0}{\sqrt{\var{\hat{E}}}}\leq\frac{-t-0}{\sqrt{\var{\hat{E}}}}\right)+ \Pr\left(\frac{\hat{E}-0}{\sqrt{\var{\hat{E}}}}\geq\frac{t-0}{\sqrt{\var{\hat{E}}}}\right) \\
+                                      & \approx \Phi\left(-\frac{t}{\sqrt{\var{\hat{E}}}}\right) + 1-\Phi\left(\frac{t}{\sqrt{\var{\hat{E}}}}\right)\\
+                                      & = 2\left(1-\Phi\left(\frac{t}{\sqrt{\var{\hat{E}}}}\right)\right), 
+\end{align*}
+
+where the last equality uses the symmetry of the normal distribution.
+As a consequence of $\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)=\alpha$, we have:
+  
+\begin{align*}    
+ t & \approx\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\sqrt{\var{\hat{E}}}.
+\end{align*}
+
+ Power is $\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)$ under $H_A$.
+Using Assumption \@ref(hyp:AsymNE) and the fact that the two events are disjoint again:
+
+\begin{align*}
+\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)  & = \Pr(\hat{E}\leq -t) + \Pr(\hat{E}\geq t) \\
+                                      & = \Pr\left(\frac{\hat{E}-\beta_A}{\sqrt{\var{\hat{E}}}}\leq\frac{-t-\beta_A}{\sqrt{\var{\hat{E}}}}\right)
+                                        + \Pr\left(\frac{\hat{E}-\beta_A}{\sqrt{\var{\hat{E}}}}\geq\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right) \\
+                                      & \approx \Phi\left(\frac{-t-\beta_A}{\sqrt{\var{\hat{E}}}}\right) 
+                                        +  \Phi\left(\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right). 
+\end{align*}
+
+When $\beta_A$ is positive, the first part of the power formula is negligible with respect to the second part.
+Hence the result.
+```
+
+

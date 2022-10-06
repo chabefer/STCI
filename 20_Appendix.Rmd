@@ -2158,9 +2158,55 @@ They in turn depend on the product of the following matrix: $\sigma_{\Delta{X}\D
 and $\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ is the part of the $\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ matrix that relates to the estimators of $\beta^{SA}_{d,\tau}$ and $\beta^{SA}_{d',\tau'}$.
 We also have that $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$ is the blocks of the matrix $\sigma_{\Delta{X}\Delta{X}^{-1}}$ corresponding to the same estimation, with blocks formed by $\sigma_{\Delta X \Delta X^{-1}}^{d,\tau}$ and $\sigma_{\Delta X \Delta X^{-1}}^{d',\tau'}$.
 
+## Proofs of results in Chapter \@ref(OM)
 
+### Proof of Theorem \@ref(thm:AsympWWOLS10) {#proofAsympWWOLS10}
 
+One way to obtain the result is to apply Theorem 7.2 in [Imbens and Rubin (2015)](https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB).
+A more constructive proof follows similar lines, but differs somehow at critical points.
+We know that $\hat\Delta^Y_{WWOLSX}=\hat\delta^{OLS}$, where:
 
+\begin{align*}
+(\hat\alpha_1,\hat\alpha_0,\hat\beta_1,\hat\beta_0,\hat\delta^{OLS}) & = \arg\min_{\alpha_1,\alpha_0,\beta_1,\beta_0,\delta} \frac{1}{N}\sum_{i=1}^N\left(Y_i-\alpha_0 - \beta_0'X_i - (\beta_1-\beta_0)'\left(X_i-\esp{X_i|D_i=1}\right)D_i - \delta D_i\right)^2
+\end{align*}
 
+Replacing $\delta$ by its value in the population ($\Delta^Y_{TT}=\alpha_1-\alpha_0+(\beta_1-\beta_0)'\esp{X_i|D_i=1}$), using Theorem \@ref(thm:TTff), we can easily show that the remaining parameters can be obtained by two separate optimizations:
+
+\begin{align*}
+(\hat\alpha_0,\hat\beta_0) & = \arg\min_{\alpha_0,\beta_0} \frac{1}{N}\sum_{i=1}^N(1-D_i)\left(Y_i-\alpha_0 - \beta_0'X_i \right)^2\\
+(\hat\alpha_1,\hat\beta_1) & = \arg\min_{\alpha_1,\beta_1} \frac{1}{N}\sum_{i=1}^ND_i\left(Y_i-\alpha_1 - \beta_1'X_i \right)^2
+\end{align*}
+
+By Theorem \@ref(thm:LinearCEF), these parameters are also identified in the population by the OLS estimator.
+We now write $\tilde{Y}_i=(1-D_i)\tilde{Y}_i^0+D_i\tilde{Y}_i^1$, with:
+
+\begin{align*}
+  \tilde{Y}_i^0 & = Y_i-\beta_0'(X_i-\bar{X}_1) = \alpha_0+\beta_0'\bar{X}_1 +U_i^0 \\
+  \tilde{Y}_i^1 & = Y_i-\beta_1'(X_i-\bar{X}_1) = \alpha_1+\beta_1'\bar{X}_1 +U_i^1,
+\end{align*}
+
+with $\bar{X}_1=\frac{\sum_{i=1}^ND_iX_i}{\sum_{i=1}^ND_i}$ in the sample and $\bar{X}_1=\esp{X_i|D_i=1}$ in the population.
+$U_i^1$ and $U_i^0$ are mean-zero noise terms independent from $X_i$ and $D_i$ by Assumptions \@ref(hyp:CIA), \@ref(hyp:paramff0) and \@ref(hyp:paramff1).
+
+Now, let's estimate the following regression by OLS:
+
+\begin{align*}
+  \tilde{Y}_i & = \alpha + \delta D_i + U_i \\
+              & = \alpha_0+\beta_0'\bar{X}_1 +(\alpha_1-\alpha_0+(\beta_1-\beta_0)'\bar{X}_1)D_i + (1-D_i)U_i^0+D_iU_i^1
+\end{align*}
+
+$\delta^{OLS}$ estimates the treatment effect on the treated.
+It is also equal to the $\Delta^Y_{WWOLSX}$ estimator (since it is a combination of the same OLS parameters).
+Using Lemma \@ref(lem:WWOLS), we know that $\delta^{OLS}$ is the With/Without estimator applied to $\tilde{Y}_i$.
+Using Assumptions \@ref(hyp:fullrank), \@ref(hyp:iidX) and \@ref(hyp:finitevarX), Lemma \@ref(lem:asymWW) implies that:
+
+\begin{align*}
+  \sqrt{N}(\hat{\delta}^{OLS}-\Delta^Y_{TT}) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{\var{\tilde{Y}_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{\tilde{Y}_i^0|D_i=0}}{1-\Pr(D_i=1)}\right).
+\end{align*}
+
+By construction, and using Assumptions \@ref(hyp:paramff0) and \@ref(hyp:paramff1), $\var{\tilde{Y}_i^d|D_i=d}=\var{Y_i^d|X_i,D_i=d}$.
+
+**Clarify what $\var{Y_i^d|X_i,D_i=d}$ is exactly and what happens when it depends on $X_i$**
 
 

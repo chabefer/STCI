@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -58,12 +58,14 @@ $$
 \newcommand{\hatesp}[1]{\hat{\mathbf{E}}[ #1 ]}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
 \newcommand{\var}[1]{\mathbf{V}[ #1 ]}
+\newcommand{\hatvar}[1]{\hat{\mathbf{V}}[ #1 ]}
 \newcommand{\cov}[1]{\mathbf{C}[ #1 ]}
 \newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
 \newcommand{\plims}{\text{plim}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\partdersq}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\asym}{Asym}
 $$
 
 
@@ -198,6 +200,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="3.1.1" data-path="RCT.html"><a href="RCT.html#identification"><i class="fa fa-check"></i><b>3.1.1</b> Identification</a></li>
 <li class="chapter" data-level="3.1.2" data-path="RCT.html"><a href="RCT.html#estimating-ate"><i class="fa fa-check"></i><b>3.1.2</b> Estimating ATE</a></li>
+<li class="chapter" data-level="3.1.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise"><i class="fa fa-check"></i><b>3.1.3</b> Estimating Sampling Noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Self-Selection design</a>
 <ul>
@@ -242,7 +245,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a>
 <ul>
-<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.1</b> Imputation methods</a></li>
+<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#parametric-methods"><i class="fa fa-check"></i><b>5.1</b> Parametric methods</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="OM.html"><a href="OM.html#assuming-espy_i0x_i-is-known"><i class="fa fa-check"></i><b>5.1.1</b> Assuming <span class="math inline">\(\esp{Y_i^0|X_i}\)</span> is known</a></li>
+<li class="chapter" data-level="5.1.2" data-path="OM.html"><a href="OM.html#assuming-espy_i1x_i-is-known"><i class="fa fa-check"></i><b>5.1.2</b> Assuming <span class="math inline">\(\esp{Y_i^1|X_i}\)</span> is known</a></li>
+<li class="chapter" data-level="5.1.3" data-path="OM.html"><a href="OM.html#BiasOLS"><i class="fa fa-check"></i><b>5.1.3</b> Properties of the OLS estimator under Conditional Independence</a></li>
+<li class="chapter" data-level="5.1.4" data-path="OM.html"><a href="OM.html#problems-with-parametric-methods"><i class="fa fa-check"></i><b>5.1.4</b> Problems with parametric methods</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="OM.html"><a href="OM.html#nonparametric-methods"><i class="fa fa-check"></i><b>5.2</b> Nonparametric methods</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="OM.html"><a href="OM.html#identification-12"><i class="fa fa-check"></i><b>5.2.1</b> Identification</a></li>
+<li class="chapter" data-level="5.2.2" data-path="OM.html"><a href="OM.html#estimation-8"><i class="fa fa-check"></i><b>5.2.2</b> Estimation</a></li>
+<li class="chapter" data-level="5.2.3" data-path="OM.html"><a href="OM.html#estimating-precision-2"><i class="fa fa-check"></i><b>5.2.3</b> Estimating precision</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.3</b> Imputation methods</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="threats.html"><a href="threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a>
 <ul>
@@ -269,7 +285,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="part"><span><b>III Additional Topics</b></span></li>
-<li class="chapter" data-level="7" data-path="Power.html"><a href="Power.html"><i class="fa fa-check"></i><b>7</b> Power Analysis</a></li>
+<li class="chapter" data-level="7" data-path="Power.html"><a href="Power.html"><i class="fa fa-check"></i><b>7</b> Power Analysis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="Power.html"><a href="Power.html#traditional-power-analysis-using-test-statistics"><i class="fa fa-check"></i><b>7.1</b> Traditional power analysis using test statistics</a></li>
+</ul></li>
 <li class="chapter" data-level="8" data-path="sec:placebo.html"><a href="sec:placebo.html"><i class="fa fa-check"></i><b>8</b> Placebo Tests</a></li>
 <li class="chapter" data-level="9" data-path="cluster.html"><a href="cluster.html"><i class="fa fa-check"></i><b>9</b> Clustering</a></li>
 <li class="chapter" data-level="10" data-path="LaLonde.html"><a href="LaLonde.html"><i class="fa fa-check"></i><b>10</b> LaLonde Tests</a></li>
@@ -348,6 +367,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A.3.7" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSAPanel"><i class="fa fa-check"></i><b>A.3.7</b> Proof of Theorem @ref(thm:asympnoiseSAPanel)</a></li>
 <li class="chapter" data-level="A.3.8" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSATTPanel"><i class="fa fa-check"></i><b>A.3.8</b> Proof of Theorem @ref(thm:asympnoiseSATTPanel)</a></li>
 </ul></li>
+<li class="chapter" data-level="A.4" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refom"><i class="fa fa-check"></i><b>A.4</b> Proofs of results in Chapter @ref(OM)</a>
+<ul>
+<li class="chapter" data-level="A.4.1" data-path="proofs.html"><a href="proofs.html#proofAsympWWOLS10"><i class="fa fa-check"></i><b>A.4.1</b> Proof of Theorem @ref(thm:AsympWWOLS10)</a></li>
+</ul></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -371,7 +394,98 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="Power" class="section level1 hasAnchor" number="7">
 <h1><span class="header-section-number">Chapter 7</span> Power Analysis<a href="Power.html#Power" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>In this chapter, we are going to study how to choose the size of our sample and how to gauge the size of sampling noise before conducting a study.
+This is important because we might decide not to conduct a study if it is not going to bring us precise enough information on the impact in view of its anticipated size.</p>
+<p>In practice, there are two ways to run a power analysis:</p>
+<ol style="list-style-type: decimal">
+<li>Using test statistics (power study per se)</li>
+<li>Gauging sampling noise or choosing sample size to reach a given sampling noise</li>
+</ol>
+<p>Let me first start by describing the usual approach before moving to my more personal proposal.</p>
+<div id="traditional-power-analysis-using-test-statistics" class="section level2 hasAnchor" number="7.1">
+<h2><span class="header-section-number">7.1</span> Traditional power analysis using test statistics<a href="Power.html#traditional-power-analysis-using-test-statistics" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Intuitively, the approach to power analysis based on test statistics computes the sample size required so that a test of a given size <span class="math inline">\(\alpha\)</span> (in general <span class="math inline">\(\alpha=0.05\)</span>) can reject the null of a true effect <span class="math inline">\(\beta_A\)</span> in a pre-specified proportion of samples <span class="math inline">\(\kappa\)</span> (in general <span class="math inline">\(\kappa=0.8\)</span>).
+<span class="math inline">\(\kappa\)</span> is called the <strong>power</strong> of the test and <span class="math inline">\(\beta_A\)</span> the <strong>Minimum Detectable Effect</strong> (MDE).
+Let’s define these quantities more formally:</p>
+<div class="definition">
+<p><span id="def:power" class="definition"><strong>Definition 7.1  (Power) </strong></span>Power <span class="math inline">\(\kappa\)</span> is the probability of rejecting the null hypothesis of a negative or null (for a one-sided test) or null (for a two-sided test) average treatment effect when the true effect is of at least <span class="math inline">\(\beta_A\)</span> applying a test of size <span class="math inline">\(\alpha\)</span> to an estimator <span class="math inline">\(\hat{E}\)</span> with a sample of size <span class="math inline">\(N\)</span>. <span class="math inline">\(\beta_A\)</span> is called the Minimum Detectable Effect (MDE).</p>
+<ul>
+<li>for a One-Sided Test: <span class="math inline">\(H_0\)</span>: <span class="math inline">\(E\leq0\)</span>  <span class="math inline">\(H_A\)</span>: <span class="math inline">\(E=\beta_A&gt;0\)</span></li>
+<li>For a Two-Sided Test: <span class="math inline">\(H_0\)</span>: <span class="math inline">\(E=0\)</span>  <span class="math inline">\(H_A\)</span>: <span class="math inline">\(E=\beta_A\neq0\)</span></li>
+</ul>
+</div>
+<p>Now, if we can assume that the distribution of our estimator <span class="math inline">\(\hat{E}\)</span> can be well approximated by a normal distribution (which is the case of most estimators we have seen so far) and that moreover they are <span class="math inline">\(\sqrt{N}\)</span>-consistent (that is that their variance is of the same magnitude as <span class="math inline">\(\sqrt{N}\)</span>), we can derive useful formulae for the power parameter, the MDE and the minimum sample size.
+Let’s first state our assumption:</p>
+<div class="hypothesis">
+<p><span id="hyp:AsymNE" class="hypothesis"><strong>Hypothesis 7.1  (Asymptotically Normal Estimator) </strong></span>We assume that the estimator <span class="math inline">\(\hat{E}\)</span> is such that there exists a constant (independent of <span class="math inline">\(N\)</span>) <span class="math inline">\(C(\hat{E})\)</span> such that:</p>
+<p><span class="math display">\[\begin{align*}
+  \lim_{N\rightarrow\infty}\Pr\left(\frac{\hat{E}-E}{\sqrt{\var{\hat{E}}}}\leq u\right) &amp; = \Phi\left(u\right),
+\end{align*}\]</span></p>
+<p>with <span class="math inline">\(\var{\hat{E}}=\frac{C(\hat{E})}{N}\)</span>.</p>
+</div>
+<p>Equipped with Assumption <a href="Power.html#hyp:AsymNE">7.1</a>, we can now derive a closed-form formula for power <span class="math inline">\(\kappa\)</span>:</p>
+<div class="theorem">
+<p><span id="thm:PowerE" class="theorem"><strong>Theorem 7.1  (Power with a Normal Estimator) </strong></span>With <span class="math inline">\(\hat{E}\)</span> complying with Assumption <a href="Power.html#hyp:AsymNE">7.1</a>, we have:</p>
+</div>
+<ul>
+<li>For a One-Sided Test: <span class="math inline">\(H_0\)</span>: <span class="math inline">\(E\leq0\)</span>  <span class="math inline">\(H_A\)</span>: <span class="math inline">\(E=\beta_A&gt;0\)</span></li>
+</ul>
+<p><span class="math display">\[\begin{align*}
+  \kappa &amp; \approx \Phi\left(\frac{\beta_A}{\sqrt{\var{\hat{E}}}}-\Phi^{-1}\left(1-\alpha\right)\right),
+\end{align*}\]</span></p>
+<ul>
+<li>For a Two-Sided Test: <span class="math inline">\(H_0\)</span>: <span class="math inline">\(E=0\)</span>  <span class="math inline">\(H_A\)</span>: <span class="math inline">\(E=\beta_A\neq0\)</span></li>
+</ul>
+<p><span class="math display">\[\begin{align*}
+  \kappa &amp; \approx \Phi\left(\frac{\beta_A}{\sqrt{\var{\hat{E}}}}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right).
+\end{align*}\]</span></p>
+<div class="proof">
+<p><span id="unlabeled-div-190" class="proof"><em>Proof</em>. </span>Let us start with a one-sided test first.
+We want to build a test statistic <span class="math inline">\(t\)</span> such that, under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\Pr(\hat{E}\geq t)=\alpha\)</span>.
+Under <span class="math inline">\(H_0\)</span> and using Assumption <a href="Power.html#hyp:AsymNE">7.1</a>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+ \Pr(\hat{E}\geq t) &amp; = \Pr\left(\frac{\hat{E}-0}{\sqrt{\var{\hat{E}}}}\geq\frac{t-0}{\sqrt{\var{\hat{E}}}}\right) 
+                      \approx 1-\Phi\left(\frac{t}{\sqrt{\var{\hat{E}}}}\right) 
+\end{align*}\]</span></p>
+<p>As a consequence of <span class="math inline">\(\Pr(\hat{E}\geq t)=\alpha\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}    
+ t &amp; \approx\Phi^{-1}\left(1-\alpha\right)\sqrt{\var{\hat{E}}}.
+\end{align*}\]</span></p>
+<p>Power is <span class="math inline">\(\Pr(\hat{E}\geq t)\)</span> under <span class="math inline">\(H_A\)</span>.
+Using Assumption <a href="Power.html#hyp:AsymNE">7.1</a> again:</p>
+<p><span class="math display">\[\begin{align*}
+ \Pr(\hat{E}\geq t) &amp; = \Pr\left(\frac{\hat{E}-\beta_A}{\sqrt{\var{\hat{E}}}}\geq\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right)
+                    \approx 1-\Phi\left(\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right) 
+                    = \Phi\left(\frac{\beta_A-t}{\sqrt{\var{\hat{E}}}}\right),
+\end{align*}\]</span></p>
+<p>which proves the first part of the result.</p>
+<p>With a two-sided test, we want a test statistic <span class="math inline">\(t\)</span> such that, under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)=\alpha\)</span>.
+Because the events are disjoint, under <span class="math inline">\(H_0\)</span> and using Assumption <a href="Power.html#hyp:AsymNE">7.1</a>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+\Pr(\hat{E}\leq -t\lor\hat{E}\geq t) &amp; = \Pr(\hat{E}\leq -t) + \Pr(\hat{E}\geq t) \\
+                                      &amp; = \Pr\left(\frac{\hat{E}-0}{\sqrt{\var{\hat{E}}}}\leq\frac{-t-0}{\sqrt{\var{\hat{E}}}}\right)+ \Pr\left(\frac{\hat{E}-0}{\sqrt{\var{\hat{E}}}}\geq\frac{t-0}{\sqrt{\var{\hat{E}}}}\right) \\
+                                      &amp; \approx \Phi\left(-\frac{t}{\sqrt{\var{\hat{E}}}}\right) + 1-\Phi\left(\frac{t}{\sqrt{\var{\hat{E}}}}\right)\\
+                                      &amp; = 2\left(1-\Phi\left(\frac{t}{\sqrt{\var{\hat{E}}}}\right)\right), 
+\end{align*}\]</span></p>
+<p>where the last equality uses the symmetry of the normal distribution.
+As a consequence of <span class="math inline">\(\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)=\alpha\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}    
+ t &amp; \approx\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\sqrt{\var{\hat{E}}}.
+\end{align*}\]</span></p>
+<p>Power is <span class="math inline">\(\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)\)</span> under <span class="math inline">\(H_A\)</span>.
+Using Assumption <a href="Power.html#hyp:AsymNE">7.1</a> and the fact that the two events are disjoint again:</p>
+<p><span class="math display">\[\begin{align*}
+\Pr(\hat{E}\leq -t\lor\hat{E}\geq t)  &amp; = \Pr(\hat{E}\leq -t) + \Pr(\hat{E}\geq t) \\
+                                      &amp; = \Pr\left(\frac{\hat{E}-\beta_A}{\sqrt{\var{\hat{E}}}}\leq\frac{-t-\beta_A}{\sqrt{\var{\hat{E}}}}\right)
+                                        + \Pr\left(\frac{\hat{E}-\beta_A}{\sqrt{\var{\hat{E}}}}\geq\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right) \\
+                                      &amp; \approx \Phi\left(\frac{-t-\beta_A}{\sqrt{\var{\hat{E}}}}\right) 
+                                        +  \Phi\left(\frac{t-\beta_A}{\sqrt{\var{\hat{E}}}}\right). 
+\end{align*}\]</span></p>
+<p>When <span class="math inline">\(\beta_A\)</span> is positive, the first part of the power formula is negligible with respect to the second part.
+Hence the result.</p>
+</div>
 
+</div>
 </div>
             </section>
 

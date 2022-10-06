@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -58,12 +58,14 @@ $$
 \newcommand{\hatesp}[1]{\hat{\mathbf{E}}[ #1 ]}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
 \newcommand{\var}[1]{\mathbf{V}[ #1 ]}
+\newcommand{\hatvar}[1]{\hat{\mathbf{V}}[ #1 ]}
 \newcommand{\cov}[1]{\mathbf{C}[ #1 ]}
 \newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
 \newcommand{\plims}{\text{plim}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\partdersq}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\asym}{Asym}
 $$
 
 
@@ -198,6 +200,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="3.1.1" data-path="RCT.html"><a href="RCT.html#identification"><i class="fa fa-check"></i><b>3.1.1</b> Identification</a></li>
 <li class="chapter" data-level="3.1.2" data-path="RCT.html"><a href="RCT.html#estimating-ate"><i class="fa fa-check"></i><b>3.1.2</b> Estimating ATE</a></li>
+<li class="chapter" data-level="3.1.3" data-path="RCT.html"><a href="RCT.html#estimating-sampling-noise"><i class="fa fa-check"></i><b>3.1.3</b> Estimating Sampling Noise</a></li>
 </ul></li>
 <li class="chapter" data-level="3.2" data-path="RCT.html"><a href="RCT.html#sec:design2"><i class="fa fa-check"></i><b>3.2</b> Self-Selection design</a>
 <ul>
@@ -242,7 +245,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5" data-path="OM.html"><a href="OM.html"><i class="fa fa-check"></i><b>5</b> Observational Methods</a>
 <ul>
-<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.1</b> Imputation methods</a></li>
+<li class="chapter" data-level="5.1" data-path="OM.html"><a href="OM.html#parametric-methods"><i class="fa fa-check"></i><b>5.1</b> Parametric methods</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="OM.html"><a href="OM.html#assuming-espy_i0x_i-is-known"><i class="fa fa-check"></i><b>5.1.1</b> Assuming <span class="math inline">\(\esp{Y_i^0|X_i}\)</span> is known</a></li>
+<li class="chapter" data-level="5.1.2" data-path="OM.html"><a href="OM.html#assuming-espy_i1x_i-is-known"><i class="fa fa-check"></i><b>5.1.2</b> Assuming <span class="math inline">\(\esp{Y_i^1|X_i}\)</span> is known</a></li>
+<li class="chapter" data-level="5.1.3" data-path="OM.html"><a href="OM.html#BiasOLS"><i class="fa fa-check"></i><b>5.1.3</b> Properties of the OLS estimator under Conditional Independence</a></li>
+<li class="chapter" data-level="5.1.4" data-path="OM.html"><a href="OM.html#problems-with-parametric-methods"><i class="fa fa-check"></i><b>5.1.4</b> Problems with parametric methods</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="OM.html"><a href="OM.html#nonparametric-methods"><i class="fa fa-check"></i><b>5.2</b> Nonparametric methods</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="OM.html"><a href="OM.html#identification-12"><i class="fa fa-check"></i><b>5.2.1</b> Identification</a></li>
+<li class="chapter" data-level="5.2.2" data-path="OM.html"><a href="OM.html#estimation-8"><i class="fa fa-check"></i><b>5.2.2</b> Estimation</a></li>
+<li class="chapter" data-level="5.2.3" data-path="OM.html"><a href="OM.html#estimating-precision-2"><i class="fa fa-check"></i><b>5.2.3</b> Estimating precision</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="OM.html"><a href="OM.html#imputation-methods"><i class="fa fa-check"></i><b>5.3</b> Imputation methods</a></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="threats.html"><a href="threats.html"><i class="fa fa-check"></i><b>6</b> Threats to the validity of Causal Inference</a>
 <ul>
@@ -269,7 +285,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="part"><span><b>III Additional Topics</b></span></li>
-<li class="chapter" data-level="7" data-path="Power.html"><a href="Power.html"><i class="fa fa-check"></i><b>7</b> Power Analysis</a></li>
+<li class="chapter" data-level="7" data-path="Power.html"><a href="Power.html"><i class="fa fa-check"></i><b>7</b> Power Analysis</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="Power.html"><a href="Power.html#traditional-power-analysis-using-test-statistics"><i class="fa fa-check"></i><b>7.1</b> Traditional power analysis using test statistics</a></li>
+</ul></li>
 <li class="chapter" data-level="8" data-path="sec:placebo.html"><a href="sec:placebo.html"><i class="fa fa-check"></i><b>8</b> Placebo Tests</a></li>
 <li class="chapter" data-level="9" data-path="cluster.html"><a href="cluster.html"><i class="fa fa-check"></i><b>9</b> Clustering</a></li>
 <li class="chapter" data-level="10" data-path="LaLonde.html"><a href="LaLonde.html"><i class="fa fa-check"></i><b>10</b> LaLonde Tests</a></li>
@@ -348,6 +367,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="A.3.7" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSAPanel"><i class="fa fa-check"></i><b>A.3.7</b> Proof of Theorem @ref(thm:asympnoiseSAPanel)</a></li>
 <li class="chapter" data-level="A.3.8" data-path="proofs.html"><a href="proofs.html#proofasympnoiseSATTPanel"><i class="fa fa-check"></i><b>A.3.8</b> Proof of Theorem @ref(thm:asympnoiseSATTPanel)</a></li>
 </ul></li>
+<li class="chapter" data-level="A.4" data-path="proofs.html"><a href="proofs.html#proofs-of-results-in-chapter-refom"><i class="fa fa-check"></i><b>A.4</b> Proofs of results in Chapter @ref(OM)</a>
+<ul>
+<li class="chapter" data-level="A.4.1" data-path="proofs.html"><a href="proofs.html#proofAsympWWOLS10"><i class="fa fa-check"></i><b>A.4.1</b> Proof of Theorem @ref(thm:AsympWWOLS10)</a></li>
+</ul></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -384,7 +407,7 @@ Let’s first prove that the <span class="math inline">\(WW\)</span> estimator i
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-210" class="proof"><em>Proof</em>. </span>In order to prove Lemma <a href="proofs.html#lem:unbiasww">A.1</a>, we are going to use a trick.
+<p><span id="unlabeled-div-235" class="proof"><em>Proof</em>. </span>In order to prove Lemma <a href="proofs.html#lem:unbiasww">A.1</a>, we are going to use a trick.
 We are going to compute the expectation of the <span class="math inline">\(WW\)</span> estimator conditional on a given treatment allocation.
 Because the resulting estimate is independent of treatment allocation, we will have our proof.
 This trick simplifies derivations a lot and is really natural: think first of all the samples with the same treatment allocation, then average your results over all possible treatment allocations.</p>
@@ -417,7 +440,7 @@ The last equality uses Assumption <a href="FPCI.html#def:noselb">1.7</a>.</p>
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-211" class="proof"><em>Proof</em>. </span>Same trick as before, but now using the Law of Total Variance (LTV):</p>
+<p><span id="unlabeled-div-236" class="proof"><em>Proof</em>. </span>Same trick as before, but now using the Law of Total Variance (LTV):</p>
 <p><span class="math display">\[\begin{align*}
 \var{{\hat{\Delta^Y_{WW}}}} &amp; = \esp{\var{\hat{\Delta^Y_{WW}}|\mathbf{D}}}+\var{\esp{\hat{\Delta^Y_{WW}}|\mathbf{D}}}\\
                             &amp; = \esp{\var{\frac{1}{\sum_{i=1}^N D_i}\sum_{i=1}^N Y_iD_i-\frac{1}{\sum_{i=1}^N (1-D_i)}\sum_{i=1}^N Y_i(1-D_i)|\mathbf{D}}} \\
@@ -459,7 +482,7 @@ This proves the result.</p>
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-212" class="proof"><em>Proof</em>. </span>In matrix notation, we have:</p>
+<p><span id="unlabeled-div-237" class="proof"><em>Proof</em>. </span>In matrix notation, we have:</p>
 <p><span class="math display">\[\begin{align*}
   \underbrace{\left(\begin{array}{c}  Y_1 \\    \vdots \\   Y_N \end{array}\right)}_{Y} &amp; = 
   \underbrace{\left(\begin{array}{cc}   1 &amp; D_1\\   \vdots &amp; \vdots\\   1 &amp; D_N\end{array}\right)}_{X}
@@ -533,7 +556,7 @@ Now for the second part of the lemma:</p>
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-213" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
+<p><span id="unlabeled-div-238" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
 \sqrt{N}(\hat{\Theta}_{OLS}-\Theta) &amp; = \sqrt{N}((X&#39;X)^{-1}X&#39;Y-\Theta) \\
                                     &amp; = \sqrt{N}((X&#39;X)^{-1}X&#39;(X\Theta+U)-\Theta) \\
                                     &amp; = \sqrt{N}((X&#39;X)^{-1}X&#39;X\Theta+(X&#39;X)^{-1}X&#39;U)-\Theta) \\
@@ -630,7 +653,7 @@ The results follows from that and from the symmetry of <span class="math inline"
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-214" class="proof"><em>Proof</em>. </span>In order to derive the asymptotic distribution of WW, I use first Lemma <a href="proofs.html#lem:WWOLS">A.3</a> which implies that the asymptotic distribution of WW is the same as that of <span class="math inline">\(\hat{\beta}_{OLS}\)</span>.
+<p><span id="unlabeled-div-239" class="proof"><em>Proof</em>. </span>In order to derive the asymptotic distribution of WW, I use first Lemma <a href="proofs.html#lem:WWOLS">A.3</a> which implies that the asymptotic distribution of WW is the same as that of <span class="math inline">\(\hat{\beta}_{OLS}\)</span>.
 Now, from Lemma <a href="proofs.html#lem:asympOLS">A.4</a>, we know that <span class="math inline">\(\sqrt{N}(\hat{\beta}_{OLS}-\beta)\stackrel{d}{\rightarrow}\mathcal{N}(0,\sigma^2_{\beta})\)</span>, where <span class="math inline">\(\sigma^2_{\beta}\)</span> is the lower diagonal term of <span class="math inline">\(\sigma_{XX}^{-1}\mathbf{V_{xu}}\sigma_{XX}^{-1}\)</span>.
 Using the convention <span class="math inline">\(p=\Pr(D_i=1)\)</span>, we have:</p>
 <p><span class="math display">\[\begin{align*}
@@ -701,7 +724,7 @@ Using the convention <span class="math inline">\(p=\Pr(D_i=1)\)</span>, we have:
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-215" class="proof"><em>Proof</em>. </span>Lemma 4.2 in <a href="https://www.jstor.org/stable/2984718">Dawid (1979)</a> shows that if <span class="math inline">\(X\Ind Y|Z\)</span> and <span class="math inline">\(U\)</span> is a function of <span class="math inline">\(X\)</span> then <span class="math inline">\(U\Ind Y|Z\)</span>.
+<p><span id="unlabeled-div-240" class="proof"><em>Proof</em>. </span>Lemma 4.2 in <a href="https://www.jstor.org/stable/2984718">Dawid (1979)</a> shows that if <span class="math inline">\(X\Ind Y|Z\)</span> and <span class="math inline">\(U\)</span> is a function of <span class="math inline">\(X\)</span> then <span class="math inline">\(U\Ind Y|Z\)</span>.
 The fact that <span class="math inline">\(T_i\)</span> is a function of <span class="math inline">\((D_i^1,D^0_i)\)</span> proves the result.</p>
 </div>
 <p>The four sets defined by <span class="math inline">\(T_i\)</span> are a partition of the sample space.
@@ -856,7 +879,7 @@ Now, I’m going to derive the asymptotic distribution of the IV estimator.</p>
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-216" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
+<p><span id="unlabeled-div-241" class="proof"><em>Proof</em>. </span><span class="math display">\[\begin{align*}
 \sqrt{N}(\hat{\Theta}_{IV}-\Theta) &amp; = \sqrt{N}((R&#39;X)^{-1}R&#39;Y-\Theta) \\
                                     &amp; = \sqrt{N}((R&#39;X)^{-1}R&#39;(X\Theta+U)-\Theta) \\
                                     &amp; = \sqrt{N}((R&#39;X)^{-1}R&#39;X\Theta+(X&#39;X)^{-1}X&#39;U)-\Theta) \\
@@ -1219,7 +1242,7 @@ It can be stated as follows:</p>
 \end{align*}\]</span></p>
 </div>
 <div class="proof">
-<p><span id="unlabeled-div-217" class="proof"><em>Proof</em>. </span>See Section 8.2.2 <a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">here</a>.</p>
+<p><span id="unlabeled-div-242" class="proof"><em>Proof</em>. </span>See Section 8.2.2 <a href="https://bookdown.org/ts_robinson1994/10_fundamental_theorems_for_econometrics/frisch.html">here</a>.</p>
 </div>
 <p><span class="math inline">\(M_1\)</span> is called the <strong>prediction</strong> or the <strong>residualizing</strong> matrix.</p>
 <p>In our case, let us call <span class="math inline">\(X^{LSDV}_{\mu}\)</span> the first <span class="math inline">\(N\)</span> columns of <span class="math inline">\(X^{LSDV}\)</span>.
@@ -2151,6 +2174,46 @@ They in turn depend on the product of the following matrix: <span class="math in
 \end{align*}\]</span></p>
 <p>and <span class="math inline">\(\mathbf{V}^{d,\tau,d&#39;,\tau&#39;}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\)</span> is the part of the <span class="math inline">\(\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\)</span> matrix that relates to the estimators of <span class="math inline">\(\beta^{SA}_{d,\tau}\)</span> and <span class="math inline">\(\beta^{SA}_{d&#39;,\tau&#39;}\)</span>.
 We also have that <span class="math inline">\(\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d&#39;,\tau&#39;}\)</span> is the blocks of the matrix <span class="math inline">\(\sigma_{\Delta{X}\Delta{X}^{-1}}\)</span> corresponding to the same estimation, with blocks formed by <span class="math inline">\(\sigma_{\Delta X \Delta X^{-1}}^{d,\tau}\)</span> and <span class="math inline">\(\sigma_{\Delta X \Delta X^{-1}}^{d&#39;,\tau&#39;}\)</span>.</p>
+</div>
+</div>
+<div id="proofs-of-results-in-chapter-refom" class="section level2 hasAnchor" number="16.4">
+<h2><span class="header-section-number">A.4</span> Proofs of results in Chapter <a href="OM.html#OM">5</a><a href="proofs.html#proofs-of-results-in-chapter-refom" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="proofAsympWWOLS10" class="section level3 hasAnchor" number="16.4.1">
+<h3><span class="header-section-number">A.4.1</span> Proof of Theorem <a href="OM.html#thm:AsympWWOLS10">5.4</a><a href="proofs.html#proofAsympWWOLS10" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>One way to obtain the result is to apply Theorem 7.2 in <a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">Imbens and Rubin (2015)</a>.
+A more constructive proof follows similar lines, but differs somehow at critical points.
+We know that <span class="math inline">\(\hat\Delta^Y_{WWOLSX}=\hat\delta^{OLS}\)</span>, where:</p>
+<p><span class="math display">\[\begin{align*}
+(\hat\alpha_1,\hat\alpha_0,\hat\beta_1,\hat\beta_0,\hat\delta^{OLS}) &amp; = \arg\min_{\alpha_1,\alpha_0,\beta_1,\beta_0,\delta} \frac{1}{N}\sum_{i=1}^N\left(Y_i-\alpha_0 - \beta_0&#39;X_i - (\beta_1-\beta_0)&#39;\left(X_i-\esp{X_i|D_i=1}\right)D_i - \delta D_i\right)^2
+\end{align*}\]</span></p>
+<p>Replacing <span class="math inline">\(\delta\)</span> by its value in the population (<span class="math inline">\(\Delta^Y_{TT}=\alpha_1-\alpha_0+(\beta_1-\beta_0)&#39;\esp{X_i|D_i=1}\)</span>), using Theorem <a href="OM.html#thm:TTff">5.2</a>, we can easily show that the remaining parameters can be obtained by two separate optimizations:</p>
+<p><span class="math display">\[\begin{align*}
+(\hat\alpha_0,\hat\beta_0) &amp; = \arg\min_{\alpha_0,\beta_0} \frac{1}{N}\sum_{i=1}^N(1-D_i)\left(Y_i-\alpha_0 - \beta_0&#39;X_i \right)^2\\
+(\hat\alpha_1,\hat\beta_1) &amp; = \arg\min_{\alpha_1,\beta_1} \frac{1}{N}\sum_{i=1}^ND_i\left(Y_i-\alpha_1 - \beta_1&#39;X_i \right)^2
+\end{align*}\]</span></p>
+<p>By Theorem <a href="proofs.html#thm:LinearCEF">A.2</a>, these parameters are also identified in the population by the OLS estimator.
+We now write <span class="math inline">\(\tilde{Y}_i=(1-D_i)\tilde{Y}_i^0+D_i\tilde{Y}_i^1\)</span>, with:</p>
+<p><span class="math display">\[\begin{align*}
+  \tilde{Y}_i^0 &amp; = Y_i-\beta_0&#39;(X_i-\bar{X}_1) = \alpha_0+\beta_0&#39;\bar{X}_1 +U_i^0 \\
+  \tilde{Y}_i^1 &amp; = Y_i-\beta_1&#39;(X_i-\bar{X}_1) = \alpha_1+\beta_1&#39;\bar{X}_1 +U_i^1,
+\end{align*}\]</span></p>
+<p>with <span class="math inline">\(\bar{X}_1=\frac{\sum_{i=1}^ND_iX_i}{\sum_{i=1}^ND_i}\)</span> in the sample and <span class="math inline">\(\bar{X}_1=\esp{X_i|D_i=1}\)</span> in the population.
+<span class="math inline">\(U_i^1\)</span> and <span class="math inline">\(U_i^0\)</span> are mean-zero noise terms independent from <span class="math inline">\(X_i\)</span> and <span class="math inline">\(D_i\)</span> by Assumptions <a href="OM.html#hyp:CIA">5.2</a>, <a href="OM.html#hyp:paramff0">5.3</a> and <a href="OM.html#hyp:paramff1">5.4</a>.</p>
+<p>Now, let’s estimate the following regression by OLS:</p>
+<p><span class="math display">\[\begin{align*}
+  \tilde{Y}_i &amp; = \alpha + \delta D_i + U_i \\
+              &amp; = \alpha_0+\beta_0&#39;\bar{X}_1 +(\alpha_1-\alpha_0+(\beta_1-\beta_0)&#39;\bar{X}_1)D_i + (1-D_i)U_i^0+D_iU_i^1
+\end{align*}\]</span></p>
+<p><span class="math inline">\(\delta^{OLS}\)</span> estimates the treatment effect on the treated.
+It is also equal to the <span class="math inline">\(\Delta^Y_{WWOLSX}\)</span> estimator (since it is a combination of the same OLS parameters).
+Using Lemma <a href="proofs.html#lem:WWOLS">A.3</a>, we know that <span class="math inline">\(\delta^{OLS}\)</span> is the With/Without estimator applied to <span class="math inline">\(\tilde{Y}_i\)</span>.
+Using Assumptions <a href="FPSI.html#hyp:fullrank">2.1</a>, <a href="OM.html#hyp:iidX">5.5</a> and <a href="OM.html#hyp:finitevarX">5.6</a>, Lemma <a href="proofs.html#lem:asymWW">A.5</a> implies that:</p>
+<p><span class="math display">\[\begin{align*}
+  \sqrt{N}(\hat{\delta}^{OLS}-\Delta^Y_{TT}) &amp;  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{\var{\tilde{Y}_i^1|D_i=1}}{\Pr(D_i=1)}+\frac{\var{\tilde{Y}_i^0|D_i=0}}{1-\Pr(D_i=1)}\right).
+\end{align*}\]</span></p>
+<p>By construction, and using Assumptions <a href="OM.html#hyp:paramff0">5.3</a> and <a href="OM.html#hyp:paramff1">5.4</a>, <span class="math inline">\(\var{\tilde{Y}_i^d|D_i=d}=\var{Y_i^d|X_i,D_i=d}\)</span>.</p>
+<p><strong>Clarify what <span class="math inline">\(\var{Y_i^d|X_i,D_i=d}\)</span> is exactly and what happens when it depends on <span class="math inline">\(X_i\)</span></strong></p>
 
 </div>
 </div>
