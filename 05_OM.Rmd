@@ -791,57 +791,7 @@ with $K_{i,j}=K\left(\frac{X_i-X_j}{h}\right)$.
 
 ```{example}
 Let us see how this works in our example.
-````
-
-Let us first redefine the LLR function:
-
-```{r LLRMatch,eval=TRUE,echo=TRUE}
-llr <- function(y,x,gridx,bw,kernel){
-  if (kernel=='uniform'){
-    K <- function(u){
-      K.u <- 0
-      if (abs(u)<=.5){K.u <- 1}
-      return(K.u)
-    }
-  }
-  if (kernel=='triangular'){
-    K <- function(u){
-      K.u <- 0
-      if (abs(u)<=.5){K.u <- 2*(1-2*abs(u))}
-      return(K.u)
-    }
-  }
-  if (kernel=='epanechnikov'){
-    K <- function(u){
-      K.u <- 0
-      if (abs(u)<=.5){K.u <- (3/2)*(1-4*u^2)}
-      return(K.u)
-    }
-  }
-  if (kernel=='quartic'){
-    K <- function(u){
-      K.u <- 0
-      if (abs(u)<=.5){K.u <- (15/8)*(1-4*u^2)^2}
-      return(K.u)
-    }
-  }
-  if (kernel=='gaussian'){
-    K <- function(u){
-      return(exp(-0.5*u^2)/(sqrt(2*pi)))
-    }
-  }
-  K.vec <- Vectorize(K)
-  y0.hat <- rep(0,length(gridx))  
-  for (i in (1:length(gridx))){
-    x.i <- gridx[i]-x
-    weights.i <- K.vec((x.i)/bw)
-    ols.i <- lm(y~x.i,weights=weights.i)
-    y0.hat[i] <- ols.i$coefficients[1]
-  }
-  return(y0.hat)
-}
 ```
-
 Let us now run the LLR regression on the untreated sample, using as grid points all the observations in the treated sample, and let us then compute the estimated $TT$, with two candidates for the bandwidth:
 
 ```{r LLRMatchFirst, echo=TRUE,cache=TRUE}
@@ -1039,18 +989,10 @@ Let's see how this works in our example.
 Let us first (re)define a function to compute the MSE and then compute is:
 
 ```{r llr.bw.cv,eval=TRUE,echo=FALSE,results='hide',cache=TRUE}
-MSE.llr <- function(bw,y,D,x,kernel){
-  MSE <- 0
-  for (i in (1:length(y[D==0]))){
-    MSE <- MSE + (y[D==0][i]-llr(y[D==0][-i],x[D==0][-i],x[D==0][i],bw=bw,kernel=kernel))^2
-  }
-  return(MSE)
-}
-MSE.test <- MSE.llr(bw=1,y,Ds,yB,kernel='gaussian')
 MSE.grid <- seq(0.1,1,by=.1)
-MSE.grid.test <- sapply(MSE.grid,MSE.llr,y=y,D=Ds,x=pscore,kernel='gaussian')
+MSE.grid.test <- sapply(MSE.grid,MSE.llr,y=y,D=Ds,x=pscore,kernel='gaussian',d=0)
 MSE.grid.pscore <- seq(0.02,0.1,by=.02)
-MSE.pscore <- sapply(MSE.grid.pscore,MSE.llr,y=y,D=Ds,x=pscore,kernel='gaussian')
+MSE.pscore <- sapply(MSE.grid.pscore,MSE.llr,y=y,D=Ds,x=pscore,kernel='gaussian',d=0)
 bw <- MSE.grid.pscore[MSE.pscore==min(MSE.pscore)]
 # run LLR on the untreated sample using treated points as grid points
 y0.llr.pscore.bw <- llr(y[Ds==0],pscore[Ds==0],pscore[Ds==1],bw=bw,kernel=kernel)    
@@ -1060,7 +1002,7 @@ ww.llr.pscore.bw <- llr.match(y,Ds,pscore,bw=bw,kernel=kernel)
 # parallelized code just in case
 #sfInit(parallel=TRUE,cpus=8)
 #sfExport('llr.match.trim','llr','dens.fun.point','dens.fun','com.supp','MSE.llr')
-#MSE.grid.test <- sfSapply(MSE.grid,MSE.llr,y=y,D=Ds,x=yB,kernel='gaussian')
+#MSE.grid.test <- sfSapply(MSE.grid,MSE.llr,y=y,D=Ds,x=yB,kernel='gaussian',d=0)
 #sfStop()
 ```
 

@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2022-10-06" />
+<meta name="date" content="2023-01-17" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -287,7 +287,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="part"><span><b>III Additional Topics</b></span></li>
 <li class="chapter" data-level="7" data-path="Power.html"><a href="Power.html"><i class="fa fa-check"></i><b>7</b> Power Analysis</a>
 <ul>
-<li class="chapter" data-level="7.1" data-path="Power.html"><a href="Power.html#traditional-power-analysis-using-test-statistics"><i class="fa fa-check"></i><b>7.1</b> Traditional power analysis using test statistics</a></li>
+<li class="chapter" data-level="7.1" data-path="Power.html"><a href="Power.html#basics-of-traditional-power-analysis-using-test-statistics"><i class="fa fa-check"></i><b>7.1</b> Basics of traditional power analysis using test statistics</a>
+<ul>
+<li class="chapter" data-level="7.1.1" data-path="Power.html"><a href="Power.html#power"><i class="fa fa-check"></i><b>7.1.1</b> Power</a></li>
+<li class="chapter" data-level="7.1.2" data-path="Power.html"><a href="Power.html#minimum-detectable-effect"><i class="fa fa-check"></i><b>7.1.2</b> Minimum Detectable Effect</a></li>
+<li class="chapter" data-level="7.1.3" data-path="Power.html"><a href="Power.html#minimum-required-sample-size"><i class="fa fa-check"></i><b>7.1.3</b> Minimum Required Sample Size</a></li>
+</ul></li>
+<li class="chapter" data-level="7.2" data-path="Power.html"><a href="Power.html#traditional-power-analysis-in-practice"><i class="fa fa-check"></i><b>7.2</b> Traditional power analysis in practice</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="Power.html"><a href="Power.html#power-analysis-for-randomized-controlled-trials"><i class="fa fa-check"></i><b>7.2.1</b> Power Analysis for Randomized Controlled Trials</a></li>
+<li class="chapter" data-level="7.2.2" data-path="Power.html"><a href="Power.html#power-analysis-for-natural-experiments"><i class="fa fa-check"></i><b>7.2.2</b> Power Analysis for Natural Experiments</a></li>
+<li class="chapter" data-level="7.2.3" data-path="Power.html"><a href="Power.html#power-analysis-for-observational-methods"><i class="fa fa-check"></i><b>7.2.3</b> Power Analysis for Observational Methods</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3" data-path="Power.html"><a href="Power.html#limitations-of-and-alternatives-to-traditional-power-analysis"><i class="fa fa-check"></i><b>7.3</b> Limitations of and alternatives to traditional power analysis</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="Power.html"><a href="Power.html#limitations-of-traditional-power-analysis"><i class="fa fa-check"></i><b>7.3.1</b> Limitations of traditional power analysis</a></li>
+<li class="chapter" data-level="7.3.2" data-path="Power.html"><a href="Power.html#an-alternative-to-traditional-power-analysis"><i class="fa fa-check"></i><b>7.3.2</b> An alternative to traditional power analysis</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="8" data-path="sec:placebo.html"><a href="sec:placebo.html"><i class="fa fa-check"></i><b>8</b> Placebo Tests</a></li>
 <li class="chapter" data-level="9" data-path="cluster.html"><a href="cluster.html"><i class="fa fa-check"></i><b>9</b> Clustering</a></li>
@@ -1827,7 +1843,7 @@ For <span class="math inline">\(N=100\)</span>, 99% sampling noise of LLR estima
 <div class="theorem">
 <p><span id="thm:CLTSharpRDDLLR" class="theorem"><strong>Theorem 4.5  (Asymptotic Variance of the LLR Estimator in a Sharp RDD) </strong></span>Under standard assumptions, the variance of the simplified LLR Estimator in a Sharp Design can be approximated by:</p>
 <p><span class="math display">\[\begin{align*}
- \var{\hat{\Delta}_{LLRRDD}} &amp; \approx \frac{1}{\sqrt{Nh}}\frac{4}{f_{Z}(\bar{z})}\left(\lim_{e\rightarrow 0^{\text{+}}}\var{Y_i|Z_i=\bar{z}-e}+\lim_{e\rightarrow 0^{\text{+}}}\var{Y_i|Z_i=\bar{z}+e}\right),
+ \var{\hat{\Delta}_{LLRRDD}} &amp; \approx \frac{1}{Nh}\frac{4}{f_{Z}(\bar{z})}\left(\lim_{e\rightarrow 0^{\text{+}}}\var{Y_i|Z_i=\bar{z}-e}+\lim_{e\rightarrow 0^{\text{+}}}\var{Y_i|Z_i=\bar{z}+e}\right),
 \end{align*}\]</span></p>
 <p>with <span class="math inline">\(f_{Z}\)</span> the density of <span class="math inline">\(Z_i\)</span>.</p>
 </div>
@@ -2193,7 +2209,7 @@ Figure 4.16: Distribution of the <span class="math inline">\(IV RDD LLR\)</span>
 <div class="theorem">
 <p><span id="thm:AsymWaldRDDLLR" class="theorem"><strong>Theorem 4.8  (Asymptotic Variance of the LLR-IV Estimator) </strong></span>The variance of the simplified LLR-IV Estimator in a Fuzzy Design can be approximated by:</p>
 <p><span class="math display">\[\begin{align*}
- \var{\hat{\Delta}_{LLRRDDIV}} &amp; \approx \frac{1}{\sqrt{Nh}}\left(\frac{1}{\tau^2_{D}}V_{\tau_Y}+\frac{\tau^2_{Y}}{\tau^4_{D}}V_{\tau_D}-2\frac{\tau_{Y}}{\tau^3_{D}}C_{\tau_Y,\tau_D}\right),
+ \var{\hat{\Delta}_{LLRRDDIV}} &amp; \approx \frac{1}{Nh}\left(\frac{1}{\tau^2_{D}}V_{\tau_Y}+\frac{\tau^2_{Y}}{\tau^4_{D}}V_{\tau_D}-2\frac{\tau_{Y}}{\tau^3_{D}}C_{\tau_Y,\tau_D}\right),
 \end{align*}\]</span></p>
 <p>with</p>
 <p><span class="math display">\[\begin{align*}
