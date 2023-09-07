@@ -51,7 +51,7 @@ The last equality uses Assumption \@ref(def:noselb).
 Let's now compute the variance of the $WW$ estimator:
 
 ```{lemma,varww,name="Variance of $\\hat{\\Delta^Y_{WW}}$"}
-Under Assumptions \@ref(def:noselb), \@ref(def:fullrank) and \@ref(hyp:iid), 
+Under Assumptions \@ref(def:noselb), \@ref(hyp:fullrank) and \@ref(hyp:iid), 
 
 \begin{align*}
 \var{{\hat{\Delta^Y_{WW}}}} & = \frac{1-(1-\Pr(D_i=1))^N}{N\Pr(D_i=1)}\var{Y_i^1|D_i=1}+\frac{1-\Pr(D_i=1)^N}{N(1-\Pr(D_i=1))}\var{Y_i^0|D_i=0}.
@@ -265,6 +265,8 @@ If $X_i$ and $Y_i$ are two i.i.d. random variables with finite first and second 
 \end{align*}
 
 where $\mathbf{V}$ is the population covariance matrix of $X_i$ and $Y_i$.
+
+**We actually need the Lyapounov version of the CLT for non i.i.d. data since there is conditional heteroskedasticity**
   
 We know that, under Assumption \@ref(def:noselb), both random variables have mean zero: 
 
@@ -1776,7 +1778,7 @@ Let us now turn to the First Difference estimator in panel data.
 The First Difference transformation of Sun and Abraham model which uses $d-1$ as the benchmark period can be written as follows (for $\tau\neq-1$):
 
 \begin{align*}
-  Y_{i,d+\tau} - Y_{i,d-1} & = \alpha_{d,\tau}^{FD} + \beta_{d,\tau}^{FD}\uns{D_i=d} + \epsilon^{FD}_{i,d+\tau},
+  Y_{i,d+\tau} - Y_{i,d-1} & = \alpha_{d,\tau}^{FD} + \beta_{d,\tau}^{FD}\uns{D_i=d} + \Delta\epsilon^{FD}_{i,d+\tau},
 \end{align*}
 
 with:
@@ -1784,7 +1786,7 @@ with:
 \begin{align*}
   \alpha_{d,\tau}^{FD} & = \delta_{d+\tau} - \delta_{d-1}\\
   \beta_{d,\tau}^{FD} & = \beta_{d,\tau}^{SA}\\
-  \epsilon^{FD}_{i,d+\tau} & = \epsilon^{SA}_{i,d+\tau}-\epsilon^{FD}_{i,d-1}.
+  \Delta\epsilon^{FD}_{i,d+\tau} & = \epsilon^{SA}_{i,d+\tau}-\epsilon^{SA}_{i,d-1}.
 \end{align*}
 
 Using the same trick as for the model in repeated cross sections, we can rewrite this model as stacked model with a block diagonal matrix of covariates.
@@ -1805,11 +1807,11 @@ Y_{1,2}-Y_{1,1}  \\	\vdots \\	Y_{N^{\infty},2}-	Y_{N^{\infty},1} \\Y_{N^{\infty}
 \underbrace{\left(\begin{array}{c}	
 \alpha^{FD}_{2,0} \\ 	\beta^{FD}_{2,0} \end{array}\right)}_{\Theta^{FD}_{2,0}} + 
 \underbrace{\left(\begin{array}{c} 
-\epsilon^{FD}_{1,2} \\	\vdots \\	\epsilon^{FD}_{N^{\infty},2} \\\epsilon^{FD}_{N^{\infty}+1,2} \\	\vdots \\	\epsilon^{FD}_{N^{\infty}+N^{2},2} 
-\end{array}\right)}_{\epsilon^{FD}_{2,0}}
+\Delta\epsilon^{FD}_{1,2} \\	\vdots \\	\Delta\epsilon^{FD}_{N^{\infty},2} \\\Delta\epsilon^{FD}_{N^{\infty}+1,2} \\	\vdots \\	\Delta\epsilon^{FD}_{N^{\infty}+N^{2},2} 
+\end{array}\right)}_{\Delta\epsilon^{FD}_{2,0}}
 \end{align*}
 
-Stacking all the vectors of outcomes, the vector of coefficients and the vector of residuals on top of each other, and organizing the matrices of covariates in a block diagonal matrix, we obtain the stacked Sun and Abraham model in first differences: $\Delta Y = \Delta X\Theta^{FD} + \epsilon^{FD}$.
+Stacking all the vectors of outcomes, the vector of coefficients and the vector of residuals on top of each other, and organizing the matrices of covariates in a block diagonal matrix, we obtain the stacked Sun and Abraham model in first differences: $\Delta Y = \Delta X\Theta^{FD} + \Delta\epsilon^{FD}$.
 Using the fact that [the inverse of a block diagonal matrix is the blog diagonal matrix of the inverses of each block](https://en.wikipedia.org/wiki/Block_matrix) and the proof of Lemma \@ref(lem:WWOLS), we can show that $\hat\beta^{FD}_{d,\tau}$ is the with/without estimator applied to $Y_{i,d+\tau} - Y_{i,d-1}$.
 The result follows.
 
@@ -2120,8 +2122,8 @@ This proves the result.
 
 ### Proof of Theorem \@ref(thm:asympnoiseSAPanel) {#proofasympnoiseSAPanel}
 
-The proof follows closely that of Theorem \@ref(thm:asympnoiseSACross), except that our stacked model is $\Delta Y = \Delta X\Theta^{FD} + \epsilon^{FD}$, as introduced in the proof of \@ref(thm:EquivDIDSAsamp).
-Using the beginning of the proof of Lemma \@ref(lem:asympOLS), we know that: $\sqrt{N}(\hat{\Theta}^{FD}-\Theta^{FD})=N(\Delta X'\Delta X)^{-1}\frac{\sqrt{N}}{N}\Delta X'\epsilon^{FD}$.
+The proof follows closely that of Theorem \@ref(thm:asympnoiseSACross), except that our stacked model is $\Delta Y = \Delta X\Theta^{FD} + \Delta\epsilon^{FD}$, as introduced in the proof of \@ref(thm:EquivDIDSAsamp).
+Using the beginning of the proof of Lemma \@ref(lem:asympOLS), we know that: $\sqrt{N}(\hat{\Theta}^{FD}-\Theta^{FD})=N(\Delta X'\Delta X)^{-1}\frac{\sqrt{N}}{N}\Delta X'\Delta\epsilon^{FD}$.
 Using Slutsky's Theorem, we know that we can study both terms separately (see the same proof of Lemma \@ref(lem:asympOLS)). 
 
 Let us start with $N(\Delta X'\Delta X)^{-1}$.
@@ -2130,7 +2132,7 @@ Let's also denote $p^{d,\infty}_D=\Pr(D_i=d|D_i=d\cup D_i=\infty)$.
 Using the same reasoning as in the proof of Theorem \@ref(thm:asympnoiseSACross), and using the proof of Theorem \@ref(thm:asympnoiseWW), we can show that:
 
 \begin{align*}
-\sigma_{\Delta X \Delta X^{-1}}^{d,\tau} &= \text{plim}N(\Delta X'\Delta X)^{-1}_{d,\tau} = \frac{1}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}
+\sigma_{\Delta X \Delta X^{-1}}^{d,\tau} &= \plims N(\Delta X'\Delta X)^{-1}_{d,\tau} = \frac{1}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}
 \left(\begin{array}{cc}
 p^{d,\infty}_D & -p^{d,\infty}_D\\
 -p^{d,\infty}_D &  1
@@ -2143,21 +2145,189 @@ This proves the result.
 
 ### Proof of Theorem \@ref(thm:asympnoiseSATTPanel) {#proofasympnoiseSATTPanel}
 
-The key to the proof lies in the covariance terms.
-They in turn depend on the product of the following matrix: $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$, where:
+The proof takes where the proof of Theorem \@ref(thm:asympnoiseSAPanel) in Section \@ref(proofasympnoiseSAPanel) left.
+Let us define $\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ the matrix such that $\frac{\sqrt{N}}{N}\Delta X'\Delta\epsilon^{FD}\distr\mathcal{N}\left(\mathbf{0},\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\right)$.
+We also denote $\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ the blocks of the matrix that relates to the estimators of $\beta^{SA}_{d,\tau}$ and $\beta^{SA}_{d',\tau'}$.
+We also denote $\sigma_{\Delta{X}\Delta{X}^{-1}}=\plims N(\Delta X'\Delta X)^{-1}$.
+Following the proof of Theorem \@ref(thm:asympnoiseSAPanel), it is a block diagonal matrix, with the block $\sigma_{\Delta X \Delta X^{-1}}^{d,\tau}$ related to the estimation of $\beta^{SA}_{d,\tau}$.
+The key to the distribution of the treatment of the treated parameter is to get the off-diagonal terms of $\sigma_{\Delta{X}\Delta{X}^{-1}}\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\sigma_{\Delta{X}\Delta{X}^{-1}}$ right.
+Let us focus on the parts of this matrix that is related to the estimators of $\beta^{SA}_{d,\tau}$ and $\beta^{SA}_{d',\tau'}$,  $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$, where $\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ is the part of the $\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ matrix that relates to the estimators of $\beta^{SA}_{d,\tau}$ and $\beta^{SA}_{d',\tau'}$,  $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$ regroups the blocks of the matrix $\sigma_{\Delta{X}\Delta{X}^{-1}}$ corresponding to the same estimation, with blocks formed by $\sigma_{\Delta X \Delta X^{-1}}^{d,\tau}$ and $\sigma_{\Delta X \Delta X^{-1}}^{d',\tau'}$.
+
+As we did in the proof of Theorem \@ref(thm:asympnoiseDIDCross) in Section \@ref(proofasympnoiseDIDCross) and the proof of Theorem \@ref(thm:asympnoiseSACross) in Section \@ref(proofasympnoiseSACross), we are going to write the First Difference model as a pure cross section model:
+
+\begin{align*}
+  \Delta Y^{d,\tau}_j & = \alpha^{FD}_{d,\tau}+\beta^{FD}_{d,\tau}D^d_j+\Delta\epsilon^{d,\tau}_j,
+\end{align*}
+
+with $\Delta Y^{d,\tau}_j=Y_{j,d+\tau}-Y_{j,d-1}$, $\Delta\epsilon^{d,\tau}_j=\Delta\epsilon^{FD}_{j,d+\tau}=\epsilon^{SA}_{j,d+\tau}-\epsilon^{SA}_{j,d-1}$, $\alpha^{FD}_{d,\tau}$ and $\beta^{FD}_{d,\tau}$ as in the proof of Theorem \@ref(thm:EquivDIDSAsamp) in Section \@ref(proofEquivDIDSAsamp), and $D^d_j=\uns{D_j=d}$, as in the proof of Theorem \@ref(thm:asympnoiseSACross) in Section \@ref(proofasympnoiseSACross).
+Using previous results on the First Difference estimator, we know that:
+
+\begin{align*}
+  \Delta\epsilon^{d,\tau}_j & = \Delta Y^{d,\tau}_j \nonumber\\
+                          & \phantom{=}-\left(\esp{\Delta Y^{d,\tau}_j|D_j=\infty}\right.\nonumber\\
+                          & \phantom{=-\left(\right.}\left.+D_j^d(\esp{\Delta Y^{d,\tau}_j|D_j=d}-\esp{\Delta Y^{d,\tau}_j|D_j=\infty})\right)
+\end{align*}
+
+We need to derive the asymptotic distribution of $\sqrt{N}(\hat{\Theta}^{FD}-\Theta^{FD})=N(\Delta X'\Delta X)^{-1}\frac{\sqrt{N}}{N}\Delta X'\Delta\epsilon^{FD}$, as introduced in the proof of \@ref(thm:EquivDIDSAsamp).
+For $d,\tau,d',\tau'$ with either $\tau\neq\tau'$ or $d\neq d'$, we have:
+
+\begin{align*}
+  \frac{\sqrt{N}}{N}\Delta X'\Delta\epsilon^{FD} & =\left(\begin{array}{c}
+                  \vdots \\
+            \sqrt{N^{d,\infty}}\sqrt{\bar{P}^{d,\infty}}\frac{1}{N^{d,\infty}}\sum_{j=1}^{N^{d,\infty}}\Delta\epsilon^{d,\tau}_{j}\\
+            \sqrt{N^{d,\infty}}\sqrt{\bar{P}^{d,\infty}}\frac{1}{N^{d,\infty}}\sum_{j=1}^{N^{d,\infty}}\Delta\epsilon^{d,\tau}_{j}D^{d}_j \\
+            \sqrt{N^{d',\infty}}\sqrt{\bar{P}^{d',\infty}}\frac{1}{N^{d',\infty}}\sum_{j=1}^{N^{d',\infty}}\Delta\epsilon^{d',\tau'}_{j} \\
+            \sqrt{N^{d',\infty}}\sqrt{\bar{P}^{d',\infty}}\frac{1}{N^{d',\infty}}\sum_{j=1}^{N^{d',\infty}}\Delta\epsilon^{d',\tau'}_{j}D^{d'}_j\\
+                                \vdots
+            \end{array}\right),
+\end{align*}
+
+with $N^{d,\infty}$ the number of units in the panel that are either such that $D_i=d$ or $D_i=\infty$ and $\bar{P}^{d,\infty}=\frac{N^{d,\infty}}{N}$ the proportion of units in the panel that are either with $D_i=d$ or $D_i=\infty$.
+We have $\plims\bar{P}^{d,\infty}=p^{d,\infty}$, the proportion of these units in the population.
+
+Under Assumption \@ref(hyp:iidDIDPanel), we have:
+
+\begin{align*}
+  \Delta Y^{d,\tau}_j & = \mu_j + \delta_{d+\tau}+D^d_j(\bar\alpha+\eta_{i,t})+U^0_{j,d+\tau}-(\mu_j + \delta_{d-1}+U^0_{j,d-1})\\
+                            & = \delta_{d+\tau}-\delta_{d-1}+D^d_j(\bar\alpha+\eta_{j,d+\tau})+U^0_{j,d+\tau}-U^0_{j,d-1}.
+\end{align*}
+
+As a consequence, and using Assumption \@ref(hyp:iidDIDPanel) again, we have:
+
+\begin{align*}
+  \esp{\Delta Y^{d,\tau}_j|D_j=\infty} & = \delta_{d+\tau}-\delta_{d-1} + \esp{U^0_{j,d+\tau}-U^0_{j,d-1}|D_j=\infty} \\
+                                            & = \delta_{d+\tau}-\delta_{d-1}\\
+  \esp{\Delta Y^{d,\tau}_j|D_j=d} & = \delta_{d+\tau}-\delta_{d-1} + \esp{U^0_{j,d+\tau}-U^0_{j,d-1}|D_j=d} \nonumber\\
+                                            & \phantom{=} +\bar\alpha+\esp{\eta_{j,d+\tau}|D_j=d}\\
+                                            & = \delta_{d+\tau}-\delta_{d-1}+\bar\alpha+\esp{\eta_{j,d+\tau}|D_j=d}
+\end{align*}
+
+As a consequence, we have:
+
+\begin{align*}
+  \Delta\epsilon^{d,\tau}_j & =U^0_{j,d+\tau}-U^0_{j,d-1} + D_j^d(\eta_{j,d+\tau}-\esp{\eta_{j,d+\tau}|D_j=d}).
+\end{align*}
+
+Under Assumption \@ref(hyp:iidDIDPanel), we have that $\esp{\Delta\epsilon_{j}D^{d}_j}=0$ and $\esp{\Delta\epsilon_{j}}=0$, which is a first step for using the vector CLT.
+For a given $(d,\tau)$, Assumption \@ref(hyp:iidDIDPanel) also implies that $\Delta\epsilon^{d,\tau}_j$ are independent over $j$, since $U^0_{j,d+\tau}$, $U^0_{j,d-1}$ and $\eta_{j,d+\tau}$ are all independent across $j$.
+So we can use the vector CLT **for heteroskedastik variables**.
+Using the vector CLT, Slutsy's Theorem and the Delta Method, we have that $\frac{\sqrt{N}}{N}\Delta X'\Delta\epsilon^{FD}\distr\mathcal{N}\left(\mathbf{0},\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\right)$, with (using the fact that $(D_j^d)^2=D_j^d$):
 
 \begin{align*}
   \mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}} & =
-                                        \esp{\Delta\epsilon_j^2\left(\begin{array}{cccc}
-                                              D^{d,\tau}_j & D^d_jD^{d,\tau}_j &	D^{d,\tau}_jD^{d',\tau'}_j & D^{d'}_jD^{d,\tau}_jD^{d',\tau'}_j \\
-                                              D^d_jD^{d,\tau}_j & D^d_jD^{d,\tau}_j &	D^d_jD^{d,\tau}_jD^{d',\tau'}_j & D^{d'}_jD^d_jD^{d,\tau}_jD^{d',\tau'}_j \\
-                                              D^{d,\tau}_jD^{d',\tau'}_j  & D^d_jD^{d,\tau}_jD^{d',\tau'}_j  &	D^{d',\tau'}_j & D^{d'}_jD^{d',\tau'}_j \\
-                                              D^{d'}_jD^{d,\tau}_jD^{d',\tau'}_j & D^{d'}_jD^d_jD^{d,\tau}_jD^{d',\tau'}_j &	D^{d'}_jD^{d',\tau'}_j & D^{d'}_jD^{d',\tau'}_j
-                                            \end{array}\right)},
+                                        \esp{\left(\begin{array}{cc}
+    p^{d,\infty}(\Delta\epsilon^{d,\tau}_j)^2  \left(\begin{array}{cc} 1 & D^d_j \\ D^d_j & D^d_j \end{array}\right)  &
+    \sqrt{p^{d,\infty}p^{d',\infty}}\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j \left(\begin{array}{cc} 1 & D^{d'}_j \\  D^d_j & D^d_jD^{d'}_j \end{array}\right)  \\
+    \sqrt{p^{d,\infty}p^{d',\infty}}\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j \left(\begin{array}{cc} 1 & D^{d}_j \\  D^{d'}_j & D^d_jD^{d'}_j\end{array}\right) &
+        p^{d',\infty}(\Delta\epsilon^{d',\tau'}_j)^2  \left(\begin{array}{cc} 1 & D^{d'}_j \\ D^{d'}_j & D^{d'}_j \end{array}\right)
+                                            \end{array}\right)}.
 \end{align*}
 
-and $\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ is the part of the $\mathbf{V}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$ matrix that relates to the estimators of $\beta^{SA}_{d,\tau}$ and $\beta^{SA}_{d',\tau'}$.
-We also have that $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$ is the blocks of the matrix $\sigma_{\Delta{X}\Delta{X}^{-1}}$ corresponding to the same estimation, with blocks formed by $\sigma_{\Delta X \Delta X^{-1}}^{d,\tau}$ and $\sigma_{\Delta X \Delta X^{-1}}^{d',\tau'}$.
+Now, in order to derive $\text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'})$, we need to derive the second term on the fourth and last line of $\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}\sigma_{\Delta{X}\Delta{X}^{-1}}^{d,\tau,d',\tau'}$.
+If we denote the terms of $\sigma_{\Delta X \Delta X^{-1}}^{d,\tau}$ by $\mathbf{A}$, $\mathbf{B}$, $\mathbf{C}$ and $\mathbf{D}$ (filling in the first line first, and going from left to right), and $\mathbf{A}'$, $\mathbf{B}'$, $\mathbf{C}'$ and $\mathbf{D}'$ the same terms for the matrix $\sigma_{\Delta X \Delta X^{-1}}^{d',\tau'}$, and $\mathbf{A}_l$, $\mathbf{B}_l$, $\mathbf{C}_l$ and $\mathbf{D}_l$ the terms in line $l$ of matrix $\mathbf{V}^{d,\tau,d',\tau'}_{\mathbf{\Delta{x}\Delta{\epsilon}}}$, with $l\in\left\{1,2,3,4\right\}$, we can show that:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \mathbf{C}'(\mathbf{B}\mathbf{A}_3+\mathbf{D}\mathbf{B}_3)+\mathbf{D}'(\mathbf{B}\mathbf{A}_4+\mathbf{D}\mathbf{B}_4),\\
+  \mathbf{B} & = -\frac{p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\\
+  \mathbf{D} & = \frac{1}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\\
+  \mathbf{C}' & = -\frac{p^{d',\infty}_D}{p^{d',\infty}p^{d',\infty}_D(1-p^{d',\infty}_D)}\\
+  \mathbf{D}' & = \frac{1}{p^{d',\infty}p^{d',\infty}_D(1-p^{d',\infty}_D)}\\
+  \mathbf{A}_3 & =\sqrt{p^{d,\infty}p^{d',\infty}}\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j} \\
+  \mathbf{B}_3 & = \sqrt{p^{d,\infty}p^{d',\infty}}\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_jD_j^{d}} \\
+  \mathbf{A}_4 & = \sqrt{p^{d,\infty}p^{d',\infty}}\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_jD_j^{d'}} \\
+  \mathbf{B}_4 & = \sqrt{p^{d,\infty}p^{d',\infty}}\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_jD_j^{d}D_j^{d'}}
+\end{align*}
+
+Let us first start by examining $\mathbf{A}_3$.
+Let's start with looking at $\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j}$ when $d=d'$ and $\tau\neq\tau'$.
+In that case, we have:
+
+\begin{align*}
+  \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j} & =   \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=d}p_D^{d,\infty}+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=\infty}(1-p_D^{d,\infty})
+\end{align*}
+
+Let us look at the second part of the right hand side:  
+  
+\begin{align*}
+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=\infty} & = \esp{\left(U^0_{j,d+\tau}-U^0_{j,d-1}\right)\left(U^0_{j,d+\tau'}-U^0_{j,d-1}\right)|D_j=\infty} \\
+                                                                    & = \var{U^0_{i,d-1}|D_i=\infty},
+\end{align*}
+
+using Assumption \@ref(hyp:iidDIDPanel).
+
+Let us now look at the first part of the right hand side:
+
+\begin{align*}
+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=d} & = \espE\left[\left(U^0_{j,d+\tau}-U^0_{j,d-1}+\eta_{j,d+\tau}-\esp{\eta_{j,d+\tau}|D_j=d}\right)\right.\\
+                                                                & \phantom{=\espE\left[\right.}\left.\left(U^0_{j,d+\tau'}-U^0_{j,d-1}+\eta_{j,d+\tau'}-\esp{\eta_{j,d+\tau'}|D_j=d}\right)|D_j=d\right] \\
+                                                                    & = \var{U^0_{i,d-1}|D_i=d},
+\end{align*}
+
+using Assumption \@ref(hyp:iidDIDPanel) again.
+
+Let us now examine $\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j}$ when $d\neq d'$.
+In that case, we have:
+
+\begin{align*}
+  \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j} & =   \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j|D_j=d}p_D^{d,\infty}p_{d,\infty}\\
+                                                              & \phantom{=}+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j|D_j=d'}p_D^{d',\infty}p_{d',\infty}\\
+                                                              & \phantom{=}+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j|D_j=\infty}(1-p_D^{d,\infty})p_{d,\infty}.
+\end{align*}
+
+The first two terms are equal to zero when $d\neq d'$ under Assumption \@ref(hyp:iidDIDPanel), since the error terms for groups $D_j=d$ and $D_j=d'$ are independent under this assumption.
+For the last term, we have three mutually exclusive cases under which the error terms are not independent under Assumption \@ref(hyp:iidDIDPanel):
+
+  * $d-1=d'+\tau'$: the baseline period for the first group is the arrival period for the second.
+  In that case, we have $\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j}=-\var{U^0_{i,d-1}|D_i=\infty}(1-p^{d,\infty}_D)p_{d,\infty}$ under Assumption \@ref(hyp:iidDIDPanel).
+  * $d'-1=d+\tau$: we have the symmetric case $\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j}=-\var{U^0_{i,d'-1}|D_i=\infty}(1-p^{d',\infty}_D)p_{d',\infty}$.
+  * $d+\tau=d'+\tau'$: both terms share the same terminal time period, and thus they share their control group terminal outcome: $\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j}=\var{U^0_{i,d+\tau}|D_i=\infty}(1-p^{d,\infty}_D)p_{d,\infty}$.
+
+For $\mathbf{B}_3$, $\mathbf{A}_4$, $\mathbf{B}_4$, the terms are all zero when $d\neq d'$, since they condition on being member of a treatment group, and only control group members are involved in the covariance terms when $d\neq d'$.
+When $d=d'$, we have $\mathbf{B}_3=\mathbf{A}_4=\mathbf{B}_4=\sqrt{p^{d,\infty}p^{d',\infty}}\var{U^0_{i,d-1}|D_i=d}p^{d,\infty}_D$.
+
+Collecting terms  we have:
+
+  * When $d=d'$ and $\tau\neq\tau'$:
+  
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & =
+  -\frac{p^{d,\infty}p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\left[-\frac{p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\var{U^0_{i,d-1}}\right.\nonumber\\
+  & \phantom{=-\frac{p^{d,\infty}p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}
+              \left[-\right.}\left.+\frac{1}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\var{U^0_{i,d-1}|D_i=d}p^{d,\infty}_D\right] \nonumber\\
+  & \phantom{=} + \frac{p^{d,\infty}}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\left[-\frac{p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\var{U^0_{i,d-1}|D_i=d}p^{d,\infty}_D\right.\nonumber\\
+  & \phantom{=-\frac{p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\left[-\right.} \left.+ \frac{1}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\var{U^0_{i,d-1}|D_i=d}p^{d,\infty}_D\right] \\
+  & = \frac{p^{d,\infty}_D}{p^{d,\infty}(p^{d,\infty}_D(1-p^{d,\infty}_D))^2}\left[p^{d,\infty}_D\left(\var{U^0_{i,d-1}}-2\var{U^0_{i,d-1}|D_i=d}\right)\right.\\
+  & \phantom{=\frac{1}{p^{d,\infty}(p^{d,\infty}_D(1-p^{d,\infty}_D))^2}\left[\right.}\left.+\var{U^0_{i,d-1}|D_i=d}\right]\\
+  & = \frac{p^{d,\infty}_D}{p^{d,\infty}(p^{d,\infty}_D(1-p^{d,\infty}_D))^2}\left[p^{d,\infty}_D(1-p^{d,\infty}_D)\var{U^0_{i,d-1}|D_i=\infty}\right.\\
+  & \phantom{=\frac{1}{p^{d,\infty}(p^{d,\infty}_D(1-p^{d,\infty}_D))^2}\left[\right.}\left.+\left((p^{d,\infty}_D)^2-2p^{d,\infty}_D+1\right)\var{U^0_{i,d-1}|D_i=d}\right]\\
+  & = \frac{1}{p^{d,\infty}}\left[\frac{\var{U^0_{i,d-1}|D_i=\infty}}{1-p^{d,\infty}_D}+\frac{\var{U^0_{i,d-1}|D_i=d}}{p^{d,\infty}_D}\right].
+\end{align*}
+
+  * When $d\neq d'$ and $d-1=d'+\tau'$:
+  
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & =
+  -\frac{p^{d',\infty}_D}{p^{d',\infty}p^{d',\infty}_D(1-p^{d',\infty}_D)}\frac{p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\var{U^0_{i,d-1}|D_i=\infty}(1-p^{d,\infty}_D)p_{d,\infty}\\
+  & = -\frac{\var{U^0_{i,d-1}|D_i=\infty}}{p^{d',\infty}(1-p^{d',\infty}_D)}.
+\end{align*}
+  
+  * When $d\neq d'$ and $d'-1=d+\tau$:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & =
+  -\frac{p^{d',\infty}_D}{p^{d',\infty}p^{d',\infty}_D(1-p^{d',\infty}_D)}\frac{p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\var{U^0_{i,d'-1}|D_i=\infty}(1-p^{d',\infty}_D)p_{d',\infty}\\
+  & = -\frac{\var{U^0_{i,d'-1}|D_i=\infty}}{p^{d,\infty}(1-p^{d,\infty}_D)}.
+\end{align*}
+
+  * When $d\neq d'$ and $d+\tau=d'+\tau'$:
+
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & =
+  \frac{p^{d',\infty}_D}{p^{d',\infty}p^{d',\infty}_D(1-p^{d',\infty}_D)}\frac{p^{d,\infty}_D}{p^{d,\infty}p^{d,\infty}_D(1-p^{d,\infty}_D)}\var{U^0_{i,d+\tau}|D_i=\infty}(1-p^{d,\infty}_D)p_{d,\infty}\\
+  & = \frac{\var{U^0_{i,d+\tau}|D_i=\infty}}{p^{d',\infty}(1-p^{d',\infty}_D)}.
+\end{align*}
+
+Replacing the indexes ($d+\tau=d'+\tau'$, and so on) in the variance formulas proves the result.
 
 ## Proofs of results in Chapter \@ref(OM)
 
@@ -2174,8 +2344,8 @@ We know that $\hat\Delta^Y_{WWOLSX}=\hat\delta^{OLS}$, where:
 Replacing $\delta$ by its value in the population ($\Delta^Y_{TT}=\alpha_1-\alpha_0+(\beta_1-\beta_0)'\esp{X_i|D_i=1}$), using Theorem \@ref(thm:TTff), we can easily show that the remaining parameters can be obtained by two separate optimizations:
 
 \begin{align*}
-(\hat\alpha_0,\hat\beta_0) & = \arg\min_{\alpha_0,\beta_0} \frac{1}{N}\sum_{i=1}^N(1-D_i)\left(Y_i-\alpha_0 - \beta_0'X_i \right)^2\\
-(\hat\alpha_1,\hat\beta_1) & = \arg\min_{\alpha_1,\beta_1} \frac{1}{N}\sum_{i=1}^ND_i\left(Y_i-\alpha_1 - \beta_1'X_i \right)^2
+  (\hat\alpha_0,\hat\beta_0) & = \arg\min_{\alpha_0,\beta_0} \frac{1}{N}\sum_{i=1}^N(1-D_i)\left(Y_i-\alpha_0 - \beta_0'X_i \right)^2\\
+  (\hat\alpha_1,\hat\beta_1) & = \arg\min_{\alpha_1,\beta_1} \frac{1}{N}\sum_{i=1}^ND_i\left(Y_i-\alpha_1 - \beta_1'X_i \right)^2
 \end{align*}
 
 By Theorem \@ref(thm:LinearCEF), these parameters are also identified in the population by the OLS estimator.
@@ -2210,4 +2380,342 @@ By construction, and using Assumptions \@ref(hyp:paramff0) and \@ref(hyp:paramff
 
 **Clarify what $\var{Y_i^d|X_i,D_i=d}$ is exactly and what happens when it depends on $X_i$**
 
+## Proofs of results in Chapter \@ref(cluster)
 
+### Proof of Theorem \@ref(thm:VarWWClus) {#proofVarWWClus}
+
+We start with a very useful result stated in [Bruce Hansen's Econometrics textbook:](https://www.ssc.wisc.edu/~bhansen/econometrics/) for every matrix $A=A(X)$, we have $\var{A'Y|X}=\var{A'U|X}=A'\esp{UU'|X}A$, with $Y$ the vector of observed outcomes $Y_i$ and $X$ the matrix of covariates.
+$\hat{\Delta^Y_{WW}}$ is the second term of the vector $\hat{\Theta}_{OLS}=A'Y$, with $A=X(X'X)^{-1}$, following Lemma \@ref(lem:WWOLS).
+We thus have that $\var{\hat{\Delta^Y_{WW}}|X}$ is the lower diagonal term in the matrix $\var{\hat{\Theta}_{OLS}|X}=(X'X)^{-1}X'\esp{UU'|X}X(X'X)^{-1}$.
+Under Assumption \@ref(hyp:ClusteredErrors), we know that $\esp{UU'|X}=\esp{UU'}$.
+We also have that the matrix $\esp{UU'}$ is block diagonal, with blocks of size $m\times m$.
+If we note $X_c$ the matrix of covariates for the units in cluster $c$ and $U_c$ the vector of error terms for those same units, we can derive the value of $X'\esp{UU'}X$ in each cluster, $X_c'\esp{U_cU_c'}X_c$.
+For a treated cluster, we have:
+
+\begin{align*}
+  X_c'\esp{U_cU_c'}X_c & = \sigma^2_1
+                                      \left(
+                                      \begin{array}{ccc}
+                                      1 & \cdots & 1 \\
+                                      1 & \cdots & 1
+                                      \end{array}
+                                      \right)
+                                      \left(
+                                      \begin{array}{cccc}
+                                      1 & \rho_1 & \cdots & \rho_1 \\
+                                      \rho_1 & 1 &  \cdots & \rho_1 \\
+                                      \vdots & \vdots & \ddots & \vdots \\
+                                      \rho_1 & \rho_1 &  \cdots & 1
+                                      \end{array}
+                                      \right)
+                                     \left(
+                                      \begin{array}{cc}
+                                      1 & 1 \\
+                                      \vdots & \vdots \\
+                                      1 & 1
+                                      \end{array}
+                                      \right) \\
+                      & = \sigma^2_1(1 + (m-1)\rho_1)\left(
+                                      \begin{array}{ccc}
+                                      1 & \cdots & 1\\
+                                      1  & \cdots & 1
+                                      \end{array}
+                                      \right)
+                                     \left(
+                                      \begin{array}{cc}
+                                      1 & 1 \\
+                                      \vdots & \vdots \\
+                                      1 & 1
+                                      \end{array}
+                                      \right) \\
+                      & = \sigma^2_1m(1 + (m-1)\rho_1)\left(
+                                      \begin{array}{cc}
+                                      1 &  1\\
+                                      1 &  1
+                                      \end{array}
+                                      \right),
+\end{align*}
+
+and, for an untreated cluster:
+
+\begin{align*}
+  X_c'\esp{U_cU_c'}X_c & = \sigma^2_0
+                                      \left(
+                                      \begin{array}{ccc}
+                                      1 & \cdots & 1 \\
+                                      0 & \cdots & 0
+                                      \end{array}
+                                      \right)
+                                      \left(
+                                      \begin{array}{cccc}
+                                      1 & \rho_0 & \cdots & \rho_0 \\
+                                      \rho_0 & 1 &  \cdots & \rho_0 \\
+                                      \vdots & \vdots & \ddots & \vdots \\
+                                      \rho_0 & \rho_0 &  \cdots & 1
+                                      \end{array}
+                                      \right)
+                                     \left(
+                                      \begin{array}{cc}
+                                      1 & 0 \\
+                                      \vdots & \vdots \\
+                                      1 & 0
+                                      \end{array}
+                                      \right) \\
+                      & = \sigma^2_0(1 + (m-1)\rho_0)\left(
+                                      \begin{array}{ccc}
+                                      1  & \cdots & 1 \\
+                                      0& \cdots & 0
+                                      \end{array}
+                                      \right)
+                                     \left(
+                                      \begin{array}{cc}
+                                      1 & 0 \\
+                                      \vdots & \vdots \\
+                                      1 & 0
+                                      \end{array}
+                                      \right) \\
+                      & = \sigma^2_0m(1 + (m-1)\rho_0)\left(
+                                      \begin{array}{cc}
+                                      1 &  0\\
+                                      0 &  0
+                                      \end{array}
+                                      \right).
+\end{align*}
+
+Summing over all clusters, we have:
+
+\begin{align*}
+  X'\esp{UU'}X & = \left(\begin{array}{cc}
+                          \sigma^2_0mn_0(1 + (m-1)\rho_0) + \sigma^2_1mn_1(1 + (m-1)\rho_1) &  \sigma^2_1mn_1(1 + (m-1)\rho_1)\\
+                           \sigma^2_1mn_1(1 + (m-1)\rho_1) &  \sigma^2_1mn_1(1 + (m-1)\rho_1)
+                          \end{array}\right)
+\end{align*}
+
+Following the proof of Lemma \@ref(lem:WWOLS), we know that:
+
+\begin{align*}
+  (X'X)^{-1} & = \frac{1}{N}\frac{1}{\frac{\sum R_i}{N}-\left(\frac{\sum R_i}{N}\right)^2}
+                \left(\begin{array}{cc}
+                  \frac{\sum R_i}{N} & -\frac{\sum R_i}{N} \\
+                  -\frac{\sum R_i}{N} & 1
+                \end{array}\right)\\
+                & = \frac{1}{N}\frac{1}{p(1-p)}
+                \left(\begin{array}{cc}
+                  p & -p \\
+                  -p & 1
+                \end{array}\right),\\
+\end{align*}
+
+with $p=\frac{\sum R_i}{N}$.
+Since $p=\frac{\sum R_i}{N}=\frac{mn_1}{N}$ and $1-p=\frac{\sum (1-R_i)}{N}=\frac{mn_0}{N}$, we have:
+
+\begin{align*}
+  \var{\hat{\Theta}_{OLS}|X} & = \frac{1}{N}\frac{1}{p^2(1-p)^2} 
+                \left(\begin{array}{cc}
+                  p & -p \\
+                  -p & 1
+                \end{array}\right) \\
+                & \phantom{=}\left(\begin{array}{cc}
+                          \sigma^2_0(1-p)(1 + (m-1)\rho_0) + \sigma^2_1p(1 + (m-1)\rho_1) &  \sigma^2_1p(1 + (m-1)\rho_1)\\
+                           \sigma^2_1p(1 + (m-1)\rho_1) &  \sigma^2_1p(1 + (m-1)\rho_1)
+                          \end{array}\right) \\
+                & \phantom{=}\left(\begin{array}{cc}
+                  p & -p \\
+                  -p & 1
+                \end{array}\right)
+\end{align*}
+
+As a consequence, we have:
+
+\begin{align*}
+  \var{\hat{\Delta^Y_{WW}}|X} & = \frac{1}{N}\frac{1}{p^2(1-p)^2}\\
+               & \phantom{=}
+  \left(p^2(1-p)\left(\sigma^2_0(1 + (m-1)\rho_0)-\sigma^2_1(1 + (m-1)\rho_1)\right)+p(1-p)\sigma^2_1(1 + (m-1)\rho_1\right) \\
+                              & = \frac{1}{N}\left(\frac{\sigma^2_0}{1-p}(1 + (m-1)\rho_0) + \sigma^2_1(1 + (m-1)\rho_1)\frac{p(1-p)-p^2(1-p)}{p^2(1-p)^2}\right)\\
+                              & = \frac{1}{N}\left(\frac{\sigma^2_0}{1-p}(1 + (m-1)\rho_0) + \frac{\sigma^2_1}{p}(1 + (m-1)\rho_1)\right),
+\end{align*}
+
+which proves the result.
+
+### Proof of Theorem \@ref(thm:asympnoiseSATTPanelAR1) {#proofasympnoiseSATTPanelAR1}
+
+The proof relies heavily on the proof of Theorem \@ref(thm:asympnoiseSATTPanel) in Section \@ref(proofasympnoiseSATTPanel).
+The two proofs diverge when computing $\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j}$.
+
+When $d=d'$ and $\tau\neq\tau'$, we have:
+
+\begin{align*}
+  \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j} & =   \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=d}p_D^{d,\infty}+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=\infty}(1-p_D^{d,\infty})
+\end{align*}
+
+Let us look at the second part of the right hand side:  
+  
+\begin{align*}
+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=\infty} & = \esp{\left(U^0_{j,d+\tau}-U^0_{j,d-1}\right)\left(U^0_{j,d+\tau'}-U^0_{j,d-1}\right)|D_j=\infty} \\
+                                                                    & = \cov{U^0_{j,d+\tau},U^0_{j,d+\tau'}|D_j=\infty}
+                                                                        -\cov{U^0_{j,d+\tau},U^0_{j,d-1}|D_j=\infty} \nonumber\\
+                                                                    & \phantom{=} -\cov{U^0_{j,d+\tau'},U^0_{j,d-1}|D_j=\infty}
+                                                                        +\var{U^0_{j,d-1}|D_j=\infty}\\
+                                                                    & =  \rho^{|\tau+\tau'|}\var{U^0_{j,\min\{d+\tau,d+\tau'\}}|D_j=\infty}-\rho^{|\tau+1|}\var{U^0_{j,\min\{d+\tau,d-1\}}|D_j=\infty}\\
+                                                                    & \phantom{=}-\rho^{|\tau'+1|}\var{U^0_{j,\min\{d+\tau',d-1\}}|D_j=\infty}+\var{U^0_{j,d-1}|D_j=\infty}
+\end{align*}
+
+using Assumption \@ref(hyp:AR1DIDPanel).
+
+Let us now look at the first part:
+
+\begin{align*}
+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=d} & = \esp{\left(U^0_{j,d+\tau}-U^0_{j,d-1}\right)\left(U^0_{j,d+\tau'}-U^0_{j,d-1}\right)|D_j=} \\
+                                                                    & = \cov{U^0_{j,d+\tau},U^0_{j,d+\tau'}|D_j=d}
+                                                                        -\cov{U^0_{j,d+\tau},U^0_{j,d-1}|D_j=d} \nonumber\\
+                                                                    & \phantom{=} -\cov{U^0_{j,d+\tau'},U^0_{j,d-1}|D_j=d}
+                                                                        +\var{U^0_{j,d-1}|D_j=d}\\
+                                                                    & =  \rho^{|\tau+\tau'|}\var{U^0_{j,\min\{d+\tau,d+\tau'\}}|D_j=d}-\rho^{|\tau+1|}\var{U^0_{j,\min\{d+\tau,d-1\}}|D_j=d}\\
+                                                                    & \phantom{=}-\rho^{|\tau'+1|}\var{U^0_{j,\min\{d+\tau',d-1\}}|D_j=d}+\var{U^0_{j,d-1}|D_j=d}
+\end{align*}
+
+using Assumption \@ref(hyp:AR1DIDPanel) again.
+
+Let us now examine $\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j}$ when $d\neq d'$.
+In that case, we have:
+
+\begin{align*}
+  \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j} & =   \esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j|D_j=d}p_D^{d,\infty}p_{d,\infty}\\
+                                                              & \phantom{=}+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j|D_j=d'}p_D^{d',\infty}p_{d',\infty}\\
+                                                              & \phantom{=}+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j|D_j=\infty}(1-p_D^{d,\infty})p_{d,\infty}.
+\end{align*}
+
+The first two terms are equal to zero when $d\neq d'$ under Assumption \@ref(hyp:AR1DIDPanel), since the error terms for groups $D_j=d$ and $D_j=d'$ are independent under this assumption.
+For the last term, we have:
+
+\begin{align*}
+\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d',\tau'}_j|D_j=\infty} & = \esp{\left(U^0_{j,d+\tau}-U^0_{j,d-1}\right)\left(U^0_{j,d'+\tau'}-U^0_{j,d'-1}\right)|D_j=\infty} \\
+                                                                    & = \cov{U^0_{j,d+\tau},U^0_{j,d'+\tau'}|D_j=\infty}
+                                                                        -\cov{U^0_{j,d+\tau},U^0_{j,d'-1}|D_j=\infty} \nonumber\\
+                                                                    & \phantom{=} -\cov{U^0_{j,d'+\tau'},U^0_{j,d-1}|D_j=\infty}
+                                                                        +\cov{U^0_{j,d-1},U^0_{j,d'-1}|D_j=\infty}\\
+                                                                    & =  \rho^{|d+\tau-d-\tau'|}\var{U^0_{j,\min\{d+\tau,d+\tau'\}}|D_j=\infty}-\rho^{|d+\tau-d'+1|}\var{U^0_{j,\min\{d+\tau,d'-1\}}|D_j=\infty}\\
+                                                                    & \phantom{=}-\rho^{|d'+\tau'-d+1|}\var{U^0_{j,\min\{d'+\tau',d-1\}}|D_j=\infty}+\rho^{|d-d'|}\var{U^0_{j,\min\{d-1,d'-1\}}|D_j=\infty}.
+\end{align*}
+
+For $\mathbf{B}_3$, $\mathbf{A}_4$, $\mathbf{B}_4$, the terms are all zero when $d\neq d'$, since they condition on being member of a treatment group, and only control group members are involved in the covariance terms when $d\neq d'$.
+When $d=d'$, we have $\mathbf{B}_3=\mathbf{A}_4=\mathbf{B}_4=\sqrt{p^{d,\infty}p^{d',\infty}}\esp{\Delta\epsilon^{d,\tau}_j\Delta\epsilon^{d,\tau'}_j|D_j=d}p_D^{d,\infty}$, whose precise formula is defined above.
+
+Collecting terms  we have:
+
+  * When $d=d'$:
+  
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) & = \frac{1}{p^{d,\infty}}\left[\frac{\esp{\Delta\epsilon^{d,\tau}_i\Delta\epsilon^{d',\tau'}_i|D_i=\infty}}{1-p^{d,\infty}_D}+\frac{\esp{\Delta\epsilon^{d,\tau}_i\Delta\epsilon^{d',\tau'}_i|D_i=d}}{p^{d,\infty}_D}\right].
+\end{align*}
+
+  * When $d\neq d'$:
+  
+\begin{align*}
+  \text{Cov}(\hat{\beta}^{SA}_{d,\tau},\hat{\beta}^{SA}_{d',\tau'}) 
+  & = \frac{\esp{\Delta\epsilon^{d,\tau}_i\Delta\epsilon^{d',\tau'}_i|D_i=d}}{p^{d',\infty}(1-p^{d',\infty}_D)}.
+\end{align*}
+
+This proves the result.
+
+### Proof of Theorem \@ref(thm:VarWWSpatial) {#proofVarWWSpatial}
+
+We start with the same starting point as in the Proof of Theorem \@ref(thm:VarWWClus) in Section \@ref(proofVarWWClus), the very useful result stated in [Bruce Hansen's Econometrics textbook:](https://www.ssc.wisc.edu/~bhansen/econometrics/) that, for every matrix $A=A(X)$, we have $\var{A'Y|X}=\var{A'U|X}=A'\esp{UU'|X}A$, with $Y$ the vector of observed outcomes $Y_i$ and $X$ the matrix of covariates.
+$\hat{\Delta^Y_{WW}}$ is the second term of the vector $\hat{\Theta}_{OLS}=A'Y$, with $A=X(X'X)^{-1}$, following Lemma \@ref(lem:WWOLS).
+We thus have that $\var{\hat{\Delta^Y_{WW}}|X}$ is the lower diagonal term in the matrix $\var{\hat{\Theta}_{OLS}|X}=(X'X)^{-1}X'\esp{UU'|X}X(X'X)^{-1}$.
+Under Assumption \@ref(hyp:VarWWSpatial), we know that $\esp{UU'|X}=\esp{UU'}$.
+We also have that each line and each column of the matrix $\esp{UU'}$ have only $k+1$ non zero elements: the diagonal term equal to $\sigma^2$ and $k$ elements equal to $\rho\sigma^2$ due to the $k$ neighbors of each observation.
+We thus have:
+
+\begin{align*}
+  X'\esp{UU'}X & = \sigma^2
+                      \left(
+                      \begin{array}{ccc}
+                      1 & \cdots & 1 \\
+                      D_1 & \cdots & D_N
+                      \end{array}
+                      \right)
+                      \left(
+                      \begin{array}{cccc}
+                      1 & \rho \mathcal{N}_{1,1} & \cdots & \rho \mathcal{N}_{1,N} \\
+                      \rho \mathcal{N}_{2,1} & 1 &  \cdots & \rho \mathcal{N}_{2,N} \\
+                      \vdots & \vdots & \ddots & \vdots \\
+                      \rho \mathcal{N}_{N,1} & \rho \mathcal{N}_{N,2} &  \cdots & 1
+                      \end{array}
+                      \right)
+                     \left(
+                      \begin{array}{cc}
+                      1 & D_1 \\
+                      \vdots & \vdots \\
+                      1 & D_N
+                      \end{array}
+                      \right) \\
+              & = \sigma^2 N
+                      \left(
+                      \begin{array}{cc}
+                      1+k\rho & (1+k\rho)\bar{D} \\
+                      (1+k\rho)\bar{D} & (1+k\rho\bar{D}_1)\bar{D}
+                      \end{array}
+                      \right),
+\end{align*}
+
+with $\bar{D}=\frac{1}{N}\sum_{i=1}^ND_i$ and $\bar{D}_1=\frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^ND_i\bar{D}_i$ and $\bar{D}_i=\frac{1}{k}\sum_{j=1}^N\mathcal{N}_{j,i}D_j$.
+
+Following the proof of Lemma \@ref(lem:WWOLS), we know that:
+
+\begin{align*}
+  (X'X)^{-1} & = \frac{1}{N}\frac{1}{\bar{D}(1-\bar{D})}
+                \left(\begin{array}{cc}
+                  \bar{D} & -\bar{D} \\
+                  -\bar{D} & 1
+                \end{array}\right).\\
+\end{align*}
+
+We thus have:
+
+\begin{align*}
+  \var{\hat{\Theta}_{OLS}|X} & = \frac{1}{N}\frac{\sigma^2}{\bar{D}^2(1-\bar{D})^2}
+                \left(\begin{array}{cc}
+                  \bar{D} & -\bar{D} \\
+                  -\bar{D} & 1
+                \end{array}\right)
+                      \left(
+                      \begin{array}{cc}
+                      1+k\rho & (1+k\rho)\bar{D} \\
+                      (1+k\rho)\bar{D} & (1+k\rho\bar{D}_1)\bar{D}
+                      \end{array}
+                      \right)
+                      \left(\begin{array}{cc}
+                  \bar{D} & -\bar{D} \\
+                  -\bar{D} & 1
+                \end{array}\right) \\
+                & = \frac{1}{N}\frac{\sigma^2}{\bar{D}^2(1-\bar{D})^2}
+                \left(\begin{array}{cc}
+                  (1+k\rho)\bar{D}(1-\bar{D}) & \bar{D}^2k\rho(1-\bar{D}_1) \\
+                  0 & (1+k\rho\bar{D}_1)\bar{D}-(1+k\rho)\bar{D}^2
+                \end{array}\right)
+                \left(\begin{array}{cc}
+                  \bar{D} & -\bar{D} \\
+                  -\bar{D} & 1
+                \end{array}\right) \\
+                & = \frac{1}{N}\frac{\sigma^2}{\bar{D}^2(1-\bar{D})^2}
+                \left(
+                \begin{array}{c}
+                (1+k\rho)\bar{D}^2(1-\bar{D})-\bar{D}^3k\rho(1-\bar{D}_1) \\
+                -\bar{D}((1+k\rho\bar{D}_1)\bar{D}-(1+k\rho)\bar{D}^2)
+                \end{array}\right.\\
+                & \phantom{= \frac{1}{N}\frac{\sigma^2}{\bar{D}^2(1-\bar{D})^2}}\left.
+                \begin{array}{c}
+                 (1+k\rho)\bar{D}^2(1-\bar{D})-((1+k\rho\bar{D}_1)\bar{D}-(1+k\rho)\bar{D}^2))\\
+                (1+k\rho\bar{D}_1)\bar{D}-(1+k\rho)\bar{D}^2
+               \end{array}
+                \right)
+\end{align*}
+
+As a consequence, we have:
+
+\begin{align*}
+  \var{\hat{\Delta^Y_{WW}}|X}  & = \frac{1}{N}\frac{\sigma^2}{\bar{D}(1-\bar{D})}\left(1+k\rho\frac{\bar{D}_1-\bar{D}}{\bar{D}(1-\bar{D})}\right),
+\end{align*}
+
+which proves the result (with $\plim\bar{D}=p$ and $\plim\bar{D}_1=p_1$).

@@ -1911,7 +1911,7 @@ Let's write an R function that maximizes this log likelihood:
 ```{r SelectModelLikelihood,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
 # log-likelihood
 Lk <- function(thetak,sigmak,p1,thetac,tau){
-  f <- ifelse(thetak/sigmak<qnorm(1-0.05/2),p1,1)*dnorm((thetak-thetac)/sqrt(sigmak^2+tau^2))/(1-pnorm(qnorm(1-0.05/2)*sigmak-thetac/sqrt(sigmak^2+tau^2))*(1-p1))
+  f <- ifelse(thetak/sigmak<qnorm(1-0.05/2),p1,1)*dnorm((thetak-thetac)/sqrt(sigmak^2+tau^2))/(1-pnorm((qnorm(1-0.05/2)*sigmak-thetac)/sqrt(sigmak^2+tau^2))*(1-p1))
   return(sum(log(f)))
 }
 #log-likelihood prepared for nlminb: vector of parameters and minimization

@@ -2131,7 +2131,7 @@ Let's see what happens with this estimator of sampling noise in our example.
 The estimated 99\% sampling noise the robust standard errors from the 2SLS estimator is `r round(2*qnorm((.99+1)/2)*sqrt(vcov(reg.fuzzy.rdd.local.iv)[2,2]),2)`.
 The true 99\% sampling noise of Wald RDDLLR estimated by Monte Carlo simulations is `r round(2*quantile(abs(simuls.fuzzy.rdd.llr.bw[[2]][,'RDD LLR']-delta.y.tt.z(param)),probs=c(0.99)),2)`.
 
-## Difference In Differences
+## Difference In Differences {#DID}
 
 In Difference In Differences (a.k.a. DID), the difference between treated and untreated before the treatment is used to approximate selection bias.
 As a consequence, DID works by correcting the With/Without comparison after treatment by the With/Without comparison before treatment and hopes that it is enough to recover the TT.
@@ -4072,7 +4072,7 @@ The final very important assumption that we can make is to assume that the trend
 We assume that the trends in the potential outcomes in the absence the treatment are the same for all the treatment groups:
 
 \begin{align*}
-   \forall d,t,t'\in\left\{1,2,\dots,T\right\} & = \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
+   \forall d,t,t'\in\left\{1,2,\dots,T\right\}, & \esp{Y^0_{i,t}|D_i=d} - \esp{Y^0_{i,t'}|D_i=d} =   \esp{Y^0_{i,t}|D_i=\infty} - \esp{Y^0_{i,t'}|D_i=\infty}.
 \end{align*}
 ```
 
@@ -6008,10 +6008,10 @@ Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects),
 
 \begin{align*}
 \sqrt{N}(\hat\beta^{SA}_{d,\tau}-\beta^{SA}_{d,\tau}) & \stackrel{d}{\rightarrow}
-                             \mathcal{N}\left(0,\frac{1}{p^{d,\infty}}\left(\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\tau}_D}+\frac{\var{Y_{i,d+\tau}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\tau}_D}\right)\right),
+                             \mathcal{N}\left(0,\frac{1}{p^{d,\infty}}\left(\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\infty}_D}+\frac{\var{Y_{i,d+\infty}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\infty}_D}\right)\right),
 \end{align*}
 
-where $p^{d,\infty}=\Pr(D_i=d\cup D_i=\infty)$.
+where $p^{d,\infty}=\Pr(D_i=d\cup D_i=\infty)$ and $p^{d,\infty}_D=\Pr(D_i=d|D_i=d\cup D_i=\infty)$.
 ```
 
 ```{proof}
@@ -6035,7 +6035,8 @@ Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects),
 \begin{align*}
 \sqrt{N}(\hat\Delta^{Y}_{TT_{SA}}(k)-\Delta^{Y}_{TT_{SA}}(k)) & \stackrel{d}{\rightarrow}
   \mathcal{N}\left(0,\sum_d\sum_{\tau}V(\hat\beta^{SA}_{d,\tau})(w^k(d,d-1,\tau,\infty))^2 \right.\\
-        & \phantom{\stackrel{d}{\rightarrow}}\left.+\sum_{d\neq d'}\sum_{\tau\neq\tau'}\text{Cov}(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'})w^k(d,d-1,\tau,\infty)w^k(d',d'-1,\tau',\infty)\right),
+        & \phantom{\stackrel{d}{\rightarrow}}\left.+\sum_{d}\sum_{d'}\sum_{\tau}\sum_{\tau'\neq\tau}
+        \text{Cov}(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'})w^k(d,d-1,\tau,\infty)w^k(d',d'-1,\tau',\infty)\right),
 \end{align*}
 
 where:
@@ -6053,12 +6054,11 @@ V(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\tau}}\left[\frac{\var{Y^0_{i,d-1}|D
           & = \frac{p^{d,\tau,d',\tau'}p_{d+\tau}^{d,\tau,d',\tau'}\var{Y^0_{i,d+\tau}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})}\text{ when } d+\tau=d'+\tau' \\
           & = -\frac{p^{d,\tau,d',\tau'}p_{d-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}(1-p_A^{d,\tau})p_A^{d',\tau'}(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \text{ when } d-1=d'+\tau'\\
           & = -\frac{p^{d,\tau,d',\tau'}p_{d'-1}^{d,\tau,d',\tau'}\var{Y^0_{i,d'-1}|D_i=\infty}(1-p_D^{d,\tau,d',\tau'})}{p^{d,\tau}p^{d',\tau'}p_A^{d,\tau}(1-p_A^{d',\tau'})(1-p_D^{d,\tau})(1-p_D^{d',\tau'})} \text{ when } d+\tau=d'-1\\
-          & = 0 \text{ otherwise},
+          & = 0 \text{ otherwise}.
 \end{align*}
+
+with $p^{d,\tau}=\Pr((D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))$, $p^{d,\tau}_D=\Pr(D_i=d|(D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))$, $p^{d,\tau}_A=\Pr(T_i=d+\tau|(D_i=d\cup D_i=\infty)\cap(T_i=d-1\cup T_i=d+\tau))$, $p^{d,\tau,d',\tau'}=\Pr(D_j^{d',\tau'}D_j^{d,\tau}=1)$, $p_{d+\tau}^{d,\tau,d',\tau'}=\Pr(T_j=d+\tau|D_j^{d',\tau'}D_j^{d,\tau}=1)$ and $p_D^{d,\tau,d',\tau'}=\Pr(D_j^{d'}=1\cup D_j^{d}=1|D_j^{d',\tau'}D_j^{d,\tau}=1)$.
 ```
-
-with $p^{d,\tau,d',\tau'}=\Pr(D_j^{d',\tau'}D_j^{d,\tau}=1)$, $p_{d+\tau}^{d,\tau,d',\tau'}=\Pr(T_j=d+\tau|D_j^{d',\tau'}D_j^{d,\tau}=1)$ and $p_D^{d,\tau,d',\tau'}=\Pr(D_j^{d'}=1\cup D_j^{d}=1|D_j^{d',\tau'}D_j^{d,\tau}=1)$.
-
 
 ```{proof}
 See Section \@ref(proofasympnoiseSATTCross).
@@ -6079,26 +6079,734 @@ As a consequence, the estimators are negatively correlated in that case.
 
 ###### Estimation of sampling noise for aggregate treatment effects with panel data
 
-Finally, we need to determine the asymptotic distribution of the aggregate average treatment effect on the treated $\Delta^Y_{TT}(k)$.
+Finally, we need to determine the asymptotic distribution of the aggregate average treatment effect on the treated $\Delta^Y_{TT}(k)$ in panel data.
+Panel data are a very different animal from repeated cross sections in that we follow the same individuals over time.
+We thus need to be extra careful on what we assume on the correlation of the outcomes of each individual over time.
+In this section, we are going to rule out any autocorrelation between error terms in levels.
+We will relax this assumption later.
+
+We encode our main assumption on autocorrelation of outcomes over time as follows:
+
+```{hypothesis,iidDIDPanel,name='i.i.d. sampling in panel data'}
+We assume that potential outcomes are geenrated as follows:
+
+\begin{align*}
+  Y^0_{i,t} & = \mu_i + \delta_t + U^0_{i,t}\\
+  Y^1_{i,t} & = \mu_i + \delta_t + \bar{\alpha} +\eta_{i,t} + U^0_{i,t},
+\end{align*}
+
+with $\esp{U^0_{i,t}}=\esp{\eta_{i,t}}=0$, $\forall t$, $\esp{U^0_{i,t}|D_i}=0$, $\forall t$ and:
+    
+\begin{align*}
+\forall i,j\leq N\text{, }\forall t,t'\leq T\text{, with either }i\neq j \text{ or } t\neq t' & (U^0_{i,t},\eta_{i,t},D_i)\Ind(U^0_{j,t'},\eta_{j,t'},D_j),\\
+                                           & (U^0_{i,t},\eta_{i,t},D_i)\&(U^0_{j,t'},\eta_{j,t'},D_j)\sim F_{U^0,\eta,D} .
+\end{align*}
+```
+
+```{remark}
+Assumption \@ref(hyp:iidDIDPanel) is restrictive.
+For example, it prevents error terms to be correlated over time for each unit $i$, which requires $\rho=0$ in our toy model.
+It also requires that individual treatment effects are not autocorrelated over time, which for example requires that $\theta_d=0$ in our model and that $\eta_{i,t}$ is not autocorrelated over time.
+It means that treatment effects cannot be correlated with fixed effects, a huge assumption, and that agents with high treatment effects at one period are not more likely to have high treatment effects the next period.
+These assumptions are obviously too strong.
+We will see how to relax them in Chapter \@ref(cluster).
+```
+
+```{remark}
+Note that Assumption \@ref(hyp:iidDIDPanel) implies Assumption \@ref(hyp:ParallelTrends).
+The proof is left as an exercise.
+```
 
 ```{theorem,asympnoiseSATTPanel,name="Asymptotic Distribution of Treatment of the Treated Estimated Using Sun and Abraham Estimator in Panel Data"}
-Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDID) and \@ref(hyp:finitevarDID), and with panel data containing a total of $N$ units, we have:
+Under Assumptions \@ref(hyp:NoTreatmentFirst), \@ref(hyp:NoAnticipationEffects), \@ref(hyp:ParallelTrends), \@ref(hyp:iidDIDPanel) and \@ref(hyp:finitevarDID), and with panel data containing a total of $N$ units observed over $T$ time periods, we have:
 
 \begin{align*}
 \sqrt{N}(\hat\Delta^{Y}_{TT_{SA}}(k)-\Delta^{Y}_{TT_{SA}}(k)) & \stackrel{d}{\rightarrow}
-  \mathcal{N}\left(0,\sum_d\sum_{\tau}V_P(\hat\beta^{SA}_{d,\tau})(w^k(d,d-1,\tau,\infty))^2\right),
+  \mathcal{N}\left(0,\sum_d\sum_{\tau}V_P(\hat\beta^{SA}_{d,\tau})(w^k(d,d-1,\tau,\infty))^2\right.\\
+      & \phantom{\stackrel{d}{\rightarrow}}\left.+\sum_{d}\sum_{d'}\sum_{\tau}\sum_{\tau'\neq\tau}
+        \text{Cov}_P(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'})w^k(d,d-1,\tau,\infty)w^k(d',d'-1,\tau',\infty)\right),
 \end{align*}
 
 where:
 
 \begin{align*}
-V_P(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\tau}}\left(\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\tau}_D}+\frac{\var{Y_{i,d+\tau}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\tau}_D}\right).
+V_P(\hat\beta^{SA}_{d,\tau}) & =\frac{1}{p^{d,\infty}}\left(\frac{\var{Y_{i,d+\tau}^1-Y_{i,d-1}^0|D_i=d}}{p^{d,\infty}_D}+\frac{\var{Y_{i,d+\tau}^0-Y_{i,d-1}^0|D_i=\infty}}{1-p^{d,\infty}_D}\right)\\
+\text{Cov}_P(\hat\beta^{SA}_{d,\tau},\hat\beta^{SA}_{d',\tau'})
+& = \frac{1}{p^{d,\infty}}\left[\frac{\var{U^0_{i,d-1}|D_i=\infty}}{1-p^{d,\infty}_D}+\frac{\var{U^0_{i,d-1}|D_i=d}}{p^{d,\infty}_D}\right] \text{ when } d=d'\\
+& = \frac{1}{p^{d',\infty}}\frac{\var{U^0_{i,d'+\tau'}|D_i=\infty}}{1-p^{d',\infty}_D}  \text{ when } d+\tau=d'+\tau' \\
+& = -\frac{1}{p^{d',\infty}}\frac{\var{U^0_{i,d'+\tau'}|D_i=\infty}}{1-p^{d',\infty}_D}   \text{ when } d-1=d'+\tau' \\
+& = -\frac{1}{p^{d,\infty}}\frac{\var{U^0_{i,d+\tau}|D_i=\infty}}{1-p^{d,\infty}_D}    \text{ when } d+\tau=d'-1\\
+& = 0 \text{ otherwise},
 \end{align*}
+
+with $p^{d,\infty}=\Pr(D_i=d\cup D_i=\infty)$ and $p^{d,\infty}_D=\Pr(D_i=d|D_i=d\cup D_i=\infty)$.
 ```
 
 ```{proof}
 See Section \@ref(proofasympnoiseSATTPanel).
 ```
+
+```{remark}
+The result in Theorem \@ref(thm:asympnoiseSATTPanel) makes intuitive sense.
+Under Assumption \@ref(hyp:iidDIDPanel), the only source of correlation between individual treatment effects $\hat\beta^{SA}_{d,\tau}$ and $\hat\beta^{SA}_{d',\tau'}$ is when they share part of the data that yields to their estimation.
+When $d=d'$, they share the same reference period for both the treated and the untreated groups.
+When $d+\tau=d'+\tau'$, they share the same end period for the untreated group.
+It means that in both of these cases, the two estimators are positively correlated.
+When $d-1=d'+\tau'$ or when $d+\tau=d'-1$, the reference period of one serves as the ending period for the other, both for the untreated group.
+In these two cases, the two estimators are negatively correlated.
+```
+
+```{remark}
+Note also that the result in Theorem \@ref(thm:asympnoiseSATTPanel) suggests that, in some cases, the treatment on the treated parameter is going to be more precise than the individual level estimates.
+Let's assume for simplicity one treatment group, $\frac{T}{2}$ treatment periods, the same variance for all individual level estimates, the same weigths for combining them in the ATT ($\frac{2}{T}$) and no correlation between each individual estimator, then we have $V_P(\hat\Delta^{Y}_{TT_{SA}}(k))=\frac{2}{T}V_P(\hat\beta^{SA})$, which is smaller than $V_P(\hat\beta^{SA})$ as soon as $T\geq 3$.
+Intuitively, under the assumptions in this remark, each individual estimate is an independent estimate of the same parameter, and thus, according to the CLT, precision increases with the square root of the number of additional observations, which is proportional to $\sqrt{\frac{2}{T}}$. 
+Under more general conditions, this simple relationship might not hold.
+It might be the case for example that some treatment effects might be less precisely estimated than others, and thus that the precision of the resulting average treatment effect might be intermediate between the precision of the two individual estimates.
+The existence of covariance terms between the individual treatment estimates might also increase (or decrease) the eventual precision of the average treatment effect estimate.
+```
+
+
+
+##### Estimation of sampling noise in practice
+
+Until now, we have looked at sampling noise in a theoretical way.
+Let's see in practice how to estimate sampling noise in a staggered DID design in practice.
+There are several ways to estimate sampling noise for the Sunn and Abraham estimator that we have studied in detail.
+We could either use the plug-in formulas we have derived in Theorems \@ref(thm:asympnoiseSACross), \@ref(thm:asympnoiseSAPanel), \@ref(thm:asympnoiseSATTCross) and \@ref(thm:asympnoiseSATTPanel).
+We could also use the heteroskedasticity-robust standard errors that the `fixest` package spits out when using `feols` with the `sunab` option.
+We could also use only the $2\times 2$ DID estimators with a first difference estimator using OLS and heteroskedasticity-robust standard errors.
+We could also use the stacked First Difference estimator that we have use in the proof of Theorem \@ref(thm:EquivDIDSAsamp) (we know it is identical to the Sun and Abraham estimator) and use a heteroskedasticity-robust covariance matrix estimator.
+
+For now, we are going to compare the estimates of sampling noise stemming from $2\times 2$ DID estimators and the stacked First Difference estimator to the ones stemming from the `fixest` implementation of Sun and Abraham estimator, and to the true level of sampling noise stemming from Monte Carlo simulations.
+We are also going to compare the estimates of sampling noise for the TT parameter using the `fixest` implementation of Sun and Abraham estimator and the stacked First Difference estimator and compare them to the Monte Carlo estimates.
+Let's go.
+
+```{example}
+Let's see how $2\times 2$ DID estimators, the stacked First Difference estimator and the `fixest` implementation of Sun and Abraham estimator perform in our example.
+```
+In order to do so, we are first going to write a function implementing our $2\times 2$ DID estimators automatically.
+
+```{r 22DID}
+# function estimating 2x2 DID and heteroskedasticity-robust standard error with within and first difference estimators
+# StaggeredDID22 is a function that takes as inputs:
+# y: name of outcome variable (character)
+# D: name of treatment group variable (character)
+# d: treatment group defined by date of entry into the treatment
+# dprime: comparison group
+# tau: number of periods after treatment date at which we estimate the effect of the treatment
+# tauprime: number of periods before the treatment date that we use a baseline period (defaults to one)
+# t: time indicator (character)
+# i: individual unit indicator (character)
+# data: dataset containing the outcomes and treatments and time and unit indicators
+StaggeredDID22 <- function(tau,d,y,D,dprime,tauprime=1,t,i,data){
+  # taking out the irrelevant groups and time periods and generating a useful treatment variable
+  data.DID <- data %>%
+            filter(!!sym(D) == d | !!sym(D) == dprime) %>% 
+            filter(!!sym(t) == d+tau | !!sym(t)==d-tauprime) %>%
+            mutate(
+              Dit = if_else(!!sym(D) == d & !!sym(t) == d+tau,1,0),
+              time = case_when(
+                        !!sym(t) == d+tau ~ 1,
+                        !!sym(t) == d-tauprime ~ 0,
+                        TRUE ~ 9999
+              )
+            )
+  # running the within estimator (fixest)
+  # regression formula for the within estimator
+  DID.form <- as.formula(paste(paste(y,paste("Dit",t,sep="+"),sep="~"),i,sep="|"))
+  reg.W.fixest <- feols(DID.form,vcov='HC1',data = data.DID)
+  # regression for the first difference estimator
+  data.DID <- data.DID %>%
+                pivot_wider(id_cols=!!sym(i),names_from=time,values_from=c('Dit',y),names_sep='_') %>%
+                mutate(
+                  DeltaY = !!sym(paste(y,1,sep='_'))-!!sym(paste(y,0,sep='_')),
+                  DeltaD = !!sym(paste('Dit',1,sep='_'))-!!sym(paste('Dit',0,sep='_'))
+                )
+  DID.FD.form <- as.formula(paste(paste("DeltaY","DeltaD",sep="~"),1,sep="|"))
+  reg.FD.fixest <- feols(DID.FD.form,vcov='HC1',data = data.DID)
+  # result vector
+  DID.est.W.fixest <- c(d,dprime,tau,tauprime,coef(reg.W.fixest)[[1]],sqrt(vcov(reg.W.fixest)[[1,1]]),coef(reg.FD.fixest)[[2]],sqrt(vcov(reg.FD.fixest)[[2,2]]))
+  names(DID.est.W.fixest) <- c("d","dprime","tau","tauprime","WithinEst","WithinSe","FDEst","FDSe")
+  return(DID.est.W.fixest)
+}
+#test <- StaggeredDID22(tau=1,d=2,y='y',D='Ds',dprime=99,tauprime=1,t="time",i="id",data=data) 
+```
+
+Let's now write a function implementing the stacked First Difference estimator automatically.
+
+```{r StackedDIDFD}
+# function estimating 2x2 DID and heteroskedasticity-robust standard error and covariance matrix with stacked first difference
+# StackedDIDFD is a function that takes as inputs:
+# y: name of outcome variable (character)
+# D: name of treatment group variable (character)
+# dprime: comparison group
+# tauprime: number of periods before the treatment date that we use a baseline period (defaults to one)
+# t: time indicator (character)
+# i: individual unit indicator (character)
+# Leung: whether we use a Leung-robust covariance matrix for time
+# data: dataset containing the outcomes and treatments and time and unit indicators
+StackedDIDFD <- function(y,D,dprime.ref,tauprime.ref=1,t,i,Leung="None",data){
+  # levels of the treatment (without never treated)
+  d <- data %>% mutate(test = as.factor(!!sym(D))) %>% pull(test) %>% levels(.) %>% as.character(.) %>% as.numeric(.) 
+  d <- d[d!=dprime.ref]
+  d <- d[order(d)]
+  # list of possible treatment periods for each treatment group
+  # first, list of time periods
+  time <- data %>% mutate(test = as.factor(!!sym(t))) %>% pull(test) %>% levels(.) %>% as.numeric(.) 
+  time <- time[order(time)]
+  # dataset of all treatment groups and all time periods
+  d.expand <- unlist(lapply(d,rep,length(time)))
+  time.expand <- rep(time,length(d))
+  data.structure <- data.frame(d=d.expand,time=time.expand) %>%
+    # time in relative periods for each d
+    mutate(
+      TimeToTreatment = time-d
+    ) %>%
+  # detection of treatment groups without any reference period
+    mutate(
+      ReferencePeriod = case_when(
+        TimeToTreatment == -1 ~ 1,
+        TRUE ~ 0
+      )
+    ) 
+  # Treatment groups without reference period (for whom estimation is impossible)
+  Groups.impossible <- data.structure %>%
+                        group_by(d) %>%
+                        summarize(
+                          MaxReferencePeriod = max(ReferencePeriod)
+                        ) %>%
+                        filter(MaxReferencePeriod==0) %>%
+                        pull(d) %>%
+                        unique(.) 
+  # Treatment groups with a reference period (for whom estimation is possible)
+  Groups.possible <- data.structure %>% 
+                      group_by(d) %>%
+                      mutate(
+                        MaxReferencePeriod = max(ReferencePeriod)
+                      ) %>%
+                      filter(MaxReferencePeriod==1) %>%
+                      pull(d) %>%
+                      unique(.)
+  # data for which estimation if feasible
+  data.structure <- data.structure %>% 
+                      group_by(d) %>%
+                      mutate(
+                        MaxReferencePeriod = max(ReferencePeriod)
+                      ) %>%
+                      filter(MaxReferencePeriod==1) %>%
+                      select(-MaxReferencePeriod)
+  # Adding one line for each time we need the reference period
+  data.ref <- data.structure %>%
+                mutate(
+                  ReferencePeriodName = d-as.numeric(tauprime.ref)
+                ) %>%
+                filter(ReferencePeriod==0) %>%
+                mutate(
+                  ReferencePeriod=1
+                ) %>%
+                rename(
+                  TimeToTreatmentStar=TimeToTreatment,
+                  timestar=time 
+                ) 
+  data.structure <- data.structure %>%
+                      mutate(
+                        ReferencePeriodName = d-as.numeric(tauprime.ref)
+                      ) %>%
+                      left_join(data.ref,by=c('d','ReferencePeriod','ReferencePeriodName')) %>%
+                      mutate(
+                        TargetPeriod=case_when(
+                          !is.na(timestar) ~ timestar,
+                          is.na(timestar) ~ time,
+                          TRUE~999999
+                        ),
+                        TargetTimeToTreatment=case_when(
+                          !is.na(TimeToTreatmentStar) ~ TimeToTreatmentStar,
+                          is.na(TimeToTreatmentStar) ~ TimeToTreatment,
+                          TRUE~999999
+                        )
+                      ) %>%
+                      select(-timestar,-TimeToTreatmentStar) 
+  
+  # building the stacked DID dataset
+  data.structure <- data.structure %>%
+                      mutate(
+                        dstar = d
+                      ) %>%
+                      rename(
+                        TimeToTreatmentStructure = TimeToTreatment
+                      )
+  
+  data.structure.control <- data.structure %>%
+                      mutate(
+                        dstar = as.numeric(dprime.ref)
+                      )
+  data.structure <- rbind(data.structure,data.structure.control)
+  Stacked.DID.Data <- data.structure %>%
+                        left_join(data,by=c('time'=t,'dstar'=D)) %>% 
+                        select(id,time,d,dstar,TimeToTreatmentStructure,ReferencePeriod,ReferencePeriodName,TargetPeriod,TargetTimeToTreatment,!!sym(y)) %>%
+                        arrange(id,d,TargetPeriod,ReferencePeriod) %>%
+                        pivot_wider(id_cols=c('id','d','TargetPeriod','TargetTimeToTreatment','dstar'),names_from="ReferencePeriod",names_prefix = y,values_from=c(y)) %>%
+                        mutate(
+                          DeltaY = !!sym(paste(y,'0',sep=""))-!!sym(paste(y,'1',sep="")),
+                          D = case_when(
+                            dstar == as.numeric(dprime.ref) ~ 0,
+                            TRUE ~ 1
+                          ),
+                          D = factor(D,levels=c('0','1')),
+                          Ddtau = paste(d,TargetTimeToTreatment,sep=',')
+                        ) %>%
+                        arrange(Ddtau,D,id) %>%
+                        ungroup(.)
+   
+  # generating the covariates matrix (using the recipes package)
+   DeltaX <- recipe(~ Ddtau+D,data=Stacked.DID.Data)  %>% 
+    step_dummy(Ddtau,one_hot = TRUE) %>% 
+    step_dummy(D) %>% 
+    step_interact(terms=~starts_with("Ddtau"):D_X1) %>% 
+    prep(training=Stacked.DID.Data) %>% 
+    bake(new_data=NULL)  %>%
+    select(-D_X1) 
+   # order the variables and make DeltaX a matrix
+   DeltaX <- DeltaX %>%
+    relocate(colnames(DeltaX)[order(colnames(DeltaX))]) %>%
+    as.matrix(.) # make it Sparse
+  # generating the outcomes matrix
+   DeltaY <- Stacked.DID.Data %>%
+              select(DeltaY) %>%
+              as.matrix(.)
+  # inverting the covariance matrix
+  DeltaXDeltaXm1 <- solve(t(DeltaX)%*%DeltaX)
+  # Esimating the coefficients of the stacked DID model using OLS
+  Stacked.DID.OLS.Theta <- DeltaXDeltaXm1%*%t(DeltaX)%*%DeltaY
+  # recovering the coefficients
+  Coefs.Stacked.DID.FD <- as.data.frame(Stacked.DID.OLS.Theta) 
+  
+  Coefs.Stacked.DID.FD <- as.data.frame(Stacked.DID.OLS.Theta) %>%
+                            mutate(
+                              Groups=rownames(Coefs.Stacked.DID.FD),
+                              Beta0 = str_split_fixed(Groups,'x',n=2)[,2],
+                              Beta1 = str_split_fixed(Groups,'x',n=2)[,1],
+                              Beta2 = str_split_fixed(Beta1,'X',n=2)[,2],
+                              minus.tau = str_detect(Beta2,'\\.\\.'),
+                              d = str_split_fixed(Beta2,'\\.',n=2)[,1],
+                              tau = str_split_fixed(Beta2,'\\.',n=2)[,2],
+                              tau = str_extract(tau,".?\\d*"),
+                              tau = case_when(
+                                minus.tau==TRUE ~ str_split_fixed(tau,'\\.',n=2)[,2],
+                                TRUE~tau
+                              ),
+                              tau = case_when(
+                                minus.tau ~ -as.numeric(tau),
+                                TRUE ~ as.numeric(tau)
+                              ),
+                              Ddtau = paste(d,tau,sep=',')
+                            ) %>%
+                            rename(TE = DeltaY) %>%
+                            filter(Beta0!="") %>%
+                            select(-contains("Beta"),-Groups,-minus.tau) %>%
+                            relocate(TE,.after="tau") %>%
+                            relocate(Ddtau) 
+  
+  # estimating standard errors for the BetaSAdtau parameters using Theorem 4.25
+  VarBetaSA.d.tau <- Stacked.DID.Data %>%
+                        group_by(Ddtau,D) %>%
+                        summarize(
+                          VarDeltaYdtau = var(DeltaY),
+                          Nd = n() 
+                        ) %>%
+                        mutate(VarDeltaYdtau.N = VarDeltaYdtau/Nd) %>%
+                        group_by(Ddtau) %>%
+                        summarize(
+                          VarDeltaYdtau.N = sum(VarDeltaYdtau.N)
+                        ) %>%
+                       mutate(
+                          d = as.numeric(str_split_fixed(Ddtau,pattern=",",n=2)[,1]),
+                          tau = as.numeric(str_split_fixed(Ddtau,pattern=",",n=2)[,2])
+                       ) %>%
+                      arrange(d,tau)
+
+  # estimating covariances between treatment effect parameters using Theorem 4.27
+  # First, I need estimates of the Us, which come out of the feols estimator
+  # I can only run it on a data set with only observations used for estimation
+  data.res <- data %>% 
+                filter(!(!!sym(D) %in% Groups.impossible))
+  reg.DID.SA <- feols(as.formula(paste(paste(y,paste('sunab(',paste(D,t,sep=','),')',sep=''),sep='~'),paste(i,t,sep='+'),sep='|')),vcov='HC1',data=data.res)
+  data.res$residuals <- reg.DID.SA$residuals
+  # Form all possible combinations of d,tau and d',tau'
+  Ddtau.dprime.tauprime <- t(combn(VarBetaSA.d.tau$Ddtau,2)) %>%
+                            as.data.frame(.) %>%
+                            rename(
+                              Ddtau = V1,
+                              D.dprime.tauprime = V2
+                            ) %>%
+                            # generate d, tau, dprime and tauprime
+                            mutate(
+                              d = as.numeric(str_split_fixed(Ddtau,pattern=",",n=2)[,1]),
+                              tau = as.numeric(str_split_fixed(Ddtau,pattern=",",n=2)[,2]),
+                              dprime = as.numeric(str_split_fixed(D.dprime.tauprime,pattern=",",n=2)[,1]),
+                              tauprime = as.numeric(str_split_fixed(D.dprime.tauprime,pattern=",",n=2)[,2])
+                            ) %>%
+                            # generate the cases of Theorem 4.27, with both the time period at which the variance has to be computed and for which group
+                            mutate(
+                              Cases = case_when(
+                                          d==dprime ~ 1,
+                                          d+tau==dprime+tauprime ~ 2,
+                                          d-tauprime.ref==dprime+tauprime ~ 3,
+                                          d+tau==dprime-tauprime.ref ~ 4,
+                                          TRUE ~ 0
+                                        ),
+                              Period = case_when(
+                                          Cases==1 ~ d-tauprime.ref,
+                                          Cases==2 ~ d+tau,
+                                          Cases==3 ~ d-tauprime.ref,
+                                          Cases==4 ~ dprime-tauprime.ref,
+                                          TRUE ~ 0
+                                        ),
+                              Group = case_when(
+                                        Cases==1 ~ "All",
+                                        Cases >1 ~ "0",
+                                        TRUE ~ "None"
+                                      )
+                            )
+  # Generating the variance terms
+  Var.residuals <- data.res %>%
+                        group_by(!!sym(t),!!sym(D)) %>%
+                        summarize(
+                          VarUdt = var(residuals),
+                          Ndt = n() 
+                        ) %>%
+                        mutate(VarUdt.N = VarUdt/Ndt) %>%
+                        ungroup(.) %>%
+                        select(-VarUdt,-Ndt) %>%
+                        rename(d=!!sym(D))
+  # Separating the variance terms for the treated, the controls and summing them as well
+  # treated
+  Var.residuals.1 <- Var.residuals %>%
+                        filter(d!=dprime.ref) %>%
+                        mutate(Group="All")
+  # untreated
+  Var.residuals.0 <- Var.residuals %>%
+                        filter(d==dprime.ref) %>%
+                        mutate(Group="0")
+  # creating the covariances
+  # joining the variances of the untreated for cases 2 to 4
+  Ddtau.dprime.tauprime <- Ddtau.dprime.tauprime %>%
+                            left_join(Var.residuals.0 %>% select(-d),by=c('Period'=t,'Group'='Group')) %>%
+                            rename(VarUdt.N.0=VarUdt.N)
+  # preparing data of non treated for joining in case 1
+  Var.residuals.0 <- Var.residuals.0 %>%
+                        mutate(Group="All")
+  Ddtau.dprime.tauprime <- Ddtau.dprime.tauprime %>%
+                            left_join(Var.residuals.0 %>% select(-d),by=c('Period'=t,'Group'='Group')) %>%
+                            rename(VarUdt.N.0.All=VarUdt.N) %>%
+                            left_join(Var.residuals.1,by=c('Period'=t,'Group'='Group','d'='d')) %>%
+                            rename(VarUdt.N.1.All=VarUdt.N) %>%
+                            mutate(
+                              Cov.dtau.dprime.tauprime = case_when(
+                                                            Cases==1 ~ VarUdt.N.0.All+VarUdt.N.1.All,
+                                                            Cases==2 ~ VarUdt.N.0,
+                                                            Cases==3 ~ -VarUdt.N.0,
+                                                            Cases==4 ~ -VarUdt.N.0,
+                                                            TRUE ~ 0
+                                                          )
+                            ) %>%
+                            select(-contains('VarUdt.N'))
+
+  if (Leung=="Temporal"){
+    # estimating the residuals
+    Stacked.DID.OLS.res <- DeltaY-DeltaX%*%Stacked.DID.OLS.Theta
+    # estimating the Leung covariance matrix
+    # product of the matrix of covariates times the residuals
+    M <- DeltaX*as.numeric(Stacked.DID.OLS.res) # only use it in teh computation
+    # generating a matrix of "connexions" between observations: under the absence of autocorrelation assumption, identifies the observations that are used several times
+    # make it sparse using the Matrix package
+    # for that: generate a unique identifier for each line in the dataset and match it back to find all the lines that correspond
+    Stacked.DID.Data <- Stacked.DID.Data %>%
+                         arrange(Ddtau,D,id) %>%
+                         mutate(
+                           column.id = 1:nrow(Stacked.DID.Data)
+                         ) %>%
+                         relocate(column.id)
+    Merged.Stacked.DID.Data <- Stacked.DID.Data %>%
+                               left_join(Stacked.DID.Data,by='id')
+    G <- Matrix::sparseMatrix(Merged.Stacked.DID.Data$column.id.x,Merged.Stacked.DID.Data$column.id.y,dims = c(nrow(Stacked.DID.Data),nrow(Stacked.DID.Data))) 
+    #SparseM::image(G)
+    Vcov.Stacked.DID.OLS.Theta.Leung <- DeltaXDeltaXm1%*%t(DeltaX*as.numeric(Stacked.DID.OLS.res))%*%G%*%(DeltaX*as.numeric(Stacked.DID.OLS.res))%*%DeltaXDeltaXm1
+    # recovering vcov matrix of the coeffcients (the 2x2 DID coefficients are the even elements of the coefficient vector)                        
+    Vcov.Coefs.Stacked.DID.FD.Leung <- as.matrix(Vcov.Stacked.DID.OLS.Theta.Leung[c(FALSE,TRUE),c(FALSE,TRUE)])
+  }
+  # recovering stadnard error of the coefficients
+  Coefs.Stacked.DID.FD <- Coefs.Stacked.DID.FD %>%
+                            left_join(VarBetaSA.d.tau %>% select(Ddtau,VarDeltaYdtau.N),by='Ddtau') %>%
+                            mutate(
+                              SeTE = sqrt(VarDeltaYdtau.N)
+                            ) %>%
+                            select(-VarDeltaYdtau.N)
+  # adding reference periods
+  # groups used for estimation
+  d.ref <- Groups.possible
+  DID.ref <- data.frame(d=d.ref,tau=-1,TE=0,SeTE=0) %>%
+                mutate(Ddtau = paste(d,tau,sep=','))
+  Coefs.Stacked.DID.FD <- rbind(Coefs.Stacked.DID.FD,DID.ref) %>%
+                        arrange(d,tau)
+
+  # generating the covariance matrix
+  columns.cov.matrix <- data.frame(Ddtau=Coefs.Stacked.DID.FD$Ddtau,Ddtau.id=1:length(Coefs.Stacked.DID.FD$Ddtau))
+  Ddtau.dprime.tauprime <- Ddtau.dprime.tauprime %>%
+                            left_join(columns.cov.matrix,by=c('Ddtau'='Ddtau'))   %>%
+                            left_join(columns.cov.matrix,by=c('D.dprime.tauprime'='Ddtau'))
+  Vcov.Coefs.Stacked.DID.FD <- Matrix::sparseMatrix(i=Ddtau.dprime.tauprime$Ddtau.id.x,j=Ddtau.dprime.tauprime$Ddtau.id.y,x=Ddtau.dprime.tauprime$Cov.dtau.dprime.tauprime,dims=c(length(Coefs.Stacked.DID.FD$Ddtau),length(Coefs.Stacked.DID.FD$Ddtau))) 
+  # symmetrize matrix and add diagonal
+  Vcov.Coefs.Stacked.DID.FD <- as.matrix(Vcov.Coefs.Stacked.DID.FD+t(Vcov.Coefs.Stacked.DID.FD)+diag(Coefs.Stacked.DID.FD$SeTE^2))
+  colnames(Vcov.Coefs.Stacked.DID.FD) <- Coefs.Stacked.DID.FD$Ddtau
+  rownames(Vcov.Coefs.Stacked.DID.FD) <- Coefs.Stacked.DID.FD$Ddtau
+  
+  # estimating ATT (varying weights) and its standard error
+  # estimating the weights: each treated period has a weight, which depends on its proportion in the total number of treated observations
+  # keeping all observations that are part of the treated groups used for estimation
+  ATT.DID.weights <- DID.ref %>%
+                      select(d) %>%
+                      left_join(data,by=c('d'=D)) %>%
+                      rename(Period=!!sym(t)) %>%
+                      group_by(d,Period) %>%
+                      summarize(
+                        Ntreated = n()
+                      )%>%
+                      ungroup(.)   %>%
+                      # keep only treated periods
+                      mutate(
+                        TimeToTreatment = Period-d,
+                        Ntreated = if_else(TimeToTreatment < 0,0,as.numeric(Ntreated)), 
+                        N = sum(Ntreated),
+                        weights=Ntreated/N,
+                        TimeToTreatment=!!sym(t)-d
+                      ) %>%
+                      arrange(d,Period)
+  # ATT
+  ATT <- t(ATT.DID.weights[,"weights"])%*%Coefs.Stacked.DID.FD[,"TE"]
+  ATTSe <- sqrt(t(ATT.DID.weights[,"weights"])%*%Vcov.Coefs.Stacked.DID.FD%*%as.matrix(ATT.DID.weights[,"weights"]))
+  
+  # results
+  result <- list(Coefs.Stacked.DID.FD,Vcov.Coefs.Stacked.DID.FD,ATT,ATTSe)
+  names(result) <- c("BetaSA","VcovBetaSA","ATT","ATTSe")
+  
+  # add Leung estimates if needed
+  if (Leung=="Temporal"){
+    # ATT
+    ATTSe.Leung <- sqrt(t(ATT.DID.weights %>% filter(weights>0) %>% select("weights"))%*%Vcov.Coefs.Stacked.DID.FD.Leung[str_detect(colnames(Vcov.Coefs.Stacked.DID.FD.Leung),'\\.\\.',negate=TRUE),str_detect(colnames(Vcov.Coefs.Stacked.DID.FD.Leung),'\\.\\.',negate=TRUE)]%*%as.matrix(ATT.DID.weights %>% filter(weights>0) %>% select("weights")))
+    # results
+    result <- list(Coefs.Stacked.DID.FD,Vcov.Coefs.Stacked.DID.FD,ATT,ATTSe,ATTSe.Leung,Vcov.Coefs.Stacked.DID.FD.Leung)
+    names(result) <- c("BetaSA","VcovBetaSA","ATT","ATTSe","ATTSeLeung","VcovBetaSALeung")
+  }
+  return(result)
+}
+
+# test 
+test.stacked.DID.FD <- StackedDIDFD(y='y',D='Ds',dprime=99,tauprime=1,t="time",i="id",Leung='Temporal',data=data) 
+```
+
+We now are going to write a function taking a set of parameter values and a sample size and spitting out $2\times 2$ DID estimates with their standard errors and the `fixest` implementation of Sun and Abraham estimator, both for individual level estimates and for the aggregate treatment effect.
+
+```{r MonteCarloDID,cache=TRUE}
+# function generating a sample with N sample size and spitting out DID estimates (both event study and TT, with both Sunab and 2x2 DID)
+# seed: seed setting the PRNG
+# N: number of units in the panel
+# T: number of periods in the panel (cannot be different from 4 in this instance ;)
+# param: basic parameters
+Outcome.Sample.DID <- function(seed,N,T=4,param){
+  # simulating a sample
+  set.seed(seed)
+  cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
+  data <- as.data.frame(rmvnorm(N*T,c(0,0),cov.eta.omega))
+  colnames(data) <- c('eta','omega')
+  # time and individual identifiers
+  data$time <- c(rep(1,N),rep(2,N),rep(3,N),rep(4,N))
+  data$id <- rep((1:N),T)
+  # unit fixed effects
+  data$mu <- rep(rnorm(N,param["barmu"],sqrt(param["sigma2mu"])),T)
+  # time fixed effects
+  data$delta <- c(rep(param["delta1"],N),rep(param["delta2"],N),rep(param["delta3"],N),rep(param["delta4"],N))
+  data$baralphat <- c(rep(param["baralpha1"],N),rep(param["baralpha2"],N),rep(param["baralpha3"],N),rep(param["baralpha4"],N))
+  
+  # building autocorrelated error terms
+  data$epsilon <- rnorm(N*T,0,sqrt(param["sigma2epsilon"]))
+  data$U[1:N] <- rnorm(N,0,sqrt(param["sigma2U"]))
+  data$U[(N+1):(2*N)] <- param["rho"]*data$U[1:N] + data$epsilon[(N+1):(2*N)]
+  data$U[(2*N+1):(3*N)] <- param["rho"]*data$U[(N+1):(2*N)] + data$epsilon[(2*N+1):(3*N)]
+  data$U[(3*N+1):(T*N)] <- param["rho"]*data$U[(2*N+1):(3*N)] + data$epsilon[(3*N+1):(T*N)]
+  # potential outcomes in the absence of the treatment
+  data$y0 <- data$mu + data$delta + data$U 
+  data$Y0 <- exp(data$y0)
+  # treatment timing
+  # error term
+  data$V <- param["gamma"]*(data$mu-param["barmu"])+data$omega
+  # treatment group, with 99 for the never treated instead of infinity
+  Ds <- if_else(data$y0[1:N]+param["xi1"]+data$V[1:N]<=log(param["barY"]),1,
+                if_else(data$y0[1:N]+param["xi2"]+data$V[1:N]<=log(param["barY"]),2,
+                        if_else(data$y0[1:N]+param["xi3"]+data$V[1:N]<=log(param["barY"]),3,
+                                if_else(data$y0[1:N]+param["xi4"]+data$V[1:N]<=log(param["barY"]),4,99))))
+  data$Ds <- rep(Ds,T)
+  # Treatment status
+  data$D <- if_else(data$Ds>data$time,0,1)
+  # potential outcomes with the treatment
+  # effect of the treatment by group
+  data$baralphatd <- if_else(data$Ds==1,param["barchi1"],
+                             if_else(data$Ds==2,param["barchi2"],
+                                     if_else(data$Ds==3,param["barchi3"],
+                                             if_else(data$Ds==4,param["barchi4"],0))))+
+                    if_else(data$Ds==1,param["kappa1"],
+                             if_else(data$Ds==2,param["kappa2"],
+                                     if_else(data$Ds==3,param["kappa3"],
+                                             if_else(data$Ds==4,param["kappa4"],0))))*(data$t-data$Ds)*if_else(data$time>=data$Ds,1,0)
+  data$y1 <- data$y0 + data$baralphat + data$baralphatd + if_else(data$Ds==1,param["theta1"],if_else(data$Ds==2,param["theta2"],if_else(data$Ds==3,param["theta3"],param["theta4"])))*data$mu + data$eta
+  data$Y1 <- exp(data$y1)
+  data$y <- data$y1*data$D+data$y0*(1-data$D)
+  data$Y <- data$Y1*data$D+data$Y0*(1-data$D)
+  
+  # estimating DID model with Sun and Abraham estimator
+  reg.DID.SA <- feols(y ~ sunab(Ds,time) | id + time,vcov='HC1',data=filter(data,Ds>1))
+  resultsDID.SA <- data.frame(Coef=reg.DID.SA$coefficients,Se=reg.DID.SA$se,Name=names(reg.DID.SA$coefficients)) %>%
+                mutate(
+                  #TimeToTreatment = as.numeric(str_split_fixed(Name,'::',n=2)[,2])
+                  TimeToTreatment = as.numeric(str_split_fixed(Name,':',n=4)[,3]),
+                  Group = as.numeric(str_split_fixed(Name,':',n=6)[,6])
+                ) %>%
+                select(-Name) %>%
+                relocate(TimeToTreatment,.before=Coef) %>%
+                relocate(Group,.before=TimeToTreatment)
+  # adding reference period
+  resultsDID.SA <- rbind(resultsDID.SA,c(2,-1,0,0),c(3,-1,0,0),c(4,-1,0,0))
+  # TT
+  # ATT <- aggregate(reg.DID, c("ATT" = "TimeToTreatment::[^-]"))   
+  ATT.SA <- aggregate(reg.DID.SA, c("ATT" = "time::[^-]"))   
+  ATT.SA <- data.frame(Group="All",TimeToTreatment=99,Coef=ATT.SA[[1]],Se=ATT.SA[[2]])
+  # joining results SA
+  resultsDID.SA <- rbind(resultsDID.SA,ATT.SA)
+  
+  # estimating DID model with 2x2 FD estimators
+  # generating list of final time periods specific to each treatment group
+  tau <- c(0:2,-2,0:1,-3:-2,0)
+  d <- c(rep(2,3),rep(3,3),rep(4,3))
+  resultsDID.FD <- pmap_dfr(list(tau,d),StaggeredDID22,y='y',D='Ds',dprime=99,tauprime=1,t="time",i="id",data=data) %>%
+                    select(d,tau,FDEst,FDSe) %>%
+                    rename(Group=d,
+                           TimeToTreatment = tau,
+                           Coef=FDEst,
+                           Se=FDSe) 
+  # adding reference period
+  resultsDID.FD <- rbind(resultsDID.FD,c(2,-1,0,0),c(3,-1,0,0),c(4,-1,0,0))
+  
+  # estimating the DID model with stacked FD
+  results.Stacked.DID.FD.Full <- StackedDIDFD(y='y',D='Ds',dprime=99,tauprime=1,t="time",i="id",data=data) 
+  results.Stacked.DID.FD <- results.Stacked.DID.FD.Full[[1]] %>%
+                              rename(Group=d,
+                                     TimeToTreatment = tau,
+                                     Coef=TE,
+                                     Se=SeTE) %>%
+                              select(-Ddtau)
+  # adding the ATT
+  ATT.Stacked.DID.FD <- data.frame(Group="All",TimeToTreatment=99,Coef=results.Stacked.DID.FD.Full[["ATT"]],Se=results.Stacked.DID.FD.Full[["ATTSe"]]) %>%
+                          rename(Se=weights)
+  results.Stacked.DID.FD <- rbind(results.Stacked.DID.FD,ATT.Stacked.DID.FD)
+
+  # joining all results
+  resultsDID.SA <- resultsDID.SA %>%
+                    mutate(Method = "SA")
+  resultsDID.FD <- resultsDID.FD %>%
+                    mutate(Method = "FD")
+  results.Stacked.DID.FD <- results.Stacked.DID.FD %>%
+                    mutate(Method = "StackedFD")
+  resultsDID <- rbind(resultsDID.SA,resultsDID.FD,results.Stacked.DID.FD) %>%
+                  relocate(Method) %>%
+                  arrange(Method,Group,TimeToTreatment) %>%
+                  as_tibble(.)
+  # return results
+  return(resultsDID)
+}
+
+# test
+testDIDMC <- Outcome.Sample.DID(seed=1,N=1000,T=4,param=param)
+
+```
+
+Let us now parallelize this function.
+
+```{r MonteCarloDIDPar,results='hide',cache=TRUE,dependson=c('MonteCarloDID')}
+# programming to run in parallel
+# Nsim: number of simulations
+# N: number of units in the panel
+# T: number of periods in the panel
+# param: parameters
+sf.MonteCarlo.DID <- function(Nsim,N,T,param){
+  sfInit(parallel=TRUE,cpus=8)
+  sfLibrary(tidyverse)
+  sfLibrary(fixest)
+  sfLibrary(recipes)
+  sfLibrary(mvtnorm)
+  sfLibrary(Matrix)
+  sfExport('StaggeredDID22')
+  sfExport('StackedDIDFD')
+  sim <- sfLapply(1:Nsim,Outcome.Sample.DID,N=N,T=T,param=param) 
+  sfStop()
+  # generate mean and standard error
+  sim <- sim %>% 
+          bind_rows(.) %>%
+          group_by(TimeToTreatment,Group,Method) %>%
+          summarize(
+            TE = mean(Coef),
+            SdTE = sd(Coef),
+            MeanSeTE = mean(Se)
+          ) %>%
+          ungroup(.) 
+  return(sim)
+}
+# testing
+Nsim <- 10
+#sf.test.MonteCarlo.DID <- sf.MonteCarlo.DID(Nsim=Nsim,N=1000,T=4,param=param)
+
+# true simulations
+Nsim <- 1000
+sf.simuls.MonteCarlo.DID <- sf.MonteCarlo.DID(Nsim=Nsim,N=1000,T=4,param=param)
+```
+
+Let us now plot the resulting estimates.
+For simplicity, I center treatment effect estimates at their mean, so that we can focus on sampling noise and precision.
+If we did not center treatment effect estimates, variation in the size of treatment effects over time would dwarf variations in sampling noise.
+
+```{r MonteCarloDIDParPlot,fig.cap='Comparison of estimates of sampling noise in staggered designs',fig.align='center',out.width='75%',fig.pos='htbp'}
+# prepapring data
+sf.simuls.MonteCarlo.DID <- sf.simuls.MonteCarlo.DID %>%
+                                    mutate(
+                                      TimeToTreatment = case_when(
+                                        TimeToTreatment == "99" ~ 3,
+                                        TRUE ~ TimeToTreatment
+                                      ),
+                                      NetTE=0
+                                    ) %>%
+                                    pivot_longer(cols=SdTE:MeanSeTE,names_to = "Type",values_to="SeEstim") %>%
+                                    mutate(
+                                      Type = case_when(
+                                        Type == "MeanSeTE" ~ "Estimated",
+                                        Type == "SdTE" ~ "Truth",
+                                        TRUE ~ ""
+                                      ),
+                                      Type = factor(Type,levels=c("Truth","Estimated"))
+                                    )
+
+ggplot(sf.simuls.MonteCarlo.DID,aes(x=TimeToTreatment,y=NetTE,group=Type,color=Type,linetype=Type))+
+#  geom_pointrange(aes(ymin=TE-1.96*SeEstim,ymax=TE+1.96*SeEstim),position=position_dodge(1))+
+  geom_point(color='red') +
+  geom_errorbar(aes(ymin=NetTE-1.96*SeEstim,ymax=NetTE+1.96*SeEstim,color=Type,group=Type,linetype=Type),position=position_dodge(0.9),width=0.3)+
+  scale_x_continuous(breaks=c(-3:3)) +
+  theme_bw()+
+  facet_grid(Group~Method)
+
+```
+
+It seems that the `fixest` implementation of the Sun and Abraham estimator overestimates sampling noise for some individual treatment effects (for example $d=2$ and $\tau=0$), while it underestimates sampling noise for the aggregated treatment effect.
+The $2\times 2$ DID estimator seems to provide much more consistent estimates of the precision of the individual level treatment effects.
+Both the `fixest` implementation of the Sun and Abraham estimator and our Stacked DID estimator seem to underestimate the sampling noise of the ATT parameter.
+We are going to study whether this is the case and what to do about it in Chapter \@ref(cluster).
 
 ### Difference In Differences with Instrumental Variables
 
