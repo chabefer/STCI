@@ -224,7 +224,7 @@ Slutsky's Theorem states that if $Y_N\stackrel{d}{\rightarrow}y$ and $\text{plim
 
 1. $X_N+Y_N\stackrel{d}{\rightarrow}x+y$
 2. $X_NY_N\stackrel{d}{\rightarrow}xy$
-3. $\frac{Y_N}{X_N}\stackrel{d}{\rightarrow}\frac{x}{y}$ if $x\neq0$
+3. $\frac{Y_N}{X_N}\stackrel{d}{\rightarrow}\frac{y}{x}$ if $x\neq0$
 
 Using this theorem, we have:
 
@@ -2719,3 +2719,396 @@ As a consequence, we have:
 \end{align*}
 
 which proves the result (with $\plim\bar{D}=p$ and $\plim\bar{D}_1=p_1$).
+
+## Proofs of results in Chapter \@ref(stratification)
+
+### Proof of Theorem \@ref(thm:SFEdecomp) {#proofSFEdecomp}
+
+The SFE estimator can be written in matrix form as follows:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1} \\	\vdots \\	Y_{N} \end{array}\right)}_{Y} & =
+    \underbrace{\left(\begin{array}{ccccccc}
+    1      & 0      & \dots & 0      & R_{1}\\
+    \vdots & \vdots &       & \vdots & \vdots\\
+    1      & 0      & \dots & 0      & \vdots  \\
+    0      & 1      & \dots & 0      & \vdots\\
+    \vdots & \vdots &       & \vdots & \vdots\\
+    0      & 1      & \dots & 0      & \vdots\\
+    \vdots & \vdots &       & \vdots & \vdots  \\
+    0      & 0      & \dots & 1      & \vdots\\
+    \vdots & \vdots &       & \vdots & \vdots\\
+    0      & 0      & \dots & 1      & R_{N}\\
+    \end{array}\right)}_{X^{SFE}}
+  \underbrace{\left(\begin{array}{c}  \alpha^{SFE}_{1}\\ \alpha^{SFE}_{2} \\ \vdots\\ \alpha^{SFE}_{S} \\ \beta^{SFE} \end{array}\right)}_{\Theta^{SFE}} +
+  \underbrace{\left(\begin{array}{c}	\epsilon^{SFE}_{1} \\	\vdots \\	\epsilon^{SFE}_{N} \end{array}\right),}_{\epsilon^{SFE}}
+\end{align*}
+
+where all observations are ordered by strata, and strata indices go from $1$ tp $S$ since there are $S$ strata.
+We are going to apply Theorem \@ref(thm:FWL), *i.e.* Frish-Waugh-Lovell Theorem, partialling out the strata fixed effects from the list of regressors.
+Let $X^{SFE}_1$ denote the matrix of strata fixed effects.
+We have:
+
+\begin{align*}
+  (X^{SFE}_1)'X^{SFE}_1 & = \left(\begin{array}{cccc}
+  N_1 & 0 & \dots & 0\\
+  0 & N_2 & \dots & 0\\
+  \vdots & \vdots & \ddots & \vdots\\
+  0 & 0 & \dots & N_S
+  \end{array}\right)
+\end{align*}
+
+and therefore 
+
+\begin{align*}
+  ((X^{SFE}_1)'X^{SFE}_1)^{-1} & = \left(\begin{array}{cccc}
+  \frac{1}{N_1} & 0 & \dots & 0\\
+  0 & \frac{1}{N_2} & \dots & 0\\
+  \vdots & \vdots & \ddots & \vdots\\
+  0 & 0 & \dots & \frac{1}{N_S}
+  \end{array}\right),
+\end{align*}
+
+since the inverse of a diagonal matrix is the diagonal matrix of the inverses of each of its diagonal terms.
+We also have:
+
+\begin{align*}
+  (X^{SFE}_1)'Y & = \left(\begin{array}{c}
+  \sum_{i\in\mathcal{I}(1)}Y_i \\
+\vdots   \\
+  \sum_{i\in\mathcal{I}(S)}Y_i
+  \end{array}\right)
+\end{align*}
+
+and therefore
+
+\begin{align*}
+   ((X^{SFE}_1)'X^{SFE}_1)^{-1}(X^{SFE}_1)'Y & = \left(\begin{array}{c}
+  \bar{Y}_1 \\
+\vdots   \\
+  \bar{Y}_S
+  \end{array}\right)
+\end{align*}
+
+where $\bar{Y}_s=\frac{\sum_{i\in\mathcal{I}(s)}Y_i }{N_s}$, and finally:
+
+\begin{align*}
+   M_1Y & = Y-X^{SFE}_1((X^{SFE}_1)'X^{SFE}_1)^{-1}(X^{SFE}_1)'Y  = \left(\begin{array}{c}
+  Y_1-\bar{Y}_1 \\
+\vdots   \\
+  Y_{\max\mathcal{I}(1)}-\bar{Y}_1 \\
+  Y_{\min\mathcal{I}(2)}-\bar{Y}_2 \\
+\vdots   \\
+  Y_{\max\mathcal{I}(2)}-\bar{Y}_2 \\
+\vdots   \\
+  Y_{\min\mathcal{I}(S)}-\bar{Y}_S \\
+\vdots   \\
+  Y_{N}-\bar{Y}_S 
+  \end{array}\right)
+\end{align*}
+
+Similarly, we have:
+
+\begin{align*}
+   M_1R & =\left(\begin{array}{c}
+  R_1-\bar{R}_1 \\
+\vdots   \\
+  R_{\max\mathcal{I}(1)}-\bar{R}_1 \\
+  R_{\min\mathcal{I}(2)}-\bar{R}_2 \\
+\vdots   \\
+  R_{\max\mathcal{I}(2)}-\bar{R}_2 \\
+\vdots   \\
+  R_{\min\mathcal{I}(S)}-\bar{R}_S \\
+\vdots   \\
+  R_{N}-\bar{R}_S 
+  \end{array}\right)
+\end{align*}
+
+Let us now form the OLS estimator of $\beta^{SFE}$ which is equal to $\hat{\beta}^{SFE}=((M_1R)'M_1R)^{-1}(M_1R)'M_1Y$ by Theorem \@ref(thm:FWL).
+We have:
+
+\begin{align*}
+  (M_1R)'M_1Y & = \sum_{i=1}^{N}(R_i-\bar{R}_{\mathbf{s}(i)})(Y_i-\bar{Y}_{\mathbf{s}(i)})\\
+              & = \sum_{i=1}^{N}R_iY_i -\sum_{i=1}^{N}\bar{R}_{\mathbf{s}(i)}Y_i-\sum_{i=1}^{N}R_i\bar{Y}_{\mathbf{s}(i)}+\sum_{i=1}^{N}\bar{R}_{\mathbf{s}(i)}\bar{Y}_{\mathbf{s}(i)}\\
+              & = \sum_{i=1}^{N}R_iY_i -\sum_{s=1}^{S}\bar{R}_{s}\sum_{i\in\mathcal{I}(s)}Y_i-\sum_{s=1}^{S}\bar{Y}_{s}\sum_{i\in\mathcal{I}(s)}R_i+\sum_{s=1}^{S}\bar{R}_{s}\bar{Y}_{s}\sum_{i\in\mathcal{I}(s)}1\\
+              & = \sum_{i=1}^{N}R_iY_i -\sum_{s=1}^{S}\bar{R}_{s}N_s\bar{Y}_{s}-\sum_{s=1}^{S}\bar{Y}_{s}N_s\bar{R}_{s}+\sum_{s=1}^{S}\bar{R}_{s}\bar{Y}_{s}N_s\\
+             & = \sum_{i=1}^{N}R_iY_i -\sum_{s=1}^{S}N_s\bar{R}_{s}\bar{Y}_{s}.
+\end{align*}
+
+If we write $\overline{RY}_s=\frac{1}{N_s}\sum_{i\in\mathcal{I}(s)}R_iY_i$, we have $\sum_{i=1}^{N}R_iY_i=\sum_{s=1}^{S}N_s\overline{RY}_s$, and therefore:
+
+\begin{align*}
+  (M_1R)'M_1Y & = \sum_{s=1}^{S}N_s(\overline{RY}_s-\bar{R}_{s}\bar{Y}_{s})\\
+              & = \sum_{s=1}^{S}N_s\left(\frac{1}{N_s}\sum_{i\in\mathcal{I}(s)}R_iY_i-\frac{1}{N_s}\sum_{i\in\mathcal{I}(s)}R_i\frac{1}{N_s}\sum_{i\in\mathcal{I}(s)}Y_i\right)\\
+              & = \sum_{s=1}^{S}\left(\sum_{i\in\mathcal{I}(s)}R_iY_i-\frac{1}{N_s}\sum_{i\in\mathcal{I}(s)}R_i\sum_{i\in\mathcal{I}(s)}Y_i\right)
+\end{align*}
+
+At the same time, 
+
+\begin{align*}
+  (M_1R)'M_1R & = \sum_{i=1}^{N}(R_i-\bar{R}_{\mathbf{s}(i)})^2\\
+              & = \sum_{i=1}^{N}R_i^2-2\sum_{i=1}^{N}R_i\bar{R}_{\mathbf{s}(i)}+\sum_{i=1}^{N}\bar{R}^2_{\mathbf{s}(i)}\\
+              & = \sum_{i=1}^{N}R_i-2\sum_{s=1}^{S}N_s\bar{R}^2_s+\sum_{s=1}^{S}N_s\bar{R}^2_{s}\\
+              & = \sum_{s=1}^{S}N_s\bar{R}_s-2\sum_{s=1}^{S}N_s\bar{R}^2_s+\sum_{s=1}^{S}N_s\bar{R}^2_{s}\\
+              & = \sum_{s=1}^{S}N_s\bar{R}_s-\sum_{s=1}^{S}N_s\bar{R}^2_s\\
+              & = \sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s).
+\end{align*}
+
+As a consequence, we have:
+
+\begin{align*}
+  \hat{\beta}^{SFE} & = \frac{\sum_{s=1}^{S}\left(\sum_{i\in\mathcal{I}(s)}R_iY_i-\frac{1}{N_s}\sum_{i\in\mathcal{I}(s)}R_i\sum_{i\in\mathcal{I}(s)}Y_i\right)}{\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)}\\
+                    & = \sum_{s=1}^{S}\frac{\sum_{i\in\mathcal{I}(s)}R_i(1-\bar{R}_s)}{\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)}
+                                      \frac{\sum_{i\in\mathcal{I}(s)}R_iY_i-\frac{1}{N_s}\sum_{i\in\mathcal{I}(s)}R_i\sum_{i\in\mathcal{I}(s)}Y_i}{\sum_{i\in\mathcal{I}(s)}R_i(1-\bar{R}_s)}\\
+                    & = \sum_{s=1}^{S}\frac{N_s\bar{R}_s(1-\bar{R}_s)}{\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)}\hat{\Delta}^Y_{WW_s}\\
+                    & = \sum_{s=1}^{S}w^{SFE}_s\hat{\Delta}^Y_{WW_s},
+\end{align*}
+
+where the penultimate line uses the last equation in the proof of Lemma \@ref(lem:WWOLS) and the last line uses the definition of $w^{SFE}_s$.
+This proves the result.
+
+### Proof of Theorem \@ref(thm:SFEconsistent) {#proofSFEconsistent}
+
+Using Slutsky's Theorem, we have $\plims\hat{\beta}^{SFE}=\sum_{s=1}^{S}\plims w_s\plims\hat{\Delta}^Y_{WW_s}$.
+Examining the terms separately, we have:
+
+\begin{align*}
+  \plims\hat{\Delta}^Y_{WW_s} & = \esp{Y_i|R_i=1,\mathbf{s}(i)=s}-\esp{Y_i|R_i=0,\mathbf{s}(i)=s} \\
+                              & = \esp{Y^1_i-Y^0_i|\mathbf{s}(i)=s}\\
+                              & = \Delta^Y_{ATE_s}    
+\end{align*}
+
+where the first equality uses the Law of Large Numbers and the second equality uses Assumption \@ref(def:independenceStrata) and \@ref(def:BF).
+The last equality is a definition.
+We also gave:
+
+\begin{align*}
+  \plims w^{SFE}_s & = \frac{\plims\frac{N_s}{N}\plims\bar{R}_s(1-\plims\bar{R}_s)}{\sum_{s\in\mathcal{S}}\plims\frac{N_s}{N}\plims\bar{R}_s(1-\plims\bar{R}_s)}\\
+             & = \frac{\plims\frac{N_s}{N}\pi(1-\pi)}{\sum_{s\in\mathcal{S}}\plims\frac{N_s}{N}\pi(1-\pi)}\\
+             & = \frac{\plims\frac{N_s}{N}\pi(1-\pi)}{\sum_{s\in\mathcal{S}}\plims\frac{N_s}{N}\pi(1-\pi)}\\
+             & = \plims\frac{N_s}{N}\\
+             & = \Pr(\mathbf{s}(i)=s)
+\end{align*}
+
+where the first equality follows from Slutsky's Theorem and Assumption \@ref(hyp:fullrankStrata), the second equality from the fact that, as sample size grows, the proportion of treated in each strata converges to $\pi$ and the last equality follows from the Law of Large Numbers.
+The final result follows from the Law of Iterated Expectations.
+
+### Proof of Theorem \@ref(thm:SATUnbiasedConsistent) {#proofSATUnbiasedConsistent}
+
+The first step of the proof is to actually show that estimating the fully saturated model by OLS is equivalent to running a separate OLS regression in each strata.
+This is what the following lemma shows:
+
+```{lemma,SATOLS,name="The fully saturated model is OLS in each strata"}
+Under Assumption \@ref(hyp:fullrankStrata), the OLS estimates of $\alpha^{SAT}=\left\{\hat{\alpha}^{SAT}_1,\dots,\hat{\alpha}^{SAT}_S\right\}$ and $\beta^{SAT}=\left\{\beta^{SAT}_1,\dots,\beta^{SAT}_S\right\}$ in the fully staturated model: 
+
+\begin{align*}
+  Y_i & = \sum_{s\in\mathcal{S}}\alpha^{SAT}_s\uns{\mathbf{s}(i)=s}+\sum_{s\in\mathcal{S}}\beta_s^{SAT}R_i + \epsilon^{SAT}_i,
+\end{align*}
+
+are equivalent to estimating each regression separately on each strata using OLS and
+
+\begin{align*}
+\hat{\beta}^{SAT}_{s} & = \hat{\Delta}^Y_{WW_s}.
+\end{align*}
+```
+
+```{proof}
+The SAT estimator can be written in matrix form as follows:
+
+\begin{align*}
+  \underbrace{\left(\begin{array}{c}  Y_{1} \\	\vdots \\	Y_{N} \end{array}\right)}_{Y} & =
+    \underbrace{\left(\begin{array}{cccccccccc}
+    1      & 0      & \dots & 0      & R_{1}                  & 0                      & \dots & 0 \\
+    \vdots & \vdots &       & \vdots & \vdots                 & \vdots                 & \dots & \vdots\\
+    1      & 0      & \dots & 0      & R_{\max\mathcal{I}(1)} & 0                      & \dots & \vdots  \\
+    0      & 1      & \dots & 0      & 0                      & R_{\min\mathcal{I}(2)} & \dots & \vdots \\
+    \vdots & \vdots &       & \vdots & \vdots                 & \vdots                 & \dots & \vdots \\
+    0      & 1      & \dots & 0      & \vdots                 & R_{\max\mathcal{I}(2)} & \dots & \vdots \\
+    \vdots & \vdots &       & \vdots & \vdots                 & 0                      & \dots &  0  \\
+    0      & 0      & \dots & 1      & \vdots                 & \vdots                 & \dots & R_{\min\mathcal{I}(S)}\\
+    \vdots & \vdots &       & \vdots & \vdots                 & \vdots                 & \dots & \vdots\\
+    0      & 0      & \dots & 1      & 0                      & 0                      & \dots & R_{N} \\
+    \end{array}\right)}_{X^{SAT}}
+  \underbrace{\left(\begin{array}{c}  \alpha^{SAT}_{1}\\ \alpha^{SAT}_{2} \\ \vdots\\ \alpha^{SAT}_{S} \\ \beta^{SAT}_{1}\\ \beta^{SAT}_{2} \\ \vdots\\ \beta^{SAT}_{S} \end{array}\right)}_{\Theta^{SAT}} +
+  \underbrace{\left(\begin{array}{c}	\epsilon^{SAT}_{1} \\	\vdots \\	\epsilon^{SAT}_{N} \end{array}\right),}_{\epsilon^{SAT}}
+\end{align*}
+
+where all observations are ordered by strata, and strata indices go from $1$ tp $S$ since there are $S$ strata.
+We are going to apply Theorem \@ref(thm:FWL), *i.e.* Frish-Waugh-Lovell Theorem, partialling out the strata fixed effects from the list of regressors.
+Let $X^{SAT}_1$ denote the matrix of strata fixed effects.
+Following the proof of Theorem \@ref(thm:SFEdecomp) in Section \@ref(proofSFEdecomp), we know that:
+
+\begin{align*}
+   M_1Y & = Y-X^{SAT}_1((X^{SAT}_1)'X^{SAT}_1)^{-1}(X^{SAT}_1)'Y  = \left(\begin{array}{c}
+  Y_1-\bar{Y}_1 \\
+\vdots   \\
+  Y_{\max\mathcal{I}(1)}-\bar{Y}_1 \\
+  Y_{\min\mathcal{I}(2)}-\bar{Y}_2 \\
+\vdots   \\
+  Y_{\max\mathcal{I}(2)}-\bar{Y}_2 \\
+\vdots   \\
+  Y_{\min\mathcal{I}(S)}-\bar{Y}_S \\
+\vdots   \\
+  Y_{N}-\bar{Y}_S 
+  \end{array}\right)
+\end{align*}
+
+Similarly, we have:
+
+\begin{align*}
+   M_1\mathbf{R} & =\left(\begin{array}{cccc}
+   R_{1}-\bar{R}_1               & 0                                & \dots & 0 \\
+\vdots                           & \vdots                           & \dots & \vdots\\
+R_{\max\mathcal{I}(1)}-\bar{R}_1 & 0                                & \dots & \vdots  \\
+0                                & R_{\min\mathcal{I}(2)}-\bar{R}_2 & \dots & \vdots \\
+\vdots                           & \vdots                           & \dots & \vdots \\
+\vdots                           & R_{\max\mathcal{I}(2)}-\bar{R}_2 & \dots & \vdots \\
+\vdots                           & 0                                & \dots & R_{\min\mathcal{I}(S)}-\bar{R}_S   \\
+\vdots                           & \vdots                           & \dots & \vdots\\
+0                                & 0                                & \dots & R_{N}-\bar{R}_S \\
+  \end{array}\right)
+\end{align*}
+
+where $\mathbf{R}$ is the matrix of interactions between treatment status and strata fixed effects.
+Let us now form the OLS estimator of $\mathbf{\beta}^{SAT}=\left\{\beta^{SAT}_1,\dots,\beta^{SAT}_S\right\}$ which is equal to $\hat{\mathbf{\beta}}^{SAT}=((M_1\mathbf{R})'M_1\mathbf{R})^{-1}(M_1\mathbf{R})'M_1Y$ by Theorem \@ref(thm:FWL).
+We have:
+
+\begin{align*}
+   (M_1\mathbf{R})'M_1\mathbf{R} & =\left(\begin{array}{cccc}
+   \sum_{i\in\mathcal{I}(1)}(R_{i}-\bar{R}_1)^2 & 0                                & \dots & 0 \\
+0                                & \sum_{i\in\mathcal{I}(2)}(R_{i}-\bar{R}_2)^2  & \dots & \vdots \\
+\vdots                           & \vdots                           & \ddots & 0 \\
+0                                & 0                                & \dots & \sum_{i\in\mathcal{I}(S)}(R_{i}-\bar{R}_S)^2  \\
+  \end{array}\right)
+\end{align*}
+
+and:
+
+\begin{align*}
+   (M_1\mathbf{R})'M_1Y & =\left(\begin{array}{c}
+   \sum_{i\in\mathcal{I}(1)}(R_{i}-\bar{R}_1)(Y_{i}-\bar{Y}_1) \\
+   \sum_{i\in\mathcal{I}(2)}(R_{i}-\bar{R}_2)(Y_{i}-\bar{Y}_2) \\
+   \vdots \\
+ \sum_{i\in\mathcal{I}(S)}(R_{i}-\bar{R}_S)(Y_{i}-\bar{Y}_S)\\
+  \end{array}\right)
+\end{align*}
+
+Under Assumption \@ref(hyp:fullrankStrata), we have:
+
+\begin{align*}
+  \hat{\mathbf{\beta}}^{SAT} & = \left(\begin{array}{c}
+   \frac{\sum_{i\in\mathcal{I}(1)}(R_{i}-\bar{R}_1)(Y_{i}-\bar{Y}_1)}{\sum_{i\in\mathcal{I}(1)}(R_{i}-\bar{R}_1)^2}  \\
+\frac{\sum_{i\in\mathcal{I}(2)}(R_{i}-\bar{R}_2)(Y_{i}-\bar{Y}_2)}{\sum_{i\in\mathcal{I}(2)}(R_{i}-\bar{R}_2)^2} \\
+\vdots \\
+ \frac{\sum_{i\in\mathcal{I}(S)}(R_{i}-\bar{R}_S)(Y_{i}-\bar{Y}_S)}{\sum_{i\in\mathcal{I}(S)}(R_{i}-\bar{R}_S)^2}  \\
+  \end{array}\right) \\
+  & = \left(\begin{array}{c}
+   \Delta^Y_{WW_1}  \\
+\Delta^Y_{WW_2} \\
+\vdots \\
+ \Delta^Y_{WW_S}  \\
+  \end{array}\right),
+\end{align*}
+
+where the second equality uses Lemma \@ref(lem:WWOLS).
+Similar derivations show that $\hat{\mathbf{\alpha}}^{SAT}=\left\{\hat{\alpha}^{SAT}_1,\dots,\hat{\alpha}^{SAT}_S\right\}$ is equal to the mean outcome of the untreated in each strata, as proven in the proof of Lemma \@ref(lem:WWOLS) in Section \@ref(proofCLT).
+This completes the proof.
+```
+
+We now have:
+
+\begin{align*}
+  \esp{\hat{\Delta}^{Y}_{SAT}}  & = \esp{\sum_{s\in\mathcal{S}}w^{SAT}\beta_s^{SAT}} \\
+                                & = \esp{\sum_{s\in\mathcal{S}}\frac{N_s}{N}\hat{\Delta}^Y_{WW_s}} \\
+                                & = \sum_{s\in\mathcal{S}}\esp{\frac{N_s}{N}\hat{\Delta}^Y_{WW_s}} \\
+                                & = \sum_{s\in\mathcal{S}}\esp{\frac{N_s}{N}}\esp{\hat{\Delta}^Y_{WW_s}} \\
+                                & = \sum_{s\in\mathcal{S}}\Pr(\mathbf{s}(i)=s)\Delta^Y_{ATE_s} \\
+                                & = \Delta^Y_{ATE}
+\end{align*}
+
+where the first equality uses the definition of the estimator in the saturated model, the second equality uses Lemma \@ref(lem:SATOLS), the third and fourth equalities use Assumption \@ref(def:independence), the fifth equality uses Lemma \@ref(lem:unbiasww) which proves that $\esp{\hat{\Delta}^Y_{WW_s}}=\Delta^Y_{ATE_s}=\esp{Y_i^1-Y_i^0|\mathbf{s}(i)=s}$ and that the proportion of observation in a strata in the sample is an unbiased estimate of the proportion of observations in that strata in the population.
+The last equality follows from the Law of Iterated Expectations.
+
+We also have:
+
+\begin{align*}
+  \plims\hat{\Delta}^{Y}_{SAT}  & = \plims\sum_{s\in\mathcal{S}}w^{SAT}\beta_s^{SAT} \\
+                                & = \plims\sum_{s\in\mathcal{S}}\frac{N_s}{N}\hat{\Delta}^Y_{WW_s} \\
+                                & = \sum_{s\in\mathcal{S}}\plims\frac{N_s}{N}\hat{\Delta}^Y_{WW_s} \\
+                                & = \sum_{s\in\mathcal{S}}\plims\frac{N_s}{N}\plims\hat{\Delta}^Y_{WW_s} \\
+                                & = \sum_{s\in\mathcal{S}}\Pr(\mathbf{s}(i)=s)\Delta^Y_{ATE_s} \\
+                                & = \Delta^Y_{ATE}
+\end{align*}
+
+where the first equality uses the definition of the estimator in the saturated model, the second equality uses Lemma \@ref(lem:SATOLS), the third and fourth equalities use Slutsky's Theorem, the fifth equality uses the fact that, under Assumptions \@ref(def:independence), \@ref(def:BF) and \@ref(hyp:fullrankStrata), the OLS estimator in each strata is a consistent estimator of the average treatment effect in the strata $\Delta^Y_{ATE_s}=\esp{Y_i^1-Y_i^0|\mathbf{s}(i)=s}$ and the proportion of observation in a strata in the sample is a consistent estimate of the proportion of observations in that strata in the population.
+the last equality follows from the Law of Iterated Expectations.
+This completes the proof.
+
+### Proof of Theorem \@ref(thm:asympnoiseSATStrata) {#proofasympnoiseSATStrata}
+
+Under Assumptions \@ref(hyp:fullrankStrata), \@ref(hyp:independenceStrata), \@ref(hyp:iidStrata) and \@ref(hyp:finitevarStrata), we can apply Lemma \@ref(lem:asymWW) within each strata to derive the asymptotic distribution of the $WW$ estimator within each strata: 
+
+\begin{align*}
+  \sqrt{N}(\hat{\Delta}^Y_{WW_s}-\Delta^Y_{ATE_s}) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\frac{1}{p_s}\left(\frac{\var{Y_i^1|R_i=1,\mathbf{s}(i)=s}}{\Pr(R_i=1)}+\frac{\var{Y_i^0|R_i=0,\mathbf{s}(i)=s}}{1-\Pr(R_i=1)}\right)\right).
+\end{align*}
+
+The term in $\frac{1}{p_s}$ appears because, when applying Lemma \@ref(lem:asymWW) in strata $s$, the effective sample size is $N_s=p_sN$, following Assumption \@ref(hyp:cstStrataProportion).
+Note also that, under Assumption \@ref(hyp:iidStrata), all the $\hat{\Delta}^Y_{WW_s}$ are independent across strata, so that their covariances are zero.
+Using the Delta method, we thus have: 
+
+\begin{align*}
+  \sqrt{N}(\hat{\Delta}^Y_{SAT}-\Delta^Y_{ATE}) &  \stackrel{d}{\rightarrow}
+  \mathcal{N}\left(0,\sum_{s\in\mathcal{S}}\frac{p^2_s}{p_s}\left(\frac{\var{Y_i^1|R_i=1,\mathbf{s}(i)=s}}{\Pr(R_i=1)}+\frac{\var{Y_i^0|R_i=0,\mathbf{s}(i)=s}}{1-\Pr(R_i=1)}\right)\right).
+\end{align*}
+
+The results follows.
+
+### Proof of Theorem \@ref(thm:asympnoiseSFEStrata) {#proofasympnoiseSFEStrata}
+
+Under Assumptions \@ref(hyp:fullrankStrata), \@ref(hyp:independenceStrata), \@ref(hyp:iidStrata), \@ref(hyp:finitevarStrata) and \@ref(hyp:cstStrataProportion), we know that $\sqrt{N}\left(\hat{\beta}^{SFE}-\Delta^{Y}_{ATE}\right) \distr \mathcal{N}\left(0,\hat\Omega\right)$ with $\hat\Omega=N(X'X)^{-1}(X'\diag(\hat\epsilon_1,\dots,\hat\epsilon_N)X)(X'X)^{-1}$ and $X= M_1\mathbf{R}$ in the notation of the proof of Theorem \@ref(thm:SFEdecomp) in Section \@ref(proofSFEdecomp) and $\hat\epsilon_1=\hat\epsilon^{SFE}_1$.
+This follows first from the classical results of Huber, Eicker and White on heteroskedasticity-robust variance estimators (see for example the [Wikipedia entry](https://en.wikipedia.org/wiki/Heteroskedasticity-consistent_standard_errors)).
+I also use Theorem \@ref(thm:FWL) as is has been applied to the strata fixed effects estimator in the proof of Theorem \@ref(thm:SFEdecomp) in Section \@ref(proofSFEdecomp).
+Under Assumption \@ref(hyp:cstStrataProportion), I can consider the strata fixed effects as constants, and therefore I can disregard sampling noise stemming from the estimation of their proportions.
+As a results, I can apply the heteroskedasticity-robust variance estimator to the data after partialling out the strata-fixed effects.
+From the proof of Theorem \@ref(thm:SFEdecomp) in Section \@ref(proofSFEdecomp), we know that $X'X=\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)$.
+We also have:
+
+\begin{align*}
+  X'\diag(\hat\epsilon_1,\dots,\hat\epsilon_N)X & = \sum_{i=1}^N(R_i-\bar{R}_{\mathbf{s}(i)})^2\epsilon_i^2 \\
+    & = \sum_{i=1}^NR_i\epsilon_i^2-2\sum_{i=1}^NR_i\bar{R}_{\mathbf{s}(i)}\epsilon_i^2+\sum_{i=1}^N\bar{R}_{\mathbf{s}(i)}^2\epsilon_i^2 \\
+    & = \sum_{s=1}^SN_s^1\sigma_{\epsilon^1_s}^2-2\sum_{s=1}^S\bar{R}_sN_s^1\sigma_{\epsilon^1_s}^2+\sum_{s=1}^S\bar{R}^2_sN_s\left(\frac{N_s^1}{N_s}\sigma_{\epsilon^1_s}^2+\frac{N_s^0}{N_s}\sigma_{\epsilon^0_s}^2\right) \\
+    & = \sum_{s=1}^SN_s^1\sigma_{\epsilon^1_s}^2(1-2\bar{R}_s+\bar{R}^2_s)+\sum_{s=1}^SN_s^0\sigma_{\epsilon^0_s}^2\bar{R}^2_s \\
+    & = \sum_{s=1}^SN_s^1\sigma_{\epsilon^1_s}^2(1-\bar{R}_s)^2+\sum_{s=1}^SN_s^0\sigma_{\epsilon^0_s}^2\bar{R}^2_s,
+\end{align*}
+
+where the first equality follows from the proof of Theorem \@ref(thm:SFEdecomp) in Section \@ref(proofSFEdecomp), the third equality follows from summing over strata and denoting $\sigma_{\epsilon^1_s}^2=\frac{\sum_{i\in\mathcal{I}(s)}R_i\epsilon_i^2}{N_s^1}$ and $N_s^1=\sum_{i\in\mathcal{I}(s)}R_i$.
+Rearranging gives:
+
+\begin{align*}
+  \hat\Omega & = N \sum_{s=1}^S\frac{N_s^1(1-\bar{R}_s)^2\sigma_{\epsilon^1_s}^2+N_s^0\bar{R}^2_s\sigma_{\epsilon^0_s}^2}{\left(\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)\right)^2}\\
+            & = N \sum_{s=1}^S\frac{N_s\bar{R}_s^2(1-\bar{R}_s)^2\frac{\sigma_{\epsilon^1_s}^2}{\bar{R}_s}+N_s(1-\bar{R}_s)^2\bar{R}^2_s\frac{\sigma_{\epsilon^0_s}^2}{1-\bar{R}_s}}{\left(\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)\right)^2}\\
+            & = N \sum_{s=1}^S\frac{N_s\bar{R}_s^2(1-\bar{R}_s)^2}{\left(\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)\right)^2}\left(\frac{\sigma_{\epsilon^1_s}^2}{\bar{R}_s}+\frac{\sigma_{\epsilon^0_s}^2}{1-\bar{R}_s}\right)\\
+            & = \sum_{s=1}^S\frac{N}{N_s}\frac{N_s^2\bar{R}_s^2(1-\bar{R}_s)^2}{\left(\sum_{s=1}^{S}N_s\bar{R}_s(1-\bar{R}_s)\right)^2}\left(\frac{\sigma_{\epsilon^1_s}^2}{\bar{R}_s}+\frac{\sigma_{\epsilon^0_s}^2}{1-\bar{R}_s}\right)\\
+            & = \sum_{s=1}^S\frac{(w^{SFE}_s)^2}{p_s}\left(\frac{\sigma_{\epsilon^1_s}^2}{\bar{R}_s}+\frac{\sigma_{\epsilon^0_s}^2}{1-\bar{R}_s}\right).
+\end{align*}
+
+Using the fact that $\plims\bar{R}_s=\Pr(R_i=1|\mathbf{s}(i)=1)$ and $\plims\sigma_{\epsilon^d_s}^2=\var{Y_i^d|R_i=d,\mathbf{s}(i)=s}$ proves the result.
+
+### Proof of Theorem \@ref(thm:PairUnbiasedConsistent) {#proofPairUnbiasedConsistent}
+
+Classical results on OLS with a single dummy variable as regressor imply that 
+
+\begin{align*}
+  \hat{\alpha}^{PD} & = \frac{1}{\frac{N}{2}}\sum_{s=1}^S\Delta_s^Y \\
+                    & = \frac{2}{N}\sum_{s=1}^S\left(Y_{i\in\mathcal{I}(s)\land D_i=1}-Y_{j\in\mathcal{I}(s)\land D_j=0}\right)\\
+                    & = \frac{2}{N}\sum_{i=1}^N\left(Y_{i}D_i-Y_{i}(1-D_i)\right)\\
+                    & = \frac{1}{\sum_{i=1}^ND_i}\sum_{i=1}^NY_{i}D_i-\frac{1}{\sum_{i=1}^N(1-D_i)}\sum_{i=1}^NY_{i}(1-D_i)\\
+                    & = \Delta^Y_{WW}
+\end{align*}                    
+
+As a consequence, using Lemma \@ref(lem:unbiasww) proves unbiasedness of the pairwise difference estimator.
+Consistency follows from the Law of Large Numbers.
+Direct application of Theorems \@ref(thm:SFEdecomp) and \@ref(thm:SATUnbiasedConsistent) with $\bar{R}_s=\frac{1}{2}$, $\forall s$ prove that the pairwise difference estimator is also identical to the strata fixed effects and fully saturated estimators.
+This completes the proof.
+
