@@ -2720,6 +2720,88 @@ As a consequence, we have:
 
 which proves the result (with $\plim\bar{D}=p$ and $\plim\bar{D}_1=p_1$).
 
+## Proofs of results in Chapter \@ref(Diffusion)
+
+### Proof of Theorem \@ref(thm:SmoothSymAlloc) {#proofSmoothSymAlloc}
+
+The Lagrangian corresponding to the optimization problem is:
+
+\begin{align*}
+  \mathcal{L} & = \sum_{k=1}^K n_kA\left(\frac{r_k}{n_k}\right) + \lambda\left(\bar{R}-\sum_{k=1}^Kr_k\right) + \sum_{k=1}^K\mu_k(n_k-r_k),
+\end{align*}
+
+with $\lambda$ and $\mu_k$ the Lagrange multipliers.
+
+Let us first start with the case where $A''<0$.
+In that case, the optimization problem is concave (the objective function is concave and all the constraints are linear, thus convex).
+The Kuhn and Tucker conditions are thus both necessary and sufficient for optimality.
+These conditions are:
+
+\begin{align*}
+  \partder{\mathcal{L}}{r_k} & = A'\left(\frac{r_k}{n_k}\right)-\lambda-\mu_k \leq 0, & r_k & \geq 0, & r_k\partder{\mathcal{L}}{r_k} & = 0\\
+  \partder{\mathcal{L}}{\lambda} & = \bar{R}-\sum_{k=1}^Kr_k \geq 0, & \lambda & \geq 0, & \lambda\partder{\mathcal{L}}{\lambda} & = 0\\
+  \partder{\mathcal{L}}{\mu_k} & = n_k-r_k \geq 0, & \mu_k & \geq 0, & \mu_k\partder{\mathcal{L}}{\mu_k} & = 0.
+\end{align*}
+
+Let us first examine whether there is a symmetric interior solution where the stock of effort is exhausted, that is with $\bar{R}=\sum_{k=1}^Kr_k$.
+This will happen when $0<r_k<n_k$, $\forall k$ and $\lambda>0$.
+As a consequence, we have that $\mu_k=0$, $\forall k$ and $A'\left(\frac{r_k}{n_k}\right)=\lambda$, $\forall k$.
+Since $A''<0$, $A'$ is invertible and we have $\frac{r_k^*}{n_k}=A'^{-1}(\lambda)=p^*$, $\forall k$.
+We have thus $\sum_{k=1}^Kr_k^*=\sum_{k=1}^Kp^*n_k=p^*N=\bar{R}$, and thus $p^*=\frac{\bar{R}}{N}$.
+There is thus a symmetric interior optimum where all nodes are treated in the same proportion.
+We are now going to show that this optimum is unique, that is that there is no asymmetric, non interior, non saturated solution.
+
+Let us start with the possibility of an asymmetric, interior, and saturated solution, that is $0<r_k<n_k$, $\forall k$ and $\lambda>0$, but with $\frac{r_k}{n_k}\neq \frac{r_j}{n_j}$ for some $j\neq k$.
+This is impossible, since $A'\left(\frac{r_k}{n_k}\right)=\lambda$, $\forall k$ implies that $\frac{r_k}{n_k}= \frac{r_j}{n_j},$ $\forall j\neq k$.
+
+Let us now examine the possibility of a symmetric corner solution.
+Let us start with the possibility that $r_k=n_k$, $\forall k$.
+This is impossible since we have $\bar{R}<N$.
+Now, let us look at the possibility that $r_k=0$, $\forall k$.
+In that case, $\lambda=0=\mu_k$, $\forall k$, and thus $A'(0)\leq 0$, which is a contradiction.
+
+Finally, let us examine whether there are asymmetric corner solutions.
+First, there might be some $k$ for which $\frac{r_k^*}{n_k}=A'^{-1}(\lambda)=p^*>0$, and some $j\neq k$ such that $r_j^*=0$, and thus $\mu_j=0$.
+If $\lambda=0$, we have $A'(0)\leq 0$, a contradiction with $A'>0$.
+If $\lambda>0$, we have $A'(0)=\lambda$, which is in contradiction with $A'\left(\frac{r_k^*}{n_k}\right)=\lambda$ and $\frac{r_k^*}{n_k}>0$, since $A''<0$.
+Second, there might be some $k$ for which $\frac{r_k^*}{n_k}=A'^{-1}(\lambda)=p^*$, and some $j\neq k$ such that $r_j^*=n_k$, and thus $\mu_j>0$.
+If $\lambda=0$, we have $A'(1)=\mu_j$.
+We also have $A'\left(\frac{r_k^*}{n_k}\right)=0$, a contradiction, since $A'>0$ by assumption.
+If $\lambda>0$, we have $A'(1)=\lambda + \mu_j$ and $A'\left(\frac{r_k^*}{n_k}\right)=\lambda$.
+Since $\mu_j>0$, we thus have $A'(1)>A'\left(\frac{r_k^*}{n_k}\right)$, and $\frac{r_k^*}{n_k}<1$, which is in contradiction with $A''<0$.
+This proves the first part of the result.
+
+Let us now examine the case with $A''>0$.
+Since all the constraints in the optimisation problem are linear, we know that the Kuhn and Tucker conditions are necessary conditions for an optimum.
+As a consequence, the conditions derived for the case when $A''<0$ are necessary for an optimum.
+A reasoning similar to the previous one shows us that the symmetric, saturated, interior equilibrium is a minimum (using the fact that $-A$ is concave, since $A$ is convex).
+So this solution cannot be an optimum.
+
+Now, can there be non saturated solutions?
+Non saturated solutions have $\lambda=0$.
+As a consequence, if $r_k<n_k$, we have $\mu_k=0$ and thus either $r_k=0$ and $A'(0)\leq 0$, or  $r_k>0$ and $A'(0)=0$, both in contradiction with $A'>0$.
+There also cannot be $r_k=n_k$, $\forall k$, since $\bar{R}<N$.
+So there cannot be non saturated solutions, and we thus have $\lambda>0$.
+
+Let us now examine whether there can be solutions that are saturated, asymmetric and corner.
+There can be solutions with some $j$ such that $r_j=0$ and some $k$ with $r_k<n_k$.
+Indeed, we have $\mu_j=0$, and thus $A'(0)\leq\lambda$ and $A'(\frac{r_k}{n_k})=\lambda$, which is compatible with $A''>0$.
+Another possible set of solutions is where some $j$ such that $r_j=1$ and some $k$ with $r_k<n_k$.
+Indeed, we have $\mu_j>0$, and thus $A'(1)=\lambda+\mu_j$, and $\mu_k=0$ and thus $A'(\frac{r_k}{n_k})=\lambda$, which is compatible with $A''>0$.
+Another possible set of solutions is where some $j$ such that $r_j=0$ and some $k$ with $r_k=n_k$.
+Indeed, we have $\mu_j=0$, and thus $A'(0)\leq\lambda$, and $\mu_k>0$ and thus $A'(1)=\lambda+\mu_k$, which is compatible with $A''>0$.
+A final possible set of solutions is where some $j$ are such that $r_j=0$, some $l$ are such that $r_l<n_l$ and some $k$ are such that $r_k=n_k$.
+Indeed, we have $\mu_j=0$, and thus $A'(0)\leq\lambda$, and $\mu_l=0$ and thus $A'(\frac{r_l}{n_l})=\lambda$, and finally $\mu_k>0$ and thus $A'(1)=\lambda+\mu_k$, which is compatible with $A''>0$.
+
+We are now going to show that the only optimum solution is one in which some $j$ are such that $r_j^*=0$ and the rest of nodes $l$ are such that $r_l^*=n_l$.
+If we treat a proportion $p$ of units in a node of size $n$, we obtain an increase in our objective function of $n(A(p)-A(0))$ for a cost in terms of treatment effort of $np$.
+Note that the optimum of this problem does not depend on $n$, so we can study $(A(p)-A(0))+\kappa(1-p)$, with $\kappa$ the multiplier associated with the constraint that $p\leq 1$.
+Since $A''>0$ and $A'>0$, we have that $A(1)-A(0)>A(p)-A(0)$, $\forall 0\leq p<1$.
+It implies that we can always divert some treatment effort away from some node $k$ such that $r_k<n_k$ to get another node closer to $r_l=n_l$ and increase total output.
+As a consequence, the only optimal solutions are such that $\sum_{k=1}^Kr_k^*=\bar{R}$ and there is a set of nodes $\mathcal{L}$ such that $r_l^*=n_l$, $\forall l\in\mathcal{L}$ and another set of nodes $\mathcal{J}$ such that $r_j^*=0$, $\forall j\in\mathcal{J}$.
+We also have, as a consequence, $\sum_{l\in\mathcal{L}}n_l=\bar{R}$ and $\sum_{j\in\mathcal{J}}n_j=N-\bar{R}$.
+This proves the second part of the result and completes the proof.
+
 ## Proofs of results in Chapter \@ref(stratification)
 
 ### Proof of Theorem \@ref(thm:SFEdecomp) {#proofSFEdecomp}

@@ -1,1 +1,354 @@
 # Diffusion effects {#Diffusion}
+
+Up until now, we have assumed that the treatment received by one unit in the population did not have any impact on any other unit.
+We have not encoded this assumption formally, but we have implicitly made it all along, starting with our encoding of Rubin Causal Model in Chapter \@ref(FPCI).
+In this chapter, we are going to relax that assumption, and learn how to deal with the more general cases that then appear.
+We are going to cover a host of very important applications, that go from identifying contagion effects to identifying the optimal proportion of individuals to treat at independent locations.
+We are first going to start by introducing an extended Rubin Causal Model allowing for diffusion effects and introducing ways to discipline this model so that it becomes estimable.
+We are then going to look at various ways to estimate this model and the precision of the resulting estimates, using RCTs, DID, and both parametric and non parametric approaches.
+Most of these developments are fairly recent and will enable us to get rapidly in touch with the research frontier.
+
+## Allowing for diffusion effects in Rubin Causal Model 
+
+In this section, we are going to detail how to encode causality in the presence of diffusion effects.
+We are going to start with potential outcomes and a general framework, before considering two very important special cases: the case where diffusion effects are absent and the case where they take a specific form.
+
+### Potential outcomes and treatment effects with diffusion effects
+
+The main starting point for an extended Rubin Causal Model is to acknowledge that the treatment status of the $N^*$ observations in the population (with $N^*$ possibly infinite) might influence the observed outcome for individual $i$.
+Let $\mathbf{d}=\left\{d_1,\dots,d_{N^*}\right\}$, with $d_j\in\left\{0,1\right\}$, $\forall j\in\left\{1,\dots,N^*\right\}$.
+We can therefore write the generalized potential outcome for individual $i$ as $Y_i^{\mathbf{d}}$.
+If we write $\mathbf{D}=\left\{D_1,\dots,D_{N^*}\right\}$, we can then write the observed outcome for individual $i$ as $Y_i^{\mathbf{D}}$.
+The average effect of the treatment becomes: 
+
+\begin{align*}
+  \Delta^Y_{ATE}(\mathbf{D}) & = \esp{Y_i^{\mathbf{D}}-Y_i^{\mathbf{0}}}\\
+                & = \esp{Y_i^{\mathbf{D}}-Y_i^{\mathbf{0}}|D_i=1}\Pr(D_i=1)+\esp{Y_i^{\mathbf{D}}-Y_i^{\mathbf{0}}|D_i=0}\Pr(D_i=0)\\
+                & = \Delta^Y_{TT}(\mathbf{D})\Pr(D_i=1)+\Delta^Y_{TUT}(\mathbf{D})\Pr(D_i=0)\\
+\end{align*}
+
+where $\mathbf{0}$ is the null vector of length $N^*$.
+Note that the average effect of the treatment is equal to a weighted average of the effect on the treated and the effect of the untreated. 
+Note also that these effects differ from the ones we defined in Chapters \@ref(FPCI) and \@ref(FPSI): they depend on the whole vector of treatment assignments.
+Indeed, the effect on the untreated is not the one we defined in Section \@ref(BiasOLS): it is not the difference between taking the treatment and not taking the treatment for those who do not take it.
+The TUT we have defined here is the difference in outcomes for the ones who do not take the treatment between a case where the treated individuals in the population receive the treatment and a case where no one receives the treatment.
+The only effect of the treatment on the untreated is indirect: it is the effect that transits through diffusion of the treatment effects from the treated to the untreated.
+It can be when farmers adopt technologies after seeing their treated neighbors adopt them, or when people contract less diseases because their neighbors are vaccinated.
+These effects can also be negative, for example when untreated job seekers are crowded out of a job by the job counselling received by the treated.
+In general, I like to call these effects **contagion** effects, to insist on the fact that they are indirect.
+
+Note that the effect on the treated also is different and depends on the whole treatment vector.
+In that case, we allow for the effect on the treated to depend on whether or not some or all of their neighbors are treated. 
+The effect of a vaccine might for example be higher when more people around us are vaccinated.
+Or a technology is more likely to be adopted if more neighbors are informed that it exists and encourage to adopt it.
+I call these types of effects **amplification** effects, to denote the fact that whether the treated react a lot or not to the treatment might depend on whether their neighbors are also treated.
+These effects might also be negative, for example when more job seekers receive counselling, the effectiveness of counselling on the treated might very well decrease.
+
+### Encoding the absence of diffusion effects
+
+In this section, we are going to state the assumption of absence of diffusion effects, that is required for all our previous estimators to work.
+This assumption, called the Stable Unit Treatment Value Assumption, is stated as follows:
+
+```{hypothesis,SUTVA,name="Stable Unit Treatment Value Assumption"}
+We assume that the effect of the treatment on individual $i$ only depends on whether $i$ receives the treatment or not, and not on whether other individuals in the population receive the treatment as well: $\forall i$, $D_i=D'_i\Rightarrow Y_i^{\mathbf{D}}=Y_i^{\mathbf{D'}}$, $\forall\mathbf{D}\neq\mathbf{D'}$.
+``` 
+
+```{remark}
+SUTVA has been coined by Don Rubin in a series of papers: Rubin ([1978](https://doi.org/10.1214/aos/1176344064), [1980](https://doi.org/10.2307/2287653), [1990](https://doi.org/10.1214/ss/1177012032)).
+```
+
+SUTVA implies the version of Rubin Causal Model that we have introduced in Chapter \@ref(FPCI).
+Indeed, SUTVA implies that the only treatment status that matters for the potential outcomes of individual $i$ is the treatment status of individual $i$. 
+As a consequence, we have the following results:
+
+```{theorem,RCMSUTVA,name="Rubin Causal Model and Treatment Effects Under SUTVA"}
+Under Assumption \@ref(hyp:SUTVA), the potential outcome of individual $i$ only depends on its treatment status: $\forall i$, $Y_i^{\mathbf{D}}=Y_i^{D_i}$.
+As a consequence:
+  
+\begin{align*}
+  \Delta^Y_{TT}(\mathbf{D}) & = \Delta^Y_{TT}\\
+  \Delta^Y_{TUT}(\mathbf{D}) & = 0.
+\end{align*}
+``` 
+
+```{proof}
+The proof of the first result that $Y_i^{\mathbf{D}}=Y_i^{D_i}$ is straightforward from Assumption \@ref(hyp:SUTVA).
+We therefore have 
+
+\begin{align*}
+  \Delta^Y_{TT}(\mathbf{D}) & = \esp{Y_i^{\mathbf{D}}-Y_i^{\mathbf{0}}|D_i=1}\\
+                            & = \esp{Y_i^{D_i}-Y_i^{0}|D_i=1}\\
+                            & = \esp{Y_i^{1}-Y_i^{0}|D_i=1}\\
+                            & =   \Delta^Y_{TT}\\
+  \Delta^Y_{TUT}(\mathbf{D})& = \esp{Y_i^{\mathbf{D}}-Y_i^{\mathbf{0}}|D_i=0}\\
+                            & = \esp{Y_i^{D_i}-Y_i^{0}|D_i=0}\\
+                            & = \esp{Y_i^{0}-Y_i^{0}|D_i=0}\\
+                            & = 0.
+\end{align*}
+```
+
+### Treatment exposure
+
+In general, it is going to prove extremely difficult to do econometric analysis using the very general setting we have defined so far, with potential outcomes depending on the whole treatment vector in the population.
+A useful simplifying assumption that we often have to resort to is to specify an exposure mapping, that relates the whole treatment vector to the specifications relevant for the outcomes of interest.
+In order to specify the exposure mapping, we are going to assume that all units in the population are part of a network. 
+This network is summarized by an $N^*\times N^*$ contiguity matrix $A$ where each element $a_{j,i}$ (with $j$ denoting the line and $i$ the column) measures the strength of the relationship between $j$ and $i$.
+For example, if $j$ mentions $i$ as a friend, $a_{j,i}=1$, whereas $a_{i,j}=1$ whenever $i$ mentions $j$ as a friend.
+We can enforce the graph to be symmetric, that is $a_{j,i}=a_{i,j}$, $\forall (i,j)$, but it does not have to be the case.
+For example, water quality at some point $i$ along a river stream depends on whether water is treated at a point $j$ upstream, but water quality in $j$ does not depend on treatments in a downstream point $i$.
+Because water flows in one direction, the network is not symmetric.
+
+Equipped with a network of links, and denoting $\mathbf{\Omega}=2^{N^*}$ the set of possible treatment allocations, and $\mathbf{\Theta}$ the set of parameters $\theta_i$ relevant for the value of treatment exposure of unit $i$ (possibly containing features of the $A$ matrix), we can define treatment exposure as a mapping $f$ from $\mathbf{\Omega}\times\mathbf{\Theta}$ to $\mathbf{\Delta}$, the set of possible treatment exposure: $\Delta_i=f(\mathbf{D},\theta_i)$.
+A key assumption we are going to make is that the exposure mapping is propermy specified, that is that it captures perfectly the intricacies of the effects of various treatment vectors:
+
+```{hypothesis,PropSpecifyExpMap,name="Properly specified exposure mapping"}
+$\forall i$, $\forall\mathbf{D}\neq\mathbf{D'}\in\mathbf{\Omega}$, $\forall \theta_i\in\mathbf{\Theta}$, $f(\mathbf{D},\theta_i)=f(\mathbf{D'},\theta_i)\Rightarrow Y_i^{\mathbf{D}}=Y_i^{\mathbf{D'}}$.
+```
+
+Under Assumption \@ref(hyp:PropSpecifyExpMap), the potential outcomes can be written as functions of treatment exposure only: $Y_i^{\Delta_i}$.  
+As a consequence, we can now define the average treatment effect of the treatment on the treated as follows:
+
+\begin{align*}
+  \Delta^Y_{TT}(\mathbf{d}) & = \esp{Y_i^{\mathbf{d}}-Y_i^{\mathbf{0}}|\Delta_i=\mathbf{d}},
+\end{align*}
+
+where $\Delta^Y_{TT}(\mathbf{d})$ measures the impact of treatment exposure $\mathbf{d}$ on those who have received it.
+
+```{remark}
+The framework based on the use of an exposure mapping has been developped by [Manski (2013)](https://doi.org/10.1111/j.1368-423X.2012.00368.x) and [Aronow and Samii (2017)](https://doi.org/10.1214/16-AOAS1005).
+```
+
+We are now equipped with tools that enable us to define treatment effects in the presence of diffusion effects, and to identify various types of diffusion effects.
+The key concept that we are going to have to specify is treatment exposure: how does it change with various applications and how do we go around identifying it in various precise cases?
+What can we do as well to test for features of treatment exposure without completely specifying it?
+This is what we are going to see in what follows, first in the case of Randomized Controlled Trials, and then in the case of Difference in Differences.
+We are going to go step by step, and first we ware going to start with simpler networks, that I call coarse networks, before looking at what we can do with more complex networks.
+
+## Diffusion effects with coarse networks
+
+Coarse networks are networks where we do not have a lot of information on the connections between individuals: we only know whether they belong to the same influence group or not.
+This type of network characterizes for example of a group of villages, or municipalities, or classes, for which we do not know which links individuals have between each other other than they belong to the same group.
+More formally, coarse networks can be characterized by the following property:
+
+```{hypothesis,CoarseNetwork,name="Coarse network"}
+We say that our population is characterized by a coarse network if the observed matrix of connections $A$ is block diagonal and we do not know which nodes are activated within each block.
+```
+
+```{remark}
+A blog diagonal influence matrix is composed of a set of groups or clusters within which observations influence each other and across which we assume all influences are muted.
+This is of course a simplification: some units within a cluster might not really be connected, while some units might be connected to units in an other group.
+Also, not all units might be equivalent within a group, with some being more central (*e.g.* connected) than others.
+In a coarse network, we are assuming these differences away.
+```
+
+```{remark}
+Another way of framing coarse networks is to say that there is unknown interference within clusters (and no interference across).
+This is [Viviano (2023)](http://arxiv.org/abs/2011.08174)'s definition.
+With Viviano's approach to coarse networks, we do not know which units interfere within each network and how they do.
+```
+
+With a coarse network approach, under Assumption \@ref(hyp:CoarseNetwork), we might specialize the exposure mapping to things we might know, that is whether the unit itself is treated or not and the proportion of units that are treated in a given cluster $c$, $p_c$, or, more generally, the proportion of units with characteristics $X_i=x$ that are treated within clusters with characteristics $Z_c=z$: $p(x,z)$.
+As a consequence, we might write potential outcomes as $Y_i^{D_i,p_c}$ or, more generally, $Y_i^{D_i,\left\{p(x,Z_c)\right\}_{x\in\mathcal{X}}}$, with $\mathcal{X}$ the support of $X_i$. 
+
+```{remark}
+Lemma 2.1 in [Viviano (2023)](http://arxiv.org/abs/2011.08174) shows an example of assumptions under which we can simplify the exposiure mapping and obtain potential outcomes as a function of the proportion of treated units and cluster and unit characteristics.
+```
+
+Under Assumption \@ref(hyp:CoarseNetwork), we can write the average effect of treating a cluster with a proportion of treated $p_c=p$ as follows:
+
+\begin{align*}
+  \Delta^Y_{ATE}(p) & = \esp{Y_i^{D_i,p}-Y_i^{0,0}|p_c=p}\\
+                & = \esp{Y_i^{1,p}-Y_i^{0,0}|D_i=1,p_c=p}\Pr(D_i=1|p_c=p)\\
+                & \phantom{=} +\esp{Y_i^{0,p}-Y_i^{0,0}|D_i=0,p_c=p}\Pr(D_i=0|p_c=p)\\
+                & = \Delta^Y_{TT}(p)\Pr(D_i=1|p_c=p)+\Delta^Y_{TUT}(p)\Pr(D_i=0|p_c=p).
+\end{align*}
+
+The main question under Assumption \@ref(hyp:CoarseNetwork) is to find the allocation of treated units that maximizes some objective function.
+We are going to make a distinction between two different cases: 
+
+  1. In the first case, we have a pre-specified budget for treatment effort (in terms of number of treated units) and we have to choose how to spend it optimally.
+  This often happens in practical policy applications where the budget has been pre-approved but you do not know how to implement it in the most optimal way possible.
+  2. In the second case, we already have an existing policy in place, and we would like to know whether it is optimal, and in which direction we should take it if we happen to have some additional budget.
+  
+### Optimal treatment allocation under monotone response
+
+I develop result on this setting in my own ongoing research.
+In order to fix ideas, let's start with a very simple example of a network with two clusters $1$ and $2$.
+Let's also consider only the case of a discrete outcome (such as participation in a program, getting vaccinated, contracting a disease, adopting a technology, etc.).
+For simplicity, we are also going to write that potential outcomes are realizations of a continuous utility variable crossing a threshold:
+
+\begin{align*}
+  Y_{i}^{0,P_c} & = \uns{\underbrace{\delta_0 + \beta_0 P_{c} -\epsilon_{i,0}}_{Y^*_{i,0}}\geq0}\\
+  Y_{i}^{1,P_c} & = \uns{\underbrace{\delta_1 + \beta_1 P_{c} -\epsilon_{i,1}}_{Y^*_{i,1}}\geq0}.
+\end{align*}
+
+What this models tells us is that, when no one else in the cluster is treated ($P_c=0$), the individual level effect of being treated is equal to $\Delta^Y_i=\uns{\epsilon_{i,1}\leq\delta_1}-\uns{\epsilon_{i,0}\leq\delta_0}$.
+When some units starts receiving the treatment, we have two indirect effects:
+
+  * Increasing the proportion of treated units impacts the outcomes of untreated units, through $\beta_0$.
+  This is what I call a **contagion** effect, in which untreated units are somehow contaminated by the treatment received by the treated individuals in the same cluster.
+  Contagion might refer to receiving information about the existence of a program and eventually deciding the enroll, or being protected by the fact that some neighbors are taking a treatment (in that case, contagion effects might actually prevent some untreated units from being contaminated).
+  Contagion effects might be negative, if for example treated individuals who receive job training or job search assistance end up finding jobs that would have been allocated to some of the untreated individuals in the absence of the treatment.
+  * Increasing the proportion of treated units impacts the outcomes of treated units, through $\beta_1$.
+  This is what I call an **amplification** effect.
+  There is amplification each time a treated units increases its likelihood of a positive outcome because more units are treated.
+  This might happen when technological adoption occurs only after most individuals in the cluster have been exposed to it and convinced to make a change.
+  
+In order to get even more intuition on this problem, we are going to specialize it even further by making the following set of assumptions:
+
+```{hypothesis,SimpleAllocHyp,name="Simplified Allocation Problem"}
+We assume that the allocation problem is characterized as follows:
+
+  * There are only two nodes $c=1$ and $c=2$.
+  * A mass of $1$ units reside at each node.
+  * We can only treat a mass of $1$ units.
+  * We assume the constraint is saturated so that we use all available treatments: $p_1+p_2=1$.
+  * $\epsilon_1$ and $\epsilon_0$ are uniform on $\left[0,1\right]$.
+```
+
+Under Assumption \@ref(hyp:SimpleAllocHyp), we can set $p_1=p$ and $p_2=1-p$.
+Let's assume our goal is to maximize the total amount of people with $Y_i=1$.
+Under Assumption \@ref(hyp:SimpleAllocHyp), this is equivalent to maximizing the sum of the adoption rates at both nodes.
+Using the fact that the constraint is saturated, we can write the objective function we aim to maximize as follows:
+
+\begin{align*}
+  W(p) & = \underbrace{pF_{\epsilon,1}(\alpha_1 + \beta_1p)+(1-p)F_{\epsilon,0}(\alpha_0 + \beta_0p)}_{A(p)}\\
+  & \phantom{=}+\underbrace{(1-p)F_{\epsilon,1}(\alpha_1 + \beta_1(1-p))+pF_{\epsilon,0}(\alpha_0 + \beta_0(1-p))}_{A(1-p)}
+\end{align*}
+
+The $A$ function measures how much the probability of observing the favorable outcome $Y_i=1$ in a given cluster increases with the proportion of treated individuals in the cluster, $p$.
+It turns out that the properties of the $A$ function are key to determine the optimal allocation of treatment effort across nodes in the general case with more than two nodes.
+For now, in the two-node case and under substantial simplifications, we have the following result:
+
+```{theorem,SimpleAlloc,name="Optimal allocation of treatment effort with two nodes"}
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork) and \@ref(hyp:SimpleAllocHyp), we have three possible cases for the optimal allocation of treatment effort:
+
+  * When amplification effects dominate ($\beta_1>\beta_0$): either $p^*=1$ or $p^*=0$
+  * When contagion effects dominate ($\beta_0>\beta_1$): $p^*=\frac{1}{2}$
+  * When amplification and contagion effects are of the same size ($\beta_0=\beta_1$): $p^*=\left[0,1\right]$.
+```
+
+```{proof}
+Under Assumption \@ref(hyp:SimpleAllocHyp), we have:
+  
+\begin{align*}
+  W(p) & = p(\alpha_1 + \beta_1p)+(1-p)(\alpha_0 + \beta_0p)+(1-p)(\alpha_1 + \beta_1(1-p))+p(\alpha_0 + \beta_0(1-p))\\
+      & = \alpha_0+\alpha_1+\beta_1+2(\beta_0-\beta_1)p(1-p),
+\end{align*}
+
+where the second line follows after some algebra.
+The problem $\max_{p\in\left[0,1\right]}W(p)$ has the folowing first order condition: $W'(p)=2(\beta_0-\beta_1)(1-2p)=0$ and the following second order condition: $W''(p)=-4(\beta_0-\beta_1)$.
+When $\beta_0>\beta_1$, $W''(p)<0$, and the interior solution $p^*=\frac{1}{2}$ maximizes $W$.
+When $\beta_0<\beta_1$, $W''(p)>0$, and the interior solution $p^*=\frac{1}{2}$ minimizes $W$.
+In that case, the optimal solution is at a corner, either at $p^*=1$ or at $p^*=0$.
+Since $W(1)=W(0)$, they are both maxima.
+When $\beta_0=\beta_1$, $W$ is constant and any value in $\left[0,1\right]$ maximizes $W$.
+```
+
+```{remark}
+Theorem \@ref(thm:SimpleAlloc) shows that when amplification effects dominate, it is optimal to focus all treatment effort on one of the two nodes (for example the first, but they are interchangeable).
+This is because returns are increasing in this case: the $A$ function is convex, with more people responding to the treatment as more of them receive the treatment.
+When contagion effects dominate, it is optimal to treat both nodes, with half of the observations receiving the treatment.
+This is because in that case, the $A$ function is concave, and the marginal returns are decreasing when we treat more people.
+When both contagion and amplification effects are equal, there is no optimum, or, equivalently, any allocation $p$ will yield the same result.
+```
+
+One open question is whether we can generalize the result in Theorem \@ref(thm:SimpleAlloc) to a much more general setting with several nodes and more general functional forms.
+It is actually the case.
+Let us now formulate a more general setting:
+
+```{hypothesis,SymAllocHyp,name="Symmetric Allocation Problem"}
+We assume that the allocation problem is characterized as follows:
+
+  * $K$ nodes indexed from $1$ to $K$, and each node has size $n_k$.
+  * At each node, we can choose to treat $r_k$ individuals.
+  * The total number of individuals on the network is $N=\sum_{k=1}^Kn_k$.
+  * The total number of treated individuals is $R=\sum_{k=1}^Kr_k$.
+  * We cannot treat more than $\bar{R}$ individuals.
+  * We cannot treat everyone: $\bar{R}<N$. 
+  * The expected outcome at each node (or response function) is only a function of $p$, that we denote $A(p)$, with $A'>0$.
+```
+
+```{remark}
+Assumption \@ref(hyp:SymAllocHyp) is mainly restrictive in making the problem symmetric: all nodes are treated in the same way.
+The only thing that distinguishes nodes is their respective size.
+Apart from that, they all respond in the same (average) way to the treatment.
+We do not try to distinguish between nodes based on observed characteristics of the nodes.
+We also do not try to vary the identity of treated units based on their observed characteristics.
+Another restriction is that $A'>0$: we only consider treatments for which the response is always strictly increasing in $p$ (and not weakly).
+```
+
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork) and \@ref(hyp:SymAllocHyp), we can cast our optimization problem as follows: 
+
+\begin{align*}
+  \max_{\left\{r_k\right\}_{k=1}^K} & \sum_{k=1}^K n_kA(\frac{r_k}{n_k})\label{eqn:MainProbMax}\\
+   & \text{under the constraints} \nonumber\\
+   R  & =\sum_{k=1}^Kr_k \leq \bar{R} \label{eqn:MainProbR}\\
+   r_k & \leq n_k\text{, }\forall k\label{eqn:MainProbn}\\
+   r_k & \geq 0\text{, }\forall k.\label{eqn:MainProbr}
+\end{align*}
+
+In my work, I have been able to solve this problem for a smooth response function $A$, in the following sense:
+
+```{hypothesis,SmoothResponseHyp,name="Smooth Response Function"}
+We assume that the reponse function $A$ has constant second derivative on its full support: either $A''(p)>0$ $\forall p\in\left[0,1\right]$ or $A''(p)<0$ $\forall p\in\left[0,1\right]$.
+```
+
+We can indeed prove the following result:
+
+```{theorem,SmoothSymAlloc,name="Optimal allocation under smooth response with $K$ symmetric nodes"}
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork), \@ref(hyp:SymAllocHyp) and \@ref(hyp:SmoothResponseHyp), the optimal allocation of treatment across nodes is as follows:
+
+\begin{align*}
+  \frac{r^*_k}{n_k} & = 
+\begin{cases}
+ \frac{\bar{R}}{N}\text{, }\forall k & \text{ if }A''<0\\
+ \begin{cases}
+  0 & \text{ for a set of nodes } \mathcal{J} \text{ such that } \sum_{j\in\mathcal{J}}n_j=N-\bar{R},\\
+  1 & \text{ for a set of nodes } \mathcal{L} \text{ such that } \sum_{l\in\mathcal{L}}n_j=\bar{R},
+  \end{cases}
+ &  \text{ if } A''>0.\\
+  \end{cases}
+\end{align*}
+```
+
+```{proof}
+See Section \@ref(proofSmoothSymAlloc).
+```
+
+```{remark}
+Theorem \@ref(thm:SmoothSymAlloc) shows that the very simple intuition that we got in the two nodes problem transports well to more complex settings.
+The optimal allocation depends on the sign of the second derivative.
+When returns are decreasing, we treat each node symmetrically with the same share $p^*=\frac{\bar{R}}{N}$ of the treatment effort.
+When returns are increasing, we treat a share $\frac{\bar{R}}{N}$ of the nodes with $p^*=1$ and a share $1-\frac{\bar{R}}{N}$ with $p^*=0$.
+```
+
+```{remark}
+There are several open questions on this research front.
+To list but a few:
+  
+  * Can we relax Assumption \@ref(hyp:SmoothResponseHyp)?
+  For example, we know that $A''$ has not constant sign when the error terms are normal in the model with two nodes, but we still have an optimal solution that has the same shape.
+  * Can we relax Assumption \@ref(hyp:SymAllocHyp)?  
+  Especially, can we allow for responses that vary as a function of node characteristics and can we allow for treatment allocation based on unit characteristics?
+```
+
+
+
+### Identifying optimal treatment levels
+
+Davide's paper
+
+## Diffusion effects with detailed networks
+
+Leung
+
+## Nonparametric test for the existence of diffusion effects based on randomization inference
+
+Athey and Imbens
+
+## Diffusion effects with DID
+
+Sylvain's approach vs Kyle's approach
+
+
