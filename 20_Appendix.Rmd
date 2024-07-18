@@ -2802,6 +2802,60 @@ As a consequence, the only optimal solutions are such that $\sum_{k=1}^Kr_k^*=\b
 We also have, as a consequence, $\sum_{l\in\mathcal{L}}n_l=\bar{R}$ and $\sum_{j\in\mathcal{J}}n_j=N-\bar{R}$.
 This proves the second part of the result and completes the proof.
 
+### Proof of Theorem \@ref(thm:IdentSmoothSymAlloc) {#proofIdentSmoothSymAlloc}
+
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork), \@ref(hyp:SymAllocHyp), \@ref(hyp:SmoothResponseHyp), we know that the expected outcome across clusters only depends on $p_c$ through the function $A(p)$. 
+We therefore have $\esp{Y_i|p_c=p}=A(p)$.
+Under Assumptions \@ref(hyp:independence2StepCluster) and \@ref(hyp:2StepClusterValidity), we have that $\esp{Y_i|p^R_c=p}=A(p)$.
+Under Assumption \@ref(hyp:SmoothResponseHyp), the sign of $A''$ is constant over the whole domain of $A$.
+Therefore, we only need three points to identify the sign of $A''$.
+Let's choose the points such as $p^R_c=0$, $p^R_c=p^*$ and $p^R_c=1$.
+$A''$ is of the same sign as the difference in growth rates of $A$ between $p^R_c=0$ and $p^R_c=p^*$, and between $p^R_c=p^*$ and $p^R_c=1$.
+Note that the denominator that normalized the differences in growth rates is always going to be positive.
+We indeed have that $\hat{A}'(\frac{p^*}{2})=\frac{\esp{Y_i|p^R_c=p^*}-\esp{Y_i|p^R_c=0}}{p^*}$ and $\hat{A}'(p^*+\frac{1-p^*}{2})=\frac{\esp{Y_i|p^R_c=1}-\esp{Y_i|p^R_c=p^*}}{1-p^*}$.
+We can therefore approximate $A''$ as follows:
+
+\begin{align*}
+  \hat{A}''(\frac{1}{2}) & = \frac{\hat{A}'(p^*+\frac{1-p^*}{2})-\hat{A}'(\frac{p^*}{2})}{p^*+\frac{1-p^*}{2}-\frac{p^*}{2}} \\
+                        & =  \frac{\frac{\esp{Y_i|p^R_c=1}-\esp{Y_i|p^R_c=p^*}}{1-p^*}-\frac{\esp{Y_i|p^R_c=p^*}-\esp{Y_i|p^R_c=0}}{p^*}}{\frac{1}{2}}.
+\end{align*}
+
+The result follows as a consequence.
+
+### Proof of Theorem \@ref(thm:ContagionDiffusionSmoothSymAlloc) {#proofContagionDiffusionSmoothSymAlloc}
+
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork), \@ref(hyp:SymAllocHyp), \@ref(hyp:SmoothResponseHyp), \@ref(hyp:independence2StepCluster) and \@ref(hyp:TwoStepClusterValidity), we have:
+
+\begin{align*}
+  A(1) & = \esp{Y_i^{1,1}}\\
+  A(p^*) & = p^*\esp{Y_i^{1,p^*}|R_i=1,p^R_c=p^*}+(1-p^*)\esp{Y_i^{0,p^*}|R_i=0,p^R_c=p^*}\\
+          & = p^*\esp{Y_i^{1,p^*}}+(1-p^*)\esp{Y_i^{0,p^*}}\\
+  A(0) & = \esp{Y_i^{0,0}},
+\end{align*}
+
+where the second equality uses the Law of Iterated Expectation and the third equality uses Assumption \@ref(hyp:independence2StepCluster).
+As a consequence, we have:
+
+\begin{align*}
+  A(1)-A(p^*) & = p^*\esp{Y_i^{1,1}-Y_i^{1,p^*}}+(1-p^*)\esp{Y_i^{1,1}-Y_i^{0,p^*}}\\
+              & = p^*\esp{Y_i^{1,1}-Y_i^{1,p^*}}+(1-p^*)\esp{Y_i^{1,1}-Y_i^{1,p^*}+Y_i^{1,p^*}-Y_i^{0,p^*}}\\
+              & = \esp{Y_i^{1,1}-Y_i^{1,p^*}}+(1-p^*)\esp{Y_i^{1,p^*}-Y_i^{0,p^*}}\\
+  A(p^*)-A(0) & = p^*\esp{Y_i^{1,p^*}-Y_i^{0,0}}+(1-p^*)\esp{Y_i^{0,p^*}-Y_i^{0,0}}\\
+              & = p^*\esp{Y_i^{1,p^*}-Y_i^{0,p^*}+Y_i^{0,p^*}-Y_i^{0,0}}+(1-p^*)\esp{Y_i^{0,p^*}-Y_i^{0,0}}\\
+              & = \esp{Y_i^{0,p^*}-Y_i^{0,0}}+p^*\esp{Y_i^{1,p^*}-Y_i^{0,p^*}}.
+\end{align*}
+
+As a consequence, we have:
+
+\begin{align*}
+  \hat{A}''(\frac{1}{2}) & = \frac{\hat{A}'(p^*+\frac{1-p^*}{2})-\hat{A}'(\frac{p^*}{2})}{p^*+\frac{1-p^*}{2}-\frac{p^*}{2}} \\
+                         & = \frac{\frac{A(1)-A(p^*)}{1-p^*}-\frac{A(p^*)-A(0)}{p^*}}{\frac{1}{2}}\\
+                         & = 2\left(\frac{\esp{Y_i^{1,1}-Y_i^{1,p^*}}}{1-p^*}+\esp{Y_i^{1,p^*}-Y_i^{0,p^*}}-\frac{\esp{Y_i^{0,p^*}-Y_i^{0,0}}}{p^*}-\esp{Y_i^{1,p^*}-Y_i^{0,p^*}}\right) \\
+                         & = 2\left(\frac{\esp{Y_i^{1,1}-Y_i^{1,p^*}}}{1-p^*}-\frac{\esp{Y_i^{0,p^*}-Y_i^{0,0}}}{p^*}\right),
+\end{align*}
+
+which proves the result.
+
 ## Proofs of results in Chapter \@ref(stratification)
 
 ### Proof of Theorem \@ref(thm:SFEdecomp) {#proofSFEdecomp}

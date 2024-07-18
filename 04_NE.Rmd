@@ -2163,6 +2163,7 @@ y_i^0 & = \mu_i+\delta+U_i^0 \\
 U_i^0 & = \rho U_i^B+\epsilon_i \\
 y_i^B & =\mu_i+U_i^B \\
 U_i^B & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+\mu_i & \sim\mathcal{N}(\bar{\mu},\sigma^2_{\mu}) \\
 D_i   & = \uns{y_i^B+ V_i\leq\bar{y}} \\
 V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_i \\
 (\eta_i,\omega_i) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})
@@ -2173,7 +2174,7 @@ param <- c(8,.5,.28,1500,0.9,0.01,0.05,0.05,0.05,0.1,0.1,7.98,0.28,0)
 names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho","theta","sigma2epsilon","sigma2eta","delta","baralpha","gamma","baryB","sigma2omega","rhoetaomega")
 ```
 
-```{r SimulDID,eval=TRUE,echo=FALSE,results='hide'}
+```{r SimulDID,eval=TRUE,echo=TRUE,results='hide'}
 set.seed(1234)
 N <-1000
 cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
@@ -4196,6 +4197,7 @@ U^0_{i,t} & = \rho U^0_{i,t-1}+\epsilon_{i,t} \\
 D_{i,t}   & = \uns{y^0_{i,1} + \xi_t+ V_i\leq\bar{y}} \\
 V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_{i,1} \\
 U^0_{i,1} & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+\mu_i & \sim\mathcal{N}(\bar{\mu},\sigma^2_{\mu}) \\
 (\eta_{i,t},\omega_{i,t}) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})\\
 \epsilon_{i,t} & \sim\mathcal{N}(0,\sigma^2_{\epsilon}).
 \end{align*}
@@ -4272,7 +4274,7 @@ data$baralphatd <- if_else(data$Ds==1,param["barchi1"],
                   if_else(data$Ds==1,param["kappa1"],
                            if_else(data$Ds==2,param["kappa2"],
                                    if_else(data$Ds==3,param["kappa3"],
-                                           if_else(data$Ds==4,param["kappa4"],0))))*(data$t-data$Ds)*if_else(data$time>=data$Ds,1,0)
+                                           if_else(data$Ds==4,param["kappa4"],0))))*(data$time-data$Ds)*if_else(data$time>=data$Ds,1,0)
 data$y1 <- data$y0 + data$baralphat + data$baralphatd + if_else(data$Ds==1,param["theta1"],if_else(data$Ds==2,param["theta2"],if_else(data$Ds==3,param["theta3"],param["theta4"])))*data$mu + data$eta
 data$Y1 <- exp(data$y1)
 data$y <- data$y1*data$D+data$y0*(1-data$D)
@@ -6166,8 +6168,7 @@ The existence of covariance terms between the individual treatment estimates mig
 ```
 
 
-
-##### Estimation of sampling noise in practice
+##### Estimation of sampling noise in practice {#stackedFD}
 
 Until now, we have looked at sampling noise in a theoretical way.
 Let's see in practice how to estimate sampling noise in a staggered DID design in practice.
@@ -7741,4 +7742,403 @@ It is hard to say why these estimators are too big in our example.
 The Wald-DID estimator should not be too biased since Assumption \@ref(hyp:ConsdTETime) holds in our dataset, and the bias stemming from the failure of Assumption \@ref(hyp:StrongWeakFirstStageDIDIV) is not too severe.
 Indeed, using Theorem \@ref(thm:IdentTTDIDIVWeakFSCstTETime), we know that Wald-DID estimator should converge to the weighted average of the effect on shifters, which is equal to `r round(DeltaYAsSample,2)` in the sample.
 As always with Wald estimators, I suspect that the denominator is slightly too small, and that the proportion of switchers is underestimated.
+
+### Difference In Differences with Continuous Treatment Variables and Staggered Adoption
+
+Another case that might appear is when the treatment variable is continuous (for example a share between zero and one) and its changes are staggered over time.
+In that case, a [recent contribution by Clement de Chaisemartin and Xavier d'Haultfoeuille](https://ssrn.com/abstract=3731856) clarifies what can be estimated and under which assumptions.
+In this section, we are going to look at the identification abd estimation of these effects as proposed by [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856).
+
+#### Identification
+
+Maybe the toughest part of addressing the issue of continuous treatments with staggered adoption is the definition of the treatment parameters.
+Indeed, we now have a potentially infinite set of treatment levels, compounded by a large set of treatment dates.
+Much of the contribution of Clement and Xavier is to get the definition of the parameter of interest right.
+They actually propose two sets of definitions: a normalized and a non-normalized average treatment effect.
+Let us start with the normalized one.
+
+Before defining what the treatment parameters are, we need to define our setup, which is going to be richer than the ones we have used so far.
+The whole setup in Xavier and Clement's approach is predicated on having access to a panel of $G$ groups observed over $T$ periods of time.
+The groups can be built by aggregating a set of individual level panel data or repeated cross-section observations at some more aggregate level (like municipality or state).
+Each individual unit can also form its own group, as long as it observed in a panel.
+$D_{g,t}$ denotes the continuous level of treatment of group $g$ at period $t$.
+The treatment is assumed to be nonnegative for simplicity.
+Let $\mathbf{D}_g=\left(D_{g,1},\dots,D_{g,T}\right)$ be the set of treatments that group $g$ experiences over time, and $\mathbf{D}=\left(\mathbf{D}_{1},\dots,\mathbf{D}_{G}\right)$ the vector of all treatment paths for each group over time.
+$\mathcal{D}$ is the support of $\mathbf{D}_g$.
+Potential outcomes are going to depend on the whole vector of past and future treatments: $Y_{g,t}(d_1,\dots,d_T)$ is the potential outcome observed for group $g$ at time $t$ if $\mathbf{D}_g=(d_1,\dots,d_T)$.
+The observed outcome for group $g$ at time $t$ is $Y_{g,t}=Y_{g,t}(\mathbf{D}_g)$.
+
+Xavier and Clement require several assmptions on the design.
+To define the first one, we need to define $F_g=\min\left\{ t:t\geq 2, D_{g,t}\neq D_{g,t-1}\right\}$, the the first date at which treatment changes.
+The convention is that $F_{g}=T+1$ for the group for which treatment status never changes.
+
+```{hypothesis,Variation,name="Variation in treatment exposure"}
+We assume that the design is such that: $\exists (g,g')$ such that $D_{g,1}=D_{g',1}$ and $F_g\neq F_{g'}$.
+```
+
+Assumption \@ref(hyp:Variation) imposes that there exists groups with similar levels of first period treatment intensity, but which get treated at different periods.
+To this assumption, the authors add two main ones:
+
+```{hypothesis,NoAnticipationContinuous,name="No Anticipation with Continuous and Staggered Treatments"}
+We assume that $\forall g$, $\forall (d_1,\dots,d_T)\in\mathcal{D}$, $Y_{g,t}(d_1,\dots,d_T)=Y_{g,t}(d_1,\dots,d_t)$.
+```
+
+For the last assumption, let $\mathcal{D}_1^r=\left\{d:\exists(g,g')\in\left\{1,\dots,G\right\}^2:D_{g,1}=D_{g',1}, F_g\neq F_{g'}\right\}$ be the set of first period treatment levels for which there are at least two groups having that value and different fates of treatment intake.
+Let also $\mathbf{D}_{g,1,k}$ be the $1\times k$ vector repeating $D_{g,1}$.
+Finally, let $Y_{g,t}(\mathbf{D}_{g,1,t})$ be the potential outcome of group $g$ at time $t$ had it kept its initial treatment level at all periods, or ``status quo'' outcome.
+
+```{hypothesis,PTAContinuous,name="Parallel Trends with Continuous and Staggered Treatments"}
+We assume that $\forall g,g'$, if $D_{g,1}=D_{g',1}\in\mathcal{D}_1^r$, then, $\forall t\geq 2$,
+
+\begin{align*}
+    \esp{Y_{g,t}(\mathbf{D}_{g,1,t})-Y_{g,t-1}(\mathbf{D}_{g',1,t-1})|\mathbf{D}} & =  \esp{Y_{g',t}(\mathbf{D}_{g',1,t})-Y_{g,t-1}(\mathbf{D}_{g',1,t-1})|\mathbf{D}}.
+\end{align*}
+```
+
+Following Assumption \@ref(hyp:PTAContinuous), the status quo outcomes of groups with the same period 1 treatment level would have followed parallel trends.
+
+##### Identifying non normalized treatment effects
+
+We are now equipped to define some target treatment parameters.
+Let us define $T_g=\max_{g':D_{g',1}=D_{g,1}}F_{g'}-1$, the last period in the dataset where a group with the same initial treatment intensity as $g$ remains at the status quo treatment level.
+For any $g$ such that $F_g\leq T_g$, and for any $l\in\left\{1,\dots,T_g-F_g+1\right\}$, the average treatment effect of the treatment sequence on group $g$ after $l$ periods under treatment is equal to:
+
+\begin{align*}
+    \delta_{g,l} & = \esp{Y_{g,F_g-1+l}-Y_{g,F_g-1+l}(\mathbf{D}_{g,1,F_g-1+l})|\mathbf{D}}.
+\end{align*}
+
+We are going to identify this target parameter $\delta_{g,l}$ using a generalized DID estimator based on the $N^g_{F_g-1+l}$ groups that stayed in the status quo treatment until $F_g-1+l$ (with $N^g_t=\#\left\{g':D_{g',1}=D_{g,1},F_{g',t}>t\right\}$, and $\#\left\{A\right\}$ the cardinal of $A$):
+
+\begin{align*}
+    DID_{g,l} & = Y_{g,F_g-1+l}-Y_{g,F_g-1}-\frac{1}{N^g_{F_g-1+l}}\sum_{g':D_{g',1}=D_{g,1},F_{g'}>F_g-1+l}\left(Y_{g',F_g'-1+l}-Y_{g',F_g-1}\right).
+\end{align*}
+
+We are now able to state the first identification result:
+
+```{theorem,IdentContinuousOne,name="Identification in DID with Continuous and Staggered Treatments (one group)"}
+Under Assumptions \@ref(hyp:Variation), \@ref(hyp:NoAnticipationContinuous) and \@ref(hyp:PTAContinuous), we have, $\forall (g,l)$ such that $1\leq l \leq T_g-F_g+1$:
+
+\begin{align*}
+    \delta_{g,l} & = \esp{DID_{g,l}|\mathbf{D}}.
+\end{align*}
+```
+
+```{proof}
+See [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856).
+```
+
+What remains to be done is to aggregate over all possible groups.
+In order to do that, we need to distinguish between groups for which treatment increases and those for which treatment decreases, and we need to assume away groups for which treatment increases at some date and then decreases later on:
+
+```{hypothesis,NoCrossing,name="No Crossing Condition"}
+We assume that the design is such that: $\forall g\in\left\{1,\dots,G\right\}$, either $D_{g,t}\geq D_{g,1}$ $\forall t$ or $D_{g,t}\leq D_{g,1}$ $\forall t$.
+```
+
+We also denote $L=\max{g}(T_g-F_g+1)$ the maximum number of periods for which we can estimate the treatment effect; $N_l=\#\left\{g:F_g-1+l\leq T_g\right\}$ the number of groups for which the effect of being $l$ periods under treatment can be estimated; and $S_g=\uns{D_{g,F_g}>D_{g,1}}-\uns{D_{g,F_g}<D_{g,1}}$ taking value $1$ when treatment increases over time and $-1$ when treatment decreases over time, we can define the weighted average effect after $l$ periods under treatment as:
+
+\begin{align*}
+    \delta_{l} & = \frac{1}{N_{l}}\sum_{g:F_g-1+l\leq T_g}S_g\delta_{g,l}.
+\end{align*}
+
+We can now prove the following theorem:
+
+```{theorem,IdentContinuousl,name="Identification in DID with Continuous and Staggered Treatments"}
+Under Assumptions \@ref(hyp:Variation), \@ref(hyp:NoAnticipationContinuous), \@ref(hyp:PTAContinuous) and \@ref(hyp:NoCrossing), we have, $\forall l$ such that $1\leq l \leq L$:
+
+\begin{align*}
+    \delta_{l} & = \frac{1}{N_{l}}\sum_{g:F_g-1+l\leq T_g}S_gDID_{g,l}.
+\end{align*}
+```
+
+```{proof}
+The result follows directly from the application of Theorem \@ref(thm:IdentContinuousOne).
+```
+
+##### Identifying normalized treatment effects
+
+Theorems \@ref(thm:IdentContinuousOne) and \@ref(thm:IdentContinuousl) identify the average actual vs status quo effect across groups.
+Their event study profile is going to depend on the precise distribution of treatment sequences among treated groups.
+One way to try to normalize that average treatment effect estimate is by combining all estimates as a proportion of the cumulative treatment intensity they have received.
+One way to achieve that is to define the following cumulative treatment intensity variable, for any $g$ such that $F_g\leq T_g$ and any $l\in\left\{1,\dots,T_g-F_g+1\right\}$:
+
+\begin{align*}
+    \delta^D_{g,l} & = \sum_{k=1}^{l}\left(D_{g,F_{g+k-1}}-D_{g,1}\right).
+\end{align*}
+
+We can then define the normalized treatment effect for group $g$ after $l$ periods under the treatment as follows:
+
+\begin{align*}
+    \delta^n_{g,l} & = \frac{\delta_{g,l}}{\delta^D_{g,l}}.
+\end{align*}
+
+This effect is identified:
+
+```{theorem,IdentContinuousOneNormalized,name="Identification of Normalized Effects in DID with Continuous and Staggered Treatments (one group)"}
+Under Assumptions \@ref(hyp:Variation), \@ref(hyp:NoAnticipationContinuous) and \@ref(hyp:PTAContinuous), we have, $\forall (g,l)$ such that $1\leq l \leq T_g-F_g+1$:
+
+\begin{align*}
+    \delta^n_{g,l} & = \esp{\frac{DID_{g,l}}{\delta^D_{g,l}}|\mathbf{D}}.
+\end{align*}
+```
+
+```{proof}
+The result follows directly from the application of Theorem \@ref(thm:IdentContinuousOne), and from the fact that $\delta^D_{g,l}$ is a constant conditional on $\mathbf{D}$.
+```
+
+Now, we would like to aggregate all of the effects on each group together to obtain one normalized effect after $l$ periods under treatment.
+We are going to weigh all groups by their share of the total change treatment intensity at date $l$: $\delta^D_l=\frac{1}{N_l}\sum_{g:F_g-1+l\leq T_g}\left|\delta^D_{g,l}\right|$.
+As a consequence, we use as normalized treatment effect after $l$ periods under treatment:
+
+\begin{align*}
+    \delta^n_{l} & =\frac{1}{N_l}\sum_{g:F_g-1+l\leq T_g}\frac{\left|\delta^D_{g,l}\right|}{\delta^D_{l}}\delta^n_{g,l}.
+\end{align*}
+
+Following all the results from this section, we have the folowing theorem:
+
+```{theorem,IdentContinuouslNormalized,name="Identification of Normalized Effects in DID with Continuous and Staggered Treatments"}
+Under Assumptions \@ref(hyp:Variation), \@ref(hyp:NoAnticipationContinuous), \@ref(hyp:PTAContinuous) and \@ref(hyp:NoCrossing), we have, $\forall l$ such that $1\leq l \leq L$:
+
+\begin{align*}
+    \delta^n_{l} & = \esp{\frac{1}{N_{l}}\sum_{g:F_g-1+l\leq T_g}\frac{\left|\delta^D_{g,l}\right|}{\delta^D_{l}}\frac{DID_{g,l}}{\delta^D_{g,l}}|\mathbf{D}}= \esp{DID^n_l|\mathbf{D}}.
+\end{align*}
+```
+
+```{proof}
+The result follows directly from the application of Theorem \@ref(thm:IdentContinuousOne), and from the fact that $\delta^D_{g,l}$ and $\delta^D_{l}$ are constant conditional on $\mathbf{D}$.
+```
+
+```{remark}
+Note that $\delta^n_l=\frac{\delta_l}{\delta^D_l}$ and $DID^n_l=\frac{DID_l}{\delta^D_l}$.
+```
+
+##### Identifying aggregate treatment effects
+
+One way to summarize all the effects of the cumulated treatments is to add all the effects on all the treatment groups at every time periods, and to divide the result by the cumulated treatment intensity, in order to obtain an average effect per unit of treatment intensity:
+
+\begin{align*}
+  \delta & = \frac{\sum_{g:F_g\leq T_g}\sum_{l=1}^{T_g-F_g+1}\delta_{g,l}}{\sum_{g:F_g\leq T_g}\sum_{l=1}^{T_g-F_g+1}(D_{g,F_g-l+1}-D_{g,1})}.
+\end{align*}
+
+We can easily show that this parameter is identified under our usual conditions:
+
+```{theorem,IdentContinuouslAggregated,name="Identification of the Aggregated Treatment Effect in DID with Continuous and Staggered Treatments"}
+Under Assumptions \@ref(hyp:Variation), \@ref(hyp:NoAnticipationContinuous), \@ref(hyp:PTAContinuous) and \@ref(hyp:NoCrossing), we have:
+
+\begin{align*}
+    \delta & = \esp{\frac{\sum_{g:F_g\leq T_g}\sum_{l=1}^{T_g-F_g+1}DID_{g,l}}{\sum_{g:F_g\leq T_g}\sum_{l=1}^{T_g-F_g+1}(D_{g,F_g-l+1}-D_{g,1})}|\mathbf{D}}= \esp{\hat{\delta}|\mathbf{D}}.
+\end{align*}
+```
+
+```{proof}
+The result follows directly from the application of Theorem \@ref(thm:IdentContinuousOne), and from the fact that $\delta^D_{g,l}$ and $\delta^D_{l}$ are constant conditional on $\mathbf{D}$.
+```
+
+```{remark}
+[de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856) give an interpretation of this parameter in a cost-benefit framework.
+```
+
+#### Estimation
+
+We could estimate the treatment effect directly using the formula for $DID_{g,l}$ used in Theorem \@ref(thm:IdentContinuousOne).
+One difficulty is that it can become cumbersome to compute one at a time.
+It also does not enable us to estimate all cross sectional correlations between coefficients, and therefore does not enable a simple estimation of the precision of the combined set of parameter values.
+One way to solve this problem is to use the **stacked first difference** estimator we have used in Section \@ref(stackedFD).
+The advantage of this approach is that it gives immediately rise to the whole set of coefficients which can be estimated using the classical $2\times 2$ DID comparisons, across with an estimate of their covariance matrix, thanks to the use of the **Leung** estimator (but this is for next section).
+Finally, one can also use the packages created by [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856), `DIDmultiplegt` and `DIDmultiplegtDYN`.
+Let's see how this works, by first generating some data with continuous treatment levels.
+
+Let us write a model compatible with this setting, choose a parameterization and generate the data.
+
+\begin{align*}
+y^1_{i,t} & = y_{i,t}^0+\bar{\alpha}_t+\sum_{d}(\bar{\alpha}_{t,d}+\theta_d\mu_i)\uns{D_{i,d}=1}I_{i,t}+\eta_{i,t} \\
+y^0_{i,t} & = \mu_i+\delta_t+U^0_{i,t} \\
+U^0_{i,t} & = \rho U^0_{i,t-1}+\epsilon_{i,t} \\
+D_{i,t}   & = \uns{y^0_{i,1} + \xi_t+ V_i\leq\bar{y}} \\
+I_{i,t}   & = F_{\nu}(\bar{y}-y^0_{i,t} - \xi_t- V_i-\iota)\\
+V_i   & = \gamma(\mu_i-\bar{\mu}) + \omega_{i,1} \\
+U^0_{i,1} & \sim\mathcal{N}(0,\sigma^2_{U}) \\
+\epsilon_{i,t} & \sim\mathcal{N}(0,\sigma^2_{\epsilon})\\
+\nu_{i,t} & \sim\mathcal{N}(0,\sigma^2_{\nu})
+(\eta_{i,t},\omega_{i,t}) & \sim\mathcal{N}(0,0,\sigma^2_{\eta},\sigma^2_{\omega},\rho_{\eta,\omega})\\
+\end{align*}
+
+I am going to parameterize the $\bar{\alpha}_{t,d}$ process as in Section \@ref(DIDStaggered): $\bar{\alpha}_{t,d}=\bar\chi_d+\kappa_d(t-d)\uns{t\geq d}$.
+$I_{i,t}$ is treatment intensity.
+Let us now choose some parameter values: 
+
+```{r param.DID.staggered.continuous,eval=TRUE,echo=TRUE,results='hide'}
+param <- c(8,.5,.28,1500,0.9,
+           0.01,0.01,0.01,0.01,
+           0.05,0.05,
+           0,0.1,0.2,0.3,
+           0.05,0.1,0.15,0.2,
+           0.25,0.1,0.05,0,
+           1.5,1.25,1,0.75,
+           0.5,0,-0.5,-1,
+           0.1,0.28,0,1,0.75)
+names(param) <- c("barmu","sigma2mu","sigma2U","barY","rho",
+                  "theta1","theta2","theta3","theta4",
+                  "sigma2epsilon","sigma2eta",
+                  "delta1","delta2","delta3","delta4",
+                  "baralpha1","baralpha2","baralpha3","baralpha4",
+                  "barchi1","barchi2","barchi3","barchi4",
+                  "kappa1","kappa2","kappa3","kappa4",
+                  "xi1","xi2","xi3","xi4",
+                  "gamma","sigma2omega","rhoetaomega","sigma2nu","iota")
+```
+
+Let us now generate the corresponding data (in long format):
+
+```{r SimulDIDStaggeredContinuous,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,results='hide'}
+set.seed(1234)
+N <- 1000
+T <- 4
+cov.eta.omega <- matrix(c(param["sigma2eta"],param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["rhoetaomega"]*sqrt(param["sigma2eta"]*param["sigma2omega"]),param["sigma2omega"]),ncol=2,nrow=2)
+data <- as.data.frame(mvrnorm(N*T,c(0,0),cov.eta.omega))
+colnames(data) <- c('eta','omega')
+# time and individual identifiers
+data$time <- c(rep(1,N),rep(2,N),rep(3,N),rep(4,N))
+data$id <- rep((1:N),T)
+# unit fixed effects
+data$mu <- rep(rnorm(N,param["barmu"],sqrt(param["sigma2mu"])),T)
+# time fixed effects
+data$delta <- c(rep(param["delta1"],N),rep(param["delta2"],N),rep(param["delta3"],N),rep(param["delta4"],N))
+data$baralphat <- c(rep(param["baralpha1"],N),rep(param["baralpha2"],N),rep(param["baralpha3"],N),rep(param["baralpha4"],N))
+
+# building autocorrelated error terms
+data$epsilon <- rnorm(N*T,0,sqrt(param["sigma2epsilon"]))
+data$U[1:N] <- rnorm(N,0,sqrt(param["sigma2U"]))
+data$U[(N+1):(2*N)] <- param["rho"]*data$U[1:N] + data$epsilon[(N+1):(2*N)]
+data$U[(2*N+1):(3*N)] <- param["rho"]*data$U[(N+1):(2*N)] + data$epsilon[(2*N+1):(3*N)]
+data$U[(3*N+1):(T*N)] <- param["rho"]*data$U[(2*N+1):(3*N)] + data$epsilon[(3*N+1):(T*N)]
+# potential outcomes in the absence of the treatment
+data$y0 <- data$mu + data$delta + data$U 
+data$Y0 <- exp(data$y0)
+# treatment timing
+# error term
+data$V <- param["gamma"]*(data$mu-param["barmu"])+data$omega
+# treatment group, with 99 for the never treated instead of infinity
+Ds <- if_else(data$y0[1:N]+param["xi1"]+data$V[1:N]<=log(param["barY"]),1,
+              if_else(data$y0[1:N]+param["xi2"]+data$V[1:N]<=log(param["barY"]),2,
+                      if_else(data$y0[1:N]+param["xi3"]+data$V[1:N]<=log(param["barY"]),3,
+                              if_else(data$y0[1:N]+param["xi4"]+data$V[1:N]<=log(param["barY"]),4,99))))
+data$Ds <- rep(Ds,T)
+# Treatment status
+data$D <- if_else(data$Ds>data$time,0,1)
+# Treatment intensity
+data$I[1:N] <- pnorm((log(param["barY"])-data$y0[1:N]-param["xi1"]-data$V[1:N]-param["iota"])/param["sigma2nu"])
+data$I[(N+1):(2*N)] <- pnorm((log(param["barY"])-data$y0[1:N]-param["xi2"]-data$V[1:N]-param["iota"])/param["sigma2nu"])
+data$I[(2*N+1):(3*N)] <- pnorm((log(param["barY"])-data$y0[1:N]-param["xi3"]-data$V[1:N]-param["iota"])/param["sigma2nu"])
+data$I[(3*N+1):(T*N)] <- pnorm((log(param["barY"])-data$y0[1:N]-param["xi4"]-data$V[1:N]-param["iota"])/param["sigma2nu"])
+# Treatment
+data$treatment <- data$I*data$D
+# potential outcomes with the treatment
+# effect of the treatment by group
+data$baralphatd <- if_else(data$Ds==1,param["barchi1"],
+                           if_else(data$Ds==2,param["barchi2"],
+                                   if_else(data$Ds==3,param["barchi3"],
+                                           if_else(data$Ds==4,param["barchi4"],0))))+
+                  if_else(data$Ds==1,param["kappa1"],
+                           if_else(data$Ds==2,param["kappa2"],
+                                   if_else(data$Ds==3,param["kappa3"],
+                                           if_else(data$Ds==4,param["kappa4"],0))))*(data$time-data$Ds)*if_else(data$time>=data$Ds,1,0)
+data$y1 <- data$y0 + (data$baralphat + data$baralphatd + if_else(data$Ds==1,param["theta1"],if_else(data$Ds==2,param["theta2"],if_else(data$Ds==3,param["theta3"],param["theta4"])))*data$mu)*data$I + data$eta
+data$Y1 <- exp(data$y1)
+data$y <- data$y1*data$D+data$y0*(1-data$D)
+data$Y <- data$Y1*data$D+data$Y0*(1-data$D)
+```
+
+Let us now plot the data, especially the potential outcomes for each group and their average treatment intensity.
+
+```{r PlotDIDStaggeredContinuous,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap='Evolution of average outcomes and treatment intensity in the various treatment groups defined by their date of entry into the treatment',fig.subcap=c('Potential outcomes','Treatment intensity'),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+dataplotDIDStaggeredContinuous <- data %>%
+                          group_by(Ds,time) %>%
+                          summarize(
+                            y1=mean(y1),
+                            y0=mean(y0),
+                            Intensity=mean(treatment)
+                          ) %>%
+                          pivot_longer(cols=c("y1","y0","Intensity"),values_to="Outcome",names_to="PotentialOutcome") %>%
+                          mutate(
+                            TreatmentDate = factor(Ds,levels=c("99","4","3","2","1"))
+                          )
+
+ggplot(dataplotDIDStaggeredContinuous %>% filter(PotentialOutcome!="Intensity"),aes(x=time,y=Outcome,color=TreatmentDate,shape=TreatmentDate,linetype=PotentialOutcome))+
+      geom_line() +
+      geom_point()+
+#    scale_linetype_discrete(guide='none') +
+    theme_bw()
+
+ggplot(dataplotDIDStaggeredContinuous %>% filter(PotentialOutcome=="Intensity"),aes(x=time,y=Outcome,color=TreatmentDate,shape=TreatmentDate,linetype=TreatmentDate))+
+      geom_line() +
+      geom_point()+
+#    scale_linetype_discrete(guide='none') +
+    theme_bw()
+
+```
+
+One final dimension of the data is how much treatment intensity varies across time and by cohort:
+
+```{r PlotDIDStaggeredContinuousHist,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap='Distribution of treatment intensity in the various treatment groups over time',fig.subcap=c('Density of treatment intensity','Evolution of treatment intensity for a subset of units'),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+ggplot(data %>% filter(D>0),aes(x=treatment,color=as.factor(Ds)))+
+      geom_density() +
+    theme_bw() +
+  xlab('TreatmentIntensity')+
+  scale_color_discrete(name="TreatmentDate")+
+  facet_wrap(.~time)
+
+ggplot(data %>% filter(D>0,id<=30),aes(x=time,y=treatment,color=as.factor(id)))+
+      geom_line() +
+    theme_bw() +
+  xlab('TreatmentIntensity')
+  #scale_color_discrete(name="TreatmentDate")+
+  #facet_wrap(.~time)
+
+```
+
+As we can see on Figure \@ref(fig:PlotDIDStaggeredContinuousHist), the model imposes that treatment intensity increases over time, which is compatible with Assumption \@ref(hyp:NoCrossing).
+In practice, [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856) suggest to discard observation with crossing treatment intensities over time.
+
+##### Estimation using de Chaisemartin and d'Haultfoeuille package
+
+Let us now try to use [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856)'s `did_multiplegt_dyn` to estimate our treatment effects.
+
+```{r EstimMultipleDIDDyn,eval=TRUE,echo=TRUE,warning=FALSE,error=FALSE,message=FALSE,results='hide'}
+reg.Continuous.Staggered.DID <- did_multiplegt_dyn(df=data %>% filter(Ds>1),outcome="y",group="id",time="time",treatment="treatment",effects=3,placebo=2,graph_off=TRUE)
+reg.Continuous.Staggered.DID.normalized <- did_multiplegt_dyn(df=data %>% filter(Ds>1),outcome="y",group="id",time="time",treatment="treatment",effects=3,placebo=2,graph_off=TRUE,normalized=TRUE)
+```
+
+We can now plot the result of the estimation of the non normalized and normalized coefficients:
+
+```{r PlotDIDStaggeredContinuousEstdCdH,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE,fig.cap='Estimated normalized and non-normalized treatment effects using de Chaisemartin and dHaultfoeuille estimator',fig.subcap=c('Normalized','Non normalized'),fig.align='center',out.width='50%',results='hide',fig.pos='htbp'}
+reg.Continuous.Staggered.DID.normalized$plot
+reg.Continuous.Staggered.DID$plot
+```
+
+```{remark}
+Note that the estimation procedure refuses to give more than one placebo estimate, whereas two are actually feasible with this dataset.
+```
+
+##### Estimation using a grouped stacked first difference estimator
+
+An alternative approach would be to identify similar treatment trajectories and estimate the treatment effects separately for each of them.
+One way to do that would be to use a stacked first difference estimator with groups.
+One way to build the groups would be to use $k$-means clustering to select sets of individuals that have very similar trajectories, enforcing for example that they have the same treatment date.
+
+
+
+
+#### Estimation of sampling noise
+
+One final difficulty appears when estimating the precision of the $DID_{g,l}$ estimator used in Theorem \@ref(thm:IdentContinuousOne).
+If there is only one observation per treatment group $g$, then it is impossible to estimate heteroskedasticity robust standard errors, since the residual of the treated observation is always going to be zero.
+One way around this is to use the **stacked first difference** estimator with several observations per treatment group.
+But this solution requires that we assume independence between the observations in the same treatment group, which we generally are not willing to do, especially when, like here, the treatment is clustered at the group level.
+An alternative approach, explored by [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856), is to identify groups with similar values of the treatment dynamics, and to assume that they have very similar variances, and are mutually independent from each other.
+This categorization of the treatment histories is simply a way to specify the shape of heteroskedasticity in the model.
+
+
+
+
+
 

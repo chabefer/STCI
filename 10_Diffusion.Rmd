@@ -87,7 +87,7 @@ We therefore have
 \end{align*}
 ```
 
-### Treatment exposure
+### Treatment exposure {#TreatmentExposure}
 
 In general, it is going to prove extremely difficult to do econometric analysis using the very general setting we have defined so far, with potential outcomes depending on the whole treatment vector in the population.
 A useful simplifying assumption that we often have to resort to is to specify an exposure mapping, that relates the whole treatment vector to the specifications relevant for the outcomes of interest.
@@ -118,11 +118,55 @@ where $\Delta^Y_{TT}(\mathbf{d})$ measures the impact of treatment exposure $\ma
 The framework based on the use of an exposure mapping has been developped by [Manski (2013)](https://doi.org/10.1111/j.1368-423X.2012.00368.x) and [Aronow and Samii (2017)](https://doi.org/10.1214/16-AOAS1005).
 ```
 
+```{remark}
+I use the term ``average treatment effect on the treated'' because $\Delta^Y_{ATE}(\mathbf{d})$ measures the effect of receiving a treatment vector $d$ on those who receive it.
+```
+
 We are now equipped with tools that enable us to define treatment effects in the presence of diffusion effects, and to identify various types of diffusion effects.
 The key concept that we are going to have to specify is treatment exposure: how does it change with various applications and how do we go around identifying it in various precise cases?
 What can we do as well to test for features of treatment exposure without completely specifying it?
 This is what we are going to see in what follows, first in the case of Randomized Controlled Trials, and then in the case of Difference in Differences.
 We are going to go step by step, and first we ware going to start with simpler networks, that I call coarse networks, before looking at what we can do with more complex networks.
+
+### Fundamental problem of causal inference for diffusion effects
+
+With diffusion effects and treatment exposure, the Fundamental Problem of Causal Inference strikes again.
+Let state the problem using our more general framework of treatment exposure: 
+
+```{theorem,FPCIDiff,name='Fundamental problem of causal inference with diffusion effects'}
+It is impossible to observe $\Delta^Y_{TT}(\mathbf{d})$, $\forall d\in\mathbf{\Delta}$, either in the population or in the sample.
+```
+
+```{proof}
+For the population TT:
+
+\begin{align*}
+  \Delta^Y_{TT}(\mathbf{d}) & = \esp{Y_i^{\mathbf{d}}-Y_i^{\mathbf{0}}|\Delta_i=\mathbf{d}} \\
+                & = \esp{Y_i^{\mathbf{d}}|\Delta_i=\mathbf{d}}-\esp{Y_i^{\mathbf{0}}|\Delta_i=\mathbf{d}}\\
+                & = \esp{Y_i|\Delta_i=\mathbf{d}}-\esp{Y_i^{\mathbf{0}}|\Delta_i=\mathbf{d}}.
+\end{align*}
+
+$\esp{Y_i^{\mathbf{0}}|\Delta_i=\mathbf{d}}$ is unobserved, and so is $\Delta^Y_{TT}$.
+A similar reasoning holds for the sample average treatment effect.
+```
+
+We also have a novel formulation of the bias of intuitive methods.
+For example, selection bias now depends on $\mathbf{d}$:
+
+\begin{align*}
+\Delta^Y_{SB}(\mathbf{d}) & = \Delta^Y_{WW}(\mathbf{d})-\Delta^Y_{TT}(\mathbf{d}) \\
+              & = \esp{Y_i|\Delta_i=\mathbf{d}}-\esp{Y_i|\Delta_i=\mathbf{0}}-\esp{Y_i^{\mathbf{d}}-Y_i^{\mathbf{0}}|\Delta_i=\mathbf{d}}\\
+              & = \esp{Y_i^{\mathbf{0}}|\Delta_i=\mathbf{d}}-\esp{Y_i^{\mathbf{0}}|\Delta_i=\mathbf{0}}.
+\end{align*}
+
+```{remark}
+Why is the with/without comparison of individuals with treatment exposure $\Delta_i=\mathbf{d}$ and those with treatment exposure $\Delta_i=\mathbf{0}$ biased for average treatment effect on the treated $\Delta^Y_{TT}(\mathbf{d})$?
+This is because treatment exposure might be correlated with unobserved confounders: individuals with higher treatment exposure might be systematically different from those with the reference level of treatment exposure (here $\mathbf{0}$).
+```
+
+### Bias of one-step randomized controlled trials
+
+**Explain direction of bias**
 
 ## Diffusion effects with coarse networks
 
@@ -157,11 +201,13 @@ Lemma 2.1 in [Viviano (2023)](http://arxiv.org/abs/2011.08174) shows an example 
 Under Assumption \@ref(hyp:CoarseNetwork), we can write the average effect of treating a cluster with a proportion of treated $p_c=p$ as follows:
 
 \begin{align*}
-  \Delta^Y_{ATE}(p) & = \esp{Y_i^{D_i,p}-Y_i^{0,0}|p_c=p}\\
+  \Delta^Y_{TT}(p) & = \esp{Y_i^{D_i,p}-Y_i^{0,0}|p_c=p}\\
                 & = \esp{Y_i^{1,p}-Y_i^{0,0}|D_i=1,p_c=p}\Pr(D_i=1|p_c=p)\\
                 & \phantom{=} +\esp{Y_i^{0,p}-Y_i^{0,0}|D_i=0,p_c=p}\Pr(D_i=0|p_c=p)\\
-                & = \Delta^Y_{TT}(p)\Pr(D_i=1|p_c=p)+\Delta^Y_{TUT}(p)\Pr(D_i=0|p_c=p).
+                & = \Delta^Y_{TDT}(p)\Pr(D_i=1|p_c=p)+\Delta^Y_{TIT}(p)\Pr(D_i=0|p_c=p),
 \end{align*}
+
+where $\Delta^Y_{TDT}(p)$ is the Average Treatment Effect on the Directly Treated and $\Delta^Y_{TIT}(p)$ is the Average Treatment Effect on the Indirectly Treated.
 
 The main question under Assumption \@ref(hyp:CoarseNetwork) is to find the allocation of treated units that maximizes some objective function.
 We are going to make a distinction between two different cases: 
@@ -173,7 +219,13 @@ We are going to make a distinction between two different cases:
 ### Optimal treatment allocation under monotone response
 
 I develop result on this setting in my own ongoing research.
-In order to fix ideas, let's start with a very simple example of a network with two clusters $1$ and $2$.
+In order to fix ideas, we are going to start with a simple network with two clusters.
+We will then look at what happens with a more general network.
+Finally, we will look at how we can use two-steps clustered RCTs to estimate the required parameters and decide on the optimal allocation.
+
+#### A simple model
+
+Let's start with a very simple example of a network with two clusters $1$ and $2$.
 Let's also consider only the case of a discrete outcome (such as participation in a program, getting vaccinated, contracting a disease, adopting a technology, etc.).
 For simplicity, we are also going to write that potential outcomes are realizations of a continuous utility variable crossing a threshold:
 
@@ -253,6 +305,8 @@ This is because in that case, the $A$ function is concave, and the marginal retu
 When both contagion and amplification effects are equal, there is no optimum, or, equivalently, any allocation $p$ will yield the same result.
 ```
 
+#### A general model
+
 One open question is whether we can generalize the result in Theorem \@ref(thm:SimpleAlloc) to a much more general setting with several nodes and more general functional forms.
 It is actually the case.
 Let us now formulate a more general setting:
@@ -268,6 +322,8 @@ We assume that the allocation problem is characterized as follows:
   * We cannot treat everyone: $\bar{R}<N$. 
   * The expected outcome at each node (or response function) is only a function of $p$, that we denote $A(p)$, with $A'>0$.
 ```
+
+**$A$ is two things at the same time: connection matrix and response function** 
 
 ```{remark}
 Assumption \@ref(hyp:SymAllocHyp) is mainly restrictive in making the problem symmetric: all nodes are treated in the same way.
@@ -290,13 +346,13 @@ Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork) and \@r
 
 In my work, I have been able to solve this problem for a smooth response function $A$, in the following sense:
 
-```{hypothesis,SmoothResponseHyp,name="Smooth Response Function"}
+```{hypothesis,SmoothResponseHyp,name="Monotone Response Function"}
 We assume that the reponse function $A$ has constant second derivative on its full support: either $A''(p)>0$ $\forall p\in\left[0,1\right]$ or $A''(p)<0$ $\forall p\in\left[0,1\right]$.
 ```
 
 We can indeed prove the following result:
 
-```{theorem,SmoothSymAlloc,name="Optimal allocation under smooth response with $K$ symmetric nodes"}
+```{theorem,SmoothSymAlloc,name="Optimal allocation under monotone response with $K$ symmetric nodes"}
 Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork), \@ref(hyp:SymAllocHyp) and \@ref(hyp:SmoothResponseHyp), the optimal allocation of treatment across nodes is as follows:
 
 \begin{align*}
@@ -333,11 +389,184 @@ To list but a few:
   Especially, can we allow for responses that vary as a function of node characteristics and can we allow for treatment allocation based on unit characteristics?
 ```
 
+#### Using two-step clustered randomized controlled trials to find the optimal treatment allocation
 
+In this section, we are going to see that conducting a two-step clustered randomized controlled trial is going to enable us to identify the optimal treatment allocation under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork) and \@ref(hyp:SimpleAllocHyp).
+A two-step clustered randomized controlled trial works as follows:
+
+  * In a first step, we randomly select three sets of nodes, $ST$ and $PT$ and $SC$, with $K_{ST}+K_{PT}+K_{SC}=\tilde{K}$ and $\tilde{K}\leq K$.
+  When $\tilde{K}< K$, $\tilde{K}$ is a random subset of the $K$ nodes.
+    + Nodes that belong to $ST$, the set of nodes of size $K_{ST}$, are called **Super Treated** nodes.
+    The proportion of treated units is $p^R_c=1$, $\forall c \in ST$.
+    + Nodes that belong to $PT$, the set of nodes of size $K_{ST}$, are called **Partially Treated** nodes.
+    The proportion of treated units is $p^R_c=\frac{\bar{R}}{N}\equiv p^*$, $\forall c \in PT$.
+    + Nodes that belong to $SC$, the set of nodes of size $K_{SC}$, are called **Super Control** nodes.
+    The proportion of treated units is $p^R_c=0$, $\forall c \in SC$.
+  * In a second step, we randomly select $N^1_c=\frac{\bar{R}}{N}N_c$ units to be treated (with $R_i=1$) and $N^0_c=N_c-N^1_c$ to be in the control group ($R_i=0$), $\forall c \in PT$, with $N_c$ the number of units in node $c$.
+
+When implementing the treatment, all units in $ST$ are treated, only $N^1_c$ units are treated in $PT$ and no unit is treated in $SC$.
+
+```{remark}
+Note that rigorously, we should have $N_c^1=\lfloor\frac{\bar{R}}{N}N_c\rfloor$, but we disregard the complexities brought about by the fact that the number of units has to be an integer.
+```
+
+The one thing we need to identify now in order to apply Theorem \@ref(thm:SmoothSymAlloc) is the sign of the second derivative of the $A$ function.
+We are going to show that the sign of $A''$ can be identified in a two-step clustered randomized controlled trial.
+Before that, we are going to encode the validity of the two-step clustered randomized controlled trial:
+
+```{hypothesis,independence2StepCluster,name="Independence in a two-step clustered design"}
+We assume that the allocation of the proportion of neighbors treated and of the individual treatment level are independent of potential outcomes: 
+  
+\begin{align*}
+  (R_i,p^R_c)\Ind\left(\left\{Y_i^{0,p},Y_i^{1,p}\right\}_{p\in\left[0,1\right]}\right).
+\end{align*}
+```
+
+We also assume that the randomized allocation does not interfere with how units respond to the treatment:
+
+```{hypothesis,TwoStepClusterValidity,name="Validity of the 2-step clustered design"}
+We assume that the randomized allocation of the program does not interfere with how potential outcomes are generated:
+  
+\begin{align*}
+Y_i & = 
+  \begin{cases}
+    Y_i^{1,p} & \text{ if } R_i=1 \text{ and } p^R_c=p\\
+    Y_i^{0,p} & \text{ if } R_i=0 \text{ and } p^R_c=p      
+  \end{cases}
+\end{align*}
+    
+with $Y_i^{1,p}$ and $Y_i^{0,p}$ the same potential outcomes as defined with a routine allocation of the treatment.
+```
+
+We are now equipped to prove the identification of $A''$:
+
+```{theorem,IdentSmoothSymAlloc,name="Identification of $A''$ in a 2-step clustered randomized controlled trial"}
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork), \@ref(hyp:SymAllocHyp), \@ref(hyp:SmoothResponseHyp), \@ref(hyp:independence2StepCluster), and \@ref(hyp:TwoStepClusterValidity), the numerator of $A''$ is identified by the following quantity:
+
+\begin{align*}
+  \text{sign}(A'') & = \text{sign}\left(\frac{\esp{Y_i|p^R_c=1}-\esp{Y_i|p^R_c=p^*}}{1-p^*}-\frac{\esp{Y_i|p^R_c=p^*}-\esp{Y_i|p^R_c=0}}{p^*}\right).
+\end{align*}
+```
+
+```{proof}
+See Section \@ref(proofIdentSmoothSymAlloc).
+```
+
+One thing that is pretty amazing is that we can relate the sign of $A''$ to the relative size of contagion and amplification effects:
+
+```{theorem,ContagionDiffusionSmoothSymAlloc,name="The sign of $A''$ depends on the relative size of contagion vs amplification effects"}
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork), \@ref(hyp:SymAllocHyp), \@ref(hyp:SmoothResponseHyp), \@ref(hyp:independence2StepCluster), and \@ref(hyp:TwoStepClusterValidity), we have:
+
+\begin{align*}
+  \text{sign}(A'') & = \text{sign}\left(\frac{\esp{Y^{1,1}_i-Y^{1,p^*}}}{1-p^*} -\frac{\esp{Y^{0,p^*}_i-Y^{0,0}_i}}{p^*}\right),
+\end{align*}
+where $\esp{Y^{1,1}_i-Y^{1,p^*}}$ measures the strength of amplification effects and $\esp{Y^{0,p^*}_i-Y^{0,0}_i}$ measures the strength of contagion effects.
+```
+
+```{proof}
+See Section \@ref(proofContagionDiffusionSmoothSymAlloc).
+```
+
+Theorem \@ref(thm:ContagionDiffusionSmoothSymAlloc) suggests an alternative identification strategy for the sign of $A''$:
+
+```{theorem,IdentContagionDiffusionSmoothSymAlloc,name="Identifying the sign of $A''$ from the relative size of contagion and amplification effects"}
+Under Assumptions \@ref(hyp:PropSpecifyExpMap), \@ref(hyp:CoarseNetwork), \@ref(hyp:SymAllocHyp), \@ref(hyp:SmoothResponseHyp), \@ref(hyp:independence2StepCluster), and \@ref(hyp:TwoStepClusterValidity), we have:
+
+\begin{align*}
+    \text{sign}(A'') & = \text{sign}\left(\frac{\esp{Y_i|R_i=1,p^R_c=1}-\esp{Y_i|R_i=1,p^R_c=p^*}}{1-p^*}\right.\\
+                      & \phantom{=\text{sign}\left(\right.}\left.-\frac{\esp{Y_i|R_i=0,p^R_c=p^*}-\esp{Y_i|R_i=0,p^R_c=0}}{p^*}\right)
+\end{align*}
+```
+
+```{proof}
+The proof is immediate using Theorem \@ref(thm:ContagionDiffusionSmoothSymAlloc) and Assumptions \@ref(hyp:independence2StepCluster) and \@ref(hyp:TwoStepClusterValidity).
+```
+
+Thanks to Theorems \@ref(thm:IdentSmoothSymAlloc) and \@ref(thm:IdentContagionDiffusionSmoothSymAlloc), we therefore have two ways to estimate the sign of $A''$: either by comparing the overall changes in expected outcomes when moving from $0$ to $p^*$ and from $p^*$ to $1$, or by comparing the relative size of amplification and contagion effects. 
+As a consequence, we can form two with/without estimators of $A''$:
+
+\begin{align*}
+  \hat{A}''_{All}(\frac{1}{2}) & = \frac{\frac{\sum_{i\in\mathcal{I}_{ST}}Y_i}{N_{ST}}-\frac{\sum_{i\in\mathcal{I}_{PT}}Y_i}{N_{PT}}}{1-p^*}-
+                         \frac{\frac{\sum_{i\in\mathcal{I}_{SP}}Y_i}{N_{SP}}-\frac{\sum_{i\in\mathcal{I}_{SC}}Y_i}{N_{SC}}}{p^*}\\
+  \hat{A}''_{Diff}(\frac{1}{2}) & = \frac{\frac{\sum_{i\in\mathcal{I}_{ST}}Y_i}{N_{ST}}-\frac{\sum_{i\in\mathcal{I}^1_{PT}}Y_i}{N^1_{PT}}}{1-p^*}-
+                         \frac{\frac{\sum_{i\in\mathcal{I}^0_{SP}}Y_i}{N^0_{SP}}-\frac{\sum_{i\in\mathcal{I}_{SC}}Y_i}{N_{SC}}}{p^*},
+\end{align*}
+
+with $\mathcal{I}_{T}$, $T\in\left\{ST,SC,PT\right\}$, the set of units $i$ that belong to a cluster of type $T$, $\mathcal{I}^d_{PT}$, $d\in\left\{0,1\right\}$, the set of units that belong to a cluster of type $PT$ and have $R_i=d$, $N_{T}$, $T\in\left\{ST,SC,PT\right\}$, the number of units $i$ belonging to clusters of type $T$, and $\mathcal{N}^d_{PT}$, $d\in\left\{0,1\right\}$, the number of units that belong to clusters of type $PT$ and have $R_i=d$.
+Following usual arguments, these estimators are both unbiased and consistent (as the number of clusters goes to infinity) for $A''(\frac{1}{2})$.
+Their components can both be estimated separately by using OLS with a linear model on separate subsamples.
+The covariance of each separate with/without comparison can be estimated by estimating both components jointly, for example by estimating the following model by OLS:
+
+\begin{align*}
+  Y_i & = \alpha^{All} + \beta^{All}_{PT}\uns{i\in\mathcal{I}_{PT}} + \beta^{All}_{ST}\uns{i\in\mathcal{I}_{ST}} + \epsilon_i^{All}\\
+  Y_i & = \alpha^{Diff} + \alpha^{Diff}_{1}\uns{R_i=1} + \beta^{Diff}_{0}\uns{i\in\mathcal{I}^0_{PT}}+ \beta^{Diff}_{1}\uns{i\in\mathcal{I}_{ST}} + \epsilon_i^{All}.
+\end{align*}
+
+With these parameter estimates, we have:
+
+\begin{align*}
+  \hat{A}''_{All}(\frac{1}{2}) & = \frac{\hat\beta^{All}_{ST}}{1-p^*}-\frac{\hat\beta^{All}_{SP}}{p^*}\\
+  \hat{A}''_{Diff}(\frac{1}{2}) & = \frac{\hat\beta^{Diff}_{1}}{1-p^*}-\frac{\hat\beta^{Diff}_{0}}{p^*}.
+\end{align*}
+
+To estimate the precision of each of the parameters, one has to use standard errors clustered at the cluster level.
+To obtain the precision of $\hat{A}''(\frac{1}{2})$, one can simply use the Delta Method.
+
+```{remark}
+Note that in practice, the actual proportion of treated in each cluster of type $PT$ is going to differ from $p^*$.
+Does this affect consistency and unbiasedness of both estimators?
+Could we estimate $\hat p^*$ and try to use it to get access to a wider share of the $A$ function, or at least to an average effect?
+See Davide's discussion of that issue.
+```
 
 ### Identifying optimal treatment levels
 
-Davide's paper
+In the previous section, we discussed ways of identifying diffusion effects, and we focused on the task of finding the optimal treatment allocation when total treatment capacity was fixed to a limited number of treatments.
+In that scenario, what turned out to be super important was the shape of the returns to treatment effort (convex or concave), and it turned out to be related to whether contagion or amplification effects dominated.
+Though this scenario of constant treatment effort sometimes happens in real life, in other situations, policymakers might want to decide whether to increase or decrease their treatment effort, and to find the optimal treatment level, taking into account diffusion effects.
+This is the goal of this section, which is fully based on Davide [Viviano (2023)](http://arxiv.org/abs/2011.08174)'s recent working paper on the topic.
+
+#### Setup and assumptions
+
+Davide considers a setting with $K$ clusters of equal size $N$.
+Researchers sample a proportion $\lambda\in\left]0,1\right]$ of the $N$ units in each cluster at each period $t$ and they have access to the following information for the sampled observations in each cluster: $\left(Y^{(k)}_{i,t},X^{(k)}_{i},D^{(k)}_{i,t}\right)_{i=1}^n$ where $n=\lambda N$ and $X^{(k)}_{i}$ are baseline characteristics.
+
+
+
+
+Davide describes the latent process that takes place between units in each cluster.
+Units are spaced on a latent space, and each unit can interact with at most the $\sqrt{\gamma_N}$ closest units.
+Let $\uns{i_k\leftrigharrow j_{k}}$ denote whether or not $i$ and $j$ can be connected in the resulting the latent network.
+Let $\mathcal{I}_k$ be the matrix of these potential connections in cluster $k$.
+Davide's first assumption is:
+
+```{hypothesis,iidConnect,name='Network'}
+Actual connections are generated as follows:
+  
+  \begin{align*}
+    A_{i,j}^{(k)} & = l(X^{(k)}_{i},X^{(k)}_{j},U^{(k)}_{i},U^{(k)}_{j})\uns{i_k\leftrigharrow j_{k}},
+  \end{align*}
+    
+for some function $l$ and unobservables $U^{(k)}_{i}$ with $\left(X^{(k)}_{i},U^{(k)}_{i}\right)|\mathcal{I}_k\sim F_{U|X}F_{X}$ and with $\sum_{j=1}^N\uns{i_k\leftrigharrow j_{k}}=\sqrt{\gamma_N}$.
+```
+
+The second assumption Davide makes is on how potential outcomes are generated:
+
+```{hypothesis,PoNetwork,name='Potential outcomes'}
+Potential outcomes are generated as follows:
+  
+  \begin{align*}
+    Y^{(k)}_{i,t}(\mathbf{D}_1^{(k)},\dots,\mathbf{D}_t^{(k)}) & = r(D_{i,t}^{(k)},\mathbf{D}_{\mathcal{N}_i^{k},t}^{(k)},X^{(k)}_{i},X^{(k)}_{\mathcal{N}_i^{k},t},U^{(k)}_{i},U^{(k)}_{\mathcal{N}_i^{k},t},A^{(k)}_{i,.},|\mathcal{N}_i^{k}|,\nu^{(k)}_{i,t})+\tau_k+\alpha_t,
+  \end{align*}
+    
+for some function $r$ which attains the same value for any permutations of the entries of $A^{(k)}_{i,.}$, with $A^{(k)}_{i,.}$ the vector of connections of $i$ in , and unobservables $\nu^{(k)}_{i,t}|\left(X^{(k)}_{i},U^{(k)}_{i}\right)\sim F_{\nu}$, and where $\mathcal{N}_i^{k}=\left\{j:A^{(k)}_{i,j}>0\right\}$.
+```
+
+
+
+The main assumption that Davide makes on how units interact in the  network 
+
+
 
 ## Diffusion effects with detailed networks
 
