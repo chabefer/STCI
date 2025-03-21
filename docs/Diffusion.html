@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 11 Diffusion effects | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book." />
-  <meta name="generator" content="bookdown 0.26 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 11 Diffusion effects | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2024-07-18" />
+<meta name="date" content="2025-03-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -54,7 +54,11 @@
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
+\newcommand{\unsi}[2]{\mathbf{1}_{#1}(#2)}
+\newcommand{\N}{\mathbf{N}}
+\newcommand{\R}{\mathbf{R}}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
+\newcommand{\espsub}[2]{\mathbf{E}_{#2}[#1]}
 \newcommand{\hatesp}[1]{\hat{\mathbf{E}}[ #1 ]}
 \newcommand{\espE}{\mathbf{E}}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
@@ -64,6 +68,7 @@ $$
 \newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
 \newcommand{\plims}{\text{plim}}
 \newcommand{\distr}{\stackrel{d}{\rightarrow}}
+\newcommand{\probconv}{\stackrel{p}{\rightarrow}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\partdersq}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \DeclareMathOperator{\diag}{diag}
@@ -83,7 +88,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -136,6 +141,10 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -371,9 +380,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="11.2.1" data-path="Diffusion.html"><a href="Diffusion.html#optimal-treatment-allocation-under-monotone-response"><i class="fa fa-check"></i><b>11.2.1</b> Optimal treatment allocation under monotone response</a></li>
 <li class="chapter" data-level="11.2.2" data-path="Diffusion.html"><a href="Diffusion.html#identifying-optimal-treatment-levels"><i class="fa fa-check"></i><b>11.2.2</b> Identifying optimal treatment levels</a></li>
 </ul></li>
-<li class="chapter" data-level="11.3" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-detailed-networks"><i class="fa fa-check"></i><b>11.3</b> Diffusion effects with detailed networks</a></li>
-<li class="chapter" data-level="11.4" data-path="Diffusion.html"><a href="Diffusion.html#nonparametric-test-for-the-existence-of-diffusion-effects-based-on-randomization-inference"><i class="fa fa-check"></i><b>11.4</b> Nonparametric test for the existence of diffusion effects based on randomization inference</a></li>
-<li class="chapter" data-level="11.5" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-did"><i class="fa fa-check"></i><b>11.5</b> Diffusion effects with DID</a></li>
+<li class="chapter" data-level="11.3" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-detailed-networks"><i class="fa fa-check"></i><b>11.3</b> Diffusion effects with detailed networks</a>
+<ul>
+<li class="chapter" data-level="11.3.1" data-path="Diffusion.html"><a href="Diffusion.html#setting"><i class="fa fa-check"></i><b>11.3.1</b> Setting</a></li>
+<li class="chapter" data-level="11.3.2" data-path="Diffusion.html"><a href="Diffusion.html#identification-of-causal-effects"><i class="fa fa-check"></i><b>11.3.2</b> Identification of causal effects</a></li>
+<li class="chapter" data-level="11.3.3" data-path="Diffusion.html"><a href="Diffusion.html#estimation-of-causal-effects"><i class="fa fa-check"></i><b>11.3.3</b> Estimation of causal effects</a></li>
+<li class="chapter" data-level="11.3.4" data-path="Diffusion.html"><a href="Diffusion.html#estimation-of-sampling-noise-6"><i class="fa fa-check"></i><b>11.3.4</b> Estimation of sampling noise</a></li>
+<li class="chapter" data-level="11.3.5" data-path="Diffusion.html"><a href="Diffusion.html#nonparametric-tests-for-the-existence-of-diffusion-effects-based-on-randomization-inference"><i class="fa fa-check"></i><b>11.3.5</b> Nonparametric tests for the existence of diffusion effects based on randomization inference</a></li>
+</ul></li>
+<li class="chapter" data-level="11.4" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-did"><i class="fa fa-check"></i><b>11.4</b> Diffusion effects with DID</a></li>
 </ul></li>
 <li class="chapter" data-level="12" data-path="Distribution.html"><a href="Distribution.html"><i class="fa fa-check"></i><b>12</b> Distributional effects</a></li>
 <li class="chapter" data-level="13" data-path="meta.html"><a href="meta.html"><i class="fa fa-check"></i><b>13</b> Meta-analysis and Publication Bias</a>
@@ -432,7 +447,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="16.1.2" data-path="stratification.html"><a href="stratification.html#estimating-treatment-effects-with-stratified-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.1.2</b> Estimating treatment effects with stratified randomized controlled trials</a></li>
 <li class="chapter" data-level="16.1.3" data-path="stratification.html"><a href="stratification.html#estimating-sampling-noise-in-stratified-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.1.3</b> Estimating sampling noise in stratified randomized controlled trials</a></li>
 </ul></li>
-<li class="chapter" data-level="16.2" data-path="stratification.html"><a href="stratification.html#analysis-of-pairwise-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.2</b> Analysis of pairwise randomized controlled trials</a>
+<li class="chapter" data-level="16.2" data-path="stratification.html"><a href="stratification.html#PairRCT"><i class="fa fa-check"></i><b>16.2</b> Analysis of pairwise randomized controlled trials</a>
 <ul>
 <li class="chapter" data-level="16.2.1" data-path="stratification.html"><a href="stratification.html#building-a-sample-of-pairs"><i class="fa fa-check"></i><b>16.2.1</b> Building a sample of pairs</a></li>
 <li class="chapter" data-level="16.2.2" data-path="stratification.html"><a href="stratification.html#estimating-treatment-effects-in-pairwise-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.2.2</b> Estimating treatment effects in pairwise randomized controlled trials</a></li>
@@ -959,41 +974,487 @@ This is the goal of this section, which is fully based on Davide <a href="http:/
 <div id="setup-and-assumptions" class="section level4 hasAnchor" number="11.2.2.1">
 <h4><span class="header-section-number">11.2.2.1</span> Setup and assumptions<a href="Diffusion.html#setup-and-assumptions" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Davide considers a setting with <span class="math inline">\(K\)</span> clusters of equal size <span class="math inline">\(N\)</span>.
-Researchers sample a proportion <span class="math inline">\(\lambda\in\left]0,1\right]\)</span> of the <span class="math inline">\(N\)</span> units in each cluster at each period <span class="math inline">\(t\)</span> and they have access to the following information for the sampled observations in each cluster: <span class="math inline">\(\left(Y^{(k)}_{i,t},X^{(k)}_{i},D^{(k)}_{i,t}\right)_{i=1}^n\)</span> where <span class="math inline">\(n=\lambda N\)</span> and <span class="math inline">\(X^{(k)}_{i}\)</span> are baseline characteristics.</p>
-<p>Davide describes the latent process that takes place between units in each cluster.
-Units are spaced on a latent space, and each unit can interact with at most the <span class="math inline">\(\sqrt{\gamma_N}\)</span> closest units.
-Let <span class="math inline">\(\uns{i_k\leftrigharrow j_{k}}\)</span> denote whether or not <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> can be connected in the resulting the latent network.
+Researchers sample a proportion <span class="math inline">\(\lambda\in\left]0,1\right]\)</span> of the <span class="math inline">\(N\)</span> units in each cluster at each period <span class="math inline">\(t\)</span> and they have access to the following information for the sampled observations in each cluster: <span class="math inline">\(\left(Y^{(k)}_{i,t},X^{(k)}_{i},D^{(k)}_{i,t}\right)_{i=1}^n\)</span> where <span class="math inline">\(n=\lambda N\)</span> and <span class="math inline">\(X^{(k)}_{i}\)</span> are baseline characteristics.
+There are <span class="math inline">\(T\)</span> periods.
+Despite the data being allowed to be a panel or a repeated cross section, we denote observations as if there was repeated sampling.
+Potential outcomes are denoted <span class="math inline">\(Y^{(k)}_{i,t}(\mathbf{D}_1^{(k)},\dots,\mathbf{D}_t^{(k)})\)</span>, where <span class="math inline">\(\mathbf{D}_s^{(k)}\in\left\{0,1\right\}^N\)</span>, and <span class="math inline">\(s\leq t\)</span>.
+We denote <span class="math inline">\(Y^{(k)}(.)\)</span> and <span class="math inline">\(X^{(k)}\)</span> the vectors of potential outcomes and covariates in cluster <span class="math inline">\(k\)</span>.</p>
+<p>The key policy parameter that we are going to be after is a treatment rule, <span class="math inline">\(\pi(.;\beta):\mathcal{X}\leftrightarrow\left[0,1\right]\)</span>, indexed by a (possibly vector valued) parameter <span class="math inline">\(\beta\)</span> which lies in a compact set.
+The treatment rules selects a probability of allocating each agent with characteristics <span class="math inline">\(x\)</span> at date <span class="math inline">\(t\)</span> in cluster <span class="math inline">\(k\)</span> to the treatment.
+We would like to choose <span class="math inline">\(\pi\)</span> so that we maximize an objective function, for example total program returns net of program implementation costs.</p>
+<p>In order to determine this optimal function, we are going to run two-step clustered experiments.
+These experiments are as follows:</p>
+<div class="hypothesis">
+<p><span id="hyp:TreatAssignDavide" class="hypothesis"><strong>Hypothesis 11.9  (Treatment Assignement in the experiment) </strong></span>For <span class="math inline">\(\beta_{k,t}\Ind\left(X^{(k)},Y^{(k)}(.)\right)\)</span>,</p>
+<p><span class="math display">\[\begin{align*}
+    D^{(k)}_{i,t}|X^{(k)},Y^{(k)}(.),\beta_{k,t}\sim_{i.n.i.d.}\mathcal{B}(\pi(X^{(k)}_{i};\beta_{k,t})).
+  \end{align*}\]</span></p>
+</div>
+<p>Assumption <a href="Diffusion.html#hyp:TreatAssignDavide">11.9</a> implies that the allocation of treatment follows a Bernoulli distribution indexed by parameters <span class="math inline">\(\beta_{k,t}\)</span>, and can be different for individuals with different baseline characteristics.</p>
+<div class="example">
+<p><span id="exm:unnamed-chunk-443" class="example"><strong>Example 11.1  </strong></span>Examples of experimental allocation rules are the equal probability rule: <span class="math inline">\(\pi(.;\beta)=\beta\in\left[0,1\right]\)</span> or targeted treatments <span class="math inline">\(\pi(x;\beta)=\beta_x\)</span>.
+The treatment rules can also be made conditional on cluster characteristics.</p>
+</div>
+<p>Davide now needs another assumption about the data generating process:</p>
+<div class="hypothesis">
+<p><span id="hyp:DGPDavide" class="hypothesis"><strong>Hypothesis 11.10  (Data generating process) </strong></span>For any <span class="math inline">\((i,t,k)\)</span>, we assume that:</p>
+</div>
+<p>Assumption <a href="Diffusion.html#hyp:DGPDavide">11.10</a> says that there are no carryover effects of the treatment beyond the period in which it is assigned (<a href="#it:noCarryOver"><strong>??</strong></a>), that there are no interactions between the treatment and time and cluster fixed effects (<a href="#it:FunctForm"><strong>??</strong></a>), and finally that outcomes depend on at most <span class="math inline">\(\gamma_N\)</span> other outcomes in the same cluster.</p>
+<p>We are now equipped to define welfare as a function of the parameters of the allocation rule:</p>
+<div class="definition">
+<p><span id="def:WelfareDavide" class="definition"><strong>Definition 11.1  </strong></span>For treatments as in Assumption <a href="Diffusion.html#hyp:TreatAssignDavide">11.9</a>, and under the assumptions on the d.g.p. in Assumption <a href="Diffusion.html#hyp:DGPDavide">11.10</a>, we can define welfare as <span class="math inline">\(W(\beta)=\int y(x,\beta)dF_X(x)\)</span>, with <span class="math inline">\(y(x,\beta)=\pi(x;\beta)m(1,x,\beta)+(1-\pi(x;\beta))m(0,x,\beta)\)</span>,</p>
+</div>
+<p>with <span class="math inline">\(y(x,\beta)\)</span> the outcome net of costs.
+Equipped with this definition, and assuming all functions are differentiable, we can define the direct effect of the treatment (<span class="math inline">\(\Delta(x,\beta)\)</span>), the marginal spillover effect (<span class="math inline">\(S(d,x,\beta)\)</span>), the marginal policy effect (<span class="math inline">\(M(\beta)\)</span>) and the welfare optimizing policy (<span class="math inline">\(\beta^*\)</span>) as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta(x,\beta) &amp; = m(1,x,\beta)-m(0,x,\beta)\\
+  S(d,x,\beta) &amp; = \partder{m(d,x,\beta)}{\beta}\\
+  M(\beta) &amp; = \partder{W(\beta)}{\beta}\\
+          &amp; = \int\left[S(0,x,\beta)+\pi(x;\beta)(S(1,x,\beta)-S(0,x,\beta))\right.\\
+          &amp; \phantom{=\int\left[\right.}\left.+\partder{\pi(x,\beta)}{\beta} \Delta(x,\beta)\right]dF_X(x)\\
+  \beta^* &amp; = \arg\sup_{\beta}W(\beta).
+\end{align*}\]</span></p>
+<div class="example">
+<p><span id="exm:unnamed-chunk-444" class="example"><strong>Example 11.2  </strong></span>A first example that Davide gives is the case of positive externalities with decreasing returns from neighbours’ treatments.
+We pose <span class="math inline">\(D^{(k)}_{i,t}\sim_{i.i.d.}\mathcal{B}(\beta)\)</span>, and <span class="math inline">\(\mathcal{N}_i\)</span> is the set of neighbours of individual <span class="math inline">\(i\)</span>.
+We let</p>
+<p><span class="math display">\[\begin{align*}
+  Y^{(k)}_{i,t} &amp; = \alpha_t + D^{(k)}_{i,t}\phi_1 + \frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\phi_2
+                    -\left(\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\right)^2\phi_3 + \nu_{i,t}
+\end{align*}\]</span></p>
+<p>In that case, assuming that <span class="math inline">\(\left|\mathcal{N}_i\right|\sim\mathcal{D}_N\)</span>, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  \espsub{Y^{(k)}_{i,t}|\alpha_t,D^{(k)}_{i,t}=d}{\beta}
+                  &amp; = \alpha_t + d\phi_1
+                    + \espsub{\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}}{\beta}\phi_2
+                    -\espsub{\left(\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\right)^2}{\beta}\phi_3 \\
+                  &amp; = \alpha_t + d\phi_1
+                    + \esp{\espsub{\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{n}}{\beta}|\left|\mathcal{N}_i\right|}\phi_2
+                    -\esp{\espsub{\left(\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{n}\right)^2}{\beta}|\left|\mathcal{N}_i\right|}\phi_3 \\
+                  &amp; =  \alpha_t + d\phi_1
+                    + \esp{\frac{\left|\mathcal{N}_i\right|\beta}{\left|\mathcal{N}_i\right|}|\left|\mathcal{N}_i\right|}\phi_2
+            -\esp{\frac{\left|\mathcal{N}_i\right|\beta(1-\beta)+\left|\mathcal{N}_i\right|^2\beta^2}{\left|\mathcal{N}_i\right|^2}|\left|\mathcal{N}_i\right|}\phi_3 \\
+                  &amp; =  \alpha_t + d\phi_1 + \beta\phi_2-\beta\phi_3\left(\beta+(1-\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}}\right)
+\end{align*}\]</span></p>
+<p>As a consequence, we have:</p>
+<p><span class="math display">\[\begin{align*}
+  m(d,1,\beta) &amp; = d\phi_1 + \beta\phi_2-\beta\phi_3\left(\beta+(1-\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}}\right)\\
+  \Delta(x,\beta) &amp; = \phi_1\\
+  S(d,x,\beta) &amp; = \phi_2-\phi_3(2\beta+(1-2\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}})\\
+  y(1,\beta) &amp; = \beta\phi_2-\beta\phi_3\left(\beta+(1-\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}}\right)+\beta(\phi_1-c)\\
+  M(\beta) &amp; = \phi_2-\phi_3(2\beta+(1-2\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}})+\phi_1-c.
+\end{align*}\]</span></p>
+</div>
+<div class="example">
+<p><span id="exm:unnamed-chunk-445" class="example"><strong>Example 11.3  </strong></span>Let us now look at an example with negative externalties.
+We similarly have <span class="math inline">\(D^{(k)}_{i,t}\sim_{i.i.d.}\mathcal{B}(\beta)\)</span>, but now outcomes are negatively affected by the proportion of treated, and all the more so if they are treated themselves:</p>
+<p><span class="math display">\[\begin{align*}
+  Y^{(k)}_{i,t} &amp; = \alpha_t + D^{(k)}_{i,t}\phi_1 - \frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\phi_2
+                    -D^{(k)}_{i,t}\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\phi_3 + \nu_{i,t}
+\end{align*}\]</span></p>
+<p>In that case, we have, after similar manipulation, <span class="math inline">\(y(1,\beta)=\beta(\phi_1-c-\phi_2-\phi_3\beta)\)</span>.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-272" class="remark"><em>Remark</em>. </span>One open question is whether Assumption <a href="Diffusion.html#hyp:DGPDavide">11.10</a> is compatible with any real-looking network.
+Davide formalizes a nice proposition that shows that indeed this assumption can be rationalized by an actual network formation model.
+Let units be spaced on a latent space, and each unit can interact with at most the <span class="math inline">\(\sqrt{\gamma_N}\)</span> closest units.
+Let <span class="math inline">\(\uns{i_k\leftrightarrow j_{k}}\)</span> denote whether or not <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> can be connected in the resulting the latent network.
 Let <span class="math inline">\(\mathcal{I}_k\)</span> be the matrix of these potential connections in cluster <span class="math inline">\(k\)</span>.
 Davide’s first assumption is:</p>
+</div>
 <div class="hypothesis">
-<p><span id="hyp:iidConnect" class="hypothesis"><strong>Hypothesis 11.9  (Network) </strong></span>Actual connections are generated as follows:</p>
+<p><span id="hyp:iidConnect" class="hypothesis"><strong>Hypothesis 11.11  (Network) </strong></span>Actual connections are generated as follows:</p>
 <p><span class="math display">\[\begin{align*}
-    A_{i,j}^{(k)} &amp; = l(X^{(k)}_{i},X^{(k)}_{j},U^{(k)}_{i},U^{(k)}_{j})\uns{i_k\leftrigharrow j_{k}},
+    A_{i,j}^{(k)} &amp; = l(X^{(k)}_{i},X^{(k)}_{j},U^{(k)}_{i},U^{(k)}_{j})\uns{i_k\leftrightarrow j_{k}},
   \end{align*}\]</span></p>
-<p>for some function <span class="math inline">\(l\)</span> and unobservables <span class="math inline">\(U^{(k)}_{i}\)</span> with <span class="math inline">\(\left(X^{(k)}_{i},U^{(k)}_{i}\right)|\mathcal{I}_k\sim F_{U|X}F_{X}\)</span> and with <span class="math inline">\(\sum_{j=1}^N\uns{i_k\leftrigharrow j_{k}}=\sqrt{\gamma_N}\)</span>.</p>
+<p>for some function <span class="math inline">\(l\)</span> and unobservables <span class="math inline">\(U^{(k)}_{i}\)</span> with <span class="math inline">\(\left(X^{(k)}_{i},U^{(k)}_{i}\right)|\mathcal{I}_k\sim F_{U|X}F_{X}\)</span> and with <span class="math inline">\(\sum_{j=1}^N\uns{i_k\leftrightarrow j_{k}}=\sqrt{\gamma_N}\)</span>.</p>
 </div>
 <p>The second assumption Davide makes is on how potential outcomes are generated:</p>
 <div class="hypothesis">
-<p><span id="hyp:PoNetwork" class="hypothesis"><strong>Hypothesis 11.10  (Potential outcomes) </strong></span>Potential outcomes are generated as follows:</p>
+<p><span id="hyp:PoNetwork" class="hypothesis"><strong>Hypothesis 11.12  (Potential outcomes) </strong></span>Potential outcomes are generated as follows:</p>
 <p><span class="math display">\[\begin{align*}
     Y^{(k)}_{i,t}(\mathbf{D}_1^{(k)},\dots,\mathbf{D}_t^{(k)}) &amp; = r(D_{i,t}^{(k)},\mathbf{D}_{\mathcal{N}_i^{k},t}^{(k)},X^{(k)}_{i},X^{(k)}_{\mathcal{N}_i^{k},t},U^{(k)}_{i},U^{(k)}_{\mathcal{N}_i^{k},t},A^{(k)}_{i,.},|\mathcal{N}_i^{k}|,\nu^{(k)}_{i,t})+\tau_k+\alpha_t,
   \end{align*}\]</span></p>
-<p>for some function <span class="math inline">\(r\)</span> which attains the same value for any permutations of the entries of <span class="math inline">\(A^{(k)}_{i,.}\)</span>, with <span class="math inline">\(A^{(k)}_{i,.}\)</span> the vector of connections of <span class="math inline">\(i\)</span> in , and unobservables <span class="math inline">\(\nu^{(k)}_{i,t}|\left(X^{(k)}_{i},U^{(k)}_{i}\right)\sim F_{\nu}\)</span>, and where <span class="math inline">\(\mathcal{N}_i^{k}=\left\{j:A^{(k)}_{i,j}&gt;0\right\}\)</span>.</p>
+<p>for some function <span class="math inline">\(r\)</span> which attains the same value for any permutations of the entries of <span class="math inline">\(A^{(k)}_{i,.}\)</span>, with <span class="math inline">\(A^{(k)}_{i,.}\)</span> the vector of connections of <span class="math inline">\(i\)</span> in <span class="math inline">\((k)\)</span>, and unobservables <span class="math inline">\(\nu^{(k)}_{i,t}|\left(X^{(k)}_{i},U^{(k)}_{i}\right)\sim F_{\nu}\)</span>, and where <span class="math inline">\(\mathcal{N}_i^{k}=\left\{j:A^{(k)}_{i,j}&gt;0\right\}\)</span>.</p>
 </div>
-<p>The main assumption that Davide makes on how units interact in the network</p>
+<p>Davide can then prove that this setting implies Assumption <a href="Diffusion.html#hyp:DGPDavide">11.10</a>:</p>
+<div class="proposition">
+<p><span id="prp:DavideEquiv" class="proposition"><strong>Proposition 11.1  </strong></span>With a treatment assigned following Assumption <a href="Diffusion.html#hyp:TreatAssignDavide">11.9</a>, if Assumptions <a href="Diffusion.html#hyp:iidConnect">11.11</a> and <a href="Diffusion.html#hyp:PoNetwork">11.12</a> hold, then Assumption <a href="Diffusion.html#hyp:DGPDavide">11.10</a> holds.</p>
+</div>
+<div class="proof">
+<p><span id="unlabeled-div-273" class="proof"><em>Proof</em>. </span>See <a href="http://arxiv.org/abs/2011.08174">Viviano (2023)</a>, Section B.1.2.</p>
+</div>
+</div>
+<div id="identifying-and-estimating-the-marginal-policy-effect-with-a-one-wave-experiment" class="section level4 hasAnchor" number="11.2.2.2">
+<h4><span class="header-section-number">11.2.2.2</span> Identifying and estimating the marginal policy effect with a one-wave experiment<a href="Diffusion.html#identifying-and-estimating-the-marginal-policy-effect-with-a-one-wave-experiment" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Davide proposes a one-wave experiment to get at the marginal policy effect.
+Here is the algorithm he proposes, with <span class="math inline">\(p_1=1\)</span>:</p>
+<ol style="list-style-type: decimal">
+<li><p>Organize clusters into <span class="math inline">\(G=\frac{K}{2}\)</span> pairs with consecutive indexes <span class="math inline">\(\left\{k,k+1\right\}\)</span></p></li>
+<li><p>At <span class="math inline">\(t=0\)</span>, either nobody receives the treatment, or treatment is assigned using rule <span class="math inline">\(\pi(.;\beta)\)</span>.
+Collect baseline outcomes and observe <span class="math inline">\((Y_{i,0}^{(h)},X_{i}^{(h)})_{i=1}^N\)</span>, for <span class="math inline">\(h\in\left\{1,\dots,K\right\}\)</span>.</p></li>
+<li><p>At <span class="math inline">\(t=1\)</span>, start the experiment:</p></li>
+</ol>
+<ul>
+<li><p>For each pair <span class="math inline">\(g=\left\{k,k+1\right\}\)</span>, randomize</p>
+<p><span class="math display">\[\begin{align*}
+    D_{i,1}^{(k)}|\beta,X_i^{(k)}=x &amp; \sim \begin{cases}
+                                              \mathcal{B}(\pi(x,\beta+\eta_n\underline{e}_1)) &amp; \text{ if } h=k\\
+                                              \mathcal{B}(\pi(x,\beta-\eta_n\underline{e}_1)) &amp; \text{ if } h=k+1
+                                            \end{cases}
+  \end{align*}\]</span>
+with <span class="math inline">\(\bar{C}n^{-\frac{1}{2}}&lt;\eta_n&lt;\bar{C}n^{-\frac{1}{4}}\)</span>, and <span class="math inline">\(\underline{e}_j=\left[0,\dots,0,1,0,\dots,0\right]\)</span>, where <span class="math inline">\(\underline{e}_j\in\left\{0,1\right\}^p\)</span>, and <span class="math inline">\(\underline{e}_j[j]=1\)</span>.</p></li>
+<li><p>For <span class="math inline">\(n\)</span> units in cluster <span class="math inline">\(h\)</span> observe <span class="math inline">\(Y_{i,1}^{(h)}\)</span></p></li>
+<li><p>Estimate the marginal effect as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \bar{M}_n(\beta) &amp; = \frac{1}{G}\sum_{g=1}^G\widehat{M}_g(\beta) \\
+  \widehat{M}_g(\beta) &amp; =
+\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]
+-\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,0}\right]
+\end{align*}\]</span></p></li>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li>Construct the following test statistic</li>
+</ol>
+<p><span class="math display">\[\begin{align*}
+    \mathcal{T}_n &amp; = \sqrt{G}\frac{\bar{M}_n(\beta)}{\sqrt{\frac{1}{G-1}\sum_{g=1}^G(\widehat{M}_g(\beta)-\bar{M}_n(\beta))^2}}
+  \end{align*}\]</span>
+to test whether the current allocation is optimal.
+Indeed, if <span class="math inline">\(\beta^*=\arg\max_{\beta} W(\beta)\)</span> is an interior point, then <span class="math inline">\(W(\beta)=W(\beta^*)\Rightarrow M(\beta)[j]=0\)</span>, <span class="math inline">\(\forall j\in\left\{1,\dots,p_1\right\}\)</span>, with <span class="math inline">\(p_1\leq p\)</span>.</p>
+<ol start="5" style="list-style-type: decimal">
+<li>Constructs tests <span class="math inline">\(\uns{\left|\mathcal{T}_n\right|&gt; \text{cv}_{G}(\alpha)}\)</span>, with size <span class="math inline">\(\alpha\)</span> and critical values obtained by permuting the sign of the estimated marginal effects.</li>
+</ol>
+<div class="remark">
+<p><span id="unlabeled-div-274" class="remark"><em>Remark</em>. </span>Davide’s approach runs a pairwise randomized controlled trial similar to the ones we studied in Section <a href="stratification.html#PairRCT">16.2</a>, but at the cluster level.
+Each cluster within the pair is allocated a slightly different value of the allocation parameter, with a perturbation aound the current level of allocation (or a <span class="math inline">\(\beta\)</span> of interest).
+Davide then proposes a DID estimator to get rid of the time and cluster fixed effects (mostly for precision, since they do not affect consistency, at least they do not seem to).
+He estimates a test statistic for whether the average marginal effect is zero across clusters, which is a necessary condition for being at the optimum (and a sufficient one if we assume sufficiency).</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-275" class="remark"><em>Remark</em>. </span>Davide’s approach also recovers several other important treatment effects:</p>
+</div>
+<p><span class="math display">\[\begin{align*}
+  \bar{W}_n(\beta) &amp; = \frac{1}{K}\sum_{k=1}^K\left(\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right) \\
+  \bar{\Delta}_n(\beta) &amp; = \frac{1}{G}\sum_{g=1}^G\hat{\Delta}_g(\beta) \\
+  \hat{\Delta}_{g}(\beta) &amp; = \frac{1}{2n}\sum_{h\in\left\{k,k+1\right\}}\sum_{i=1}^n
+                              \left[\frac{D^{(h)}_{i,1}Y^{(h)}_{i,1}}{\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}
+                                   -\frac{(1-D^{(h)}_{i,1})Y^{(h)}_{i,1}}{1-\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}\right]\\
+  \bar{S}_n(1,\beta) &amp; = \frac{1}{G}\sum_{g=1}^G\hat{S}_{g}(1,\beta) \\
+  \hat{S}_{g}(1,\beta) &amp; = \frac{1}{2n}\sum_{h\in\left\{k,k+1\right\}}\frac{\nu_h}{\eta_n}\sum_{i=1}^n
+                              \left[\frac{D^{(h)}_{i,1}Y^{(h)}_{i,1}}{\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}
+                                   -\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]\\
+  \bar{S}_n(0,\beta) &amp; = \frac{1}{G}\sum_{g=1}^G\hat{S}_{g}(0,\beta) \\
+  \hat{S}_{g}(0,\beta) &amp; = \frac{1}{2n}\sum_{h\in\left\{k,k+1\right\}}\frac{\nu_h}{\eta_n}\sum_{i=1}^n
+                              \left[\frac{(1-D^{(h)}_{i,1})Y^{(h)}_{i,1}}{1-\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}
+                                   -\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]\\
+  \nu_h &amp; = \begin{cases} 1 &amp; \text{ if } h=k \\ -1 &amp; \text{ if } h=k+1 \end{cases} \\
+\end{align*}\]</span></p>
+<div class="remark">
+<p><span id="unlabeled-div-276" class="remark"><em>Remark</em>. </span>Note that Davide’s approach is politically much more palatable than a 2-step clustered design with super controls and super treated clusters.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-277" class="remark"><em>Remark</em>. </span>At the same time, note that Davide’s approach just gives the direction to change <span class="math inline">\(\beta\)</span> but does not deliver an optimal <span class="math inline">\(\beta^*\)</span>, unelss we are already there.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-278" class="remark"><em>Remark</em>. </span>Davide also proves several theorems that ensure that the estimates above are consistent under some reasonable assumptions, and can be approximated by a normal.
+The randomization tests also have correct coverage.</p>
+</div>
+</div>
+<div id="identifying-and-estimating-the-optimal-treatment-allocation" class="section level4 hasAnchor" number="11.2.2.3">
+<h4><span class="header-section-number">11.2.2.3</span> Identifying and estimating the optimal treatment allocation<a href="Diffusion.html#identifying-and-estimating-the-optimal-treatment-allocation" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>Davide also proposes an algorithm to sequentially converge to the optimal treatment level.
+Here is Davide’s proposed algorithm for <span class="math inline">\(p_1=1\)</span>, with <span class="math inline">\(\beta\in\left[\underline{\beta},\overline{\beta}\right]\)</span>:</p>
+<ol style="list-style-type: decimal">
+<li><p>Organize clusters into pairs <span class="math inline">\(\left\{k,k+1\right\}\)</span>, with <span class="math inline">\(k\in\left\{1,3,\dots,K-1\right\}\)</span>;</p></li>
+<li><p>At <span class="math inline">\(t=0\)</span>, treatment is assigned using rule <span class="math inline">\(D_{i,0}^{(h)}|X_i^{(h)}=x\sim\mathcal{B}(\pi(x;\beta_0))\)</span>, <span class="math inline">\(\forall k\in\left\{1,\dots,K\right\}\)</span>.
+Collect baseline outcomes and observe <span class="math inline">\((Y_{i,0}^{(h)},X_{i}^{(h)})_{i=1}^N\)</span>, for <span class="math inline">\(h\in\left\{1,\dots,K\right\}\)</span>.
+Initialize <span class="math inline">\(\widehat{M}_{k,0}=0\)</span>, <span class="math inline">\(\tilde{\beta}_k^0=\beta_0\)</span>.</p></li>
+<li><p>while <span class="math inline">\(1\leq t\leq T\)</span>, do:</p></li>
+</ol>
+<ul>
+<li><p>Define</p>
+<p><span class="math display">\[\begin{align*}
+    \tilde{\beta}_{h}^{(t)} &amp; = \mathcal{P}_{\underline{\beta},\overline{\beta}-\eta_n}(\tilde{\beta}_k^0+\alpha_{h+2,t}\widehat{M}_{h+2,t-1})
+  \end{align*}\]</span>
+with the convention <span class="math inline">\(h+2=1\)</span> when <span class="math inline">\(h=K\)</span> and <span class="math inline">\(h=K+1\)</span>, <span class="math inline">\(\alpha_{k,t}\)</span> is the learning rate and <span class="math inline">\(\mathcal{P}_{a,b}(x)=\arg\min_{x&#39;\in\left[a,b\right]^p}||x-x&#39;||^2\)</span>):</p></li>
+<li><p>Assign treatments as (for <span class="math inline">\(\bar{C}n^{-\frac{1}{2}}&lt;\eta_n&lt;\bar{C}n^{-\frac{1}{4}}\)</span>):</p>
+<p><span class="math display">\[\begin{align*}
+    D_{i,0}^{(h)}|X_i^{(h)}=x &amp; \sim\mathcal{B}(\pi(x;\beta_{h,t}))\\
+    \beta_{h,t} &amp; = \begin{cases}
+                      \tilde{\beta}_{h,t}+\eta_n &amp; \text{ if } h \text{ is odd}\\
+                      \tilde{\beta}_{h,t}-\eta_n &amp; \text{ if } h \text{ is even}
+                    \end{cases}
+\end{align*}\]</span></p></li>
+<li><p>For <span class="math inline">\(n\)</span> units in cluster <span class="math inline">\(h\)</span> observe <span class="math inline">\(Y_{i,t}^{(h)}\)</span></p></li>
+<li><p>For each pair <span class="math inline">\(\left\{k,k+1\right\}\)</span>, estimate the marginal effect as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \widehat{M}_{k,t}=\widehat{M}_{k+1,t} &amp; =
+\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]
+-\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,0}\right]
+\end{align*}\]</span></p></li>
+</ul>
+<ol start="4" style="list-style-type: decimal">
+<li><p>End while.</p></li>
+<li><p>Return <span class="math inline">\(\hat{\beta}^*=\frac{1}{K}\sum_{k=1}^K\tilde{\beta}^T_{k}\)</span></p></li>
+</ol>
+<div class="remark">
+<p><span id="unlabeled-div-279" class="remark"><em>Remark</em>. </span>The algorithm simply mimicks gradient descent as in a Newton-Raphson algorithm.
+One twist is that it uses as estimate of the gradient the marginal treatment effect estimated in another pair of clusters.
+This ensures that there will not be overfitting: the choices of optimal treatment level remain indpendent at each stage of the potential outcomes abd covariates in the cluster.
+Using all pairs but the treated pairs would not work neither (see Appendix B.1.4 in <a href="http://arxiv.org/abs/2011.08174">Davide’s paper</a>).</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-280" class="remark"><em>Remark</em>. </span>When <span class="math inline">\(p_1&gt;1\)</span>, the algorithm is split in <span class="math inline">\(\frac{T}{p_1}\)</span> sub-waves of length <span class="math inline">\(p_1\)</span>, where we move each coordinate sequentially before moving to the next wave.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-281" class="remark"><em>Remark</em>. </span>How to choose the optimal learning rate <span class="math inline">\(\alpha_{k,t}\)</span>?
+Under strong concavity of the objective function, the learning rate should be of order <span class="math inline">\(\frac{J}{t}\)</span>, with for example <span class="math inline">\(J\in\left[0.1,0.2\right]\)</span> when <span class="math inline">\(\beta\)</span> is a proportion.
+More robust with moderate to large <span class="math inline">\(T\)</span>:</p>
+</div>
+<p><span class="math display">\[\begin{align*}  
+      \alpha_{k,t} &amp; = \begin{cases}
+  \frac{J}{T^{\frac{1-\nu}{2}}||\widehat{M}_{k,t}||} &amp; \text{ if }||\widehat{M}_{k,t}||_2^2&gt;\frac{\kappa}{T^{1-\nu}}-\epsilon_n,\\
+  0 &amp; \text{ otherwise }  
+                      \end{cases}
+  \end{align*}\]</span></p>
+<p>for <span class="math inline">\(\epsilon_n&gt;0\)</span>, <span class="math inline">\(\epsilon_n\rightarrow 0\)</span>, and small constants <span class="math inline">\(\nu\leq 1\)</span>, <span class="math inline">\(J\)</span>, <span class="math inline">\(\kappa&gt;0\)</span>.
+This approach of dividing the estimated marginal effect by its norm is called gradient norm rescaling and guarantees control of out-of-sample regret under strict quasi-concavity.</p>
+<div class="remark">
+<p><span id="unlabeled-div-282" class="remark"><em>Remark</em>. </span>Under the assmption that <span class="math inline">\(W(\beta)\)</span> is <span class="math inline">\(\sigma\)</span>-strongly concave, for some strictly positive <span class="math inline">\(\sigma\)</span>, and under additional technical assumptions, the distance between ^*$ and the optimal <span class="math inline">\(\beta^*\)</span> is arbitrarily small, as well as the distance between <span class="math inline">\(W(\beta^*)\)</span> and <span class="math inline">\(W(\hat{\beta}^*)\)</span>.
+Davide also shows that regret can be made arbitrarily small in his approach, whether in and out-of-sample.</p>
+</div>
 </div>
 </div>
 </div>
 <div id="diffusion-effects-with-detailed-networks" class="section level2 hasAnchor" number="11.3">
 <h2><span class="header-section-number">11.3</span> Diffusion effects with detailed networks<a href="Diffusion.html#diffusion-effects-with-detailed-networks" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Leung</p>
+<p>We are now going to study what happens when we have access to detailed network information.
+We observe the contiguity matrix <span class="math inline">\(A\)</span>, or at least all the relevant links for each member of our sample and the treatment status of each peer of our sample members.
+The analysis of such data is going to closely follow the treatment by <a href="https://doi.org/10.1162/rest_a_00818">Michael Leung (2020)</a>.</p>
+<div id="setting" class="section level3 hasAnchor" number="11.3.1">
+<h3><span class="header-section-number">11.3.1</span> Setting<a href="Diffusion.html#setting" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We consider a network of total size <span class="math inline">\(n\)</span>, where connections are represented by the matrix <span class="math inline">\(A\)</span>, which is such that there are no self-links (<span class="math inline">\(A_{i,i}=0\)</span>, <span class="math inline">\(\forall i\in\left\{1,\dots,n\right\}\)</span>).
+For each unit <span class="math inline">\(i\)</span> we observe <span class="math inline">\(D_i\)</span>, <span class="math inline">\(Y_i\)</span>, <span class="math inline">\(\gamma_i=\sum_{j=1}^na_{i,j}\)</span> (<span class="math inline">\(i\)</span>’s <em>degree</em> or number of neighbors), and <span class="math inline">\(T_i=\sum_{j=1}^na_{i,j}D_j\)</span> (the number of <span class="math inline">\(i\)</span>’s neighbors that are treated).
+We posit a treatment response function that is as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  Y_i &amp; = r(D_i,T_i,\gamma_i,\epsilon_i),
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(\epsilon_i\in\mathbb{R}^{d_{\epsilon}}\)</span> are unobserved influences to outcomes, and <span class="math inline">\(r\)</span> is a function.
+One specification of <span class="math inline">\(r\)</span> is the linear first-degree influence model:</p>
+<p><span class="math display" id="eq:linearnetworkmodel">\[\begin{equation}
+  Y_i  = \beta_1 + \beta_2D_i + \beta_3\frac{T_i}{\gamma_i} + \epsilon_i
+  \tag{11.1}
+\end{equation}\]</span></p>
+<p>where outcomes depend linearly on the proportion of neighbors treated.</p>
+<div class="remark">
+<p><span id="unlabeled-div-283" class="remark"><em>Remark</em>. </span>Michael’s model implicitly imposes that diffusion effects can only stem from direct connexions.
+Connexions further away on the network (friends of friends) have no direct effect on <span class="math inline">\(i\)</span>’s outcome.
+This assumption can be relaxed, as long as there is a maximum distance <span class="math inline">\(K\)</span> on the network after which neighbors treatments have no effect on <span class="math inline">\(i\)</span>’s outcome.
+In our formulation so far, <span class="math inline">\(K=1\)</span>.</p>
 </div>
-<div id="nonparametric-test-for-the-existence-of-diffusion-effects-based-on-randomization-inference" class="section level2 hasAnchor" number="11.4">
-<h2><span class="header-section-number">11.4</span> Nonparametric test for the existence of diffusion effects based on randomization inference<a href="Diffusion.html#nonparametric-test-for-the-existence-of-diffusion-effects-based-on-randomization-inference" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Athey and Imbens</p>
+<div class="remark">
+<p><span id="unlabeled-div-284" class="remark"><em>Remark</em>. </span>The way we collect data is either we observe the full network or, more often, we conduct a snowball-sampling of <span class="math inline">\(1\)</span>-neighborhoods.
+In this sampling strategy, we first randomly select a set of <span class="math inline">\(\tilde{n}\leq n\)</span> focal units on which we collect <span class="math inline">\(\left(Y_i,D_i\right)\)</span> and the identity of their neighbors, which gives us <span class="math inline">\(\gamma_i\)</span> and <span class="math inline">\(a_{i,j}\)</span>.
+We then collect the treatment status of each of the neighbors, which gives us <span class="math inline">\(T_i\)</span>.
+We therefore have as data: <span class="math inline">\(\left(Y_i,D_i,T_i,\gamma_i\right)_{i=1}^{\tilde{n}}\)</span> as well as <span class="math inline">\(\tilde{A}\)</span>, the set of sampled links.</p>
 </div>
-<div id="diffusion-effects-with-did" class="section level2 hasAnchor" number="11.5">
-<h2><span class="header-section-number">11.5</span> Diffusion effects with DID<a href="Diffusion.html#diffusion-effects-with-did" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+</div>
+<div id="identification-of-causal-effects" class="section level3 hasAnchor" number="11.3.2">
+<h3><span class="header-section-number">11.3.2</span> Identification of causal effects<a href="Diffusion.html#identification-of-causal-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We define conditional causal effects as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta^Y_{TDT}(t,\gamma) &amp; = \esp{r(1,t,\gamma,\epsilon_i)-r(0,t,\gamma,\epsilon_i)|D_i=1,T_i=t,\gamma_i=\gamma}\\
+  \Delta^Y_{TIT}(d,\gamma) &amp; = \esp{r(d,t,\gamma,\epsilon_i)-r(d,t&#39;,\gamma,\epsilon_i)|D_i=d,T_i=t,\gamma_i=\gamma},
+\end{align*}\]</span></p>
+<p>with <span class="math inline">\(\Delta^Y_{TDT}(t,\gamma)\)</span> the average treatment effect on the directly treated, keeping the indirect level of treatment and the degree of each individual constant; and <span class="math inline">\(\Delta^Y_{TIT}(d,\gamma)\)</span> the average treatment effect on the indirectly treated, keeping the direct level of treatment and the degree of each individual constant.</p>
+<div class="remark">
+<p><span id="unlabeled-div-285" class="remark"><em>Remark</em>. </span><a href="https://doi.org/10.1162/rest_a_00818">Leung (2020)</a> also allows for the identification of the effect on function of <span class="math inline">\(Y_i\)</span>, <span class="math inline">\(h(Y_i)\)</span>.</p>
+</div>
+<p>To state identification results for both treatment effects, we are going to make several assumptions on <span class="math inline">\(\tilde{D}=\left\{D_i\right\}_{i=1}^{\tilde{n}}\)</span>, <span class="math inline">\(\tilde{\epsilon}=\left\{\epsilon_i\right\}_{i=1}^{\tilde{n}}\)</span> and <span class="math inline">\(\tilde{A}\)</span>:</p>
+<div class="hypothesis">
+<p><span id="hyp:Exo" class="hypothesis"><strong>Hypothesis 11.13  (Treatment exogeneity) </strong></span>We assume that <em>(a)</em> <span class="math inline">\(\tilde{D}\Ind\left(\tilde{A},\tilde{\epsilon}\right)\)</span> and <em>(b)</em> <span class="math inline">\(\forall i\in\left\{1,\dots,\tilde{n}\right\}\)</span>, <span class="math inline">\(\epsilon_i\Ind\tilde{A}|\gamma_i\)</span>.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-286" class="remark"><em>Remark</em>. </span>Assumption <a href="Diffusion.html#hyp:Exo">11.13</a> imposes that the treatment does not alter links between units across the network, and, furthermore, since treatment is assumed i.i.d., it also imposes that the treatment is not allocated with respect to network characteristics.
+This can be relaxed, for example by conducting an experiment stratified on network charcateristics.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-287" class="remark"><em>Remark</em>. </span>Assumption <a href="Diffusion.html#hyp:Exo">11.13</a> imposes full independence between treatment and unobservables, which is satisfied mostly when the treatment is randomly allocated across units.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-288" class="remark"><em>Remark</em>. </span>Part <em>(b)</em> of Assumption <a href="Diffusion.html#hyp:Exo">11.13</a> imposes that links are independent from error terms, conditional on degree.
+This assumption rules out unobserved homophily (individuals forming links based on unobserved determinants of outcomes), a key open issue in the literature.</p>
+</div>
+<p>We also need one technical assumption:</p>
+<div class="hypothesis">
+<p><span id="hyp:Support" class="hypothesis"><strong>Hypothesis 11.14  (Support) </strong></span>We assume that <em>(a)</em> <span class="math inline">\(\Pr(D_i=1)\in]0,1[\)</span> and <em>(b)</em> there exists <span class="math inline">\(P\)</span>: <span class="math inline">\(\N\rightarrow\left[0,1\right]\)</span> such that, <span class="math inline">\(\forall\gamma\in\N\)</span>, <span class="math inline">\(\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\uns{\gamma_i=\gamma}\probconv P(\gamma)\)</span> and <span class="math inline">\(\Gamma=\left\{\gamma:P(\gamma)&gt;0\right\}\)</span> is not empty and is different from <span class="math inline">\(\left\{0\right\}\)</span>.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-289" class="remark"><em>Remark</em>. </span>Assumption <a href="Diffusion.html#hyp:Support">11.14</a> imposes that at least some sampled units have at least one link, and some of them are treatedd and some of them are not.</p>
+</div>
+<p>We can now prove identification of our effects of interest:</p>
+<div class="theorem">
+<p><span id="thm:IdentLeung" class="theorem"><strong>Theorem 11.8  </strong></span>Under Assumptions <a href="Diffusion.html#hyp:Exo">11.13</a> and <a href="Diffusion.html#hyp:Support">11.14</a>, <span class="math inline">\(\Delta^Y_{TDT}(t,\gamma)\)</span> and <span class="math inline">\(\Delta^Y_{TIT}(d,\gamma)\)</span> are identified, <span class="math inline">\(\forall d\in\left\{0,1\right\}\)</span>, <span class="math inline">\(\forall t \leq \gamma\)</span>, <span class="math inline">\(\forall\gamma\in\Gamma\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+  \Delta^Y_{TDT}(t,\gamma) &amp; = \esp{Y_i|D_i=1,T_i=t,\gamma_i=\gamma}-\esp{Y_i|D_i=0,T_i=t,\gamma_i=\gamma},\\
+  \Delta^Y_{TIT}(d,\gamma) &amp; = \esp{Y_i|D_i=d,T_i=t,\gamma_i=\gamma}-\esp{Y_i|D_i=d,T_i=t&#39;,\gamma_i=\gamma}.
+\end{align*}\]</span></p>
+</div>
+<div class="proof">
+<p><span id="unlabeled-div-290" class="proof"><em>Proof</em>. </span>Under Assumption <a href="Diffusion.html#hyp:Support">11.14</a>, <span class="math inline">\(\esp{Y_i|D_i=d,T_i=t,\gamma_i=\gamma}\)</span> is well defined <span class="math inline">\(\forall d\in\left\{0,1\right\}\)</span>, <span class="math inline">\(\forall t \leq \gamma\)</span>, <span class="math inline">\(\forall\gamma\in\Gamma\)</span>.
+We have, <span class="math inline">\(\forall d\in\left\{0,1\right\}\)</span>, <span class="math inline">\(\forall t,t&#39; \leq \gamma\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+  \esp{Y_i|D_i=d,T_i=t,\gamma_i=\gamma} &amp; = \esp{r(d,t,\gamma,\epsilon_i)|D_i=d,T_i=t,\gamma_i=\gamma}\\
+                                        &amp; = \esp{\esp{r(d,t,\gamma,\epsilon_i)|\tilde{A},D_i=d,T_i=t,\gamma_i=\gamma}|D_i=d,T_i=t,\gamma_i=\gamma}\\
+                                        &amp; = \esp{\esp{r(d,t,\gamma,\epsilon_i)|\gamma_i=\gamma}|\gamma_i=\gamma}\\
+                                        &amp; = \esp{r(d,t,\gamma,\epsilon_i)|\gamma_i=\gamma}\\
+                                        &amp; = \esp{r(d,t,\gamma,\epsilon_i)|D_i=d&#39;,T_i=t&#39;,\gamma_i=\gamma},
+\end{align*}\]</span></p>
+<p>where the first quality is by definition, the second equality uses the Law of Iterated Expectations, and the third equality uses Assumption <a href="Diffusion.html#hyp:Exo">11.13</a>.
+The third equality uses the fact that Assumption <a href="Diffusion.html#hyp:Exo">11.13</a> implies that <span class="math inline">\((D_i=d,T_i=t)\Ind\epsilon_i|(\tilde{A},\gamma_i)\)</span>, which enables us to undo the conditioning on <span class="math inline">\((D_i=d,T_i=t)\)</span> in the inner expectation.
+We then use part <em>(b)</em> of Assumption <a href="Diffusion.html#hyp:Exo">11.13</a> to undo the conditioning on <span class="math inline">\(\tilde{A}\)</span>.
+Since the inner expectation then does only depend on <span class="math inline">\(\gamma_i\)</span>, the outer expectation also does, by the Law of Iterated Expectations.
+This undoes the conditioning on <span class="math inline">\((D_i=d,T_i=t)\)</span> in the outer expectation.
+The same reasoning applied in reverse gives the last equality.
+This proves the result.</p>
+</div>
+</div>
+<div id="estimation-of-causal-effects" class="section level3 hasAnchor" number="11.3.3">
+<h3><span class="header-section-number">11.3.3</span> Estimation of causal effects<a href="Diffusion.html#estimation-of-causal-effects" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Michael explores two estimators of the causal effects, one nonparametric and one parametric.
+The nonparametric estimators are as follows:</p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\Delta}^{Y^{np}}_{TDT}(t,\gamma) &amp; = \hat{\mu}(1,t,\gamma)-\hat{\mu}(0,t,\gamma)\\
+  \hat{\Delta}^{Y^{np}}_{TIT}(d,\gamma) &amp; = \hat{\mu}(d,t,\gamma)-\hat{\mu}(d,t&#39;,\gamma)\\
+  \hat{\mu}(d,t,\gamma) &amp; = \frac{\sum_{i=1}^{\tilde{n}}Y_i\unsi{i}{d,t,\gamma}}{\sum_{i=1}^{\tilde{n}}\unsi{i}{d,t,\gamma}} \\
+  \unsi{i}{d,t,\gamma} &amp; = \uns{D_i=1,T_i=t,\gamma_i=\gamma}.
+\end{align*}\]</span></p>
+<p>The parametric estimators are:</p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\Delta}^{Y^{p}}_{TDT}(t,\gamma) &amp; = \hat{\beta}^{OLS}_2\\
+  \hat{\Delta}^{Y^{np}}_{TIT}(d,\gamma) &amp; = \hat{\beta}^{OLS}_3\left(\frac{t-t&#39;}{\gamma}\right),
+\end{align*}\]</span></p>
+<p>using the OLS estimates of Equation <a href="Diffusion.html#eq:linearnetworkmodel">(11.1)</a>.</p>
+<p>We need several assumptions to ensure that our estimators converge to the actual treatment effect when the network size grows large.
+Let <span class="math inline">\(\max_kA_{ik}A_{jk}\)</span> denote whether <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are indirectly linked through a common friend <span class="math inline">\(k\)</span>.</p>
+<div class="hypothesis">
+<p><span id="hyp:IndepShocks" class="hypothesis"><strong>Hypothesis 11.15  </strong></span>For any pair <span class="math inline">\((i,j)\in\left\{1,\dots,n\right\}^2\)</span>, <em>(a)</em> <span class="math inline">\(\epsilon_i\Ind\epsilon_j|\tilde{A},A_{ij}=0,\max_kA_{ik}A_{jk}=0\)</span> and <em>(b)</em> <span class="math inline">\((\epsilon_i,\epsilon_j)\Ind\tilde{A}|A_{ij},\gamma_i,\gamma_j,\sum_kA_{ik}A_{jk}\)</span>.</p>
+</div>
+<p>Part (a) of Assumption <a href="Diffusion.html#hyp:IndepShocks">11.15</a> imposes that <span class="math inline">\(\epsilon_i\)</span> and <span class="math inline">\(\epsilon_j\)</span> can only be correlated if <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> they are neighbors or share a common neighbor.
+Part (b) of Assumption <a href="Diffusion.html#hyp:IndepShocks">11.15</a> imposes that <span class="math inline">\(\epsilon_i\)</span> and <span class="math inline">\(\epsilon_j\)</span> depend on the network only through <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>’s own connection, own degrees, and number of common connections.</p>
+<p>We are now going to define a set of properties on the connections between units that will enable to apply a CLT with non independent data.
+Under Assumption <a href="Diffusion.html#hyp:IndepShocks">11.15</a>, we know that the outcome of observations are correlated across the netework when either they are direct neighbor or they have a neighbor in common.
+Let us encode these connections within a new matrix, <span class="math inline">\(G\)</span>, such that each entry measures whether the outcome of two observations are correlated or not: <span class="math inline">\(G_{ij}=\uns{A_{ij}+\max_kA_{ik}A_{jk}+\uns{i=j}&gt;0}\)</span>.
+Let <span class="math inline">\(\mathbf{N}_i=\left\{j:G_{ij}=1\right\}\)</span> be the set of units whose outcomes are correlated with that of <span class="math inline">\(i\)</span>, and <span class="math inline">\(|\mathbf{N}_i|\)</span> the cardinal of this set (<em>i.e.</em> the number of units whose outcomes are correlated with <span class="math inline">\(i&#39;s\)</span> outcome).
+Let <span class="math inline">\(G^3\)</span> be the third matrix power of <span class="math inline">\(G\)</span>.</p>
+<div class="hypothesis">
+<p><span id="hyp:DegreeDistribution" class="hypothesis"><strong>Hypothesis 11.16  </strong></span><span class="math inline">\(\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}|\mathbf{N}_i|^3\)</span> and <span class="math inline">\(\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\sum_{j\neq i}(G^3)_{ij}\)</span> are bounded in probability.</p>
+</div>
+<p>Assumption <a href="Diffusion.html#hyp:DegreeDistribution">11.16</a> imposes that the amount of links in the network is small enough so that the <span class="math inline">\(G\)</span> matrix is sparse.
+Assumption <a href="Diffusion.html#hyp:DegreeDistribution">11.16</a> implies that the average degree is bounded asymptotically, so that average degree is sunstantially smaller than sample size.
+There is no direct way to test for this, but one convenient approach is to compute the density of <span class="math inline">\(G\)</span> (its proportion of linked pairs), <span class="math inline">\(\frac{1}{\left(\begin{array}\tilde{n}\\2\end{array}\right)}\sum_{i\leq j}G_{ij}=\frac{2\sum_{i=1}^{\tilde{n}}\gamma_i}{\tilde{n}-1}\)</span>.
+In sparse enough networks, the density is around 10%.
+The second part of Assumption <a href="Diffusion.html#hyp:DegreeDistribution">11.16</a> requires that higher order moments of the degree distribution are bounded, which controls the tails of the distribution of degrees.
+One way to test for this condition is to compute the tail index of the distribution of degrees, and to find that they decrease exponentially fast, as for example in <a href="https://link.springer.com/10.1007/978-3-319-16877-7">Ibragimov et al. (2015)</a>.</p>
+<div class="remark">
+<p><span id="unlabeled-div-291" class="remark"><em>Remark</em>. </span>We can allow for connections of order higher than two in Assumption <a href="Diffusion.html#hyp:IndepShocks">11.15</a>, as long as there exists some finite <span class="math inline">\(K\)</span> beyind which correlations between the outcomes of units <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are zero.
+We can also allow for connections across time or across clusters or across overlapping clusters</p>
+</div>
+<p>Let us now state Michael’s Theorem for the distribution of the nonparametric estimator of treatment effects:</p>
+<div class="theorem">
+<p><span id="thm:EstimLeungNP" class="theorem"><strong>Theorem 11.9  (CLT for nonparametric estimator of diffusion effects) </strong></span>Under Assumptions <a href="Diffusion.html#hyp:Exo">11.13</a>, <a href="Diffusion.html#hyp:Support">11.14</a>, <a href="Diffusion.html#hyp:IndepShocks">11.15</a> and <a href="Diffusion.html#hyp:DegreeDistribution">11.16</a> (and some regularity conditions summrized in Assumptions 5 and 6 in <a href="https://doi.org/10.1162/rest_a_00818">Leung (2019)</a>), <span class="math inline">\(\forall d,d&#39;\in\left\{0,1\right\}\)</span>, <span class="math inline">\(\gamma\in\Gamma\)</span> and integers <span class="math inline">\(t,t&#39;\leq\gamma\)</span>, there exists <span class="math inline">\(\sigma^2_{TS}\)</span> such that:</p>
+<p><span class="math display">\[\begin{align*}
+  \sqrt{\tilde{n}}\left(\left(\hat{\mu}(d,t,\gamma)-\hat{\mu}(d&#39;,t&#39;,\gamma)\right)-\left(\mu(d,t,\gamma)-\mu(d&#39;,t&#39;,\gamma)\right)\right)\distr\mathcal{N}(0,\sigma^2_{TS}).
+\end{align*}\]</span></p>
+</div>
+<div class="proof">
+<p><span id="unlabeled-div-292" class="proof"><em>Proof</em>. </span>See proof of Theorem 2 in <a href="https://doi.org/10.1162/rest_a_00818">Leung (2019)</a>.</p>
+</div>
+<p>Let us now state Michael’s Theorem for the parametric estimator of diffusion effects.
+We first need the following assumption, with <span class="math inline">\(X\)</span> the <span class="math inline">\(\tilde{n}\times 3\)</span> matrix of regressors in Equation <a href="Diffusion.html#eq:linearnetworkmodel">(11.1)</a>, <span class="math inline">\(\Theta\)</span> the corresponding <span class="math inline">\(3\times 1\)</span> matrix of coefficients, and <span class="math inline">\(\rho_{ij}(X,G)=\esp{\epsilon_i,\epsilon_j|X_i,X_j,G_{ij}=1}\)</span>:</p>
+<div class="hypothesis">
+<p><span id="hyp:Covariance" class="hypothesis"><strong>Hypothesis 11.17  </strong></span>We assume that there exists positive definite matrices <span class="math inline">\(V\)</span> and <span class="math inline">\(S\)</span> such that <span class="math inline">\(\esp{\frac{1}{\tilde{n}}X&#39;X|\tilde{A}}\probconv V\)</span> and <span class="math inline">\(\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\sum_{j\in\mathbf{N}_i}\esp{\rho_{ij}(X,G)X_iX_j&#39;|\tilde{A}}\probconv S\)</span> and that <span class="math inline">\(\esp{\epsilon_i|X_i,\tilde{A}}=0\)</span>.</p>
+</div>
+<div class="theorem">
+<p><span id="thm:EstimLeungP" class="theorem"><strong>Theorem 11.10  (CLT for parametric estimator of diffusion effects) </strong></span>Under Assumptions <a href="Diffusion.html#hyp:Exo">11.13</a>, <a href="Diffusion.html#hyp:Support">11.14</a>, <a href="Diffusion.html#hyp:IndepShocks">11.15</a>, <a href="Diffusion.html#hyp:DegreeDistribution">11.16</a>, and <a href="Diffusion.html#hyp:Covariance">11.17</a>:</p>
+<p><span class="math display">\[\begin{align*}
+  \sqrt{\tilde{n}}\left(\hat{\Theta}-\Theta\right)\distr\mathcal{N}(0,V^{-1}SV^{-1}).
+\end{align*}\]</span></p>
+</div>
+<div class="proof">
+<p><span id="unlabeled-div-293" class="proof"><em>Proof</em>. </span>See proof of Theorem SA.2.2 in <a href="https://doi.org/10.1162/rest_a_00818">Leung (2019)</a>.</p>
+</div>
+</div>
+<div id="estimation-of-sampling-noise-6" class="section level3 hasAnchor" number="11.3.4">
+<h3><span class="header-section-number">11.3.4</span> Estimation of sampling noise<a href="Diffusion.html#estimation-of-sampling-noise-6" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For estimating sampling noise, Michael proposes two estimators: one for the sampling noise of the nonparametric estimator and one for the sampling noise of the pâraetric estimator.
+For the nonparametric estimator, Michael proposes the following approach:</p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\sigma}^2_{TS} &amp; = \frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\sum_{j=1}^{\tilde{n}}G_{ij}((Y_ia_i-b_i)(Y_ja_j-b_j))\\
+  a_i &amp; = \frac{\unsi{i}{d,t,\gamma}}{\hat{\rho}(d,t,\gamma)}-\frac{\unsi{i}{d&#39;,t&#39;,\gamma}}{\hat{\rho}(d&#39;,t&#39;,\gamma)}\\
+  b_i &amp; = \hat{\mu}(d,t,\gamma)\frac{\unsi{i}{d,t,\gamma}}{\hat{\rho}(d,t,\gamma)}-\hat{\mu}(d&#39;,t&#39;,\gamma)\frac{\unsi{i}{d&#39;,t&#39;,\gamma}}{\hat{\rho}(d&#39;,t&#39;,\gamma)}\\
+  \hat{\rho}(d,t,\gamma) &amp; = \frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\unsi{i}{d,t,\gamma}.
+\end{align*}\]</span></p>
+<p>For the parametric estimator Michael proposes the following estimator for the covariance matrix of the parameters of Equation <a href="Diffusion.html#eq:linearnetworkmodel">(11.1)</a> estimated by OLS:</p>
+<p><span class="math display">\[\begin{align*}
+  \hat{\mathbf{\Sigma}} &amp; = (X&#39;X)^{-1}\mathcal{M}&#39;G\mathcal{M}(X&#39;X)^{-1},
+\end{align*}\]</span></p>
+<p>with <span class="math inline">\(\mathcal{M}=(X_1\hat{\epsilon}_1,\dots,X_{\tilde{n}}\hat{\epsilon}_{\tilde{n}})&#39;\)</span>, and <span class="math inline">\(\hat{\epsilon}\)</span> the vector of regression residuals.</p>
+<p>We can now state two propositions showing that the estimators of sampling noise proposed by Michael are consistent:</p>
+<div class="proposition">
+<p><span id="prp:ConsistentNoiseNP" class="proposition"><strong>Proposition 11.2  (Consistyency of nonparametric estimator of sampling noise) </strong></span>Under the Assumptions of Theorem <a href="Diffusion.html#thm:EstimLeungNP">11.9</a>, <span class="math inline">\(\hat{\sigma}^2_{TS}\probconv\sigma^2_{TS}\)</span>.</p>
+</div>
+<div class="proof">
+<p><span id="unlabeled-div-294" class="proof"><em>Proof</em>. </span>See proof of Proposition 2 in <a href="https://doi.org/10.1162/rest_a_00818">Leung (2019)</a>.</p>
+</div>
+<div class="proposition">
+<p><span id="prp:ConsistentNoiseP" class="proposition"><strong>Proposition 11.3  (Consistyency of nonparametric estimator of sampling noise) </strong></span>Under Assumptions <a href="Diffusion.html#hyp:Exo">11.13</a>, <a href="Diffusion.html#hyp:Support">11.14</a>, <a href="Diffusion.html#hyp:IndepShocks">11.15</a>, <a href="Diffusion.html#hyp:DegreeDistribution">11.16</a>, <a href="Diffusion.html#hyp:Covariance">11.17</a>, and regularity conditions made clear in Proposition SA.2.4 in <a href="https://doi.org/10.1162/rest_a_00818">Leung (2019)</a>, <span class="math inline">\(\hat{\mathbf{\Sigma}}\probconv V^{-1}SV^{-1}\)</span>.</p>
+</div>
+<div class="proof">
+<p><span id="unlabeled-div-295" class="proof"><em>Proof</em>. </span>See proof of Proposition SA.2.4 in <a href="https://doi.org/10.1162/rest_a_00818">Leung (2019)</a>.</p>
+</div>
+<div class="remark">
+<p><span id="unlabeled-div-296" class="remark"><em>Remark</em>. </span>One assumption that is hard to swallow here is that effects die after <span class="math inline">\(K\)</span> connections and correlations after <span class="math inline">\(K+1\)</span> connections.
+To relax these assumptions you can to conduct inference at the cluster level, such as in <a href="https://science.sciencemag.org/content/341/6144/1236498">Banerjee et al. (2013)</a>, <a href="https://www.science.org/doi/10.1126/science.aaa0491">Guiteras et al. (2015)</a> and <a href="https://www.aeaweb.org/articles?id=10.1257/aer.20200295">Beaman et al. (2021)</a> for example.
+Another approach is to use the bootstrap, with justifications in <a href="https://projecteuclid.org/journals/annals-of-statistics/volume-49/issue-2/Empirical-process-results-for-exchangeable-arrays/10.1214/20-AOS1981.full">Davezies et al. (2021)</a> and
+<a href="https://kamilanowakowicz.com/network_bootstrap.pdf">Nowakowicz (2024)</a>.</p>
+</div>
+</div>
+<div id="nonparametric-tests-for-the-existence-of-diffusion-effects-based-on-randomization-inference" class="section level3 hasAnchor" number="11.3.5">
+<h3><span class="header-section-number">11.3.5</span> Nonparametric tests for the existence of diffusion effects based on randomization inference<a href="Diffusion.html#nonparametric-tests-for-the-existence-of-diffusion-effects-based-on-randomization-inference" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>One final question that we might have about diffusion effects with detailed network information is whether we can adapt nonparametric tests such as Randomization Inference to test for the existence and shape of diffusion effects.
+One especially interesting thing to test would be the existence of diffusion effects up to <span class="math inline">\(K\)</span> levels of separation within the network, as assumption used to identify diffusion effects in the sections just above.
+<a href="https://doi.org/10.1080/01621459.2016.1241178">Athey, Eckles, and Imbens (2018)</a> have developed an approach to do just that, that we are going to detail here.</p>
+<div id="overview-of-athey-eckles-and-imbens-2018s-approach" class="section level4 hasAnchor" number="11.3.5.1">
+<h4><span class="header-section-number">11.3.5.1</span> Overview of <a href="https://doi.org/10.1080/01621459.2016.1241178">Athey, Eckles, and Imbens (2018)</a>’s approach<a href="Diffusion.html#overview-of-athey-eckles-and-imbens-2018s-approach" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>A key concept to understand what <a href="https://doi.org/10.1080/01621459.2016.1241178">Athey, Eckles, and Imbens (2018)</a> are doing is that of <strong>sharpness</strong>.
+An assumption is <strong>sharp</strong> if it enables the researcher to infer the outcomes of each observation under counterfactual treatment vectors.
+For example, the assumption of no-effect is sharp because it imposes that all the observed outcomes are the ones with and without the treatment at the same time, and thus we can reallocate the treatment and infer the outcomes for each reallocation (they do not change).</p>
+<p>The problem that <a href="https://doi.org/10.1080/01621459.2016.1241178">Athey, Eckles, and Imbens (2018)</a> try to solve is that of testing assumptions that are non sharp in the original experiment.
+The assumption of no spillover effects for example is not sharp in the original experiment since it allows for the treatment to have a direct unknown effect on each unit.
+When drawing a new treatment allocation, we do not know what the outcome of those who have changed treatment status should be.</p>
+<p><a href="https://doi.org/10.1080/01621459.2016.1241178">Athey, Eckles, and Imbens (2018)</a>’s approach for randomization inference tries to avoid having to assume the absence of treatment effects everywhere in order to test higher for order level assumptions.
+For that, AEI uses a set of focal units for which treatment status is going to remain fixed over repetitions.
+Then, we select a set of non focal units (who they are depends on the actual assumption to test).
+We select a test statistic measuring the strength of evidence against <span class="math inline">\(H0\)</span>.
+We allocate the treatment at random among the non-focal units multiple times.
+We derive the distribution of the test statistic under <span class="math inline">\(H0\)</span>.
+Compute the actual test statistic in the real sample and derive its p-value using the empirically-derived distribution.</p>
+</div>
+<div id="some-definitions" class="section level4 hasAnchor" number="11.3.5.2">
+<h4><span class="header-section-number">11.3.5.2</span> Some definitions<a href="Diffusion.html#some-definitions" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><strong>Level sets</strong></p>
+</div>
+<div id="testing-for-the-existence-of-any-effect-of-the-treatment" class="section level4 hasAnchor" number="11.3.5.3">
+<h4><span class="header-section-number">11.3.5.3</span> Testing for the existence of any effect of the treatment<a href="Diffusion.html#testing-for-the-existence-of-any-effect-of-the-treatment" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>The null hypothesis in this case is that all the effects of the treatment are zero: <span class="math inline">\(Y_{i}(\mathbf{D})=Y_{i}(\mathbf{D}&#39;)\)</span>, <span class="math inline">\(\forall i, \forall \mathbf{D},\mathbf{D}&#39;\in\mathbf{\Omega}\)</span>.</p>
+<p>To test for this assumption, we randomly allocate all hydrographic zones to placebo vulnerable zones, which gives us a randomized treatment vector <span class="math inline">\(\tilde{D}_{i}\)</span>.
+To test for the existence of a treatment effect, we use as test statistics <span class="math inline">\(\hat{\beta}_{OLS}\)</span> and <span class="math inline">\(\hat{\delta}_{DID}\)</span>, estimated using the following regressions:</p>
+</div>
+</div>
+</div>
+<div id="diffusion-effects-with-did" class="section level2 hasAnchor" number="11.4">
+<h2><span class="header-section-number">11.4</span> Diffusion effects with DID<a href="Diffusion.html#diffusion-effects-with-did" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Sylvain’s approach vs Kyle’s approach</p>
 
 </div>
@@ -1065,7 +1526,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');

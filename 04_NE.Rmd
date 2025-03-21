@@ -5037,7 +5037,7 @@ Let's see how it works.
 
 ```{r DIDdCdH,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
 # regression
-reg.dCdH <- did_multiplegt(Y="y",T="time",G="id",D="D",df=filter(data,Ds!=1),placebo=3,dynamic=3,average_effect="prop_number_switchers")
+reg.dCdH <- did_multiplegt_old(Y="y",T="time",G="id",D="D",df=filter(data,Ds!=1),placebo=3,dynamic=3,average_effect="prop_number_switchers")
 ```
 
 Let us now pot the results:
@@ -5155,8 +5155,15 @@ Let's see how it works.
 ```
 
 ```{r DIDBJS,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
+# there is a tiny bug in the did_imputation code if you use "y" as the name of the outcome variable
+# this is because it generates a bug in this line of code: yvars %>% purrr::set_names(yvars) %>% purrr::map(function(y) {data[, `:=`(zz000adj, .SD[[paste("zz000adj", y, sep = "_")]])][zz000treat == 1, purrr::map(.SD, ~sum(. * zz000adj)), .SDcols = wtr]}) 
+# I therefore rename y as something else
+data <- data %>% 
+        mutate(
+          yBJS = y
+        )
 # regression
-reg.BJS <- did_imputation(yname="y",tname="time",idname="id",gname="Group",data=filter(data,Ds!=1),horizon=TRUE,pretrends=TRUE)
+reg.BJS <- did_imputation(yname="yBJS",tname="time",idname="id",gname="Group",data=filter(data,Ds!=1),horizon=TRUE,pretrends=TRUE)
 ```
 
 Let us now plot the results:
@@ -5173,7 +5180,7 @@ DID.BJS <- reg.BJS %>%
               TimeToTreatment=as.numeric(TimeToTreatment)
             )
 # adding reference period
-DID.BJS[nrow(DID.BJS)+1,] <- list(-1,0,0,0,0)
+DID.BJS[nrow(DID.BJS)+1,] <- list("yBJS",-1,0,0,0,0)
 
 #plot
 ggplot(DID.BJS,aes(x=TimeToTreatment,y=Coef))+
@@ -5192,10 +5199,10 @@ Let us finally estimate the average treatment effect on the treated using Borusy
 
 ```{r DIDBJSAgg,eval=TRUE,warning=FALSE,error=FALSE,message=FALSE,echo=TRUE}
 # regression
-reg.BJS.Agg <- did_imputation(yname="y",tname="time",idname="id",gname="Group",data=filter(data,Ds!=1))
+reg.BJS.Agg <- did_imputation(yname="yBJS",tname="time",idname="id",gname="Group",data=filter(data,Ds!=1))
 ```
 
-The treatment effect estimated using Borusyak, Jaravel and Speiss's estimator is equal to `r round(reg.BJS.Agg[[2]],2)` $\pm$ `r round(1.96*reg.BJS.Agg[[3]],2)`.
+The treatment effect estimated using Borusyak, Jaravel and Speiss's estimator is equal to `r round(reg.BJS.Agg[[3]],2)` $\pm$ `r round(1.96*reg.BJS.Agg[[4]],2)`.
 
 ##### Imputation methods: Gardner
 
@@ -5899,7 +5906,7 @@ DID.TT.all <- DID.event.study.all <- rbind(
                           as.data.frame(ATT.agg.SA) %>% rename(Coef=Estimate,Se=colnames(ATT.agg.SA)[[2]]) %>% select(Coef,Se) %>% mutate(Method="Sun & Abraham"),
                           as.data.frame(ATT.agg.CSA[1:2]) %>% rename(Coef=overall.att,Se=overall.se) %>% mutate(Method="Callaway & SantAnna"),
                           data.frame(Coef=c(reg.dCdH$effect),Se=c(0)) %>% mutate(Method="de Chaisemartin & d'Haultfoeuille"),
-                          reg.BJS.Agg[2:3] %>% rename(Coef=estimate,Se=std.error) %>% mutate(Method="Borusyak, Jaravel & Speiss"),
+                          reg.BJS.Agg[3:4] %>% rename(Coef=estimate,Se=std.error) %>% mutate(Method="Borusyak, Jaravel & Speiss"),
                           data.frame(Coef=coef(reg.Gardner)[[1]],Se=se(reg.Gardner)[[1]]) %>% mutate(Method="Gardner"),
                           data.frame(Coef=coef(reg.stacked.aggregate)[[1]],Se=se(reg.stacked.aggregate)[[1]]) %>% mutate(Method="Stacked DID"),
                           data.frame(Coef=reg.TWFE.aggregate$coefficients[[1]],Se=reg.TWFE.aggregate$se[[1]]) %>% mutate(Method="TWFE")
@@ -8137,7 +8144,11 @@ But this solution requires that we assume independence between the observations 
 An alternative approach, explored by [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856), is to identify groups with similar values of the treatment dynamics, and to assume that they have very similar variances, and are mutually independent from each other.
 This categorization of the treatment histories is simply a way to specify the shape of heteroskedasticity in the model.
 
+##### Estimating sampling noise using de Chaisemartin and d'Haultfoeuille's approach
 
+The key element in [de Chaisemartin and d'Haultfoeuille](https://ssrn.com/abstract=3731856)'s approach to estimating sampling noise allowing for heteroskedasticity is to model heteroskedasticity as being a function of cohort membership.
+They define cohorts as being the set of groups that start with the same initial treatment level, experience their first change in treatment intensity at the same time and in the same direction. 
+More formally, they index the set of cohorts by $k$, where $k$ maps all the possible values of these three parameters: 
 
 
 

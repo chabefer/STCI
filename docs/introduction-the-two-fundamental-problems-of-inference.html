@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Introduction: the Two Fundamental Problems of Inference | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book." />
-  <meta name="generator" content="bookdown 0.26 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Introduction: the Two Fundamental Problems of Inference | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2024-07-18" />
+<meta name="date" content="2025-03-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -54,7 +54,11 @@
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
+\newcommand{\unsi}[2]{\mathbf{1}_{#1}(#2)}
+\newcommand{\N}{\mathbf{N}}
+\newcommand{\R}{\mathbf{R}}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
+\newcommand{\espsub}[2]{\mathbf{E}_{#2}[#1]}
 \newcommand{\hatesp}[1]{\hat{\mathbf{E}}[ #1 ]}
 \newcommand{\espE}{\mathbf{E}}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
@@ -64,6 +68,7 @@ $$
 \newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
 \newcommand{\plims}{\text{plim}}
 \newcommand{\distr}{\stackrel{d}{\rightarrow}}
+\newcommand{\probconv}{\stackrel{p}{\rightarrow}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\partdersq}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \DeclareMathOperator{\diag}{diag}
@@ -83,7 +88,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -136,6 +141,10 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -371,9 +380,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="11.2.1" data-path="Diffusion.html"><a href="Diffusion.html#optimal-treatment-allocation-under-monotone-response"><i class="fa fa-check"></i><b>11.2.1</b> Optimal treatment allocation under monotone response</a></li>
 <li class="chapter" data-level="11.2.2" data-path="Diffusion.html"><a href="Diffusion.html#identifying-optimal-treatment-levels"><i class="fa fa-check"></i><b>11.2.2</b> Identifying optimal treatment levels</a></li>
 </ul></li>
-<li class="chapter" data-level="11.3" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-detailed-networks"><i class="fa fa-check"></i><b>11.3</b> Diffusion effects with detailed networks</a></li>
-<li class="chapter" data-level="11.4" data-path="Diffusion.html"><a href="Diffusion.html#nonparametric-test-for-the-existence-of-diffusion-effects-based-on-randomization-inference"><i class="fa fa-check"></i><b>11.4</b> Nonparametric test for the existence of diffusion effects based on randomization inference</a></li>
-<li class="chapter" data-level="11.5" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-did"><i class="fa fa-check"></i><b>11.5</b> Diffusion effects with DID</a></li>
+<li class="chapter" data-level="11.3" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-detailed-networks"><i class="fa fa-check"></i><b>11.3</b> Diffusion effects with detailed networks</a>
+<ul>
+<li class="chapter" data-level="11.3.1" data-path="Diffusion.html"><a href="Diffusion.html#setting"><i class="fa fa-check"></i><b>11.3.1</b> Setting</a></li>
+<li class="chapter" data-level="11.3.2" data-path="Diffusion.html"><a href="Diffusion.html#identification-of-causal-effects"><i class="fa fa-check"></i><b>11.3.2</b> Identification of causal effects</a></li>
+<li class="chapter" data-level="11.3.3" data-path="Diffusion.html"><a href="Diffusion.html#estimation-of-causal-effects"><i class="fa fa-check"></i><b>11.3.3</b> Estimation of causal effects</a></li>
+<li class="chapter" data-level="11.3.4" data-path="Diffusion.html"><a href="Diffusion.html#estimation-of-sampling-noise-6"><i class="fa fa-check"></i><b>11.3.4</b> Estimation of sampling noise</a></li>
+<li class="chapter" data-level="11.3.5" data-path="Diffusion.html"><a href="Diffusion.html#nonparametric-tests-for-the-existence-of-diffusion-effects-based-on-randomization-inference"><i class="fa fa-check"></i><b>11.3.5</b> Nonparametric tests for the existence of diffusion effects based on randomization inference</a></li>
+</ul></li>
+<li class="chapter" data-level="11.4" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-did"><i class="fa fa-check"></i><b>11.4</b> Diffusion effects with DID</a></li>
 </ul></li>
 <li class="chapter" data-level="12" data-path="Distribution.html"><a href="Distribution.html"><i class="fa fa-check"></i><b>12</b> Distributional effects</a></li>
 <li class="chapter" data-level="13" data-path="meta.html"><a href="meta.html"><i class="fa fa-check"></i><b>13</b> Meta-analysis and Publication Bias</a>
@@ -432,7 +447,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="16.1.2" data-path="stratification.html"><a href="stratification.html#estimating-treatment-effects-with-stratified-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.1.2</b> Estimating treatment effects with stratified randomized controlled trials</a></li>
 <li class="chapter" data-level="16.1.3" data-path="stratification.html"><a href="stratification.html#estimating-sampling-noise-in-stratified-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.1.3</b> Estimating sampling noise in stratified randomized controlled trials</a></li>
 </ul></li>
-<li class="chapter" data-level="16.2" data-path="stratification.html"><a href="stratification.html#analysis-of-pairwise-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.2</b> Analysis of pairwise randomized controlled trials</a>
+<li class="chapter" data-level="16.2" data-path="stratification.html"><a href="stratification.html#PairRCT"><i class="fa fa-check"></i><b>16.2</b> Analysis of pairwise randomized controlled trials</a>
 <ul>
 <li class="chapter" data-level="16.2.1" data-path="stratification.html"><a href="stratification.html#building-a-sample-of-pairs"><i class="fa fa-check"></i><b>16.2.1</b> Building a sample of pairs</a></li>
 <li class="chapter" data-level="16.2.2" data-path="stratification.html"><a href="stratification.html#estimating-treatment-effects-in-pairwise-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.2.2</b> Estimating treatment effects in pairwise randomized controlled trials</a></li>
@@ -594,7 +609,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');

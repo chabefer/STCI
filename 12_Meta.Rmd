@@ -1883,14 +1883,14 @@ The likelihood can be written as:
 Under the assumption that $\theta^*$ is normally distributed with mean $\theta^*_c$ and variance $\tau^2$, we have the following likelihood:
 
 \begin{align*}
-  f^n_{\hat{\theta},\hat{\sigma}}(t,s) & = \frac{p\left(\frac{t}{s}\right)\phi\left(\frac{t-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}
-                                              {\int p\left(\frac{t'}{s}\right)\phi\left(\frac{t'-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)dt'}f_{\sigma}(s).
+  f^n_{\hat{\theta},\hat{\sigma}}(t,s) & = \frac{p\left(\frac{t}{s}\right)\frac{1}{\sqrt{s^2+\tau^2}}\phi\left(\frac{t-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}
+                                              {\int p\left(\frac{t'}{s}\right)\frac{1}{\sqrt{s^2+\tau^2}}\phi\left(\frac{t'-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)dt'}f_{\sigma}(s).
 \end{align*}
 
 Assuming that $p(.)$ is a step function such that $p(z)=p_1$ if $z<1.96$ and $p(z)=1$ if $z\geq1.96$, we have:
 
 \begin{align*}
-  f^n_{\hat{\theta},\hat{\sigma}}(t,s) & = \frac{p\left(\frac{t}{s}\right)\phi\left(\frac{t-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}
+  f^n_{\hat{\theta},\hat{\sigma}}(t,s) & = \frac{p\left(\frac{t}{s}\right)\frac{1}{\sqrt{s^2+\tau^2}}\phi\left(\frac{t-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}
                                               {p_1\Phi\left(\frac{1.96s-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)+1-\Phi\left(\frac{1.96s-\theta^*_c}{\sqrt{s^2+\tau^2}}\right)}f_{\sigma}(s).
 \end{align*}
 
@@ -1911,7 +1911,7 @@ Let's write an R function that maximizes this log likelihood:
 ```{r SelectModelLikelihood,eval=TRUE,echo=TRUE,results='hide',warning=FALSE,error=FALSE,message=FALSE}
 # log-likelihood
 Lk <- function(thetak,sigmak,p1,thetac,tau){
-  f <- ifelse(thetak/sigmak<qnorm(1-0.05/2),p1,1)*dnorm((thetak-thetac)/sqrt(sigmak^2+tau^2))/(1-pnorm((qnorm(1-0.05/2)*sigmak-thetac)/sqrt(sigmak^2+tau^2))*(1-p1))
+  f <- ifelse(thetak/sigmak<qnorm(1-0.05/2),p1,1)*(1/sqrt(sigmak^2+tau^2))*dnorm((thetak-thetac)/sqrt(sigmak^2+tau^2))/(1-pnorm((qnorm(1-0.05/2)*sigmak-thetac)/sqrt(sigmak^2+tau^2))*(1-p1))
   return(sum(log(f)))
 }
 #log-likelihood prepared for nlminb: vector of parameters and minimization
@@ -1975,15 +1975,13 @@ rownames(paramAK) <- c("FE0","FE50","RE0","RE50")
 knitr::kable(paramAK,digits=2,caption='Parameter estimates of Andrews and Kasy selection model',align=c('l','c','c','c'),booktabs=TRUE)
 ```
 
-Table \ref{tab:resultsMatrixAK} shows the parameter estimates of the model for various data configurations (no treatment effect heterogeneity vs treatment effect heterogeneity and 0\% or 50\% of non significant observations published).
-The results do not look great.
-The estimates of $p_1$ are correct when no non significant effects are published, by they are not nearly large enough when $50\%$ of insignificant observations are published.
-The estimates of $\theta_c$ are completely crazy: all negative and large in asbolute value while the true value of $\theta_c$ is $\theta_c=$ `r round(ES(param),2)`. 
-The estimates of $\tau$ are also all misleading.
-For fixed effects, the estimates should be zero.
+Table \@ref(tab:resultsMatrixAK) shows the parameter estimates of the model for various data configurations (no treatment effect heterogeneity vs treatment effect heterogeneity and 0\% or 50\% of non significant observations published).
+The results make sense.
+The estimates of $p_1$ are mostly correct.
+The estimates of $\theta_c$ are not completely crazy: the true value of $\theta_c$ is $\theta_c=$ `r round(ES(param),2)`. 
+The estimates of $\tau$ are consistent.
+For fixed effects, the estimates are zero.
 For random effects, the true $\tau$ is $\tau=$ `r round(tau[[1]],2)`.
-The estimates are much too large, apart from the third one that is close to home.
-Overall, barring a coding error, selection models do not look super promising here.
 
 #### Fukumura
 

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 9 Clustering | Statistical Tools for Causal Inference</title>
   <meta name="description" content="This is an open source collaborative book." />
-  <meta name="generator" content="bookdown 0.26 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.42 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 9 Clustering | Statistical Tools for Causal Inference" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Sylvain Chabé-Ferret" />
 
 
-<meta name="date" content="2024-07-18" />
+<meta name="date" content="2025-03-21" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -54,7 +54,11 @@
 <script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
 $$
 \newcommand{\uns}[1]{\mathbf{1}[#1]}
+\newcommand{\unsi}[2]{\mathbf{1}_{#1}(#2)}
+\newcommand{\N}{\mathbf{N}}
+\newcommand{\R}{\mathbf{R}}
 \newcommand{\esp}[1]{\mathbf{E}[#1]}
+\newcommand{\espsub}[2]{\mathbf{E}_{#2}[#1]}
 \newcommand{\hatesp}[1]{\hat{\mathbf{E}}[ #1 ]}
 \newcommand{\espE}{\mathbf{E}}
 \newcommand{\Ind}{\perp\kern-5pt\perp}
@@ -64,6 +68,7 @@ $$
 \newcommand{\plim}[1]{\text{plim}_{ #1 \rightarrow \infty}}
 \newcommand{\plims}{\text{plim}}
 \newcommand{\distr}{\stackrel{d}{\rightarrow}}
+\newcommand{\probconv}{\stackrel{p}{\rightarrow}}
 \newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\partdersq}[2]{\frac{\partial^2 #1}{\partial #2^2}}
 \DeclareMathOperator{\diag}{diag}
@@ -83,7 +88,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -136,6 +141,10 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -371,9 +380,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="11.2.1" data-path="Diffusion.html"><a href="Diffusion.html#optimal-treatment-allocation-under-monotone-response"><i class="fa fa-check"></i><b>11.2.1</b> Optimal treatment allocation under monotone response</a></li>
 <li class="chapter" data-level="11.2.2" data-path="Diffusion.html"><a href="Diffusion.html#identifying-optimal-treatment-levels"><i class="fa fa-check"></i><b>11.2.2</b> Identifying optimal treatment levels</a></li>
 </ul></li>
-<li class="chapter" data-level="11.3" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-detailed-networks"><i class="fa fa-check"></i><b>11.3</b> Diffusion effects with detailed networks</a></li>
-<li class="chapter" data-level="11.4" data-path="Diffusion.html"><a href="Diffusion.html#nonparametric-test-for-the-existence-of-diffusion-effects-based-on-randomization-inference"><i class="fa fa-check"></i><b>11.4</b> Nonparametric test for the existence of diffusion effects based on randomization inference</a></li>
-<li class="chapter" data-level="11.5" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-did"><i class="fa fa-check"></i><b>11.5</b> Diffusion effects with DID</a></li>
+<li class="chapter" data-level="11.3" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-detailed-networks"><i class="fa fa-check"></i><b>11.3</b> Diffusion effects with detailed networks</a>
+<ul>
+<li class="chapter" data-level="11.3.1" data-path="Diffusion.html"><a href="Diffusion.html#setting"><i class="fa fa-check"></i><b>11.3.1</b> Setting</a></li>
+<li class="chapter" data-level="11.3.2" data-path="Diffusion.html"><a href="Diffusion.html#identification-of-causal-effects"><i class="fa fa-check"></i><b>11.3.2</b> Identification of causal effects</a></li>
+<li class="chapter" data-level="11.3.3" data-path="Diffusion.html"><a href="Diffusion.html#estimation-of-causal-effects"><i class="fa fa-check"></i><b>11.3.3</b> Estimation of causal effects</a></li>
+<li class="chapter" data-level="11.3.4" data-path="Diffusion.html"><a href="Diffusion.html#estimation-of-sampling-noise-6"><i class="fa fa-check"></i><b>11.3.4</b> Estimation of sampling noise</a></li>
+<li class="chapter" data-level="11.3.5" data-path="Diffusion.html"><a href="Diffusion.html#nonparametric-tests-for-the-existence-of-diffusion-effects-based-on-randomization-inference"><i class="fa fa-check"></i><b>11.3.5</b> Nonparametric tests for the existence of diffusion effects based on randomization inference</a></li>
+</ul></li>
+<li class="chapter" data-level="11.4" data-path="Diffusion.html"><a href="Diffusion.html#diffusion-effects-with-did"><i class="fa fa-check"></i><b>11.4</b> Diffusion effects with DID</a></li>
 </ul></li>
 <li class="chapter" data-level="12" data-path="Distribution.html"><a href="Distribution.html"><i class="fa fa-check"></i><b>12</b> Distributional effects</a></li>
 <li class="chapter" data-level="13" data-path="meta.html"><a href="meta.html"><i class="fa fa-check"></i><b>13</b> Meta-analysis and Publication Bias</a>
@@ -432,7 +447,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="16.1.2" data-path="stratification.html"><a href="stratification.html#estimating-treatment-effects-with-stratified-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.1.2</b> Estimating treatment effects with stratified randomized controlled trials</a></li>
 <li class="chapter" data-level="16.1.3" data-path="stratification.html"><a href="stratification.html#estimating-sampling-noise-in-stratified-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.1.3</b> Estimating sampling noise in stratified randomized controlled trials</a></li>
 </ul></li>
-<li class="chapter" data-level="16.2" data-path="stratification.html"><a href="stratification.html#analysis-of-pairwise-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.2</b> Analysis of pairwise randomized controlled trials</a>
+<li class="chapter" data-level="16.2" data-path="stratification.html"><a href="stratification.html#PairRCT"><i class="fa fa-check"></i><b>16.2</b> Analysis of pairwise randomized controlled trials</a>
 <ul>
 <li class="chapter" data-level="16.2.1" data-path="stratification.html"><a href="stratification.html#building-a-sample-of-pairs"><i class="fa fa-check"></i><b>16.2.1</b> Building a sample of pairs</a></li>
 <li class="chapter" data-level="16.2.2" data-path="stratification.html"><a href="stratification.html#estimating-treatment-effects-in-pairwise-randomized-controlled-trials"><i class="fa fa-check"></i><b>16.2.2</b> Estimating treatment effects in pairwise randomized controlled trials</a></li>
@@ -2177,64 +2192,63 @@ We know it should be centered around zero.</p>
 <span id="cb431-71"><a href="cluster.html#cb431-71" tabindex="-1"></a><span class="co"># Number of simulations </span></span>
 <span id="cb431-72"><a href="cluster.html#cb431-72" tabindex="-1"></a>Nsim <span class="ot">&lt;-</span> <span class="dv">10</span></span>
 <span id="cb431-73"><a href="cluster.html#cb431-73" tabindex="-1"></a>test.simuls.SpatialRegMonteCarlo <span class="ot">&lt;-</span> <span class="fu">sf.SpatialRegMonteCarlo</span>(<span class="at">Nsim=</span>Nsim,<span class="at">Wm=</span>SpatialInfluenceMatrix,<span class="at">sigma2epsilon=</span>param[<span class="st">&#39;sigma2epsilon&#39;</span>],<span class="at">sigma2eta=</span>param[<span class="st">&#39;sigma2epsilon&#39;</span>],<span class="at">ConleyDist=</span><span class="dv">20</span>,<span class="at">LeungMatrix=</span>DistanceMatrixDiscrete20,<span class="at">data=</span>SpatialData)</span></code></pre></div>
-<pre><code>## R Version:  R version 4.1.1 (2021-08-10) 
-## 
-## Library dplyr loaded.
-## Library Matrix loaded.</code></pre>
-<div class="sourceCode" id="cb433"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb433-1"><a href="cluster.html#cb433-1" tabindex="-1"></a><span class="co"># true 99% sampling noise</span></span>
-<span id="cb433-2"><a href="cluster.html#cb433-2" tabindex="-1"></a><span class="co"># 99% confidence interval over monte carlo replications</span></span>
-<span id="cb433-3"><a href="cluster.html#cb433-3" tabindex="-1"></a>True.CI<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="fu">quantile</span>(test.simuls.SpatialRegMonteCarlo<span class="sc">$</span>WW,<span class="at">prob=</span><span class="fu">c</span>(<span class="fl">0.01</span>,<span class="fl">0.99</span>))</span>
-<span id="cb433-4"><a href="cluster.html#cb433-4" tabindex="-1"></a>TrueSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> True.CI<span class="fl">.99</span>[[<span class="dv">2</span>]]<span class="sc">-</span>True.CI<span class="fl">.99</span>[[<span class="dv">1</span>]]</span>
-<span id="cb433-5"><a href="cluster.html#cb433-5" tabindex="-1"></a>True.Se.WW <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(test.simuls.SpatialRegMonteCarlo<span class="sc">$</span>WW))</span>
-<span id="cb433-6"><a href="cluster.html#cb433-6" tabindex="-1"></a><span class="co"># Estimated sampling noise ignoring spatial correlation</span></span>
-<span id="cb433-7"><a href="cluster.html#cb433-7" tabindex="-1"></a>SeWW.Mean <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
-<span id="cb433-8"><a href="cluster.html#cb433-8" tabindex="-1"></a>                <span class="fu">summarise</span>(</span>
-<span id="cb433-9"><a href="cluster.html#cb433-9" tabindex="-1"></a>                  <span class="at">MeanSeWW =</span> <span class="fu">mean</span>(SeWW)</span>
-<span id="cb433-10"><a href="cluster.html#cb433-10" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
-<span id="cb433-11"><a href="cluster.html#cb433-11" tabindex="-1"></a>                <span class="fu">pull</span>(MeanSeWW)</span>
-<span id="cb433-12"><a href="cluster.html#cb433-12" tabindex="-1"></a>EstimatedSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((<span class="fl">0.99</span><span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span>SeWW.Mean</span>
-<span id="cb433-13"><a href="cluster.html#cb433-13" tabindex="-1"></a><span class="co"># Estimated sampling noise with  spatial correlation (conley)</span></span>
-<span id="cb433-14"><a href="cluster.html#cb433-14" tabindex="-1"></a>SeWWConley.Mean <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
-<span id="cb433-15"><a href="cluster.html#cb433-15" tabindex="-1"></a>                <span class="fu">summarise</span>(</span>
-<span id="cb433-16"><a href="cluster.html#cb433-16" tabindex="-1"></a>                  <span class="at">MeanSeWWConley =</span> <span class="fu">mean</span>(SeWWConley)</span>
-<span id="cb433-17"><a href="cluster.html#cb433-17" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
-<span id="cb433-18"><a href="cluster.html#cb433-18" tabindex="-1"></a>                <span class="fu">pull</span>(MeanSeWWConley)</span>
-<span id="cb433-19"><a href="cluster.html#cb433-19" tabindex="-1"></a>ConleyEstimatedSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((<span class="fl">0.99</span><span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span>SeWWConley.Mean</span>
-<span id="cb433-20"><a href="cluster.html#cb433-20" tabindex="-1"></a></span>
-<span id="cb433-21"><a href="cluster.html#cb433-21" tabindex="-1"></a><span class="co"># Estimated sampling noise with  spatial correlation (Leung)</span></span>
-<span id="cb433-22"><a href="cluster.html#cb433-22" tabindex="-1"></a>SeWWLeung.Mean <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
-<span id="cb433-23"><a href="cluster.html#cb433-23" tabindex="-1"></a>                <span class="fu">summarise</span>(</span>
-<span id="cb433-24"><a href="cluster.html#cb433-24" tabindex="-1"></a>                  <span class="at">MeanSeWWLeung =</span> <span class="fu">mean</span>(SeWWLeung)</span>
-<span id="cb433-25"><a href="cluster.html#cb433-25" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
-<span id="cb433-26"><a href="cluster.html#cb433-26" tabindex="-1"></a>                <span class="fu">pull</span>(MeanSeWWLeung)</span>
-<span id="cb433-27"><a href="cluster.html#cb433-27" tabindex="-1"></a>LeungEstimatedSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((<span class="fl">0.99</span><span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span>SeWWLeung.Mean</span></code></pre></div>
+<pre><code>## R Version:  R version 4.4.2 (2024-10-31)</code></pre>
+<pre><code>## Library dplyr loaded.</code></pre>
+<pre><code>## Library Matrix loaded.</code></pre>
+<div class="sourceCode" id="cb435"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb435-1"><a href="cluster.html#cb435-1" tabindex="-1"></a><span class="co"># true 99% sampling noise</span></span>
+<span id="cb435-2"><a href="cluster.html#cb435-2" tabindex="-1"></a><span class="co"># 99% confidence interval over monte carlo replications</span></span>
+<span id="cb435-3"><a href="cluster.html#cb435-3" tabindex="-1"></a>True.CI<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="fu">quantile</span>(test.simuls.SpatialRegMonteCarlo<span class="sc">$</span>WW,<span class="at">prob=</span><span class="fu">c</span>(<span class="fl">0.01</span>,<span class="fl">0.99</span>))</span>
+<span id="cb435-4"><a href="cluster.html#cb435-4" tabindex="-1"></a>TrueSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> True.CI<span class="fl">.99</span>[[<span class="dv">2</span>]]<span class="sc">-</span>True.CI<span class="fl">.99</span>[[<span class="dv">1</span>]]</span>
+<span id="cb435-5"><a href="cluster.html#cb435-5" tabindex="-1"></a>True.Se.WW <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(test.simuls.SpatialRegMonteCarlo<span class="sc">$</span>WW))</span>
+<span id="cb435-6"><a href="cluster.html#cb435-6" tabindex="-1"></a><span class="co"># Estimated sampling noise ignoring spatial correlation</span></span>
+<span id="cb435-7"><a href="cluster.html#cb435-7" tabindex="-1"></a>SeWW.Mean <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
+<span id="cb435-8"><a href="cluster.html#cb435-8" tabindex="-1"></a>                <span class="fu">summarise</span>(</span>
+<span id="cb435-9"><a href="cluster.html#cb435-9" tabindex="-1"></a>                  <span class="at">MeanSeWW =</span> <span class="fu">mean</span>(SeWW)</span>
+<span id="cb435-10"><a href="cluster.html#cb435-10" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
+<span id="cb435-11"><a href="cluster.html#cb435-11" tabindex="-1"></a>                <span class="fu">pull</span>(MeanSeWW)</span>
+<span id="cb435-12"><a href="cluster.html#cb435-12" tabindex="-1"></a>EstimatedSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((<span class="fl">0.99</span><span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span>SeWW.Mean</span>
+<span id="cb435-13"><a href="cluster.html#cb435-13" tabindex="-1"></a><span class="co"># Estimated sampling noise with  spatial correlation (conley)</span></span>
+<span id="cb435-14"><a href="cluster.html#cb435-14" tabindex="-1"></a>SeWWConley.Mean <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
+<span id="cb435-15"><a href="cluster.html#cb435-15" tabindex="-1"></a>                <span class="fu">summarise</span>(</span>
+<span id="cb435-16"><a href="cluster.html#cb435-16" tabindex="-1"></a>                  <span class="at">MeanSeWWConley =</span> <span class="fu">mean</span>(SeWWConley)</span>
+<span id="cb435-17"><a href="cluster.html#cb435-17" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
+<span id="cb435-18"><a href="cluster.html#cb435-18" tabindex="-1"></a>                <span class="fu">pull</span>(MeanSeWWConley)</span>
+<span id="cb435-19"><a href="cluster.html#cb435-19" tabindex="-1"></a>ConleyEstimatedSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((<span class="fl">0.99</span><span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span>SeWWConley.Mean</span>
+<span id="cb435-20"><a href="cluster.html#cb435-20" tabindex="-1"></a></span>
+<span id="cb435-21"><a href="cluster.html#cb435-21" tabindex="-1"></a><span class="co"># Estimated sampling noise with  spatial correlation (Leung)</span></span>
+<span id="cb435-22"><a href="cluster.html#cb435-22" tabindex="-1"></a>SeWWLeung.Mean <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
+<span id="cb435-23"><a href="cluster.html#cb435-23" tabindex="-1"></a>                <span class="fu">summarise</span>(</span>
+<span id="cb435-24"><a href="cluster.html#cb435-24" tabindex="-1"></a>                  <span class="at">MeanSeWWLeung =</span> <span class="fu">mean</span>(SeWWLeung)</span>
+<span id="cb435-25"><a href="cluster.html#cb435-25" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span></span>
+<span id="cb435-26"><a href="cluster.html#cb435-26" tabindex="-1"></a>                <span class="fu">pull</span>(MeanSeWWLeung)</span>
+<span id="cb435-27"><a href="cluster.html#cb435-27" tabindex="-1"></a>LeungEstimatedSpatialSampNoise<span class="fl">.99</span> <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">qnorm</span>((<span class="fl">0.99</span><span class="sc">+</span><span class="dv">1</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">*</span>SeWWLeung.Mean</span></code></pre></div>
 <p>Let us now plot the resulting estimates:</p>
-<div class="sourceCode" id="cb434"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb434-1"><a href="cluster.html#cb434-1" tabindex="-1"></a><span class="co"># # first plot</span></span>
-<span id="cb434-2"><a href="cluster.html#cb434-2" tabindex="-1"></a><span class="co"># ggplot(test.simuls.SpatialRegMonteCarlo,aes(x=WW)) +</span></span>
-<span id="cb434-3"><a href="cluster.html#cb434-3" tabindex="-1"></a><span class="co">#   geom_histogram(binwidth=.01, colour=&quot;black&quot;, fill=&quot;white&quot;) +</span></span>
-<span id="cb434-4"><a href="cluster.html#cb434-4" tabindex="-1"></a><span class="co">#   theme_bw()</span></span>
-<span id="cb434-5"><a href="cluster.html#cb434-5" tabindex="-1"></a></span>
-<span id="cb434-6"><a href="cluster.html#cb434-6" tabindex="-1"></a><span class="co"># second plot</span></span>
-<span id="cb434-7"><a href="cluster.html#cb434-7" tabindex="-1"></a><span class="co"># prepare data</span></span>
-<span id="cb434-8"><a href="cluster.html#cb434-8" tabindex="-1"></a>Data.precision.Spatial <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
-<span id="cb434-9"><a href="cluster.html#cb434-9" tabindex="-1"></a>                            <span class="fu">summarize</span>(</span>
-<span id="cb434-10"><a href="cluster.html#cb434-10" tabindex="-1"></a>                              <span class="at">True =</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(WW)),</span>
-<span id="cb434-11"><a href="cluster.html#cb434-11" tabindex="-1"></a>                              <span class="at">EstimatedNaive =</span> <span class="fu">mean</span>(SeWW),</span>
-<span id="cb434-12"><a href="cluster.html#cb434-12" tabindex="-1"></a>                              <span class="at">EstimatedConley =</span> <span class="fu">mean</span>(SeWWConley),</span>
-<span id="cb434-13"><a href="cluster.html#cb434-13" tabindex="-1"></a>                              <span class="at">EstimatedLeung =</span> <span class="fu">mean</span>(SeWWLeung)</span>
-<span id="cb434-14"><a href="cluster.html#cb434-14" tabindex="-1"></a>                            ) <span class="sc">%&gt;%</span></span>
-<span id="cb434-15"><a href="cluster.html#cb434-15" tabindex="-1"></a>                            <span class="fu">pivot_longer</span>(True<span class="sc">:</span>EstimatedLeung,<span class="at">names_to =</span> <span class="st">&#39;Method&#39;</span>,<span class="at">values_to =</span> <span class="st">&quot;Se&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb434-16"><a href="cluster.html#cb434-16" tabindex="-1"></a>                            <span class="fu">mutate</span>(</span>
-<span id="cb434-17"><a href="cluster.html#cb434-17" tabindex="-1"></a>                              <span class="at">TE =</span> <span class="dv">0</span>,</span>
-<span id="cb434-18"><a href="cluster.html#cb434-18" tabindex="-1"></a>                              <span class="at">Method=</span><span class="fu">factor</span>(Method,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;True&#39;</span>,<span class="st">&#39;EstimatedNaive&#39;</span>,<span class="st">&#39;EstimatedConley&#39;</span>,<span class="st">&#39;EstimatedLeung&#39;</span>))</span>
-<span id="cb434-19"><a href="cluster.html#cb434-19" tabindex="-1"></a>                            ) </span>
-<span id="cb434-20"><a href="cluster.html#cb434-20" tabindex="-1"></a>                            </span>
-<span id="cb434-21"><a href="cluster.html#cb434-21" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb434-22"><a href="cluster.html#cb434-22" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">filter</span>(Data.precision.Spatial,Method<span class="sc">==</span><span class="st">&#39;True&#39;</span> <span class="sc">|</span> Method<span class="sc">==</span><span class="st">&#39;EstimatedNaive&#39;</span>),<span class="fu">aes</span>(<span class="at">x=</span>Method,<span class="at">y=</span>TE,<span class="at">color=</span>Method,<span class="at">group=</span>Method)) <span class="sc">+</span><span class="co">#filter(,Method!=&#39;EstimatedConley&#39;)</span></span>
-<span id="cb434-23"><a href="cluster.html#cb434-23" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb434-24"><a href="cluster.html#cb434-24" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>TE<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>TE<span class="fl">+1.96</span><span class="sc">*</span>Se,<span class="at">color=</span>Method,<span class="at">group=</span>Method),<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
-<span id="cb434-25"><a href="cluster.html#cb434-25" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb434-26"><a href="cluster.html#cb434-26" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb436-1"><a href="cluster.html#cb436-1" tabindex="-1"></a><span class="co"># # first plot</span></span>
+<span id="cb436-2"><a href="cluster.html#cb436-2" tabindex="-1"></a><span class="co"># ggplot(test.simuls.SpatialRegMonteCarlo,aes(x=WW)) +</span></span>
+<span id="cb436-3"><a href="cluster.html#cb436-3" tabindex="-1"></a><span class="co">#   geom_histogram(binwidth=.01, colour=&quot;black&quot;, fill=&quot;white&quot;) +</span></span>
+<span id="cb436-4"><a href="cluster.html#cb436-4" tabindex="-1"></a><span class="co">#   theme_bw()</span></span>
+<span id="cb436-5"><a href="cluster.html#cb436-5" tabindex="-1"></a></span>
+<span id="cb436-6"><a href="cluster.html#cb436-6" tabindex="-1"></a><span class="co"># second plot</span></span>
+<span id="cb436-7"><a href="cluster.html#cb436-7" tabindex="-1"></a><span class="co"># prepare data</span></span>
+<span id="cb436-8"><a href="cluster.html#cb436-8" tabindex="-1"></a>Data.precision.Spatial <span class="ot">&lt;-</span> test.simuls.SpatialRegMonteCarlo <span class="sc">%&gt;%</span></span>
+<span id="cb436-9"><a href="cluster.html#cb436-9" tabindex="-1"></a>                            <span class="fu">summarize</span>(</span>
+<span id="cb436-10"><a href="cluster.html#cb436-10" tabindex="-1"></a>                              <span class="at">True =</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(WW)),</span>
+<span id="cb436-11"><a href="cluster.html#cb436-11" tabindex="-1"></a>                              <span class="at">EstimatedNaive =</span> <span class="fu">mean</span>(SeWW),</span>
+<span id="cb436-12"><a href="cluster.html#cb436-12" tabindex="-1"></a>                              <span class="at">EstimatedConley =</span> <span class="fu">mean</span>(SeWWConley),</span>
+<span id="cb436-13"><a href="cluster.html#cb436-13" tabindex="-1"></a>                              <span class="at">EstimatedLeung =</span> <span class="fu">mean</span>(SeWWLeung)</span>
+<span id="cb436-14"><a href="cluster.html#cb436-14" tabindex="-1"></a>                            ) <span class="sc">%&gt;%</span></span>
+<span id="cb436-15"><a href="cluster.html#cb436-15" tabindex="-1"></a>                            <span class="fu">pivot_longer</span>(True<span class="sc">:</span>EstimatedLeung,<span class="at">names_to =</span> <span class="st">&#39;Method&#39;</span>,<span class="at">values_to =</span> <span class="st">&quot;Se&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb436-16"><a href="cluster.html#cb436-16" tabindex="-1"></a>                            <span class="fu">mutate</span>(</span>
+<span id="cb436-17"><a href="cluster.html#cb436-17" tabindex="-1"></a>                              <span class="at">TE =</span> <span class="dv">0</span>,</span>
+<span id="cb436-18"><a href="cluster.html#cb436-18" tabindex="-1"></a>                              <span class="at">Method=</span><span class="fu">factor</span>(Method,<span class="at">levels=</span><span class="fu">c</span>(<span class="st">&#39;True&#39;</span>,<span class="st">&#39;EstimatedNaive&#39;</span>,<span class="st">&#39;EstimatedConley&#39;</span>,<span class="st">&#39;EstimatedLeung&#39;</span>))</span>
+<span id="cb436-19"><a href="cluster.html#cb436-19" tabindex="-1"></a>                            ) </span>
+<span id="cb436-20"><a href="cluster.html#cb436-20" tabindex="-1"></a>                            </span>
+<span id="cb436-21"><a href="cluster.html#cb436-21" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb436-22"><a href="cluster.html#cb436-22" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">filter</span>(Data.precision.Spatial,Method<span class="sc">==</span><span class="st">&#39;True&#39;</span> <span class="sc">|</span> Method<span class="sc">==</span><span class="st">&#39;EstimatedNaive&#39;</span>),<span class="fu">aes</span>(<span class="at">x=</span>Method,<span class="at">y=</span>TE,<span class="at">color=</span>Method,<span class="at">group=</span>Method)) <span class="sc">+</span><span class="co">#filter(,Method!=&#39;EstimatedConley&#39;)</span></span>
+<span id="cb436-23"><a href="cluster.html#cb436-23" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb436-24"><a href="cluster.html#cb436-24" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>TE<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>TE<span class="fl">+1.96</span><span class="sc">*</span>Se,<span class="at">color=</span>Method,<span class="at">group=</span>Method),<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
+<span id="cb436-25"><a href="cluster.html#cb436-25" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb436-26"><a href="cluster.html#cb436-26" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>) </span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:SpatialMonteCarloPlot"></span>
 <img src="STCI_files/figure-html/SpatialMonteCarloPlot-1.png" alt="True vs estimated sampling noise under spatial autocorrelation" width="65%" />
 <p class="caption">
@@ -2322,31 +2336,31 @@ The second approach uses the normalized matrix.
 Both approaches rely on taking the sum of the diagonal terms of the resulting product matrix, since this is where the terms corresponding to the neighbors of each unit are.
 Let’s go.</p>
 </div>
-<div class="sourceCode" id="cb435"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb435-1"><a href="cluster.html#cb435-1" tabindex="-1"></a><span class="co"># Computing the matrix of the products of the residuals</span></span>
-<span id="cb435-2"><a href="cluster.html#cb435-2" tabindex="-1"></a>UU <span class="ot">&lt;-</span> U<span class="sc">%*%</span><span class="fu">t</span>(U)</span>
-<span id="cb435-3"><a href="cluster.html#cb435-3" tabindex="-1"></a><span class="co"># First approach</span></span>
-<span id="cb435-4"><a href="cluster.html#cb435-4" tabindex="-1"></a>Prod <span class="ot">&lt;-</span> DistanceMatrixDiscrete20<span class="sc">%*%</span>UU</span>
-<span id="cb435-5"><a href="cluster.html#cb435-5" tabindex="-1"></a>Rho.First <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(Prod))<span class="sc">/</span><span class="fu">sum</span>(<span class="fu">rowSums</span>(DistanceMatrixDiscrete20))</span>
-<span id="cb435-6"><a href="cluster.html#cb435-6" tabindex="-1"></a><span class="co"># Second approach</span></span>
-<span id="cb435-7"><a href="cluster.html#cb435-7" tabindex="-1"></a>Prod.Second <span class="ot">&lt;-</span> DistanceMatrixDiscreteWeights20<span class="sc">%*%</span>UU</span>
-<span id="cb435-8"><a href="cluster.html#cb435-8" tabindex="-1"></a>Rho.Second <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(Prod.Second))<span class="sc">/</span><span class="fu">nrow</span>(DistanceMatrixDiscreteWeights20)</span>
-<span id="cb435-9"><a href="cluster.html#cb435-9" tabindex="-1"></a><span class="co"># mean number of neighbors</span></span>
-<span id="cb435-10"><a href="cluster.html#cb435-10" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">rowSums</span>(DistanceMatrixDiscrete20))</span></code></pre></div>
+<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb437-1"><a href="cluster.html#cb437-1" tabindex="-1"></a><span class="co"># Computing the matrix of the products of the residuals</span></span>
+<span id="cb437-2"><a href="cluster.html#cb437-2" tabindex="-1"></a>UU <span class="ot">&lt;-</span> U<span class="sc">%*%</span><span class="fu">t</span>(U)</span>
+<span id="cb437-3"><a href="cluster.html#cb437-3" tabindex="-1"></a><span class="co"># First approach</span></span>
+<span id="cb437-4"><a href="cluster.html#cb437-4" tabindex="-1"></a>Prod <span class="ot">&lt;-</span> DistanceMatrixDiscrete20<span class="sc">%*%</span>UU</span>
+<span id="cb437-5"><a href="cluster.html#cb437-5" tabindex="-1"></a>Rho.First <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(Prod))<span class="sc">/</span><span class="fu">sum</span>(<span class="fu">rowSums</span>(DistanceMatrixDiscrete20))</span>
+<span id="cb437-6"><a href="cluster.html#cb437-6" tabindex="-1"></a><span class="co"># Second approach</span></span>
+<span id="cb437-7"><a href="cluster.html#cb437-7" tabindex="-1"></a>Prod.Second <span class="ot">&lt;-</span> DistanceMatrixDiscreteWeights20<span class="sc">%*%</span>UU</span>
+<span id="cb437-8"><a href="cluster.html#cb437-8" tabindex="-1"></a>Rho.Second <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(Prod.Second))<span class="sc">/</span><span class="fu">nrow</span>(DistanceMatrixDiscreteWeights20)</span>
+<span id="cb437-9"><a href="cluster.html#cb437-9" tabindex="-1"></a><span class="co"># mean number of neighbors</span></span>
+<span id="cb437-10"><a href="cluster.html#cb437-10" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">rowSums</span>(DistanceMatrixDiscrete20))</span></code></pre></div>
 <p>Both approaches give consistent results: approach one gives <span class="math inline">\(\hat\rho=\)</span> 0.01 and approach two gives <span class="math inline">\(\hat\rho=\)</span> 0.02.
 Now, we need to compute <span class="math inline">\(k\)</span>.
 We use the mean number of neighbors: <span class="math inline">\(\hat k=\)</span> 109.
 Finally, we need to compute <span class="math inline">\(p_1\)</span>, the average number of treated neighbors of treated units.
 For that, we can do the same thing as for estimating <span class="math inline">\(\rho\)</span>, except that we use the treatment indicator in the place of <span class="math inline">\(U\)</span>, and we use the second approach.</p>
-<div class="sourceCode" id="cb436"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb436-1"><a href="cluster.html#cb436-1" tabindex="-1"></a>DD <span class="ot">&lt;-</span> SpatialData<span class="sc">$</span>Ds<span class="sc">%*%</span><span class="fu">t</span>(SpatialData<span class="sc">$</span>Ds)</span>
-<span id="cb436-2"><a href="cluster.html#cb436-2" tabindex="-1"></a>ProdDD <span class="ot">&lt;-</span> DistanceMatrixDiscreteWeights20<span class="sc">%*%</span>DD</span>
-<span id="cb436-3"><a href="cluster.html#cb436-3" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(ProdDD))<span class="sc">/</span><span class="fu">sum</span>(SpatialData<span class="sc">$</span>Ds)</span>
-<span id="cb436-4"><a href="cluster.html#cb436-4" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">sum</span>(SpatialData<span class="sc">$</span>Ds)<span class="sc">/</span><span class="fu">nrow</span>(DistanceMatrixDiscreteWeights20)</span>
-<span id="cb436-5"><a href="cluster.html#cb436-5" tabindex="-1"></a>CorrP1 <span class="ot">&lt;-</span> (p1<span class="sc">-</span>p)<span class="sc">/</span>(p<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>p))</span></code></pre></div>
-<p>Our estimates yield that <span class="math inline">\(\hat{p}_1=\)</span> 0.65 and <span class="math inline">\(\hat{p}=\)</span> 0.55.
+<div class="sourceCode" id="cb438"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb438-1"><a href="cluster.html#cb438-1" tabindex="-1"></a>DD <span class="ot">&lt;-</span> SpatialData<span class="sc">$</span>Ds<span class="sc">%*%</span><span class="fu">t</span>(SpatialData<span class="sc">$</span>Ds)</span>
+<span id="cb438-2"><a href="cluster.html#cb438-2" tabindex="-1"></a>ProdDD <span class="ot">&lt;-</span> DistanceMatrixDiscreteWeights20<span class="sc">%*%</span>DD</span>
+<span id="cb438-3"><a href="cluster.html#cb438-3" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(ProdDD))<span class="sc">/</span><span class="fu">sum</span>(SpatialData<span class="sc">$</span>Ds)</span>
+<span id="cb438-4"><a href="cluster.html#cb438-4" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">sum</span>(SpatialData<span class="sc">$</span>Ds)<span class="sc">/</span><span class="fu">nrow</span>(DistanceMatrixDiscreteWeights20)</span>
+<span id="cb438-5"><a href="cluster.html#cb438-5" tabindex="-1"></a>CorrP1 <span class="ot">&lt;-</span> (p1<span class="sc">-</span>p)<span class="sc">/</span>(p<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>p))</span></code></pre></div>
+<p>Our estimates yield that <span class="math inline">\(\hat{p}_1=\)</span> 0.57 and <span class="math inline">\(\hat{p}=\)</span> 0.45.
 Let us now compute the correction term and our estimate of the variance of the with/without estimator:</p>
-<div class="sourceCode" id="cb437"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb437-1"><a href="cluster.html#cb437-1" tabindex="-1"></a>Correction <span class="ot">&lt;-</span> k<span class="sc">*</span>Rho.Second<span class="sc">*</span>CorrP1</span>
-<span id="cb437-2"><a href="cluster.html#cb437-2" tabindex="-1"></a>VarWWSpatial <span class="ot">&lt;-</span> (<span class="fu">var</span>(<span class="fu">as.numeric</span>(U))<span class="sc">/</span>(p<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>p))<span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>Correction))<span class="sc">/</span><span class="fu">nrow</span>(DistanceMatrixDiscreteWeights20)</span>
-<span id="cb437-3"><a href="cluster.html#cb437-3" tabindex="-1"></a>SeWWPlugIn <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(VarWWSpatial)</span></code></pre></div>
+<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb439-1"><a href="cluster.html#cb439-1" tabindex="-1"></a>Correction <span class="ot">&lt;-</span> k<span class="sc">*</span>Rho.Second<span class="sc">*</span>CorrP1</span>
+<span id="cb439-2"><a href="cluster.html#cb439-2" tabindex="-1"></a>VarWWSpatial <span class="ot">&lt;-</span> (<span class="fu">var</span>(<span class="fu">as.numeric</span>(U))<span class="sc">/</span>(p<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>p))<span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>Correction))<span class="sc">/</span><span class="fu">nrow</span>(DistanceMatrixDiscreteWeights20)</span>
+<span id="cb439-3"><a href="cluster.html#cb439-3" tabindex="-1"></a>SeWWPlugIn <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(VarWWSpatial)</span></code></pre></div>
 <p>Using the plug-in estimator, we estimate the standard error of the WW estimator to be equal to 0.02.
 Remember that the true standard error estimated over Monte Carlo replications is equal to 0.06 and that the naive standard error is: 0.02.</p>
 <div class="remark">
@@ -2364,11 +2378,11 @@ We can then use the FGLS estimator <span class="math inline">\(\hatvar{\hat{\The
 We also know the structure of the matrix of neighbors.
 We can thus compute <span class="math inline">\(\hat{\Omega}\)</span>.
 Let’s go.</p>
-<div class="sourceCode" id="cb438"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb438-1"><a href="cluster.html#cb438-1" tabindex="-1"></a>OmegaNeighbors <span class="ot">&lt;-</span> Rho.Second<span class="sc">*</span>DistanceMatrixDiscrete20</span>
-<span id="cb438-2"><a href="cluster.html#cb438-2" tabindex="-1"></a>OmegaSpatial <span class="ot">&lt;-</span> <span class="fu">var</span>(<span class="fu">as.numeric</span>(U))<span class="sc">*</span>(<span class="fu">Diagonal</span>(<span class="fu">nrow</span>(DistanceMatrixDiscrete20),<span class="at">x=</span><span class="dv">1</span>)<span class="sc">+</span>Rho.Second<span class="sc">*</span>DistanceMatrixDiscrete20)</span>
-<span id="cb438-3"><a href="cluster.html#cb438-3" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>,<span class="fu">nrow</span>(DistanceMatrixDiscrete20)),SpatialData<span class="sc">$</span>Ds),<span class="at">nrow=</span><span class="fu">nrow</span>(DistanceMatrixDiscrete20),<span class="at">ncol=</span><span class="dv">2</span>)</span>
-<span id="cb438-4"><a href="cluster.html#cb438-4" tabindex="-1"></a>Var.Theta.FGLS <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span><span class="fu">solve</span>(OmegaSpatial)<span class="sc">%*%</span>X) </span>
-<span id="cb438-5"><a href="cluster.html#cb438-5" tabindex="-1"></a>SeWWFGLS <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(Var.Theta.FGLS))[[<span class="dv">2</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb440"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb440-1"><a href="cluster.html#cb440-1" tabindex="-1"></a>OmegaNeighbors <span class="ot">&lt;-</span> Rho.Second<span class="sc">*</span>DistanceMatrixDiscrete20</span>
+<span id="cb440-2"><a href="cluster.html#cb440-2" tabindex="-1"></a>OmegaSpatial <span class="ot">&lt;-</span> <span class="fu">var</span>(<span class="fu">as.numeric</span>(U))<span class="sc">*</span>(<span class="fu">Diagonal</span>(<span class="fu">nrow</span>(DistanceMatrixDiscrete20),<span class="at">x=</span><span class="dv">1</span>)<span class="sc">+</span>Rho.Second<span class="sc">*</span>DistanceMatrixDiscrete20)</span>
+<span id="cb440-3"><a href="cluster.html#cb440-3" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>,<span class="fu">nrow</span>(DistanceMatrixDiscrete20)),SpatialData<span class="sc">$</span>Ds),<span class="at">nrow=</span><span class="fu">nrow</span>(DistanceMatrixDiscrete20),<span class="at">ncol=</span><span class="dv">2</span>)</span>
+<span id="cb440-4"><a href="cluster.html#cb440-4" tabindex="-1"></a>Var.Theta.FGLS <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span><span class="fu">solve</span>(OmegaSpatial)<span class="sc">%*%</span>X) </span>
+<span id="cb440-5"><a href="cluster.html#cb440-5" tabindex="-1"></a>SeWWFGLS <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(Var.Theta.FGLS))[[<span class="dv">2</span>]]</span></code></pre></div>
 <p>Using the FGLS estimator, we estimate the standard error of the WW estimator to be equal to 0.02.
 Remember that the true standard error estimated over Monte Carlo replications is equal to 0.06 and that the naive standard error is: 0.02.</p>
 <div class="remark">
@@ -2402,26 +2416,26 @@ Ok, so we have that <a href="https://doi.org/10.1016/S0304-4076(98)00084-0">Conl
 <p><span id="exm:unnamed-chunk-418" class="example"><strong>Example 9.11  </strong></span>Let’s see how this all works in our example.</p>
 </div>
 <p>Let us first start with Leung’s formula, and we will then move to the wonderful <code>fixest</code> package, which proposes a <code>vcov_conley()</code> function, but also has a <code>vcov="conley"</code> option.</p>
-<div class="sourceCode" id="cb439"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb439-1"><a href="cluster.html#cb439-1" tabindex="-1"></a><span class="co"># Let us first generate the G matrix, which is simply the DistanceMatrixDiscrete matrix plus a diagonal matrix of ones.</span></span>
-<span id="cb439-2"><a href="cluster.html#cb439-2" tabindex="-1"></a>G.Conley <span class="ot">&lt;-</span> DistanceMatrixDiscrete20<span class="sc">+</span><span class="fu">Diagonal</span>(<span class="at">n=</span><span class="fu">nrow</span>(DistanceMatrixDiscrete20))</span>
-<span id="cb439-3"><a href="cluster.html#cb439-3" tabindex="-1"></a><span class="co"># Let us now generate the M and X matrices</span></span>
-<span id="cb439-4"><a href="cluster.html#cb439-4" tabindex="-1"></a><span class="co"># M has two columns: one for U*constant (vector of ones) and the other for U*Ds</span></span>
-<span id="cb439-5"><a href="cluster.html#cb439-5" tabindex="-1"></a><span class="co"># normally, the epsilons are used instead of the Us, with epsilon the residuals from an ols regression of U (or Y) on a constant and Ds</span></span>
-<span id="cb439-6"><a href="cluster.html#cb439-6" tabindex="-1"></a>SpatialData <span class="ot">&lt;-</span> SpatialData <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">UDs =</span> U<span class="sc">*</span>Ds, <span class="at">Cst =</span> <span class="dv">1</span>)</span>
-<span id="cb439-7"><a href="cluster.html#cb439-7" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">cbind</span>(SpatialData<span class="sc">$</span>U,SpatialData<span class="sc">$</span>UDs))</span>
-<span id="cb439-8"><a href="cluster.html#cb439-8" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">cbind</span>(SpatialData<span class="sc">$</span>Cst,SpatialData<span class="sc">$</span>Ds))</span>
-<span id="cb439-9"><a href="cluster.html#cb439-9" tabindex="-1"></a><span class="co"># LEt us now compute Leung&#39;s matrix</span></span>
-<span id="cb439-10"><a href="cluster.html#cb439-10" tabindex="-1"></a>VcovLeung <span class="ot">&lt;-</span> ((<span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X))<span class="sc">%*%</span><span class="fu">t</span>(M)<span class="sc">%*%</span>G.Conley<span class="sc">%*%</span>M<span class="sc">%*%</span>(<span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)))</span>
-<span id="cb439-11"><a href="cluster.html#cb439-11" tabindex="-1"></a><span class="co"># SEWWConley</span></span>
-<span id="cb439-12"><a href="cluster.html#cb439-12" tabindex="-1"></a>SEWWConley <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(VcovLeung))[[<span class="dv">2</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="cluster.html#cb441-1" tabindex="-1"></a><span class="co"># Let us first generate the G matrix, which is simply the DistanceMatrixDiscrete matrix plus a diagonal matrix of ones.</span></span>
+<span id="cb441-2"><a href="cluster.html#cb441-2" tabindex="-1"></a>G.Conley <span class="ot">&lt;-</span> DistanceMatrixDiscrete20<span class="sc">+</span><span class="fu">Diagonal</span>(<span class="at">n=</span><span class="fu">nrow</span>(DistanceMatrixDiscrete20))</span>
+<span id="cb441-3"><a href="cluster.html#cb441-3" tabindex="-1"></a><span class="co"># Let us now generate the M and X matrices</span></span>
+<span id="cb441-4"><a href="cluster.html#cb441-4" tabindex="-1"></a><span class="co"># M has two columns: one for U*constant (vector of ones) and the other for U*Ds</span></span>
+<span id="cb441-5"><a href="cluster.html#cb441-5" tabindex="-1"></a><span class="co"># normally, the epsilons are used instead of the Us, with epsilon the residuals from an ols regression of U (or Y) on a constant and Ds</span></span>
+<span id="cb441-6"><a href="cluster.html#cb441-6" tabindex="-1"></a>SpatialData <span class="ot">&lt;-</span> SpatialData <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">UDs =</span> U<span class="sc">*</span>Ds, <span class="at">Cst =</span> <span class="dv">1</span>)</span>
+<span id="cb441-7"><a href="cluster.html#cb441-7" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">cbind</span>(SpatialData<span class="sc">$</span>U,SpatialData<span class="sc">$</span>UDs))</span>
+<span id="cb441-8"><a href="cluster.html#cb441-8" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">cbind</span>(SpatialData<span class="sc">$</span>Cst,SpatialData<span class="sc">$</span>Ds))</span>
+<span id="cb441-9"><a href="cluster.html#cb441-9" tabindex="-1"></a><span class="co"># LEt us now compute Leung&#39;s matrix</span></span>
+<span id="cb441-10"><a href="cluster.html#cb441-10" tabindex="-1"></a>VcovLeung <span class="ot">&lt;-</span> ((<span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X))<span class="sc">%*%</span><span class="fu">t</span>(M)<span class="sc">%*%</span>G.Conley<span class="sc">%*%</span>M<span class="sc">%*%</span>(<span class="fu">solve</span>(<span class="fu">t</span>(X)<span class="sc">%*%</span>X)))</span>
+<span id="cb441-11"><a href="cluster.html#cb441-11" tabindex="-1"></a><span class="co"># SEWWConley</span></span>
+<span id="cb441-12"><a href="cluster.html#cb441-12" tabindex="-1"></a>SEWWConley <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(VcovLeung))[[<span class="dv">2</span>]]</span></code></pre></div>
 <p>Using Conley standard errors as implemented using Leung’s matrix, we estimate the standard error of the WW estimator to be equal to 0.05.
 Remember that the true standard error estimated over Monte Carlo replications is equal to 0.06 and that the naive standard error is: 0.02.</p>
 <p>Let us now check what happens when we use the <code>conley</code> option in fixest.</p>
-<div class="sourceCode" id="cb440"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb440-1"><a href="cluster.html#cb440-1" tabindex="-1"></a><span class="co"># computing regression</span></span>
-<span id="cb440-2"><a href="cluster.html#cb440-2" tabindex="-1"></a>RegSpatial <span class="ot">&lt;-</span> <span class="fu">feols</span>(U<span class="sc">~</span>Ds,<span class="at">data=</span>SpatialData)</span>
-<span id="cb440-3"><a href="cluster.html#cb440-3" tabindex="-1"></a>VcovConleyFixest <span class="ot">&lt;-</span> <span class="fu">vcov_conley</span>(RegSpatial,<span class="at">lat=</span><span class="st">&quot;latitude&quot;</span>,<span class="at">lon=</span><span class="st">&quot;longitude&quot;</span>,<span class="at">cutoff=</span><span class="dv">20</span>)</span>
-<span id="cb440-4"><a href="cluster.html#cb440-4" tabindex="-1"></a><span class="co"># SEWWConleyFixest</span></span>
-<span id="cb440-5"><a href="cluster.html#cb440-5" tabindex="-1"></a>SEWWConleyFixest <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(VcovConleyFixest))[[<span class="dv">2</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb442"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb442-1"><a href="cluster.html#cb442-1" tabindex="-1"></a><span class="co"># computing regression</span></span>
+<span id="cb442-2"><a href="cluster.html#cb442-2" tabindex="-1"></a>RegSpatial <span class="ot">&lt;-</span> <span class="fu">feols</span>(U<span class="sc">~</span>Ds,<span class="at">data=</span>SpatialData)</span>
+<span id="cb442-3"><a href="cluster.html#cb442-3" tabindex="-1"></a>VcovConleyFixest <span class="ot">&lt;-</span> <span class="fu">vcov_conley</span>(RegSpatial,<span class="at">lat=</span><span class="st">&quot;latitude&quot;</span>,<span class="at">lon=</span><span class="st">&quot;longitude&quot;</span>,<span class="at">cutoff=</span><span class="dv">20</span>)</span>
+<span id="cb442-4"><a href="cluster.html#cb442-4" tabindex="-1"></a><span class="co"># SEWWConleyFixest</span></span>
+<span id="cb442-5"><a href="cluster.html#cb442-5" tabindex="-1"></a>SEWWConleyFixest <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(VcovConleyFixest))[[<span class="dv">2</span>]]</span></code></pre></div>
 <p>Using the <code>fixest</code>implementation of Conley’s standard errors, we estimate the standard error of the WW estimator to be equal to 0.05.
 Remember that the true standard error estimated over Monte Carlo replications is equal to 0.06 and that the naive standard error is: 0.02.</p>
 </div>
@@ -2430,12 +2444,12 @@ Remember that the true standard error estimated over Monte Carlo replications is
 <p>Let us check what works best using Monte Carlo simulations of our data generating process.
 Actually, we already performed these simulations when we generated the Monte Carlo simulations to show the problem of autocorrelation with default standard errors.
 Let’s now just see how the estimators perform:</p>
-<div class="sourceCode" id="cb441"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb441-1"><a href="cluster.html#cb441-1" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb441-2"><a href="cluster.html#cb441-2" tabindex="-1"></a><span class="fu">ggplot</span>(Data.precision.Spatial,<span class="fu">aes</span>(<span class="at">x=</span>Method,<span class="at">y=</span>TE,<span class="at">color=</span>Method,<span class="at">group=</span>Method)) <span class="sc">+</span></span>
-<span id="cb441-3"><a href="cluster.html#cb441-3" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb441-4"><a href="cluster.html#cb441-4" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>TE<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>TE<span class="fl">+1.96</span><span class="sc">*</span>Se,<span class="at">color=</span>Method,<span class="at">group=</span>Method),<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
-<span id="cb441-5"><a href="cluster.html#cb441-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb441-6"><a href="cluster.html#cb441-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>) </span></code></pre></div>
+<div class="sourceCode" id="cb443"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb443-1"><a href="cluster.html#cb443-1" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb443-2"><a href="cluster.html#cb443-2" tabindex="-1"></a><span class="fu">ggplot</span>(Data.precision.Spatial,<span class="fu">aes</span>(<span class="at">x=</span>Method,<span class="at">y=</span>TE,<span class="at">color=</span>Method,<span class="at">group=</span>Method)) <span class="sc">+</span></span>
+<span id="cb443-3"><a href="cluster.html#cb443-3" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb443-4"><a href="cluster.html#cb443-4" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>TE<span class="fl">-1.96</span><span class="sc">*</span>Se,<span class="at">ymax=</span>TE<span class="fl">+1.96</span><span class="sc">*</span>Se,<span class="at">color=</span>Method,<span class="at">group=</span>Method),<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
+<span id="cb443-5"><a href="cluster.html#cb443-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb443-6"><a href="cluster.html#cb443-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">&quot;none&quot;</span>) </span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:SpatialMonteCarloTotPlot"></span>
 <img src="STCI_files/figure-html/SpatialMonteCarloTotPlot-1.png" alt="Estimated sampling noise under spatial autocorrelation" width="65%" />
 <p class="caption">
@@ -2653,7 +2667,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');

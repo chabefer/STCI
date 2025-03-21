@@ -530,24 +530,134 @@ This is the goal of this section, which is fully based on Davide [Viviano (2023)
 
 Davide considers a setting with $K$ clusters of equal size $N$.
 Researchers sample a proportion $\lambda\in\left]0,1\right]$ of the $N$ units in each cluster at each period $t$ and they have access to the following information for the sampled observations in each cluster: $\left(Y^{(k)}_{i,t},X^{(k)}_{i},D^{(k)}_{i,t}\right)_{i=1}^n$ where $n=\lambda N$ and $X^{(k)}_{i}$ are baseline characteristics.
+There are $T$ periods. 
+Despite the data being allowed to be a panel or a repeated cross section, we denote observations as if there was repeated sampling.
+Potential outcomes are denoted $Y^{(k)}_{i,t}(\mathbf{D}_1^{(k)},\dots,\mathbf{D}_t^{(k)})$, where $\mathbf{D}_s^{(k)}\in\left\{0,1\right\}^N$, and $s\leq t$.
+We denote $Y^{(k)}(.)$ and $X^{(k)}$ the vectors of potential outcomes and covariates in cluster $k$.
 
+The key policy parameter that we are going to be after is a treatment rule, $\pi(.;\beta):\mathcal{X}\leftrightarrow\left[0,1\right]$, indexed by a (possibly vector valued) parameter $\beta$ which lies in a compact set.
+The treatment rules selects a probability of allocating each agent with characteristics $x$ at date $t$ in cluster $k$ to the treatment.
+We would like to choose $\pi$ so that we maximize an objective function, for example total program returns net of program implementation costs.
 
+In order to determine this optimal function, we are going to run two-step clustered experiments.
+These experiments are as follows:
 
+```{hypothesis,TreatAssignDavide,name='Treatment Assignement in the experiment'}
+For $\beta_{k,t}\Ind\left(X^{(k)},Y^{(k)}(.)\right)$,
+  
+  \begin{align*}
+    D^{(k)}_{i,t}|X^{(k)},Y^{(k)}(.),\beta_{k,t}\sim_{i.n.i.d.}\mathcal{B}(\pi(X^{(k)}_{i};\beta_{k,t})).
+  \end{align*}
+```
 
-Davide describes the latent process that takes place between units in each cluster.
-Units are spaced on a latent space, and each unit can interact with at most the $\sqrt{\gamma_N}$ closest units.
-Let $\uns{i_k\leftrigharrow j_{k}}$ denote whether or not $i$ and $j$ can be connected in the resulting the latent network.
+Assumption \@ref(hyp:TreatAssignDavide) implies that the allocation of treatment follows a Bernoulli distribution indexed by parameters $\beta_{k,t}$, and can be different for individuals with different baseline characteristics.
+
+```{example}
+Examples of experimental allocation rules are the equal probability rule: $\pi(.;\beta)=\beta\in\left[0,1\right]$ or targeted treatments $\pi(x;\beta)=\beta_x$. 
+The treatment rules can also be made conditional on cluster characteristics.
+```
+
+Davide now needs another assumption about the data generating process:
+
+```{hypothesis,DGPDavide,name='Data generating process'}
+For any $(i,t,k)$, we assume that:
+
+\begin{enumerate}[(i)]
+  \item $Y^{(k)}_{i,t}(\mathbf{D}_1^{(k)},\dots,\mathbf{D}_t^{(k)})$ is constant in $\mathbf{D}_1^{(k)},\dots,\mathbf{D}_{t-1}^{(k)}$ and $X_i^{(k)}\sim F_{X}$,\label{it:noCarryOver}
+  \item Under an assignment with parameter $\beta_{k,t}$, we have:\label{it:FunctForm}
+  \begin{align*}
+    \espsub{Y^{(k)}_{i,t}|D^{(k)}_{i,t}=d,X_i^{k}=x}{\beta_{k,t}} & = m(d,x,\beta_{k,t}) + \alpha_t + \tau_k,
+  \end{align*}
+  \item $Y_{i,t}^{(k)}\Ind\left\{Y_{j,t}^{(k)}\right\}_{j\notin\mathcal{I}_i^{(k)}}|\beta_{k,t}$, with $\left|\mathcal{I}_i^{(k)}\right|\leq 2\gamma_N\geq 1$.\label{it:degreeLim}
+\end{enumerate}
+```
+
+Assumption \@ref(hyp:DGPDavide) says that there are no carryover effects of the treatment beyond the period in which it is assigned (\@ref(it:noCarryOver)), that there are no interactions between the treatment and time and cluster fixed effects (\@ref(it:FunctForm)), and finally that outcomes depend on at most $\gamma_N$ other outcomes in the same cluster.
+
+We are now equipped to define welfare as a function of the parameters of the allocation rule:
+
+```{definition,WelfareDavide,Name='Welfare'}
+For treatments as in Assumption \@ref(hyp:TreatAssignDavide), and under the assumptions on the d.g.p. in Assumption \@ref(hyp:DGPDavide), we can define welfare as $W(\beta)=\int y(x,\beta)dF_X(x)$, with $y(x,\beta)=\pi(x;\beta)m(1,x,\beta)+(1-\pi(x;\beta))m(0,x,\beta)$,
+```
+
+with $y(x,\beta)$ the outcome net of costs.
+Equipped with this definition, and assuming all functions are differentiable, we can define the direct effect of the treatment ($\Delta(x,\beta)$), the marginal spillover effect ($S(d,x,\beta)$), the marginal policy effect ($M(\beta)$) and the welfare optimizing policy ($\beta^*$) as follows:
+
+\begin{align*}
+  \Delta(x,\beta) & = m(1,x,\beta)-m(0,x,\beta)\\
+  S(d,x,\beta) & = \partder{m(d,x,\beta)}{\beta}\\
+  M(\beta) & = \partder{W(\beta)}{\beta}\\
+          & = \int\left[S(0,x,\beta)+\pi(x;\beta)(S(1,x,\beta)-S(0,x,\beta))\right.\\
+          & \phantom{=\int\left[\right.}\left.+\partder{\pi(x,\beta)}{\beta} \Delta(x,\beta)\right]dF_X(x)\\
+  \beta^* & = \arg\sup_{\beta}W(\beta).
+\end{align*}
+
+```{example}
+A first example that Davide gives is the case of positive externalities with decreasing returns from neighbours' treatments.
+We pose $D^{(k)}_{i,t}\sim_{i.i.d.}\mathcal{B}(\beta)$, and $\mathcal{N}_i$ is the set of neighbours of individual $i$.
+We let 
+
+\begin{align*}
+  Y^{(k)}_{i,t} & = \alpha_t + D^{(k)}_{i,t}\phi_1 + \frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\phi_2 
+                    -\left(\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\right)^2\phi_3 + \nu_{i,t}
+\end{align*}
+
+In that case, assuming that $\left|\mathcal{N}_i\right|\sim\mathcal{D}_N$, we have:
+
+\begin{align*}
+  \espsub{Y^{(k)}_{i,t}|\alpha_t,D^{(k)}_{i,t}=d}{\beta}
+                  & = \alpha_t + d\phi_1
+                    + \espsub{\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}}{\beta}\phi_2
+                    -\espsub{\left(\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\right)^2}{\beta}\phi_3 \\
+                  & = \alpha_t + d\phi_1
+                    + \esp{\espsub{\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{n}}{\beta}|\left|\mathcal{N}_i\right|}\phi_2
+                    -\esp{\espsub{\left(\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{n}\right)^2}{\beta}|\left|\mathcal{N}_i\right|}\phi_3 \\
+                  & =  \alpha_t + d\phi_1
+                    + \esp{\frac{\left|\mathcal{N}_i\right|\beta}{\left|\mathcal{N}_i\right|}|\left|\mathcal{N}_i\right|}\phi_2
+            -\esp{\frac{\left|\mathcal{N}_i\right|\beta(1-\beta)+\left|\mathcal{N}_i\right|^2\beta^2}{\left|\mathcal{N}_i\right|^2}|\left|\mathcal{N}_i\right|}\phi_3 \\
+                  & =  \alpha_t + d\phi_1 + \beta\phi_2-\beta\phi_3\left(\beta+(1-\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}}\right)
+\end{align*}
+
+As a consequence, we have:
+
+\begin{align*}
+  m(d,1,\beta) & = d\phi_1 + \beta\phi_2-\beta\phi_3\left(\beta+(1-\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}}\right)\\
+  \Delta(x,\beta) & = \phi_1\\
+  S(d,x,\beta) & = \phi_2-\phi_3(2\beta+(1-2\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}})\\
+  y(1,\beta) & = \beta\phi_2-\beta\phi_3\left(\beta+(1-\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}}\right)+\beta(\phi_1-c)\\
+  M(\beta) & = \phi_2-\phi_3(2\beta+(1-2\beta)\esp{\frac{1}{\left|\mathcal{N}_i\right|}})+\phi_1-c.
+\end{align*}
+```
+
+```{example}
+Let us now look at an example with negative externalties.
+We similarly have $D^{(k)}_{i,t}\sim_{i.i.d.}\mathcal{B}(\beta)$, but now outcomes are negatively affected by the proportion of treated, and all the more so if they are treated themselves:
+
+\begin{align*}
+  Y^{(k)}_{i,t} & = \alpha_t + D^{(k)}_{i,t}\phi_1 - \frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\phi_2 
+                    -D^{(k)}_{i,t}\frac{\sum_{j\in\mathcal{N}_i}D^{(k)}_{j,t}}{\left|\mathcal{N}_i\right|}\phi_3 + \nu_{i,t}
+\end{align*}
+  
+In that case, we have, after similar manipulation, $y(1,\beta)=\beta(\phi_1-c-\phi_2-\phi_3\beta)$.   
+```
+
+```{remark}
+One open question is whether Assumption \@ref(hyp:DGPDavide) is compatible with any real-looking network.
+Davide formalizes a nice proposition that shows that indeed this assumption can be rationalized by an actual network formation model.
+Let units be spaced on a latent space, and each unit can interact with at most the $\sqrt{\gamma_N}$ closest units.
+Let $\uns{i_k\leftrightarrow j_{k}}$ denote whether or not $i$ and $j$ can be connected in the resulting the latent network.
 Let $\mathcal{I}_k$ be the matrix of these potential connections in cluster $k$.
 Davide's first assumption is:
+```
 
 ```{hypothesis,iidConnect,name='Network'}
 Actual connections are generated as follows:
   
   \begin{align*}
-    A_{i,j}^{(k)} & = l(X^{(k)}_{i},X^{(k)}_{j},U^{(k)}_{i},U^{(k)}_{j})\uns{i_k\leftrigharrow j_{k}},
+    A_{i,j}^{(k)} & = l(X^{(k)}_{i},X^{(k)}_{j},U^{(k)}_{i},U^{(k)}_{j})\uns{i_k\leftrightarrow j_{k}},
   \end{align*}
     
-for some function $l$ and unobservables $U^{(k)}_{i}$ with $\left(X^{(k)}_{i},U^{(k)}_{i}\right)|\mathcal{I}_k\sim F_{U|X}F_{X}$ and with $\sum_{j=1}^N\uns{i_k\leftrigharrow j_{k}}=\sqrt{\gamma_N}$.
+for some function $l$ and unobservables $U^{(k)}_{i}$ with $\left(X^{(k)}_{i},U^{(k)}_{i}\right)|\mathcal{I}_k\sim F_{U|X}F_{X}$ and with $\sum_{j=1}^N\uns{i_k\leftrightarrow j_{k}}=\sqrt{\gamma_N}$.
 ```
 
 The second assumption Davide makes is on how potential outcomes are generated:
@@ -559,22 +669,457 @@ Potential outcomes are generated as follows:
     Y^{(k)}_{i,t}(\mathbf{D}_1^{(k)},\dots,\mathbf{D}_t^{(k)}) & = r(D_{i,t}^{(k)},\mathbf{D}_{\mathcal{N}_i^{k},t}^{(k)},X^{(k)}_{i},X^{(k)}_{\mathcal{N}_i^{k},t},U^{(k)}_{i},U^{(k)}_{\mathcal{N}_i^{k},t},A^{(k)}_{i,.},|\mathcal{N}_i^{k}|,\nu^{(k)}_{i,t})+\tau_k+\alpha_t,
   \end{align*}
     
-for some function $r$ which attains the same value for any permutations of the entries of $A^{(k)}_{i,.}$, with $A^{(k)}_{i,.}$ the vector of connections of $i$ in , and unobservables $\nu^{(k)}_{i,t}|\left(X^{(k)}_{i},U^{(k)}_{i}\right)\sim F_{\nu}$, and where $\mathcal{N}_i^{k}=\left\{j:A^{(k)}_{i,j}>0\right\}$.
+for some function $r$ which attains the same value for any permutations of the entries of $A^{(k)}_{i,.}$, with $A^{(k)}_{i,.}$ the vector of connections of $i$ in $(k)$, and unobservables $\nu^{(k)}_{i,t}|\left(X^{(k)}_{i},U^{(k)}_{i}\right)\sim F_{\nu}$, and where $\mathcal{N}_i^{k}=\left\{j:A^{(k)}_{i,j}>0\right\}$.
 ```
 
+Davide can then prove that this setting implies Assumption \@ref(hyp:DGPDavide):
 
+```{proposition,DavideEquiv,Name='Microfoundation of d.g.p.'}
+With a treatment assigned following Assumption \@ref(hyp:TreatAssignDavide), if Assumptions \@ref(hyp:iidConnect) and \@ref(hyp:PoNetwork) hold, then Assumption \@ref(hyp:DGPDavide) holds.
+```
 
-The main assumption that Davide makes on how units interact in the  network 
+```{proof}
+See [Viviano (2023)](http://arxiv.org/abs/2011.08174), Section B.1.2.
+```
 
+#### Identifying and estimating the marginal policy effect with a one-wave experiment
 
+Davide proposes a one-wave experiment to get at the marginal policy effect.
+Here is the algorithm he proposes, with $p_1=1$:
+
+  1. Organize clusters into $G=\frac{K}{2}$ pairs with consecutive indexes $\left\{k,k+1\right\}$
+  
+  2. At $t=0$, either nobody receives the treatment, or treatment is assigned using rule $\pi(.;\beta)$.
+      Collect baseline outcomes and observe $(Y_{i,0}^{(h)},X_{i}^{(h)})_{i=1}^N$, for $h\in\left\{1,\dots,K\right\}$.
+      
+  3. At $t=1$, start the experiment:
+  * For each pair $g=\left\{k,k+1\right\}$, randomize
+  
+      \begin{align*}
+        D_{i,1}^{(k)}|\beta,X_i^{(k)}=x & \sim \begin{cases}
+                                                  \mathcal{B}(\pi(x,\beta+\eta_n\underline{e}_1)) & \text{ if } h=k\\
+                                                  \mathcal{B}(\pi(x,\beta-\eta_n\underline{e}_1)) & \text{ if } h=k+1
+                                                \end{cases}
+      \end{align*}
+      with $\bar{C}n^{-\frac{1}{2}}<\eta_n<\bar{C}n^{-\frac{1}{4}}$, and $\underline{e}_j=\left[0,\dots,0,1,0,\dots,0\right]$, where $\underline{e}_j\in\left\{0,1\right\}^p$, and $\underline{e}_j[j]=1$.
+  * For $n$ units in cluster $h$ observe $Y_{i,1}^{(h)}$
+  * Estimate the marginal effect as follows:
+  
+    \begin{align*}
+      \bar{M}_n(\beta) & = \frac{1}{G}\sum_{g=1}^G\widehat{M}_g(\beta) \\
+      \widehat{M}_g(\beta) & =
+\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]
+-\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,0}\right]
+    \end{align*}
+    
+  4. Construct the following test statistic 
+
+  \begin{align*}
+    \mathcal{T}_n & = \sqrt{G}\frac{\bar{M}_n(\beta)}{\sqrt{\frac{1}{G-1}\sum_{g=1}^G(\widehat{M}_g(\beta)-\bar{M}_n(\beta))^2}}
+  \end{align*}
+   to test whether the current allocation is optimal.
+   Indeed, if $\beta^*=\arg\max_{\beta} W(\beta)$ is an interior point, then $W(\beta)=W(\beta^*)\Rightarrow M(\beta)[j]=0$, $\forall j\in\left\{1,\dots,p_1\right\}$, with $p_1\leq p$.
+
+  5. Constructs tests $\uns{\left|\mathcal{T}_n\right|> \text{cv}_{G}(\alpha)}$, with size $\alpha$ and critical values obtained by permuting the sign of the estimated marginal effects.
+  
+```{remark}
+Davide's approach runs a pairwise randomized controlled trial similar to the ones we studied in Section \@ref(PairRCT), but at the cluster level.
+Each cluster within the pair is allocated a slightly different value of the allocation parameter, with a perturbation aound the current level of allocation (or a $\beta$ of interest).
+Davide then proposes a DID estimator to get rid of the time and cluster fixed effects (mostly for precision, since they do not affect consistency, at least they do not seem to).
+He estimates a test statistic for whether the average marginal effect is zero across clusters, which is a necessary condition for being at the optimum (and a sufficient one if we assume sufficiency).
+```
+
+```{remark}
+Davide's approach also recovers several other important treatment effects:
+```
+
+\begin{align*}
+  \bar{W}_n(\beta) & = \frac{1}{K}\sum_{k=1}^K\left(\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right) \\
+  \bar{\Delta}_n(\beta) & = \frac{1}{G}\sum_{g=1}^G\hat{\Delta}_g(\beta) \\
+  \hat{\Delta}_{g}(\beta) & = \frac{1}{2n}\sum_{h\in\left\{k,k+1\right\}}\sum_{i=1}^n
+                              \left[\frac{D^{(h)}_{i,1}Y^{(h)}_{i,1}}{\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}
+                                   -\frac{(1-D^{(h)}_{i,1})Y^{(h)}_{i,1}}{1-\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}\right]\\
+  \bar{S}_n(1,\beta) & = \frac{1}{G}\sum_{g=1}^G\hat{S}_{g}(1,\beta) \\
+  \hat{S}_{g}(1,\beta) & = \frac{1}{2n}\sum_{h\in\left\{k,k+1\right\}}\frac{\nu_h}{\eta_n}\sum_{i=1}^n
+                              \left[\frac{D^{(h)}_{i,1}Y^{(h)}_{i,1}}{\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}
+                                   -\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]\\
+  \bar{S}_n(0,\beta) & = \frac{1}{G}\sum_{g=1}^G\hat{S}_{g}(0,\beta) \\
+  \hat{S}_{g}(0,\beta) & = \frac{1}{2n}\sum_{h\in\left\{k,k+1\right\}}\frac{\nu_h}{\eta_n}\sum_{i=1}^n
+                              \left[\frac{(1-D^{(h)}_{i,1})Y^{(h)}_{i,1}}{1-\pi(X_i^{h};\beta+\eta_n\nu_h\underline{e}_1)}
+                                   -\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]\\
+  \nu_h & = \begin{cases} 1 & \text{ if } h=k \\ -1 & \text{ if } h=k+1 \end{cases} \\
+\end{align*}
+
+```{remark}
+Note that Davide's approach is politically much more palatable than a 2-step clustered design with super controls and super treated clusters.
+```
+
+```{remark}
+At the same time, note that Davide's approach just gives the direction to change $\beta$ but does not deliver an optimal $\beta^*$, unelss we are already there.
+```
+
+```{remark}
+Davide also proves several theorems that ensure that the estimates above are consistent under some reasonable assumptions, and can be approximated by a normal.
+The randomization tests also have correct coverage.
+```
+
+#### Identifying and estimating the optimal treatment allocation
+
+Davide also proposes an algorithm to sequentially converge to the optimal treatment level.
+Here is Davide's proposed algorithm for $p_1=1$, with $\beta\in\left[\underline{\beta},\overline{\beta}\right]$:
+
+  1. Organize clusters into pairs $\left\{k,k+1\right\}$, with $k\in\left\{1,3,\dots,K-1\right\}$;
+  
+  2. At $t=0$, treatment is assigned using rule $D_{i,0}^{(h)}|X_i^{(h)}=x\sim\mathcal{B}(\pi(x;\beta_0))$, $\forall k\in\left\{1,\dots,K\right\}$.
+      Collect baseline outcomes and observe $(Y_{i,0}^{(h)},X_{i}^{(h)})_{i=1}^N$, for $h\in\left\{1,\dots,K\right\}$.
+      Initialize $\widehat{M}_{k,0}=0$, $\tilde{\beta}_k^0=\beta_0$.
+      
+  3. while $1\leq t\leq T$, do:
+  * Define 
+  
+      \begin{align*}
+        \tilde{\beta}_{h}^{(t)} & = \mathcal{P}_{\underline{\beta},\overline{\beta}-\eta_n}(\tilde{\beta}_k^0+\alpha_{h+2,t}\widehat{M}_{h+2,t-1}) 
+      \end{align*}
+      with the convention $h+2=1$ when $h=K$ and $h=K+1$, $\alpha_{k,t}$ is the learning rate and $\mathcal{P}_{a,b}(x)=\arg\min_{x'\in\left[a,b\right]^p}||x-x'||^2$):
+  * Assign treatments as (for $\bar{C}n^{-\frac{1}{2}}<\eta_n<\bar{C}n^{-\frac{1}{4}}$):
+
+    \begin{align*}
+        D_{i,0}^{(h)}|X_i^{(h)}=x & \sim\mathcal{B}(\pi(x;\beta_{h,t}))\\
+        \beta_{h,t} & = \begin{cases}
+                          \tilde{\beta}_{h,t}+\eta_n & \text{ if } h \text{ is odd}\\
+                          \tilde{\beta}_{h,t}-\eta_n & \text{ if } h \text{ is even}
+                        \end{cases}
+    \end{align*}
+  * For $n$ units in cluster $h$ observe $Y_{i,t}^{(h)}$
+  * For each pair $\left\{k,k+1\right\}$, estimate the marginal effect as follows:
+  
+    \begin{align*}
+      \widehat{M}_{k,t}=\widehat{M}_{k+1,t} & =
+\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k)}_{i,0}\right]
+-\frac{1}{2\eta_n}\left[\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,1}-\frac{1}{n}\sum_{i=1}^nY^{(k+1)}_{i,0}\right]
+    \end{align*}
+    
+  4. End while.
+
+  5. Return $\hat{\beta}^*=\frac{1}{K}\sum_{k=1}^K\tilde{\beta}^T_{k}$
+
+```{remark}
+The algorithm simply mimicks gradient descent as in a Newton-Raphson algorithm.
+One twist is that it uses as estimate of the gradient the marginal treatment effect estimated in another pair of clusters.
+This ensures that there will not be overfitting: the choices of optimal treatment level remain indpendent at each stage of the potential outcomes abd covariates in the cluster.
+Using all pairs but the treated pairs would not work neither (see Appendix B.1.4 in [Davide's paper](http://arxiv.org/abs/2011.08174)).
+```
+
+```{remark}
+When $p_1>1$, the algorithm is split in $\frac{T}{p_1}$ sub-waves of length $p_1$, where we move each coordinate sequentially before moving to the next wave.
+```
+
+```{remark}
+How to choose the optimal learning rate $\alpha_{k,t}$?
+Under strong concavity of the objective function, the learning rate should be of order $\frac{J}{t}$, with for example $J\in\left[0.1,0.2\right]$ when $\beta$ is a proportion.
+More robust with moderate to large $T$:
+```
+
+  \begin{align*}  
+      \alpha_{k,t} & = \begin{cases}
+  \frac{J}{T^{\frac{1-\nu}{2}}||\widehat{M}_{k,t}||} & \text{ if }||\widehat{M}_{k,t}||_2^2>\frac{\kappa}{T^{1-\nu}}-\epsilon_n,\\
+  0 & \text{ otherwise }  
+                      \end{cases}
+  \end{align*}  
+    
+for $\epsilon_n>0$, $\epsilon_n\rightarrow 0$, and small constants $\nu\leq 1$, $J$, $\kappa>0$.
+This approach of dividing the estimated marginal effect by its norm is called gradient norm rescaling and guarantees control of out-of-sample regret under strict quasi-concavity.  
+
+```{remark}
+Under the assmption that $W(\beta)$ is $\sigma$-strongly concave, for some strictly positive $\sigma$, and under additional technical assumptions, the distance between \hat{\beta}^*$ and the optimal $\beta^*$ is arbitrarily small, as well as the distance between $W(\beta^*)$ and $W(\hat{\beta}^*)$.
+Davide also shows that regret can be made arbitrarily small in his approach, whether in and out-of-sample. 
+```
 
 ## Diffusion effects with detailed networks
 
-Leung
+We are now going to study what happens when we have access to detailed network information.
+We observe the contiguity matrix $A$, or at least all the relevant links for each member of our sample and the treatment status of each peer of our sample members.
+The analysis of such data is going to closely follow the treatment by [Michael Leung (2020)](https://doi.org/10.1162/rest_a_00818).
 
-## Nonparametric test for the existence of diffusion effects based on randomization inference
+### Setting
 
-Athey and Imbens
+We consider a network of total size $n$, where connections are represented by the matrix $A$, which is such that there are no self-links ($A_{i,i}=0$, $\forall i\in\left\{1,\dots,n\right\}$).
+For each unit $i$ we observe $D_i$, $Y_i$, $\gamma_i=\sum_{j=1}^na_{i,j}$ ($i$'s *degree* or number of neighbors), and $T_i=\sum_{j=1}^na_{i,j}D_j$ (the number of $i$'s neighbors that are treated).
+We posit a treatment response function that is as follows:
+
+\begin{align*}
+  Y_i & = r(D_i,T_i,\gamma_i,\epsilon_i),
+\end{align*}
+
+where $\epsilon_i\in\mathbb{R}^{d_{\epsilon}}$ are unobserved influences to outcomes, and $r$ is a function.
+One specification of $r$ is the linear first-degree influence model:
+
+\begin{equation}
+  Y_i  = \beta_1 + \beta_2D_i + \beta_3\frac{T_i}{\gamma_i} + \epsilon_i
+  (\#eq:linearnetworkmodel)
+\end{equation}
+
+where outcomes depend linearly on the proportion of neighbors treated.
+
+```{remark}
+Michael's model implicitly imposes that diffusion effects can only stem from direct connexions.
+Connexions further away on the network (friends of friends) have no direct effect on $i$'s outcome.
+This assumption can be relaxed, as long as there is a maximum distance $K$ on the network after which neighbors treatments have no effect on $i$'s outcome.
+In our formulation so far, $K=1$.
+```
+
+```{remark}
+The way we collect data is either we observe the full network or, more often, we conduct a snowball-sampling of $1$-neighborhoods.
+In this sampling strategy, we first randomly select a set of $\tilde{n}\leq n$ focal units on which we collect $\left(Y_i,D_i\right)$ and the identity of their neighbors, which gives us $\gamma_i$ and $a_{i,j}$.
+We then collect the treatment status of each of the neighbors, which gives us $T_i$.
+We therefore have as data: $\left(Y_i,D_i,T_i,\gamma_i\right)_{i=1}^{\tilde{n}}$ as well as $\tilde{A}$, the set of sampled links.
+```
+
+### Identification of causal effects
+
+We define conditional causal effects as follows: 
+
+\begin{align*}
+  \Delta^Y_{TDT}(t,\gamma) & = \esp{r(1,t,\gamma,\epsilon_i)-r(0,t,\gamma,\epsilon_i)|D_i=1,T_i=t,\gamma_i=\gamma}\\
+  \Delta^Y_{TIT}(d,\gamma) & = \esp{r(d,t,\gamma,\epsilon_i)-r(d,t',\gamma,\epsilon_i)|D_i=d,T_i=t,\gamma_i=\gamma},
+\end{align*}
+
+with $\Delta^Y_{TDT}(t,\gamma)$ the average treatment effect on the directly treated, keeping the indirect level of treatment and the degree of each individual constant; and $\Delta^Y_{TIT}(d,\gamma)$ the average treatment effect on the indirectly treated, keeping the direct level of treatment and the degree of each individual constant.
+
+```{remark}
+[Leung (2020)](https://doi.org/10.1162/rest_a_00818) also allows for the identification of the effect on function of $Y_i$, $h(Y_i)$.
+```
+
+To state identification results for both treatment effects, we are going to make several assumptions on $\tilde{D}=\left\{D_i\right\}_{i=1}^{\tilde{n}}$, $\tilde{\epsilon}=\left\{\epsilon_i\right\}_{i=1}^{\tilde{n}}$ and $\tilde{A}$:
+
+```{hypothesis,Exo,name='Treatment exogeneity'}
+We assume that *(a)* $\tilde{D}\Ind\left(\tilde{A},\tilde{\epsilon}\right)$ and *(b)* $\forall i\in\left\{1,\dots,\tilde{n}\right\}$, $\epsilon_i\Ind\tilde{A}|\gamma_i$.
+```
+
+```{remark}
+Assumption \@ref(hyp:Exo) imposes that the treatment does not alter links between units across the network, and, furthermore, since treatment is assumed i.i.d., it also imposes that the treatment is not allocated with respect to network characteristics.
+This can be relaxed, for example by conducting an experiment stratified on network charcateristics.
+```
+
+```{remark}
+Assumption \@ref(hyp:Exo) imposes full independence between treatment and unobservables, which is satisfied mostly when the treatment is randomly allocated across units.
+```
+
+```{remark}
+Part *(b)* of Assumption \@ref(hyp:Exo) imposes that links are independent from error terms, conditional on degree.
+This assumption rules out unobserved homophily (individuals forming links based on unobserved determinants of outcomes), a key open issue in the literature.
+```
+
+We also need one technical assumption:
+
+```{hypothesis,Support,name='Support'}
+We assume that *(a)* $\Pr(D_i=1)\in]0,1[$ and *(b)* there exists $P$: $\N\rightarrow\left[0,1\right]$ such that, $\forall\gamma\in\N$, $\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\uns{\gamma_i=\gamma}\probconv P(\gamma)$ and $\Gamma=\left\{\gamma:P(\gamma)>0\right\}$ is not empty and is different from $\left\{0\right\}$. 
+```
+
+```{remark}
+Assumption \@ref(hyp:Support) imposes that at least some sampled units have at least one link, and some of them are treatedd and some of them are not.
+```
+
+We can now prove identification of our effects of interest:
+
+```{theorem,IdentLeung,Name="Identification of treatment effects on a network"}
+Under Assumptions \@ref(hyp:Exo) and \@ref(hyp:Support), $\Delta^Y_{TDT}(t,\gamma)$ and $\Delta^Y_{TIT}(d,\gamma)$ are identified, $\forall d\in\left\{0,1\right\}$, $\forall t \leq \gamma$, $\forall\gamma\in\Gamma$:
+  
+ \begin{align*}
+  \Delta^Y_{TDT}(t,\gamma) & = \esp{Y_i|D_i=1,T_i=t,\gamma_i=\gamma}-\esp{Y_i|D_i=0,T_i=t,\gamma_i=\gamma},\\
+  \Delta^Y_{TIT}(d,\gamma) & = \esp{Y_i|D_i=d,T_i=t,\gamma_i=\gamma}-\esp{Y_i|D_i=d,T_i=t',\gamma_i=\gamma}.
+\end{align*}
+
+```
+
+```{proof}
+Under Assumption \@ref(hyp:Support), $\esp{Y_i|D_i=d,T_i=t,\gamma_i=\gamma}$ is well defined $\forall d\in\left\{0,1\right\}$, $\forall t \leq \gamma$, $\forall\gamma\in\Gamma$.
+We have, $\forall d\in\left\{0,1\right\}$, $\forall t,t' \leq \gamma$:
+
+\begin{align*}
+  \esp{Y_i|D_i=d,T_i=t,\gamma_i=\gamma} & = \esp{r(d,t,\gamma,\epsilon_i)|D_i=d,T_i=t,\gamma_i=\gamma}\\
+                                        & = \esp{\esp{r(d,t,\gamma,\epsilon_i)|\tilde{A},D_i=d,T_i=t,\gamma_i=\gamma}|D_i=d,T_i=t,\gamma_i=\gamma}\\
+                                        & = \esp{\esp{r(d,t,\gamma,\epsilon_i)|\gamma_i=\gamma}|\gamma_i=\gamma}\\
+                                        & = \esp{r(d,t,\gamma,\epsilon_i)|\gamma_i=\gamma}\\
+                                        & = \esp{r(d,t,\gamma,\epsilon_i)|D_i=d',T_i=t',\gamma_i=\gamma},
+\end{align*}
+
+where the first quality is by definition, the second equality uses the Law of Iterated Expectations, and the third equality uses Assumption \@ref(hyp:Exo).
+The third equality uses the fact that Assumption \@ref(hyp:Exo) implies that $(D_i=d,T_i=t)\Ind\epsilon_i|(\tilde{A},\gamma_i)$, which enables us to undo the conditioning on $(D_i=d,T_i=t)$ in the inner expectation.
+We then use part *(b)* of Assumption \@ref(hyp:Exo) to undo the conditioning on $\tilde{A}$.
+Since the inner expectation then does only depend on $\gamma_i$, the outer expectation also does, by the Law of Iterated Expectations.
+This undoes the conditioning on $(D_i=d,T_i=t)$ in the outer expectation.
+The same reasoning applied in reverse gives the last equality.
+This proves the result.
+```
+
+### Estimation of causal effects 
+
+Michael explores two estimators of the causal effects, one nonparametric and one parametric.
+The nonparametric estimators are as follows:
+
+\begin{align*}
+  \hat{\Delta}^{Y^{np}}_{TDT}(t,\gamma) & = \hat{\mu}(1,t,\gamma)-\hat{\mu}(0,t,\gamma)\\ 
+  \hat{\Delta}^{Y^{np}}_{TIT}(d,\gamma) & = \hat{\mu}(d,t,\gamma)-\hat{\mu}(d,t',\gamma)\\ 
+  \hat{\mu}(d,t,\gamma) & = \frac{\sum_{i=1}^{\tilde{n}}Y_i\unsi{i}{d,t,\gamma}}{\sum_{i=1}^{\tilde{n}}\unsi{i}{d,t,\gamma}} \\
+  \unsi{i}{d,t,\gamma} & = \uns{D_i=1,T_i=t,\gamma_i=\gamma}.
+\end{align*}
+
+The parametric estimators are:
+
+\begin{align*}
+  \hat{\Delta}^{Y^{p}}_{TDT}(t,\gamma) & = \hat{\beta}^{OLS}_2\\ 
+  \hat{\Delta}^{Y^{np}}_{TIT}(d,\gamma) & = \hat{\beta}^{OLS}_3\left(\frac{t-t'}{\gamma}\right),
+\end{align*}
+
+using the OLS estimates of Equation \@ref(eq:linearnetworkmodel).
+
+We need several assumptions to ensure that our estimators converge to the actual treatment effect when the network size grows large.
+Let $\max_kA_{ik}A_{jk}$ denote whether $i$ and $j$ are indirectly linked through a common friend $k$.
+
+```{hypothesis,IndepShocks,Name="Independent Shocks"}
+For any pair $(i,j)\in\left\{1,\dots,n\right\}^2$, *(a)* $\epsilon_i\Ind\epsilon_j|\tilde{A},A_{ij}=0,\max_kA_{ik}A_{jk}=0$ and *(b)* $(\epsilon_i,\epsilon_j)\Ind\tilde{A}|A_{ij},\gamma_i,\gamma_j,\sum_kA_{ik}A_{jk}$.
+```
+
+Part (a) of Assumption \@ref(hyp:IndepShocks) imposes that $\epsilon_i$ and $\epsilon_j$ can only be correlated if $i$ and $j$ they are neighbors or share a common neighbor.
+Part (b) of Assumption \@ref(hyp:IndepShocks) imposes that $\epsilon_i$ and $\epsilon_j$ depend on the network only through $i$ and $j$'s own connection, own degrees, and number of common connections.
+
+We are now going to define a set of properties on the connections between units that will enable to apply a CLT with non independent data.
+Under Assumption \@ref(hyp:IndepShocks), we know that the outcome of observations are correlated across the netework when either they are direct neighbor or they have a neighbor in common. 
+Let us encode these connections within a new matrix, $G$, such that each entry measures whether the outcome of two observations are correlated or not: $G_{ij}=\uns{A_{ij}+\max_kA_{ik}A_{jk}+\uns{i=j}>0}$.
+Let $\mathbf{N}_i=\left\{j:G_{ij}=1\right\}$ be the set of units whose outcomes are correlated with that of $i$, and $|\mathbf{N}_i|$ the cardinal of this set (*i.e.* the number of units whose outcomes are correlated with $i's$ outcome).
+Let $G^3$ be the third matrix power of $G$.
+
+```{hypothesis,DegreeDistribution,Name="Degree Distribution"}
+$\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}|\mathbf{N}_i|^3$ and $\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\sum_{j\neq i}(G^3)_{ij}$ are bounded in probability. 
+```
+
+Assumption \@ref(hyp:DegreeDistribution) imposes that the amount of links in the network is small enough so that the $G$ matrix is sparse.
+Assumption \@ref(hyp:DegreeDistribution) implies that the average degree is bounded asymptotically, so that average degree is sunstantially smaller than sample size.
+There is no direct way to test for this, but one convenient approach is to compute the density of $G$ (its proportion of linked pairs), $\frac{1}{\left(\begin{array}\tilde{n}\\2\end{array}\right)}\sum_{i\leq j}G_{ij}=\frac{2\sum_{i=1}^{\tilde{n}}\gamma_i}{\tilde{n}-1}$.
+In sparse enough networks, the density is around 10\%.
+The second part of Assumption \@ref(hyp:DegreeDistribution) requires that higher order moments of the degree distribution are bounded, which controls the tails of the distribution of degrees.
+One way to test for this condition is to compute the tail index of the distribution of degrees, and to find that they decrease exponentially fast, as for example in [Ibragimov et al. (2015)](https://link.springer.com/10.1007/978-3-319-16877-7).
+
+```{remark}
+We can allow for connections of order higher than two in Assumption \@ref(hyp:IndepShocks), as long as there exists some finite $K$ beyind which correlations between the outcomes of units $i$ and $j$ are zero.
+We can also allow for connections across time or across clusters or across overlapping clusters
+```
+
+Let us now state Michael's Theorem for the distribution of the nonparametric estimator of treatment effects:
+
+```{theorem,EstimLeungNP,name="CLT for nonparametric estimator of diffusion effects"}
+Under Assumptions \@ref(hyp:Exo), \@ref(hyp:Support), \@ref(hyp:IndepShocks) and \@ref(hyp:DegreeDistribution) (and some regularity conditions summrized in Assumptions 5 and 6 in [Leung (2019)](https://doi.org/10.1162/rest_a_00818)), $\forall d,d'\in\left\{0,1\right\}$, $\gamma\in\Gamma$ and integers $t,t'\leq\gamma$, there exists $\sigma^2_{TS}$ such that:
+
+\begin{align*}
+  \sqrt{\tilde{n}}\left(\left(\hat{\mu}(d,t,\gamma)-\hat{\mu}(d',t',\gamma)\right)-\left(\mu(d,t,\gamma)-\mu(d',t',\gamma)\right)\right)\distr\mathcal{N}(0,\sigma^2_{TS}).
+\end{align*}
+```
+
+```{proof}
+See proof of Theorem 2 in [Leung (2019)](https://doi.org/10.1162/rest_a_00818).
+```
+
+Let us now state Michael's Theorem for the parametric estimator of diffusion effects.
+We first need the following assumption, with $X$ the $\tilde{n}\times 3$ matrix of regressors in Equation \@ref(eq:linearnetworkmodel), $\Theta$ the corresponding $3\times 1$ matrix of coefficients, and $\rho_{ij}(X,G)=\esp{\epsilon_i,\epsilon_j|X_i,X_j,G_{ij}=1}$:
+
+```{hypothesis,Covariance,Name="Finite Covariance Matrices"}
+We assume that there exists positive definite matrices $V$ and $S$ such that $\esp{\frac{1}{\tilde{n}}X'X|\tilde{A}}\probconv V$ and $\frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\sum_{j\in\mathbf{N}_i}\esp{\rho_{ij}(X,G)X_iX_j'|\tilde{A}}\probconv S$ and that $\esp{\epsilon_i|X_i,\tilde{A}}=0$.
+```
+
+```{theorem,EstimLeungP,name="CLT for parametric estimator of diffusion effects"}
+Under Assumptions \@ref(hyp:Exo), \@ref(hyp:Support), \@ref(hyp:IndepShocks), \@ref(hyp:DegreeDistribution), and \@ref(hyp:Covariance):
+
+\begin{align*}
+  \sqrt{\tilde{n}}\left(\hat{\Theta}-\Theta\right)\distr\mathcal{N}(0,V^{-1}SV^{-1}).
+\end{align*}
+```
+
+```{proof}
+See proof of Theorem SA.2.2 in [Leung (2019)](https://doi.org/10.1162/rest_a_00818).
+```
+
+### Estimation of sampling noise
+
+For estimating sampling noise, Michael proposes two estimators: one for the sampling noise of the nonparametric estimator and one for the sampling noise of the pâraetric estimator.
+For the nonparametric estimator, Michael proposes the following approach:
+
+\begin{align*}
+  \hat{\sigma}^2_{TS} & = \frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\sum_{j=1}^{\tilde{n}}G_{ij}((Y_ia_i-b_i)(Y_ja_j-b_j))\\
+  a_i & = \frac{\unsi{i}{d,t,\gamma}}{\hat{\rho}(d,t,\gamma)}-\frac{\unsi{i}{d',t',\gamma}}{\hat{\rho}(d',t',\gamma)}\\
+  b_i & = \hat{\mu}(d,t,\gamma)\frac{\unsi{i}{d,t,\gamma}}{\hat{\rho}(d,t,\gamma)}-\hat{\mu}(d',t',\gamma)\frac{\unsi{i}{d',t',\gamma}}{\hat{\rho}(d',t',\gamma)}\\
+  \hat{\rho}(d,t,\gamma) & = \frac{1}{\tilde{n}}\sum_{i=1}^{\tilde{n}}\unsi{i}{d,t,\gamma}.
+\end{align*}
+
+For the parametric estimator Michael proposes the following estimator for the covariance matrix of the parameters of Equation \@ref(eq:linearnetworkmodel) estimated by OLS:
+
+\begin{align*}
+  \hat{\mathbf{\Sigma}} & = (X'X)^{-1}\mathcal{M}'G\mathcal{M}(X'X)^{-1},
+\end{align*}
+
+with $\mathcal{M}=(X_1\hat{\epsilon}_1,\dots,X_{\tilde{n}}\hat{\epsilon}_{\tilde{n}})'$, and $\hat{\epsilon}$ the vector of regression residuals.
+
+We can now state two propositions showing that the estimators of sampling noise proposed by Michael are consistent:
+
+```{proposition,ConsistentNoiseNP,name="Consistyency of nonparametric estimator of sampling noise"}
+Under the Assumptions of Theorem \@ref(thm:EstimLeungNP), $\hat{\sigma}^2_{TS}\probconv\sigma^2_{TS}$.
+```
+
+```{proof}
+See proof of Proposition 2 in [Leung (2019)](https://doi.org/10.1162/rest_a_00818).
+```
+
+```{proposition,ConsistentNoiseP,name="Consistyency of nonparametric estimator of sampling noise"}
+Under Assumptions \@ref(hyp:Exo), \@ref(hyp:Support), \@ref(hyp:IndepShocks), \@ref(hyp:DegreeDistribution), \@ref(hyp:Covariance), and regularity conditions made clear in Proposition SA.2.4 in [Leung (2019)](https://doi.org/10.1162/rest_a_00818), $\hat{\mathbf{\Sigma}}\probconv V^{-1}SV^{-1}$.
+```
+
+```{proof}
+See proof of Proposition SA.2.4 in [Leung (2019)](https://doi.org/10.1162/rest_a_00818).
+```
+
+```{remark}
+One assumption that is hard to swallow here is that effects die after $K$ connections and correlations after $K+1$ connections.
+To relax these assumptions you can to conduct inference at the cluster level, such as in [Banerjee et al. (2013)](https://science.sciencemag.org/content/341/6144/1236498), [Guiteras et al. (2015)](https://www.science.org/doi/10.1126/science.aaa0491) and [Beaman et al. (2021)](https://www.aeaweb.org/articles?id=10.1257/aer.20200295) for example.
+Another approach is to use the bootstrap, with justifications in [Davezies et al. (2021)](https://projecteuclid.org/journals/annals-of-statistics/volume-49/issue-2/Empirical-process-results-for-exchangeable-arrays/10.1214/20-AOS1981.full) and 
+[Nowakowicz (2024)](https://kamilanowakowicz.com/network_bootstrap.pdf).
+```
+
+### Nonparametric tests for the existence of diffusion effects based on randomization inference
+
+One final question that we might have about diffusion effects with detailed network information is whether we can adapt nonparametric tests such as Randomization Inference to test for the existence and shape of diffusion effects.
+One especially interesting thing to test would be the existence of diffusion effects up to $K$ levels of separation within the network, as assumption used to identify diffusion effects in the sections just above.
+[Athey, Eckles, and Imbens (2018)](https://doi.org/10.1080/01621459.2016.1241178) have developed an approach to do just that, that we are going to detail here.
+
+#### Overview of [Athey, Eckles, and Imbens (2018)](https://doi.org/10.1080/01621459.2016.1241178)'s approach
+
+A key concept to understand what [Athey, Eckles, and Imbens (2018)](https://doi.org/10.1080/01621459.2016.1241178) are doing is that of **sharpness**.
+An assumption is **sharp** if it enables the researcher to infer the outcomes of each observation under counterfactual treatment vectors.
+For example, the assumption of no-effect is sharp because it imposes that all the observed outcomes are the ones with and without the treatment at the same time, and thus we can reallocate the treatment and infer the outcomes for each reallocation (they do not change).
+
+The problem that [Athey, Eckles, and Imbens (2018)](https://doi.org/10.1080/01621459.2016.1241178) try to solve is that of testing assumptions that are non sharp in the original experiment.
+The assumption of no spillover effects for example is not sharp in the original experiment since it allows for the treatment to have a direct unknown effect on each unit.
+When drawing a new treatment allocation, we do not know what the outcome of those who have changed treatment status should be.
+
+[Athey, Eckles, and Imbens (2018)](https://doi.org/10.1080/01621459.2016.1241178)'s approach for randomization inference tries to avoid having to assume the absence of treatment effects everywhere in order to test higher for order level assumptions.
+For that, AEI uses a set of focal units for which treatment status is going to remain fixed over repetitions.
+Then, we select a set of non focal units (who they are depends on the actual assumption to test).
+We select a test statistic measuring the strength of evidence against $H0$.
+We allocate the treatment at random among the non-focal units multiple times.
+We derive the distribution of the test statistic under $H0$.
+Compute the actual test statistic in the real sample and derive its p-value using the empirically-derived distribution.
+
+#### Some definitions
+
+**Level sets**
+
+#### Testing for the existence of any effect of the treatment 
+
+The null hypothesis in this case is that all the effects of the treatment are zero: $Y_{i}(\mathbf{D})=Y_{i}(\mathbf{D}')$, $\forall i, \forall \mathbf{D},\mathbf{D}'\in\mathbf{\Omega}$.
+
+To test for this assumption, we randomly allocate all hydrographic zones to placebo vulnerable zones, which gives us a randomized treatment vector $\tilde{D}_{i}$.
+To test for the existence of a treatment effect, we use as test statistics $\hat{\beta}_{OLS}$ and $\hat{\delta}_{DID}$, estimated using the following regressions:
+
+
 
 ## Diffusion effects with DID
 
